@@ -1,0 +1,952 @@
+<HTML>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0  Transitional//EN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii"> 
+<title>Towards a Standard Parser Generator</title>
+</head>
+
+<body>
+<h1 align=center>Towards a Standard Parser Generator</h1>
+<p>
+<h6 align=center>Martin v. L&ouml;wis<br>
+Humboldt-Universit&auml;t zu Berlin<br>
+Institut f&uuml;r Informatik<br>
+<a href="mailto:loewis@informatik.hu-berlin.de">
+loewis@informatik.hu-berlin.de</a></h6>
+
+<h3>Abstract</h3> 
+
+Developing parsers for "little" languages is a common task for many
+software developers. People have frequently requested inclusion of a
+specific parser generator framework into the Python library.  In this
+paper, we compare several Python parser generators, using the XPath
+language as an application. Criteria for comparison are ease of use,
+performance, and ease of deployment. Using these criteria, we give a
+recommendation for including parser generators into the standard
+library..
+</p>
+<p>
+<b>Keywords</b>: Parsers, XPath, YAPPS, Spark, BisonGen
+</p>
+<h3>Introduction</h3>
+<p>
+While little languages have been discussed in the Python community for
+quite some time [Ayc98], little progress has been made with including a
+parser generator in the standard library. This may be partially due to
+the fact that so far contributions have been made only by authors of
+the parser toolkits, but not by the users.
+</p>
+<p>
+This paper is a report on using Python parser generators in an
+application project, namely in an XPath parser for
+PyXML. <dfn>XPath</dfn> [W3C99] is a query language for XML. An XPath
+expression can describe a subset of the nodes in an XML document. An
+XPath implementation then allows evaluating a given expression for a
+given document.
+</p>
+<p>
+Even though the major part of developing an XPath implementation is in
+the logic for evaluating XPath expressions, parsing them turns out to
+be a challenge on its own. In the <code>4Suite</code> [Fou01] package,
+the XPath parser is built using the BisonGen [Fou00]
+generator. Incorporating this implementation into PyXML proved to be
+quite challenging. A detailed description of BisonGen is given later;
+however, the following obstacles should serve as a motivation for
+developing yet another XPath parser:
+</p>
+<ul>
+<li>
+  Building 4XPath requires a number of prerequisite packages, namely
+  <code>BisonGen</code>, <code>PyXML</code>, <code>bison</code>,
+  <code>flex</code>, <code>SWIG</code>, and a C compiler. The PyXML
+  prerequisite in particular causes a cyclic dependency, which could
+  be resolved by including the generated C files with the
+  distribution.
+</li>
+<li>
+  Due to usage of flex, 4XPath is not capable of fully supporting
+  Unicode in XPath expressions. There are patches circulating for
+  flex 2.5.4 to allow scanning <code>wchar_t</code> strings; it is not 
+  clear whether these patches would allow to implement full Unicode
+  support for an XPath scanner.
+</li>
+<li>
+  Due to usage of callbacks into Python from bison code, the parser
+  was not thread safe.
+</li>
+</ul>
+<p>
+It should be noted that some of these problems have been resolved with
+the 0.11.1 release of 4Suite.
+</p><p>
+When analysing parser generators, the following absolute requirements
+where defined:
+<ol>
+<li value='1'>
+   The generated parsers should allow semantic actions in Python. This
+   requirement is obvious, since it would not be a Python parser
+  generator otherwise. It was no requirement that the generator
+   itself is a Python program.
+<li value='2'>
+   The generated parsers need to support parsing of Unicode
+   strings. Although this requirement is specific to XPath, Unicode
+   support is desirable whenever the input may come in different
+   encodings.
+</ol>
+<p>
+In addition, the following non-critical criteria are used for ranking
+the parsers:
+<ol>
+<li value='3'>
+   Since the XSL Transformations [W3C99a] are a primary application for
+   XPath expressions, and since many short expressions occur in a
+   typical XSLT style sheet, it is desirable that the parser is
+   efficient. It does not need to be super fast, though, since parsing
+   of the style sheet is only a small portion of the complete
+   transformation process.
+<li value='4'>
+  Ideally, no external C modules are required for the parser, to
+   simplify installation of a generated parser. If C modules are
+   required, then parsers whose C modules are independent from the
+   input language rank better than parsers which generate C code
+   dependent on the input language. If a parser generator uses a
+  generic C module, than this module might get included in the Python
+  core one day, and thus be available for all generated parsers.
+<li value='5'>
+   A parser generator for Python should be easy to use. This means
+   that the it should be easy to enter the grammar, but it also
+   means that it should be easy to debug the resulting parser.
+   Furthermore, documentation should allow newcomers to get familiar
+   with the generator quickly.
+</ol>
+<p>
+In the remainder of this document, I'll assume that the reader is
+familiar with the principles of compiler construction. As introductory
+material, the Dragon Book [ASU86] always serves as a
+reference. Familiarity with XPath is not assumed, as this language
+only serves as an example.
+</p>
+<h3>Lexical Analysis</h3>
+<p>
+Most scanner generators use regular expressions to describe
+tokenization. Even though all the parser generators described in this
+paper do support tokenization by means of regular expressions, it
+quickly turned out that this tokenization process was not useful for
+XPath. In the XPath specification, special tokenization rules are
+given as plain English text:
+</p>
+<blockquote cite='http://www.w3.org/TR/1999/REC-xpath-19991116#exprlex'>
+<p>
+  If there is a preceding token and the preceding token is not one of
+  <code>@</code>, <code>::</code>, <code>(</code>, <code>[</code>,
+  <code>,</code> or an Operator, then a <code>*</code> must be
+  recognized as a MultiplyOperator and an NCName must be recognized as
+  an OperatorName.
+</p>
+<p>
+  ...
+</p>
+<p>
+  If the character following an NCName (possibly after intervening
+  ExprWhitespace) is <code>(</code>, then the token must be recognized
+  as a NodeType or a FunctionName.
+</p>
+</blockquote>
+<p>
+These disambiguation rules specify that in <code>*/para</code>, the
+asterisk has its wildcard meaning, whereas in <code>3 * 5</code>, it
+indicates multiplication. Likewise, in <code>para[last()]</code>,
+<em>last</em> is a function call, whereas in <code>last[1]</code> it
+is an element name. The disambiguation rules are necessary for XPath
+to avoid the definition of keywords, since all identifiers
+(<code>NCName</code>s) should be allowed as XML element and attribute
+names.
+</p>
+<p>
+Since the XPath disambiguation operates on lexical context, it does
+not easily fit into scanner generators. The <code>lex</code> scanner
+states may allow an implementation of the disambiguation rules,
+however, we found that they are easy enough to implement using program
+logic.  Thus, we implemented a custom scanner for XPath, using the
+<code>re</code> module for regular expressions.
+</p><p>
+A scanner based on regular expressions is usually implemented as an
+alternative of all token definitions. For XPath, a fragment of this
+expressions looks like this:
+<blockquote>
+<pre>
+
+
+  (?P&lt;Number>\\d+(\\.\\d*)?|\\.\\d+)|
+
+
+  (?P&lt;VariableReference>\\$""" + QName + """)|
+
+
+  (?P&lt;NCName>"""+NCName+""")|
+
+
+  (?P&lt;QName>"""+QName+""")|
+
+
+  (?P&lt;LPAREN>\\()|
+
+
+  (?P&lt;RPAREN>\\))|
+
+
+  (?P&lt;STAR>\\*)|
+
+
+  ...
+
+
+  (?P&lt;ExprWhiteSpace>[ \t\n\r]+)
+
+
+</pre>
+
+
+</blockquote>
+<p>
+Here, each alternative in the regular expression defines a named
+group. Scanning proceeds in the following steps:
+<ol>
+<li>
+   Given the complete input, match the regular expression with the
+   beginning of the input. 
+<li>
+   Find out which alternative matched.
+<li>
+   If the token is white space, ignore it. Otherwise, append it to the
+   token list.
+<li>
+   Continue with step 1, this time starting at the end of the previous
+  token, until all input is consumed.
+<li>
+   Given the complete token list, perform the disambiguation,
+   modifying the recognized tokens as specified.
+<li>
+   Pass the token list to the parser.
+</ol>
+<p>
+It should be noted that this scanning process requires the complete
+input. For XPath, this causes no problems, since the input is
+typically small, and completely provided in the Python source code of
+the application, or in the XSLT style sheet.
+</p><p>
+When experimenting with various parsers, adjusting the grammar
+definition to each parser and fitting in the semantic actions was
+somewhat time-consuming. Thus, a single hand-written scanner would
+simplify adjustment to various parser generators. On the other hand,
+it introduced another requirement on parsers being evaluated: They
+need to interoperate with a hand-written scanner.
+</p><h3>Semantic Actions</h3>
+<p>
+Since the ultimate objective of this project was to incorporate 4XPath
+into PyXML, the existing XPath evaluation library of 4XPath had to be
+re-used, if possible as-is. That turned out to be quite feasible: The
+4XPath BisonGen parser would create class instances in its semantic
+actions, which represent an abstract syntax of the expression. 
+</p>
+<p>
+For the parser generators studied, it was not difficult to generate
+the same abstract syntax, in particular since the concrete syntax of
+all parsers was similar (it could not be identical for all parsers for
+reasons shown below).
+</p>
+<p>
+These days, parser generators often provide their own framework for
+abstract syntaxes and parse trees. We find such frameworks to be rather
+the source of problems than a solution. It may be easier to generate
+the abstract syntax using the parser framework (in particular if the
+parser does not support custom actions), but it is more difficult to
+process the resulting syntax tree. In the specific application, we
+would need to apply a transformation from the parser-generated tree to
+the instances of the classes already defined in 4XPath.
+</p>
+<h3>kwParsing</h3>
+<p>
+As first parser generator, we looked at kwParsing, by Aaron Watters
+[Cho98]. It became quickly apparent that this toolkit currently does
+not support Unicode strings, due to its reliance on the regex
+module. We have not studied it further, although either a port to re,
+or an integration of a custom tokenizer may have been feasible.
+</p>
+<h3>YAPPS</h3>
+<p>
+Following the links on the String SIG page [Kuc00], we found "Yet
+Another Python Parser System", YAPPS, by Amit Patel. Even though the
+parser only supports LL(1) languages due to its recursive-descent
+strategy, it turned out that the XPath grammar could easily be rewritten
+to be acceptable using standard techniques. For example, the rule 18
+of the XPath specification reads
+</p>
+<blockquote>
+
+
+<pre>
+
+
+UnionExpr ::=   PathExpr
+
+
+                | UnionExpr '|' PathExpr
+
+
+</pre>
+
+
+</blockquote>
+<p>
+in its original form. In YAPPS, the left recursion can be replaced as
+<blockquote>
+
+
+<pre>
+
+
+    rule UnionExpr:
+
+
+        PathExpr UnionExprs
+
+
+    rule UnionExprs:
+
+
+          # empty
+
+
+        | BAR PathExpr UnionExprs
+
+
+</pre>
+
+
+</blockquote>
+<p>
+YAPPS operates as a parser generator. The grammar specification is
+given to a command line tool (which is also written using YAPPS), and
+a Python file is produced. The generated parser makes use of a library
+file; the library and the generated parser module together are all
+that is needed for anybody using the parser
+</p><p>
+YAPPS is implemented using recursive descent. This makes it possible
+to understand the generated code easily. For example, the UnionExpr
+rule translates into a function definition
+<blockquote>
+
+
+<pre>
+
+
+    def UnionExpr(self):
+
+
+        PathExpr = self.PathExpr()
+
+
+        UnionExprs = self.UnionExprs(PathExpr)
+
+
+        return UnionExprs
+
+
+</pre>
+
+
+</blockquote>
+<p>
+It may not be obvious how the return statement comes about; this was
+generated from semantic actions. The full definition of the rule in
+the XPath parser reads
+</p>
+<blockquote>
+
+
+<pre>
+
+
+    rule UnionExpr:
+
+
+        PathExpr UnionExprs&lt;&lt;PathExpr>>   
+
+
+           {{return UnionExprs}}
+
+
+    rule UnionExprs&lt;&lt;v>>:
+
+
+           {{return v}}
+
+
+        | BAR PathExpr UnionExprs&lt;&lt;self.nop(self.UNION,v,PathExpr)>>    
+
+
+           {{return UnionExprs}}
+
+
+</pre>
+
+
+</blockquote>
+<p>
+Each rule can accept arbitrary parameters, which are declared in the
+rule definition, and passed as parameters using the '&lt;&lt;...>>'
+braces. Likewise, semantic actions are inserted through '{{...}}'
+braces.
+</p>
+<p>
+YAPPS will generate a class that contains a method for each rule.
+This allows to create a new parser state for each parse process.  It
+also gives easy access to additional functions: In the XPath parser, I
+have defined a subclass of the generated parser class:
+</p>
+<blockquote>
+
+
+<pre>
+
+
+class MyXPath(XPath):
+
+
+    ...
+
+
+    UNION = pyxpath.UNION_OPERATOR
+
+
+    ...
+
+
+    def nop(self, operator, left, right):
+
+
+        return self.factory.createNumericOperator(operator, left, right)
+
+
+</pre>
+
+
+</blockquote>
+<p>
+This class can go into the grammar definition file. Like YACC, YAPPS
+supports custom code before and after the grammar definition.
+</p>
+<p>
+YAPPS parsers integrate with the scanner through a Scanner object,
+which is passed to the parser as a constructor argument. Even though
+YAPPS supports definition of tokens in the grammar, we have not used
+this capability in XPath, since we have provided my own scanner class.
+The YAPPS parser will only require a <code>token()</code> method from
+the scanner object, which must return a four-tuple <var>(start, end,
+token type, token value)</var>.
+</p>
+<p>
+In case of a syntax error, the generated parser will raise a
+<code>yappsrt.SyntaxError</code> exception. This exception will take
+the current position and an error message.
+</p>
+<p>
+Entering the XPath grammar into the parser was straight-forward, as
+shown above. Debugging the parser turned out to be easy as well,
+since it was possible to trace the generated Python code in a debugger,
+or enrich it with debugging statements. The YAPPS distribution comes
+with manual and a number of example grammars.
+</p>
+<h3>SPARK</h3>
+<p>
+The SPARK parser was first presented in John Aycock's paper on little
+languages [Ayc98]. It is a pure-Python framework, which does not
+require a parser generator. Instead, the grammar is defined by means
+of <code>__doc__</code> strings, which are collected using
+introspection in the SPARK library module.
+</p><p>
+In SPARK, the UnionExpr production is formulated as follows:
+<pre>
+
+
+    def p_UnionExpr(self,args):
+
+
+        """
+
+
+        UnionExpr ::= PathExpr
+
+
+        UnionExpr ::= UnionExpr | PathExpr
+
+
+        """
+
+
+        return args
+
+
+</pre>
+<p>
+Since the method name starts with a <code>p_</code> prefix, it is
+treated as a production method. SPARK will analyse its doc string, and
+associate the production with the method. Every time one of the given
+production rules matches, it invokes this method.
+</p>
+<p>
+The semantic action in this code is trivial. It would be easy to
+define a meaningful action: <var>args</var> is the list of all right-hand side
+non-terminals. For this rule, it is thus either one or two elements
+long.
+</p>
+<p>
+Integration with a custom tokenizer is also straight-forward. All
+tokens are specified as <code>t_</code> methods in the
+<code>GenericScanner</code> subclass. The <code>tokenize()</code>
+method of this subclass then needs to take care of the XPath
+disambiguation.
+</p>
+<p>
+On error, SPARK will invoke an <code>error()</code> method on the
+parser, which, by default will exit Python.
+</p>
+<p>
+Since SPARK uses the Earley algorithm, it can parse almost any grammar
+as-is; this makes entering the grammar straight forward. Unfortunately,
+this parsing method (and the fact that the parser is generated dynamically)
+makes it difficult to debug the parser. Since the parsers silently support
+ambiguous grammars, it might be difficult to find the cause of a syntax
+error. The documentation primarily consists of the IPC7 paper, and a few
+examples.
+</p>
+<h3>BisonGen</h3>
+<p>
+Fourthought Inc has developed the BisonGen framework to implement
+parsers for their 4Suite package [Fou01]. The parser is defined using
+an XML syntax. Until recently, the build process of a BisonGen parser
+was as follows:</p>
+<ol>
+<li>
+  BisonGen parses the XML file using PyXML.
+<li>
+   It generates a number of files, including
+   <ul>
+   <li>a flex input file for lexical analysis,
+   <li>a bison input file, containing the LALR(1) grammar,
+   <li>a SWIG input file, containing a Python extension module,
+   <li>a Makefile, controlling the build process of all compiled files, and
+   <li>a number of Python wrapper files to expose the parser to Python.
+   </ul>
+<li>
+   flex, bison, and SWIG are invoked to generate C code,
+<li>
+   The C code is compiled to form an extension module.
+</ol>
+<p>
+Recently, this build procedure was completely restructured. Today,
+BisonGen implements the LALR(1) algorithm itself, not relying on bison
+anymore. Therefore, the build procedure is simplified to:
+</p>
+<ol>
+<li>
+   BisonGen parses the XML specification of the grammar.
+<li>
+   It generates a C file, containing a C-implemented parser,
+   and a Python module that implements the same parsing algorithm
+   in pure Python.
+<li>
+   If desired, the C code is compiled for improved performance.
+</ol>
+<p>
+To give an impression of how BisonGen code looks, the UnionExpr
+production is again presented, as it appears in the 0.11 release of
+4Suite.
+</p>
+<blockquote>
+
+
+<pre>
+
+
+&lt;RULE_SET NAME="18">
+
+
+  &lt;NON_TERMINAL>unionExpr&lt;/NON_TERMINAL>
+
+
+  &lt;RULE>
+
+
+    &lt;SYMBOL TYPE="s">pathExpr&lt;/SYMBOL>
+
+
+    &lt;CODE>
+
+
+    &lt;/CODE>
+
+
+  &lt;/RULE>
+
+
+  &lt;RULE>
+
+
+    &lt;SYMBOL TYPE="s">unionExpr&lt;/SYMBOL>
+
+
+    &lt;SYMBOL TYPE="s">'|'&lt;/SYMBOL>
+
+
+    &lt;SYMBOL TYPE="s">pathExpr&lt;/SYMBOL>
+
+
+    &lt;CODE>
+
+
+      &lt;VARIABLE TYPE="PyObject*" NAME="right">&lt;/VARIABLE>
+
+
+      &lt;VARIABLE TYPE="PyObject*" NAME="left">&lt;/VARIABLE>
+
+
+      &lt;VARIABLE TYPE="PyObject*" NAME="expr">&lt;/VARIABLE>
+
+
+      &lt;CODE_SNIPPET>
+
+
+        right = stack_pop();
+
+
+        left = stack_pop();
+
+
+        expr = PyObject_CallMethod(ParsedExpr, "ParsedUnionExpr", "OO", left, right);
+
+
+        decref(right);
+
+
+        decref(left);
+
+
+        stack_push(expr);
+
+
+      &lt;/CODE_SNIPPET>
+
+
+    &lt;/CODE>
+
+
+  &lt;/RULE>
+
+
+&lt;/RULE_SET>
+
+
+</pre>
+
+
+</blockquote>
+<p>
+Since the document type for BisonGen varies between releases, we will
+not explain all tags used here in detail. In this fragment, two rules
+are defined, which are both alternatives of the <code>unionExpr</code>
+non-terminal. The right-hand-side of each rule consists of a sequence
+of symbols; it is just <code>pathExpr</code> for the first rule, and
+<code>unionExpr '|' pathExpr</code> for the second.
+</p>
+<p>
+In the second rule, a specific semantic action is defined, which is a
+call to <code>ParsedExpr.ParsedUnionExpr</code>, which in turn is a
+class of the abstract syntax. BisonGen will declare three variables in
+the Bison file, and insert the specified code snippet into the
+semantic action.
+</p>
+<p>
+Even though the build process of BisonGen applications has been
+dramatically simplified recently, the grammar specifications still
+look quite verbose.
+</p>
+<p>
+Integration with the lexical analysis follows the usual YACC
+convention: an <code>yylex</code> function is invoked to return the
+next token. Token numbers identify tokens. In addition, the
+<var>yylval</var> variable carries the semantic value.
+</p>
+<p>
+Older versions of BisonGen generate flex files from token definitions
+given XML; the recent versions generate <code>re</code>-style regular
+expressions from similar XML specifications.
+</p><p>
+Error handling also follows the YACC tradition: an <code>yyerror</code>
+function is invoked. Since unwinding out of a bison parser run is not
+easy, this function normally only sets a global variable, which is
+then checked when the parser returns.
+</p>
+<p>
+The BisonGen distribution comes with a short overview of the grammar
+input language, and a few examples as part of the test suite.
+</p>
+<h3>Performance Comparison</h3>
+<p>
+In this test, the three parsers where compared for parsing speed. The
+test ran 32 example expressions from the XPath
+specification, parsing each one 100 times. Tests where executed
+using Python 2.1 on a 600 MHz UltraSparc machine. The list of tests 
+being executed, and the grammars that have been used for the parser
+generators are part of the PyXPath distribution, in [vLo00]. For
+convenience, the test cases are reproduced below.
+</p>
+<blockquote><pre>
+
+
+exprs = [
+
+
+    "child::para",
+
+
+    "child::*",
+
+
+    "child::text()",
+
+
+    "child::node()",
+
+
+    "attribute::name",
+
+
+    "attribute::*",
+
+
+    "descendant::para",
+
+
+    "ancestor::div",
+
+
+    "ancestor-or-self::div",
+
+
+    "descendant-or-self::para",
+
+
+    "self::para",
+
+
+    "child::chapter/descendant::para",
+
+
+    "child::*/child::para",
+
+
+    "/",
+
+
+    "/descendant::para",
+
+
+    "/descendant::olist/child::item",
+
+
+    "child::para[position()=1]",
+
+
+    "child::para[position()=last()]",
+
+
+    "child::para[position()=last()-1]",
+
+
+    "child::para[position()>1]",
+
+
+    "following-sibling::chapter[position()=1]",
+
+
+    "preceding-sibling::chapter[position()=1]",
+
+
+    "/descendant::figure[position()=42]",
+
+
+    "/child::doc/child::chapter[position()=5]/child::section[position()=2]",
+
+
+    'child::para[attribute::type="warning"]',
+
+
+    "child::para[attribute::type='warning'][position()=5]",
+
+
+    'child::para[position()=5][attribute::type="warning"]',
+
+
+    "child::chapter[child::title='Introduction']",
+
+
+    "child::chapter[child::title]",
+
+
+    "child::*[self::chapter or self::appendix]",
+
+
+    "child::*[self::chapter or self::appendix][position()=last()]",
+
+
+    "//element[descendant::y[.='z']][1]"
+
+
+   ]
+
+
+</pre></blockquote>
+<p>
+The Spark parser differed from the other two parsers in that it did
+not perform semantic actions. To allow an estimation of the overhead
+spend in the semantic actions, the YAPPS parser was run a second time
+with all semantic actions removed. For the tests, Spark version 0.6.1 
+was used.
+</p>
+<p>
+The BisonGen test case was taken from 4Suite 0.11,
+which only supports operation in C mode (i.e. without a pure-Python
+mode).
+</p>
+<p>
+In addition, the YAPPS parser was run a third time, where
+<code>re.py</code> was modified to use <code>pre</code> as the regular
+expression engine, to get an estimate of the relative performance of
+<code>sre</code>.
+</p>
+<p>
+<table>
+<caption><em>Parser Performance Measurement</em></caption>
+<tr><th>Test Case</th><th>Time (s)</th></tr>
+<tr><td>BisonGen (C)</td><td>2.1</td></tr>
+<tr><td>YAPPS (sre, no semantic actions)</td><td>9.5</td></tr>
+<tr><td>YAPPS (sre)</td><td>11</td></tr>
+<tr><td>YAPPS (pre)</td><td>17</td></tr>
+<tr><td>SPARK</td><td>84</td></tr>
+</table>
+
+From these measurements, we draw the following conclusions:
+<ul>
+<li>Performance of a Bison-based parser is about five times as fast as
+a pure-Python YAPPS parser. From inspecting the generated code, it
+appears that additional speed improvements are possible, although that
+would probably result in a loss of code readability.
+<li>The SRE engine of Python 2 is notably faster than the older PRE
+engine. It should be noted that the neither the regular expression nor
+the input string where Unicode objects in the test case, since the
+BisonGen does not support Unicode in the tested release.
+<li>SPARK is again an order of magnitude slower than YAPPS. It is not
+clear what is causing this large difference. According to the SPARK
+author, this could be attributed to the general parsing algorithm
+used.
+</ul>
+<h3>Other Parsers</h3>
+<p>
+There are a number of other parser generators and parser embedding
+strategies available for Python. Some of those are not easily
+applicable to XPath parsing; for others, we could not find a simple
+porting strategy to avoid writing the grammar from scratch every time.
+</p>
+<h4>Embedding Bison</h4>
+<p>
+A number of authors have embedded Bison into Python, usually using
+hand-written parsers and interfacing code. The CORBA IDL compilers of
+both Fnorb [DSTC99] and OmniORBpy [ATT01] use this strategy. It is
+very similar to BisonGen in its properties.
+</p>
+<h4>PyLR</h4>
+<p>
+PyLR [Cot97] provides a single C module to speed-up LR
+parsing. According to the author, a number of enhancements have to be
+made before it can be considered complete. Unfortunately, it has been
+that way since 1997.  Even though it looks like PyLR would support a
+custom tokenizer and that PyLR was capable of dealing with the
+original XPath grammar, it is not clear how exactly to use that tool,
+given the scarce documentation.
+</p>
+<p>
+Furthermore, the author reports that the LR engine is quite slow;
+it is not clear whether PyLR helps in constructing an LALR(1) grammar.
+</p>
+<h4>Plex</h4>
+<p>
+Plex [Ewi01] only supports scanner generation. Due to the special
+lexical structure of XPath, and the lack of parser generation in Plex,
+no attempt was made to use this tool.</p>
+<h4>Trap</h4>
+<p>
+Trap [Ern99] supports the specification of intermediate
+representations (IR) as part of the grammar definitions, and
+subsequently generates parsers that parse into the specified IR,
+including support for unparsing. It currently uses kwParsing as its
+underlying engine, so no new insights were expected from using this
+package.
+</p>
+<h3>Availability</h3>
+<p>
+The YAPPS and SPARK XPath parsers used for this paper are available
+from http://www.informatik.hu-berlin.de/~loewis/xml. The BisonGen
+parser is distributed as part of 4Suite [Fou01].
+</p>
+<h3>Acknowledgements</h3>
+<p>
+I'd like to thank Andrew Kuchling for collecting Python parser
+information over a long time as part of the String SIG, and Jeremy
+Kloth and Uche Ogbuji for their comments on PyXPath.
+</p>
+<h3>Conclusion</h3>
+<p>
+Of all the parser generators tested, the YAPPS parser is the one that
+will be used in PyXML, perhaps side-by-side with the BisonGen parser
+provided by Fourthought.
+<p>
+Even though the LL(1) grammar specification has deficiencies, the
+entire parser generator is so small and easy to understand that it
+would make a valuable addition to the standard Python library. 
+<h3>Literature</h3>
+<p>
+[ASU86] A. V. Aho, R. Sethi, and J. D. Ullman. Compilers: Principles,
+        Techniques, and Tools. Addison-Wesley, 1986.
+<p>
+[ATT01] AT&amp;T. omniORBpy. <a href="http://www.uk.research.att.com/omniORB/omniORBpy/">http://www.uk.research.att.com/omniORB/omniORBpy/</a>
+<p>
+[Ayc98] John Aycock, Compiling Little Languages, IPC 7, Houston, 1998.
+<p>
+[Cho98] Chordate Systems. Gadfly 1.0: An SQL Database in Python. <a href="http://www.chordate.com/kwParsing/index.html">http://www.chordate.com/kwParsing/index.html</a>
+<p>
+[Cot97] S. Cotton. PyLR. <a href="http://starship.python.net/crew/scott/PyLR.html">http://starship.python.net/crew/scott/PyLR.html</a>
+<p>
+[DSTC99] DSTC. Fnorb. <a href="http://www.fnorb.com/">http://www.fnorb.com/</a>
+<p>
+[Ern99]  T. Ernst. TRAP. <a href="http://www.first.gmd.de/smile/trap/">http://www.first.gmd.de/smile/trap/</a>
+<p>
+[Ewi01] Greg Ewing. Plex. <a href="http://www.cosc.canterbury.ac.nz/~greg/python/Plex/">http://www.cosc.canterbury.ac.nz/~greg/python/Plex/</a>
+<p>
+[Fou00] Fourthough Inc. BisonGen. ftp://ftp.fourthought.com/pub/BisonGen/
+<p>
+[Fou01] Fourthought Inc. 4Suite. <a href="http://4suite.org/download.html">http://4suite.org/download.html</a>
+<p>
+[Kuc00] Andrew Kuchling. Python String-SIG Activities. http://www.amk.ca/python/string.html
+<p>
+[vLo00] Martin v. L&ouml;wis. PyXPath. <a href="http://www.informatik.hu-berlin.de/~loewis/xml/">http://www.informatik.hu-berlin.de/~loewis/xml/</a>
+<p>
+[W3C99] W3 Consortium. XML Path Language (XPath) Version 1.0.
+        <a href="http://www.w3.org/TR/xpath">http://www.w3.org/TR/xpath</a>, W3C, 1999.
+<p>
+[W3C99a] W3 Consortium. XSL Transformations (XSLT) Version 1.0.
+      <a href="http://www.w3.org/TR/xslt">http://www.w3.org/TR/xslt</a>, W3C, 1999.
+</body>
+
+</html>

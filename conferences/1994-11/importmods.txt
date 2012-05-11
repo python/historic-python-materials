@@ -1,0 +1,111 @@
+This shar file contains the following files:
+
+PATCHES		a set of patches to existing files
+import.c	a whole new version of Python/import.c
+importdl.c	a new file to be dropped in Python/
+importdl.h	another new file to be dropped in Python/
+libimp.tex	documentation
+
+Together this should build a version of Python that supports extending
+or overriding the implementation of the import statment.  This is the
+first step towards implementing a safe execution environment for
+untrusted code, as well as for experimentation with a scheme for
+implementing packages (groups of related modules).
+
+Attached is a description of the functionality of the patches.
+
+Patch notes:
+
+- These patches also correct two core dumps caused by the new getargs
+  implementation.
+- The command "patch -p1 <PATCHES" should work from within Python's
+  top directory.
+
+
+======================================================================
+I've more or less completed the hacks for import.  If you want to try
+them out, send me email.  Here's how it works:
+
+(1) There's a new built-in function, __import__, to be called
+with a module name as argument.  It's semantics, expressed in old
+Python, are as follows:
+
+	def __import__(name):
+		exec 'import ' + name
+		return eval(name)
+
+I.e. it imports the module and then returns the module object.
+
+(2) The interpreter's implementation of the import statement is
+changed.  Formerly, it called an internal routine import_module(name).
+Now it looks for __import__ in the built-in dictionary (not anywhere
+else -- should it?) and calls that.  If it can't find __import__,
+the import FAILS.  By placing an alternative implementation of
+__import__ in the __builtin__ module you can override the
+semantics of the import statement.  (If you are using
+'from...import...', __import__ had better return a real module
+object; for 'import...', anything that has interesting attributes
+would be OK.)
+
+(3) In order to make it easy to implement your own version of
+__import__, there's a new module, imp, which exposes most machinery
+used for importing modules, including the importation of built-in and
+frozen modules.  (Frozen modules are modules written in Python whose
+compiled byte-code object is incorporated into a custom-built Python
+interpreter by Python's "freeze" utility.  See Demo/freeze for now.)
+Latex docs for this (I can generate PostScript if you want to) are
+also available.
+
+Some more remarks:
+
+(a) I haven't done the mods yet to pass an alternative built-in
+dictionary to exec and eval.  There are a number of minor problems
+with this:
+
+	- For compatibility, the argument order would have to be
+		(globals, locals, builtins)
+	but that is unintuitive because the search order is
+		(locals, globals, builtins)
+
+	- It's a mess to implement it, there is at least half a dozen
+	routines in the exposed API that currently takes explicit
+	globals and locals dictionaries
+
+It's still possible to start writing an experimental Safe-Python
+implementation, because you can always modify the __builtin__ module
+directly.
+
+(b) The implementation of import, even in the fastest case, has become
+somewhat slower due to the cost of looking up __import__ and creating
+an argument list for it.  On an SGI Indigo2, I measured that the old
+import took about 25 microseconds (that's not much more than a C
+function call and a successful dictionary lookup) -- the new one takes
+about 100 microseconds.  The quickest user-defined implementation I
+can think of takes about 160 microseconds for this case -- not so bad.
+
+However this still means that a programming style that uses "local
+import statements" in very small functions may take some performance
+hit.  This is a programming style where you write
+
+	def pi():
+		import math
+		return math.pi
+
+rather than
+
+	import math
+	...
+	def pi():
+		return math.pi
+
+I've always used and recommended this to speed up start-up times,
+knowing that import is fast -- is the slow-down bad enough to warrant
+reversing this recommentation?  I think not, but would like other
+opinions.  For comparison, the first pi() function takes about 140
+microseconds to call, the second one about 165, in the old
+implementation.  In the new implementation of import, it's 140
+vs. 240.  I expect that slightly more complicated functions will take
+only a tiny pernalty hit.
+
+--Guido van Rossum, CWI, Amsterdam <mailto:Guido.van.Rossum@cwi.nl>
+<http://www.cwi.nl/cwi/people/Guido.van.Rossum.html>

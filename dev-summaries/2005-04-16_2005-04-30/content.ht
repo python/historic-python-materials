@@ -1,0 +1,750 @@
+Title: python-dev Summary for 2005-04-16 through 2005-04-30
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2005-04-16 through 2005-04-30
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-04-16_2005-04-30.html]
+
+
+
+======================
+Summary Announcements
+======================
+
+---------------
+Exploding heads
+---------------
+
+After a gentle introduction for our first summary, python-dev really let
+loose last fortnight; not only with the massive PEP 340 discussion, but
+also more spin-offs than a `popular`_ `TV`_ `series`_, and a few
+stand-alone threads.
+
+Nearly a week into May, and the PEP 340 talk shows no sign of abating;
+this is unfortunate, since Steve's head may explode if he has to write
+anything more about anonymous blocks.  Just as well there are three of us!
+
+This summary has ended up rather late (we're starting summarising May,
+already).  I have to admit that this is all my (Tony's) fault - we got
+a draft done nicely on time, and then a week of really good thesis
+writing distracted me and I neglected to send this out.  My apologies,
+and I promise to try harder in future!
+
+.. _popular: http://imdb.com/title/tt0060028/
+.. _TV: http://imdb.com/title/tt0098844/
+.. _series: http://imdb.com/title/tt0247082/
+
+[TAM]
+
+-------
+PEP 340
+-------
+
+A request for anonymous blocks by Shannon -jj Behrens launched a
+massive discussion about a variety of related ideas. This discussion
+is split into different sections for the sake of readability, but
+as the sections are extracted from basically the same discussion,
+it may be easiest to read them in the following order:
+
+1. `Localized Namespaces`_
+
+2. `The Control Flow Management Problem`_
+
+3. `Block Decorators`_
+
+4. `PEP 310 Updates Requested`_
+
+5. `Sharing Namespaces`_
+
+6. `PEP 340 Proposed`_
+
+[SJB]
+
+
+=========
+Summaries
+=========
+
+--------------------
+Localized Namespaces
+--------------------
+
+Initially, the "anonymous blocks" discussion focused on introducing
+statement-local namespaces as a replacement for lambda expressions.
+This would have allowed localizing function definitions to a single
+namespace, e.g.::
+
+    foo = property(get_foo) where:
+         def get_foo(self):
+             ...
+
+where get_foo is only accessible within the ``foo = ...`` assignment
+statement. However, this proposal seemed mainly to be motivated by a
+desire to avoid "namespace polution", an issue which Guido felt was not
+really that much of a problem.
+
+
+Contributing threads:
+
+- `anonymous blocks <http://mail.python.org/pipermail/python-dev/2005-April/052717.html>`__
+
+[SJB]
+
+
+-----------------------------------
+The Control Flow Management Problem
+-----------------------------------
+
+Guido suggested that if new syntax were to be introduced for "anonymous
+blocks", it should address the more important problem of being able to
+extract common patterns of control flow. A very typical example of such
+a problem, and thus one of the recurring examples in the thread, is
+that of a typical acquire/release pattern, e.g.::
+
+    lock.acquire()
+    try:
+       CODE
+    finally:
+       lock.release()
+
+Guido was hoping that syntactic sugar and an appropriate definition of
+locking() could allow such code to be written as::
+
+    locking(lock):
+       CODE
+
+where locking() would factor out the acquire(), try/finally and
+release().  For such code to work properly, ``CODE`` would have to
+execute in the enclosing namespace, so it could not easily be converted
+into a def-statement.
+
+Some of the suggested solutions to this problem:
+
+- `Block Decorators`_
+
+- `PEP 310 Updates Requested`_
+
+- `Sharing Namespaces`_
+
+- `PEP 340 Proposed`_
+
+
+Contributing threads:
+
+- `anonymous blocks <http://mail.python.org/pipermail/python-dev/2005-April/052717.html>`__
+
+[SJB]
+
+
+----------------
+Block Decorators
+----------------
+
+One of the first solutions to `The Control Flow Management Problem`_ was
+"block decorators".  Block decorators were functions that accepted a
+"block object" (also referred to in the thread as a "thunk"), defined a
+particular control flow, and inserted calls to the block object at the
+appropriate points in the control flow. Block objects would have been
+much like function objects, in that they encapsulated a sequence of
+statements, except that they would have had no local namespace; names
+would have been looked up in their enclosing function.
+
+Block decorators would have wrapped sequences of statements in much the
+same way as function decorators wrap functions today. "Block decorators"
+would have allowed locking() to be written as::
+
+    def locking(lock):
+        def block_deco(block):
+            lock.acquire()
+            try:
+                block()
+            finally:
+                lock.release()
+        return block_deco
+
+and invoked as::
+
+    @locking(lock):
+        CODE
+
+The implementation of block objects would have been somewhat
+complicated if a block object was a first class object and could be
+passed to other functions.  This would have required all variables used
+in a block object to be "cells" (which provide slower access than
+normal name lookup). Additionally, first class block objects, as a type
+of callable, would have confused the meaning of the return statement -
+should the return exit the block or the enclosing function?
+
+
+Contributing threads:
+
+- `anonymous blocks <http://mail.python.org/pipermail/python-dev/2005-April/052717.html>`__
+
+- `Anonymous blocks: Thunks or iterators? <http://mail.python.org/pipermail/python-dev/2005-April/053093.html>`__
+
+[SJB]
+
+-------------------------
+PEP 310 Updates Requested
+-------------------------
+
+Another suggested solution to `The Control Flow Management Problem`_
+was the resucitation of `PEP 310`_, which described a protocol for
+invoking the __enter__() and __exit__() methods of an object at the
+beginning and ending of a set of statements. This PEP was originally
+intended mainly to address the acquisition/release problem, an example
+of which is discussed in `The Control Flow Management Problem`_ as the
+locking() problem. Unmodified, `PEP 310`_ could handle the locking()
+problem defining locking() as::
+
+    class locking(object):
+        def __init__(self, lock):
+            self.lock = lock
+        def __enter__(self):
+            self.lock.acquire()
+        def __exit__(self):
+            self.lock.release()
+
+and invoking it as::
+
+    with locking(lock):
+        CODE
+
+In addition, an extended version of the `PEP 310`_ protocol which
+augmented the __enter__() and __exit__() methods with __except__() and
+__else__() methods provided a simple syntax for some of the
+transactional use cases as well.
+
+
+Contributing threads:
+
+- `PEP 310 and exceptions: <http://mail.python.org/pipermail/python-dev/2005-April/052857.html>`__
+
+- `__except__ use cases: <http://mail.python.org/pipermail/python-dev/2005-April/052868.html>`__
+
+- `Integrating PEP 310 with PEP 340 <http://mail.python.org/pipermail/python-dev/2005-April/053039.html>`__
+
+
+ .. _PEP 310: http://www.python.org/dev/peps/pep-0310
+
+
+[SJB]
+
+
+------------------
+Sharing Namespaces
+------------------
+
+Jim Jewett suggested that `The Control Flow Management Problem`_ could
+be solved in many cases by allowing arbitrary blocks of code to share
+namespaces with other blocks of code. As injecting such arbitrary code
+into a template has been traditionally done in other languages with
+compile-time macros, this thread briefly discussed some of the reasons
+for not wanting compile-time macros in Python, most importantly, that
+Python's compiler is "too dumb" to do much at compile time.
+
+The discussion then moved to runtime "macros", which would essentially
+inject code into functions at runtime. The goal here was that the
+injected code could share a namespace with the function into which it
+was injected. Jim Jewett proposed a strawman implementation that would
+mark includable chunks of code with a "chunk" keyword, and require
+these chunks to be included using an "include" keyword.
+
+The major problems with this approach were that names could "magically"
+appear in a function after including a chunk, and that functions that
+used an include statement would have dramatically slower name lookup
+as Python's lookup optimizations rely on static analysis.
+
+Contributing threads:
+
+- `defmacro (was: Anonymous blocks): <http://mail.python.org/pipermail/python-dev/2005-April/052854.html>`__
+
+- `anonymous blocks vs scope-collapse: <http://mail.python.org/pipermail/python-dev/2005-April/052973.html>`__
+
+- `scope-collapse: <http://mail.python.org/pipermail/python-dev/2005-April/053006.html>`__
+
+- `anonymous blocks as scope-collapse: detailed proposal <http://mail.python.org/pipermail/python-dev/2005-April/053104.html>`__
+
+[SJB]
+
+
+----------------
+PEP 340 Proposed
+----------------
+
+In the end, Guido decided that what he really wanted as a solution to
+`The Control Flow Management Problem`_ was the simplicity of something
+like generators that would let him write locking() as something like::
+
+    def locking(lock):
+        lock.acquire()
+        try:
+            yield
+        finally:
+            lock.release()
+
+and invoke it as something like::
+
+    block locking(lock):
+        CODE
+
+where the yield statement indicates the return of control flow to
+``CODE``. Unlike a generator in a normal for-loop, the generator in
+such a "block statement" would need to guarantee that the finally block
+was executed by the end of the block statement. For this reason, and
+the fact that many felt that overloading for-loops for such non-loops
+might be confusing, Guido suggested introducing "block statements" as
+a new separate type of statement.
+
+`PEP 340`_ explains the proposed implementation.  Essentially, a
+block-statement takes a block-iterator object, and calls its
+__next__() method in a while loop until it is exhausted, in much
+the same way that a for-statement works now. However, for generators
+and well-behaved block-iterators, the block-statement guarantees that
+the block-iterator is exhausted, by calling the block-iterator's
+__exit__() method. Block-iterator objects can also have values passed
+into them using a new extended continue statement. Several people were
+especially excited about this prospect as it seemed very useful for a
+variety of event-driven programming techniques.
+
+A few issues still remained unresolved at the time this summary was
+written:
+
+Should the block-iterator protocol be distinct from the current
+iterator protocol? Phillip J. Eby campaigned for this, suggesting that
+by treating them as two separate protocols, block-iterators could be
+prevented from accidentally being used in for-loops where their cleanup
+code would be silently omitted. Having two separate protocols would
+also allow objects to implement both protocols if appropriate, e.g.
+perhaps sometimes file objects should close themselves, and sometimes
+they shouldn't. Guido seemed inclined to instead merge the two
+protocols, allowing block-iterators to be used in both for-statements
+and block-statements, saying that the benefits of having two very
+similar but distinct protocols were too small.
+
+What syntax should block-statements use? This one was still undecided,
+with dozens of different keywords having been proposed. Syntaxes that
+did not seem to have any major detractors at the time this summary was
+written:
+
+* ``EXPR as NAME: BLOCK``
+
+* ``@EXPR as NAME: BLOCK``
+
+* ``in EXPR as NAME: BLOCK``
+
+* ``block EXPR as NAME: BLOCK``
+
+* ``finalize EXPR as NAME: BLOCK``
+
+
+Contributing threads:
+
+- `anonymous blocks <http://mail.python.org/pipermail/python-dev/2005-April/052717.html>`__
+
+- `next(arg) <http://mail.python.org/pipermail/python-dev/2005-April/053156.html>`__
+
+- `PEP 340 - possible new name for block-statement <http://mail.python.org/pipermail/python-dev/2005-April/053109.html>`__
+
+- `PEP 340: syntax suggestion - try opening(filename) as f: <http://mail.python.org/pipermail/python-dev/2005-April/053163.html>`__
+
+- `Keyword for block statements <http://mail.python.org/pipermail/python-dev/2005-April/053184.html>`__
+
+- `About block statement name alternative <http://mail.python.org/pipermail/python-dev/2005-April/053139.html>`__
+
+- `Integrating PEP 310 with PEP 340 <http://mail.python.org/pipermail/python-dev/2005-April/053039.html>`__
+
+
+ .. _PEP 340: http://www.python.org/dev/peps/pep-0340
+
+[SJB]
+
+
+------------------
+A switch statement
+------------------
+
+The switch statement (a la `PEP 275`_) came up again this month, as a
+spin-off (wasn't everything?) of the `PEP 340`_ discussion.  The main
+benefit of such a switch statement is avoiding Python function calls,
+which are very slow compared to branching to inlined Python code. In
+addition, repetition (the name of the object being compared, and the
+comparison operator) is avoided.  Although Brian Beck contributed a
+`switch cookbook recipe`_, the discussion didn't progress far enough to
+make any changes or additions to `PEP 275`_.
+
+
+Contributing threads:
+
+- `switch statement <http://mail.python.org/pipermail/python-dev/2005-April/052778.html>`__
+
+ .. _PEP 275: http://www.python.org/dev/peps/pep-0275
+ .. _switch cookbook recipe: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/410692
+ 
+[TAM]
+
+
+----------------
+Pattern Matching
+----------------
+
+Discussion about a dictionary-lookup switch statement branched out
+to more general discussion about pattern matching statements, like
+Ocaml's "match", and Haskell's case statement.  There was reasonable
+interest in pattern matching, but since types are typically a key
+feature of pattern matching, and many of the elegant uses of pattern
+matching use recursion to traverse data structures, both of which
+hinder coming up with a viable Python implementation (at least while
+CPython lacks tail-recursion elimination).
+
+The exception to this is matching strings, where regular expressions
+provide a method of pattern specification, and multi-way branches
+based on string content is common.
+
+As such, it seems unlikely that any proposals for new pattern matching
+language features will be made at this time.
+
+
+Contributing threads:
+
+- `switch statement <http://mail.python.org/pipermail/python-dev/2005-April/052778.html>`__
+
+[TAM]
+
+
+-----------------------------------------
+Read-only property access inconsistencies
+-----------------------------------------
+
+Barry Warsaw noticed that the exception thrown for read-only properties
+of C extension types is a TypeError, while for read-only properties of
+Python (new-style) classes is an AttributeError, and `wrote a patch`_ to
+clean up the inconsistency.
+ 
+Guido pronounced that this was an acceptable fix for 2.5, and so the change
+was checked in.  Along the way, he wondered whether in the long-term,
+AttributeError should perhaps inherit from TypeError.
+
+          
+Contributing threads:
+
+- `Inconsistent exception for read-only properties? <http://mail.python.org/pipermail/python-dev/2005-April/052681.html>`__
+
+ .. _wrote a patch: http://sourceforge.net/tracker/index.php?func=detail&aid=1184449&group_id=5470&atid=105470 
+
+[TAM]
+
+
+--------------------
+site.py enhancements
+--------------------
+
+Bob Ippolito asked for review of a `patch to site.py`_ to solve three
+deficiencies for Python 2.5:
+
+- It is no longer true that all site dirs must exist on the filesystem
+- The directories added to sys.path by .pth files are not scanned for further .pth files
+- .pth files cannot use os.path.expanduser()
+
+Greg Ewing suggested additionally scanning the directory containing the
+main .py file for .pth files to make it easier to have collections of
+Python programs sharing a common set of modules.  Possibly swamped by the
+`PEP 340`_ threads, further discussion trailed off, so it's likely that
+Bob's patch will be applied, but without Greg's proposal.
+
+
+Contributing threads:
+
+- `site enhancements (request for review) <http://mail.python.org/pipermail/python-dev/2005-April/052885.html>`__
+
+ .. _patch to site.py: http://python.org/sf/1174614
+
+[TAM]
+
+
+-------------------------------------
+Passing extra arguments when building
+-------------------------------------
+
+Martin v. Loewis helped Brett C out with adding an EXTRA_CFLAGS environment
+variable to the build process, to enable passing additional arguments to
+the compiler, that aren't modified by configure, and that change binary
+compatibility (OPT should be used for binary-compatible flags).
+
+
+Contributing threads:
+
+- `Proper place to put extra args for building <http://mail.python.org/pipermail/python-dev/2005-April/052746.html>`__
+
+[TAM]
+
+
+---------------------------
+zipfile module improvements
+---------------------------
+
+Bob Ippolito pointed out that the "2GB bug" that was `supposed to be fixed`_
+was not, and opened a `new bug and patch`_ that should fix the issue
+correctly, as well as a bug that sets the ZipInfo record's platform to
+Windows, regardless of the actual platform.  He suggested that someone
+should consider rewriting the zipfile module to include a repair feature,
+and be up-to-date with `the latest specifications`_, and include support
+for Apple's zip format extensions.  Charles Hartman added deleting a file
+from a zipfile to this list.
+
+Bob suggested that one of the most useful additions to the zipfile module
+would be a stream interface for reading and writing
+(a `patch to read large items`_ along these lines already exists).  Guido
+liked this idea and suggested that Bob rework the zipfile module, if
+possible, for Python 2.5.
+
+
+Contributing threads:
+
+- `zipfile still has 2GB boundary bug <http://mail.python.org/pipermail/python-dev/2005-April/052887.html>`__
+
+.. _supposed to be fixed: http://python.org/sf/679953
+.. _new bug and patch: http://python.org/sf/1189216
+.. _the latest specifications: http://www.pkware.com/company/standards/appnote/
+.. _patch to read large items: http://python.org/sf/1121142
+
+[TAM]
+
+
+-------------------------------------
+super_getattro() and attribute lookup
+-------------------------------------
+
+Phil Thompson asked a number of questions about super_getattro(), and
+attribute lookup.  Michael Hudson answered these, and pointed out that
+there has been `some talk`_ of having a tp_lookup slot in typeobjects.
+However, he noted that he has many other pots on the boil at the moment,
+so is unlikely to work on it soon.
+
+ 
+Contributing threads:
+
+- `super_getattro() Behaviour <http://mail.python.org/pipermail/python-dev/2005-April/052655.html>`__
+
+.. _some talk: http://mail.python.org/pipermail/python-dev/2005-March/052150.html
+
+[TAM]
+
+
+--------------------------------
+Which objects are memory cached?
+--------------------------------
+
+Facundo Batista asked about memory caching of objects (for performance
+reasons), to aid in explaining how to think using name/object and not
+variable/value.  In practice, ints between -5 and 100 are cached,
+1-character strings are often cached, and string literals that resemble
+Python identifiers are often interned.  It was noted that the reference
+manual specifies that immutables *may* be cached, but that CPython
+specifics, such as which objects are, are omitted so that people will
+not think of them as fixed; Terry Reedy reiterated his suggestion that
+implementation details such as this are documented separately, elsewhere.
+
+Guido and Greg Ewing pointed out that when explaining it is important
+for the explainees to understand that mutable objects are never in
+danger of being shared.
+ 
+
+Contributing threads:
+
+- `Caching objects in memory <http://mail.python.org/pipermail/python-dev/2005-April/052844.html>`__
+
+[TAM]
+
+
+------------------------------
+Unregistering atexit functions
+------------------------------
+
+Nick Jacobson noted that while you can mark functions to be called with
+at exit with the 'register' method, there's no 'unregister' method to
+remove them from the stack of functions to be called.  Many suggestions
+were made about how this could already be done, however, including using
+try/finally, writing the cleanup routines in such a way that they could
+detect reentry, passing a class to register(), and managing a list of
+functions oneself.
+
+General pearls of wisdom outlined included:
+
+- if one devotes time to "making a case", then one should also devote equal effort to researching the hazards and API issues.
+- "Potentially useful" is usually trumped by "potentially harmful".
+- if the API is awkward or error-prone, that is a bad sign.
+
+
+Contributing threads:
+
+- `atexit missing an unregister method <http://mail.python.org/pipermail/python-dev/2005-April/052983.html>`__
+
+[TAM]
+
+
+-----------------------
+Pickling buffer objects
+-----------------------
+
+Travis Oliphant proposed a patch to the pickle module to allow
+pickling of the buffer object.  His use case was avoiding copying
+array data into a string before writing to a file in Numeric, while
+still having Numeric arrays interact seamlessly with other
+pickleable types.  The proposal was to unpickle the object as a
+string (since a `bytes object`_ does not exist) rather than to
+mutable-byte buffer objects, to maintain backwards compatibility.
+Other than a couple of questions, no objections were raised, so a
+patch is likely to appear.
+
+
+Contributing threads:
+
+- `Pickling buffer objects. <http://mail.python.org/pipermail/python-dev/2005-April/052707.html>`__
+
+.. _bytes object: http://python.org/peps/pep-0296
+
+[TAM]
+
+
+-------------------------------------------------
+Referencing counting when entering/exiting scopes
+-------------------------------------------------
+
+Matt Barnes noticed that symtable_exit_scope decrefs a borrowed 
+reference, which should lead to data corruption ... except that 
+symtable_enter_scope leaks a reference.  Since they're called as 
+a pair, it works out.  Guido did suggest that it would be better 
+if the code were written in a less brittle manner.
+
+Contributing threads:
+
+- `Reference counting when entering and exiting scopes <http://mail.python.org/pipermail/python-dev/2005-April/052779.html>`__
+
+[Jim Jewett]
+
+
+===============
+Skipped Threads
+===============
+
+- `Another Anonymous Block Proposal <http://mail.python.org/pipermail/python-dev/2005-April/053031.html>`__
+- `PEP 340: What is &quot;ret&quot; in block statement semantics? <http://mail.python.org/pipermail/python-dev/2005-April/053140.html>`__
+- `anonymous blocks (off topic: match) <http://mail.python.org/pipermail/python-dev/2005-April/052759.html>`__
+- `Reference counting when entering and exiting scopes <http://mail.python.org/pipermail/python-dev/2005-April/052779.html>`__
+- `How do you get yesterday from a time object <http://mail.python.org/pipermail/python-dev/2005-April/052712.html>`__
+- `shadow password module (spwd) is never built due to error in setup.py <http://mail.python.org/pipermail/python-dev/2005-April/052679.html>`__
+- `Problem with embedded python <http://mail.python.org/pipermail/python-dev/2005-April/052995.html>`__
+- `python.org crashing Mozilla? <http://mail.python.org/pipermail/python-dev/2005-April/052992.html>`__
+- `noob question regarding the interpreter <http://mail.python.org/pipermail/python-dev/2005-April/053103.html>`__
+- `Newish test failures <http://mail.python.org/pipermail/python-dev/2005-April/052771.html>`__
+- `Error checking in init&lt;module&gt; functions <http://mail.python.org/pipermail/python-dev/2005-April/052847.html>`__
+- `a few SF bugs which can (probably) be closed <http://mail.python.org/pipermail/python-dev/2005-April/052864.html>`__
+- `Check out a new way to read threaded conversations. <http://mail.python.org/pipermail/python-dev/2005-April/052674.html>`__
+- `Python 2.1 in HP-UX <http://mail.python.org/pipermail/python-dev/2005-April/052710.html>`__
+- `Python tests fails on HP-UX 11.11 and core dumps <http://mail.python.org/pipermail/python-dev/2005-April/052652.html>`__
+- `IPV6 with Python- 4.2.1 on HPUX <http://mail.python.org/pipermail/python-dev/2005-April/052656.html>`__
+- `Fwd: CFP: DLS05: ACM Dynamic Languages Symposium <http://mail.python.org/pipermail/python-dev/2005-April/052699.html>`__
+- `PyCon 2005 keynote on-line <http://mail.python.org/pipermail/python-dev/2005-April/052684.html>`__
+- `PyCallable_Check redeclaration <http://mail.python.org/pipermail/python-dev/2005-April/052677.html>`__
+- `os.urandom uses closed FD (sf 1177468) <http://mail.python.org/pipermail/python-dev/2005-April/052716.html>`__
+- `Removing --with-wctype-functions support <http://mail.python.org/pipermail/python-dev/2005-April/052968.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+April 16, 2005 through April 30, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the 2nd summary written by the python-dev summary cabal of
+Steve Bethard, Tim Lesher, and Tony Meyer (missing Brett yet?).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tim Lesher (tlesher at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/trunk/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  We do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow us to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-04-01_2005-04-15.html
+.. _original text file: http://www.python.org/dev/summary/2005-04-16_2005-04-30.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

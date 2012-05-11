@@ -1,0 +1,174 @@
+#!/usr/local/bin/python
+
+"""Produce a one-time password response to a random-number challenge, with
+respect to a secret, shared DES encryption key.
+
+The user must present their PIN, with which they have encrypted their DES key,
+and the challenge.  (The first time, the user is prompted for the PIN and the
+key itself, which is stashed in encrypted form in a ~/.<scriptname> dot file.)
+The one-time password response is produced on stdout.
+
+Note that you could deal with multiple keys by using different names for this
+script.  It would be much wiser to elaborate the storage structure for the key
+file, of course...
+
+Originally by Ken Manheimer, ken.manheimer@nist.gov"""
+
+version = "$Revision: 17 $"
+
+
+import sys, os, string
+try:
+    import des
+except ImportError:
+    raise error, "cannot operate without kuchling's des extension module" # x>
+
+keyFile = os.path.expanduser('~/.' + os.path.basename(sys.argv[0]))
+pin = ''
+
+def get_key_file(keyFile):
+    """Return a file object containing the encrypted key."""
+    if not os.path.exists(keyFile):
+	return None							# ===>
+    else:
+	return open(keyFile)
+
+def get_key(kf):
+    """Get key (decrypting it with PIN) from KEYFILE."""
+    pin = get_pin('pin for decoding key: ')
+    return des.new(pin, des.ECB).decrypt(kf.read())			# ===>
+
+def get_challenge():
+    """Get challenge as an 8 character string."""
+    print "Challenge: ",
+    chal = sys.stdin.readline()[:-1]
+    # pad with nulls for encryption, limit to 8 chars
+    return (chal + ('\000' * (8 - len(chal))))[:8]
+
+def get_pin(msg):
+    """Return designated PIN, soliciting it if not previously specified."""
+    global pin
+    if pin: return pin							# ===>
+    print msg,; sys.stdout.flush()
+    pin = sys.stdin.readline()[:-1]
+    if len(pin) > 8:
+	pin = pin[:8]
+    elif len(pin) < 8:
+	pin = pin + ('0' * (8 - len(pin)))
+    return pin
+
+
+def create_key_file(key = None):
+    """Initiate a keyfile, containing key encrypted with pin."""
+
+    print ('No ~/.%s key stash file - getting pin and key to create it.' %
+	   os.path.basename(sys.argv[0]))
+
+    try:
+	# Establish empty file object:
+	fp = open(keyFile, 'w'); fp.write(''); fp.close()
+
+	# Obtain the key:
+	pin = get_pin('pin (8 chars or less; ' +
+		      'used to encrypt key for file storage): ')
+
+	# Obtain the octal key octet:
+	if not key:
+	    done = 0
+	    key = [''] * 8
+	    while not done:
+		print 'Enter key, as 8 octal numbers',
+		print " (you'll be able to review and correct it)"
+		for i in range(8):
+		    print 'octet %d [%s]: ' % (i + 1, key[i]),; sys.stdout.flush()
+		    new = sys.stdin.readline()
+		    sys.stdin.flush()
+		    if not new:
+			print '<eof>'
+			sys.exit(1)
+		    elif len(new) > 1:
+			key[i] = new[:-1]
+		print ''
+		print 'got [',
+		for i in range(8):
+		    print str(key[i]), ' ',
+		print ']'
+		print 'Ok? [Y,n] ',
+		sys.stdout.flush()
+		resp = sys.stdin.readline()[:-1]
+		if resp in ['', 'Y', 'y']:
+		    done = 1
+		else:
+		    print ("Try again (empty lines take old, " +
+			   "enter 'y' at end to accept)")
+	# Convert to char bits, stripping low order bits of each byte:
+	keyStr = ''
+	for i in key:
+	    keyStr = keyStr + chr(((eval('0' + i))>>1)<<1)
+
+	# encrypt for stashing in the file:
+	o = des.new(pin, des.ECB)
+	# And stash it:
+	fp = open(keyFile, 'w')
+	fp.write(o.encrypt(keyStr))
+	fp.close()
+    except:
+	wasExc = (sys.exc_type, sys.exc_value)
+	if fp:
+	    try:
+		fp.close()
+	    except:
+		pass
+	    try:
+		os.unlink(fp.name)
+	    except:
+		pass
+	print 'Abandoning key file creation...' 
+	raise error, 'Abandoned keyfile creation: ' + str(wasExc)
+
+    return 0								# ===>
+
+def set_key(fp, key, pin, key):
+    """Stash the key in the key file."""
+    fp.seek(0)
+    cryObj = des.new(pin, des.ECB)
+    fp.writeline(cryObj.encrypt(key))
+
+def chars2hex(str):
+    """Transform STRING of chars to the corresponding hex digit pairs."""
+    s = ''
+    for i in range(len(str)):
+	both = ord(str[i])
+	high = both>>4
+	low = both - (high<<4)
+	s = s + hex(high)[2:] + hex(low)[2:]
+    return s
+
+def massage_result(rawResult):
+    """Convert raw encrypted result to digital pathways form."""
+
+    result = ''
+    for c in chars2hex(rawResult)[:8]:
+	if c in ['a', 'b', 'c']:
+	    result = result + '2'
+	elif c in ['d', 'e', 'f']:
+	    result = result + '3'
+	else:
+	    result = result + c
+    return result
+
+
+if __name__ == '__main__':
+    kf = get_key_file(keyFile)
+    if not kf:
+	create_key_file()
+    kf = get_key_file(keyFile)
+    if not kf:
+	raise error, 'failed to establish key file'			# xxx>
+    key = get_key(kf)
+
+    chal = get_challenge()		# get challenge as char data
+
+    o = des.new(key, des.ECB)
+
+    print massage_result(o.encrypt(chal))

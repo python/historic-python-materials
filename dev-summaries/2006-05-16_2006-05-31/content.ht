@@ -1,0 +1,489 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-05-16 through 2006-05-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-05-16_2006-05-31]
+
+
+
+=============
+Announcements
+=============
+
+----------------------------
+QOTF: Quote of the Fortnight
+----------------------------
+
+Martin v. Löwis on what kind of questions are appropriate for python-dev:
+
+    ... [python-dev] is the list where you say "I want to help", not so much "I need your help".
+    
+Contributing thread:
+
+- `Segmentation fault of Python if build on Solaris 9 or 10 with Sun Studio 11 <http://mail.python.org/pipermail/python-dev/2006-May/065493.html>`__
+
+-------------------
+Python 2.5 schedule
+-------------------
+
+Python 2.5 is moving steadily towards its next release.  See `PEP 356`_ for more details and the full schedule.  You may start to see a few warnings at import time if you've named non-package directories with the same names as your modules/packages.  Python-dev suggests renaming these directories -- though the warnings won't give you any real trouble in Python 2.5, there's a chance that a future version of Python will drop the need for __init__.py.
+
+.. _PEP 356: http://www.python.org/dev/peps/pep-0356/
+
+Contributing thread:
+
+- `2.5 schedule <http://mail.python.org/pipermail/python-dev/2006-May/065058.html>`__
+- `warnings about missing __init__.py in toplevel directories <http://mail.python.org/pipermail/python-dev/2006-May/065270.html>`__
+
+------------------------------
+Restructured library reference
+------------------------------
+
+Thanks to work by A.M. Kuchling and Michael Spencer, the organization of the `development Library Reference documentation`_ structure is much improved over the `old one`_.  Thanks for your hard work guys!
+
+.. _development Library Reference documentation: http://docs.python.org/dev/lib/lib.html
+.. _old one: http://docs.python.org/lib/lib.html
+
+Contributing thread:
+
+- `[Python-3000] stdlib reorganization <http://mail.python.org/pipermail/python-dev/2006-May/065441.html>`__
+
+-----------------------------
+Need for Speed Sprint results
+-----------------------------
+
+The results of the `Need for Speed Sprint`_ are all posted on the wiki.  In particular, you should check a number of `successes`_ they had in speeding up various parts of Python including function calls, string and Unicode operations, and string<->integer conversions.
+
+.. _Need for Speed Sprint: http://wiki.python.org/moin/NeedForSpeed/
+.. _successes: http://wiki.python.org/moin/NeedForSpeed/Successes
+
+Contributing threads:
+
+- `[Python-checkins] r46043 - peps/trunk/pep-0356.txt <http://mail.python.org/pipermail/python-dev/2006-May/065061.html>`__
+- `Need for Speed Sprint status <http://mail.python.org/pipermail/python-dev/2006-May/065279.html>`__
+
+-------------------------
+Python old-timer memories
+-------------------------
+
+Guido's been collecting `memories of old-timers`_ who have been using Python for 10 years or more.  Be sure to check 'em out and add your own!
+
+.. _memories of old-timers: http://www.artima.com/weblogs/viewpost.jsp?thread=161207
+
+Contributing thread:
+
+- `Looking for Memories of Python Old-Timers <http://mail.python.org/pipermail/python-dev/2006-May/065121.html>`__
+
+
+=========
+Summaries
+=========
+
+-----------------------------
+Struct module inconsistencies
+-----------------------------
+
+Changes to the struct module to do proper range checking resulted in a few bugs showing up where the stdlib depended on the old, undocumented behavior.  As a compromise, Bob Ippolito added code to do the proper range checking and issue DeprecationWarnings, and then made sure that the all struct results were calculated with appropriate bit masking.  The warnings are expected to become errors in Python 2.6 or 2.7.
+
+Bob also updated the struct module to return ints instead of longs whenever possible, even for the format codes that had previously guaranteed longs (I, L, q and Q).
+
+Contributing threads:
+
+- `Returning int instead of long from struct when possible for performance <http://mail.python.org/pipermail/python-dev/2006-May/065199.html>`__
+- `test_gzip/test_tarfile failure om AMD64 <http://mail.python.org/pipermail/python-dev/2006-May/065311.html>`__
+- `Converting crc32 functions to use unsigned <http://mail.python.org/pipermail/python-dev/2006-May/065430.html>`__
+- `test_struct failure on 64 bit platforms <http://mail.python.org/pipermail/python-dev/2006-May/065463.html>`__
+
+---------------------------------
+Using epoll for the select module
+---------------------------------
+
+Ross Cohen implemented a `drop-in replacement for select.poll`_ using Linux's epoll (a more efficient io notifcation system than poll).  The select interface is already much closer to the the epoll API than the poll API, and people liked the idea of using epoll silently when available. Ross promised to look into merging his code with the current select module (though it wasn't clear whether or not he would do this using ctypes isntead of an extension module as some people had suggested).
+
+.. _drop-in replacement for select.poll: http://sourceforge.net/projects/pyepoll
+
+Contributing thread:
+
+- `epoll implementation <http://mail.python.org/pipermail/python-dev/2006-May/065277.html>`__
+
+-----------------------
+Negatives and sequences
+-----------------------
+
+Fredrik Lundh pointed out that using a negative sign and multiplying by -1 do not always produce the same behavior, e.g.::
+
+    >>> -1 * (1, 2, 3)
+    ()
+    >>> -(1, 2, 3)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: bad operand type for unary -
+
+Though no one seemed particularly concerned about the discrepancy, the thread did spend some time discussing the behavior of sequences multiplied by negatives.  A number of folks were pushing for this to become an error until Uncle Timmy showed some use-cases like::
+
+    # right-justify to 80 columns, padding with spaces
+    s = " " * (80 - len(s)) + s
+
+The rest of the thread turned into a (mostly humorous) competition for the best way to incomprehensibly alter sequence multiplication semantics.
+
+Contributing thread:
+
+- `A Horrible Inconsistency <http://mail.python.org/pipermail/python-dev/2006-May/065176.html>`__
+
+---------------------
+Removing METH_OLDARGS
+---------------------
+
+Georg Brandl asked about removing METH_OLDARGS which has been deprecated since 2.2.  Unfortunately, there are still a bunch of uses of it in Modules, and it's still the default if no flag is specified.  Georg promised to work on removing the ones in Python core, and there was some discussion of trying to mark the API as deprecated.  Issuing a DeprecationWarning seemeed too heavy-handed, so Georg looked into generating C compile time warnings by marking PyArg_Parse as Py_DEPRECATED.
+
+Contributing thread:
+
+- `Remove METH_OLDARGS? <http://mail.python.org/pipermail/python-dev/2006-May/065306.html>`__
+
+-------------------------------------
+Propogating exceptions in dict lookup
+-------------------------------------
+
+Armin Rigo offered up `a patch to stop dict lookup from hiding exceptions`_ in user-defined __eq__ methods.  The PyDict_GetItem() API gives no way of propogating such an exception, so previously the exceptions were just swallowed.  Armin moved the exception-swallowing part out of lookdict() and into PyDict_GetItem() so that even though PyDict_GetItem() will still swallow the exceptions, all other ways of invoking dict lookup (e.g. ``value = d[key]`` in Python code) will now propogate the exception properly.  Scott Dial brought up an odd corner case where the old behavior would cause insertion of a value into the dict because the exception was assumed to indicate a new key, but people didn't seem to worried about breaking this behavior.
+
+.. _a patch to stop dict lookup from hiding exceptions: http://bugs.python.org/1497053
+
+Contributing thread:
+
+- `Let's stop eating exceptions in dict lookup <http://mail.python.org/pipermail/python-dev/2006-May/065346.html>`__
+
+------------------------------
+String/unicode inconsistencies
+------------------------------
+
+After the Need for Speed Sprint unified some of the string and unicode code, some tests started failing where string and unicode objects had different behavior, e.g. ``'abc'.find('', 100)`` used to return -1 but started returning 100.  There was some discussion about what was the right behavior here and Fredrik Lundh promised to implement whatever was decided.
+
+Contributing thread:
+
+- `replace on empty strings <http://mail.python.org/pipermail/python-dev/2006-May/065153.html>`__
+- `Let's stop eating exceptions in dict lookup <http://mail.python.org/pipermail/python-dev/2006-May/065346.html>`__
+
+-----------------------------------
+Allowing inline "if" with for-loops
+-----------------------------------
+
+Heiko Wundram presented a brief PEP suggesting that if-statements in the first line of a for-loop could be optionally inlined, so for example instead of::
+
+    for node in tree:
+        if node.haschildren():
+            <do something with node>
+
+you could write::
+
+    for node in tree if node.haschildren():
+        <do something with node>
+
+Most people seemed to feel that saving a colon character and a few indents was not a huge gain.  Some also worried that this change would encourage code that was harder to read, particularly if the for-clause or if-clause got long.  Guido rejected it, and Heiko promised to submit it as a full PEP so that the rejection would be properly recorded.
+
+Contributing thread:
+
+- `PEP-xxx: Unification of for statement and list-comp syntax <http://mail.python.org/pipermail/python-dev/2006-May/065088.html>`__
+
+----------------------------------------------
+Splitting strings with embedded quoted strings
+----------------------------------------------
+
+Dave Cinege proposed augmenting str.split to allow a non-split delimiter to be specified so that splits would not happen within particular substrings, e.g.::
+
+    >>> 'Here is "a phrase that should not get split"'.split(None,-1,'"')
+    ['Here', 'is', 'a phrase that should not get split']
+
+Most people were opposed to complicating the API of str.split, but even as a separate method, people didn't seem to think that the need was that great, particularly since the most common needs for such functionality were already covered by ``shlex.split()`` and the csv module.
+
+Contributing thread:
+
+- `New string method - splitquoted <http://mail.python.org/pipermail/python-dev/2006-May/065037.html>`__
+
+----------------------------------------
+Deadlocks with fork() and multithreading
+----------------------------------------
+
+Rotem Yaari ran into some deadlocks using the subprocess module in a multithreaded environment.  If a thread other than the thread calling fork is holding the import lock, then since posix only replicates the calling thread, the new child process ends up with an import lock that is locked by a no longer existing thread.  Ronald Oussoren offered up a repeatable test case, and a number of strategies for solving the problem were discussed, including releasing the import lock during a fork and throwing away the old import lock after a fork.
+
+Contributing threads:
+
+- `pthreads, fork, import, and execvp <http://mail.python.org/pipermail/python-dev/2006-May/064983.html>`__
+- `pthreads, fork, import, and execvp <http://mail.python.org/pipermail/python-dev/2006-May/065023.html>`__
+
+----------------
+string.partition
+----------------
+
+Fredrik Lundh asked about the status of string.partition, and there was a brief discussion about whether or not to return real string objects or lazy objects that would only make a copy if the original string disappeared.  Guido opted for the simpler approach using real string objects, and Fredrik implemented it.
+
+Contributing threads:
+
+- `whatever happened to string.partition ? <http://mail.python.org/pipermail/python-dev/2006-May/065191.html>`__
+- `[Python-checkins] whatever happened to string.partition ? <http://mail.python.org/pipermail/python-dev/2006-May/065195.html>`__
+- `partition() variants <http://mail.python.org/pipermail/python-dev/2006-May/065216.html>`__
+
+----------------------------
+Speeding up parsing of longs
+----------------------------
+
+Runar Petursson asked about speeding up parsing of longs from a slice of a string, e.g. ``long(mystring[x:y])``.  He initially proposed adding start= and end= keyword arguments to the long constructor, but that seemed like a slippery slope where every function that took a string would eventually need the same arguments.  Tim Peters pointed out that a buffer object would solve the problem if ``PyLong_FromString()`` supported buffer's "offset & length" view or the world instead of only seeing the start index.  While adding a ``PyLong_FromStringAndSize()`` would solve this particular problem, all the internal parsing routines have a similar problem -- none of them support a slice-based API.
+
+As an alternate approach, Martin Blais was working on a "hot" buffer class, based on the design of the Java NIO ByteBuffer class, which would work without an intermediate string creation or memory copy.
+
+Contributing thread:
+
+- `Cost-Free Slice into FromString constructors--Long <http://mail.python.org/pipermail/python-dev/2006-May/065163.html>`__
+
+----------------------
+Speeding up try/except
+----------------------
+
+After Steve Holden noticed a ~60% slowdown between Python 2.4.3 and the Python trunk on the pybench try/except test, Sean Reifschneider and Richard Jones looked into the problem and found that the slowdown was due to creation of Exception objects.  Exceptions had been converted to new-style objects by using PyType_New() as the constructor and then adding magic methods with PyMethodDef().  By changing BaseException to use a PyType_Type definition and the proper C struct to associate methods with the class, Georg Brandl and Richard Jones were able to speed up try/except to 30% faster than it was in Python 2.4.3.
+
+Contributing thread:
+
+- `2.5a2 try/except slow-down: Convert to type? <http://mail.python.org/pipermail/python-dev/2006-May/065147.html>`__
+
+-----------------------------
+Supporting zlib's inflateCopy
+-----------------------------
+
+Guido noticed that the zlib module was failing with libz 1.1.4.  Even though Python has its own copy of libz 1.2.3, it tries to use the system libraries on Unix, so when the zlib module's compress and decompress objects were updated with a copy() method (using libz's inflateCopy() function), this broke compatibility for any system that used a zlib older than 1.2.0.  Chris AtLee provided a `patch conditionalizing the addition of the copy() method`_ on the version of libz available.
+
+.. _patch conditionalizing the addition of the copy() method: http://bugs.python.org/1503046 
+
+Contributing thread:
+
+- `zlib module doesn't build - inflateCopy() not found <http://mail.python.org/pipermail/python-dev/2006-May/065068.html>`__
+
+------------------------
+Potential ssize_t values
+------------------------
+
+Neal Norwitz looked through the Python codebase for longs that should potentially be declared as ssize_t instead.  There was a brief discussion about changing int's ob_ival to ssize_t, but this would have been an enormous change this late in the release cycle and would have slowed down operations on short ints.  Hash values were also discussed, but since there's no natural correlation between a hash value and the size of a collection, most people thought it was unnecessary for the moment.  Martin v. Löwis suggested upping the recursion limit to ssize_t, and formalizing a 16-bit and 31-bit limit on line and column numbers, respectively.
+
+Contributing threads:
+
+- `ssize_t question: longs in header files <http://mail.python.org/pipermail/python-dev/2006-May/065332.html>`__
+- `ssize_t: ints in header files <http://mail.python.org/pipermail/python-dev/2006-May/065333.html>`__
+
+-----------------
+itertools.iwindow
+-----------------
+
+Torsten Marek proposed adding a windowing function to itertools like::
+
+    >>> list(iwindow(range(0,5), 3))
+    [[0, 1, 2], [1, 2, 3], [2, 3, 4]]
+
+Raymond Hettinger pointed him to a `previous discussion`_ on comp.lang.python where he had explained that ``collections.deque()`` was usually a better solution.  Nick Coghlan suggested putting the deque example in the collections module docs, but the thread trailed off after that.
+
+.. _previous discussion: http://mail.python.org/pipermail/python-list/2005-March/270757.html
+
+Contributing thread:
+
+- `Proposal for a new itertools function: iwindow <http://mail.python.org/pipermail/python-dev/2006-May/065276.html>`__
+
+---------------------------------------------
+Problems with buildbots and files left around
+---------------------------------------------
+
+Neal Norwitz discovered some problems with the buildbots after finding a few tests that didn't properly clean up, leaving a few files around afterwards.  Martin v. Löwis explained that forcing a build on a non-existing branch will remove the build tree (which should clean up a lot of the files) and also that "make distclean" could be added to the clean step of Makefile.pre.in and master.cfg.
+
+Contributing thread:
+
+- `fixing buildbots <http://mail.python.org/pipermail/python-dev/2006-May/065416.html>`__
+
+------------------------------------
+PEP 3101: Advanced String Formatting
+------------------------------------
+
+The discussion of `PEP 3101`_'s string formatting continued again this fortnight.  Guido generally liked the proposal, though he suggested following .NET's quoting syntax of doubling the braces, and maybe allowing all formatting errors to pass silently so that rarely raised exceptions don't hide themselves if their format string has an error.  The discussion was then moved to the `python-3000 list`_.
+
+.. _PEP 3101: http://www.python.org/dev/peps/pep-3101/
+.. _python-3000 list: http://mail.python.org/mailman/listinfo/python-3000
+
+Contributing thread:
+
+- `PEP 3101 Update <http://mail.python.org/pipermail/python-dev/2006-May/065059.html>`__
+
+-----------------------------
+DONT_HAVE_* vs. HAVE_* macros
+-----------------------------
+
+Neal Norwitz asked whether some recently checked-in DONT_HAVE_* macros should be replaced with HAVE_* macros instead.  Martin v. Löwis indicated that these were probably written this way because Luke Dunstan (the contributor) didn't want to modify configure.in and run autoconf.  Luke noted that the configure.in and autoconf effort is greater for Windows developers, but also agreed to convert things to autoconf anyway.
+
+Contributing thread:
+
+- `[Python-checkins] r46064 - in python/trunk: Include/Python.h Include/pyport.h Misc/ACKS Misc/NEWS Modules/_localemodule.c Modules/main.c Modules/posixmodule.c Modules/sha512module.c PC/pyconfig.h Python/thread_nt.h <http://mail.python.org/pipermail/python-dev/2006-May/065124.html>`__
+
+--------------------------------
+Changing python int to long long
+--------------------------------
+
+Sean Reifschneider looked into converting the Python int type to long long.  Though for simple math he saw speedups of around 25%, for ints that fit entirely within 32-bits, the slowdown was around 11%.  Sean was considering changing the int->long automatic conversion so that ints would first be up-converted to long longs and then to Python longs.  Guido said that it would be okay to standardize all ints as 64-bits everywhere, but only for Python 2.6.
+
+Contributing thread:
+
+- `Changing python int to "long long". <http://mail.python.org/pipermail/python-dev/2006-May/065133.html>`__
+
+----------------------------
+C-level exception invariants
+----------------------------
+
+Tim Peters was looking at what kind of invariants could be promised for C-level exceptions.  In particular, he was hoping to promise that for PyFrameObject's f_exc_type, f_exc_value, and f_exc_traceback, either all are NULL or none are NULL.  In his investigation, he found a number of errors, including that _PyExc_Init() tries to raise an AttributeError before the exception pointers have been initialized.
+
+Contributing thread:
+
+- `Low-level exception invariants? <http://mail.python.org/pipermail/python-dev/2006-May/065231.html>`__
+
+------------
+C-code style
+------------
+
+Martin Blais asked about the policy for C code in Python core.  `PEP 7`_ explains that for old code, the most important thing is to be consistent with the surrounding style.  For new C files (and for Python 3000 code) indentation should be 4 spaces per indent, all spaces (no tabs in any file).  There was a short discussion about reformatting the current C code, but that would unnecessarily break svn blame and make merging more difficult.
+
+.. _PEP 7: http://www.python.org/dev/peps/pep-0007/
+
+Contributing thread:
+
+- `A can of worms... (does Python C code have a new C style?) <http://mail.python.org/pipermail/python-dev/2006-May/065469.html>`__
+
+
+================
+Deferred Threads
+================
+- `feature request: inspect.isgenerator <http://mail.python.org/pipermail/python-dev/2006-May/065334.html>`__
+- `Python Benchmarks <http://mail.python.org/pipermail/python-dev/2006-May/065480.html>`__
+
+
+==================
+Previous Summaries
+==================
+- `[Python-checkins] r45925 - in python/trunk: Lib/tempfile.py Lib/test/test_os.py Misc/NEWS Modules/posixmodule.c <http://mail.python.org/pipermail/python-dev/2006-May/065022.html>`__
+- `[Web-SIG] Adding wsgiref to stdlib <http://mail.python.org/pipermail/python-dev/2006-May/065116.html>`__
+
+
+===============
+Skipped Threads
+===============
+- `FYI: building on OS X <http://mail.python.org/pipermail/python-dev/2006-May/065020.html>`__
+- `MSVC 6.0 patch <http://mail.python.org/pipermail/python-dev/2006-May/065027.html>`__
+- `total ordering. <http://mail.python.org/pipermail/python-dev/2006-May/065028.html>`__
+- `[Python-checkins] r46002 - in python/branches/release24-maint: Misc/ACKS Misc/NEWS Objects/unicodeobject.c <http://mail.python.org/pipermail/python-dev/2006-May/065030.html>`__
+- `Reminder: call for proposals "Python Language and Libraries Track" for Europython 2006 <http://mail.python.org/pipermail/python-dev/2006-May/065057.html>`__
+- `Decimal and Exponentiation <http://mail.python.org/pipermail/python-dev/2006-May/065067.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-May/065071.html>`__
+- `New string method - splitquoted - New EmailAddress <http://mail.python.org/pipermail/python-dev/2006-May/065078.html>`__
+- `Iterating generator from C (PostgreSQL's pl/python RETUN SETOF/RECORD iterator support broken on RedHat buggy libs) <http://mail.python.org/pipermail/python-dev/2006-May/065111.html>`__
+- `Charles Waldman? <http://mail.python.org/pipermail/python-dev/2006-May/065120.html>`__
+- `SSH key for work computer <http://mail.python.org/pipermail/python-dev/2006-May/065138.html>`__
+- `PySequence_Fast_GET_ITEM in string join <http://mail.python.org/pipermail/python-dev/2006-May/065145.html>`__
+- `Socket regression <http://mail.python.org/pipermail/python-dev/2006-May/065160.html>`__
+- `extensions and multiple source files with the same basename <http://mail.python.org/pipermail/python-dev/2006-May/065162.html>`__
+- `Import hooks falling back on built-in import machinery? <http://mail.python.org/pipermail/python-dev/2006-May/065173.html>`__
+- `This <http://mail.python.org/pipermail/python-dev/2006-May/065192.html>`__
+- `SQLite header scan order <http://mail.python.org/pipermail/python-dev/2006-May/065206.html>`__
+- `[Python-checkins] r46247 - in python/branches/sreifschneider-newnewexcept: Makefile.pre.in Objects/exceptions.c Python/exceptions.c <http://mail.python.org/pipermail/python-dev/2006-May/065211.html>`__
+- `SQLite status? <http://mail.python.org/pipermail/python-dev/2006-May/065214.html>`__
+- `Request for patch review <http://mail.python.org/pipermail/python-dev/2006-May/065215.html>`__
+- `patch for mbcs codecs <http://mail.python.org/pipermail/python-dev/2006-May/065268.html>`__
+- `[Python-checkins] This <http://mail.python.org/pipermail/python-dev/2006-May/065291.html>`__
+- `[Python-checkins] r46300 - in python/trunk: Lib/socket.py Lib/test/test_socket.py Lib/test/test_struct.py Modules/_struct.c Modules/arraymodule.c Modules/socketmodule.c <http://mail.python.org/pipermail/python-dev/2006-May/065296.html>`__
+- `getting rid of confusing "expected a character buffer object" messages <http://mail.python.org/pipermail/python-dev/2006-May/065298.html>`__
+- `[Python-checkins] Python Regression Test Failures refleak (101) <http://mail.python.org/pipermail/python-dev/2006-May/065310.html>`__
+- `PEP 42 - New kind of Temporary file <http://mail.python.org/pipermail/python-dev/2006-May/065315.html>`__
+- `DRAFT: python-dev summary for 2006-03-16 to 2006-03-31 <http://mail.python.org/pipermail/python-dev/2006-May/065321.html>`__
+- `dictionary order <http://mail.python.org/pipermail/python-dev/2006-May/065322.html>`__
+- `Syntax errors on continuation lines <http://mail.python.org/pipermail/python-dev/2006-May/065327.html>`__
+- `DRAFT: python-dev summary for 2006-04-01 to 2006-04-15 <http://mail.python.org/pipermail/python-dev/2006-May/065344.html>`__
+- `Contributor agreements (was Re: DRAFT: python-dev summary for 2006-04-01 to 2006-04-15) <http://mail.python.org/pipermail/python-dev/2006-May/065368.html>`__
+- `Integer representation (Was: ssize_t question: longs in header files) <http://mail.python.org/pipermail/python-dev/2006-May/065391.html>`__
+- `problem with compilation flags used by distutils <http://mail.python.org/pipermail/python-dev/2006-May/065418.html>`__
+- `bug in PEP 318 <http://mail.python.org/pipermail/python-dev/2006-May/065440.html>`__
+- `Socket module corner cases <http://mail.python.org/pipermail/python-dev/2006-May/065443.html>`__
+- `uriparsing library (Patch #1462525) <http://mail.python.org/pipermail/python-dev/2006-May/065446.html>`__
+- `optparse and unicode <http://mail.python.org/pipermail/python-dev/2006-May/065458.html>`__
+- `Reporting unexpected import failures as test failures in regrtest.py <http://mail.python.org/pipermail/python-dev/2006-May/065468.html>`__
+- `Add new PyErr_WarnEx() to 2.5? <http://mail.python.org/pipermail/python-dev/2006-May/065478.html>`__
+- `Arguments and PyInt_AsLong <http://mail.python.org/pipermail/python-dev/2006-May/065485.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+May 16, 2006 through May 31, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 5th written by
+the python-dev summary solo,  Steve Bethard. (The fun never ends!)
+
+To contact me, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

@@ -1,0 +1,120 @@
+Title: python-dev Summary for 2004-12-01 through 2004-12-15
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2004-12-01 through 2004-12-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from December 01, 2004 through December 15, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the fifty-fourth summary written by Brett Cannon (amazed no one has
+complained about the lateness of these summaries!).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-11-16_2004-11-30.html
+.. _original text file: http://www.python.org/dev/summary/2004-12-01_2004-12-15.ht
+
+
+
+=====================
+Summary Announcements
+=====================
+PyCon_ 2005 planning is well underway.  The schedule has been posted at http://www.python.org/pycon/2005/schedule.html and looks great with a quite the varied topics.  And there is still time for the early-bird registration price of $175 ($125 students) before it expires on January 28th.
+
+Some day I will be all caught up with the Summaries...
+
+.. _PyCon: http://www.pycon.org
+
+=========
+Summaries
+=========
+----------------------------------
+PEPS: those existing and gestating
+----------------------------------
+[for emails on PEP updates, subscribe to python-checkins_ and choose the 'PEP' topic]
+
+A proto-PEP covering the __source__ proposal from the `last summary`_ has been posted to python-dev.
+
+`PEP 338`_ proposes how to modify the '-m' modifier so as to be able to execute modules contained within packages.
+
+.. _python-checkins: http://mail.python.org/mailman/listinfo/python-checkins
+.. _PEP 338: http://www.python.org/dev/peps/pep-0338
+
+Contributing threads:
+  - `PEP: __source__ proposal <http://mail.python.org/pipermail/python-dev/2004-December/050190.html>`__
+  - `PEP 338: Executing modules inside packages with '-m' <http://mail.python.org/pipermail/python-dev/2004-December/050369.html>`__
+
+
+-------------------
+Deprecating modules
+-------------------
+The xmllib module was deprecated but not listed in `PEP 4`_.  What does one do?  Well, this led to a long discussion on how to handle module deprecation.
+
+With the 'warning' module now in existence, PEP 4 seemed to be less important.  It was generally agreed that listing modules in PEP 4 was no longer needed.  It was also agreed that deleting deprecated modules was not needed; it breaks code and disk space is cheap.
+
+It seems that no longer listing documentation and adding a deprecation warning is what is needed to properly deprecate a module.  By no longer listing documentation new programmers will not use the code since they won't know about it.  And adding the warning will let old users know that they should be using something else.
+
+.. _PEP 4: http://www.python.org/dev/peps/pep-0004
+
+Contributing threads:
+  - `Deprecated xmllib module <http://mail.python.org/pipermail/python-dev/2004-December/050210.html>`__
+  - `Rewriting PEP4 <http://mail.python.org/pipermail/python-dev/2004-December/050241.html>`__
+
+------------------------------------------
+PR to fight the idea that Python is "slow"
+------------------------------------------
+An article_ in ACM TechNews that covered 2.4 had several mentions that Python was "slow" while justifying the slowness (whether it be flexibility or being fast enough).  Guido (rightfully) didn't love all of the "slow" mentions which I am sure we have all heard at some point or another.
+
+The suggestions started to pour in on how to combat this.  The initial one was to have a native compiler.  The thinking was that if we compiled to a native executable that people psychologically would stop the association of Python being interpreted which is supposed to be slow.  Some people didn't love this idea since a native compiler is not an easy thing.  Others suggested including Pyrex with CPython, but didn't catch on (maintenance issue plus one might say Pyrex is not the most Pythonic solution).  This didn't get anywhere in the end beyond the idea of a SIG about the various bundling tools (py2app, py2exe, etc.).
+
+The other idea was to just stop worrying about speed and move on stomping out bugs and making Python functionally more useful.  With modules in the stdlib being rewritten in C for performance reasons it was suggested we are putting out the perception that performance is important to us.  Several other people also suggested that we just not mention speed as a big deal in release notes and such.
+
+This also tied into the idea that managers don't worry too much about speed as much as being able to hire a bunch of Python programmers.  This led to the suggestion of also emphasizing that Python is very easy to learn and thus is a moot point.  There are a good number of Python programmers, though; Stephan Deibel had some rough calculations that put the number at about 750K Python developers worldwide (give or take; rough middle point of two different calculations).
+
+.. _article: http://gcn.com/vol1_no1/daily-updates/28026-1.html
+
+Contributing threads:
+  - `2.4 news reaches interesting places <http://mail.python.org/pipermail/python-dev/2004-December/050283.html>`__
+
+
+===============
+Skipped Threads
+===============
+- MS VC compiler versions
+- Any reason why CPPFLAGS not used in compiling?
+      Extension modules now compile with directories specified in the LDFLAGS and CPPFLAGS env vars
+- adding key argument to min and max
+      min and max now have a 'key' argument like list.sort
+- Unicode in doctests
+- SRE bug and notifications
+- PyInt_FromLong returning NULL
+- PyOS_InputHook enhancement proposal
+- The other Py2.4 issue
+- MinGW And The other Py2.4 issue
+- Supporting Third Party Modules
+- Python in education

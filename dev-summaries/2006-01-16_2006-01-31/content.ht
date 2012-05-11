@@ -1,0 +1,483 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-01-16 through 2006-01-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-01-16_2006-01-31]
+
+
+
+=============
+Announcements
+=============
+
+-------------------------
+Google summer internships
+-------------------------
+
+Google is looking to fill an unprecedented number of `student intern
+positions`_ this (US) summer, at several US locations (Mountain View,
+Santa Monica, Kirkland (Wash.), and New York).  The perks are
+incredible, and Google is not just looking for software development
+interns - there are also product management positions, and UI design
+and usability analyst positions.
+
+Contributing thread:
+
+ - `Know anyone interested in a Google internship? <http://mail.python.org/pipermail/python-dev/2006-January/060047.html>`__
+
+ .. _student intern positions: http://www.google.com/jobs/intern.html
+
+[TAM]
+
+-----------------------
+Possible Summer of PyPy
+-----------------------
+
+Armin Rigo announced the possibility of a "Summer of PyPy", which
+would follow the style of Google's "Summer of Code" in funding
+students to work on various aspects of PyPy.  The possibility has not
+been confirmed yet, but we'll let you know when there's more info.
+
+Contributing thread:
+
+ - `Summer of PyPy <http://mail.python.org/pipermail/python-dev/2006-January/059820.html>`__
+
+[SJB]
+
+=========
+Summaries
+=========
+
+---------------------------------------
+Integers and strings in different bases
+---------------------------------------
+
+Alex Martelli requested the inverse of ``int(<string>, <base>)`` that
+would convert an int into a string with digits in the appropriate
+base. There was a lot of discussion of exactly where such
+functionality should go. Among the suggested locations were:
+
+* The str constructor, e.g. ``str(<number>, <base>)``
+* A str classmethod, e.g. ``str.from_int(<number>, <base>)``
+* An encoding method, e.g. ``str(<number>).encode("base<base>")``
+* A method on ints, e.g. ``<number>.to_base(<base>)``
+* A format code, e.g. ``"%<base>b" % <number>``
+* A builtin function, e.g. ``base(<number>, <base>)``
+* A function in the math module, e.g. ``math.base(<number>, <base>)``
+
+People seemed generally to like the builtin function or math module
+function options, though there was some debate as to the best name for
+the function.  Guido suggested letting the proposal sit for a week or
+two to see if anyone could come up with a better name or suggest a
+better location for the function.  (However, he seemed generally in
+favor of the proposal, suggesting that hex() and oct() should be
+deprecated and removed in a future version of Python.)  No decisions
+had been made at the time this summary was written.
+
+Contributing threads:
+
+ - `str with base <http://mail.python.org/pipermail/python-dev/2006-January/059789.html>`__
+
+[SJB]
+
+------------------------------------------------
+PEP 355: Path - Object oriented filesystem paths
+------------------------------------------------
+
+Björn Lindqvist resuscitated the idea of incorporating a Path class
+based on Jason Ordenorff's path module to the standard library by
+creating `PEP 355`_.  There was some general discussion (and
+corresponding PEP changes), with much discussion centred on the use of
+"/" as a join-with-separator operator, which was eventually dropped
+from the PEP.
+
+More discussion considered whether Path should subclass string or not.
+Subclassing string provides the advantage that Paths can be used in
+the majority of places where strings are currently used, without
+modification.  However, there are many methods of strings that do not
+seem appropriate for Path objects.  Jason Orendorff would prefer for
+Paths to not subclass strings, and a new format specifier (e.g. for
+PyArg_ParseTuple()) be created for use with Paths.
+
+There was general agreement that the utility of the module would be
+highest when Path objects could be seamlessly used where string paths
+were previous used.  The debate centred on whether subclassing string
+was the best way to do this or not.  Path objects clearly are not
+string objects (e.g. __iter__ and join() are nonsensical with paths).
+Changing the C API so that Paths are accepted where necessary was the
+suggested solution, although the PEP (at the time of writing the
+summary) still subclasses Path from string.
+
+Changing the methods from the names used by the os module and Jason's
+module to ones that conform to PEP 8 was recommended.  Jason explained
+that the reason that there is so much cruft in his path module is that
+the design is heavily skewed toward people already familiar with the
+existing standard library equivalents.  He feels that a standard
+library Path class should have different design goals: less
+redundancy, fewer methods, and PEP 8 compliant names.
+
+ .. _PEP 355: http://www.python.org/peps/pep-0355.html
+
+Contributing threads:
+
+ - `The path module PEP <http://mail.python.org/pipermail/python-dev/2006-January/060026.html>`__
+ - `/ as path join operator (was: Re: The path module PEP) <http://mail.python.org/pipermail/python-dev/2006-January/060068.html>`__
+ - `/ as path join operator <http://mail.python.org/pipermail/python-dev/2006-January/060081.html>`__
+ - `Path inherits from string <http://mail.python.org/pipermail/python-dev/2006-January/060115.html>`__
+ - `The path module (class) PEP <http://mail.python.org/pipermail/python-dev/2006-January/060139.html>`__
+
+[TAM]
+
+------------------------------
+Including ctypes in the stdlib
+------------------------------
+
+The inclusion of ctypes in the standard library hit a snag: although
+Guido pronounced that including it (with a strongly worded wording in
+the documentation) was fine, ctypes includes libffi, which is built
+with GPL'd tools, which is causes licensing issues.  A lot of the
+typical legal-advice-from-everyone-but-lawyers discussion took place,
+but essentially what is required is a way to calculate the information
+necessary to build libffi without the GPL'd tools.  Hye-Shik Chang did
+some work on this, and is working on integrating this into the ctypes
+repository, so ctypes may still may it into the standard library.
+
+Contributing threads:
+
+ - `Include ctypes into core Python? <http://mail.python.org/pipermail/python-dev/2006-January/059766.html>`__
+ - `DRAFT: python-dev Summary for 2006-01-01 through 2006-01-15 <http://mail.python.org/pipermail/python-dev/2006-January/060099.html>`__
+ - `(libffi) Re: Copyright issue <http://mail.python.org/pipermail/python-dev/2006-January/060154.html>`__
+
+[TAM]
+
+-----------------------------------
+Improving the documentation process
+-----------------------------------
+
+Georg Brandl pointed out the new `documentation effort`_ by Fredrik
+Lundh which uses a mix of HTML and PythonDoc-style markup and allows
+convenient single-method links like
+http://effbot.org/lib/os.path.join. Georg Brandl played around a bit
+with the `CSS styling`_, however the main focus of Fredrik's effort
+was to lower the threshold for user contributions. Along these lines,
+he was working on an alternate content management system for editing
+the Python documentation. He currently has a prototype_ available that
+mirrors some of the content on python.org, though whether or not this
+backend will be incorporated into python.org is as yet undecided.
+
+.. _documentation effort: http://www.effbot.org/lib/
+.. _CSS styling: http://home.in.tum.de/~brandlg/zipfile.html
+.. _prototype: http://pydotorg.dyndns.org:8000/
+
+Contributing threads:
+
+ - `New Pythondoc by effbot <http://mail.python.org/pipermail/python-dev/2006-January/059978.html>`__
+ - `[Doc-SIG] that library reference, again <http://mail.python.org/pipermail/python-dev/2006-January/060141.html>`__
+
+[SJB]
+
+---------------------
+Updating ConfigParser
+---------------------
+
+The discussion about possible ConfigParser improvements continued,
+with the typical failure to make any decisions.
+
+As always, the options include small modifications to the existing
+ConfigParser (e.g. allowing preservation of comments, order, and
+whitespace), re-writing ConfigParser (perhaps based on existing
+third-party versions), or providing a more sophisticated configuration
+file module (either leaving ConfigParser as-is, or rewriting it to use
+the new module).
+
+Contributing threads:
+
+ - `ConfigParser to save with order <http://mail.python.org/pipermail/python-dev/2006-January/059949.html>`__
+ - `Extension to ConfigParser <http://mail.python.org/pipermail/python-dev/2006-January/060138.html>`__
+ - `YAML (was Re: Extension to ConfigParser) <http://mail.python.org/pipermail/python-dev/2006-January/060264.html>`__
+ - `JSON (was: YAML) <http://mail.python.org/pipermail/python-dev/2006-January/060269.html>`__
+
+[TAM]
+
+---------------------------------------
+Introducing a basenumber abstract class
+---------------------------------------
+
+Alex Martelli proposed introducing a class, basenumber, along the
+lines of the basestring class. The intention was to make it easier to
+check whether or not something is a number. However, if inheriting
+from basenumber was required for all new number-like objects, then the
+duck-typing approach of simply implementing the appropriate interface
+would no longer work. Also, since inheriting from multiple builtin
+types is disallowed, a str subclass that needs to act like a number
+(e.g. a symbolic type) would no longer be able to do so since it could
+not also inherit from basenumber.
+
+Guido suggested an __index__ method that would identify a type as
+convertible into an integer, though without the loss of precision
+allowed by __int__. More on this suggestion in the next summary.
+
+Contributing threads:
+
+ - `basenumber redux <http://mail.python.org/pipermail/python-dev/2006-January/059762.html>`__
+ - `index (was str with base) <http://mail.python.org/pipermail/python-dev/2006-January/059827.html>`__
+
+[SJB]
+
+-----------------------------------
+New Python website: beta.python.org
+-----------------------------------
+
+Skip Montanaro pointed out that Tim Parkin is heading up a `new
+effort`_ to redesign the python.org site. The system is based on
+content formatted primarily in ReST_ for easy editing, though to fully
+render the pages a number of other tools are required. Tim hopes to
+get these all wrapped up in setuptools_ and eggs_ so that anyone can
+also see the fully rendered pages.
+
+Also on the topic of webpage redesign, Steve Holden looked into
+changing the sourceforge "Download Python" link to point to the right
+place: http://www.python.org/download/.  This link, however, cannot be
+directly modified, so Martin v. Löwis put a small warning above it.
+
+.. _new effort: http://beta.python.org/
+.. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
+.. _eggs: http://peak.telecommunity.com/DevCenter/PythonEggs
+
+Contributing threads:
+
+ - `Python icon <http://mail.python.org/pipermail/python-dev/2006-January/059839.html>`__
+ - `SourceForge Download Page, Subversion Home Page <http://mail.python.org/pipermail/python-dev/2006-January/060144.html>`__
+
+[SJB]
+
+---------------------
+Readline on OS X 10.4
+---------------------
+
+Thomas Heller has a problem building readline on OS X 10.4.  This is a
+known issue, the result of Apple shipping libedit symlinked to
+readline rather than readline itself.  You need to get a third party
+copy of readline - Bob Ippolito made a _readline egg`_.
+Alternatively, if LDFLAGS AND CPPFLAGS are set appropriately for
+/opt/local/lib and opt/local/include, and the DarwinPorts copy of
+readline is installed, then it will be found by setup.py.
+
+Concerns about linking with readline (which is released under the GPL)
+were raised, that explicitly requiring or checking for readline could
+violate the licence.  A suggestion was made that Python 3000 could
+stop using readline and use an alternative instead.
+
+.. _readline egg: http://python.org/pypi/readline
+
+Contributing thread:
+
+ - `Building on OS X 10.4 fails <http://mail.python.org/pipermail/python-dev/2006-January/059838.html>`__
+
+[TAM]
+
+-----------------------------
+Yielding from a sub-generator
+-----------------------------
+
+Before PEP 342, there wasn't a big need for a shortcut to pass control
+to a "sub-generator" because the following for-loop works well enough::
+
+     def main_generator():
+         ...
+         for value in sub_generator():
+             yield value
+
+but now that yield can return a value, that value might have to be
+passed into sub_generator(), not to mention exceptions. Guido felt
+that a syntactic solution is needed, if the problem is important
+enough to be solved; a suggestion was "yield from sub_generator()".
+
+Contributing thread:
+
+ - `yield back-and-forth? <http://mail.python.org/pipermail/python-dev/2006-January/059955.html>`__
+
+[TAM]
+
+----------------------------------------
+Using the Win32 API for stat/fstat/wstat
+----------------------------------------
+
+Martin v. Löwis wanted to switch the code for stat/fstat/wstat from
+using msvcrt to the Win32 API. However, currently, when WindowsError
+is raised, the errno attribute must be interpreted as a Win32 error
+instead of as an errno.h error as in its superclass, OSError. The
+Win32 API provides different error codes, so using these for the errno
+attribute could cause some code breakage.  The options seemed to be
+either to break WindowsError and use the new Win32 API error codes, or
+to introduce a new windows_error attribute to hold the additional
+information.  No decision had been made at the time this summary was
+written.
+
+Contributing thread:
+
+ - `"DOS" error codes, WindowsError, and errno <http://mail.python.org/pipermail/python-dev/2006-January/060243.html>`__
+
+[SJB]
+
+---------------------------
+Making timeit easier to use
+---------------------------
+
+Connelly Barnes was concerned that the default behavior of the timeit
+module was not very useful.  Since timing a function seems like the
+most common use of timeit, it should be a simple operation, not a
+method call with a string describing how to import the function and
+then another string describing how to call it.  Also, the default
+behavior of 1 million iterations is not useful for any code that
+cannot be repeated that many times.  Instead, the number of iterations
+should be calibrated as it is in the command-line version. Nick
+Coghlan provided an implementation for these improvements, but it was
+unclear whether or not those changes would be applied to the module.
+
+Contributing thread:
+
+ - `timeit module <http://mail.python.org/pipermail/python-dev/2006-January/059769.html>`__
+
+[SJB]
+
+---------------------------
+Removing deprecated modules
+---------------------------
+
+The regex, regsub and timing modules have been obsolete since Python
+2.0, but are still importable in Python 2.4 (regex and regsub both
+generate a deprecation warning).  Skip Montanaro asked when these
+would be removed, and Guido said that they should be as soon as
+possible.
+
+Contributing thread:
+
+ - `When will regex really go away? <http://mail.python.org/pipermail/python-dev/2006-January/060022.html>`__
+
+[TAM]
+
+================
+Deferred Threads
+================
+
+ - `Compiler warnings <http://mail.python.org/pipermail/python-dev/2006-January/060253.html>`__
+ - `Octal literals <http://mail.python.org/pipermail/python-dev/2006-January/060262.html>`__
+
+==================
+Previous Summaries
+==================
+
+ - `os.path.getmtime on Windows <http://mail.python.org/pipermail/python-dev/2006-January/059756.html>`__
+ - `Birkenfeld's gone <http://mail.python.org/pipermail/python-dev/2006-January/059757.html>`__
+ - `Ph.D. dissertation ideas? <http://mail.python.org/pipermail/python-dev/2006-January/059759.html>`__
+ - `Names matter. <http://mail.python.org/pipermail/python-dev/2006-January/059767.html>`__
+ - `New PEP: Using ssize_t as the index type <http://mail.python.org/pipermail/python-dev/2006-January/059913.html>`__
+ - `[PATCH] Fix dictionary subclass semantics whenused as global dictionaries <http://mail.python.org/pipermail/python-dev/2006-January/060024.html>`__
+ - `from __future__ syntax changed <http://mail.python.org/pipermail/python-dev/2006-January/060245.html>`__
+
+===============
+Skipped Threads
+===============
+
+ - `PEP 247 and hashlib <http://mail.python.org/pipermail/python-dev/2006-January/059761.html>`__
+ - `[Python-checkins] r42064 - python/trunk/Lib/logging/handlers.py <http://mail.python.org/pipermail/python-dev/2006-January/059777.html>`__
+ - `pystate.c changes for Python 2.4.2 <http://mail.python.org/pipermail/python-dev/2006-January/059778.html>`__
+ - `computed goto's in ceval loop <http://mail.python.org/pipermail/python-dev/2006-January/059865.html>`__
+ - `subwcrev.exe <http://mail.python.org/pipermail/python-dev/2006-January/059875.html>`__
+ - `[Python-checkins] r42090 - in python/trunk: Modules/getbuildinfo.c PCbuild/make_buildinfo.vcproj PCbuild/pcbuild.sln PCbuild/pythoncore.vcproj <http://mail.python.org/pipermail/python-dev/2006-January/059883.html>`__
+ - `Additions to the functional module <http://mail.python.org/pipermail/python-dev/2006-January/059926.html>`__
+ - `PEP 343 and __context__() <http://mail.python.org/pipermail/python-dev/2006-January/059943.html>`__
+ - `site triggering a bug in urllib2 <http://mail.python.org/pipermail/python-dev/2006-January/059947.html>`__
+ - `[Python-checkins] r42116 - python/branches/release24-maint/Lib/unittest.py <http://mail.python.org/pipermail/python-dev/2006-January/059964.html>`__
+ - `stabilizing builds <http://mail.python.org/pipermail/python-dev/2006-January/060012.html>`__
+ - `building a module catalogue with buildbot <http://mail.python.org/pipermail/python-dev/2006-January/060013.html>`__
+ - `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-January/060015.html>`__
+ - `Weekly Python Patch/Bug Summary (Revised) <http://mail.python.org/pipermail/python-dev/2006-January/060016.html>`__
+ - `Long-time shy failure in test_socket_ssl <http://mail.python.org/pipermail/python-dev/2006-January/060035.html>`__
+ - `[Python-checkins] r42185 - python/trunk/Lib/test/test_socket_ssl.py <http://mail.python.org/pipermail/python-dev/2006-January/060082.html>`__
+ - `(no subject) <http://mail.python.org/pipermail/python-dev/2006-January/060259.html>`__
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+January 16, 2006 through January 31, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 12th written by
+the python-dev summary python-dev summary duo of Steve Bethard and Tony Meyer .
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.  Unfortunately, even though reST is standardized, the
+wonders of programs that like to reformat text do not allow us to
+guarantee you will be able to run the text version of this summary
+through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _original text file: http://www.python.org/dev/summary/2006-01-16_2006-01-31.rst
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

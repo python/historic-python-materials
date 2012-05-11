@@ -1,0 +1,112 @@
+python-dev Summary for 2003-09-01 through 2003-09-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from September 1, 2003 through September 15, 2003.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the twenty-fifth summary written by Brett Cannon (with school looming on the horizon).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+The in-development version of the documentation for Python can be found at http://www.python.org/dev/doc/devel/ and should be used when looking up any documentation on something mentioned here.  PEPs (Python Enhancement Proposals) are located at http://www.python.org/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2003-08-16_2003-08-31.html
+
+
+=====================
+Summary Announcements
+=====================
+Summary is nice and short this time.  More people went on vacation (although Martin came back and so that helped to pick up the traffic a little).  I skipped covering some threads that are due for PEPs since those will be more in-depth then anything I write.
+
+I should give fair warning that starting on the 22nd of September I will begin school.  I am hoping that it will not be difficult and I will have a carefree time in school.  But if my workload becomes a burden the Summaries might suffer.  I hope they don't, though, and I am going to do my best to make sure that doesn't happen.
+
+
+=========
+Summaries
+=========
+---------------------------------------
+If It Isn't Documented, Is It a Secret?
+---------------------------------------
+Some undocumented methods in readline were discovered by Philip Eby.  He asked if this was on purpose and whether he should submit a bug report on the lack of documentation.  Guido told him to go ahead and submit the bug report.
+
+If you ever find something undocumented in the Python source code and there is nothing suggesting the code is meant to be hidden from the user (it's for internal use, a comment says it is experimental, etc.), then please file a bug report!
+
+Contributing threads:
+  - `Undocumented functions in 'readline' module <http://mail.python.org/pipermail/python-dev/2003-September/037922.html>`__
+
+
+-----------------------------------------------------------------------------------------
+"You are more trouble than you are worth!", screamed the micro release to the new feature
+-----------------------------------------------------------------------------------------
+The topic of what should be backported for micro releases (with Python 2.3.1 looming on the horizon) came up.  Originally minor improvements were allowed in if they didn't break backwards compatibility.  And of course bugfixes have been as well as long as they didn't break code that came to depend on the buggy behavior (really depends on how long the bugginess has been there and how well-known it is).
+
+But then the point of OS X 10.3 possibly becoming the largest install base of Python of any version (it will be 2.3) came up.  With rough estimates being thrown around of 5 million installs in about a year's time, the point that making it difficult to run Python 2.3.x code on that size of an install base would be bad.  For instance, if some small new feature was added to 2.3.1 then any code using that feature would not be able to run on a virgin install of OS X 10.3 (and considering that this is Mac it should not be expected that most users will want to, let alone know how, to add a secondary install of Python since the original is used by the OS and thus should not be overwritten).  It looks like a more conservative patching scheme will be taken with micro releases.
+
+Bytecode will also continue to work between releases.  Guido has always unofficially held that position but now it has been vocalized.
+
+Contributing threads:
+  - `Documenting branch policy <http://mail.python.org/pipermail/python-dev/2003-September/037955.html>`__
+
+
+----------------------------------------------
+PyPy "Berlin" sprint (29th Sep - 4th Oct 2003)
+----------------------------------------------
+Just what the title says: there is going to be a sprint_ for PyPy_ in Berlin from September 29 to October 4.  Read the email for more specific details on goals and such.
+
+.. _sprint: http://www.python.org/cgi-bin/moinmoin/SprintPlan
+.. _PyPy: http://codespeak.net/pypy/index.cgi?home
+
+Contributing threads:
+  - `PyPy "Berlin" sprint (29th Sep - 4th Oct 2003) <http://mail.python.org/pipermail/python-dev/2003-September/037961.html>`__
+
+
+--------------------------------
+Away with you ambiguous imports!
+--------------------------------
+A discussion on how to create a hierarchy of loggers in the standard library led to the idea of having a way to cause an import to come directly from the standard library and thus remove any ambiguity from a relative import grabbing a similarly named module from the local package.
+
+Barry Warsaw said he was thinking of writing a PEP on this idea.
+
+Contributing threads:
+  - `Consistent logging in the standard library <http://mail.python.org/pipermail/python-dev/2003-September/038000.html>`__
+
+
+---------------------------------------------------
+Quick: want to give a Python talk at Linuxworld NY?
+---------------------------------------------------
+If you are interested in what the title asks, then read the email for some details.
+
+Contributing threads:
+  - `Quick: want to give a Python talk at Linuxworld NY? <http://mail.python.org/pipermail/python-dev/2003-September/037993.html>`__
+
+
+-------------------------------------------
+Be careful about saying something is "easy"
+-------------------------------------------
+A word of advice about saying something is "easy" on python-dev: if you say that you should make sure you can back up that claim because otherwise you will be told to write the "easy" patch and that will be the end of the discussion.
+
+Contributing threads:
+  - `Making python C-API thread safe (try 2) <http://mail.python.org/pipermail/python-dev/2003-September/038007.html>`__
+
+
+--------------------------
+Parsing dates for datetime
+--------------------------
+There was some talk about coming up with some code to parse dates for the datetime module.  It was kind of hand-wavy since there are multiples chunks of code that can do that in the standard library.
+
+If you have an opinion on this (or anything for that matter), make sure to make a post to `comp.lang.python`_ about it.
+
+Contributing threads:
+  - `datetime issues <http://mail.python.org/pipermail/python-dev/2003-September/038042.html>`__

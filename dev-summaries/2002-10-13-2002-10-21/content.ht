@@ -1,0 +1,67 @@
+Title: 2002-10-13 -- 2002-10-21
+Sitemap-ignore: yes
+
+<p>From: Raymond Hettinger.
+
+<p>I'm filling in while Brett is on vacation.  To make everyone 
+appreciate his formatting and lucidity, I'll skip the 
+reStructuredText and write in my own terse style.
+
+<p>
+<a href="http://mail.python.org/pipermail/python-dev/2002-October/029577.html">http://mail.python.org/pipermail/python-dev/2002-October/029577.html</a>
+Python 2.2.2. was released in final form this week.  Oh, yeah!
+
+<p>
+<a href="http://mail.python.org/pipermail/python-dev/2002-October/029527.html">http://mail.python.org/pipermail/python-dev/2002-October/029527.html</a>
+Why does the Window's installer use shortened 8.3 pathnames?
+Answer:  It doesn't have to, but it is less confusing than dealing
+with pathnames that can have embedded spaces.
+
+<p>
+<a href="http://mail.python.org/pipermail/python-dev/2002-October/029544.html">http://mail.python.org/pipermail/python-dev/2002-October/029544.html</a>
+PEP 218 was updated to match the sets.py module in CVS for Python 2.3.
+The question arose as to whether immutable sets should be implemented
+in C as a separate type or whether mutability should be a property.
+Answer:  Keep them as different types since they support different
+methods.  Next question:  Should there be a separate language syntax
+for the two different types.  Answer:  Probably not, leave as an open
+question in the PEP.
+
+<p>
+<a href="http://mail.python.org/pipermail/python-dev/2002-October/029542.html">http://mail.python.org/pipermail/python-dev/2002-October/029542.html</a>
+The -U flag was put in to test the Python standard lib for being able 
+to handle Unicode seamlessly.  It remained undocumented so that bug
+reports wouldn't pile up while the issues were being worked out.
+Progress is being made but it is possible the -U flag will never be
+fully implemented and released as a documented feature.  
+
+<p>
+<a href="http://mail.python.org/pipermail/python-dev/2002-October/029535.html">http://mail.python.org/pipermail/python-dev/2002-October/029535.html</a>
+Python has more than one place that is vulnerable to 32 bit word 
+overflows unless a bunch of tests are put in place to catch unusual 
+highly contrived cases that never come up in real world examples.  
+Since the fixes would be ugly, wordy, and slow, it was decided to
+leave them alone.
+
+<p>
+<a href="http://mail.python.org/pipermail/python-dev/2002-October/029024.html">http://mail.python.org/pipermail/python-dev/2002-October/029024.html</a>
+Tcl 8.0 and 8.1 are ancient history except in the world of Cygwin
+which is currently stuck with 8.0.  Accordingly, Python 2.3's support
+for the prior versions has been cleaned out and support for 
+UCS-4 in _tkinter has been added.
+
+<p>
+<a
+href="http://mail.python.org/pipermail/python-dev/2002-October/029591.html">http://mail.python.org/pipermail/python-dev/2002-October/029591.html</a>
+Getting mtime, atime, and ctime to return floats instead of ints
+seemed like a simple enough change.  Much discussion was held on how
+to accommodate the change without breaking anything that relied on the
+type.  Though breakage would've been rare (since the only normal use
+for the data is to compare it or print it), Guido proposed a solution
+(putting the ints in the tuple) that seemed to accommodate all
+practical cases.
+
+<p>
+<a href="http://mail.python.org/pipermail/python-dev/2002-October/029679.html">http://mail.python.org/pipermail/python-dev/2002-October/029679.html</a>
+Brian Quinlan teased out the design issues behind proxies and 
+weakref objects.</pre> 

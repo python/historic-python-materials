@@ -1,0 +1,1248 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Cheetah: The Python-Powered Template Engine</title>
+</head>
+<body>
+
+
+
+
+<h1 align="center">Cheetah: The Python-Powered Template Engine</h1>
+<h6 align="center">By Tavis Rudd, Mike Orr and Ian Bicking</h6>
+
+<h6>Affiliations</h6>
+<p>Tavis Rudd is a freelance consultant.  Mike Orr does web application
+development at a publishing company.  Ian Bicking is a freelance web developer.
+</p>
+
+
+
+<!-- ************************************************** -->
+<h3>Abstract</h3>
+
+<p>Cheetah is a Python-powered template engine and code generator.  It has many
+potential uses -- generating SQL, SGML, LaTeX, PostScript, form emails, etc. --
+but its principle use is for web developers as an alternative to ASP, JSP, PHP
+and PSP. Cheetah integrates tightly with <A
+HREF="http://webware.sourceforge.net">Webware for Python</A>, but is also well
+suited for use as a standalone tool.  The current version is available at <A
+HREF="http://www.cheetahtemplate.org/">http://www.cheetahtemplate.org/</A>,
+along with a Users' Guide.  Cheetah is distributed under a BSD-like license.
+</p>
+
+<p>This paper introduces Cheetah and examines its influences, design principles,
+and implementation. It also highlights the unique features that distinguish it
+from other template engines.</p>
+
+<h6>Keywords</h6>
+<p>templates, code generators, web development, Webware for Python, servlets,
+parsers
+</p>
+
+
+
+
+<!-- ************************************************** -->
+<h3>Introduction and Design Influences</h3>
+
+<p>Cheetah is a template engine and code generator that grew out of the 'Webware
+for Python' project [1]. In April 2001, Webware developers could write servlets
+using only pure Python code or Python Server Pages (PSP) [2].  Neither
+facilitated the rapid creation of the large HTML templates for dynamic web
+applications.  Vanilla Python is not tailored for extended string interpolation,
+nor should it be. PSP is well suited for throwing together a quick page or two,
+but tends to degrade into a tangled mess of spaghetti code when used in larger
+projects.  It's also more verbose than necessary and is hard to explain to
+non-programmers.</p>
+
+<p>Several Webware developers decided to address this situation and started a
+discussion about porting or developing a template system that made it easy to
+access any Python data structure and manage control flow from within text
+documents.  As we were fleeing spaghetti code, we felt that being able to
+separate the interface from the application code was essential.  It should work
+well with any text-based output, not just HTML. Builtin output caching would be
+nice. In the name of maintainability, we wanted to be able to inherit and extend
+one template from another.  Most importantly, the basic syntax and concepts
+needed to be simple and consistent enough for non-programmers to understand,
+while being flexible enough to give programmers the full expressive power of
+Python. Our wishlist was long!
+</p>
+
+<p>Over the following months, we closely examined many template systems with
+radically different approaches: Zope's DTML and Zope Page Templates [3], Alex
+Martelli's Yet Another Python Templating Utility (YAPTU) [4], Ka-ping Yee's
+string interpolation module (itpl) [5], Quixote's Python Template Language [6],
+Velocity [7] and WebMacro [8] from Java, Smarty [9] and PHPLib's Template class
+[10] from PHP, and the Template Toolkit from Perl [11].  Much later, we also
+looked at Skunkweb's STML [12].</p>
+
+<p>We were tempted by Zope Page Templates (ZPT) because it seemed to work well for
+teams that had designers working with WYSIWYG tools. However, we
+decided against a ZPT-like design for several reasons.  First, we wanted a
+generalized system that worked with any form of text output, not just HTML. A
+recent discussion on Advogato [13] highlighted our other concerns:
+</p>
+
+<!-- ************************************************** -->
+<blockquote>
+    <p>
+    [ZPT] seems like a good idea, but it has a number of serious problems. The
+    biggest problem is that it assumes that the static structure of a web page
+    is in any way similar to how that web page is going to look when displayed
+    dynamically. However, most large web sites use the notion of "components" -
+    that is, re-usable fragments of dynamic HTML which are assembled to form a
+    complete page.  ...
+    </p>
+      
+    <p>
+    What I have experienced is that HTML pages for industrial-strength web sites
+    like Amazon's is [sic] made up of a myriad of dynamically generated elements
+    - there is very little static structure to the page at all. Thus, it is only
+    useful to preview the dynamic elements. Previewing the static structure of
+    the page is not in the least bit helpful, and merely serves to make the
+    artists' job harder by distracting them with "dummy" content that makes the
+    template more verbose.  ...
+    </p>
+   
+    <p>
+    The WYSIWYG paradigm I believe involves two basic assumptions: 
+    <ul>
+      <li>That the developer of a piece of content is able to see, in real-
+      time, the visual effects of a particular design modification.  That the
+      operations on the document are all fundamentally visual operations, that
+      is, operations on appearance, layout and style.
+
+      <li>In other words, I think that in order to be truly WYSIWYG, the content
+      developers need not concern themselves with the abstractions that lie
+      behind the visual presentation. They operate directly on the visual
+      presentation and never need to penetrate beneath it.
+    </ul>
+    </p>
+   
+    <p>
+    However, in a highly dynamic system, it really isn't possible to visually
+    present any more than a snapshot of the dynamic system at any given
+    moment. In a highly dynamic system, you really do want to expose to the
+    designer the abstract mechanisms behind the facade - because those abstract
+    elements are what defines the dynamics. It means that the designer has to
+    think abstractly, and must operate on that level instead of the level of
+    superficial appearances. ---- <a
+    href="http://www.advogato.org/person/Talin/">Talin</a> (quoted with
+    permission)
+    </p>
+    
+    <hr> <!-- ************************************************** -->
+  
+    <p>
+    Code kept in HTML attributes is largely inaccessible to the user -- they
+    can't see it, they won't know if they've deleted it, and they'll have a
+    really hard time putting it in. [The designers] are capable of doing some
+    programming -- the most simple and most common case is simply indicating
+    where certain values should go (like username, status message, etc). In
+    fact, one of ZPT's big detractions, in my mind, is just how difficult it is
+    just to do that simple insertion (<span
+    tal:replace="username">username</span>, if I remember correctly).
+    </p>
+   
+    <p>
+    One of the great things about WYSIWYG editors is that they are entirely
+    concrete. Now it's not possible to make a dynamic page entirely concrete,
+    but it is nice to at least make the logic visible.
+    </p>
+   
+    <p>
+    And, of course, ZPT is connected to HTML and XML. But just about every
+    significant application will also have to produce CSS, Javascript, and email
+    messages. Maybe this is part of the transition you've already made from XML
+    to HTML, and eventually to plain text. It's a significant problem, but a
+    solvable one. In the same way, by putting in a non-HTML-attribute syntax,
+    you can potentially make ZPT more concrete. I don't want to seem too
+    negative -- there are some really good parts to ZPT, particularly when
+    changing IMG SRC value, which will piss off the WYSIWYG editor badly in most
+    other systems. ---- <a href="http://colorstudy.com/">Ian Bicking</a>
+    </p>
+</blockquote>
+<!-- ************************************************** -->
+
+<p> Furthermore, ZPT assumes a clear division of roles between the programmer
+and the designer.  We preferred a system with a generalized core that could
+adapt to uses and work flow patterns that weren't anticipated a priori.  Our
+conclusion was that if we ever needed the WYSIWYG abilities of ZPT, we'd build
+an extra layer to provide it.  </p>
+
+<p>
+None of the existing systems was a perfect match, so we began work on several
+competing modules that blended what we considered the best features in the
+existing systems.  Cheetah's predecessor, <code>TemplateServer</code>, was one
+of these modules. It began as a simple regex-based tool, vaguely resembling
+YAPTU.  As we examined the syntax and design philosophies used in other systems,
+and as its author slowly learned how to build a parser, TemplateServer evolved
+and gradually gained general support among the Webware developers.  In June
+2001, we retired the name <code>TemplateServer</code> in favor of
+<code>Cheetah</code>.
+</p>
+
+<p>Early on, we abandoned the pointy-bracket syntax of PSP and other many other
+systems because the tags are invisible in browsers when something goes wrong,
+are too verbose, and in general work poorly with GUI tools. Instead, we adopted
+the basic syntax of Velocity: <code>$</code>'s for interpolation placeholders
+and <code>#</code>'s for directives.
+</p>
+
+<p>Velocity also strongly influenced our perspective on syntax and complexity.
+Initially, several of us argued that Cheetah's syntax should be purposefully
+restricted, in order to prevent developers from doing complex processing in
+Cheetah.  We'd seen the mess that DTML had become, so our maxim was "Cheetah for
+the simple tasks, Python for the complex".  It soon became clear that this
+stance was unnecessary and would artificially limit Cheetah's usefulness.  DTML
+had failed because of its confusing, inconsistent syntax and the many hoops one
+had to jump through to access plain Python, not because it had given template
+writers powerful constructs to work with.  Velocity, on the other hand, was
+succeeding because it had a coherent syntax that was expressive enough to handle
+most aspects of an application's <em>interface</em> without requiring constant
+switches back to Java.  Cheetah users were complaining about being forced back
+into Python to handle complex tasks that were still related to the
+<em>interface</em>, so we decided to make most of Python's language constructs
+directly accessible from Cheetah. Where Python has <code>for ...</code>, Cheetah
+has <code>#for ...</code>, and so on.</p>
+
+<p>As a result, Cheetah's syntax became larger, but not necessarily more
+complex. The original core is still easy for non-programmers to learn and use.
+And, as most Cheetah language constructs are exact mirrors of Python contructs,
+prefaced with a <code>#</code> or <code>$</code>, someone with Python experience
+won't have much re-learning to do. Cheetah's object-orientation and error
+handling are semantically identical to Python's.  See the <em>Syntax
+Overview</em> section below for more information.
+</p>
+
+<p>Cheetah's original implementation translated templates into function
+definitions, evaluated them and then dynamically bound the resulting function as
+a method of a <code>Template</code> object, much like the cached subroutines
+used by Perl's Template Toolkit. This approach was flawed.  Subtle
+<code>tricks</code> were needed for the inheritance features to work and we were
+constantly running into conceptual brick walls and ambiguities.  Templates could
+be extended and reused, but via our own black magic system rather than via
+Python's standard inheritance structures.  It also led to high initialization
+costs and painful debugging.  Webware's implementation of PSP gave us the idea
+to compile templates into pure Python classes / modules.  Most of Cheetah's
+early problems were resolved by this decision and most of its current strengths
+and unique features are a direct result of it.</p>
+
+
+<!-- ************************************************** -->
+<h3>Syntax Overview</h3>
+
+<p> Cheetah has two types of tags: placeholders and directives. Placeholder tags
+begin with a dollar sign (<code>$varName</code>) and are similar to data fields
+in a form letter or the %(key)s fields Python's % operator uses. An alternate
+syntax (<code>${varName}</code>) may be used to prevent ambiguity about where
+the placeholder ends. Directive tags begin with a hash character (#) and are
+used for comments, loops, conditional blocks, includes, and all other features.
+</p>
+
+<p>Inside directive tags, Cheetah uses a Python-like syntax and understands any
+valid Python expression.  The main differences from pure Python syntax are 1)
+all variable names are prefaced with a dollar sign ($), 2) colons (:) are not
+used to mark the beginning of a code block, and 3) indentation is not
+significant.  Instead of using indentation, Cheetah uses <code>#end [if | for |
+try | etc.]</code>. Most of the directive tags are direct mirrors of Python
+statements.
+</p>
+
+<P>Cheetah also supports two PSP style tags as escapes to pure Python
+code. These are not part of Cheetah's core syntax, but are included to
+facilitate migration from PSP-style markup languages to Cheetah.  These tags may
+not be used inside of other Cheetah tags, and vice versa.
+
+<OL>
+<li>evalute expression and print the output: <code>&lt;%=</code> ...<code>%&gt;</code> 
+</li>
+<li>execute code and discard output: <code>&lt;%</code> ...<code>%&gt;</code>
+</li>
+</OL>
+
+<!-- ************************* -->
+<h4>Cheetah's Language Constructs</h4>
+
+<p>The following is a basic categorization of Cheetah's language constructs. A
+detailed explanation is provided in the Users' Guide.
+</p>
+
+<OL>
+<li>Comments and documentation strings
+     
+<OL>
+<li><code>## single line</code>
+</li>
+<li><code>#* multi line *#</code>
+     
+</li>
+</OL>
+
+<P>
+</li>
+<li>Generation, caching and filtering of output
+     
+<OL>
+<li>plain text
+</li>
+<li>output from simple expressions: <code>$placeholders</code>
+</li>
+<li>output from more complex expressions: <code>#echo</code>
+</li>
+<li>gobble the end of line: <code>#slurp</code>
+</li>
+<li>parsed template file includes: <code>#include</code>
+</li>
+<li>raw file includes: <code>#include raw</code>
+</li>
+<li>verbatim output of Cheetah code: <code>#raw</code> ...<code>#end raw</code>
+</li>
+<li>cached placeholders: <code>$*var</code>, <code>$*&lt;interval&gt;*var</code>
+</li>
+<li>cached regions: <code>#cache</code> ...<code>#cache</code>
+</li>
+<li>set the output filter: <code>#filter</code> ...
+     
+</li>
+</OL>
+
+<P>
+</li>
+<li>Function/method calling without outputting the return value: <code>#silent</code>
+
+<P>
+</li>
+<li>Importing other modules and from other modules: <code>#import</code>,
+     <code>#from</code>
+
+<P>
+</li>
+<li>Inheritance 
+     
+<OL>
+<li>set the base classes to inherit from: <code>#extends</code>
+</li>
+<li>set the name of the main method to implement: <code>#implements</code>
+     
+</li>
+</OL>
+
+<P>
+</li>
+<li>Compile-time declaration
+     
+<OL>
+<li>define class attributes: <code>#attr</code> ...
+</li>
+<li>define class methods: <code>#def</code> ...<code>#end def</code> 
+</li>
+<li><code>#block</code> provides a simplified interface to <code>#def</code>
+</li>
+<li>define class 'settings': <code>#settings</code> ...<code>#end
+settings</code> using the builtin SettingsManager API
+     
+</li>
+</OL>
+
+<P>
+</li>
+<li>Run-time assignment
+     
+<OL>
+<li>local vars: <code>#set</code> ...
+</li>
+<li>global vars: <code>#set global</code> ...
+     
+</li>
+</OL>
+
+<P>
+</li>
+<li>Flow control
+     
+<OL>
+<li><code>#if</code> ...<code>#else</code> ...<code>#else if</code> (aka
+          <code>#elif</code>) ...<code>#end if</code>
+</li>
+<li><code>#for</code> ...<code>#end for</code>
+</li>
+<li><code>#while</code> ...<code>#end while</code>
+</li>
+<li><code>#break</code>
+</li>
+<li><code>#continue</code>
+</li>
+<li><code>#pass</code>
+</li>
+<li><code>#stop</code>
+     
+</li>
+</OL>
+
+<P>
+</li>
+<li>error/exception handling
+     
+<OL>
+<li><code>#assert</code>
+</li>
+<li><code>#raise</code>
+</li>
+<li><code>#try</code> ...<code>#except</code> ...<code>#else</code> ...
+          <code>#end try</code> and  <code>#finally</code>
+</li>
+<li><code>#errorCatcher</code>: a debugging tool that sets a default
+          exception catcher/handler for exceptions raised by $placeholder calls.
+     
+</li>
+</OL>
+
+<P>
+</li>
+<li>Instructions to the parser/compiler
+     
+<OL>
+<li><code>#breakpoint</code> 
+</li>
+<li><code>#compiler-settings</code> ...<code>#end compiler-settings</code>
+     
+</li>
+</OL>
+</li>
+</OL>
+
+
+<!-- ************************************************** -->
+<h3>How Cheetah Works</h3>
+
+<p> The heart of Cheetah is the <strong><code>Template</code></strong> class in
+the <code>Cheetah.Template</code> module. It serves two purposes. First, its
+constructor method accepts a source string or file (filename or file object) and
+compiles the source into a Python class.  Second, it is used as the base class
+for the generated classes. <code>Template</code> subclasses Webware's
+<code>HTTPServlet</code> class when it is available.  Thus, the generated
+classes can be used as Webware servlets or as standalone utilities.
+
+<p>Generated template classes can either be used immediately or written to a
+Python module file for future use.  In the former case, the methods and
+attributes of the generated class are dynamically added to the instance of
+<code>Template</code> that did the compiling.  They are available as soon as
+compilation is complete.  In the latter case, Cheetah will wrap the generated
+class definition in some boilerplate code to produce a complete module
+definition.
+</p>
+
+<p> The file <code>Example.tmpl</code> contains the following source code:</p>
+<blockquote><pre>
+#attr adj = "trivial"
+This is a $adj example
+</pre></blockquote>
+
+<p>This can processed using the python interactive interpreter:
+</p>
+
+<blockquote><pre>
+>>> from Cheetah.Template import Template
+>>> template = Template(file='Example.tmpl')
+>>> print template
+This is a trivial example
+>>> print template       # and again
+This is a trivial example
+>>>
+>>> print  template.generatedClassCode()
+# ... the source code of the generated Python class (see the Appendix for examples)
+>>> print  template.generatedModuleCode()
+# ... the source code of the generated Python module
+</pre></blockquote>
+
+<p>Cheetah source files (<code>.tmpl</code>) can also be processed in a variety
+of ways using the command line:
+</p>
+
+<blockquote><pre>
+tavis@lucy: ~ > cheetah-compile -h
+Cheetah 0.9.9b1 command-line compiler by Tavis Rudd and Ian Bicking
+
+Compiles Cheetah files (.tmpl) into Webware servlet modules (.py)
+
+Usage:
+  cheetah-compile [OPTIONS] FILES/DIRECTORIES
+
+  -R                          Recurse subdirectories
+  -p                          Print generated Python code to stdout
+  -w                          Write output of template to *.html
+  -v                          Be verbose
+
+
+tavis@lucy: ~ > cheetah-compile -p Example.tmpl | python
+This is a trivial example
+
+tavis@lucy: ~ > ls  Example.*
+example.tmpl
+tavis@lucy: ~ > cheetah-compile example.tmpl
+tavis@lucy: ~ > ls  Example.*
+Example.tmpl Example.py
+
+tavis@lucy: ~ > python Example.py
+This is a trivial example
+</pre></blockquote>
+
+<p>The Python modules that are generated from templates come with a command-line
+interface themselves:</p>
+
+<blockquote><pre>
+tavis@lucy: ~ > export adj=commandline
+tavis@lucy: ~ > python Example.py --env
+This is a commandline example
+</pre></blockquote>
+
+
+<p>All of Cheetah's command line interfaces accept input via pipes and can be
+chained together with other tools, as demonstrated by this contrived example:
+</p>
+
+<blockquote><pre>
+echo "My computer's name is $HOST" | cheetah-compile - | python - --env
+</pre></blockquote>
+
+<p>In highly simplified pseudo-code, <code>Example.py</code> works something
+like this:
+</p>
+
+<blockquote><pre>
+from Cheetah.Template import Template
+class Example(Template):
+    adj = "trivial"
+
+    def respond(self, trans=None, # trans is a Webware 'transaction' object
+                dummyTrans=False):
+        """
+        This is the main method generated by Cheetah
+        """
+
+        if not trans:   # i.e. if run without Webware
+            trans = DummyTransaction()
+            dummyTrans = True
+        write = trans.response().write  # used to stream output
+
+        ########################################
+        ## START - generated method body
+
+        write('This is a ')
+        write(str(self.adj)) # generated from '$adj' at line, col (2, 11).
+        write(' example')
+
+        ########################################
+        ## END - generated method body
+
+        if dummyTrans:
+            return trans.response().getvalue()
+        else:
+            return ""
+
+    ##################################################
+    ## GENERATED ATTRIBUTES
+    adj = "trivial"
+    __str__ = respond
+ 
+##################################################
+## if run from command line:
+if __name__ == '__main__':
+    Example().runAsMainProgram()
+</pre></blockquote>
+
+<p>Webware servlets use the <code>respond()</code> method to respond to incoming
+requests.  It is also the core method of a Cheetah generated class.  If
+<code>Example.py</code>, or any other Cheetah generated module, is placed in a
+Webware servlet directory it will be loaded like any other Webware servlet
+module.</p>
+
+<p>For convenience, Cheetah makes the <code>__str__</code> method an alias to
+<code>respond()</code>.  Thus, <code>print myTemplateObj</code> or <code>print
+Template(sourceString)</code> will print the output of the template.
+</p>
+
+
+<!-- ************************************************** -->
+<h3>Getting Data Into Cheetah Templates</h3>
+
+There are numerous options for getting data into Cheetah templates so formatted
+output can be generated from it.  These options are identical to those available
+in normal Python: importing from modules, querying databases, using mixin
+classes, etc.  The Cheetah Users' Guide contains examples.
+
+
+<!-- ************************************************** -->
+<h3>What Makes Cheetah Unique?</h3>
+
+
+<!-- ************************* -->
+<h4>Object-Oriented Documents</h4>
+
+<p>As described above, Cheetah templates are class definitions.  Whereas other
+template systems use the concept of <code>blocks</code> to define regions of a
+template that can be overridden and customized, Cheetah uses methods, attributes
+and inheritance:
+</p>
+
+<blockquote><pre>
+#attr anAttrib = "An attribute of the template class"
+
+#def myMethod1
+the first method
+#end def
+
+#def myMethod2
+the second method
+#end def
+
+Here's $anAttrib 
+Here's $myMethod1
+Here's $myMethod2
+</pre></blockquote>
+
+<p>Methods can have arguments:
+</p>
+
+<blockquote><pre>
+#def myMethod($arg1='foo', $arg2='bar')
+This is arg1: $arg1
+This is arg2: $arg2
+#end def
+$myMethod(1,2)
+</pre></blockquote>
+
+<p>Cheetah also provides the <code>#block</code> directive as a simple wrapper
+around the <code>#def</code> directive.  It allows a method to be defined and
+used in place.
+</p>
+
+<blockquote><pre>
+#block myMethod
+This is a method defined and used in place.
+#end block
+</pre></blockquote>
+
+<p>is semantically identical to:</p>
+
+<blockquote><pre>
+#def myMethod
+This is a method defined and used in place.
+#end def
+$myMethod
+</pre></blockquote>
+
+<!-- ************************* -->
+<h4>NameMapper Variable Access</h4>
+
+<p>
+One of our core aims with Cheetah was to make it easy for non-programmers to
+use. To achieve this aim, we created a simplified syntax for mapping variable
+names in Cheetah to values in Python. It's known as the <b>NameMapper syntax</b>
+and makes it possible for non-programmers to use Cheetah without knowing (a)
+what the difference is between an object and a dictionary, (b) what functions
+and methods are, and (c) what 'self' is. NameMapper syntax is used for all
+variables in Cheetah placeholders and directives.</p>
+
+<p>Consider this scenario:</p>
+
+<p> You've been hired as a consultant to design and implement a customer
+information system. You create a class that has a 'customers' method that
+returns a dictionary of all the customer objects.  Each customer object has an
+'address' method that returns the a dictionary with information about the
+customer's address. The designers working for your client want to use
+information from your system on the client's website <b>and</b> they want to
+maintain the display code themselves.</p>
+
+<p>Using PSP, the display code for the website might look something like the
+following: </p>
+
+<blockquote>
+<pre>
+  &lt;%= self.customer()[ID].address()['city'] %&gt;   (42 chars)
+</pre>
+</blockquote>
+
+<p>
+Without understanding objects, methods, and dictionaries the designers must rely
+on rote memory to know where to put the parentheses, brackets and quotation
+marks.  NameMapper syntax insulates them from this complexity and is forgiving
+with the small syntactical subtleties that PSP would gag on. All of the
+following variations are valid with NameMapper:
+</p>
+
+<blockquote>
+<pre>
+   $self.customers()[$ID].address()['city']       (39 chars)
+   --OR--                                         
+   $customers()[$ID].address()['city']           
+   --OR--                                         
+   $customers()[$ID].address().city              
+   --OR--                                         
+   $customers()[$ID].address.city                
+   --OR--                                         
+   $customers()[$ID].address.city
+   --OR--
+   $customers[$ID].address.city                   (27 chars)                     
+</pre>
+</blockquote>
+
+<p>NameMapper may initially scare those who have experienced the quirks of
+Zope's <code>acquisition</code> and <code>DTML</code>.  If desired, it can be
+turned off using the <code>'useNameMapper'</code> setting.  However, we have yet
+to find a case where this is needed, as plain Python syntax is compatible with
+NameMapper.</p>
+
+<p>Cheetah comes with two implementations of the module that implements
+NameMapper syntax: one in C and the other in Python.  The C version is up to 6
+times faster.  It's still slightly slower than standard Python syntax, but the
+speed difference is neglible in real world scenarios. Cheetah uses the optimized
+C version if it has been compiled, and automatically falls back to the Python
+version if not.</p>
+
+
+<!-- ************************* -->
+<h4>Completely Configurable Syntax</h4>
+
+<p>We made the potentially controversial decision to allow users to use any
+delimeters in place of the standard <code>$</code> and <code>#</code>.  The
+delimeters for comments are also configurable. This is a safety valve for
+situations we didn't anticipate, where the standard delimiters are just too
+impractical.  We wanted something that is flexible enough to handle
+unanticipated situations in the future.  In particular, configurable delimiters
+allow for the dynamic creation of tutorials, program listings, or even source
+code listings of other languages that use $ for special purposes.  For example,
+preprocessing of LaTeX source files is one area that we have a strong interest
+in.</p>
+
+<p>People often raise concerns that this might lead to conflicts between
+templates configured to use different delimiters.  This is not a problem, as
+each Cheetah template is individually compiled to pure Python code.  Thus, such
+changes are localized to a single file.  A template with one set of delimiters
+can safely subclass or even include a template that uses another set.  A very
+unique feature of Cheetah is that these delimiters can be changed for an entire
+template file, or just a particular portion of a template.
+</p>
+
+
+
+<!-- ************************* -->
+<h4>Powerful Output Caching Framework</h4>
+
+<p>
+Cheetah can cache the output from individual <code>$placeholder</code> tags or
+from entire regions of Cheetah source code.  Caches can static or linked to a
+refresh-timer.</p>
+
+<p>The syntax for using the caching framework is incredibly simple.  To cache a
+placeholder statically, use <code>$*varName</code>.  To cache a placeholder with
+a refresh-timer, use <code>$*5m*varName</code> (or
+<code>$*5m*{varName}</code>). Times may be specified in fractional numbers and
+with various interval suffixes ('s' for seconds, 'h' for hours, 'd' for days,
+'w' for weeks).  Thus, <code>$*0.5d*varName</code> means cache for half a day.
+To cache a region, use the <code>#cache</code> directive. Cached regions can be
+given an <code>id</code>, which can be used to programmatically refresh a
+region.  Cached regions can also be invalidated according to user-specified test
+conditions.</p>
+    
+<blockquote>
+<pre>
+#cache id='sidebar', test=$isDBUpdated
+## do something
+#end cache
+</pre>
+</blockquote>
+<BR>
+<blockquote>
+<pre>
+#cache id='sidebar', test=($isDBUpdated or $someOtherCondition)
+## do something
+#end cache
+</pre>
+</blockquote>
+
+<p>The <code>#cache</code> directive is currently undergoing some extensions.
+Proposed extensions would allow caching according to a query-string parameter
+(<code>varyByParam='ID'</code>), the browser type
+(<code>varyByBrowser</code>).</p>
+
+
+<!-- ************************* -->
+<h4>Tight Integration with Webware, While Being Separable</h4>
+
+<p>Cheetah integrates tightly with the Webware servlet model, but can also be
+used as a standalone tool or as part of other systems.  For, example every
+template processed with Cheetah has a builtin command line interface for use
+with shell scripts.</p>
+
+
+<!-- ************************************************** -->
+<h3>Current Status</h3>
+
+<p>As of this writing (December 2001), Cheetah is beta software, although it is
+already being used in several production applications.  The existing syntax and
+semantics are stable, but there are some additions to come. Version 1.0 will be
+released "when it's ready".  We're hoping that will be early 2002, but we would
+rather "do it right" than "do it hastily".  Our goals are robustness,
+scalability, and applicability to a wide variety of situations.</p>
+
+
+<!-- ************************************************** -->
+<h3>Future Directions</h3>
+
+<!-- ************************* -->
+<h4>WYSIWYG Editor Integration</h4>
+
+<p>
+While effort has been made to make Cheetah friendly with WYSIWYG systems, the
+test of actual use has yet to be made.  In particular, WYSIWYG editors generally
+demand to make valid HTML documents, and that can conflict with Cheetah as it
+conflicts with many template systems.  The most difficult problem is a case
+like:</p>
+
+<blockquote>
+<pre>
+&lt;TABLE&gt;
+#for $row in $values
+&lt;TR&gt;&lt;TD&gt;$row&lt;/TD&gt;&lt;/TR&gt;
+#end for
+&lt;/TABLE&gt;
+</pre>
+</blockquote>
+
+<p>
+Anything between &lt;table&gt; and &lt;tr&gt; is generally invalid,
+and WYSIWYG editors will rearrange these pieces.
+</p>
+
+<!-- ************************* -->
+<h4>More Documentation</h4>
+
+<p>Cheetah currently has a 60 page Users' Guide (see the Cheetah home page) and
+a collaborative Wiki.  A Beginners' Guide, and a Developers' Guide are planned.
+The wiki site is home to an Examples Cookbook describing various usage
+strategies
+</p>
+
+<!-- ************************* -->
+<h4>Code and Template Libraries</h4>
+
+<p>Cheetah comes "batteries included" with a library of templates, functions and
+other objects you can use in your own programs.  Some of these were contributed
+by users.  We are very interested in building up this library.
+</p>
+
+<!-- ************************************************** -->
+<h3>Conclusion</h3> 
+
+<p>Like its namesake, Cheetah is fast, flexible and powerful. If you're a Python
+programmer looking for a templating system that is Pythonic, consider Cheetah.
+If you like Webware because of its modular nature, you'll like Cheetah.  If you
+require a division of labor between the application programmers and designers
+(who may not know how to program), Cheetah is a good match.</p>
+
+
+<!-- ************************************************** -->
+<h3>Acknowledgments</h3>
+
+<p>Chuck Esterbrook provided the original inspiration for Cheetah and has been
+an active contributor throughout the project.</p>
+
+<p>We'd also like to thank the following people for contributing valuable
+advice, code and encouragement: Geoff Talvola, Jeff Johnson, Graham Dumpleton,
+Clark C. Evans, Craig Kattner, Franz Geiger, Tom Schwaller, Rober Kuzelj, Jay
+Love, Terrel Shumway, Sasa Zivkov, Arkaitz Bitorika, Jeremiah Bellomy, Baruch
+Even, Paul Boddie, Stephan Diehl, Chui Tey, and Geir Magnusson.</p>
+
+<p>The Velocity and WebMacro projects provided inspiration and design ideas.
+Cheetah has benefitted from the creativity and energy of their developers.</p>
+
+
+<!-- ************************************************** -->
+<h3>Appendix</h3>
+
+
+<!-- ************************* -->
+<h4>Detailed Example</h4>
+
+<p>The following template is part of Cheetah's standard library:</p>
+
+<blockquote><pre>
+#*doc-module:
+A Skeleton HTML page template, that provides basic structure and utility methods. *#
+################################################################################
+#from Cheetah.Templates._SkeletonPage import _SkeletonPage
+#extends _SkeletonPage
+#implements respond
+################################################################################
+#settings python
+title = 'Skeleton Page Template'
+siteDomainName = 'www.CheetahTemplate.org'
+siteCopyrightName = 'Tavis Rudd'
+siteCredits = 'Designed &amp; Implemented by Tavis Rudd'
+metaTags = {'HTTP_EQUIV':{'keywords':'Cheetah,'},
+            'NAME':{'generator':'Cheetah: The Python-Powered Template Engine'}
+            }
+bodyTagAttribs = {'text':'black'}
+#end settings
+################################################################################
+#cache id='header'
+$docType
+&lt;HTML&gt;
+&lt;!-- This document was autogenerated by Cheetah. Don't edit it directly!
+
+Copyright $currentYr - $siteCopyrightName - All Rights Reserved.
+Feel free to copy any javascript or html you like on this site,
+provided you remove all links and/or references to $siteDomainName
+However, please do not copy any content or images without permission.
+
+$siteCredits
+
+--&gt;
+
+################################################################################
+#block writeHeadTag
+&lt;HEAD&gt;
+&lt;TITLE&gt;$title&lt;/TITLE&gt;
+$metaTags
+$stylesheetTags
+$javascriptTags
+&lt;/HEAD&gt;
+#end block writeHeadTag
+
+#end cache
+
+$bodyTag
+
+#block writeBody
+This skeleton page has no flesh. Its body needs to be implemented.
+#end block writeBody
+
+&lt;/BODY&gt;
+&lt;/HTML&gt;
+</pre></blockquote>
+
+<p>This is its corresponding Python module:</p>
+
+<blockquote><pre>
+#!/usr/bin/env python
+
+&quot;&quot;&quot;A Skeleton HTML page template, that provides basic structure and utility methods.
+
+Autogenerated by CHEETAH: The Python-Powered Template Engine
+ CHEETAH VERSION: 0.9.9a7
+ Generation time: Mon Dec  3 23:42:34 2001
+   Source file: SkeletonPage.tmpl
+   Source file last modified: Wed Oct 10 17:17:10 2001
+&quot;&quot;&quot;
+
+__CHEETAH_genTime__ = 'Mon Dec  3 23:42:34 2001'
+__CHEETAH_src__ = 'SkeletonPage.tmpl'
+__CHEETAH_version__ = '0.9.9a7'
+
+##################################################
+## DEPENDENCIES
+
+import sys
+import os
+import os.path
+from os.path import getmtime, exists
+import time
+import types
+from Cheetah.Template import Template
+from Cheetah.DummyTransaction import DummyTransaction
+from Cheetah.NameMapper import NotFound, valueForName, valueFromSearchList
+import Cheetah.Filters as Filters
+import Cheetah.ErrorCatchers as ErrorCatchers
+from Cheetah.Templates._SkeletonPage import _SkeletonPage
+
+##################################################
+## MODULE CONSTANTS
+
+True = (1==1)
+False = (1==0)
+
+##################################################
+## CLASSES
+
+class SkeletonPage(_SkeletonPage):
+    &quot;&quot;&quot;
+
+    Autogenerated by CHEETAH: The Python-Powered Template Engine
+    &quot;&quot;&quot;
+
+    ##################################################
+    ## GENERATED METHODS
+
+
+    def __init__(self, *args, **KWs):
+        &quot;&quot;&quot;
+
+        &quot;&quot;&quot;
+
+        _SkeletonPage.__init__(self, *args, **KWs)
+        self._filePath = 'SkeletonPage.tmpl'
+        self._fileMtime = 1002759430
+        self.updateSettingsFromPySrcStr('''title = 'Skeleton Page Template'
+siteDomainName = 'www.CheetahTemplate.org'
+siteCopyrightName = 'Tavis Rudd'
+siteCredits = 'Designed &amp; Implemented by Tavis Rudd'
+metaTags = {'HTTP_EQUIV':{'keywords':'Cheetah,'},
+            'NAME':{'generator':'Cheetah: The Python-Powered Template Engine'}
+            }
+bodyTagAttribs = {'text':'black'}
+''')
+
+    def writeHeadTag(self,
+            trans=None,
+            dummyTrans=False,
+            VFS=valueFromSearchList,
+            VFN=valueForName,
+            getmtime=getmtime,
+            currentTime=time.time):
+
+
+        &quot;&quot;&quot;
+        Generated from #block writeHeadTag at line, col (34, 1).
+        &quot;&quot;&quot;
+
+        if not trans:
+            trans = DummyTransaction()
+            dummyTrans = True
+        write = trans.response().write
+        SL = self._searchList
+        filter = self._currentFilter
+        globalSetVars = self._globalSetVars
+
+        ########################################
+        ## START - generated method body
+
+        write('&lt;HEAD&gt;\n&lt;TITLE&gt;')
+        write(filter(VFS(SL,&quot;title&quot;,1))) # generated from '$title' at line, col (36, 8).
+        write('&lt;/TITLE&gt;\n')
+        write(filter(VFS(SL,&quot;metaTags&quot;,1))) # generated from '$metaTags' at line, col (37, 1).
+        write(' \n')
+        write(filter(VFS(SL,&quot;stylesheetTags&quot;,1))) # generated from '$stylesheetTags' at line, col (38, 1).
+        write(' \n')
+        write(filter(VFS(SL,&quot;javascriptTags&quot;,1))) # generated from '$javascriptTags' at line, col (39, 1).
+        write('\n&lt;/HEAD&gt;\n')
+
+        ########################################
+        ## END - generated method body
+
+        if dummyTrans:
+            return trans.response().getvalue()
+        else:
+            return &quot;&quot;
+
+
+    def writeBody(self,
+            trans=None,
+            dummyTrans=False,
+            VFS=valueFromSearchList,
+            VFN=valueForName,
+            getmtime=getmtime,
+            currentTime=time.time):
+
+
+        &quot;&quot;&quot;
+        Generated from #block writeBody at line, col (47, 1).
+        &quot;&quot;&quot;
+
+        if not trans:
+            trans = DummyTransaction()
+            dummyTrans = True
+        write = trans.response().write
+        SL = self._searchList
+        filter = self._currentFilter
+        globalSetVars = self._globalSetVars
+
+        ########################################
+        ## START - generated method body
+
+        write('This skeleton page has no flesh. Its body needs to be implemented.\n')
+
+        ########################################
+        ## END - generated method body
+
+        if dummyTrans:
+            return trans.response().getvalue()
+        else:
+            return &quot;&quot;
+
+
+    def respond(self,
+            trans=None,
+            dummyTrans=False,
+            VFS=valueFromSearchList,
+            VFN=valueForName,
+            getmtime=getmtime,
+            currentTime=time.time):
+
+
+        &quot;&quot;&quot;
+        This is the main method generated by Cheetah
+        &quot;&quot;&quot;
+
+        if not trans:
+            trans = DummyTransaction()
+            dummyTrans = True
+        write = trans.response().write
+        SL = self._searchList
+        filter = self._currentFilter
+        globalSetVars = self._globalSetVars
+
+        ########################################
+        ## START - generated method body
+
+        if exists(self._filePath) and getmtime(self._filePath) &gt; self._fileMtime:
+            self.compile(file=self._filePath)
+            write(getattr(self, self._mainCheetahMethod)(trans=trans))
+            if dummyTrans:
+                return trans.response().getvalue()
+            else:
+                return &quot;&quot;
+        write('\n')
+        ## START CACHE REGION: at line, col (19, 1) in the source.
+        RECACHE = True
+        if not self._cacheData.has_key('63190619'):
+            self._cacheIndex['header'] = '63190619'
+            pass
+        else:
+            RECACHE = False
+        if RECACHE:
+            orig_trans = trans
+            trans = cacheCollector = DummyTransaction()
+            write = cacheCollector.response().write
+            write(filter(VFS(SL,&quot;docType&quot;,1))) # generated from '$docType' at line, col (20, 1).
+            write('''
+&lt;HTML&gt;
+&lt;!-- This document was autogenerated by Cheetah. Don't edit it directly!
+
+Copyright ''')
+            write(filter(VFS(SL,&quot;currentYr&quot;,1))) # generated from '$currentYr' at line, col (24, 11).            write(' - ')
+            write(filter(VFS(SL,&quot;siteCopyrightName&quot;,1))) # generated from '$siteCopyrightName' at line, col (24, 24).
+            write(' - All Rights Reserved.\nFeel free to copy any javascript or html you like on this site,\nprovided you remove all links and/or references to ')
+            write(filter(VFS(SL,&quot;siteDomainName&quot;,1))) # generated from '$siteDomainName' at line, col (26, 52).
+            write('''
+However, please do not copy any content or images without permission.
+
+''')
+            write(filter(VFS(SL,&quot;siteCredits&quot;,1))) # generated from '$siteCredits' at line, col (29, 1).
+            write('''
+
+--&gt;
+
+''')
+            write(self.writeHeadTag(trans=trans)) # generated from '#block writeHeadTag' at line, col (34, 1).             write('\n')
+            trans = orig_trans
+            write = trans.response().write
+            self._cacheData['63190619'] = cacheCollector.response().getvalue()
+            del cacheCollector
+        write(self._cacheData['63190619'])
+        ## END CACHE REGION
+
+        write('\n')
+        write(filter(VFS(SL,&quot;bodyTag&quot;,1))) # generated from '$bodyTag' at line, col (45, 1).
+        write('\n\n')
+        write(self.writeBody(trans=trans)) # generated from '#block writeBody' at line, col (47, 1).
+        write('''
+&lt;/BODY&gt;
+&lt;/HTML&gt;
+
+
+
+''')
+
+        ########################################
+        ## END - generated method body
+
+        if dummyTrans:
+            return trans.response().getvalue()
+        else:
+            return &quot;&quot;
+
+    ##################################################
+    ## GENERATED ATTRIBUTES
+
+
+    __str__ = respond
+
+    _mainCheetahMethod_for_SkeletonPage= 'respond'
+
+
+# CHEETAH was developed by Tavis Rudd, Chuck Esterbrook, Ian Bicking and Mike Orr;
+# with code, advice and input from many other volunteers.
+# For more information visit http://www.CheetahTemplate.org
+
+##################################################
+## if run from command line:
+if __name__ == '__main__':
+    SkeletonPage().runAsMainProgram()
+</pre></blockquote>
+
+
+<!-- ************************************************** -->
+<h3>References</h3>
+
+<p>[1]&nbsp;Webware is an application server written in Python. It provides
+a persistent servlet framework similar to J2EE.<a
+HREF="http://webware.sourceforge.net/">http://webware.sourceforge.net/</a></p>
+
+<p>[2]&nbsp;Python Server Pages: <a
+HREF="http://webware.sourceforge.net/Webware/PSP/Docs/UsersGuide.html">
+http://webware.sourceforge.net/Webware/PSP/Docs/UsersGuide.html</a></p>
+
+<p>[3]&nbsp;Zope's DTML and ZPT: <A
+HREF="http://zope.org/">http://zope.org/</A></p>
+
+<p>[4]&nbsp;Alex Martelli's YAPTU (Yet Another Python Templating Utility): <A
+HREF="http://aspn.activestate.com/ASPN/Python/Cookbook/Recipe/52305">http://aspn.activestate.com/ASPN/Python/Cookbook/Recipe/52305</A></p>
+
+<p>[5]&nbsp;Ka-ping Yee's itpl module: <A
+HREF="http://zope.org/">http://zope.org/</A></p>
+
+<p>[6]&nbsp;CNRI's Quixote and Python Template Language: <A
+HREF="http://www.mems-exchange.org/software/quixote/">
+http://www.mems-exchange.org/software/quixote/</A></p>
+
+<p>[7]&nbsp;Velocity: <A
+HREF="http://jakarta.apache.org/velocity">http://jakarta.apache.org/velocity</A></p>
+
+<p>[8]&nbsp;WebMacro: <A
+HREF="http://webmacro.org/">http://webmacro.org/</A></p>
+
+<p>[9]&nbsp;Smarty: <A
+HREF="http://www.phpinsider.com/php/code/Smarty/">http://www.phpinsider.com/php/code/Smarty/</A></p>
+
+<p>[10]&nbsp;PHPlib: <A
+HREF="http://phplib.sourceforge.net/">http://phplib.sourceforge.net/</A></p>
+
+<p>[11]&nbsp;Perl's Template Toolkit: <A
+HREF="http://search.cpan.org/doc/SAMTREGAR/HTML-Template-2.4/Template.pm">
+http://search.cpan.org/doc/SAMTREGAR/HTML-Template-2.4/Template.pm</a></p>
+
+<p>[12]&nbsp;Skunkweb: <A
+HREF="http://skunkweb.sourceforge.net/">http://skunkweb.sourceforge.net/</A></p>
+
+<p>[13]&nbsp;Discussion about Zope Page Templates on Advogato: <a
+href="http://www.advogato.org/article/350.html">http://www.advogato.org/article/350.html</a></p>
+
+<!--
+<p>[*]&nbsp;Macro Expansion Template Attribute Language: <a
+href="http://dev.zope.org/Wikis/DevSite/Projects/ZPT/METAL">
+http://dev.zope.org/Wikis/DevSite/Projects/ZPT/METAL</a>
+
+<p>[*]&nbsp;Oren Tirosh's PEP on String Interpolation with Back Quotes.
+<a
+hfref="http://www.tothink.com/python/interpp">http://www.tothink.com/python/interpp</a></p>
+
+<p>[*]&nbsp; PEP 215, String Interpolation (Ka-Ping Yee)
+<a
+href="http://www.python.org/peps/pep-0215.html">http://www.python.org/peps/pep-0215.html</a></p>
+-->
+
+</body>
+</html>

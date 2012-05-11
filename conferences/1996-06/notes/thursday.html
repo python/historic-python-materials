@@ -1,0 +1,232 @@
+<html>
+<head>
+<title>Thursday June 6th</title>
+<!-- Changed by: Roger E. Masse, 12-Jun-1996 -->
+</head>
+<body>
+<h1>Thursday June 6th</h1>
+<h2>SIG Working Groups </h2>
+<h3><A HREF="../../../sigs/doc-sig/">Documentation</A></h3>
+<b> Michael McLay </b><p> 
+<ul>
+    <li> Documentation Strings
+    <ul>
+          <li> Should docstrings be different?
+          <li> Guido: Must be string objects as defined by the C code
+          <li> Proposal: What about something like a URL that
+                 points to the file with the docstrings
+          <li> Guido: I'm OK with that
+          <li> Maybe they could be put in the pyc file at the end
+                 in a place after the code object.
+          <li> Closure: We need to have some better metrics on importing
+                 before we can agree on the best solution.
+          <li> Robin: I will organize some research into this on
+               the documentation SIG
+          <li> Guido: Maybe the format that Harri's OO Browser format
+               should be the
+               'viewing' format that we should standardize on?
+          <li> Response: Not all my users are going to be willing to live with
+	       the overhead of emacs for viewing documentation.  A
+	       simpler model would be better.
+          <li> Proposal: maybe we could use Daniel Larsson's <I> gendoc </I>?
+          <li> Jim Hugunin: I just ran out and did a test on a large .py
+               file (500 classes - 2 megabytes) with a 1 to 10 ratio of
+               code to docstrings (worst case scenario).
+	       The first time you import the module, it takes 4 seconds
+               to load with the docstrings included and 2 seconds without.
+               The second time you import it (the only test that really
+               matters... loading the pyc file), the difference is
+               much less: .3 seconds with and .2 seconds without.  
+          <li> Conclusion: Overhead of docstrings is *not* an issue.
+               Docstrings are good!
+          <li> Closure: Let's still put <I> gendoc </I> tool in the 
+                 contrib area of the ftp sight.
+          <li> <I> gendoc </I> in a way is
+               better than <i> docco </i> since it deals
+               with pure imports (extension modules are then included).
+               <I> docco </I> operates on source.
+          <li> Proposal: Maybe <I> gendoc </I> and <I> docco </I> need
+               to have a common intermediate format so output
+               formatter modules could be shared.
+          <li> Who is going to do this work? 
+          <li> Jim Fulton: I want to be able to extract more information
+               from builtin types without instantiating it.... make them
+               more like classes.  Wants builtins to
+	       <I> smell </I> more like classes.
+          <li> Guido: I agree that would be a good thing.
+          <li> Guido: I still want to reinforce the notion that the
+               first line of a docstring should be a consise description
+               of the method, followed by a blank line,
+               and then the rest of the contents of the docstring.
+    </ul>
+</ul>
+<h3><A HREF="../../../sigs/progenv-sig/">Programming Environment</A></h3>
+<b>Fred Drake</b><p>
+<ul>
+    <li> How about Graphical Development Tools?
+    <li> We should use a cross platform GUI... Tk is it.
+    <li> Robyn: I'm concerned about the footprint of Tk
+    <li> Roger: I don't think the memory problems in Tk
+           are a perminant problem.  Both Tk and Tkinter have
+           leaks but these should be fixable in the long term.
+    <li> Greg: I want native look-and-feel for my users, they
+           are too easily confused.
+    <li> Guido: Tk on the MAC and Windows is *not* a motif "program".
+            It's buttons and scrollbars that just don't happen
+            to be native look-and-feel... they are not that different!
+    <li> Roger: The Tk folks have promised native look-and-feel eventually
+    <li> Jim: We've heard all this before...  let's assign this conversation
+         to a 'macro' so we can replay it for the benifit of those who've
+         not heard it before... Lets call it <I> Macro 57 </I> :-)
+    <li> Fred: I'm going to try and implement a Tkinter based GUI class
+         browser in my spare time.
+    <li> OO Browsers storage format is ascii... which is a good starting
+         point for the persistance so the tools can interoperate.
+</ul>
+<h3><A HREF="../../../sigs/gui-sig/">GUI</A></h3>
+<b>Jim Ahlstrom</b><p>
+<ul>
+    <li> <I> Macro 57 </I>
+</ul>
+<h2>Developer's Future Enhancements</h2>
+<ul>
+    <li> Lee Busby's wish list
+    <ul>
+        <li> replace interfaces to I/O and memory manager with function
+             pointers.  This is so one can redirect standard I/O or
+             use a different memory manager
+             more easily.  Lee said he would implement this.
+        <li> Dave: This would be very useful  for parallel machines
+        <li> Provide conditional code to catch SIGFPE.  Basis and Yorick
+             can provide example code. Lee will do this too :-)
+        <li> Make <i> -u </I> command line option to unbuffer stdout,
+             stdin, stderr.  Also allow the user to force prompts on,
+             even if stdin, stdout are pipes.  We 
+             need this to run Python batch jobs also with rsh.  Lee will do.
+        <li> More and better documentation for Python API extensions.
+    </ul>
+    <li> Creation of a new SIG: ORB SIG
+    <ul>
+         <li> Establish some kind of standard binding for CORBA from Python
+         <li> Would like to submit to OMG
+         <li> Instead of generating stubs like ILU, instead you use a
+              repository to hold this information.
+         <li> Hopefully Bill Janseen (Xerox PARC - ILU) could participate in
+                this SIG in order to advise on the parts of CORBA that
+                intersect ILU functionality... so they could be implemented
+                in a complimentary way,
+                Bill where are you?
+         <li> Volunteer to chair?  Jim will administer list, David Arnold
+              will chair
+    </ul>
+    <li> Don Beaudry Hack - MESS (Presented by: Guido van Rossum)
+    <ul>
+        <li> Allows an extension C module to provide subclassable types:
+        <pre>
+class MySpecial(BaseSpecial):
+	clvar = 42
+	def math(self, arg): print arg
+        </pre>
+        <li> if... <pre> type(BaseSpecial) </pre> ...is callable,
+             it will be invoked like:
+        <pre>
+	t = type(BaseSpecial)
+	t("MySpecial", (BaseSpecial,), dict)
+        </pre>
+        <li> ...where...
+             <pre> dict = {'clvar':42, 'math':<function math>} </pre>
+        <li> Layered on the first base class
+        <li> Return value of call is stored as: <pre> MySpecial </pre>
+        <li> extension can do whatever it wants
+        <li> Don's <b> MESS </b> uses this
+        <li> See David Ascher's home page (from Python contrib page) and David
+               has a pointer to Don's MESS
+    </ul>
+    <li> Jim Fulton - Meta Type Proposal
+    <ul>
+         <li> A method of providing information about a type
+              much like you can with classes
+         <li> New type: Metatype
+         <li> This work is a subset of MESS functionality.
+         <li> Jim is going to release his work as sort of a
+              <I> lightweight </I> MESS
+         <li> Jim's goal: Weither you use my Metatype, or Don's MESS
+              I want to provide a consistant interface for interrogating
+              types.  Propose a uniform protocol for interfacing with
+              types system extensions.
+         <li> Jim's Metatype is a <I> callable </I> type
+         <li> Meta Protocol
+         <ul>
+               <li> Interesting Meta information about classes...
+               <ul>
+                    <li> class name, parent class name(s), attributes
+                         (including methods)
+                    <li> Is this the appropriate interface for types?  
+                    <li> Guido and Jim will continue this
+                         conversation off-line...
+              </ul>
+         </ul>
+    </ul>
+    <li> Jim Fulton: Can we get modules to have a <I> getattr </I> and
+         <I> setattr </I> attributes?
+    <li> Guido: Putting that hook in the module, it doesn't get it
+         right for globals. To get it right it needs to be in the dictionary.
+    <li> assign a function to <I> getitem </I> and <I> setitem </I> for
+         a dictionary.
+    <li> Jim: I can't <I> setattr </I> for <I> __doc__ </I> on instances
+    <li> Guido: Send me the patch, and I'll put it in 1.4
+    <li> Jim: In order to turn on Packages, you need to import <I> ni </I>
+         then call <I> ni.ni()</I>. <i> Ni </i> should install itself
+         once you import it.
+    <li> Guido: This is fixed in 1.4, just <I> import ni
+         </I> installs <I> ni </I> the first time you import it.
+    <li> Jim: When you import a package, and it has an <I> __init__ </I>
+         module, then the objects that it defines are not visible to
+         other modules in the package without
+         the <I> __init__ </I> <b> install </b> the objects in each module.
+    <li> Jim: I would like to be able to import a package and treat
+         it's objects like <I> package.object</I>.
+    <li> Guido: It's not sufficient to make the package scope as the
+         same as the module scope.
+    <li> Guido: I prefer to think about packages as a collection of
+         modules.  There is no <I> package </I> object.
+    <li> Jim: There was a thread some months ago about a desire for
+         automating memory managment for modules.  Something that
+         matches your <I> inref</I>s and decref</I>s.
+    <li> <I> Purify </I> helps find these leaks at runtime.
+    <li> Jim: A possible solution is to add an attribute to the type
+         object that contains a list of all the objects that are
+         instances of it.
+    <li> Guido: You would also need a doubly linked list of all your
+         types that contain all the references.
+    <li> Who will do this?
+    <li> Jim agreed to write this up and publish it on our web pages.
+    <li> Proposal: Last workshop someone wished for <I> += </I> and <I> -= </I>
+            Has anything been done with this?
+   <li> Guido: No, but it can be done... There are some issues of
+        unexpected results when mixing lists and tuples... for example.
+   <li> Greg Stein will be working on some form of statement
+        coverage tool, possibly with a graphical interface.  Hopefully
+        in the next couple of months.
+</ul>
+<h2> <A HREF="../../../psa/">PSA Discussion</A> </h2>
+<ul>
+    <li> Q: Should we have the meetings every six months?  
+    <li> Greg: Six months seems good.
+    <li> Maybe we should shift to Spring/Fall instead of Summer/Winter
+    <li> Maybe we should have a early-fall (October) one somewhere
+         other than Reston so that we can have a Reston workshop in
+         the Spring (April).
+    <li> Maybe we can hook up with a USENIX or ACM to help organize.
+    <li> Maybe this fall's OOPSLA conference in San Jose can piggy-back
+           a one day Python day or something...
+    <li> It's been good, it's been real... See you next time :-)
+</ul>
+</body>
+</html>
+
+
+
+
+
+

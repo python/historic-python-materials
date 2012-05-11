@@ -1,0 +1,676 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Python for Critical Applications, a Case Study</title>
+  </head>
+
+  <body>
+    <h1 align=center>Python for Critical Applications, a Case Study</h1>
+
+    <h6 align=center>
+      <a href="mailto:ecn@metaslash.com">Eric Newton</a><br>
+      <a href="http://www.metaslash.com">MetaSlash, Inc.</a>
+    </h6>
+
+    <h2>Abstract</h2>
+
+    <p>
+Since Python is a dynamic scripting language, it is often targeted for
+light-weight programming tasks.  Nevertheless, I have found it to be
+an excellent tool for building mission-critical applications.  Python
+is portable, has excellent support libraries, and simplifies many
+programming tasks.  This paper details my experiences using Python and
+C++ when implementing Recall, a framework for building distributed,
+replicated, fault-tolerant servers.
+</p>
+    <h5>Keywords:</h5>
+      replication, storage, fault-tolerant, CORBA, 
+      distributed objects
+
+    <h2>Introduction</h2>
+
+    <p>
+In the 1990s, I wrote distributed, high-availability systems for air
+traffic control and airline operations.  These systems were
+implemented as redundant pairs of workstations.  The secondary system
+would automatically provide service when the primary system failed.
+However, the backup system provided service without any data from the
+primary system.  Eventually this approach was too simplistic because
+the secondary had to have up-to-date information from the primary.  In
+addition, this state had to be consistent.  All updates had to be
+performed in the proper order among all redundant services.
+</p>
+    <h2>Background</h2>
+
+    <p>
+The problem of replicated, fault-tolerant data storage interested me,
+so I began building a service which would provide identical and
+up-to-date storage on physically distributed machines.  This type of
+service is important when you consider a banking transaction.  If you
+deposit one million dollars, that information ought to be stored in a
+fault-tolerant fashion and in a consistent way.  After the bank tells
+you that your money has been safely recorded, it can not forget or
+duplicate the deposit even if there is a fail-over from the primary to
+a backup immediately after your transaction.  The bank's computer
+storage should be consistent and fault-tolerant.  In general, such a
+fault-tolerant system should be able to provide service, as long as a
+majority of the servers are available.
+</p>
+    <p>
+I began implementing a framework which would take care of all the
+details associated with making consistent updates to data storage
+across machines.  The <a href="#echo">algorithm</a> elects a master
+system from the available servers (called Replicas) which broadcasts
+the data updates to all servers in a well-defined order.  My first
+prototype was written using <a href="#python">Python</a> and within a
+month it was capable of consistently replicating data and
+performing fail-over.  This prototype was the beginnings of the <a
+href="#recall">Recall</a> framework which I made available as open
+source.
+</p>
+    <h2>Leaving Python</h2>
+    <p>
+All of my customers' previous systems were written in C++, so I
+decided that Recall should also be written in C++ for use on those
+projects.  I rewrote the Python prototype in C++ using the <a
+href="#ace">Adaptive Communications Environment (ACE)</a> for
+portability.  Internal data structures were implemented using the <a
+href="#stl">Standard Template Library (STL)</a>.  Over the next year,
+performance improved and several types of services were implemented.
+The <a href="#recall">first public release</a> was in October, 1999.
+</p>
+    <p>
+During the following year, I made changes to accommodate a broader
+range of user requests.  In particular, many took issue with the
+dependencies I chose to use.  Some users found that ACE was too large
+a dependency or was redundant with libraries they were already using.
+In response, I created my own simple communications classes dependent
+only on basic <a href="#pthreads">POSIX threads (pthreads)</a> and
+basic socket calls.  The pthreads interface was not available on
+Win32, so an alternative implementation using the <a href="#pth">GNU
+Pth library</a> was added.  Some users objected to the use of the STL
+since it is not portable across compilers, especially with regard to
+template instantiation.  So I replaced the standard classes with
+simple substitutes for basic utilities like strings and dynamic
+arrays.
+</p>
+    <p>
+By the end of 2000, it was clear that supporting the
+least-common-denominator C++ environment was a chore.  The
+complexities of C++ without library support was making my project less
+fun.  Finally, I found a number of latent bugs and limitations in the
+custom thread and communications libraries I wrote.  A rewrite was
+necessary.
+</p>
+    <h2>Python, Again</h2>
+
+    <p>
+I was pleased with the way ACE insulated Recall from platform
+dependencies.  Unfortunately, not all users were willing to use the
+this library.  I began thinking that <a href="#corba">CORBA</a> might
+be the best way to fix my portability and environment issues, because
+CORBA offers distributed communications support, independent of a
+particular library.  Different ORBs are optimized for speed, size and
+latency, so users could choose the ORB appropriate for their needs.
+</p>
+    <p> 
+There were other benefits of CORBA.  With the CORBA Interface
+Definition Language (IDL), I could define a language neutral API.  A
+well defined API is important for users of Recall, since it is a
+framework and designed to be extended and specialized.  By using IDL,
+the interfaces can be implemented and called from a variety of
+languages and environments.
+</p>
+    <p>
+After deciding to use CORBA, I began prototyping some clients and
+servers using Python.  The intent was to learn CORBA basics before
+moving back to C++ and re-implementing the Recall library.  Once a few
+of the Python programs were running, I began rewriting them in C++.
+Suddenly, my little Python prototypes grew much larger and more
+complex simply by translating them.
+</p>
+    <p>
+With CORBA, each programming language has its own standard for mapping
+objects into programming constructs for that language.  For example,
+there is no object or class construct in C, but there is a way to
+construct CORBA objects and call methods using the standard C mapping.
+One can reasonably assume that the C mapping is more cumbersome than
+the C++ mapping because C++ already has a way of representing objects
+and methods.
+</p>
+    <p>
+The Python mapping was much less cumbersome than the C++ mapping.
+Python supports generic object references and garbage collection
+directly, but the C++ mapping requires the use of generated "_var"
+classes to provide object references.  Python has built-in support for
+sequences, but C++ requires a new class.  Python is reflexive since
+its objects may be inspected at run-time.  It maps very cleanly to the
+inspectable data type <tt>Any</tt> under CORBA.  C++ requires
+additional classes and type coercions because it does not have
+built-in reflection.  Beyond the complexity of the language mapping, I
+still had some of the old C++ integration issues; for example, should
+I use the STL or not?
+</p>
+    <p>
+Laziness won me over and I began re-writing Recall in Python using
+<href a="#omniorb">omniORB</a>.  Once again, I was pleased with the
+productivity of a Python-based solution.  All of Recall was re-written
+by a single person in about 80 hours.  It took 3 additional days to
+port the Python version of Recall to Java using Jython.
+</p>
+    <p>
+Recall was platform independent before the switch to Python, but only
+after much effort.  By using CORBA and Python, most of the platform
+dependent code lies within those run-time environments.  And although
+Recall is implemented in Python, users have the ability to choose
+their own language when integrating with Recall.  
+</p>
+    <p>
+I would have been pleased with the new version of Recall, even if it
+did not result in a reduction of code.  But there was a dramatic
+decrease in the size of Recall after the rewrite.  The table below
+gives the lines of code which implement Recall in C++ and Python:
+</p>
+    <p>
+    <table>
+      <tbody>
+	<tr>
+	  <td>&nbsp;</td>
+	  <td>Recall</td>
+	  <td>Support</td>
+	  <td>Examples</td>
+	<tr>
+	  <td>C++</td>
+	  <td>4988</td>
+	  <td>3105</td>
+	  <td>2573</td>
+	<tr>
+	  <td>Python and IDL</td>
+	  <td>1858</td>
+	  <td>0</td>
+	  <td>659</td>
+      </tbody>
+    </table>
+</p>
+    <p> 
+
+I have separated the code for sockets, threads, strings, lists,
+etc. because these are found in many C++ libraries, although they are
+non-standard or may conflict with users' requirements.  The count for
+this code is in the Support column.
+</p>
+    <p>
+Why is the core of Recall/C++ over two times larger than
+Recall/Python?  One might be tempted to attribute the size of
+Recall/Python to the use of CORBA middleware.  CORBA saves programmer
+effort by generating classes to marshal and unmarshal values.  There
+are about 500 lines of Recall/C++ code associated with encoding and
+decoding data.  But Recall/Python includes 325 lines of IDL, so the
+savings are actually very small.  A better explanation of why
+Recall/Python is smaller than Recall/C++ is C++ header files.  These
+files contain declarations which are not used in Python and represent
+about 40% of the difference between the two implementations.
+</p>
+    <p>
+The reasons for rewriting Recall were not based on the inadequacy of
+C++ or performance, but rather to fix bugs and improve integration.
+The C++ version of Recall was a good-faith effort from an experienced
+programmer who continues to use C++ on a daily basis.  Below is a
+section of code taken from both versions of Recall which is meant to
+show how Python creates smaller, simpler programs.
+</p>
+    <p>
+The code sample implements the reconciliation algorithm used in
+Recall.  Reconciliation is the final step of electing a master.
+Before a master server can begin broadcasting updates, it ensures that
+the available servers have all the updates that were in progress when
+the election was called.  Here is the Python version:
+</p>
+    <p>
+<blockquote><pre>
+    def reconcile(self, upToDate):
+
+        # calculate push set
+        all = {}
+        for r in upToDate:
+            for inProgress in r.snapshot.nInProgress:
+                all[inProgress.serverSequenceId] = inProgress
+        push = all.keys()
+        push.sort()
+        push = push[-Recall.NInProgress:]
+        
+        # send any missing values
+        for p in push:
+            for r in upToDate:
+                updates = map(lambda x: x.serverSequenceId,
+		              r.snapshot.nInProgress)
+                if p not in updates:
+                    r.redo(all[p])
+</pre></blockquote>
+</p>
+    <p>
+For comparison, this is the C++ version:
+</p>
+    <p>
+<blockquote><pre>
+    typedef struct {
+	bool operator()(const Update* a, const Update* b) const {
+		return a-&gt;id() &lt; b-&gt;id(); 
+	}
+    } Compare;
+
+    static bool find(Vector&lt;const Update *&gt; &amp; updates, long id) {
+
+	Vector&lt;const Update *&gt;::iterator j = updates.begin();
+	for (; j != updates.end();  j++)
+	    if (id == (*j)-&gt;id())
+		return true;
+
+	return false;
+    }
+
+    class CleanupUpdates {
+	Vector&lt;Updates *&gt; &amp; updates_;
+
+    public:
+	CleanupUpdates(Vector&lt;Updates *&gt; &amp; updates) : updates_(updates) {}
+	~CleanupUpdates() {
+	    for (Vector&lt;Updates *&gt;::iterator i = updates_.begin(); 
+		 i != updates_.end(); 
+		 i++)
+		delete *i;
+	}
+    };
+
+    int ForwardOnlyStrategy::execute(Echo* server, Replicas&amp; upToDate)  {
+
+	Vector&lt;const Update *&gt; push;    // push set, calculated below
+	Vector&lt;Updates *&gt; all;	        // all in-progress lists
+	CleanupUpdates cleanup(all);
+	Vector&lt;Replica *&gt; replicas;
+	// Decode all in-progress lists
+	// ... lines removed... 
+
+	// Calculate the total update set
+	for (Vector&lt;Updates *&gt;::iterator i = all.begin(); i != all.end(); i++)
+	    for (size_t op = 0; op &lt; (*i)-&gt;size(); op++)
+		if (! ::find(push, (*i)-&gt;index(op)-&gt;id()))
+		    push.append((*i)-&gt;index(op));
+
+	// Sort
+	::sort(push, ::Compare());
+
+	// Take the last NInProgress
+	while (push.size() &gt; server-&gt;options()-&gt;nInProgress)
+	    push.erase(push.begin());
+
+	for (Vector&lt;const Update *&gt;::iterator i = push.begin(); i != push.end(); i++) {
+	    for (size_t j = 0; j &lt; replicas.size(); j++)  {
+		// Don't send if the replica already has this update
+		if (! all[j]-&gt;hasId( (*i)-&gt;id() )) {
+		    // Send update to client
+		    // ... lines removed ...
+
+		}
+	    }
+	}
+
+	return 0;
+    }
+</pre></blockquote>
+</p>
+    <p>
+A total of fourteen lines of code which send and receive messages have
+been removed as indicated by comments, since they would be replaced by
+CORBA middleware.  Still, the C++ version is clearly longer and more
+complex.
+</p>
+    <p>
+Let's examine the code one step at a time and compare the essential
+differences.  The first part of the function computes the total list
+of updates last performed on each server.  For example, if the last
+operations on server A were <tt>{1, 2, 3}</tt> and on server B were
+<tt>{2, 3, 4}</tt>, the total set of operations would be <tt>{1, 2,
+3, 4}</tt>.
+</p>
+<p>
+<blockquote><pre>
+        # calculate push set
+        all = {}
+        for r in upToDate:
+            for inProgress in r.snapshot.nInProgress:
+                all[inProgress.serverSequenceId] = inProgress
+</pre></blockquote>
+</p>
+<p>
+The corresponding C++ code:
+</p>
+<p>
+
+<blockquote><pre>
+	class CleanupUpdates {
+	    Vector&lt;Updates *&gt; &amp; updates_;
+
+	public:
+	    CleanupUpdates(Vector&lt;Updates *&gt; &amp; updates) : updates_(updates) {}
+	    ~CleanupUpdates() {
+		for (Vector&lt;Updates *&gt;::iterator i = updates_.begin(); 
+		     i != updates_.end(); 
+		     i++)
+		    delete *i;
+	    }
+	};
+
+	static bool find(Vector&lt;const Update *&gt; &amp; updates, long id) {
+
+	    Vector&lt;const Update *&gt;::iterator j = updates.begin();
+	    for (; j != updates.end();  j++)
+		if (id == (*j)-&gt;id())
+		    return true;
+
+	    return false;
+	}
+
+	Vector&lt;const Update *&gt; push;    // push set, calculated below
+	Vector&lt;Updates *&gt; all;	        // all in-progress lists
+	CleanupUpdates cleanup(all);
+
+	// Decode all in-progress lists
+	// ... lines removed... 
+
+	// Calculate the total update set
+	for (Vector&lt;Updates *&gt;::iterator i = all.begin(); i != all.end(); i++)
+	    for (size_t op = 0; op &lt; (*i)-&gt;size(); op++)
+		if (! ::find(push, (*i)-&gt;index(op)-&gt;id()))
+		    push.append((*i)-&gt;index(op));
+
+</pre></blockquote>
+</p>
+    <p>
+The C++ version uses a different data structure to compute sets.
+First, it only uses a dynamic array data structure (<tt>Vector</tt>)
+and not the dictionary type used in Python.  To avoid unwanted
+dependencies, a <tt>map</tt> or <tt>set</tt> implementation would have
+to be provided by me.  Given the <tt>Vector</tt> class was available
+and used extensively elsewhere in Recall, I simply used it here, even
+though it was less than optimal.  A simple helper class,
+<tt>CleanupUpdates</tt> ensures that objects allocated as a result of
+unmarshaling are deleted, even in the presence of an exception.  The
+<tt>find()</tt> function was necessary to simplify the inner loop.
+</p>
+    <p>
+This section above could be made much smaller using more advanced data
+structures.  In particular, the STL provides a <tt>find()</tt>
+function and a useful <tt>set</tt> implementation.  But at the very
+least, the STL iterators are more complex to read and use.  
+</p>
+    <p>
+The need to address memory deallocation adds complexity throughout the
+implementation.  If this code used the C++ CORBA bindings, the
+<tt>Update</tt> objects could be deallocated with the "_var" classes.
+These classes add their own complexity because there is often
+confusion when they should be used.
+</p>
+    <p>
+The next block of code computes the last <tt>N</tt> updates, for some constant
+<tt>N</tt>.  If the total set of updates is <tt>{1, 2, 3, 4 }</tt>
+and <tt>N = 3</tt>, we want to compute <tt>{2, 3, 4 }</tt>.  In
+Python, we compute all the <tt>ids</tt> from the mapping, sort them,
+and slice down to the last <tt>N</tt> values:
+</p>
+    <p>
+<blockquote><pre>
+        push = all.keys()
+        push.sort()
+        push = push[-Recall.NInProgress:]
+</pre></blockquote>
+</p>
+    <p>
+and the corresponding C++:
+</p>
+    <p>
+<blockquote><pre>
+	typedef struct {
+	    bool operator()(const Update* a, const Update* b) const { 
+		    return a-&gt;id() &lt; b-&gt;id(); 
+		}
+	} Compare;
+
+	// Sort
+	::sort(push, ::Compare());
+
+	// Take the last NInProgress
+	while (push.size() &gt; server-&gt;options()-&gt;nInProgress)
+	    push.erase(push.begin());
+</pre></blockquote>
+</p>
+    <p>
+The <tt>sort()</tt> function takes a comparison object which allows
+the updates to be sorted by <tt>id</tt>.  The <tt>while</tt> loop
+removes any extra updates.
+</p>
+    <p>
+In Recall/Python, the class representing an <tt>Update</tt> has a
+comparison function which allows it to be sorted.  This function is
+only two lines, one for the definition, the other to return a value.
+The C++ version needs a separate comparison function because the
+container holds pointers, not objects or references.
+</p>
+    <p>
+The next block sends any missing updates to other servers:
+</p>
+    <p>
+<blockquote><pre>
+        # send any missing values
+        for p in push:
+            for r in upToDate:
+                updates = map(lambda x: x.serverSequenceId,
+		              r.snapshot.nInProgress)
+                if p not in updates:
+                    r.redo(all[p])
+</pre></blockquote>
+</p>
+    <p>
+The corresponding C++ code:
+</p>
+    <p>
+<blockquote><pre>
+	for (Vector&lt;const Update *&gt;::iterator i = push.begin(); i != push.end(); i++) {
+	    for (size_t j = 0; j &lt; replicas.size(); j++) {
+		// Don't send if the replica already has this update
+		if (! all[j]-&gt;hasId( (*i)-&gt;id() )) {
+
+		    // Send update to client
+		    // ... lines removed ...
+		}
+	    }
+	}
+</pre></blockquote>
+</p>
+    <p>
+The Python loops are simpler, especially when compared to the STL
+style of iteration.  Note that both code samples hide a third loop.
+In Python, the <tt>map()</tt> function is used to compute the updates
+known to a server.  In the C++ version, the <tt>Replica</tt> object
+can search for the update with the call to <tt>hasId()</tt>.
+</p>
+    <p>
+I have not compared the C++ and Python versions for efficiency.  This
+part of the replication algorithm is only run during elections, which
+only occur when a server fails.  The loops are bounded by the number
+of replicas (probably less than 10) and the number of updates that can
+be broadcast in parallel (almost certainly less than 50).  In this
+last bit of Python code, the set of update <tt>ids</tt> computed by
+the <tt>map()</tt> function could be hoisted outside the inner loop,
+but I have not bothered to do so.  I expect the loop to be executed
+less than ten times for normal configurations.
+</p>
+    <p>
+Although it would appear that the C++ version is always more complex
+and more verbose than Python, there are times when C++ is shorter and
+more convenient.  A useful idiom for threaded applications is a mutex
+variable that protects data from simultaneous updates.  In Python, the
+code looks something like this:
+</p>
+    <p>
+<blockquote><pre>
+	  class Object:
+
+	    def critical_function(self):
+		self._mutex.acquire()
+		try:
+		    # Manipulate data shared by threads
+		finally:
+		    self._mutex.release()
+</pre></blockquote>
+</p>
+    <p>
+The <tt>finally</tt> clause is used to release the lock, in case the
+critical code should throw some sort of exception.  Java requires the
+same technique.
+</p>
+    <p>
+In C++, a wrapper is used around the variable to automatically lock
+and unlock the mutex using the constructor and destructor.  To
+mutually exclude other threads, the code typically looks like this:
+</p>
+    <p>
+<blockquote><pre>
+       void Object::critical_function()  {
+	    Lock lock(&amp;this-&gt;mutex_);
+
+	    // Manipulate data shared by threads
+       }
+</pre></blockquote>
+</p>
+    <p>
+In C++, locally scoped objects are guaranteed to be destroyed at the
+end of the enclosing block, even in the presence of exceptions.  The
+<tt>Lock</tt> class looks something like this:
+</p><p>
+<blockquote><pre>
+       class Lock { 
+           MutexVariable * mutex_;
+	public:
+           Lock(MutexVariable *mutex) : mutex_(mutex) { mutex_-&gt;acquire(); }
+	   ~Lock() { mutex_-&gt;release(); }
+       };
+</pre></blockquote>
+</p>
+    <p>
+Obtaining locks is simpler in C++ than in Python.  The equivalent
+Python code is always 3 lines longer.  In fact, about 9% of the Python
+implementation of Recall is simply obtaining and releasing locks
+safely.  Yet, overall, the Python code is smaller.
+</p>
+    <p>
+Python does not provide the static type-checking available in C++.
+Recall was one of the earliest users of <a
+href="#pychecker">pychecker</a> which catches many of the same types
+of errors caught by a compiler.  The use of IDL to define interfaces,
+along with the run-time checks provided by the ORB, validates many
+object types.  Still, one type error was found when the Python version
+of Recall was ported to Java using Jython, due to the increased type
+conformance checking performed by the Java runtime.
+</p>
+    <p>
+A surprising benefit of the Python rewrite is how it has simplified
+small examples.  It is now possible to write simple fault-tolerant
+services in 50 lines using the standard Python library.  Before the
+rewrite, even simple C++ implementations were three times longer,
+primarily because the basic library support was more cumbersome. 
+</p>
+    <p>
+Recall is used to build persistent data servers, and most of the
+examples read and write data to disk.  Python provides the
+<tt>pickle</tt> module to serialize objects to files, which is
+convenient for trivial data storage.  In C++, the objects must be
+marshaled to and from the file.  The extra code detracts from the
+examples, making them more complex and difficult to understand.
+</p>
+    <h2>Conclusions and Future Work</h2>
+
+    <p>
+Based on my experiences with C++, I would highly recommend using
+Python for complex distributed applications.  I would also recommend
+using an ORB because it supports choices for operating system and
+implementation language.
+</p>
+    <p>
+The Python version of Recall has not yet been optimized for
+performance.  The air traffic control applications which precipitated
+the need for Recall only needed to handle a dozen updates per second.
+This rate is easily handled by the current version of Recall/Python.
+The network latencies and persistent storage requirements of most
+Recall services are typically greater than the differences in language
+implementations.  Also, all of the low-level manipulations, such as
+data marshaling, are done by native (or Java) routines within the ORB
+and tend to be optimized.
+</p>
+    <p>
+This paper certainly does not prove that Python is better than any
+other language, or that it always results in simpler or shorter code.
+By combining powerful built-in data structures and natural language
+bindings for CORBA, Python deserves serious consideration for
+mission-critical applications.
+</p>
+<h2>References</h2>
+
+    <dl>
+      <dt><a name="ace">ACE</a>
+      <dd>
+	<a href="http://www.cs.wustl.edu/~schmidt/ACE.html">
+	  http://www.cs.wustl.edu/~schmidt/ACE.html
+        </a>
+      <dt><a name="corba">CORBA</a>
+	<dd>
+	    <a href="http://www.omg.org/gettingstarted/corbafaq.htm">Common Object Request Broker Architecture</a>
+
+      <dt><a name="omniorb">omniORB</a>
+	  <dd><a href="http://www.uk.research.att.com/omniORB/index.html">
+	      http://www.uk.research.att.com/omniORB/index.html
+	    </a>
+      <dt><a name="pth">GNU Pth</a>
+      <dd>
+	<a href="http://www.gnu.org/software/pth/">
+          http://www.gnu.org/software/pth
+	</a>
+      <dt><a name="pthread">Pthreads (POSIX threads)</a>
+      <dd>IEEE POSIX 1003.1c-1995
+	
+      <dt><a name="recall">Recall</a>
+      <dd><a href="http://www.fault-tolerant.org/recall">
+	  http://www.fault-tolerant.org/recall
+	</a>
+      <dt>Recall/Python Sources
+      <dd><a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/recall/corba">
+	  http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/recall/corba
+	</a>
+      <dt>Recall/C++ Sources
+      <dd><a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/recall/recall">
+          http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/recall/recall
+	</a>
+      <dt><a name="echo">SRC Research Report 46</a>
+      <dd>
+        <a href="http://gatekeeper.dec.com/pub/DEC/SRC/research-reports/abstracts/src-rr-046.html">
+          http://gatekeeper.dec.com/pub/DEC/SRC/research-reports/abstracts/src-rr-046.html</a>
+      <dt><a name="stl">STL</a>
+      <dd>
+	<a href="http://www.stlport.org">
+	  http://www.stlport.org
+	</a>
+        </a>
+      <dt><a name="pychecker">PyChecker</a>
+      <dd><a href="http://pychecker.sf.net">
+	      http://pychecker.sf.net
+	</a>
+    </dl>
+
+    <hr>
+    <address><a href="mailto:ecn@metaslash.com">Eric C. Newton</a></address>
+<!-- Created: Mon Sep 24 14:02:11 EDT 2001 -->
+<!-- hhmts start -->
+Last modified: Mon Dec 17 09:04:48 EST 2001
+<!-- hhmts end -->
+  </body>
+</html>

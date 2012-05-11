@@ -1,0 +1,6889 @@
+%!PS-Adobe-3.0
+%%BoundingBox: (atend)
+%%Pages: (atend)
+%%PageOrder: (atend)
+%%DocumentFonts: (atend)
+%%DocumentNeedsFonts: (atend)
+%%DocumentSuppliedFonts: (atend)
+%%Creator: Frame 5.5
+%%DocumentData: Clean7Bit
+%%EndComments
+%%BeginProlog
+%
+% Frame ps_prolog 5.5, for use with Adobe Unix Frame 5.5 products
+%
+% This ps_prolog file is Copyright (c) 1986-1996 Adobe Systems, Incoporated.
+% All rights reserved.  This ps_prolog file may be freely copied and 
+% distributed in conjunction with documents created using FrameMaker, 
+% FrameMaker+SGML, FrameReader, and FrameViewer as long as this 
+% copyright notice is preserved.
+/FMDocSave save def
+%
+% FrameMaker users specify the proper paper size for each print job in the
+% "Print" dialog's "Printer Paper Size" "Width" and "Height~ fields.  If the
+% printer that the PS file is sent to does not support the requested paper
+% size, or if there is no paper tray of the proper size currently installed, 
+% then the job will not be printed.  The following flag, if set to true, will
+% cause the job to print on the default paper in such cases.
+/FMAllowPaperSizeMismatch            false def
+%
+% Frame products normally print colors as their true color on a color printer
+% or as shades of gray, based on luminance, on a black-and white printer. The
+% following flag, if set to true, forces all non-white colors to print as pure
+% black. This has no effect on bitmap images.
+/FMPrintAllColorsAsBlack             false def
+%
+% Frame products can either set their own line screens or use a printer's 
+% default settings. Three flags below control this separately for no 
+% separations, spot separations and process separations. If a flag
+% is true, then the default printer settings will not be changed. If it is
+% false, Frame products will use their own settings from a table based on
+% the printer's resolution.
+/FMUseDefaultNoSeparationScreen      true  def
+/FMUseDefaultSpotSeparationScreen    true  def
+/FMUseDefaultProcessSeparationScreen false def
+%
+% For any given PostScript printer resolution, Frame products have two sets of 
+% screen angles and frequencies for printing process separations, which are 
+% recomended by Adobe. The following variable chooses the higher frequencies
+% when set to true or the lower frequencies when set to false. This is only
+% effective if the appropriate FMUseDefault...SeparationScreen flag is false.
+/FMUseHighFrequencyScreens true def
+%
+% The following is a set of predefined optimal frequencies and angles for various
+% common dpi settings. This is taken from "Advances in Color Separation Using
+% PostScript Software Technology," from Adobe Systems (3/13/89 P.N. LPS 0043)
+% and corrolated with information which is in various PPD (4.0) files.
+%
+% The "dpiranges" figure is the minimum dots per inch device resolution which
+% can support this setting. The "low" and "high" values are controlled by the
+% setting of the FMUseHighFrequencyScreens flag above. The "TDot" flags control
+% the use of the "Yellow Triple Dot" feature whereby the frequency id divided by
+% three, but the dot function is "trippled" giving a block of 3x3 dots per cell.
+%
+% PatFreq is a compromise pattern frequency for ps Level 2 printers which is close
+% to the ideal WYSIWYG pattern frequency of 9 repetitions/inch but does not beat
+% (too badly) against the screen frequencies of any separations for that DPI.
+/dpiranges   [  2540    2400    1693     1270    1200     635      600      0      ] def
+/CMLowFreqs  [ 100.402  94.8683 89.2289 100.402  94.8683  66.9349  63.2456 47.4342 ] def
+/YLowFreqs   [  95.25   90.0    84.65    95.25   90.0     70.5556  66.6667 50.0    ] def
+/KLowFreqs   [  89.8026 84.8528 79.8088  89.8026 84.8528  74.8355  70.7107 53.033  ] def
+/CLowAngles  [  71.5651 71.5651 71.5651 71.5651  71.5651  71.5651  71.5651 71.5651 ] def
+/MLowAngles  [  18.4349 18.4349 18.4349 18.4349  18.4349  18.4349  18.4349 18.4349 ] def
+/YLowTDot    [  true    true    false    true    true     false    false   false   ] def
+/CMHighFreqs [ 133.87  126.491 133.843  108.503 102.523  100.402   94.8683 63.2456 ] def
+/YHighFreqs  [ 127.0   120.0   126.975  115.455 109.091   95.25    90.0    60.0    ] def
+/KHighFreqs  [ 119.737 113.137 119.713  128.289 121.218   89.8026  84.8528 63.6395 ] def
+/CHighAngles [  71.5651 71.5651 71.5651  70.0169 70.0169  71.5651  71.5651 71.5651 ] def
+/MHighAngles [  18.4349 18.4349 18.4349  19.9831 19.9831  18.4349  18.4349 18.4349 ] def
+/YHighTDot   [  false   false   true     false   false    true     true    false   ] def
+/PatFreq     [	10.5833 10.0     9.4055  10.5833 10.0	  10.5833  10.0	   9.375   ] def
+%
+% PostScript Level 2 printers contain an "Accurate Screens" feature which can
+% improve process separation rendering at the expense of compute time. This 
+% flag is ignored by PostScript Level 1 printers.
+/FMUseAcccurateScreens true def
+%
+% The following PostScript procedure defines the spot function that Frame
+% products will use for process separations. You may un-comment-out one of
+% the alternative functions below, or use your own.
+%
+% Dot function
+/FMSpotFunction {abs exch abs 2 copy add 1 gt 
+		{1 sub dup mul exch 1 sub dup mul add 1 sub }
+		{dup mul exch dup mul add 1 exch sub }ifelse } def
+%
+% Line function
+% /FMSpotFunction { pop } def
+%
+% Elipse function
+% /FMSpotFunction { dup 5 mul 8 div mul exch dup mul exch add 
+%		sqrt 1 exch sub } def
+%
+%
+/FMversion (5.5) def 
+/fMLevel1 /languagelevel where {pop languagelevel} {1} ifelse 2 lt def
+/FMPColor
+	fMLevel1 {
+		false
+		/colorimage where {pop pop true} if
+	} {
+		true
+	} ifelse
+def
+/FrameDict 400 dict def 
+systemdict /errordict known not {/errordict 10 dict def
+		errordict /rangecheck {stop} put} if
+% The readline in PS 23.0 doesn't recognize cr's as nl's on AppleTalk
+FrameDict /tmprangecheck errordict /rangecheck get put 
+errordict /rangecheck {FrameDict /bug true put} put 
+FrameDict /bug false put 
+mark 
+% Some PS machines read past the CR, so keep the following 3 lines together!
+currentfile 5 string readline
+00
+0000000000
+cleartomark 
+errordict /rangecheck FrameDict /tmprangecheck get put 
+FrameDict /bug get { 
+	/readline {
+		/gstring exch def
+		/gfile exch def
+		/gindex 0 def
+		{
+			gfile read pop 
+			dup 10 eq {exit} if 
+			dup 13 eq {exit} if 
+			gstring exch gindex exch put 
+			/gindex gindex 1 add def 
+		} loop
+		pop 
+		gstring 0 gindex getinterval true 
+		} bind def
+	} if
+/FMshowpage /showpage load def
+/FMquit /quit load def
+/FMFAILURE { 
+	2 copy exch = = flush 
+	FMshowpage 
+	/Helvetica findfont 12 scalefont setfont
+	72 200 moveto show
+	72 220 moveto show
+	FMshowpage 
+	FMquit 
+	} def 
+/FMVERSION {
+	FMversion ne {
+		(Adobe Frame product version does not match ps_prolog!  Check installation;)
+		(also check ~/fminit and ./fminit for old versions) FMFAILURE
+		} if
+	} def 
+/fmConcatProcs
+	{
+	/proc2 exch cvlit def/proc1 exch cvlit def/newproc proc1 length proc2 length add array def
+	newproc 0 proc1 putinterval newproc proc1 length proc2 putinterval newproc cvx
+}def
+FrameDict begin [
+	/ALDsave
+	/FMdicttop
+	/FMoptop
+	/FMpointsize
+	/FMsetsize
+	/FMsaveobject
+	/b
+	/bitmapsave
+	/blut
+	/bpside
+	/bs
+	/bstring
+	/bwidth
+	/c
+	/cf
+	/cs
+	/cynu
+	/depth
+	/edown
+	/fh
+	/fillvals
+	/fw
+	/fx
+	/fy
+	/g
+	/gfile
+	/gindex
+	/grnt
+	/gryt
+	/gstring
+	/height
+	/hh
+	/i
+	/im
+	/indx
+	/is
+	/k
+	/kk
+	/landscape
+	/lb
+	/len
+	/llx
+	/lly
+	/m
+	/magu
+	/manualfeed
+	/n
+	/offbits
+	/onbits
+	/organgle
+	/orgbangle
+	/orgbfreq
+	/orgbproc
+	/orgbxfer
+	/orgfreq
+	/orggangle
+	/orggfreq
+	/orggproc
+	/orggxfer
+	/orghalftone
+	/orgmatrix
+	/orgproc
+	/orgrangle
+	/orgrfreq
+	/orgrproc
+	/orgrxfer
+	/orgxfer
+	/pagesave
+	/paperheight
+	/papersizedict
+	/paperwidth
+	/pos
+	/pwid
+	/r
+	/rad
+	/redt
+	/sl
+	/str
+	/tran
+	/u
+	/urx
+	/ury
+	/val
+	/width
+	/width
+	/ws
+	/ww
+	/x
+	/x1
+	/x2
+	/xindex
+	/xpoint
+	/xscale
+	/xx
+	/y
+	/y1
+	/y2
+	/yelu
+	/yindex
+	/ypoint
+	/yscale
+	/yy
+	/tintGray
+] { 0 def } forall
+/FmBD {bind def} bind def
+systemdict /pdfmark known systemdict /currentdistillerparams known and {
+	/fMAcrobat true def
+	
+	/FmPD /pdfmark load def
+	
+	
+	/FmPT /show load def
+	
+	
+	currentdistillerparams /CoreDistVersion get 2000 ge {
+	
+		
+		/FmPD2 /pdfmark load def
+		
+		
+		
+		
+		
+		/FmPA { mark exch /Dest exch 5 3 roll 
+				/View [ /XYZ null 6 -2 roll FmDC exch pop null] /DEST FmPD 
+		}FmBD
+	} {
+		
+		/FmPD2 /cleartomark load def
+		/FmPA {pop pop pop}FmBD
+	} ifelse
+} {
+	
+	/fMAcrobat false def
+	/FmPD /cleartomark load def
+	/FmPD2 /cleartomark load def
+	/FmPT /pop load def
+	/FmPA {pop pop pop}FmBD
+} ifelse
+/FmDC {
+	transform fMDefaultMatrix defaultmatrix itransform cvi exch cvi exch
+}FmBD
+/FmBx {
+	dup 3 index lt {3 1 roll exch} if 
+	1 index 4 index lt {4 -1 roll 3 1 roll exch 4 1 roll} if
+}FmBD
+/FMnone 0 def
+/FMcyan 1 def
+/FMmagenta 2 def
+/FMyellow 3 def
+/FMblack 4 def
+/FMcustom 5 def
+/fMNegative false def 
+/FrameSepIs FMnone def 
+/FrameSepBlack 0 def
+/FrameSepYellow 0 def
+/FrameSepMagenta 0 def
+/FrameSepCyan 0 def
+/FrameSepRed 1 def
+/FrameSepGreen 1 def
+/FrameSepBlue 1 def
+/FrameCurGray 1 def
+/FrameCurPat null def
+/FrameCurColors [ 0 0 0 1 0 0 0 1] def 
+/FrameColorEpsilon .001 def	
+/eqepsilon {		
+	sub dup 0 lt {neg} if
+	FrameColorEpsilon le
+} bind def
+/FrameCmpColorsCMYK { 
+	2 copy 0 get exch 0 get eqepsilon {
+		2 copy 1 get exch 1 get eqepsilon {
+			2 copy 2 get exch 2 get eqepsilon {
+				3 get exch 3 get eqepsilon
+			} {pop pop false} ifelse
+		}{pop pop false} ifelse
+	} {pop pop false} ifelse
+} bind def
+/FrameCmpColorsRGB { 
+	2 copy 4 get exch 0 get eqepsilon {
+		2 copy 5 get exch 1 get eqepsilon {
+			6 get exch 2 get eqepsilon
+		}{pop pop false} ifelse
+	} {pop pop false} ifelse
+} bind def
+/RGBtoCMYK { 
+	1 exch sub 
+	3 1 roll 
+	1 exch sub 
+	3 1 roll 
+	1 exch sub 
+	3 1 roll 
+	3 copy 
+	2 copy 
+	le { pop } { exch pop } ifelse 
+	2 copy 
+	le { pop } { exch pop } ifelse 
+	dup dup dup 
+	6 1 roll 
+	4 1 roll 
+	7 1 roll 
+	sub 
+	6 1 roll 
+	sub 
+	5 1 roll 
+	sub 
+	4 1 roll 
+} bind def
+/CMYKtoRGB { 
+	dup dup 4 -1 roll add 						  
+	5 1 roll 3 -1 roll add 						  
+	4 1 roll add 								  
+	1 exch sub dup 0 lt {pop 0} if 3 1 roll 	  
+	1 exch sub dup 0 lt {pop 0} if exch 	      
+	1 exch sub dup 0 lt {pop 0} if exch	  		  
+} bind def
+/FrameSepInit {
+	1.0 RealSetgray
+} bind def
+/FrameSetSepColor { 
+	/FrameSepBlue exch def
+	/FrameSepGreen exch def
+	/FrameSepRed exch def
+	/FrameSepBlack exch def
+	/FrameSepYellow exch def
+	/FrameSepMagenta exch def
+	/FrameSepCyan exch def
+	/FrameSepIs FMcustom def
+	setCurrentScreen	
+} bind def
+/FrameSetCyan {
+	/FrameSepBlue 1.0 def
+	/FrameSepGreen 1.0 def
+	/FrameSepRed 0.0 def
+	/FrameSepBlack 0.0 def
+	/FrameSepYellow 0.0 def
+	/FrameSepMagenta 0.0 def
+	/FrameSepCyan 1.0 def
+	/FrameSepIs FMcyan def
+	setCurrentScreen	
+} bind def
+ 
+/FrameSetMagenta {
+	/FrameSepBlue 1.0 def
+	/FrameSepGreen 0.0 def
+	/FrameSepRed 1.0 def
+	/FrameSepBlack 0.0 def
+	/FrameSepYellow 0.0 def
+	/FrameSepMagenta 1.0 def
+	/FrameSepCyan 0.0 def
+	/FrameSepIs FMmagenta def
+	setCurrentScreen
+} bind def
+ 
+/FrameSetYellow {
+	/FrameSepBlue 0.0 def
+	/FrameSepGreen 1.0 def
+	/FrameSepRed 1.0 def
+	/FrameSepBlack 0.0 def
+	/FrameSepYellow 1.0 def
+	/FrameSepMagenta 0.0 def
+	/FrameSepCyan 0.0 def
+	/FrameSepIs FMyellow def
+	setCurrentScreen
+} bind def
+ 
+/FrameSetBlack {
+	/FrameSepBlue 0.0 def
+	/FrameSepGreen 0.0 def
+	/FrameSepRed 0.0 def
+	/FrameSepBlack 1.0 def
+	/FrameSepYellow 0.0 def
+	/FrameSepMagenta 0.0 def
+	/FrameSepCyan 0.0 def
+	/FrameSepIs FMblack def
+	setCurrentScreen
+} bind def
+ 
+/FrameNoSep { 
+	/FrameSepIs FMnone def
+	setCurrentScreen
+} bind def
+/FrameSetSepColors { 
+	FrameDict begin
+	[ exch 1 add 1 roll ]
+	/FrameSepColors  
+	exch def end
+	} bind def
+/FrameColorInSepListCMYK { 
+	FrameSepColors {  
+       		exch dup 3 -1 roll 
+       		FrameCmpColorsCMYK 
+       		{ pop true exit } if
+    	} forall 
+	dup true ne {pop false} if
+	} bind def
+/FrameColorInSepListRGB { 
+	FrameSepColors {  
+       		exch dup 3 -1 roll 
+       		FrameCmpColorsRGB 
+       		{ pop true exit } if
+    	} forall 
+	dup true ne {pop false} if
+	} bind def
+/RealSetgray /setgray load def
+/RealSetrgbcolor /setrgbcolor load def
+/RealSethsbcolor /sethsbcolor load def
+end 
+/setgray { 
+	FrameDict begin
+	FrameSepIs FMnone eq
+		{ RealSetgray } 
+		{ 
+		FrameSepIs FMblack eq 
+			{ RealSetgray } 
+			{ FrameSepIs FMcustom eq 
+			  FrameSepRed 0 eq and
+			  FrameSepGreen 0 eq and
+			  FrameSepBlue 0 eq and {
+			  	RealSetgray
+			  } {
+				1 RealSetgray pop 
+			  } ifelse
+			} ifelse
+		} ifelse
+	end
+} bind def
+/setrgbcolor { 
+	FrameDict begin
+	FrameSepIs FMnone eq
+	{  RealSetrgbcolor }
+	{
+		3 copy [ 4 1 roll ] 
+		FrameColorInSepListRGB
+		{
+				FrameSepBlue eq exch 
+			 	FrameSepGreen eq and exch 
+			 	FrameSepRed eq and
+			 	{ 0 } { 1 } ifelse
+		}
+		{
+			FMPColor {
+				RealSetrgbcolor
+				currentcmykcolor
+			} {
+				RGBtoCMYK
+			} ifelse
+			FrameSepIs FMblack eq
+			{1.0 exch sub 4 1 roll pop pop pop} {
+			FrameSepIs FMyellow eq
+			{pop 1.0 exch sub 3 1 roll pop pop} {
+			FrameSepIs FMmagenta eq
+			{pop pop 1.0 exch sub exch pop } {
+			FrameSepIs FMcyan eq
+			{pop pop pop 1.0 exch sub } 
+			{pop pop pop pop 1} ifelse } ifelse } ifelse } ifelse 
+		} ifelse
+		RealSetgray
+	} 
+	ifelse
+	end
+} bind def
+/sethsbcolor {
+	FrameDict begin
+	FrameSepIs FMnone eq 
+	{ RealSethsbcolor } 
+	{
+		RealSethsbcolor 
+		currentrgbcolor  
+		setrgbcolor 
+	} 
+	ifelse
+	end
+} bind def
+FrameDict begin
+/setcmykcolor where {
+	pop /RealSetcmykcolor /setcmykcolor load def
+} {
+	/RealSetcmykcolor {
+		4 1 roll
+		3 { 3 index add 0 max 1 min 1 exch sub 3 1 roll} repeat 
+		RealSetrgbcolor pop
+	} bind def
+} ifelse
+userdict /setcmykcolor { 
+		FrameDict begin
+		FrameSepIs FMnone eq
+		{ RealSetcmykcolor } 
+		{
+			4 copy [ 5 1 roll ]
+			FrameColorInSepListCMYK
+			{
+				FrameSepBlack eq exch 
+				FrameSepYellow eq and exch 
+				FrameSepMagenta eq and exch 
+				FrameSepCyan eq and 
+				{ 0 } { 1 } ifelse
+			}
+			{
+				FrameSepIs FMblack eq
+				{1.0 exch sub 4 1 roll pop pop pop} {
+				FrameSepIs FMyellow eq
+				{pop 1.0 exch sub 3 1 roll pop pop} {
+				FrameSepIs FMmagenta eq
+				{pop pop 1.0 exch sub exch pop } {
+				FrameSepIs FMcyan eq
+				{pop pop pop 1.0 exch sub } 
+				{pop pop pop pop 1} ifelse } ifelse } ifelse } ifelse 
+			} ifelse
+			RealSetgray
+		}
+		ifelse
+		end
+	} bind put
+fMLevel1 { 
+	
+	
+	
+	/patScreenDict 7 dict dup begin
+		<0f1e3c78f0e1c387> [ 45  { pop } {exch pop} 		.5   2 sqrt] FmBD
+		<0f87c3e1f0783c1e> [ 135 { pop } {exch pop}			.5   2 sqrt] FmBD
+		<cccccccccccccccc> [ 0   { pop } dup				.5   2	   ] FmBD
+		<ffff0000ffff0000> [ 90  { pop } dup				.5   2	   ] FmBD
+		<8142241818244281> [ 45  { 2 copy lt {exch} if pop}	dup .75  2 sqrt] FmBD
+		<03060c183060c081> [ 45  { pop } {exch pop}			.875 2 sqrt] FmBD
+		<8040201008040201> [ 135 { pop } {exch pop}			.875 2 sqrt] FmBD
+	end def
+} { 
+	
+	/patProcDict 5 dict dup begin
+		<0f1e3c78f0e1c387> { 3 setlinewidth -1 -1 moveto 9 9 lineto stroke 
+											4 -4 moveto 12 4 lineto stroke
+											-4 4 moveto 4 12 lineto stroke} bind def
+		<0f87c3e1f0783c1e> { 3 setlinewidth -1 9 moveto 9 -1 lineto stroke 
+											-4 4 moveto 4 -4 lineto stroke
+											4 12 moveto 12 4 lineto stroke} bind def
+		<8142241818244281> { 1 setlinewidth -1 9 moveto 9 -1 lineto stroke
+											-1 -1 moveto 9 9 lineto stroke } bind def
+		<03060c183060c081> { 1 setlinewidth -1 -1 moveto 9 9 lineto stroke 
+											4 -4 moveto 12 4 lineto stroke
+											-4 4 moveto 4 12 lineto stroke} bind def
+		<8040201008040201> { 1 setlinewidth -1 9 moveto 9 -1 lineto stroke 
+											-4 4 moveto 4 -4 lineto stroke
+											4 12 moveto 12 4 lineto stroke} bind def
+	end def
+	/patDict 15 dict dup begin
+		/PatternType 1 def		
+		/PaintType 2 def		
+		/TilingType 3 def		
+		/BBox [ 0 0 8 8 ] def 	
+		/XStep 8 def			
+		/YStep 8 def			
+		/PaintProc {
+			begin
+			patProcDict bstring known {
+				patProcDict bstring get exec
+			} {
+				8 8 true [1 0 0 -1 0 8] bstring imagemask
+			} ifelse
+			end
+		} bind def
+	end def
+} ifelse
+/tintCMYK {
+	1 tintGray sub FrameCurColors 0 4 getinterval aload pop 	
+	4 index mul 5 1 roll										
+	3 index mul 5 1 roll										
+	2 index mul 5 1 roll										
+	mul 4 1 roll												
+}bind def
+/tintRGB {
+	1 tintGray sub FrameCurColors 4 3 getinterval aload pop 	
+	1 exch sub 3 index mul 1 exch sub 4 1 roll					
+	1 exch sub 2 index mul 1 exch sub 4 1 roll					
+	1 exch sub mul 1 exch sub 3 1 roll							
+}bind def
+/combineColor {
+	/tintGray 1 1 FrameCurGray sub FrameCurColors 7 get mul sub def
+    FrameSepIs FMnone eq
+	{
+		graymode fMLevel1 or not {
+			
+			[/Pattern [/DeviceCMYK]] setcolorspace
+			tintCMYK FrameCurPat setcolor
+		} {
+			FrameCurColors 3 get 1.0 ge {
+				tintGray RealSetgray
+			} {
+				fMAcrobat not FMPColor graymode and and {
+					tintCMYK
+					RealSetcmykcolor
+				} {
+					tintRGB
+					RealSetrgbcolor
+				} ifelse
+			} ifelse
+		} ifelse
+	} { 
+		FrameCurColors 0 4 getinterval aload
+		FrameColorInSepListCMYK {
+			FrameSepBlack eq exch 
+			FrameSepYellow eq and exch 
+			FrameSepMagenta eq and exch 
+			FrameSepCyan eq and
+			FrameSepIs FMcustom eq and
+			{ tintGray } { 1 } ifelse
+		} {
+			FrameSepIs FMblack eq
+			{tintGray 1.0 exch sub mul 1.0 exch sub 4 1 roll pop pop pop} {
+			FrameSepIs FMyellow eq
+			{pop tintGray 1.0 exch sub mul 1.0 exch sub 3 1 roll pop pop} {
+			FrameSepIs FMmagenta eq
+			{pop pop tintGray 1.0 exch sub mul 1.0 exch sub exch pop } {
+			FrameSepIs FMcyan eq
+			{pop pop pop tintGray 1.0 exch sub mul 1.0 exch sub } 
+			{pop pop pop pop 1} ifelse } ifelse } ifelse } ifelse 
+		} ifelse
+		graymode fMLevel1 or not {
+			
+			[/Pattern [/DeviceGray]] setcolorspace
+			FrameCurPat setcolor
+		} { 
+			graymode not fMLevel1 and {
+				
+				dup 1 lt {pop FrameCurGray} if
+			} if
+			RealSetgray
+		} ifelse
+	} ifelse
+} bind def
+/savematrix {
+	orgmatrix currentmatrix pop
+	} bind def
+/restorematrix {
+	orgmatrix setmatrix
+	} bind def
+/fMDefaultMatrix matrix def
+/fMatrix2 matrix def
+/dpi    72 0 fMDefaultMatrix defaultmatrix dtransform
+    dup mul exch   dup mul add   sqrt def
+	
+/freq dpi dup 72 div round dup 0 eq {pop 1} if 8 mul div def
+/sangle 1 0 fMDefaultMatrix defaultmatrix dtransform exch atan def
+	sangle fMatrix2 rotate 
+	fMDefaultMatrix defaultmatrix fMatrix2 concatmatrix 
+	dup 0 get /sflipx exch def
+	    3 get /sflipy exch def
+/screenIndex {
+	0 1 dpiranges length 1 sub { dup dpiranges exch get 1 sub dpi le {exit} {pop} ifelse } for
+} bind def
+/getCyanScreen {
+	FMUseHighFrequencyScreens { CHighAngles CMHighFreqs} {CLowAngles CMLowFreqs} ifelse
+		screenIndex dup 3 1 roll get 3 1 roll get /FMSpotFunction load
+} bind def
+/getMagentaScreen {
+	FMUseHighFrequencyScreens { MHighAngles CMHighFreqs } {MLowAngles CMLowFreqs} ifelse
+		screenIndex dup 3 1 roll get 3 1 roll get /FMSpotFunction load
+} bind def
+/getYellowScreen {
+	FMUseHighFrequencyScreens { YHighTDot YHighFreqs} { YLowTDot YLowFreqs } ifelse
+		screenIndex dup 3 1 roll get 3 1 roll get { 3 div
+			{2 { 1 add 2 div 3 mul dup floor sub 2 mul 1 sub exch} repeat
+			FMSpotFunction } } {/FMSpotFunction load } ifelse
+			0.0 exch
+} bind def
+/getBlackScreen  {
+	FMUseHighFrequencyScreens { KHighFreqs } { KLowFreqs } ifelse
+		screenIndex get 45.0 /FMSpotFunction load 
+} bind def
+/getSpotScreen {
+	getBlackScreen
+} bind def
+/getCompositeScreen {
+	getBlackScreen
+} bind def
+/FMSetScreen 
+	fMLevel1 { /setscreen load 
+	}{ {
+		8 dict begin
+		/HalftoneType 1 def
+		/SpotFunction exch def
+		/Angle exch def
+		/Frequency exch def
+		/AccurateScreens FMUseAcccurateScreens def
+		currentdict end sethalftone
+	} bind } ifelse
+def
+/setDefaultScreen {
+	fMLevel1 {
+		FMPColor {
+			orgrxfer cvx orggxfer cvx orgbxfer cvx orgxfer cvx setcolortransfer
+		}
+		{
+			orgxfer cvx settransfer
+		} ifelse
+		orgfreq organgle orgproc cvx setscreen
+	} {
+		orghalftone sethalftone
+	}ifelse
+} bind def
+/setCurrentScreen {
+	FrameSepIs FMnone eq {
+		FMUseDefaultNoSeparationScreen {
+			setDefaultScreen
+		} {
+			getCompositeScreen FMSetScreen
+		} ifelse
+	} {
+		FrameSepIs FMcustom eq {
+			FMUseDefaultSpotSeparationScreen {
+				setDefaultScreen
+			} {
+				getSpotScreen FMSetScreen
+			} ifelse
+		} {
+			FMUseDefaultProcessSeparationScreen {
+				setDefaultScreen
+			} {
+				FrameSepIs FMcyan eq {
+					getCyanScreen FMSetScreen
+				} {
+					FrameSepIs FMmagenta eq {
+						getMagentaScreen FMSetScreen
+					} {
+						FrameSepIs FMyellow eq {
+							getYellowScreen FMSetScreen
+						} {
+							getBlackScreen FMSetScreen
+						} ifelse
+					} ifelse
+				} ifelse
+			} ifelse
+		} ifelse
+	} ifelse 
+} bind def
+end
+	
+/FMDOCUMENT { 
+	array /FMfonts exch def 
+	dup 1 gt {/#copies exch def} {pop} ifelse
+	FrameDict begin
+	0 ne /manualfeed exch def
+	/paperheight exch def
+	/paperwidth exch def
+	0 ne /fMNegative exch def 
+	0 ne /edown exch def 
+	/yscale exch def
+	/xscale exch def
+	fMLevel1 {
+		manualfeed {setmanualfeed} if
+		/FMdicttop countdictstack 1 add def 
+		/FMoptop count def 
+		setpapername 
+		manualfeed {true} {papersize} ifelse 
+		{manualpapersize} {false} ifelse 
+		{desperatepapersize} {false} ifelse 
+		{papersizefailure} if
+		count -1 FMoptop {pop pop} for
+		countdictstack -1 FMdicttop {pop end} for 
+		}
+		{2 dict
+		 dup /PageSize [paperwidth paperheight] put
+		 manualfeed {dup /ManualFeed manualfeed put} if
+		 {setpagedevice} stopped {papersizefailure} if
+		}
+	ifelse 
+	
+	fMLevel1 not {
+		/orghalftone currenthalftone def
+	}if 
+	
+	FMPColor {
+		currentcolorscreen
+			cvlit /orgproc exch def
+				  /organgle exch def 
+				  /orgfreq exch def
+			cvlit /orgbproc exch def
+				  /orgbangle exch def 
+				  /orgbfreq exch def
+			cvlit /orggproc exch def
+				  /orggangle exch def 
+				  /orggfreq exch def
+			cvlit /orgrproc exch def
+				  /orgrangle exch def 
+				  /orgrfreq exch def
+			currentcolortransfer 
+			fMNegative {
+				1 1 4 { 
+					pop { 1 exch sub } fmConcatProcs 4 1 roll
+				} for
+				4 copy
+				setcolortransfer
+			} if
+			cvlit /orgxfer exch def
+			cvlit /orgbxfer exch def
+			cvlit /orggxfer exch def
+			cvlit /orgrxfer exch def
+	} {
+		currentscreen 
+			cvlit /orgproc exch def
+				  /organgle exch def 
+				  /orgfreq exch def
+				  
+		currenttransfer 
+		fMNegative {
+			{ 1 exch sub } fmConcatProcs
+			dup settransfer
+		} if 
+		cvlit /orgxfer exch def
+	} ifelse
+	end 
+} def 
+/FMENDDOCUMENT {
+	FMDocSave restore	
+} def
+/FMBEGINPAGE { 
+	FrameDict begin 
+	/pagesave save def
+	3.86 setmiterlimit
+	0 0 moveto paperwidth 0 lineto paperwidth paperheight lineto 
+	0 paperheight lineto 0 0 lineto 1 setgray fill
+	/landscape exch 0 ne def
+	landscape { 
+		90 rotate 0 exch dup /pwid exch def neg translate pop 
+	}{
+		pop /pwid exch def
+	} ifelse
+	edown { [-1 0 0 1 pwid 0] concat } if
+	xscale yscale scale
+	/orgmatrix matrix def
+	gsave 
+} def 
+/FMENDPAGE {
+	grestore 
+	pagesave restore
+	end 
+	showpage
+	} def 
+/FMFONTDEFINE { 
+	FrameDict begin
+	findfont 
+	ReEncode 
+	1 index exch 
+	definefont 
+	FMfonts 3 1 roll 
+	put
+	end 
+	} def 
+/FMFILLS {
+	FrameDict begin dup
+	array /fillvals exch def
+	dict /patCache exch def
+	end 
+	} def 
+/FMFILL {
+	FrameDict begin
+	 fillvals 3 1 roll put
+	end 
+	} def 
+/FMNORMALIZEGRAPHICS { 
+	newpath
+	1 setlinewidth
+	0 setlinecap
+	0 0 0 sethsbcolor
+	0 setgray 
+	} bind def
+/FMBEGINEPSF { 
+	end 
+	/FMEPSF save def 
+	/showpage {} def 
+	FMNORMALIZEGRAPHICS 
+	[/fy /fx /fh /fw /ury /urx /lly /llx] {exch def} forall 
+	fx fw 2 div add fy fh 2 div add  translate
+	rotate
+	fw 2 div neg fh 2 div neg translate
+	fw urx llx sub div fh ury lly sub div scale 
+	llx neg lly neg translate 
+	/FMdicttop countdictstack 1 add def 
+	/FMoptop count def 
+	} bind def
+/FMENDEPSF {
+	count -1 FMoptop {pop pop} for 
+	countdictstack -1 FMdicttop {pop end} for 
+	FMEPSF restore
+	FrameDict begin 
+	} bind def
+FrameDict begin 
+/setmanualfeed {
+%%BeginFeature: *ManualFeed True
+	 statusdict /manualfeed true put
+%%EndFeature
+	} bind def
+/max {2 copy lt {exch} if pop} bind def
+/min {2 copy gt {exch} if pop} bind def
+/inch {72 mul} def
+/pagedimen { 
+	paperheight sub abs 16 lt exch 
+	paperwidth sub abs 16 lt and
+	{/papername exch def} {pop} ifelse
+	} bind def
+/setpapername { 
+	/papersizedict 14 dict def 
+	papersizedict begin
+	/papername /unknown def 
+		/Letter 8.5 inch 11.0 inch pagedimen
+		/LetterSmall 7.68 inch 10.16 inch pagedimen
+		/Tabloid 11.0 inch 17.0 inch pagedimen
+		/Ledger 17.0 inch 11.0 inch pagedimen
+		/Legal 8.5 inch 14.0 inch pagedimen
+		/Statement 5.5 inch 8.5 inch pagedimen
+		/Executive 7.5 inch 10.0 inch pagedimen
+		/A3 11.69 inch 16.5 inch pagedimen
+		/A4 8.26 inch 11.69 inch pagedimen
+		/A4Small 7.47 inch 10.85 inch pagedimen
+		/B4 10.125 inch 14.33 inch pagedimen
+		/B5 7.16 inch 10.125 inch pagedimen
+	end
+	} bind def
+/papersize {
+	papersizedict begin
+		/Letter {lettertray letter} def
+		/LetterSmall {lettertray lettersmall} def
+		/Tabloid {11x17tray 11x17} def
+		/Ledger {ledgertray ledger} def
+		/Legal {legaltray legal} def
+		/Statement {statementtray statement} def
+		/Executive {executivetray executive} def
+		/A3 {a3tray a3} def
+		/A4 {a4tray a4} def
+		/A4Small {a4tray a4small} def
+		/B4 {b4tray b4} def
+		/B5 {b5tray b5} def
+		/unknown {unknown} def
+	papersizedict dup papername known {papername} {/unknown} ifelse get
+	end
+	statusdict begin stopped end 
+	} bind def
+/manualpapersize {
+	papersizedict begin
+		/Letter {letter} def
+		/LetterSmall {lettersmall} def
+		/Tabloid {11x17} def
+		/Ledger {ledger} def
+		/Legal {legal} def
+		/Statement {statement} def
+		/Executive {executive} def
+		/A3 {a3} def
+		/A4 {a4} def
+		/A4Small {a4small} def
+		/B4 {b4} def
+		/B5 {b5} def
+		/unknown {unknown} def
+	papersizedict dup papername known {papername} {/unknown} ifelse get
+	end
+	stopped 
+	} bind def
+/desperatepapersize {
+	
+	mark
+	statusdict begin 
+		/setpageparams where {
+			pop
+			paperwidth paperheight 0 1 
+			{setpageparams} stopped 
+		} { 
+			true 
+		} ifelse
+		
+		{
+			
+			/setpagedevice where {
+				pop 
+				1 dict dup begin
+					/PageSize [ paperwidth paperheight ] def
+				end 
+				{setpagedevice} stopped
+			} {
+				true	
+			} ifelse
+		} {
+			false		
+		} ifelse 
+	end
+	{cleartomark true}{cleartomark false}ifelse
+} bind def
+/papersizefailure {
+	FMAllowPaperSizeMismatch not
+		{
+(The requested paper size is not available in any currently-installed tray)
+(Edit the PS file to "FMAllowPaperSizeMismatch true" to use default tray)
+		 FMFAILURE } if
+	} def
+/DiacriticEncoding [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /space /exclam /quotedbl
+/numbersign /dollar /percent /ampersand /quotesingle /parenleft
+/parenright /asterisk /plus /comma /hyphen /period /slash /zero /one
+/two /three /four /five /six /seven /eight /nine /colon /semicolon
+/less /equal /greater /question /at /A /B /C /D /E /F /G /H /I /J /K
+/L /M /N /O /P /Q /R /S /T /U /V /W /X /Y /Z /bracketleft /backslash
+/bracketright /asciicircum /underscore /grave /a /b /c /d /e /f /g /h
+/i /j /k /l /m /n /o /p /q /r /s /t /u /v /w /x /y /z /braceleft /bar
+/braceright /asciitilde /.notdef /Adieresis /Aring /Ccedilla /Eacute
+/Ntilde /Odieresis /Udieresis /aacute /agrave /acircumflex /adieresis
+/atilde /aring /ccedilla /eacute /egrave /ecircumflex /edieresis
+/iacute /igrave /icircumflex /idieresis /ntilde /oacute /ograve
+/ocircumflex /odieresis /otilde /uacute /ugrave /ucircumflex
+/udieresis /dagger /.notdef /cent /sterling /section /bullet
+/paragraph /germandbls /registered /copyright /trademark /acute
+/dieresis /.notdef /AE /Oslash /.notdef /.notdef /.notdef /.notdef
+/yen /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/ordfeminine /ordmasculine /.notdef /ae /oslash /questiondown
+/exclamdown /logicalnot /.notdef /florin /.notdef /.notdef
+/guillemotleft /guillemotright /ellipsis /.notdef /Agrave /Atilde
+/Otilde /OE /oe /endash /emdash /quotedblleft /quotedblright
+/quoteleft /quoteright /.notdef /.notdef /ydieresis /Ydieresis
+/fraction /currency /guilsinglleft /guilsinglright /fi /fl /daggerdbl
+/periodcentered /quotesinglbase /quotedblbase /perthousand
+/Acircumflex /Ecircumflex /Aacute /Edieresis /Egrave /Iacute
+/Icircumflex /Idieresis /Igrave /Oacute /Ocircumflex /.notdef /Ograve
+/Uacute /Ucircumflex /Ugrave /dotlessi /circumflex /tilde /macron
+/breve /dotaccent /ring /cedilla /hungarumlaut /ogonek /caron
+] def
+/ReEncode { 
+	dup 
+	length 
+	dict begin 
+	{
+	1 index /FID ne 
+		{def} 
+		{pop pop} ifelse 
+	} forall 
+	0 eq {/Encoding DiacriticEncoding def} if 
+	currentdict 
+	end 
+	} bind def
+FMPColor 
+	
+	{
+	/BEGINBITMAPCOLOR { 
+		BITMAPCOLOR} def
+	/BEGINBITMAPCOLORc { 
+		BITMAPCOLORc} def
+	/BEGINBITMAPTRUECOLOR { 
+		BITMAPTRUECOLOR } def
+	/BEGINBITMAPTRUECOLORc { 
+		BITMAPTRUECOLORc } def
+	/BEGINBITMAPCMYK { 
+		BITMAPCMYK } def
+	/BEGINBITMAPCMYKc { 
+		BITMAPCMYKc } def
+	}
+	
+	{
+	/BEGINBITMAPCOLOR { 
+		BITMAPGRAY} def
+	/BEGINBITMAPCOLORc { 
+		BITMAPGRAYc} def
+	/BEGINBITMAPTRUECOLOR { 
+		BITMAPTRUEGRAY } def
+	/BEGINBITMAPTRUECOLORc { 
+		BITMAPTRUEGRAYc } def
+	/BEGINBITMAPCMYK { 
+		BITMAPCMYKGRAY } def
+	/BEGINBITMAPCMYKc { 
+		BITMAPCMYKGRAYc } def
+	}
+ifelse
+/K { 
+	FMPrintAllColorsAsBlack {
+		8 1 roll
+		dup 1 eq 2 index 1 eq and 3 index 1 eq and not
+			{7 {pop} repeat 0 0 0 1 0 0 0} if
+		8 -1 roll
+	} if 
+	FrameCurColors astore 
+	pop combineColor
+} bind def
+/graymode true def
+fMLevel1 {
+	/fmGetFlip {
+		fMatrix2 exch get mul 0 lt { -1 } { 1 } ifelse
+	} FmBD
+} if
+/setPatternMode {
+	fMLevel1 {
+		2 index patScreenDict exch known {
+			pop pop
+			patScreenDict exch get aload pop 
+			freq 								
+			mul									
+			5 2 roll							
+			fMatrix2 currentmatrix 1 get 0 ne {
+				3 -1 roll 90 add 3 1 roll 		
+				sflipx 1 fmGetFlip sflipy 2 fmGetFlip neg mul
+			} {  								
+				sflipx 0 fmGetFlip sflipy 3 fmGetFlip mul 
+			} ifelse
+			0 lt {exch pop} {pop} ifelse 		
+			fMNegative { 
+				{neg} fmConcatProcs 			
+			} if
+			bind
+			
+			
+			
+			systemdict /setscreen get exec		
+			/FrameCurGray exch def
+		} {
+			/bwidth  exch def
+			/bpside  exch def
+			/bstring exch def
+			/onbits 0 def  /offbits 0 def
+			freq sangle landscape {90 add} if 
+				{/ypoint exch def
+				 /xpoint exch def
+				 /xindex xpoint 1 add 2 div bpside mul cvi def
+				 /yindex ypoint 1 add 2 div bpside mul cvi def
+				 bstring yindex bwidth mul xindex 8 idiv add get
+				 1 7 xindex 8 mod sub bitshift and 0 ne fMNegative {not} if
+				 {/onbits  onbits  1 add def 1}
+				 {/offbits offbits 1 add def 0}
+				 ifelse
+				}
+				setscreen
+			offbits offbits onbits add dup 0 ne {div} {pop pop .5} ifelse fMNegative {1.0 exch sub} if
+			/FrameCurGray exch def
+		} ifelse
+	} { 
+		pop pop
+		dup patCache exch known {
+			patCache exch get
+		} { 
+			dup
+			patDict /bstring 3 -1 roll put
+			patDict 
+			9 PatFreq screenIndex get div dup matrix scale
+			makepattern
+			dup 
+			patCache 4 -1 roll 3 -1 roll put
+		} ifelse
+		/FrameCurGray 0 def
+		/FrameCurPat exch def
+	} ifelse
+	/graymode false def
+	combineColor
+} bind def
+/setGrayScaleMode {
+	graymode not {
+		/graymode true def
+		fMLevel1 {
+			setCurrentScreen
+		} if
+	} if
+	/FrameCurGray exch def
+	combineColor
+} bind def
+/normalize {
+	transform round exch round exch itransform
+	} bind def
+/dnormalize {
+	dtransform round exch round exch idtransform
+	} bind def
+/lnormalize { 
+	0 dtransform exch cvi 2 idiv 2 mul 1 add exch idtransform pop
+	} bind def
+/H { 
+	lnormalize setlinewidth
+	} bind def
+/Z {
+	setlinecap
+	} bind def
+	
+/PFill {
+	graymode fMLevel1 or not {
+		gsave 1 setgray eofill grestore
+	} if
+} bind def
+/PStroke {
+	graymode fMLevel1 or not {
+		gsave 1 setgray stroke grestore
+	} if
+	stroke
+} bind def
+/X { 
+	fillvals exch get
+	dup type /stringtype eq
+	{8 1 setPatternMode} 
+	{setGrayScaleMode}
+	ifelse
+	} bind def
+/V { 
+	PFill gsave eofill grestore
+	} bind def
+/Vclip {
+	clip
+	} bind def
+/Vstrk {
+	currentlinewidth exch setlinewidth PStroke setlinewidth
+	} bind def
+/N { 
+	PStroke
+	} bind def
+/Nclip {
+	strokepath clip newpath
+	} bind def
+/Nstrk {
+	currentlinewidth exch setlinewidth PStroke setlinewidth
+	} bind def
+/M {newpath moveto} bind def
+/E {lineto} bind def
+/D {curveto} bind def
+/O {closepath} bind def
+/L { 
+ 	/n exch def
+	newpath
+	normalize
+	moveto 
+	2 1 n {pop normalize lineto} for
+	} bind def
+/Y { 
+	L 
+	closepath
+	} bind def
+/R { 
+	/y2 exch def
+	/x2 exch def
+	/y1 exch def
+	/x1 exch def
+	x1 y1
+	x2 y1
+	x2 y2
+	x1 y2
+	4 Y 
+	} bind def
+/rarc 
+	{rad 
+	 arcto
+	} bind def
+/RR { 
+	/rad exch def
+	normalize
+	/y2 exch def
+	/x2 exch def
+	normalize
+	/y1 exch def
+	/x1 exch def
+	mark
+	newpath
+	{
+	x1 y1 rad add moveto
+	x1 y2 x2 y2 rarc
+	x2 y2 x2 y1 rarc
+	x2 y1 x1 y1 rarc
+	x1 y1 x1 y2 rarc
+	closepath
+	} stopped {x1 y1 x2 y2 R} if 
+	cleartomark
+	} bind def
+/RRR { 
+	/rad exch def
+	normalize /y4 exch def /x4 exch def
+	normalize /y3 exch def /x3 exch def
+	normalize /y2 exch def /x2 exch def
+	normalize /y1 exch def /x1 exch def
+	newpath
+	normalize moveto 
+	mark
+	{
+	x2 y2 x3 y3 rarc
+	x3 y3 x4 y4 rarc
+	x4 y4 x1 y1 rarc
+	x1 y1 x2 y2 rarc
+	closepath
+	} stopped
+	 {x1 y1 x2 y2 x3 y3 x4 y4 newpath moveto lineto lineto lineto closepath} if
+	cleartomark
+	} bind def
+/C { 
+	grestore
+	gsave
+	R 
+	clip
+	setCurrentScreen
+} bind def
+/CP { 
+	grestore
+	gsave
+	Y 
+	clip
+	setCurrentScreen
+} bind def
+/F { 
+	FMfonts exch get
+	[FMsetsize 0 0 FMpointsize 0 0] makefont
+	setfont
+	} bind def
+/Q { 
+	/FMpointsize exch def
+	/FMsetsize FMpointsize def
+	F 
+	} bind def
+/QQ { 
+	/FMsetsize exch def
+	/FMpointsize exch def
+	F 
+	} bind def
+/T { 
+	moveto show
+	} bind def
+/RF { 
+	rotate
+	0 ne {-1 1 scale} if
+	} bind def
+/TF { 
+	gsave
+	moveto 
+	RF
+	show
+	grestore
+	} bind def
+/P { 
+	moveto
+	0 32 3 2 roll widthshow
+	} bind def
+/PF { 
+	gsave
+	moveto 
+	RF
+	0 32 3 2 roll widthshow
+	grestore
+	} bind def
+/S { 
+	moveto
+	0 exch ashow
+	} bind def
+/SF { 
+	gsave
+	moveto
+	RF
+	0 exch ashow
+	grestore
+	} bind def
+/B { 
+	moveto
+	0 32 4 2 roll 0 exch awidthshow
+	} bind def
+/BF { 
+	gsave
+	moveto
+	RF
+	0 32 4 2 roll 0 exch awidthshow
+	grestore
+	} bind def
+/G { 
+	gsave
+	newpath
+	normalize translate 0.0 0.0 moveto 
+	dnormalize scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	closepath 
+	PFill fill
+	grestore
+	} bind def
+/Gstrk {
+	savematrix
+    newpath
+    2 index 2 div add exch 3 index 2 div sub exch 
+    normalize 2 index 2 div sub exch 3 index 2 div add exch 
+    translate
+    scale 
+    0.0 0.0 1.0 5 3 roll arc 
+    restorematrix
+    currentlinewidth exch setlinewidth PStroke setlinewidth
+    } bind def
+/Gclip { 
+	newpath
+	savematrix
+	normalize translate 0.0 0.0 moveto 
+	dnormalize scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	closepath 
+	clip newpath
+	restorematrix
+	} bind def
+/GG { 
+	gsave
+	newpath
+	normalize translate 0.0 0.0 moveto 
+	rotate 
+	dnormalize scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	closepath
+	PFill
+	fill
+	grestore
+	} bind def
+/GGclip { 
+	savematrix
+	newpath
+    normalize translate 0.0 0.0 moveto 
+    rotate 
+    dnormalize scale 
+    0.0 0.0 1.0 5 3 roll arc 
+    closepath
+	clip newpath
+	restorematrix
+	} bind def
+/GGstrk { 
+	savematrix
+    newpath
+    normalize translate 0.0 0.0 moveto 
+    rotate 
+    dnormalize scale 
+    0.0 0.0 1.0 5 3 roll arc 
+    closepath 
+	restorematrix
+    currentlinewidth exch setlinewidth PStroke setlinewidth
+	} bind def
+/A { 
+	gsave
+	savematrix
+	newpath
+	2 index 2 div add exch 3 index 2 div sub exch 
+	normalize 2 index 2 div sub exch 3 index 2 div add exch 
+	translate 
+	scale 
+	2 copy 0.0 0.0 1.0 5 3 roll arc 
+	round cvi 360 mod exch round cvi 360 mod eq {closepath} if 
+	restorematrix
+	PStroke
+	grestore
+	} bind def
+/Aclip {
+	newpath
+	savematrix
+	normalize translate 0.0 0.0 moveto 
+	dnormalize scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	closepath 
+	strokepath clip newpath
+	restorematrix
+} bind def
+/Astrk {
+	Gstrk
+} bind def
+/AA { 
+	gsave
+	savematrix
+	newpath
+	
+	3 index 2 div add exch 4 index 2 div sub exch 
+	
+	normalize 3 index 2 div sub exch 4 index 2 div add exch
+	translate 
+	rotate 
+	scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	restorematrix
+	PStroke
+	grestore
+	} bind def
+/AAclip {
+	savematrix
+	newpath
+    normalize translate 0.0 0.0 moveto 
+    rotate 
+    dnormalize scale 
+    0.0 0.0 1.0 5 3 roll arc 
+    closepath
+	strokepath clip newpath
+	restorematrix
+} bind def
+/AAstrk {
+	GGstrk
+} bind def
+/BEGINPRINTCODE { 
+	/FMdicttop countdictstack 1 add def 
+	/FMoptop count 7 sub def 
+	/FMsaveobject save def
+	userdict begin 
+	/showpage {} def 
+	FMNORMALIZEGRAPHICS 
+	3 index neg 3 index neg translate
+	} bind def
+/ENDPRINTCODE {
+	count -1 FMoptop {pop pop} for 
+	countdictstack -1 FMdicttop {pop end} for 
+	FMsaveobject restore 
+	} bind def
+/gn { 
+	0 
+	{	46 mul 
+		cf read pop 
+		32 sub 
+		dup 46 lt {exit} if 
+		46 sub add 
+		} loop
+	add 
+	} bind def
+/cfs { 
+	/str sl string def 
+	0 1 sl 1 sub {str exch val put} for 
+	str def 
+	} bind def
+/ic [ 
+	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0223
+	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0223
+	0
+	{0 hx} {1 hx} {2 hx} {3 hx} {4 hx} {5 hx} {6 hx} {7 hx} {8 hx} {9 hx}
+	{10 hx} {11 hx} {12 hx} {13 hx} {14 hx} {15 hx} {16 hx} {17 hx} {18 hx}
+	{19 hx} {gn hx} {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12}
+	{13} {14} {15} {16} {17} {18} {19} {gn} {0 wh} {1 wh} {2 wh} {3 wh}
+	{4 wh} {5 wh} {6 wh} {7 wh} {8 wh} {9 wh} {10 wh} {11 wh} {12 wh}
+	{13 wh} {14 wh} {gn wh} {0 bl} {1 bl} {2 bl} {3 bl} {4 bl} {5 bl} {6 bl}
+	{7 bl} {8 bl} {9 bl} {10 bl} {11 bl} {12 bl} {13 bl} {14 bl} {gn bl}
+	{0 fl} {1 fl} {2 fl} {3 fl} {4 fl} {5 fl} {6 fl} {7 fl} {8 fl} {9 fl}
+	{10 fl} {11 fl} {12 fl} {13 fl} {14 fl} {gn fl}
+	] def
+/ms { 
+	/sl exch def 
+	/val 255 def 
+	/ws cfs 
+	/im cfs 
+	/val 0 def 
+	/bs cfs 
+	/cs cfs 
+	} bind def
+400 ms 
+/ip { 
+	is 
+	0 
+	cf cs readline pop 
+	{	ic exch get exec 
+		add 
+		} forall 
+	pop 
+	
+	} bind def
+/rip { 
+	   
+	  
+	  bis ris copy pop 
+      is
+      0
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop 
+	  ris gis copy pop 
+	  dup is exch 
+	  
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop
+	  gis bis copy pop 
+	  dup add is exch 
+	  
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+      pop 
+      
+      } bind def
+/rip4 { 
+	   
+	  
+	  kis cis copy pop 
+      is
+      0
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop 
+	  cis mis copy pop 
+	  dup is exch 
+	  
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop
+	  mis yis copy pop 
+	  dup dup add is exch 
+	  
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop
+	  yis kis copy pop 
+	  3 mul is exch 
+	  
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+      pop 
+      
+      } bind def
+/wh { 
+	/len exch def 
+	/pos exch def 
+	ws 0 len getinterval im pos len getinterval copy pop
+	pos len 
+	} bind def
+/bl { 
+	/len exch def 
+	/pos exch def 
+	bs 0 len getinterval im pos len getinterval copy pop
+	pos len 
+	} bind def
+/s1 1 string def
+/fl { 
+	/len exch def 
+	/pos exch def 
+	/val cf s1 readhexstring pop 0 get def
+	pos 1 pos len add 1 sub {im exch val put} for
+	pos len 
+	} bind def
+/hx { 
+	3 copy getinterval 
+	cf exch readhexstring pop pop 
+	} bind def
+/wbytes { 
+      dup dup
+      8 gt { pop 8 idiv mul }
+      { 8 eq {pop} {1 eq {7 add 8 idiv} {3 add 4 idiv} ifelse} ifelse } ifelse
+	} bind def
+/BEGINBITMAPBWc { 
+	1 {} COMMONBITMAPc
+	} bind def
+/BEGINBITMAPGRAYc { 
+	8 {} COMMONBITMAPc
+	} bind def
+/BEGINBITMAP2BITc { 
+	2 {} COMMONBITMAPc
+	} bind def
+/COMMONBITMAPc { 
+		 
+	/cvtProc exch def
+	/depth exch def
+	gsave
+	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/lb width depth wbytes def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+	cvtProc                
+	/is im 0 lb getinterval def 
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	width height depth [width 0 0 height neg 0 height] 
+	{ip} image 
+	bitmapsave restore 
+	grestore
+	} bind def
+/BEGINBITMAPBW { 
+	1 {} COMMONBITMAP
+	} bind def
+/BEGINBITMAPGRAY { 
+	8 {} COMMONBITMAP
+	} bind def
+/BEGINBITMAP2BIT { 
+	2 {} COMMONBITMAP
+	} bind def
+/COMMONBITMAP { 
+	/cvtProc exch def
+	/depth exch def
+	gsave
+	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/bitmapsave save def 
+	cvtProc              
+	/is width depth wbytes string def
+	/cf currentfile def 
+	width height depth [width 0 0 height neg 0 height] 
+	{cf is readhexstring pop} image
+	bitmapsave restore 
+	grestore
+	} bind def
+/ngrayt 256 array def
+/nredt 256 array def
+/nbluet 256 array def
+/ngreent 256 array def
+fMLevel1 {
+/colorsetup {
+	currentcolortransfer
+	/gryt exch def
+	/blut exch def
+	/grnt exch def
+	/redt exch def
+	0 1 255 {
+		/indx exch def
+		/cynu 1 red indx get 255 div sub def
+		/magu 1 green indx get 255 div sub def
+		/yelu 1 blue indx get 255 div sub def
+		/kk cynu magu min yelu min def
+		/u kk currentundercolorremoval exec def
+%		/u 0 def
+		nredt indx 1 0 cynu u sub max sub redt exec put
+		ngreent indx 1 0 magu u sub max sub grnt exec put
+		nbluet indx 1 0 yelu u sub max sub blut exec put
+		ngrayt indx 1 kk currentblackgeneration exec sub gryt exec put
+	} for
+	{255 mul cvi nredt exch get}
+	{255 mul cvi ngreent exch get}
+	{255 mul cvi nbluet exch get}
+	{255 mul cvi ngrayt exch get}
+	setcolortransfer
+	{pop 0} setundercolorremoval
+	{} setblackgeneration
+	} bind def
+}
+{
+/colorSetup2 {
+	[ /Indexed /DeviceRGB 255 
+		{dup red exch get 255 div 
+		 exch dup green exch get 255 div 
+		 exch blue exch get 255 div}
+	] setcolorspace
+} bind def
+} ifelse
+/fakecolorsetup {
+	/tran 256 string def
+	0 1 255 {/indx exch def 
+		tran indx
+		red indx get 77 mul
+		green indx get 151 mul
+		blue indx get 28 mul
+		add add 256 idiv put} for
+	currenttransfer
+	{255 mul cvi tran exch get 255.0 div}
+	exch fmConcatProcs settransfer
+} bind def
+/BITMAPCOLOR { 
+	/depth 8 def
+	gsave
+	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/bitmapsave save def
+	fMLevel1 {	
+		colorsetup
+		/is width depth wbytes string def
+		/cf currentfile def 
+		width height depth [width 0 0 height neg 0 height] 
+		{cf is readhexstring pop} {is} {is} true 3 colorimage 
+	} {
+		colorSetup2
+		/is width depth wbytes string def
+		/cf currentfile def 
+		7 dict dup begin
+			/ImageType 1 def
+			/Width width def
+			/Height height def
+			/ImageMatrix [width 0 0 height neg 0 height] def
+			/DataSource {cf is readhexstring pop} bind def
+			/BitsPerComponent depth def
+			/Decode [0 255] def
+		end image	
+	} ifelse
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPCOLORc { 
+	/depth 8 def
+	gsave
+	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/lb width depth wbytes def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+	fMLevel1 {	
+		colorsetup
+		/is im 0 lb getinterval def 
+		ws 0 lb getinterval is copy pop 
+		/cf currentfile def 
+		width height depth [width 0 0 height neg 0 height] 
+		{ip} {is} {is} true 3 colorimage
+	} {
+		colorSetup2
+		/is im 0 lb getinterval def 
+		ws 0 lb getinterval is copy pop 
+		/cf currentfile def 
+		7 dict dup begin
+			/ImageType 1 def
+			/Width width def
+			/Height height def
+			/ImageMatrix [width 0 0 height neg 0 height] def
+			/DataSource {ip} bind def
+			/BitsPerComponent depth def
+			/Decode [0 255] def
+		end image	
+	} ifelse
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPTRUECOLORc { 
+	/depth 24 def
+        gsave
+ 	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/lb width depth wbytes def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+        
+	/is im 0 lb getinterval def	
+	/ris im 0 width getinterval def	
+	/gis im width width getinterval def	
+	/bis im width 2 mul width getinterval def 
+        
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	width height 8 [width 0 0 height neg 0 height] 
+	{width rip pop ris} {gis} {bis} true 3 colorimage
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPCMYKc { 
+	/depth 32 def
+        gsave
+ 	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/lb width depth wbytes def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+        
+	/is im 0 lb getinterval def	
+	/cis im 0 width getinterval def	
+	/mis im width width getinterval def	
+	/yis im width 2 mul width getinterval def 
+	/kis im width 3 mul width getinterval def 
+        
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	width height 8 [width 0 0 height neg 0 height] 
+	{width rip4 pop cis} {mis} {yis} {kis} true 4 colorimage
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPTRUECOLOR { 
+        gsave
+		
+		3 index 2 div add exch	
+		4 index 2 div add exch	
+		translate		
+		rotate			
+		1 index 2 div neg	
+		1 index 2 div neg	
+		translate		
+		scale			
+		/height exch def /width exch def
+        /bitmapsave save def 
+        /is width string def
+        /gis width string def
+        /bis width string def
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        { cf is readhexstring pop } 
+        { cf gis readhexstring pop } 
+        { cf bis readhexstring pop } 
+        true 3 colorimage 
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPCMYK { 
+        gsave
+		
+		3 index 2 div add exch	
+		4 index 2 div add exch	
+		translate		
+		rotate			
+		1 index 2 div neg	
+		1 index 2 div neg	
+		translate		
+		scale			
+		/height exch def /width exch def
+        /bitmapsave save def 
+        /is width string def
+        /mis width string def
+        /yis width string def
+        /kis width string def
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        { cf is readhexstring pop } 
+        { cf mis readhexstring pop } 
+        { cf yis readhexstring pop } 
+        { cf kis readhexstring pop } 
+        true 4 colorimage 
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPTRUEGRAYc { 
+	/depth 24 def
+        gsave
+	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/lb width depth wbytes def 
+	sl lb lt {lb ms} if 
+        /bitmapsave save def 
+        
+	/is im 0 lb getinterval def	
+	/ris im 0 width getinterval def	
+	/gis im width width getinterval def	
+	/bis im width 2 mul width getinterval def 
+        ws 0 lb getinterval is copy pop 
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        {width rip pop ris gis bis width gray} image
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPCMYKGRAYc { 
+	/depth 32 def
+        gsave
+	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/lb width depth wbytes def 
+	sl lb lt {lb ms} if 
+        /bitmapsave save def 
+        
+	/is im 0 lb getinterval def	
+	/cis im 0 width getinterval def	
+	/mis im width width getinterval def	
+	/yis im width 2 mul width getinterval def 
+	/kis im width 3 mul width getinterval def 
+        ws 0 lb getinterval is copy pop 
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        {width rip pop cis mis yis kis width cgray} image
+        bitmapsave restore 
+        grestore
+        } bind def
+/cgray { 
+        /ww exch def
+        /k exch def
+        /y exch def
+        /m exch def
+        /c exch def
+        0 1 ww 1 sub { /i exch def c i get m i get y i get k i get CMYKtoRGB
+				.144 mul 3 1 roll .587 mul 3 1 roll .299 mul add add
+				c i 3 -1 roll floor cvi put } for
+        c
+ 		} bind def
+/gray { 
+        /ww exch def
+        /b exch def
+        /g exch def
+        /r exch def
+        0 1 ww 1 sub { /i exch def r i get .299 mul g i get .587 mul
+			b i get .114 mul add add r i 3 -1 roll floor cvi put } for
+        r
+        } bind def
+/BITMAPTRUEGRAY { 
+        gsave
+		
+		3 index 2 div add exch	
+		4 index 2 div add exch	
+		translate		
+		rotate			
+		1 index 2 div neg	
+		1 index 2 div neg	
+		translate		
+		scale			
+		/height exch def /width exch def
+        /bitmapsave save def 
+        /is width string def
+        /gis width string def
+        /bis width string def
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        { cf is readhexstring pop 
+          cf gis readhexstring pop 
+          cf bis readhexstring pop width gray}  image
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPCMYKGRAY { 
+        gsave
+		
+		3 index 2 div add exch	
+		4 index 2 div add exch	
+		translate		
+		rotate			
+		1 index 2 div neg	
+		1 index 2 div neg	
+		translate		
+		scale			
+		/height exch def /width exch def
+        /bitmapsave save def 
+        /is width string def
+        /yis width string def
+        /mis width string def
+        /kis width string def
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        { cf is readhexstring pop 
+          cf mis readhexstring pop 
+          cf yis readhexstring pop 
+          cf kis readhexstring pop width cgray}  image
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPGRAY { 
+	8 {fakecolorsetup} COMMONBITMAP
+	} bind def
+/BITMAPGRAYc { 
+	8 {fakecolorsetup} COMMONBITMAPc
+	} bind def
+/ENDBITMAP {
+	} bind def
+end 
+	/ALDmatrix matrix def ALDmatrix currentmatrix pop
+/StartALD {
+	/ALDsave save def
+	 savematrix
+	 ALDmatrix setmatrix
+	} bind def
+/InALD {
+	 restorematrix
+	} bind def
+/DoneALD {
+	 ALDsave restore
+	} bind def
+/I { setdash } bind def
+/J { [] 0 setdash } bind def
+%%EndProlog
+%%BeginSetup
+(5.5) FMVERSION
+1 1 0 0 612 792 0 1 32 FMDOCUMENT
+%%IncludeFont: Times-Bold
+0 0 /Times-Bold FMFONTDEFINE
+%%IncludeFont: Times-Roman
+1 0 /Times-Roman FMFONTDEFINE
+%%IncludeFont: Times-Italic
+2 0 /Times-Italic FMFONTDEFINE
+%%IncludeFont: Courier
+3 0 /Courier FMFONTDEFINE
+%%IncludeFont: Times-BoldItalic
+4 0 /Times-BoldItalic FMFONTDEFINE
+%%IncludeFont: Courier-Oblique
+5 0 /Courier-Oblique FMFONTDEFINE
+%%IncludeFont: Courier-Bold
+6 0 /Courier-Bold FMFONTDEFINE
+32 FMFILLS
+0 0 FMFILL
+1 0.1 FMFILL
+2 0.3 FMFILL
+3 0.5 FMFILL
+4 0.7 FMFILL
+5 0.9 FMFILL
+6 0.97 FMFILL
+7 1 FMFILL
+8 <0f1e3c78f0e1c387> FMFILL
+9 <0f87c3e1f0783c1e> FMFILL
+10 <cccccccccccccccc> FMFILL
+11 <ffff0000ffff0000> FMFILL
+12 <8142241818244281> FMFILL
+13 <03060c183060c081> FMFILL
+14 <8040201008040201> FMFILL
+16 1 FMFILL
+17 0.9 FMFILL
+18 0.7 FMFILL
+19 0.5 FMFILL
+20 0.3 FMFILL
+21 0.1 FMFILL
+22 0.03 FMFILL
+23 0 FMFILL
+24 <f0e1c3870f1e3c78> FMFILL
+25 <f0783c1e0f87c3e1> FMFILL
+26 <3333333333333333> FMFILL
+27 <0000ffff0000ffff> FMFILL
+28 <7ebddbe7e7dbbd7e> FMFILL
+29 <fcf9f3e7cf9f3f7e> FMFILL
+30 <7fbfdfeff7fbfdfe> FMFILL
+%%EndSetup
+%%Page: "1" 1
+%%BeginPaperSize: Letter
+%%EndPaperSize
+612 792 0 FMBEGINPAGE
+0 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 1 K
+J
+0 18 Q
+0 X
+(PyFr) 91.86 708 T
+(ont: Con) 130.53 708 T
+(v) 197.31 708 T
+(ersion of Python to C Extension Modules) 206.13 708 T
+1 12 Q
+(Jonathan Riehl) 270.17 678 T
+2 F
+(United Space Alliance) 252.34 664 T
+0 F
+(Abstract) 72 640 T
+1 10 Q
+(PyFront is a system for the con) 90 621.33 T
+(v) 214.04 621.33 T
+(ersion of Python) 218.89 621.33 T
+(modules) 72 609.33 T
+(into) 107.93 609.33 T
+(C) 125.53 609.33 T
+(e) 134.25 609.33 T
+(xtension) 138.54 609.33 T
+(modules.) 174.47 609.33 T
+(PyFront) 214.94 609.33 T
+(is) 249.21 609.33 T
+(related) 257.93 609.33 T
+(to) 287.18 609.33 T
+(the P) 72 597.33 T
+(aths static analysis tool for Python, b) 92.13 597.33 T
+(ut emplo) 239.43 597.33 T
+(ys a) 274.61 597.33 T
+(higher) 72 585.33 T
+(\336delity) 99.74 585.33 T
+(data) 130.26 585.33 T
+(\337o) 149.1 585.33 T
+(w) 159.41 585.33 T
+(model.) 168.82 585.33 T
+(In) 200.69 585.33 T
+(b) 211.21 585.33 T
+(uilding) 216.01 585.33 T
+(these) 246.53 585.33 T
+(higher) 269.27 585.33 T
+(\336delity models, PyFront bridges the g) 72 573.33 T
+(ap between the) 223.07 573.33 T
+(interpreted Python language, and the compiled C lan-) 72 561.33 T
+(guage.  The C e) 72 549.33 T
+(xtension modules generated by PyFront) 134.89 549.33 T
+(will pro) 72 537.33 T
+(vide f) 103.24 537.33 T
+(aster e) 126.19 537.33 T
+(x) 151.86 537.33 T
+(ecution times b) 156.71 537.33 T
+(ut identical results) 217.62 537.33 T
+(to) 72 525.33 T
+(the) 82.2 525.33 T
+(original) 96.83 525.33 T
+(Python) 130.36 525.33 T
+(source.) 161.12 525.33 T
+(PyFront) 194.55 525.33 T
+(has) 229.2 525.33 T
+(the) 244.95 525.33 T
+(potential) 259.58 525.33 T
+(to of) 72 513.33 T
+(fer an intermediate, b) 90.36 513.33 T
+(ut automatic, step in the opti-) 175.69 513.33 T
+(mization of Python modules and routines.) 72 501.33 T
+0 12 Q
+(1.) 72 476 T
+(Objecti) 99 476 T
+(v) 136.87 476 T
+(es) 142.75 476 T
+1 10 Q
+(PyFront is designed to be a system for increasing) 90 458.33 T
+(the Python language\325) 72 446.33 T
+(s utility as a rapid application) 156.44 446.33 T
+(de) 72 434.33 T
+(v) 81.19 434.33 T
+(elopment) 86.04 434.33 T
+(tool.) 125.34 434.33 T
+(Using) 147.55 434.33 T
+(PyFront,) 173.51 434.33 T
+(w) 210.32 434.33 T
+(orking) 217.44 434.33 T
+(Python) 245.63 434.33 T
+(code) 276.04 434.33 T
+(can) 72 422.33 T
+(be) 88.37 422.33 T
+(translated) 100.3 422.33 T
+(into) 141.66 422.33 T
+(f) 159.71 422.33 T
+(aster) 162.94 422.33 T
+(C) 184.31 422.33 T
+(code.) 193.47 422.33 T
+(The) 219.82 422.33 T
+(primary) 237.86 422.33 T
+(objec-) 272.01 422.33 T
+(ti) 72 410.33 T
+(v) 77.31 410.33 T
+(e) 82.16 410.33 T
+(of) 88.74 410.33 T
+(PyFront) 99.21 410.33 T
+(is) 133.59 410.33 T
+(to) 142.4 410.33 T
+(minimize) 152.32 410.33 T
+(or) 192.24 410.33 T
+(eliminate) 202.71 410.33 T
+(an) 242.08 410.33 T
+(y) 251.37 410.33 T
+(o) 258.51 410.33 T
+(v) 263.36 410.33 T
+(erhead) 268.21 410.33 T
+(added to e) 72 398.33 T
+(x) 112.95 398.33 T
+(ecution times due to the interpretation of) 117.8 398.33 T
+(Python byte code and the frame stack.  Additionally) 72 386.33 T
+(,) 279.38 386.33 T
+(PyFront) 72 374.33 T
+(has) 106.26 374.33 T
+(been) 121.61 374.33 T
+(designed) 142.52 374.33 T
+(with) 180.1 374.33 T
+(the) 199.91 374.33 T
+(follo) 214.15 374.33 T
+(wing) 232.79 374.33 T
+(objecti) 254.82 374.33 T
+(v) 281.79 374.33 T
+(es) 286.64 374.33 T
+(in mind:) 72 362.33 T
+(\245) 72 350.33 T
+(Non-intrusi) 90 350.33 T
+(v) 135.86 350.33 T
+(e:  The system should not require a) 140.71 350.33 T
+(de) 90 338.33 T
+(v) 99.19 338.33 T
+(eloper) 104.04 338.33 T
+(to) 131.24 338.33 T
+(add) 141.22 338.33 T
+(an) 157.87 338.33 T
+(y) 167.16 338.33 T
+(special) 174.36 338.33 T
+(code) 204.34 338.33 T
+(or) 225.42 338.33 T
+(create) 235.96 338.33 T
+(separate) 262.03 338.33 T
+(scripts for it to pro) 90 326.33 T
+(vide immediate bene\336t.  If e) 164.29 326.33 T
+(xtra) 276.9 326.33 T
+(constructs were required or optionally a) 90 314.33 T
+(v) 248.93 314.33 T
+(ailable,) 253.68 314.33 T
+(the) 90 302.33 T
+(y should not af) 102.07 302.33 T
+(fect the operation of the original) 161.54 302.33 T
+(Python code input into the system.) 90 290.33 T
+(\245) 72 278.33 T
+(Compatible: The system should be syntactically) 90 278.33 T
+(compatible with the Python language.  An) 90 266.33 T
+(y source) 258.45 266.33 T
+(module) 90 254.33 T
+(that) 122.27 254.33 T
+(w) 139.54 254.33 T
+(as) 146.66 254.33 T
+(compatible) 157.27 254.33 T
+(with) 203.98 254.33 T
+(a) 224.03 254.33 T
+(gi) 230.74 254.33 T
+(v) 238.27 254.33 T
+(en) 243.12 254.33 T
+(v) 254.84 254.33 T
+(ersion) 259.68 254.33 T
+(of) 286.4 254.33 T
+(Python w) 90 242.33 T
+(ould be a v) 127.96 242.33 T
+(alid input to the system. Fur-) 171.87 242.33 T
+(thermore, the system should not operate on syntac-) 90 230.33 T
+(tically incorrect source.) 90 218.33 T
+(\245) 72 206.33 T
+(Modular:) 90 206.33 T
+(The) 129.36 206.33 T
+(system) 147.04 206.33 T
+(should) 176.96 206.33 T
+(be) 205.77 206.33 T
+(designed) 217.35 206.33 T
+(to) 255.04 206.33 T
+(be) 264.95 206.33 T
+(used) 276.53 206.33 T
+(from the command line, allo) 90 194.33 T
+(wing it to be incorpo-) 203.35 194.33 T
+(rated into a b) 90 182.33 T
+(uild utility and/or an inte) 142.29 182.33 T
+(grated de) 241.59 182.33 T
+(v) 278.27 182.33 T
+(el-) 283.12 182.33 T
+(opment en) 90 170.33 T
+(vironment.  The system should not) 131.54 170.33 T
+(require) 90 158.33 T
+(an) 120.54 158.33 T
+(y) 129.83 158.33 T
+(additional) 137.04 158.33 T
+(user) 179.26 158.33 T
+(interaction) 198.14 158.33 T
+(than) 243.13 158.33 T
+(an) 262.57 158.33 T
+(input) 274.22 158.33 T
+(Python \336le name.) 90 146.33 T
+(\245) 72 134.33 T
+(Optionally) 90 134.33 T
+(typed:) 134.94 134.33 T
+(The) 164.25 134.33 T
+(system) 181.96 134.33 T
+(should) 211.9 134.33 T
+(of) 240.73 134.33 T
+(fer) 248.8 134.33 T
+(optional) 262.06 134.33 T
+(type constructs that w) 90 122.33 T
+(ould assist in the generation) 177.39 122.33 T
+(of optimized \050f) 90 110.33 T
+(aster and/or smaller\051 C code.  The) 149.89 110.33 T
+(typing constructs should also pro) 90 98.33 T
+(vide better type) 222.07 98.33 T
+(safety) 333 641.33 T
+(, enabling the Python analysis phase to act in) 356.23 641.33 T
+(a similar f) 333 629.33 T
+(ashion as the lint utility for C.) 373.45 629.33 T
+0 12 Q
+(2.) 315 604 T
+(Origins) 342 604 T
+1 10 Q
+(PyFront w) 333 586.33 T
+(as concei) 374.85 586.33 T
+(v) 411.53 586.33 T
+(ed after some discussion of a) 416.38 586.33 T
+(\322Python compiler\323 took place on the USENET) 315 574.33 T
+(.  The) 501.46 574.33 T
+(brunt) 315 562.33 T
+(of) 338.17 562.33 T
+(the) 348.56 562.33 T
+(discussion) 362.84 562.33 T
+(w) 406.57 562.33 T
+(as) 413.69 562.33 T
+(o) 424.08 562.33 T
+(v) 428.92 562.33 T
+(er) 433.77 562.33 T
+(the) 443.6 562.33 T
+(feasibility) 457.88 562.33 T
+(of) 499.94 562.33 T
+(a) 510.33 562.33 T
+(static) 516.83 562.33 T
+(Python compiler) 315 550.33 T
+(.  Near the end of the thread, some had) 380.84 550.33 T
+(concluded that the most feasible approach to Python) 315 538.33 T
+(translation and analysis w) 315 526.33 T
+(as something that w) 418.5 526.33 T
+(as not) 498.12 526.33 T
+(quite) 315 514.33 T
+(a) 337.31 514.33 T
+(compiler) 344.05 514.33 T
+(,) 379.2 514.33 T
+(b) 384.01 514.33 T
+(ut) 388.81 514.33 T
+(not) 398.89 514.33 T
+(an) 413.98 514.33 T
+(interpreter) 425.73 514.33 T
+(\050termed) 469.68 514.33 T
+(then) 503.09 514.33 T
+(as) 522.62 514.33 T
+(a) 533.25 514.33 T
+(\322space potato.) 315 502.33 T
+(\323\051  The implicit use of such a system) 370.95 502.33 T
+(w) 315 490.33 T
+(ould be for generating f) 322.12 490.33 T
+(aster e) 416.44 490.33 T
+(x) 442.11 490.33 T
+(ecutables from Python) 446.96 490.33 T
+(code.) 315 478.33 T
+(The) 333 460.33 T
+(PyFront) 350.76 460.33 T
+(system) 385.2 460.33 T
+(is) 415.2 460.33 T
+(also) 424.08 460.33 T
+(related) 442.4 460.33 T
+(to) 471.82 460.33 T
+(w) 481.81 460.33 T
+(ork) 488.93 460.33 T
+(done) 504.48 460.33 T
+(for) 526.13 460.33 T
+(the GRAD and P) 315 448.33 T
+(aths systems that were under de) 382.9 448.33 T
+(v) 509.57 448.33 T
+(elop-) 514.42 448.33 T
+(ment during PyFront\325) 315 436.33 T
+(s inception [Fly].  PyFront bor-) 401.12 436.33 T
+(ro) 315 424.33 T
+(ws) 323.08 424.33 T
+(man) 336.3 424.33 T
+(y) 353.37 424.33 T
+(of) 360.48 424.33 T
+(the) 370.91 424.33 T
+(objecti) 385.24 424.33 T
+(v) 412.21 424.33 T
+(es) 417.06 424.33 T
+(in) 427.5 424.33 T
+(the) 437.39 424.33 T
+(pre) 451.72 424.33 T
+(vious) 464.24 424.33 T
+(section) 488.01 424.33 T
+(from) 518.45 424.33 T
+(GRAD.  GRAD, or Grammar) 315 412.33 T
+(-based Rapid Application) 433.11 412.33 T
+(De) 315 400.33 T
+(v) 326.41 400.33 T
+(elopment, uses language grammars to dri) 331.26 400.33 T
+(v) 495.43 400.33 T
+(e auto-) 500.28 400.33 T
+(matic) 315 388.33 T
+(interf) 339.3 388.33 T
+(ace) 360.86 388.33 T
+(generation) 376.27 388.33 T
+(for) 420.57 388.33 T
+(e) 434.31 388.33 T
+(xtending) 438.6 388.33 T
+(Python.) 475.68 388.33 T
+(Acting) 510.7 388.33 T
+(lik) 315 376.33 T
+(e GRAD in re) 325.46 376.33 T
+(v) 381.03 376.33 T
+(erse, PyFront uses Python\325) 385.88 376.33 T
+(s grammar) 492.55 376.33 T
+(to automatically b) 315 364.33 T
+(uild C e) 387.02 364.33 T
+(xtension modules.  The P) 418.54 364.33 T
+(aths) 519.78 364.33 T
+(test automation system, a testing tool and direct descen-) 315 352.33 T
+(dant of the GRAD system, w) 315 340.33 T
+(as designed to perform the) 431 340.33 T
+(majority) 315 328.33 T
+(of) 350.98 328.33 T
+(the) 361.39 328.33 T
+(analysis) 375.7 328.33 T
+(chores) 410 328.33 T
+(that) 438.18 328.33 T
+(PyFront) 455.27 328.33 T
+(uses.) 489.58 328.33 T
+(While) 513.47 328.33 T
+(P) 315 316.33 T
+(aths b) 320.41 316.33 T
+(uilds lo) 343.82 316.33 T
+(wer \336delity models \050computation is) 373.3 316.33 T
+(abstracted to a set of \322ideal\323 operations, causing the) 315 304.33 T
+(model to lose some accurac) 315 292.33 T
+(y) 425.38 292.33 T
+(,\051 it also serv) 429.73 292.33 T
+(ed as a proof) 481.24 292.33 T
+(of concept for static data \337o) 315 280.33 T
+(w analysis of Python code.) 426.67 280.33 T
+(What w) 315 268.33 T
+(ould be required w) 346.28 268.33 T
+(as the application of P) 421.44 268.33 T
+(aths) 510.17 268.33 T
+(technology to b) 315 256.33 T
+(uild higher \336delity models.  These high) 377.02 256.33 T
+(\336delity models w) 315 244.33 T
+(ould then be used in the generation of) 384.35 244.33 T
+(similar or equi) 315 232.33 T
+(v) 373.08 232.33 T
+(alent C code, with the added bonus of) 377.83 232.33 T
+(code optimization, a by-product of the data \337o) 315 220.33 T
+(w model) 500.28 220.33 T
+(emplo) 315 208.33 T
+(yed [W) 339.9 208.33 T
+(eise, et. al.]) 368.81 208.33 T
+0 12 Q
+(3.) 315 183 T
+(Methodology) 342 183 T
+1 10 Q
+(The) 333 165.33 T
+(primary) 351.04 165.33 T
+(methodology) 385.19 165.33 T
+(used) 440.46 165.33 T
+(in) 461.27 165.33 T
+(the) 471.54 165.33 T
+(de) 486.25 165.33 T
+(v) 495.44 165.33 T
+(elopment) 500.29 165.33 T
+(of PyFront consisted of analysis of the Python inter-) 315 153.33 T
+(preter) 315 141.33 T
+(.) 337.77 141.33 T
+(Once) 344.85 141.33 T
+(the) 368.24 141.33 T
+(C) 382.75 141.33 T
+(basis) 391.71 141.33 T
+(of) 414.01 141.33 T
+(Python) 424.63 141.33 T
+(w) 455.26 141.33 T
+(as) 462.38 141.33 T
+(understood,) 473 141.33 T
+(con-) 522.23 141.33 T
+(trol and data \337o) 315 129.33 T
+(w models could be associated with) 377.8 129.33 T
+(Python operation.  The most ob) 315 117.33 T
+(vious model for control) 440.96 117.33 T
+(\337o) 315 105.33 T
+(w) 325.31 105.33 T
+(analysis) 334.72 105.33 T
+(centers) 369.12 105.33 T
+(around) 399.63 105.33 T
+(partitioning) 429.58 105.33 T
+(input) 478.44 105.33 T
+(code) 501.19 105.33 T
+(into) 522.25 105.33 T
+(basic) 315 93.33 T
+(blocks) 338.04 93.33 T
+(and) 366.64 93.33 T
+(b) 383.58 93.33 T
+(uilding) 388.38 93.33 T
+(a) 419.21 93.33 T
+(control) 426.14 93.33 T
+(\337o) 456.96 93.33 T
+(w) 467.27 93.33 T
+(graph) 476.98 93.33 T
+([Aho,) 502.25 93.33 T
+(et.) 527.79 93.33 T
+(al.]   Ho) 315 81.33 T
+(we) 347.52 81.33 T
+(v) 358.93 81.33 T
+(er) 363.78 81.33 T
+(, the data \337o) 371.15 81.33 T
+(w models used in prior sys-) 420.34 81.33 T
+FMENDPAGE
+%%EndPage: "1" 1
+%%Page: "2" 2
+612 792 0 FMBEGINPAGE
+0 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 1 K
+1 10 Q
+0 X
+(tems w) 72 452.33 T
+(ould be more applicable to optimization, an) 100.51 452.33 T
+(intended use of the PyFront system.  The follo) 72 440.33 T
+(wing sub-) 257.02 440.33 T
+(sections discuss inquiry made into the Python inter-) 72 428.33 T
+(preter\325) 72 416.33 T
+(s operation, as well v) 98.1 416.33 T
+(arious representations) 182.56 416.33 T
+(considered for use in Python translation.) 72 404.33 T
+0 F
+(3.1.) 72 382.33 T
+(The Python Ev) 108 382.33 T
+(aluation Loop) 171.8 382.33 T
+2 F
+(F) 90 364.33 T
+(igur) 95.66 364.33 T
+(e 1) 111.96 364.33 T
+1 F
+( illustrates the e) 123.9 364.33 T
+(xact routines used by) 186.8 364.33 T
+(Python and the intermediate data structures generated) 72 352.33 T
+(during the \336rst time e) 72 340.33 T
+(x) 157.96 340.33 T
+(ecution of a Python module \050dur-) 162.81 340.33 T
+(ing) 72 328.33 T
+(subsequent) 87.11 328.33 T
+(e) 133.88 328.33 T
+(x) 138.17 328.33 T
+(ecutions,) 143.02 328.33 T
+(the) 181.18 328.33 T
+(byte) 195.73 328.33 T
+(code) 215.27 328.33 T
+(object) 236.48 328.33 T
+(is) 263.25 328.33 T
+(sa) 272.25 328.33 T
+(v) 280.38 328.33 T
+(ed) 285.23 328.33 T
+(and reused, sa) 72 316.33 T
+(ving the time spent parsing the code.\051  A) 128.17 316.33 T
+(system to generate C code w) 72 304.33 T
+(ould need to mimic these) 186.6 304.33 T
+(routines, \336rst generating an abstract syntax tree, then) 72 292.33 T
+(determine the byte code for the gi) 72 280.33 T
+(v) 206.72 280.33 T
+(en syntax tree, and) 211.57 280.33 T
+(\336nally generate code that w) 72 268.33 T
+(ould carry out the sequence) 182.43 268.33 T
+(of instructions represented in the byte code.) 72 256.33 T
+(One particular aid in the analysis of the interpreter) 90 238.33 T
+(process is the e) 72 226.33 T
+(xposure of some of these routines in the) 132.67 226.33 T
+(Python) 72 214.33 T
+(standard) 102.69 214.33 T
+(library) 138.93 214.33 T
+(.) 164.94 214.33 T
+(In) 172.14 214.33 T
+(an) 182.83 214.33 T
+(introspecti) 194.62 214.33 T
+(v) 236.59 214.33 T
+(e) 241.44 214.33 T
+(f) 248.23 214.33 T
+(ashion,) 251.46 214.33 T
+(the) 282.43 214.33 T
+(parse tree and the byte code of most Python constructs) 72 202.33 T
+(may be e) 72 190.33 T
+(xamined in the interpreter itself.  Speci\336cally) 107.95 190.33 T
+(,) 288.11 190.33 T
+(the) 72 178.33 T
+2 F
+(par) 86.7 178.33 T
+(ser) 100.49 178.33 T
+1 F
+(module) 115.19 178.33 T
+(allo) 147.67 178.33 T
+(ws) 162.42 178.33 T
+(the) 176.01 178.33 T
+(generation) 190.7 178.33 T
+(of) 235.39 178.33 T
+(abstract) 246.2 178.33 T
+(syn-) 279.78 178.33 T
+(tax) 72 166.33 T
+(trees,) 86.72 166.33 T
+(while) 110.6 166.33 T
+(the) 135.32 166.33 T
+2 F
+(dis) 150.04 166.33 T
+1 F
+(module) 164.21 166.33 T
+(allo) 196.7 166.33 T
+(ws) 211.45 166.33 T
+(Python) 225.06 166.33 T
+(byte) 255.9 166.33 T
+(code) 275.62 166.33 T
+(objects to be \322disassembled\323 and their constituent byte) 72 154.33 T
+(code to be vie) 72 142.33 T
+(wed on an instruction by instruction basis.) 127.57 142.33 T
+(Since Python is capable of b) 90 124.33 T
+(uilding abstract syntax) 203.4 124.33 T
+(trees, and handling byte code objects directly) 72 112.33 T
+(, all that) 252.15 112.33 T
+(remains) 72 100.33 T
+(to) 105.94 100.33 T
+(be) 115.99 100.33 T
+(analyzed) 127.71 100.33 T
+(is) 165.53 100.33 T
+(the) 174.48 100.33 T
+(code) 188.97 100.33 T
+(in) 210.13 100.33 T
+(the) 220.19 100.33 T
+(byte) 234.68 100.33 T
+(code) 254.18 100.33 T
+(inter-) 275.34 100.33 T
+(preter) 72 88.33 T
+(.  The interpreter \050located in the Python/ce) 94.77 88.33 T
+(v) 263.93 88.33 T
+(al.c) 268.68 88.33 T
+(source module\051 runs as a loop, handling byte code) 315 452.33 T
+(instructions one at a time.) 315 440.33 T
+(Lik) 333 422.33 T
+(e a modern CPU, the interpreter loop k) 346.79 422.33 T
+(eeps an) 502.22 422.33 T
+(instruction pointer) 315 410.33 T
+(, and has e) 388.21 410.33 T
+(xception and error logic) 430.27 410.33 T
+(that halts script e) 315 398.33 T
+(x) 382.9 398.33 T
+(ecution when a problem occurs.  The) 387.75 398.33 T
+(e) 315 386.33 T
+(v) 319.19 386.33 T
+(aluation) 323.94 386.33 T
+(loop) 358.56 386.33 T
+(isolates) 378.75 386.33 T
+(each) 411.15 386.33 T
+(instruction) 431.88 386.33 T
+(as) 477.06 386.33 T
+(a) 487.8 386.33 T
+(literal) 494.64 386.33 T
+(byte) 520.38 386.33 T
+(v) 315 374.33 T
+(alue and then tak) 319.75 374.33 T
+(es an action based on the byte code) 387.69 374.33 T
+(encountered.  The actions tak) 315 362.33 T
+(en are to be found in a) 432.37 362.33 T
+(switch statement that references the entire Python byte) 315 350.33 T
+(code set as indi) 315 338.33 T
+(vidual case statements.  From these case) 376.13 338.33 T
+(statements are calls to the Python API [V) 315 326.33 T
+(an Rossum],) 479.15 326.33 T
+(with ar) 315 314.33 T
+(guments to the functions either to be found in a) 342.87 314.33 T
+(stack) 315 302.33 T
+(or) 337.87 302.33 T
+(as) 348.53 302.33 T
+(an) 359.18 302.33 T
+(additional) 370.94 302.33 T
+(set) 413.27 302.33 T
+(of) 426.7 302.33 T
+(byte) 437.36 302.33 T
+(codes,) 456.9 302.33 T
+(follo) 484.49 302.33 T
+(wing) 503.13 302.33 T
+(the) 525.46 302.33 T
+(operation\325) 315 290.33 T
+(s coded v) 355.55 290.33 T
+(alue.) 393.07 290.33 T
+(Looking at the Python w) 333 272.33 T
+(orld from \322in the loop\323) 431.79 272.33 T
+(sho) 315 260.33 T
+(ws that as long as the Python data elements \050which) 328.64 260.33 T
+(are al) 315 248.33 T
+(w) 336.83 248.33 T
+(ays PyObject pointers in the C code\051 and byte) 343.95 248.33 T
+(code ar) 315 236.33 T
+(guments are managed correctly) 343.97 236.33 T
+(, there is no dif-) 468.56 236.33 T
+(ference) 315 224.33 T
+(between) 346.89 224.33 T
+(running) 382.69 224.33 T
+(the) 416.28 224.33 T
+(byte) 430.97 224.33 T
+(codes) 450.67 224.33 T
+(and) 475.91 224.33 T
+(making) 492.83 224.33 T
+(the) 525.3 224.33 T
+(Python) 315 212.33 T
+(API) 345.64 212.33 T
+(calls.) 364.05 212.33 T
+(If) 389.49 212.33 T
+(one) 398.45 212.33 T
+(were) 415.2 212.33 T
+(to) 436.93 212.33 T
+(w) 447.01 212.33 T
+(alk) 454.13 212.33 T
+(Python) 468.65 212.33 T
+(byte) 499.3 212.33 T
+(code) 518.82 212.33 T
+(and emit the code found in the Python e) 315 200.33 T
+(v) 474.18 200.33 T
+(aluation loop) 478.93 200.33 T
+(for the gi) 315 188.33 T
+(v) 351.41 188.33 T
+(en code, there w) 356.26 188.33 T
+(ould be no dif) 421.69 188.33 T
+(ference to) 477.27 188.33 T
+(Python.  The Python API w) 315 176.33 T
+(as designed to easily inter-) 425.46 176.33 T
+(f) 315 164.33 T
+(ace with C code, allo) 318.23 164.33 T
+(wing e) 402.13 164.33 T
+(xtension modules to be) 428.92 164.33 T
+(written in the f) 315 152.33 T
+(aster C language, compiled into shared) 374.06 152.33 T
+(libraries and then imported into the Python interpreter) 315 140.33 T
+(.) 530.26 140.33 T
+0 F
+(3.2.) 315 118.33 T
+(Basic Block Analysis) 351 118.33 T
+1 F
+(There is a catch to an \322e) 333 100.33 T
+(v) 429.38 100.33 T
+(aluation loop inlining\323) 434.13 100.33 T
+(strate) 315 88.33 T
+(gy) 336.51 88.33 T
+(.  There are byte codes that jump to dif) 345.86 88.33 T
+(ferent) 500.58 88.33 T
+(locations in the byte code string, not just the ne) 315 76.33 T
+(xt byte) 503.73 76.33 T
+72 459 540 720 C
+0 0 0 1 0 0 0 1 K
+72 459 540 720 R
+7 X
+V
+135 549 153 549 153 540 162 540 144 531 126 540 135 540 7 Y
+4 X
+V
+135 594 153 594 153 585 162 585 144 576 126 585 135 585 7 Y
+V
+135 684 153 684 153 675 162 675 144 666 126 675 135 675 7 Y
+V
+135 639 153 639 153 630 162 630 144 621 126 630 135 630 7 Y
+V
+81 639 216 666 13.5 RR
+7 X
+V
+0.5 H
+2 Z
+0 X
+N
+90 684 207 711 R
+7 X
+V
+0 X
+N
+1 12 Q
+(PyP) 99 693.8 T
+(arser_P) 118.16 693.8 T
+(arseFile) 153.97 693.8 T
+(Abstract Syntax T) 96.44 648.8 T
+(ree) 183.35 648.8 T
+90 594 198 621 R
+7 X
+V
+0 X
+N
+(PyNode_Compile) 99 605.6 T
+81 549 216 576 13.5 RR
+7 X
+V
+0 X
+N
+(Byte Code Object) 96.44 558.8 T
+90 504 198 531 R
+7 X
+V
+0 X
+N
+(PyEv) 99 515.6 T
+(al_Ev) 124.7 515.6 T
+(alCode) 152.4 515.6 T
+(Located in P) 225 695.6 T
+(arser/parsetok.c) 285.48 695.6 T
+(P) 225 648.8 T
+(assed as a pointer to the) 231.49 648.8 T
+2 F
+(node) 348.8 648.8 T
+1 F
+( type, de\336ned in Include/node.h) 372.13 648.8 T
+(Located in Python/compile.c) 225 605.6 T
+(P) 225 563.6 T
+(assed as a pointer to the) 231.49 563.6 T
+2 F
+(PyCodeObject) 348.8 563.6 T
+1 F
+( type, de\336ned in) 418.79 563.6 T
+(Include/compile.h) 225 551.6 T
+(Located in Python/ce) 225 515.6 T
+(v) 326.69 515.6 T
+(al.c) 332.39 515.6 T
+2 F
+(F) 201.23 487 T
+(igur) 208.02 487 T
+(e 1.) 227.58 487 T
+( A \322Pr) 244.91 487 T
+(ecise\323 Python Execution Model) 276.47 487 T
+(\050All \336le names ar) 135.13 473 T
+(e given r) 217.68 473 T
+(elative to the base Python distrib) 259.22 473 T
+(ution dir) 417.31 473 T
+(ectory) 458.54 473 T
+(.\051) 487.87 473 T
+0 0 612 792 C
+0 0 0 1 0 0 0 1 K
+FMENDPAGE
+%%EndPage: "2" 2
+%%Page: "3" 3
+612 792 0 FMBEGINPAGE
+0 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 1 K
+1 10 Q
+0 X
+(code.  There is a byte code to return from a function,) 72 713.33 T
+(returning) 72 701.33 T
+(control) 110.76 701.33 T
+(to) 141.19 701.33 T
+(a) 151.06 701.33 T
+(higher) 157.6 701.33 T
+(le) 185.25 701.33 T
+(v) 192.22 701.33 T
+(el) 197.07 701.33 T
+(Python) 206.39 701.33 T
+(function) 236.83 701.33 T
+(or) 272.25 701.33 T
+(the) 282.68 701.33 T
+(interpreter itself.  There is an op code that raises e) 72 689.33 T
+(xcep-) 271.52 689.33 T
+(tions which break out of the e) 72 677.33 T
+(v) 190.62 677.33 T
+(aluation loop.  Excep-) 195.37 677.33 T
+(tions may also occur after an) 72 665.33 T
+(y gi) 187.1 665.33 T
+(v) 202.13 665.33 T
+(en API call, and) 206.98 665.33 T
+(require) 72 653.33 T
+(an) 102.39 653.33 T
+(e) 113.91 653.33 T
+(xtension) 118.2 653.33 T
+(routine) 154.16 653.33 T
+(in) 184.56 653.33 T
+(C) 194.42 653.33 T
+(to) 203.16 653.33 T
+(stop) 213.01 653.33 T
+(what) 231.76 653.33 T
+(it) 253.27 653.33 T
+(is) 260.9 653.33 T
+(doing,) 269.65 653.33 T
+(deinitialize an) 72 641.33 T
+(y data being used in the function, and) 128.23 641.33 T
+(return immediately) 72 629.33 T
+(.) 147.73 629.33 T
+(In order to handle these problems, the inlining rou-) 90 611.33 T
+(tine) 72 599.33 T
+(w) 89.48 599.33 T
+(ould) 96.6 599.33 T
+(simply) 116.86 599.33 T
+(ha) 146.56 599.33 T
+(v) 155.8 599.33 T
+(e) 160.65 599.33 T
+(to) 167.57 599.33 T
+(k) 177.83 599.33 T
+(eep) 182.73 599.33 T
+(track) 199.08 599.33 T
+(of) 221.55 599.33 T
+(where) 232.36 599.33 T
+(the) 259.27 599.33 T
+(jump) 273.96 599.33 T
+(and raise instructions were \050essentially partitioning the) 72 587.33 T
+(code into a set of basic blocks,\051 and where their tar) 72 575.33 T
+(gets) 275.38 575.33 T
+(were.  In cases where the function being con) 72 563.33 T
+(v) 249.6 563.33 T
+(erted has) 254.45 563.33 T
+(no try-\336nally or try-e) 72 551.33 T
+(xcept constructs, the follo) 156.56 551.33 T
+(wing) 259.63 551.33 T
+(procedures w) 72 539.33 T
+(ould apply:) 125.49 539.33 T
+(\245) 72 527.33 T
+(Emit a function prologue, that will load the ar) 90 527.33 T
+(gu-) 272.86 527.33 T
+(ment v) 90 515.33 T
+(ariables correctly) 117.25 515.33 T
+(.) 185.74 515.33 T
+(\245) 72 503.33 T
+(When an operation breaks from the e) 90 503.33 T
+(v) 238.04 503.33 T
+(aluation rou-) 242.79 503.33 T
+(tine, insert a goto instruction to an error handling) 90 491.33 T
+(section at the end of the function.) 90 479.33 T
+(\245) 72 467.33 T
+(When) 90 467.33 T
+(an) 116.05 467.33 T
+(unconditional) 127.66 467.33 T
+(jump) 184.83 467.33 T
+(is) 207.55 467.33 T
+(found,) 216.39 467.33 T
+(insert) 244.39 467.33 T
+(a) 268.78 467.33 T
+(label) 275.39 467.33 T
+(\050such as \322dest001:\323\051 before the code generated for) 90 455.33 T
+(the tar) 90 443.33 T
+(get instruction.  Then emit a C goto instruc-) 115.09 443.33 T
+(tion to the label inserted.) 90 431.33 T
+(\245) 72 419.33 T
+(When a conditional jump is found, insert a label at) 90 419.33 T
+(the code generated for its destination operation.) 90 407.33 T
+(Then) 90 395.33 T
+(emit) 113.03 395.33 T
+(a) 133.29 395.33 T
+(C) 140.21 395.33 T
+(\322if\323) 149.36 395.33 T
+(structure) 166.83 395.33 T
+(identical) 204.3 395.33 T
+(to) 241.22 395.33 T
+(the) 251.48 395.33 T
+(Python) 266.18 395.33 T
+(code, b) 90 383.33 T
+(ut replace the instruction pointer adjusting) 118.68 383.33 T
+(code with a goto to the label emitted.) 90 371.33 T
+(\245) 72 359.33 T
+(Emit) 90 359.33 T
+(an) 111.86 359.33 T
+(error) 123.71 359.33 T
+(and/or) 145.54 359.33 T
+(return) 173.5 359.33 T
+(section) 199.79 359.33 T
+(at) 230.53 359.33 T
+(the) 240.16 359.33 T
+(end) 254.79 359.33 T
+(of) 271.63 359.33 T
+(the) 282.37 359.33 T
+(function.  The section\050s\051 w) 90 347.33 T
+(ould be preceded by the) 197.38 347.33 T
+(label\050s\051 referred to by an) 90 335.33 T
+(y e) 188.7 335.33 T
+(xits generated abo) 200.49 335.33 T
+(v) 273.1 335.33 T
+(e.) 277.95 335.33 T
+(The section\050s\051 w) 90 323.33 T
+(ould implement the e) 156.55 323.33 T
+(xception and) 241.12 323.33 T
+(return logic found at the end of the Python e) 333 713.33 T
+(v) 509.67 713.33 T
+(alua-) 514.42 713.33 T
+(tion loop.) 333 701.33 T
+(The generated C code w) 333 683.33 T
+(ould tak) 430.09 683.33 T
+(e the interpreter) 462.49 683.33 T
+(logic) 315 671.33 T
+(and) 337.21 671.33 T
+(cop) 353.86 671.33 T
+(y) 368.2 671.33 T
+(parts) 375.41 671.33 T
+(of) 397.06 671.33 T
+(it) 407.6 671.33 T
+(for) 415.38 671.33 T
+(each) 429.25 671.33 T
+(byte) 449.78 671.33 T
+(code) 469.21 671.33 T
+(instruction.) 490.3 671.33 T
+(It w) 315 659.33 T
+(ould only remo) 330.73 659.33 T
+(v) 391.69 659.33 T
+(e the necessity of re) 396.54 659.33 T
+(generating and) 475.81 659.33 T
+(maintaining) 315 647.33 T
+(byte) 365.22 647.33 T
+(code) 384.88 647.33 T
+(\050remember) 406.19 647.33 T
+(that) 452.5 647.33 T
+(this) 469.94 647.33 T
+(must) 486.83 647.33 T
+(no) 508.71 647.33 T
+(w) 518.46 647.33 T
+(be) 528.12 647.33 T
+(handled by the de) 315 635.33 T
+(v) 385.57 635.33 T
+(eloper using the inline processor and) 390.42 635.33 T
+(then a C compiler) 315 623.33 T
+(, which w) 385.98 623.33 T
+(ould be slo) 425.04 623.33 T
+(wer) 468.68 623.33 T
+(,\051 in addition) 483.27 623.33 T
+(to) 315 611.33 T
+(the) 324.98 611.33 T
+(minimal) 339.41 611.33 T
+(o) 374.95 611.33 T
+(v) 379.8 611.33 T
+(erhead) 384.65 611.33 T
+(of) 413.5 611.33 T
+(looping) 424.04 611.33 T
+(o) 456.8 611.33 T
+(v) 461.65 611.33 T
+(er) 466.5 611.33 T
+(the) 476.48 611.33 T
+(byte) 490.9 611.33 T
+(codes.) 510.32 611.33 T
+(Furthermore, it still ties us to the object stack, with) 315 599.33 T
+(inlined code pushing and popping v) 315 587.33 T
+(alues, una) 457.8 587.33 T
+(w) 497.64 587.33 T
+(are of) 504.76 587.33 T
+(the PyObject structures used by neighbor instructions) 315 575.33 T
+(\050this is illustrated in) 315 563.33 T
+2 F
+(\336gur) 397.23 563.33 T
+(e 2) 415.75 563.33 T
+1 F
+(.\051) 427.69 563.33 T
+0 F
+(3.3.) 315 541.33 T
+(Data Flo) 351 541.33 T
+(w Analysis) 387.84 541.33 T
+2 F
+(F) 333 523.33 T
+(igur) 338.66 523.33 T
+(e 2) 354.96 523.33 T
+1 F
+( sho) 366.9 523.33 T
+(ws v) 383.04 523.33 T
+(arious aspects of the data \337o) 401.4 523.33 T
+(w) 514.74 523.33 T
+(within a Python session, in addition to depicting the) 315 511.33 T
+(\322e) 315 499.33 T
+(v) 323.63 499.33 T
+(aluation) 328.38 499.33 T
+(loop) 362.61 499.33 T
+(inlining\323) 382.41 499.33 T
+(process) 419.98 499.33 T
+(described) 451.99 499.33 T
+(abo) 492.33 499.33 T
+(v) 506.61 499.33 T
+(e.) 511.46 499.33 T
+(The) 522.43 499.33 T
+(diagram also sho) 315 487.33 T
+(ws a third process called \322symbolic) 382.52 487.33 T
+(e) 315 475.33 T
+(x) 319.29 475.33 T
+(ecution.) 324.14 475.33 T
+(\323  Simply put, symbolic e) 355.38 475.33 T
+(x) 457.46 475.33 T
+(ecution is a bridge) 462.31 475.33 T
+(between interpreter and compiler) 315 463.33 T
+(.  Symbolic e) 446.91 463.33 T
+(x) 499.54 463.33 T
+(ecution) 504.39 463.33 T
+(acts lik) 315 451.33 T
+(e an interpreter for parsed code, b) 343.51 451.33 T
+(ut instead of) 477.98 451.33 T
+(using real data, data \337o) 315 439.33 T
+(w is captured and place holders) 407.79 439.33 T
+(for) 315 427.33 T
+(real) 328.73 427.33 T
+(information) 345.8 427.33 T
+(are) 395.09 427.33 T
+(substituted.) 409.37 427.33 T
+(These) 459.36 427.33 T
+(place) 485.31 427.33 T
+(holders) 508.49 427.33 T
+(and) 315 415.33 T
+(their) 331.7 415.33 T
+(interconnection) 352.3 415.33 T
+(through) 416.77 415.33 T
+(the) 450.14 415.33 T
+(v) 464.62 415.33 T
+(arious) 469.37 415.33 T
+(operations) 496.08 415.33 T
+(in code, constitute a data \337o) 315 403.33 T
+(w graph.) 426.96 403.33 T
+(An initial bene\336t of symbolic e) 333 385.33 T
+(x) 457.57 385.33 T
+(ecution w) 462.42 385.33 T
+(ould be) 501.48 385.33 T
+(the remo) 315 373.33 T
+(v) 350.12 373.33 T
+(al of the stack from the generated code.  The) 354.87 373.33 T
+(stack w) 315 361.33 T
+(ould not be required since symbolic e) 345.17 361.33 T
+(x) 495 361.33 T
+(ecution,) 499.85 361.33 T
+(in order to create data \337o) 315 349.33 T
+(w graphs, must simulate the) 415 349.33 T
+(v) 315 337.33 T
+(alues being pushed on and popped of) 319.75 337.33 T
+(f the stack.  The) 467.81 337.33 T
+(principles of symbolic e) 315 325.33 T
+(x) 411.23 325.33 T
+(ecution may be vie) 416.08 325.33 T
+(wed in the) 491.65 325.33 T
+(follo) 315 313.33 T
+(wing process:) 333.64 313.33 T
+72 72 540 297 C
+0 0 0 1 0 0 0 1 K
+J
+81 198 396 198 396 99 81 99 4 Y
+5 X
+V
+J
+81 198 396 198 396 99 81 99 4 Y
+J
+81 194.25 81 198 84.75 198 3 L
+0.5 H
+2 Z
+0 X
+N
+[7.675 6.651] 7.675 I
+84.75 198 392.25 198 2 L
+N
+J
+392.25 198 396 198 396 194.25 3 L
+N
+[7.583 6.572] 7.583 I
+396 194.25 396 102.75 2 L
+N
+J
+396 102.75 396 99 392.25 99 3 L
+N
+[7.675 6.651] 7.675 I
+392.25 99 84.75 99 2 L
+N
+J
+84.75 99 81 99 81 102.75 3 L
+N
+[7.583 6.572] 7.583 I
+81 102.75 81 194.25 2 L
+N
+J
+243 153 333 180 R
+7 X
+V
+0 X
+N
+243 108 342 135 R
+7 X
+V
+0 X
+N
+126 153 216 180 R
+7 X
+V
+0 X
+N
+99 108 216 135 R
+7 X
+V
+0 X
+N
+1 12 Q
+(Symbolic Ex) 109.51 119.6 T
+(ecution) 171.67 119.6 T
+(Ev) 253.97 216.8 T
+(aluation loop.) 267 216.8 T
+(Python API) 420.66 171.8 T
+(\322Inlined\323 C Code) 245.34 164.6 T
+(Python Object Stack) 333.34 263.6 T
+(\322Re\336ned\323 C Code) 246.67 119.6 T
+243 207 342 234 R
+N
+414 108 486 234 R
+N
+324 252 441 279 13.5 RR
+N
+(Straight Inliner) 135 162 T
+231.96 225.21 232.02 227.85 241.18 225.03 231.91 222.57 4 Y
+1 H
+0 Z
+N
+231.96 225.21 232.02 227.85 241.18 225.03 231.91 222.57 4 Y
+V
+231.47 225.22 M
+ 187.19 226.06 153 238.26 153 252 D
+0.5 H
+2 Z
+N
+117 146.03 119.64 146.03 117 136.81 114.36 146.03 4 Y
+1 H
+0 Z
+N
+117 146.03 119.64 146.03 117 136.81 114.36 146.03 4 Y
+V
+117 252 117 146.53 2 L
+0.5 H
+2 Z
+N
+231.96 171 231.96 173.64 241.19 171 231.96 168.36 4 Y
+1 H
+0 Z
+N
+231.96 171 231.96 173.64 241.19 171 231.96 168.36 4 Y
+V
+216 171 231.46 171 2 L
+0.5 H
+2 Z
+N
+231.96 126 231.96 128.64 241.19 126 231.96 123.36 4 Y
+1 H
+0 Z
+N
+231.96 126 231.96 128.64 241.19 126 231.96 123.36 4 Y
+V
+216 126 231.46 126 2 L
+0.5 H
+2 Z
+N
+81 252 171 279 13.5 RR
+7 X
+V
+0 X
+N
+(Byte string.) 99 263.6 T
+352.99 225.9 353.21 223.26 343.81 225.15 352.78 228.53 4 Y
+1 H
+0 Z
+N
+352.99 225.9 353.21 223.26 343.81 225.15 352.78 228.53 4 Y
+V
+378 243 M
+ 378 235.07 367.89 227.11 353.49 225.94 D
+0.5 H
+2 Z
+N
+343.98 172.13 344.26 169.5 334.8 171.19 343.71 174.76 4 Y
+1 H
+0 Z
+N
+343.98 172.13 344.26 169.5 334.8 171.19 343.71 174.76 4 Y
+V
+378 207 M
+ 378 190.29 364.09 174.2 344.48 172.18 D
+0.5 H
+2 Z
+N
+378 240.97 375.36 240.97 378 250.19 380.64 240.97 4 Y
+1 H
+0 Z
+N
+378 240.97 375.36 240.97 378 250.19 380.64 240.97 4 Y
+V
+378 207 378 240.47 2 L
+0.5 H
+2 Z
+N
+135 191.03 137.64 191.03 135 181.81 132.36 191.03 4 Y
+1 H
+0 Z
+N
+135 191.03 137.64 191.03 135 181.81 132.36 191.03 4 Y
+V
+135 252 135 191.53 2 L
+0.5 H
+2 Z
+N
+353.04 216 353.04 213.36 343.81 216 353.04 218.64 4 Y
+1 H
+0 Z
+N
+353.04 216 353.04 213.36 343.81 216 353.04 218.64 4 Y
+V
+402.96 216 402.96 218.64 412.19 216 402.96 213.36 4 Y
+N
+402.96 216 402.96 218.64 412.19 216 402.96 213.36 4 Y
+V
+353.54 216 402.46 216 2 L
+0.5 H
+N
+344.03 162 344.03 159.36 334.81 162 344.03 164.64 4 Y
+1 H
+N
+344.03 162 344.03 159.36 334.81 162 344.03 164.64 4 Y
+V
+402.97 162 402.97 164.64 412.19 162 402.97 159.36 4 Y
+N
+402.97 162 402.97 164.64 412.19 162 402.97 159.36 4 Y
+V
+344.53 162 402.47 162 2 L
+0.5 H
+N
+353.04 126 353.04 123.36 343.81 126 353.04 128.64 4 Y
+1 H
+N
+353.04 126 353.04 123.36 343.81 126 353.04 128.64 4 Y
+V
+402.96 126 402.96 128.64 412.19 126 402.96 123.36 4 Y
+N
+402.96 126 402.96 128.64 412.19 126 402.96 123.36 4 Y
+V
+353.54 126 402.46 126 2 L
+0.5 H
+N
+2 F
+(F) 162.41 82 T
+(igur) 169.21 82 T
+(e 2.) 188.77 82 T
+( V) 206.09 82 T
+(arious Data Flow Sc) 215.09 82 T
+(hemes for Python Compatibility) 314.59 82 T
+0 0 612 792 C
+0 0 0 1 0 0 0 1 K
+FMENDPAGE
+%%EndPage: "3" 3
+%%Page: "4" 4
+612 792 0 FMBEGINPAGE
+0 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 1 K
+1 10 Q
+0 X
+(\245) 72 713.33 T
+(P) 90 713.33 T
+(artition) 95.41 713.33 T
+(the) 126.39 713.33 T
+(byte) 140.7 713.33 T
+(code) 160.01 713.33 T
+(into) 180.98 713.33 T
+(basic) 198.63 713.33 T
+(blocks.) 221.27 713.33 T
+(This) 254.06 713.33 T
+(is) 273.93 713.33 T
+(the) 282.69 713.33 T
+(process of tracking where the goto\325) 90 701.33 T
+(s and labels are) 230.8 701.33 T
+(emitted gi) 90 689.33 T
+(v) 130.03 689.33 T
+(en the stratagem discussed abo) 134.88 689.33 T
+(v) 258.04 689.33 T
+(e.  The) 262.89 689.33 T
+(byte code between the labels and the goto\325) 90 677.33 T
+(s repre-) 259.69 677.33 T
+(sent basic blocks.) 90 665.33 T
+(\245) 72 653.33 T
+(F) 90 653.33 T
+(or) 95.41 653.33 T
+(each) 106.14 653.33 T
+(basic) 126.87 653.33 T
+(block,) 149.82 653.33 T
+(linearly) 176.95 653.33 T
+(handle) 209.9 653.33 T
+(the) 238.97 653.33 T
+(byte) 253.59 653.33 T
+(code,) 273.21 653.33 T
+(similarly to the Python e) 90 641.33 T
+(v) 188.09 641.33 T
+(aluation loop.) 192.84 641.33 T
+(\245) 72 629.33 T
+(F) 90 629.33 T
+(or each instruction, simulate the C code found in) 95.41 629.33 T
+(the Python e) 90 617.33 T
+(v) 139.75 617.33 T
+(aluation loop.  F) 144.5 617.33 T
+(or function calls or) 209.91 617.33 T
+(e) 90 605.33 T
+(v) 94.19 605.33 T
+(en se) 99.04 605.33 T
+(gments of the Python source that can not be) 119.16 605.33 T
+(simulated, generate data \337o) 90 593.33 T
+(w operations.  F) 199.73 593.33 T
+(or each) 264.02 593.33 T
+(pop in the Python C code, pop the data \337o) 90 581.33 T
+(w node) 258.08 581.33 T
+(of) 90 569.33 T
+(f the simulated stack.  If there is stack under\337o) 98.08 569.33 T
+(w) 285.02 569.33 T
+(,) 291.59 569.33 T
+(generate a data \337o) 90 557.33 T
+(w input node as a place holder) 162.78 557.33 T
+(.) 283.87 557.33 T
+(F) 90 545.33 T
+(or) 95.41 545.33 T
+(each) 105.89 545.33 T
+(push,) 126.37 545.33 T
+(push) 149.91 545.33 T
+(the) 170.95 545.33 T
+(data) 185.33 545.33 T
+(\337o) 204.14 545.33 T
+(w) 214.45 545.33 T
+(node) 223.82 545.33 T
+(representing) 245.42 545.33 T
+(the) 90 533.33 T
+(generation) 104.55 533.33 T
+(of) 149.1 533.33 T
+(the) 159.76 533.33 T
+(v) 174.32 533.33 T
+(alue) 179.07 533.33 T
+(onto) 198.06 533.33 T
+(the) 218.17 533.33 T
+(simulated) 232.73 533.33 T
+(stack.) 273.95 533.33 T
+(\245) 72 521.33 T
+(At the end of a basic block, an) 90 521.33 T
+(y data \337o) 211.49 521.33 T
+(w nodes) 248.46 521.33 T
+(remaining on the stack become data outputs for the) 90 509.33 T
+(block.) 90 497.33 T
+(\245) 72 485.33 T
+(Thread the inputs and outputs of basic blocks to) 90 485.33 T
+(each other) 90 473.33 T
+(.  This is done using special nodes repre-) 130.82 473.33 T
+(senting conditional entry) 90 461.33 T
+(, and re-entrant code con-) 188.79 461.33 T
+(tainers.) 90 449.33 T
+0 F
+(3.4.) 72 427.33 T
+(An Example of Symbolic Execution) 108 427.33 T
+1 F
+(The) 90 409.33 T
+(abo) 108 409.33 T
+(v) 122.29 409.33 T
+(e) 127.14 409.33 T
+(process) 134.03 409.33 T
+(is) 166.47 409.33 T
+(not) 175.59 409.33 T
+(tri) 190.82 409.33 T
+(vial,) 199.46 409.33 T
+(b) 219.4 409.33 T
+(ut) 224.2 409.33 T
+(it) 234.43 409.33 T
+(may) 242.44 409.33 T
+(be) 262.11 409.33 T
+(more) 274 409.33 T
+(intuiti) 72 397.33 T
+(v) 95.65 397.33 T
+(ely sho) 100.5 397.33 T
+(wn in the follo) 128.86 397.33 T
+(wing e) 187.22 397.33 T
+(xample:) 214.01 397.33 T
+2 F
+(F) 90 379.33 T
+(igur) 95.66 379.33 T
+(e 3) 111.96 379.33 T
+1 F
+( sho) 123.9 379.33 T
+(ws an illustration of three things: a) 140.04 379.33 T
+(sample function \0501\051, a byte code disassembly of the) 72 367.33 T
+(function) 72 355.33 T
+(\0502\051,) 107.82 355.33 T
+(and) 124.47 355.33 T
+(a) 141.4 355.33 T
+(data) 148.33 355.33 T
+(\337o) 167.48 355.33 T
+(w) 177.79 355.33 T
+(graph) 187.51 355.33 T
+(\0503\051.) 212.77 355.33 T
+(F) 231.91 355.33 T
+(or) 237.32 355.33 T
+(the) 248.14 355.33 T
+(purpose) 262.85 355.33 T
+(of) 72 343.33 T
+(bre) 82.5 343.33 T
+(vity) 95.02 343.33 T
+(,) 109.93 343.33 T
+(the) 114.6 343.33 T
+(sample) 128.99 343.33 T
+(function) 159.49 343.33 T
+(is) 194.99 343.33 T
+(v) 203.83 343.33 T
+(ery) 208.68 343.33 T
+(simple.) 223.62 343.33 T
+(There) 257.13 343.33 T
+(are) 282.62 343.33 T
+(no jumps in the function, and there is only one opera-) 315 713.33 T
+(tion.  Sho) 315 701.33 T
+(wn in the second area is an actual \322disassem-) 353.37 701.33 T
+(bly\323 of the byte code Python generates for the gi) 315 689.33 T
+(v) 508.88 689.33 T
+(en) 513.73 689.33 T
+(function.  The byte code w) 315 677.33 T
+(as obtained using the) 422.1 677.33 T
+2 F
+(dis.dis) 508.76 677.33 T
+1 F
+(routine, as illustrated in the \337o) 315 665.33 T
+(w) 436.97 665.33 T
+(.  The \336nal windo) 443.54 665.33 T
+(w) 514.12 665.33 T
+(sho) 315 653.33 T
+(ws a data \337o) 328.64 653.33 T
+(w graph generated from symbolic e) 378.66 653.33 T
+(x) 520.42 653.33 T
+(e-) 525.27 653.33 T
+(cution of the byte code, with tw) 315 641.33 T
+(o operations, tw) 441.83 641.33 T
+(o con-) 505.89 641.33 T
+(stants, and a v) 315 629.33 T
+(alue output.) 371.41 629.33 T
+(T) 333 611.33 T
+(o be) 338.31 611.33 T
+(gin symbolic e) 355.1 611.33 T
+(x) 413.84 611.33 T
+(ecution in this e) 418.69 611.33 T
+(xample, the) 482.15 611.33 T
+(byte code string for the gi) 315 599.33 T
+(v) 417.79 599.33 T
+(en routine is analyzed \050a) 422.64 599.33 T
+(function\325) 315 587.33 T
+(s byte code string is found in the) 351.11 587.33 T
+2 F
+( co_code) 483.88 587.33 T
+1 F
+(attrib) 315 575.33 T
+(ute of the actual function object\325) 335.91 575.33 T
+(s) 465.61 575.33 T
+2 F
+(func_code) 472 575.33 T
+1 F
+(attrib) 315 563.33 T
+(ute, or \324a.func_code.co_code\325 in the e) 335.91 563.33 T
+(xample.\051  In) 486.82 563.33 T
+(this case, the byte code has no jumps, e) 315 551.33 T
+(xceptions, and) 472.05 551.33 T
+(only) 315 539.33 T
+(a) 335.05 539.33 T
+(single) 341.77 539.33 T
+(return) 367.93 539.33 T
+(at) 394.08 539.33 T
+(the) 403.57 539.33 T
+(end) 418.07 539.33 T
+(\050actually) 434.78 539.33 T
+(there) 472.04 539.33 T
+(is) 494.3 539.33 T
+(a) 503.24 539.33 T
+(second) 509.96 539.33 T
+(return that is automatically placed at the end of a func-) 315 527.33 T
+(tion\325) 315 515.33 T
+(s byte code that will return None, b) 333.34 515.33 T
+(ut since this) 474.23 515.33 T
+(code will ne) 315 503.33 T
+(v) 363.63 503.33 T
+(er e) 368.48 503.33 T
+(x) 383.04 503.33 T
+(ecute, it w) 387.89 503.33 T
+(as omitted from the disas-) 429.17 503.33 T
+(sembly in) 315 491.33 T
+2 F
+(F) 356.67 491.33 T
+(igur) 362.33 491.33 T
+(e 3) 378.63 491.33 T
+1 F
+(.\051  Since the e) 390.57 491.33 T
+(x) 445.13 491.33 T
+(ecution order of the) 449.98 491.33 T
+(entire) 315 479.33 T
+(function) 340.18 479.33 T
+(is) 375.92 479.33 T
+(linear) 385 479.33 T
+(,) 407.37 479.33 T
+(the) 412.28 479.33 T
+(byte) 426.91 479.33 T
+(code) 446.54 479.33 T
+(sho) 467.83 479.33 T
+(wn) 481.47 479.33 T
+(is) 496.1 479.33 T
+(the) 505.18 479.33 T
+(only) 519.81 479.33 T
+(basic block to be considered.) 315 467.33 T
+(Sho) 333 449.33 T
+(wn beside the byte code listing for the e) 348.31 449.33 T
+(xample) 507.58 449.33 T
+(function is a stack list.  The stack sho) 315 437.33 T
+(wn sho) 464.46 437.33 T
+(ws the) 492.82 437.33 T
+(result of symbolic e) 315 425.33 T
+(x) 394.01 425.33 T
+(ecution of each byte code instruc-) 398.86 425.33 T
+(tion.  The follo) 315 413.33 T
+(wing w) 374.75 413.33 T
+(ould occur during symbolic e) 404.37 413.33 T
+(x) 521.43 413.33 T
+(e-) 526.28 413.33 T
+(cution of the byte code:) 315 401.33 T
+(\245) 315 389.33 T
+(The) 333 389.33 T
+(SET_LINENO) 350.84 389.33 T
+(op) 413.11 389.33 T
+(code) 425.4 389.33 T
+(is) 446.57 389.33 T
+(ignored) 455.52 389.33 T
+(in) 488.36 389.33 T
+(this) 498.42 389.33 T
+(e) 515.16 389.33 T
+(xam-) 519.45 389.33 T
+(ple, b) 333 377.33 T
+(ut it could also be used during C code genera-) 355.02 377.33 T
+(tion by setting up a special, sequential data \337o) 333 365.33 T
+(w) 517.46 365.33 T
+(representation.) 333 353.33 T
+(This) 396.88 353.33 T
+(w) 417.02 353.33 T
+(ould) 424.14 353.33 T
+(allo) 444.29 353.33 T
+(w) 459.04 353.33 T
+(traceability) 468.62 353.33 T
+(when) 515.98 353.33 T
+(deb) 333 341.33 T
+(ugging the C code. \050There is another) 347.24 341.33 T
+72 72 540 336.02 C
+0 0 0 1 0 0 0 1 K
+3 10 Q
+0 X
+( 3 SET_LINENO          2) 153 203.36 T
+( 6 LOAD_FAST           0 \050b\051) 153 191.36 T
+( 9 LOAD_CONST          1 \0502\051) 153 179.36 T
+(12 BINARY_ADD) 153 167.36 T
+(13 RETURN_VALUE) 153 155.36 T
+J
+1 F
+(def a \050b\051:) 193.5 311.36 T
+(  return b + 2) 193.5 293.36 T
+J
+J
+180 282.02 279 327.02 18 RR
+0.5 H
+0 Z
+N
+144 138.02 333 219.02 18 RR
+N
+1 12 Q
+(dis.dis\050a\051) 207.67 246.83 T
+198 237.02 261 264.02 R
+N
+3 10 Q
+([]) 90 203.36 T
+([b]) 90 191.36 T
+([b 2]) 90 179.36 T
+([+]) 90 167.36 T
+([]) 90 155.36 T
+J
+J
+81 138.02 135 219.02 R
+N
+225 282.02 234 282.02 234 273.02 243 273.02 225 264.02 207 273.02 216 273.02
+ 216 282.02 8 Y
+4 X
+V
+2 Z
+0 X
+N
+225 237.02 234 237.02 234 228.02 243 228.02 225 219.02 207 228.02 216 228.02
+ 216 237.02 8 Y
+4 X
+V
+0 X
+N
+(0) 402 284.73 T
+(2) 465 284.73 T
+(BINARY_ADD) 429 175.59 T
+(RETURN) 441 121.59 T
+387 300.02 423 300.02 405 273.02 3 Y
+N
+459 300.02 486 300.02 468 273.02 450 300.02 4 Y
+N
+90 450 45 13.5 459 178.52 A
+432 111.02 486 111.02 486 129.02 459 138.02 432 129.02 5 Y
+N
+438.07 199.18 439.85 202.16 448.45 192.96 436.28 196.21 4 Y
+1 H
+0 Z
+N
+438.07 199.18 439.85 202.16 448.45 192.96 436.28 196.21 4 Y
+V
+405 219.02 437.64 199.44 2 L
+2 Z
+N
+468 205.94 471.47 205.94 468 193.84 464.53 205.94 4 Y
+0 Z
+N
+468 205.94 471.47 205.94 468 193.84 464.53 205.94 4 Y
+V
+468 273.02 468 206.44 2 L
+2 Z
+N
+459 151.94 462.47 151.94 459 139.84 455.53 151.94 4 Y
+0 Z
+N
+459 151.94 462.47 151.94 459 139.84 455.53 151.94 4 Y
+V
+459 165.02 459 152.44 2 L
+2 Z
+N
+(LOAD_FAST) 378 229.59 T
+0.5 H
+90 450 45 13.5 405 232.52 A
+405 259.94 408.47 259.94 405 247.84 401.53 259.94 4 Y
+1 H
+0 Z
+N
+405 259.94 408.47 259.94 405 247.84 401.53 259.94 4 Y
+V
+405 273.02 405 260.44 2 L
+2 Z
+N
+333 183.69 333 192.69 342 192.69 342 201.69 351 183.69 342 165.69 342 174.69
+ 333 174.69 8 Y
+4 X
+V
+0.5 H
+0 X
+N
+351 102.02 531 309.02 18 RR
+1 H
+N
+1 F
+(Simulated) 87.72 239.36 T
+(Stack) 96.89 227.36 T
+81 219.02 135 246.02 R
+N
+2 12 Q
+(F) 169.51 85.02 T
+(igur) 176.3 85.02 T
+(e 3.) 195.86 85.02 T
+( An Example of Symbolic Execution and Data Flow) 213.19 85.02 T
+7 X
+90 450 13.5 13.5 355.5 142.52 G
+0.5 H
+0 X
+90 450 13.5 13.5 355.5 142.52 A
+1 F
+(3) 352.5 138.83 T
+7 X
+90 450 13.5 13.5 184.5 286.52 G
+0 X
+90 450 13.5 13.5 184.5 286.52 A
+(1) 181.5 282.83 T
+7 X
+90 450 13.5 13.5 139.5 142.52 G
+0 X
+90 450 13.5 13.5 139.5 142.52 A
+(2) 136.5 138.83 T
+0 0 612 792 C
+0 0 0 1 0 0 0 1 K
+FMENDPAGE
+%%EndPage: "4" 4
+%%Page: "5" 5
+612 792 0 FMBEGINPAGE
+0 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 1 K
+1 10 Q
+0 X
+(SET_LINENO for line 1, b) 90 713.33 T
+(ut there is no code fol-) 198.95 713.33 T
+(lo) 90 701.33 T
+(wing it, so it w) 97.53 701.33 T
+(as omitted from the op code list-) 157.16 701.33 T
+(ing.\051) 90 689.33 T
+(\245) 72 677.33 T
+(The \324LO) 90 677.33 T
+(AD_F) 124.36 677.33 T
+(AST 0\325 op code w) 148.62 677.33 T
+(ould reference the) 221.84 677.33 T
+(\336rst v) 90 665.33 T
+(alue in the function\325) 112.81 665.33 T
+(s locals list, increment its) 193.08 665.33 T
+(reference count, and push the result onto the v) 90 653.33 T
+(alue) 274.43 653.33 T
+(stack.) 90 641.33 T
+(The) 117.84 641.33 T
+(function\325) 135.79 641.33 T
+(s) 171.9 641.33 T
+(locals) 178.18 641.33 T
+(list) 203.9 641.33 T
+(is) 218.53 641.33 T
+(initialized) 227.6 641.33 T
+(by) 269.99 641.33 T
+(the) 282.39 641.33 T
+(Python) 90 629.33 T
+(e) 120.6 629.33 T
+(v) 124.79 629.33 T
+(aluation) 129.54 629.33 T
+(loop) 164.02 629.33 T
+(upon) 184.06 629.33 T
+(entry) 206.32 629.33 T
+(.) 226.22 629.33 T
+(In) 233.25 629.33 T
+(this) 243.84 629.33 T
+(case,) 260.55 629.33 T
+(the) 282.52 629.33 T
+(v) 90 617.33 T
+(alue) 94.75 617.33 T
+(passed) 113.65 617.33 T
+(for) 142.56 617.33 T
+(the) 156.46 617.33 T
+(\324b\325) 170.92 617.33 T
+(parameter) 184.83 617.33 T
+(w) 227.05 617.33 T
+(ould) 234.17 617.33 T
+(be) 254.19 617.33 T
+(present) 265.88 617.33 T
+(at that location.  Ho) 90 605.33 T
+(we) 168.91 605.33 T
+(v) 180.32 605.33 T
+(er) 185.17 605.33 T
+(, the v) 192.54 605.33 T
+(alue is not kno) 217.01 605.33 T
+(wn) 275.37 605.33 T
+(during symbolic e) 90 593.33 T
+(x) 162.07 593.33 T
+(ecution, so a \324LO) 166.92 593.33 T
+(AD_F) 236 593.33 T
+(AST\325) 260.26 593.33 T
+(data \337o) 90 581.33 T
+(w operation node is created, link) 119.47 581.33 T
+(ed to its) 249.9 581.33 T
+(constant ar) 90 569.33 T
+(gument \0500\051, and pushed on the stack) 133.42 569.33 T
+(\050represented in the e) 90 557.33 T
+(xample illustration as \324b\325, b) 171.21 557.33 T
+(ut) 281.28 557.33 T
+(the actual operation is pushed.\051) 90 545.33 T
+(\245) 72 533.33 T
+(The \324LO) 90 533.33 T
+(AD_CONST 1\325 op code w) 124.36 533.33 T
+(ould reference) 230.91 533.33 T
+(the second v) 90 521.33 T
+(alue in the function\325) 139.74 521.33 T
+(s constants tuple) 220.01 521.33 T
+(\050referencing these in the \324a.func_code.co_consts\325) 90 509.33 T
+(v) 90 497.33 T
+(alue from Python sho) 94.75 497.33 T
+(ws that the \336rst constant is) 180.33 497.33 T
+(None,\051 increment its reference count, and push the) 90 485.33 T
+(object) 90 473.33 T
+(onto) 116.64 473.33 T
+(the) 136.62 473.33 T
+(stack.) 151.05 473.33 T
+(Since) 178.5 473.33 T
+(the) 202.92 473.33 T
+(symbolic) 217.35 473.33 T
+(e) 256.22 473.33 T
+(x) 260.51 473.33 T
+(ecution) 265.36 473.33 T
+(routine) 90 461.33 T
+(has) 120.74 461.33 T
+(the) 136.48 461.33 T
+(ability) 151.11 461.33 T
+(to) 179.07 461.33 T
+(reference) 189.26 461.33 T
+(the) 228.86 461.33 T
+(function) 243.49 461.33 T
+(con-) 279.23 461.33 T
+(stants,) 90 449.33 T
+(a) 117.68 449.33 T
+(constant) 124.52 449.33 T
+(data) 160.24 449.33 T
+(node) 179.3 449.33 T
+(for) 201.14 449.33 T
+(the) 215.2 449.33 T
+(number) 229.82 449.33 T
+(2) 262.76 449.33 T
+(is) 270.16 449.33 T
+(gen-) 279.23 449.33 T
+(erated and pushed on the symbolic stack.  This) 90 437.33 T
+(sho) 90 425.33 T
+(ws a v) 103.64 425.33 T
+(ery basic optimization achie) 129.04 425.33 T
+(v) 241.27 425.33 T
+(ed by sym-) 246.12 425.33 T
+(bolic) 90 413.33 T
+(e) 112.03 413.33 T
+(x) 116.32 413.33 T
+(ecution:) 121.17 413.33 T
+(if) 155.42 413.33 T
+(a) 163.57 413.33 T
+(v) 170.04 413.33 T
+(alue) 174.79 413.33 T
+(is) 193.48 413.33 T
+(kno) 202.18 413.33 T
+(wn) 216.93 413.33 T
+(at) 231.18 413.33 T
+(analysis) 240.44 413.33 T
+(time,) 274.69 413.33 T
+(it will be used by the system.  The symbolic e) 90 401.33 T
+(x) 272.9 401.33 T
+(ecu-) 277.75 401.33 T
+(tion) 90 389.33 T
+(routine) 107.92 389.33 T
+(w) 138.6 389.33 T
+(ould) 145.72 389.33 T
+(remo) 165.86 389.33 T
+(v) 186.26 389.33 T
+(e) 191.11 389.33 T
+(the) 197.9 389.33 T
+(o) 212.48 389.33 T
+(v) 217.33 389.33 T
+(erhead) 222.18 389.33 T
+(required) 251.19 389.33 T
+(to) 286.86 389.33 T
+(inde) 90 377.33 T
+(x) 107.07 377.33 T
+(into) 114.55 377.33 T
+(the) 132.59 377.33 T
+(code) 147.29 377.33 T
+(object\325) 168.65 377.33 T
+(s) 195.87 377.33 T
+(constants) 202.24 377.33 T
+(and) 241.94 377.33 T
+(push) 258.86 377.33 T
+(an) 280.23 377.33 T
+(y) 289.52 377.33 T
+(of them onto the stack.) 90 365.33 T
+(\245) 72 353.33 T
+(The \324BIN) 90 353.33 T
+(AR) 128.25 353.33 T
+(Y_ADD\325 op code w) 141.49 353.33 T
+(ould pop tw) 222.2 353.33 T
+(o v) 269.88 353.33 T
+(al-) 282.13 353.33 T
+(ues of) 90 341.33 T
+(f the stack, perform some type checks to opti-) 113.91 341.33 T
+(mize inte) 90 329.33 T
+(ger addition, add the tw) 126.79 329.33 T
+(o v) 221.4 329.33 T
+(alues,) 233.65 329.33 T
+(decrement the reference count of the tw) 90 317.33 T
+(o popped) 248.73 317.33 T
+(objects, and push the result of the addition.  Sym-) 90 305.33 T
+(bolic e) 90 293.33 T
+(x) 116.79 293.33 T
+(ecution w) 121.64 293.33 T
+(ould pop the \324LO) 160.7 293.33 T
+(AD_F) 229.51 293.33 T
+(AST\325) 253.77 293.33 T
+(operation and the constant v) 90 281.33 T
+(alue node for 2 of) 202.51 281.33 T
+(f the) 273.35 281.33 T
+(stack, create a \324BIN) 90 269.33 T
+(AR) 169.06 269.33 T
+(Y_ADD\325 operation node,) 182.3 269.33 T
+(b) 90 257.33 T
+(uild edges from the tw) 94.8 257.33 T
+(o data \337o) 184.69 257.33 T
+(w inputs to the) 221.66 257.33 T
+(addition operation, and push the \324BIN) 90 245.33 T
+(AR) 241.3 245.33 T
+(Y_ADD\325) 254.54 245.33 T
+(node just created onto the stack.) 90 233.33 T
+(\245) 72 221.33 T
+(Finally) 90 221.33 T
+(, the \324RETURN_V) 117.69 221.33 T
+(ALUE\325 op code w) 191.61 221.33 T
+(ould) 265.1 221.33 T
+(pop the top of the stack, and break out of the e) 90 209.33 T
+(v) 275.27 209.33 T
+(alu-) 280.02 209.33 T
+(ation loop, returning the object.  Since a v) 90 197.33 T
+(alue is) 257.51 197.33 T
+(output here, the symbolic e) 90 185.33 T
+(x) 198.45 185.33 T
+(ecution routine w) 203.3 185.33 T
+(ould) 273.19 185.33 T
+(pop a data \337o) 90 173.33 T
+(w node of) 143.91 173.33 T
+(f the symbolic stack and) 183.65 173.33 T
+(b) 90 161.33 T
+(uild an edge from that node to a ne) 94.8 161.33 T
+(wly created) 233.97 161.33 T
+(\324RETURN\325 node.) 90 149.33 T
+(The data \337o) 90 131.33 T
+(w graph, with its inputs \050do) 137.52 131.33 T
+(wnw) 247.27 131.33 T
+(ard) 266.61 131.33 T
+(pointed triangles\051 and outputs \050upw) 72 119.33 T
+(ard pointed trian-) 214.11 119.33 T
+(gles\051 w) 72 107.33 T
+(ould then represent ho) 101.06 107.33 T
+(w data \337o) 189.96 107.33 T
+(ws through the) 229.15 107.33 T
+(gi) 72 95.33 T
+(v) 79.53 95.33 T
+(en function.  At this point, the graph w) 84.38 95.33 T
+(ould be) 239.27 95.33 T
+(w) 72 83.33 T
+(alk) 79.12 83.33 T
+(ed in a second pass of symbolic e) 91.24 83.33 T
+(x) 224.68 83.33 T
+(ecution.  The) 229.53 83.33 T
+(second pass w) 315 713.33 T
+(ould model v) 372.11 713.33 T
+(alue assignments and refer-) 424.64 713.33 T
+(ences.  Ideally the second pass w) 315 701.33 T
+(ould e) 446.81 701.33 T
+(xtract such oper-) 471.38 701.33 T
+(ations as \324LO) 315 689.33 T
+(AD_N) 368.53 689.33 T
+(AME\325 and \324ST) 394.84 689.33 T
+(ORE_N) 454.65 689.33 T
+(AME\325, by) 486.52 689.33 T
+(internally maintaining data \337o) 315 677.33 T
+(w aliases for stores, and) 435.58 677.33 T
+(b) 315 665.33 T
+(uilding edges to these aliases for later load operations.) 319.8 665.33 T
+0 12 Q
+(4.) 315 640 T
+(Code Generation) 342 640 T
+1 10 Q
+(The end result of PyFront is a completed C e) 333 622.33 T
+(xten-) 512 622.33 T
+(sion module.) 315 610.33 T
+2 F
+(F) 371.67 610.33 T
+(igur) 377.33 610.33 T
+(e 4) 393.63 610.33 T
+1 F
+( sho) 405.57 610.33 T
+(ws the template used for the) 421.71 610.33 T
+(output) 315 598.33 T
+(e) 342.91 598.33 T
+(xtension) 347.2 598.33 T
+(code.) 383.44 598.33 T
+(The) 409.52 598.33 T
+(Python) 427.41 598.33 T
+(e) 458.1 598.33 T
+(xtension) 462.39 598.33 T
+(module) 498.63 598.33 T
+(is) 530.98 598.33 T
+(brok) 315 586.33 T
+(en into four sections: the \336le prologue, the module) 333.23 586.33 T
+(functions,) 315 574.33 T
+(the) 356.73 574.33 T
+(method) 370.97 574.33 T
+(map,) 402.98 574.33 T
+(and) 424.72 574.33 T
+(the) 441.17 574.33 T
+(module) 455.41 574.33 T
+(initialization) 487.42 574.33 T
+(function.) 315 562.33 T
+(The) 355.73 562.33 T
+(models) 373.73 562.33 T
+(discussed) 405.08 562.33 T
+(in) 445.86 562.33 T
+(section) 456.09 562.33 T
+(3) 486.87 562.33 T
+(are) 494.32 562.33 T
+(used) 508.99 562.33 T
+(to) 529.77 562.33 T
+(generate) 315 550.33 T
+(C) 351.27 550.33 T
+(code) 360.34 550.33 T
+(for) 381.62 550.33 T
+(module) 395.68 550.33 T
+(functions,) 428.09 550.33 T
+(and) 470.21 550.33 T
+(the) 487.05 550.33 T
+(initializa-) 501.67 550.33 T
+(tion) 315 538.33 T
+(routine,) 333.03 538.33 T
+(while) 366.34 538.33 T
+(top) 391.03 538.33 T
+(le) 406.28 538.33 T
+(v) 413.25 538.33 T
+(el) 418.1 538.33 T
+(analysis) 427.8 538.33 T
+(is) 462.49 538.33 T
+(used) 471.63 538.33 T
+(to) 492.43 538.33 T
+(inte) 502.69 538.33 T
+(grate) 517.54 538.33 T
+(the functions with the module name space and the) 315 526.33 T
+(method map.) 315 514.33 T
+(The \336le prologue consists of a comment header) 333 496.33 T
+(, an) 522.29 496.33 T
+(include directi) 315 484.33 T
+(v) 372.24 484.33 T
+(e for the PyFront API, and a module) 377.09 484.33 T
+(constant) 315 472.33 T
+(section.) 350.52 472.33 T
+(The) 385.73 472.33 T
+(comment) 403.47 472.33 T
+(header) 442.88 472.33 T
+(simply) 471.72 472.33 T
+(identi\336es) 501.14 472.33 T
+(the source Python code, the v) 315 460.33 T
+(ersion of PyFront used to) 432.61 460.33 T
+(generate the e) 315 448.33 T
+(xtension module, and the date of the con-) 370.38 448.33 T
+(v) 315 436.33 T
+(ersion.) 319.85 436.33 T
+(PyFront) 351.33 436.33 T
+(generated) 385.84 436.33 T
+(C) 426.98 436.33 T
+(modules) 435.92 436.33 T
+(require) 472.08 436.33 T
+(that) 502.67 436.33 T
+(only) 519.95 436.33 T
+(the PyFront API header \336le is included.  The PyFront) 315 424.33 T
+(API includes the Python API, and will be discussed) 315 412.33 T
+(later) 315 400.33 T
+(.  Finally) 332.22 400.33 T
+(, a static array of Python object pointers is) 367.41 400.33 T
+(declared, and a constant initialization routine is gener-) 315 388.33 T
+(ated.) 315 376.33 T
+(In the Python interpreter) 333 358.33 T
+(, constants are instantiated) 430.64 358.33 T
+(during the byte code con) 315 346.33 T
+(v) 413.47 346.33 T
+(ersion process, and serialized) 418.32 346.33 T
+(as a part of the compiled module.  PyFront initially gen-) 315 334.33 T
+(erated C code that created constants during function ini-) 315 322.33 T
+(tialization,) 315 310.33 T
+(and) 359.54 310.33 T
+(then) 376.02 310.33 T
+(destro) 395.28 310.33 T
+(yed) 419.62 310.33 T
+(the) 436.1 310.33 T
+(constants) 450.36 310.33 T
+(at) 489.63 310.33 T
+(the) 498.89 310.33 T
+(end) 513.15 310.33 T
+(of) 529.63 310.33 T
+(the function.  The o) 315 298.33 T
+(v) 393.45 298.33 T
+(erhead w) 398.3 298.33 T
+(as quickly determined to) 434.57 298.33 T
+(be) 315 286.33 T
+(undesirable,) 326.86 286.33 T
+(and) 377.89 286.33 T
+(constant) 394.75 286.33 T
+(handling) 430.51 286.33 T
+(w) 467.93 286.33 T
+(as) 475.05 286.33 T
+(mo) 485.81 286.33 T
+(v) 498.44 286.33 T
+(ed) 503.29 286.33 T
+(to) 515.15 286.33 T
+(the) 525.35 286.33 T
+(module) 315 274.33 T
+(le) 347.31 274.33 T
+(v) 354.28 274.33 T
+(el.) 359.13 274.33 T
+(All) 373.47 274.33 T
+(module) 388.56 274.33 T
+(constants) 420.87 274.33 T
+(encountered) 460.4 274.33 T
+(during) 511.58 274.33 T
+(PyFront\325) 315 262.33 T
+(s) 350.01 262.33 T
+(code) 356.02 262.33 T
+(analysis) 377.02 262.33 T
+(process) 411.36 262.33 T
+(are) 443.47 262.33 T
+(assigned) 457.79 262.33 T
+(an) 494.35 262.33 T
+(inde) 505.91 262.33 T
+(x) 522.98 262.33 T
+(in) 530.1 262.33 T
+(an) 315 250.33 T
+(array) 326.92 250.33 T
+(of) 349.93 250.33 T
+(Python) 360.74 250.33 T
+(object) 391.55 250.33 T
+(pointers.) 418.47 250.33 T
+(PyFront) 458.14 250.33 T
+(generates) 492.85 250.33 T
+(a) 533.08 250.33 T
+(static routine for instantiation of the constant array as a) 315 238.33 T
+(part of the module prologue.  The constant handler rou-) 315 226.33 T
+(tine is then called by the module initialization function.) 315 214.33 T
+(After the module prologue, functions correspond-) 333 196.33 T
+(ing to function de\336nitions in the source module are cre-) 315 184.33 T
+(ated.  The C code for each function declares a set of) 315 172.33 T
+(Python object pointers, a call to the tuple ar) 315 160.33 T
+(gument han-) 488.97 160.33 T
+(dler) 315 148.33 T
+(, C code for the function, and code for handling v) 330.15 148.33 T
+(ar-) 527.64 148.33 T
+(ious e) 315 136.33 T
+(xit conditions.  The function v) 338.46 136.33 T
+(ariables replace the) 459.32 136.33 T
+(object stack, the local v) 315 124.33 T
+(ariable array) 408.9 124.33 T
+(, and add the func-) 458.5 124.33 T
+(tionality) 315 112.33 T
+(of) 350.8 112.33 T
+(tw) 361.58 112.33 T
+(o) 371.48 112.33 T
+(re) 378.94 112.33 T
+(gisters.) 386.56 112.33 T
+(Then,) 420.09 112.33 T
+(the) 445.6 112.33 T
+(function) 460.27 112.33 T
+(ar) 496.06 112.33 T
+(guments) 503.65 112.33 T
+(are loaded into local v) 315 100.33 T
+(ariables using the tuple parsing) 403.62 100.33 T
+(routine, and the function code is generated.) 315 88.33 T
+FMENDPAGE
+%%EndPage: "5" 5
+%%Page: "6" 6
+612 792 0 FMBEGINPAGE
+0 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 1 K
+1 10 Q
+0 X
+(Function code is generated using symbolic e) 90 308.33 T
+(x) 267.61 308.33 T
+(ecu-) 272.46 308.33 T
+(tion of the byte code instructions.  The byte code) 72 296.33 T
+(instructions may be di) 72 284.33 T
+(vided into roughly four cate) 160.36 284.33 T
+(go-) 271.86 284.33 T
+(ries:) 72 272.33 T
+(control) 91.54 272.33 T
+(\337o) 122.18 272.33 T
+(w) 132.49 272.33 T
+(,) 139.06 272.33 T
+(processors,) 143.88 272.33 T
+(operations,) 190.91 272.33 T
+(and) 237.39 272.33 T
+(store) 254.14 272.33 T
+(oper-) 275.9 272.33 T
+(ations.  PyFront does not use the control \337o) 72 260.33 T
+(w op codes,) 245.92 260.33 T
+(b) 72 248.33 T
+(ut rather b) 76.8 248.33 T
+(uilds control \337o) 117.7 248.33 T
+(w models that are translated) 180.79 248.33 T
+(directly) 72 236.33 T
+(into) 104.77 236.33 T
+(C) 122.55 236.33 T
+(\337o) 131.44 236.33 T
+(w) 141.75 236.33 T
+(constructs.) 151.19 236.33 T
+(Such) 198.69 236.33 T
+(byte) 220.91 236.33 T
+(codes) 240.35 236.33 T
+(include) 265.34 236.33 T
+(the \322JUMP_IF_F) 72 224.33 T
+(ALSE\323 and \322JUMP_FOR) 140.43 224.33 T
+(W) 243.21 224.33 T
+(ARD\323) 251.45 224.33 T
+(instructions.  The second cate) 72 212.33 T
+(gory of instructions are) 190.44 212.33 T
+(processors.  These op codes do not return a Python) 72 200.33 T
+(object, b) 72 188.33 T
+(ut rather return an inte) 106.24 188.33 T
+(ger error code.  A good) 195.51 188.33 T
+(e) 72 176.33 T
+(xample) 76.29 176.33 T
+(of) 107.77 176.33 T
+(a) 118.14 176.33 T
+(processor) 124.62 176.33 T
+(operation) 164.98 176.33 T
+(is) 204.78 176.33 T
+(the) 213.49 176.33 T
+(\322PRINT_ITEM\323) 227.75 176.33 T
+(byte code.  Ne) 72 164.33 T
+(xt, there are operations.  Operations will) 129.61 164.33 T
+(pop objects of) 72 152.33 T
+(f the stack, perform a function on the) 128.41 152.33 T
+(popped objects, and push an object \050or se) 72 140.33 T
+(v) 236.72 140.33 T
+(eral\051 back on) 241.57 140.33 T
+(the stack.  The \322BIN) 72 128.33 T
+(AR) 154.13 128.33 T
+(Y_ADD\323 instruction is an oper-) 167.37 128.33 T
+(ation.  Finally) 72 116.33 T
+(, there are store operations that pro) 127.19 116.33 T
+(vide) 266.17 116.33 T
+(interaction between the program name space and the) 72 104.33 T
+(stack, or solely modify the stack.  These operations) 72 92.33 T
+(include the load and store pre\336x) 315 308.33 T
+(ed op codes and stack) 443.44 308.33 T
+(modi\336ers such as \322POP_T) 315 296.33 T
+(OP) 420.65 296.33 T
+(.) 432.32 296.33 T
+(\323) 434.12 296.33 T
+(During symbolic e) 333 278.33 T
+(x) 407.29 278.33 T
+(ecution, instructions are dis-) 412.14 278.33 T
+(patched to handler routines that simulate the instruc-) 315 266.33 T
+(tion\325) 315 254.33 T
+(s) 333.34 254.33 T
+(stack) 339.38 254.33 T
+(actions,) 362.08 254.33 T
+(and) 395.06 254.33 T
+(b) 411.65 254.33 T
+(uild) 416.45 254.33 T
+(data) 434.17 254.33 T
+(\337o) 452.98 254.33 T
+(w) 463.29 254.33 T
+(representations.) 472.66 254.33 T
+(Currently) 315 242.33 T
+(, C code is generated at this phase of program) 352.68 242.33 T
+(analysis, generating roughly one function call in C for) 315 230.33 T
+(each) 315 218.33 T
+(instruction.) 335.57 218.33 T
+(Since) 385.35 218.33 T
+(se) 409.82 218.33 T
+(v) 417.9 218.33 T
+(eral) 422.75 218.33 T
+(instructions) 439.99 218.33 T
+(mak) 488.92 218.33 T
+(e) 506.04 218.33 T
+(one) 512.73 218.33 T
+(or) 529.42 218.33 T
+(more) 315 206.33 T
+(Python) 338.01 206.33 T
+(API) 368.81 206.33 T
+(calls,) 387.39 206.33 T
+(and) 410.68 206.33 T
+(may) 427.58 206.33 T
+(in) 447.26 206.33 T
+(v) 454.64 206.33 T
+(olv) 459.44 206.33 T
+(e) 472.07 206.33 T
+(special) 478.98 206.33 T
+(control) 509.21 206.33 T
+(logic, PyFront uses its o) 315 194.33 T
+(wn API.  The PyFront API sim-) 411.15 194.33 T
+(ply wraps the Python e) 315 182.33 T
+(v) 406.41 182.33 T
+(aluation actions with some) 411.16 182.33 T
+(minor) 315 170.33 T
+(modi\336cations) 341.36 170.33 T
+(made) 398.28 170.33 T
+(to) 422.41 170.33 T
+(stack) 432.65 170.33 T
+(dependent) 455.67 170.33 T
+(code,) 499.24 170.33 T
+(and) 523.09 170.33 T
+(includes the Python API.  The PyFront API pro) 315 158.33 T
+(vides a) 504.57 158.33 T
+(single function for each Python op code, simplifying) 315 146.33 T
+(code) 315 134.33 T
+(generation,) 336.21 134.33 T
+(and) 383.24 134.33 T
+(reduces) 400.01 134.33 T
+(the) 432.87 134.33 T
+(size) 447.42 134.33 T
+(of) 465.3 134.33 T
+(the) 475.95 134.33 T
+(C) 490.5 134.33 T
+(e) 499.49 134.33 T
+(xtension) 503.78 134.33 T
+(code.) 315 122.33 T
+(Error handling is done for each API call emitted,) 333 104.33 T
+(based on the type of the instruction.  Processor instruc-) 315 92.33 T
+72 315 540 720 C
+0 0 0 1 0 0 0 1 K
+315 675 171 657 441 657 369 675 4 Y
+5 X
+V
+0.5 H
+2 Z
+0 X
+N
+2 12 Q
+(pyf_) 309.26 688.81 T
+4 F
+(module) 329.92 688.81 T
+2 F
+(.c) 366.41 688.81 T
+297 675 387 711 18 RR
+N
+1 F
+(PyFront) 210.16 688.9 T
+198 675 261 711 R
+N
+4 F
+(module) 100.59 688.81 T
+2 F
+(.py) 137.08 688.81 T
+90 675 162 711 18 RR
+N
+(F) 212.88 325 T
+(igur) 219.67 325 T
+(e 4.) 239.23 325 T
+( A T) 256.56 325 T
+(emplate for Module Emission) 275.46 325 T
+162 693 162 702 180 702 180 711 198 693 180 675 180 684
+ 162 684 8 Y
+4 X
+V
+0 X
+N
+261 693 261 702 279 702 279 711 297.01 693 279 675 279 684
+ 261 684 8 Y
+4 X
+V
+0 X
+N
+5 F
+(PROLOG) 171 649 T
+(MODULE VARIABLES) 171 635 T
+(MODULE FUNCTIONS) 171 621 T
+3 9 Q
+(static PyObject * pyf_) 189 609 T
+6 F
+(name) 307.8 609 T
+3 F
+( \050PyObject * self,) 329.4 609 T
+(                            PyObject * args\051 {) 189 598 T
+5 12 Q
+(VARIABLES and CONSTANTS) 207 585 T
+3 9 Q
+(if \050!PyArg_ParseTuple \050args,) 207 573 T
+6 F
+(ARGSTR) 363.6 573 T
+3 F
+(, ...\051\051) 396 573 T
+(goto pyf_) 225 562 T
+6 F
+(name) 273.6 562 T
+3 F
+(_err_) 295.2 562 T
+6 F
+(n) 322.2 562 T
+3 F
+(;) 327.6 562 T
+5 12 Q
+(CODE) 207 549 T
+(ERROR EXITS) 207 535 T
+3 9 Q
+(pyf_) 225 523 T
+6 F
+(name) 246.6 523 T
+3 F
+(_err_) 268.2 523 T
+6 F
+(n) 295.2 523 T
+3 F
+(:) 300.6 523 T
+(DEINIT) 243 512 T
+6 F
+(n) 280.8 512 T
+3 F
+(return x;) 207 501 T
+(}) 189 490 T
+5 12 Q
+(METHOD MAP) 171 477 T
+3 9 Q
+(PyMethodDef pyf_) 189 465 T
+6 F
+(module) 275.4 465 T
+3 F
+(_methods [] = {) 307.8 465 T
+({ \322) 207 454 T
+6 F
+(name) 223.2 454 T
+3 F
+(\323, pyf_) 244.8 454 T
+6 F
+(name) 282.6 454 T
+3 F
+(, 1},) 304.2 454 T
+(...) 207 443 T
+({ NULL, NULL } };) 207 432 T
+5 12 Q
+(INITIALIZATION FUNCTION) 171 419 T
+3 9 Q
+(void init_) 189 407 T
+6 F
+(module) 243 407 T
+3 F
+( \050\051 {) 275.4 407 T
+5 12 Q
+(VARIABLES and CONSTANTS) 207 394 T
+3 9 Q
+(m = Py_InitModule \050\322) 207 382 T
+6 F
+(module) 315 382 T
+3 F
+(\323,) 347.4 382 T
+(                          pyf_) 171 371 T
+6 F
+(module) 333 371 T
+3 F
+(_methods\051;) 365.4 371 T
+5 12 Q
+(CODE) 207 358 T
+3 9 Q
+(}) 189 346 T
+171 342 441 657 R
+2 H
+N
+171 645.14 441 645.14 2 L
+1 H
+N
+171 630 441 630 2 L
+N
+171 486 441 486 2 L
+N
+171 427 441 427 2 L
+N
+0 0 612 792 C
+0 0 0 1 0 0 0 1 K
+FMENDPAGE
+%%EndPage: "6" 6
+%%Page: "7" 7
+612 792 0 FMBEGINPAGE
+0 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 1 K
+1 10 Q
+0 X
+(tions) 72 272.33 T
+(return) 93.56 272.33 T
+(a) 119.55 272.33 T
+(non-zero) 126.1 272.33 T
+(v) 163.75 272.33 T
+(alue) 168.5 272.33 T
+(to) 187.27 272.33 T
+(indicate) 197.16 272.33 T
+(an) 230.94 272.33 T
+(error) 242.49 272.33 T
+(,) 261.52 272.33 T
+(and) 266.13 272.33 T
+(are) 282.68 272.33 T
+(handled as follo) 72 260.33 T
+(ws:) 135.63 260.33 T
+3 F
+(if \050\050err = PyFront_Process \050s0,) 81 248.33 T
+(...\051\051 != 0\051 goto exit_s) 81 236.33 T
+6 F
+(x) 219 236.33 T
+3 F
+(;) 225 236.33 T
+1 F
+(The) 72 218.33 T
+(goto) 89.65 218.33 T
+(is) 109.53 218.33 T
+(a) 118.3 218.33 T
+(reference) 124.84 218.33 T
+(to) 164.13 218.33 T
+(an) 174.01 218.33 T
+(e) 185.55 218.33 T
+(xit) 189.84 218.33 T
+(label) 202.5 218.33 T
+(that) 224.04 218.33 T
+(is) 241.14 218.33 T
+(determined) 249.91 218.33 T
+(based on the simulated stack size.  From the tar) 72 206.33 T
+(get e) 261.24 206.33 T
+(xit) 280.25 206.33 T
+(handler) 72 194.33 T
+(on,) 104.36 194.33 T
+(the) 119.22 194.33 T
+(stack) 133.81 194.33 T
+(replacement) 156.73 194.33 T
+(v) 207.96 194.33 T
+(ariables) 212.71 194.33 T
+(are) 246.18 194.33 T
+(properly) 260.75 194.33 T
+(deallocated using the DECREF macro.  Operation) 72 182.33 T
+(instructions return a Python object that must be non-) 72 170.33 T
+(NULL, hence a call to an operation instruction handler) 72 158.33 T
+(will appear as follo) 72 146.33 T
+(ws:) 148.68 146.33 T
+3 F
+(if \050\050x = PyFront_Op \050s0, ...\051\051 !=) 81 134.33 T
+(NULL\051 goto exit_s) 81 122.33 T
+6 F
+(x) 183 122.33 T
+3 F
+(;) 189 122.33 T
+1 F
+(The) 72 104.33 T
+(object) 89.96 104.33 T
+(returned) 116.81 104.33 T
+(from) 152.54 104.33 T
+(the) 174.39 104.33 T
+(API) 189.02 104.33 T
+(call) 207.54 104.33 T
+(is) 224.4 104.33 T
+(placed) 233.48 104.33 T
+(\336rst) 261.99 104.33 T
+(in) 279.96 104.33 T
+(a) 290.15 104.33 T
+(\322re) 72 92.33 T
+(gister\323 v) 84.06 92.33 T
+(ariable, which is then mo) 117.97 92.33 T
+(v) 218.64 92.33 T
+(ed to the stack) 223.49 92.33 T
+(simulator v) 72 80.33 T
+(ariables upon determination of a non-NULL) 117.03 80.33 T
+(result.) 315 272.33 T
+2 F
+(F) 344.72 272.33 T
+(igur) 350.38 272.33 T
+(e 5) 366.68 272.33 T
+1 F
+( sho) 378.62 272.33 T
+(ws an e) 394.76 272.33 T
+(xample of the C code gener-) 424.6 272.33 T
+(ated) 315 260.33 T
+(by) 334.07 260.33 T
+(PyFront) 346.47 260.33 T
+(re) 381.11 260.33 T
+(vision) 388.63 260.33 T
+(0.4) 415.49 260.33 T
+(for) 430.39 260.33 T
+(the) 444.46 260.33 T
+(demonstration) 459.09 260.33 T
+(code) 518.71 260.33 T
+(in section 3.4.) 315 248.33 T
+0 12 Q
+(5.) 315 223 T
+(Results) 342 223 T
+1 10 Q
+(The current implementation of PyFront is in its) 333 205.33 T
+(fourth) 315 193.33 T
+(re) 341.66 193.33 T
+(vision) 349.18 193.33 T
+(\0500.4,\051) 375.85 193.33 T
+(and) 399.73 193.33 T
+(consists) 416.39 193.33 T
+(of) 450.29 193.33 T
+(a) 460.84 193.33 T
+(5,500) 467.5 193.33 T
+(line) 492.22 193.33 T
+(Python) 509.44 193.33 T
+(to C code generator) 315 181.33 T
+(, and a 1,000 line C e) 393.19 181.33 T
+(xtension API.) 478.03 181.33 T
+(This v) 315 169.33 T
+(ersion of PyFront w) 340.13 169.33 T
+(as informally benchmark) 419.75 169.33 T
+(ed) 519.63 169.33 T
+(ag) 315 157.33 T
+(ainst Python v) 324.39 157.33 T
+(ersion 1.5 for performance in simple) 381.47 157.33 T
+(iterati) 315 145.33 T
+(v) 338.08 145.33 T
+(e loops and recursi) 342.93 145.33 T
+(v) 417.94 145.33 T
+(e loops.  The benchmarks) 422.79 145.33 T
+(were run on an IBM 43P 604e at 166 Mhz with 64MB) 315 133.33 T
+(RAM under AIX 4.2.1.  The benchmark functions were) 315 121.33 T
+(implemented) 315 109.33 T
+(in) 369.57 109.33 T
+(a) 379.69 109.33 T
+(single) 386.48 109.33 T
+(29) 412.72 109.33 T
+(line) 425.06 109.33 T
+(Python) 442.41 109.33 T
+(module) 473.1 109.33 T
+(and) 505.44 109.33 T
+(con-) 522.23 109.33 T
+(v) 315 97.33 T
+(erted to a 804 line C \336le \050about 27.7 times lar) 319.85 97.33 T
+(ger) 501.6 97.33 T
+(.\051  In) 513.82 97.33 T
+(this case, PyFront w) 315 85.33 T
+(as in a deb) 396.01 85.33 T
+(ug mode that generates) 438.3 85.33 T
+72 279 540 720 C
+0 0 0 1 0 0 0 1 K
+3 10 Q
+0 X
+(0) 141 661.71 T
+(2) 204 661.71 T
+(BINARY_ADD) 168 552.57 T
+(RETURN) 180 498.57 T
+126 677 162 677 144 650 3 Y
+0.5 H
+2 Z
+N
+198 677 225 677 207 650 189 677 4 Y
+N
+90 450 45 13.5 198 555.5 A
+171 488 225 488 225 506 198 515 171 506 5 Y
+N
+177.07 576.16 178.85 579.14 187.45 569.93 175.28 573.18 4 Y
+1 H
+0 Z
+N
+177.07 576.16 178.85 579.14 187.45 569.93 175.28 573.18 4 Y
+V
+144 596 176.64 576.42 2 L
+2 Z
+N
+207 582.92 210.47 582.92 207 570.81 203.53 582.92 4 Y
+0 Z
+N
+207 582.92 210.47 582.92 207 570.81 203.53 582.92 4 Y
+V
+207 650 207 583.42 2 L
+2 Z
+N
+198 528.92 201.47 528.92 198 516.81 194.53 528.92 4 Y
+0 Z
+N
+198 528.92 201.47 528.92 198 516.81 194.53 528.92 4 Y
+V
+198 542 198 529.42 2 L
+2 Z
+N
+(LOAD_FAST) 117 606.57 T
+0.5 H
+90 450 45 13.5 144 609.5 A
+144 636.92 147.47 636.92 144 624.81 140.53 636.92 4 Y
+1 H
+0 Z
+N
+144 636.92 147.47 636.92 144 624.81 140.53 636.92 4 Y
+V
+144 650 144 637.42 2 L
+2 Z
+N
+90 479 270 686 18 RR
+N
+201.19 623.68 203.75 625.21 206.53 614.78 198.64 622.15 4 Y
+0.5 H
+0 Z
+N
+201.07 623.89 153 704 2 L
+2 Z
+N
+1 12 Q
+(PyObject *) 90.34 706.6 T
+153 704 90 704 2 L
+N
+270 587 270 596 283.5 596 283.5 605 297 587 283.5 569 283.5 578
+ 270 578 8 Y
+4 X
+V
+0 X
+N
+2 F
+(F) 194.05 289 T
+(igur) 200.84 289 T
+(e 5.) 220.4 289 T
+( Emission of a Data Flow Repr) 237.73 289 T
+(esentation) 386.62 289 T
+297 306 513 711 R
+7 X
+V
+3 9 Q
+0 X
+(static PyObject * pyf_fn1 \050) 297 705 T
+(PyObject) 336.88 694 T
+(*) 385.06 694 T
+(self,) 395.45 694 T
+(PyObject) 427.43 694 T
+(*) 475.61 694 T
+(args\051) 486 694 T
+(  {) 297 683 T
+5 F
+(   /* Function init... */) 297 672 T
+3 F
+(   int err = 0;) 297 661 T
+(   register PyObject * x = NULL;) 297 650 T
+(   register PyObject * s1 = NULL,) 297 639 T
+( * s0 = NULL;) 405 628 T
+(   PyObject * l_b = NULL;) 297 617 T
+(   if \050!PyArg_ParseTuple \050args,) 297 606 T
+("O", &l_b\051\051 goto exit_s0;) 351 595 T
+(   Py_XINCREF \050l_b\051;) 297 584 T
+5 F
+(   /* LOAD_NAME, \050b\051 */) 297 573 T
+3 F
+(     x = l_b; Py_INCREF \050x\051;) 297 562 T
+(     s0 = x; x = NULL;) 297 551 T
+5 F
+(   /* LOAD_CONST, \0502\051 */) 297 540 T
+3 F
+(     x = consts [0]; Py_INCREF \050x\051;) 297 529 T
+(     s1 = x; x = NULL;) 297 518 T
+5 F
+(   /* BINARY_ADD */) 297 507 T
+3 F
+(     if \050\050x = PyFront_Add \050s0, s1\051\051 ==) 297 496 T
+(          NULL\051 goto exit_s2;) 297 485 T
+(     Py_DECREF \050s1\051;) 297 474 T
+(     Py_DECREF \050s0\051;) 297 463 T
+(     s0 = x; x = NULL;) 297 452 T
+5 F
+(   /* RETURN_VALUE */) 297 441 T
+3 F
+(     x = s0; Py_XINCREF \050x\051;) 297 430 T
+(     goto exit_s1;) 297 419 T
+5 F
+(   /* Function deinit... */) 297 408 T
+3 F
+(   exit_s2:) 297 397 T
+(     Py_DECREF \050s1\051;) 297 386 T
+(   exit_s1:) 297 375 T
+(     Py_DECREF \050s0\051;) 297 364 T
+(   exit_s0:) 297 353 T
+(     Py_XDECREF \050l_b\051;) 297 342 T
+(     Py_XDECREF \050y\051;) 297 331 T
+(   return x;) 297 320 T
+(  }) 297 309 T
+297 306 513 711 R
+2 H
+N
+297 515.14 513 515.14 2 L
+0.5 H
+N
+297 450 513 450 2 L
+N
+297 414.71 513 414.71 2 L
+N
+297 549 513 549 2 L
+N
+297 580 513 580 2 L
+N
+0 0 612 792 C
+0 0 0 1 0 0 0 1 K
+FMENDPAGE
+%%EndPage: "7" 7
+%%Page: "8" 8
+612 792 0 FMBEGINPAGE
+0 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 1 K
+1 10 Q
+0 X
+(comments about the corresponding Python code line) 72 488.33 T
+(number) 72 476.33 T
+(and) 104.53 476.33 T
+(op) 120.94 476.33 T
+(code) 132.91 476.33 T
+(\050similar) 153.77 476.33 T
+(to) 186.85 476.33 T
+(those) 196.61 476.33 T
+(sho) 219.7 476.33 T
+(wn) 233.34 476.33 T
+(in) 247.53 476.33 T
+2 F
+(\336gur) 257.29 476.33 T
+(e) 275.8 476.33 T
+(5) 282.22 476.33 T
+1 F
+(.\051) 287.22 476.33 T
+(The e) 72 464.33 T
+(xtension module generated w) 94.34 464.33 T
+(as compiled using) 211.72 464.33 T
+(IBM C Set++ with the same optimization le) 72 452.33 T
+(v) 247.2 452.33 T
+(el as w) 252.05 452.33 T
+(as) 279.72 452.33 T
+(used for the Python interpreter) 72 440.33 T
+(.  T) 193.65 440.33 T
+(imes were measured) 206.91 440.33 T
+(using the Python time module and a) 72 428.33 T
+(v) 215.69 428.33 T
+(eraged o) 220.54 428.33 T
+(v) 254.54 428.33 T
+(er ten tri-) 259.39 428.33 T
+(als.) 72 416.33 T
+(While loop performance w) 90 398.33 T
+(as \336rst tested, using the) 197.37 398.33 T
+(follo) 72 386.33 T
+(wing routine:) 90.64 386.33 T
+3 F
+(def while_test \050i\051:) 81 374.33 T
+(while i > 0:) 99 362.33 T
+(i = i - 1) 117 350.33 T
+2 F
+(F) 72 332.33 T
+(igur) 77.66 332.33 T
+(e 6) 93.96 332.33 T
+1 F
+( sho) 105.9 332.33 T
+(ws the results of e) 122.04 332.33 T
+(x) 194.1 332.33 T
+(ecuting the while_test) 198.95 332.33 T
+(routine o) 72 320.33 T
+(v) 107.68 320.33 T
+(er a range of iteration magnitudes.  The data) 112.53 320.33 T
+(for a thousand iterations sho) 72 308.33 T
+(ws a v) 185.07 308.33 T
+(ery lar) 210.47 308.33 T
+(ge maximum) 236.11 308.33 T
+(time) 72 296.33 T
+(trial.) 92.16 296.33 T
+(The) 115.54 296.33 T
+(v) 133.47 296.33 T
+(aried) 138.22 296.33 T
+(data) 160.59 296.33 T
+(may) 182.02 296.33 T
+(be) 201.62 296.33 T
+(the) 213.44 296.33 T
+(result) 228.04 296.33 T
+(of) 252.65 296.33 T
+(sensiti) 263.36 296.33 T
+(v-) 288.67 296.33 T
+(ity to system resources.  Both Python and PyFront call) 72 284.33 T
+(the PyNumber_FromLong API routine e) 72 272.33 T
+(xtensi) 234.06 272.33 T
+(v) 257.7 272.33 T
+(ely in) 262.55 272.33 T
+(this test.  At numbers be) 72 260.33 T
+(yond 100, for the Python b) 169.07 260.33 T
+(uild) 276.09 260.33 T
+(used, memory must be allocated for the ne) 72 248.33 T
+(w inte) 241.72 248.33 T
+(ger) 266.29 248.33 T
+(objects being created by PyNumber_FromLong.  In) 72 236.33 T
+(greater iteration sizes, the v) 72 224.33 T
+(ariance disappears as the) 182 224.33 T
+(iteration time is lar) 72 212.33 T
+(ger than the memory allocation o) 147.65 212.33 T
+(v) 279.98 212.33 T
+(er-) 284.83 212.33 T
+(head.) 72 200.33 T
+(Ultimately) 98.24 200.33 T
+(,) 140.37 200.33 T
+(the) 145.3 200.33 T
+(while) 159.95 200.33 T
+(loop) 184.6 200.33 T
+(pro) 204.8 200.33 T
+(v) 217.98 200.33 T
+(es) 222.83 200.33 T
+(to) 233.59 200.33 T
+(be) 243.8 200.33 T
+(PyFront\325) 255.67 200.33 T
+(s) 290.68 200.33 T
+(strong point, con) 72 188.33 T
+(v) 139.1 188.33 T
+(er) 143.95 188.33 T
+(ging at speeds o) 151.54 188.33 T
+(v) 215.55 188.33 T
+(er 2.5 times f) 220.4 188.33 T
+(aster) 273.07 188.33 T
+(than Python.) 72 176.33 T
+(The ne) 90 158.33 T
+(xt loop tested w) 117.34 158.33 T
+(as the for loop, which) 180.85 158.33 T
+(emplo) 72 146.33 T
+(yed the follo) 96.9 146.33 T
+(wing routine:) 147.2 146.33 T
+3 F
+(def for_test \050i\051:) 81 134.33 T
+(   y = 0) 81 122.33 T
+(   for x in xrange \0500,i\051:) 81 110.33 T
+(      y = y + 1) 81 98.33 T
+2 F
+(F) 315 488.33 T
+(igur) 320.66 488.33 T
+(e 7) 336.96 488.33 T
+1 F
+( sho) 348.9 488.33 T
+(ws the results of running the for_test rou-) 365.04 488.33 T
+(tine o) 315 476.33 T
+(v) 337.35 476.33 T
+(er the same number of iteration magnitudes used) 342.2 476.33 T
+(for the while loop.  The PyFront implementation of) 315 464.33 T
+(\322for\323 loop logic emplo) 315 452.33 T
+(ys a comparable number of) 405.72 452.33 T
+(Python API calls to the interpreted v) 315 440.33 T
+(ersion.  The) 460.95 440.33 T
+(PyFront) 315 428.33 T
+(for) 349.67 428.33 T
+(loop) 363.77 428.33 T
+(sho) 383.99 428.33 T
+(ws) 397.63 428.33 T
+(a) 411.18 428.33 T
+(higher) 418.07 428.33 T
+(v) 446.06 428.33 T
+(ariance) 450.81 428.33 T
+(in) 482.12 428.33 T
+(timing) 492.34 428.33 T
+(data) 520.9 428.33 T
+(when compared to the while loop, and sometimes) 315 416.33 T
+(e) 315 404.33 T
+(xceeds the Python measurements.  Y) 319.29 404.33 T
+(et at higher itera-) 465.49 404.33 T
+(tion counts, the PyFront \322for\323 loop con) 315 392.33 T
+(v) 470.98 392.33 T
+(er) 475.83 392.33 T
+(ges at speeds) 483.42 392.33 T
+(roughly 1.6 times f) 315 380.33 T
+(aster than Python.) 391.01 380.33 T
+(The) 333 362.33 T
+(\336nal) 350.83 362.33 T
+(test) 370.88 362.33 T
+(used) 387.05 362.33 T
+(w) 407.65 362.33 T
+(as) 414.77 362.33 T
+(a) 425.38 362.33 T
+(recursi) 432.1 362.33 T
+(v) 459.06 362.33 T
+(e) 463.91 362.33 T
+(loop,) 470.62 362.33 T
+(that) 493.18 362.33 T
+(ran) 510.46 362.33 T
+(the) 525.5 362.33 T
+(follo) 315 350.33 T
+(wing function:) 333.64 350.33 T
+3 F
+(def recursive_test \050i\051:) 324 338.33 T
+(if \050i > 0\051:) 342 326.33 T
+(recursive_test \050i - 1\051) 360 314.33 T
+1 F
+(The data tak) 333 296.33 T
+(en for the recursi) 382.33 296.33 T
+(v) 450.11 296.33 T
+(e trials w) 454.96 296.33 T
+(as not a) 491.52 296.33 T
+(v) 521.87 296.33 T
+(ail-) 526.62 296.33 T
+(able for higher recursi) 315 284.33 T
+(v) 403.33 284.33 T
+(e call sizes due to a frame stack) 408.18 284.33 T
+(limitation b) 315 272.33 T
+(uilt into Python.) 361.2 272.33 T
+2 F
+(F) 430.94 272.33 T
+(igur) 436.6 272.33 T
+(e 8) 452.9 272.33 T
+1 F
+( sho) 464.84 272.33 T
+(ws that) 480.98 272.33 T
+(PyFront currently introduces a lar) 315 260.33 T
+(ger function call o) 449.8 260.33 T
+(v) 522.69 260.33 T
+(er-) 527.54 260.33 T
+(head, running o) 315 248.33 T
+(v) 377.34 248.33 T
+(er tw) 382.19 248.33 T
+(o times slo) 402.36 248.33 T
+(wer than the Python) 445.45 248.33 T
+(recursion trials.  Recursion e) 315 236.33 T
+(xposes an implementation) 429.55 236.33 T
+(trade-of) 315 224.33 T
+(f in the current v) 346.4 224.33 T
+(ersion of PyFront.  PyFront) 412.9 224.33 T
+(b) 315 212.33 T
+(uilds a Python code object to wrap the generated C) 319.8 212.33 T
+(e) 315 200.33 T
+(xtension functions.  By generation of a nati) 319.29 200.33 T
+(v) 491.8 200.33 T
+(e Python) 496.65 200.33 T
+(wrapper) 315 188.33 T
+(, function ar) 347.36 188.33 T
+(guments \050speci\336cally list and k) 395.78 188.33 T
+(e) 520.12 188.33 T
+(y-) 524.41 188.33 T
+(w) 315 176.33 T
+(ord ar) 322.12 176.33 T
+(guments\051 are handled correctly) 345.54 176.33 T
+(, and a frame) 469.02 176.33 T
+(object is b) 315 164.33 T
+(uilt, pro) 355.91 164.33 T
+(viding proper traceback information) 387.43 164.33 T
+(and global name space resolution.  It also creates code) 315 152.33 T
+(that ef) 315 140.33 T
+(fecti) 340.02 140.33 T
+(v) 357.54 140.33 T
+(ely mak) 362.39 140.33 T
+(es tw) 394.23 140.33 T
+(o function calls instead of one) 414.96 140.33 T
+(\050one to the Python wrapper function, and one to the C) 315 128.33 T
+(e) 315 116.33 T
+(xtension function.  Note that calls from PyFront gener-) 319.29 116.33 T
+(ated) 315 104.33 T
+(code) 333.97 104.33 T
+(to) 355.16 104.33 T
+(other) 365.25 104.33 T
+(Python) 388.11 104.33 T
+(functions) 418.76 104.33 T
+(do) 458.29 104.33 T
+(not) 470.6 104.33 T
+(add) 485.69 104.33 T
+(this) 502.44 104.33 T
+(o) 519.2 104.33 T
+(v) 524.05 104.33 T
+(er-) 528.9 104.33 T
+(head.  The o) 315 92.33 T
+(v) 364.28 92.33 T
+(erhead only occurs for calls to PyFront) 369.13 92.33 T
+(generated functions.\051) 315 80.33 T
+72 495 540 720 C
+0 0 0 1 0 0 0 1 K
+114.68 702.45 114.68 565.81 2 L
+0.5 H
+2 Z
+0 X
+N
+114.68 565.81 187.62 565.81 2 L
+N
+114.68 702.45 107.38 702.45 2 L
+N
+114.68 565.81 107.38 565.81 2 L
+N
+1 11.39 9.72 QQ
+(0) 100.09 559.59 T
+114.68 634.13 107.38 634.13 2 L
+N
+(4) 100.09 703.05 T
+114.68 599.97 107.38 599.97 2 L
+N
+114.68 668.29 107.38 668.29 2 L
+N
+1 9.73 11.39 QQ
+(T) 0 90 94.7 591.3 TF
+(ime \05010) 0 90 94.7 597.85 TF
+1 7.78 9.11 QQ
+(-4) 0 90 90.81 632.95 TF
+1 9.73 11.39 QQ
+(secs.\051) 0 90 94.7 642.82 TF
+129.26 565.81 136.56 617.52 R
+N
+121.97 565.81 129.26 613.73 R
+N
+136.56 565.81 143.85 646.94 R
+N
+165.73 565.81 173.03 667.81 R
+5 X
+V
+0 X
+N
+173.03 565.81 180.32 677.3 R
+5 X
+V
+0 X
+N
+231.38 702.45 231.38 565.81 2 L
+N
+231.38 565.81 304.32 565.81 2 L
+N
+231.38 702.45 224.09 702.45 2 L
+N
+231.38 565.81 224.09 565.81 2 L
+N
+1 11.39 9.72 QQ
+(0) 216.79 559.59 T
+231.38 634.13 224.09 634.13 2 L
+N
+(20) 216.79 703.05 T
+231.38 599.97 224.09 599.97 2 L
+N
+231.38 668.29 224.09 668.29 2 L
+N
+1 9.73 11.39 QQ
+(T) 0 90 211.41 591.3 TF
+(ime \05010) 0 90 211.41 597.85 TF
+1 7.78 9.11 QQ
+(-3) 0 90 207.52 632.95 TF
+1 9.73 11.39 QQ
+(secs.\051) 0 90 211.41 642.82 TF
+245.97 565.81 253.26 587.64 R
+N
+238.67 565.81 245.97 573.4 R
+N
+253.26 565.81 260.56 706.24 R
+N
+275.14 565.81 282.44 584.79 R
+5 X
+V
+0 X
+N
+282.44 565.81 289.73 590.96 R
+5 X
+V
+0 X
+N
+289.73 565.81 297.03 649.31 R
+5 X
+V
+0 X
+N
+1 9.11 7.78 QQ
+(PyFront) 121.97 558.86 T
+(Python) 158.27 559.2 T
+(i = 100) 141.9 541.78 T
+231.38 565.81 224.09 565.81 2 L
+N
+(PyFront) 238.67 558.86 T
+(Python) 274.98 559.2 T
+(i = 1000) 258.6 541.78 T
+158.44 565.81 165.73 664.97 R
+5 X
+V
+0 X
+N
+348.08 702.45 348.08 565.81 2 L
+N
+348.08 565.81 421.03 565.81 2 L
+N
+348.08 702.45 340.79 702.45 2 L
+N
+348.08 565.81 340.79 565.81 2 L
+N
+1 11.39 9.72 QQ
+(0) 333.5 559.59 T
+348.08 634.13 340.79 634.13 2 L
+N
+(4) 333.5 703.05 T
+348.08 599.97 340.79 599.97 2 L
+N
+348.08 668.29 340.79 668.29 2 L
+N
+1 9.73 11.39 QQ
+(T) 0 90 328.11 591.3 TF
+(ime \05010) 0 90 328.11 597.85 TF
+1 7.78 9.11 QQ
+(-2) 0 90 324.22 632.95 TF
+1 9.73 11.39 QQ
+(secs.\051) 0 90 328.11 642.82 TF
+362.67 565.81 369.97 602.82 R
+N
+355.38 565.81 362.67 602.34 R
+N
+369.97 565.81 377.26 605.19 R
+N
+391.85 565.81 399.14 658.32 R
+5 X
+V
+0 X
+N
+399.14 565.81 406.44 659.75 R
+5 X
+V
+0 X
+N
+406.44 565.81 413.74 664.02 R
+5 X
+V
+0 X
+N
+348.08 565.81 340.79 565.81 2 L
+N
+1 9.11 7.78 QQ
+(PyFront) 355.38 558.86 T
+(Python) 391.68 559.2 T
+(i = 10000) 374.82 541.78 T
+458.01 704.47 458.01 565.81 2 L
+N
+458.01 565.81 526.5 565.81 2 L
+N
+458.01 704.47 451.16 704.47 2 L
+N
+458.01 565.81 451.16 565.81 2 L
+N
+1 11.17 9.13 QQ
+(0) 444.31 562.33 T
+458.01 635.14 451.16 635.14 2 L
+N
+1 11.55 9.13 QQ
+(4) 444.31 702.95 T
+458.01 600.48 451.16 600.48 2 L
+N
+458.01 669.81 451.16 669.81 2 L
+N
+1 9.13 11.17 QQ
+(T) 0 90 439.26 590.49 TF
+(ime \05010) 0 90 439.26 596.92 TF
+1 7.3 8.94 QQ
+(-1) 0 90 435.61 631.36 TF
+1 9.13 11.17 QQ
+(secs.\051) 0 90 439.26 638.81 TF
+471.7 565.81 478.55 603.37 R
+N
+464.86 565.81 471.7 602.89 R
+N
+478.55 565.81 485.4 603.85 R
+N
+499.09 565.81 505.94 660.66 R
+5 X
+V
+0 X
+N
+505.94 565.81 512.78 661.62 R
+5 X
+V
+0 X
+N
+512.78 565.81 519.63 663.07 R
+5 X
+V
+0 X
+N
+458.01 565.81 451.16 565.81 2 L
+N
+1 8.94 7.3 QQ
+(PyFront) 464.86 558.34 T
+(Python) 498.93 558.68 T
+(i = 100000) 478.55 541.58 T
+2 12 Q
+(F) 146.68 523 T
+(igur) 153.47 523 T
+(e 6.) 173.03 523 T
+(Results of) 190.36 523 T
+1 F
+(while_test) 240.36 523 T
+2 F
+( benc) 289.69 523 T
+(hmark for various iter) 315.17 523 T
+(ation counts.) 421.32 523 T
+(\050Columns r) 132.46 509 T
+(epr) 186.35 509 T
+(esent minimum, aver) 201.91 509 T
+(a) 301.37 509 T
+(g) 307.25 509 T
+(e) 313.13 509 T
+(, and maximum times o) 318.34 509 T
+(ver ten trials.\051) 429.21 509 T
+0 0 612 792 C
+0 0 0 1 0 0 0 1 K
+FMENDPAGE
+%%EndPage: "8" 8
+%%Page: "9" 9
+612 792 0 FMBEGINPAGE
+0 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 1 K
+1 10 Q
+0 X
+(Numerical results for the time benchmarks are) 90 237.33 T
+(a) 72 225.33 T
+(v) 76.24 225.33 T
+(ailable in section 9.) 80.99 225.33 T
+0 12 Q
+(6.) 72 200 T
+(Futur) 99 200 T
+(e Dir) 128.78 200 T
+(ections) 154.22 200 T
+1 10 Q
+(Since) 90 182.33 T
+(the) 114.28 182.33 T
+(current) 128.55 182.33 T
+(implementation) 158.93 182.33 T
+(of) 223.76 182.33 T
+(PyFront) 234.15 182.33 T
+(is) 268.44 182.33 T
+(only) 277.16 182.33 T
+(a prototype, future ef) 72 170.33 T
+(forts will focus on b) 156.17 170.33 T
+(uilding a sys-) 236.52 170.33 T
+(tem that fully meets the objecti) 72 158.33 T
+(v) 195.91 158.33 T
+(es of non-intrusion,) 200.76 158.33 T
+(compatibility) 72 146.33 T
+(, modularity) 124.69 146.33 T
+(, and optional typing.  Speci\336-) 172.93 146.33 T
+(cally) 72 134.33 T
+(, the current prototype implements correct e) 90.79 134.33 T
+(xcep-) 265.88 134.33 T
+(tion passing, b) 72 122.33 T
+(ut not e) 129.86 122.33 T
+(xception handling \050using the \322try-) 159.71 122.33 T
+(e) 72 110.33 T
+(xcept\323) 76.29 110.33 T
+(and) 104.45 110.33 T
+(\322try-\336nally\323) 120.95 110.33 T
+(constructs.\051) 171.9 110.33 T
+(The) 222.4 110.33 T
+(ne) 240.01 110.33 T
+(xt) 249.3 110.33 T
+(goal) 259.14 110.33 T
+(is) 278.43 110.33 T
+(to) 287.16 110.33 T
+(increase the utility of PyFront as an optimization tool.) 72 98.33 T
+(Finally) 72 86.33 T
+(, as an enhancement to the optimization utility) 99.69 86.33 T
+(, a) 284.03 86.33 T
+(proposed typing system will be implemented and tested) 315 237.33 T
+(for compatibility and a lo) 315 225.33 T
+(w le) 416.41 225.33 T
+(v) 433.1 225.33 T
+(el of intrusion.) 437.95 225.33 T
+(Completion of Python semantics will require that) 333 207.33 T
+(e) 315 195.33 T
+(xception) 319.29 195.33 T
+(handling) 356.2 195.33 T
+(code) 393.67 195.33 T
+(be) 415.03 195.33 T
+(added) 426.94 195.33 T
+(to) 453.29 195.33 T
+(the) 463.55 195.33 T
+(e) 478.24 195.33 T
+(xtension) 482.53 195.33 T
+(mod-) 518.89 195.33 T
+(ules generated.  Complicating this objecti) 315 183.33 T
+(v) 480.85 183.33 T
+(e, \322return\323) 485.7 183.33 T
+(and \322break\323 statements may be interrupted by \322\336nally\323) 315 171.33 T
+(clauses before the) 315 159.33 T
+(y e) 386.49 159.33 T
+(xit their tar) 398.28 159.33 T
+(get subroutine or loop.) 442.54 159.33 T
+(Therefore,) 315 147.33 T
+(emission) 359.39 147.33 T
+(of) 397.42 147.33 T
+(\322\336nally\323) 408.22 147.33 T
+(clauses) 445.14 147.33 T
+(will) 476.49 147.33 T
+(require) 494.52 147.33 T
+(the) 525.31 147.33 T
+(code generated for \322break\323 and \322return\323 to jump to an) 315 135.33 T
+(y) 530.61 135.33 T
+(\322\336nally\323) 315 123.33 T
+(clause) 351.71 123.33 T
+(rather) 378.98 123.33 T
+(than) 404.58 123.33 T
+(the) 424.07 123.33 T
+(e) 438.57 123.33 T
+(xit) 442.86 123.33 T
+(point) 455.69 123.33 T
+(of) 478.53 123.33 T
+(a) 489.13 123.33 T
+(gi) 495.85 123.33 T
+(v) 503.38 123.33 T
+(en) 508.23 123.33 T
+(loop) 519.94 123.33 T
+(or) 315 111.33 T
+(function.) 325.7 111.33 T
+(The) 366.25 111.33 T
+(\322\336nally\323) 384.17 111.33 T
+(e) 420.97 111.33 T
+(xit) 425.26 111.33 T
+(point) 438.19 111.33 T
+(will) 461.11 111.33 T
+(require) 479.04 111.33 T
+(the) 509.72 111.33 T
+(use) 524.3 111.33 T
+(of an e) 315 99.33 T
+(xit \337ag similar to the Python e) 342.06 99.33 T
+(v) 462.93 99.33 T
+(aluation loop\325) 467.68 99.33 T
+(s) 522.96 99.33 T
+(\322wh) 315 87.33 T
+(y\323 v) 331.61 87.33 T
+(ariable.  The implications for symbolic e) 348.3 87.33 T
+(x) 510.63 87.33 T
+(ecu-) 515.48 87.33 T
+72 486 540 720 C
+0 0 0 1 0 0 0 1 K
+125.46 703.82 125.46 560.27 2 L
+0.5 H
+2 Z
+0 X
+N
+125.46 588.98 118.01 588.98 2 L
+N
+125.46 617.69 118.01 617.69 2 L
+N
+125.46 646.4 118.01 646.4 2 L
+N
+125.46 675.11 118.01 675.11 2 L
+N
+118.01 560.27 199.99 560.27 2 L
+N
+132.92 560.27 140.37 627.26 R
+N
+140.37 560.27 147.82 634.04 R
+N
+147.82 560.27 155.27 687.87 R
+N
+170.18 560.27 177.63 653.98 R
+5 X
+V
+0 X
+N
+177.63 560.27 185.08 655.17 R
+5 X
+V
+0 X
+N
+185.08 560.27 192.53 663.15 R
+5 X
+V
+0 X
+N
+1 9.57 9.93 QQ
+(PyFront) 132.92 545.99 T
+(Python) 170.18 545.99 T
+1 9.94 9.57 QQ
+(T) 0 90 108.4 588.24 TF
+(ime \05010) 0 90 108.4 593.75 TF
+1 7.95 7.65 QQ
+(-4) 0 90 104.43 623.25 TF
+1 9.94 9.57 QQ
+( secs.\051) 0 90 108.4 629.63 TF
+1 9.57 9.93 QQ
+(0) 113.04 554.6 T
+(5) 113.04 703.9 T
+125.46 703.82 118.01 703.82 2 L
+N
+(n=100) 147.82 533.07 T
+229.8 703.82 229.8 560.27 2 L
+N
+229.8 588.98 222.34 588.98 2 L
+N
+229.8 617.69 222.34 617.69 2 L
+N
+229.8 646.4 222.34 646.4 2 L
+N
+229.8 675.11 222.34 675.11 2 L
+N
+222.34 560.27 304.32 560.27 2 L
+N
+237.25 560.27 244.7 618.09 R
+N
+244.7 560.27 252.15 621.28 R
+N
+252.15 560.27 259.61 641.61 R
+N
+274.51 560.27 281.96 647.99 R
+5 X
+V
+0 X
+N
+281.96 560.27 289.42 647.99 R
+5 X
+V
+0 X
+N
+289.42 560.27 296.87 649.19 R
+5 X
+V
+0 X
+N
+(PyFront) 237.25 545.99 T
+(Python) 274.51 545.99 T
+1 9.94 9.57 QQ
+(T) 0 90 212.74 588.24 TF
+(ime \05010) 0 90 212.74 593.75 TF
+1 7.95 7.65 QQ
+(-3) 0 90 208.76 623.25 TF
+1 9.94 9.57 QQ
+( secs.\051) 0 90 212.74 629.63 TF
+1 9.57 9.93 QQ
+(0) 217.38 554.6 T
+(5) 217.38 703.9 T
+229.8 703.82 222.34 703.82 2 L
+N
+(n=1000) 252.15 533.07 T
+334.13 703.82 334.13 560.27 2 L
+N
+334.13 588.98 326.68 588.98 2 L
+N
+334.13 617.69 326.68 617.69 2 L
+N
+334.13 646.4 326.68 646.4 2 L
+N
+334.13 675.11 326.68 675.11 2 L
+N
+326.68 560.27 408.65 560.27 2 L
+N
+341.58 560.27 349.03 617.29 R
+N
+349.03 560.27 356.49 623.67 R
+N
+356.49 560.27 363.94 677.1 R
+N
+378.84 560.27 386.29 647.2 R
+5 X
+V
+0 X
+N
+386.3 560.27 393.75 648.39 R
+5 X
+V
+0 X
+N
+393.75 560.27 401.2 651.98 R
+5 X
+V
+0 X
+N
+(PyFront) 341.58 545.99 T
+(Python) 378.84 545.99 T
+1 9.94 9.57 QQ
+(T) 0 90 317.07 588.24 TF
+(ime \05010) 0 90 317.07 593.75 TF
+1 7.95 7.65 QQ
+(-2) 0 90 313.09 623.25 TF
+1 9.94 9.57 QQ
+( secs.\051) 0 90 317.07 629.63 TF
+1 9.57 9.93 QQ
+(0) 321.71 554.6 T
+(5) 321.71 703.9 T
+334.13 703.82 326.68 703.82 2 L
+N
+(n=10000) 356.49 533.07 T
+438.46 703.82 438.46 560.27 2 L
+N
+438.46 588.98 431.01 588.98 2 L
+N
+438.46 617.69 431.01 617.69 2 L
+N
+438.46 646.4 431.01 646.4 2 L
+N
+438.46 675.11 431.01 675.11 2 L
+N
+431.01 560.27 513 560.27 2 L
+N
+445.91 560.27 453.37 617.69 R
+N
+453.37 560.27 460.82 618.49 R
+N
+460.82 560.27 468.27 621.68 R
+N
+483.18 560.27 490.63 647.6 R
+5 X
+V
+0 X
+N
+490.63 560.27 498.08 648.39 R
+5 X
+V
+0 X
+N
+498.08 560.27 505.53 649.19 R
+5 X
+V
+0 X
+N
+(PyFront) 445.91 545.99 T
+(Python) 483.18 545.99 T
+1 9.94 9.57 QQ
+(T) 0 90 421.4 588.24 TF
+(ime \05010) 0 90 421.4 593.75 TF
+1 7.95 7.65 QQ
+(-1) 0 90 417.43 623.25 TF
+1 9.94 9.57 QQ
+( secs.\051) 0 90 421.4 629.63 TF
+1 9.57 9.93 QQ
+(0) 426.04 554.6 T
+(5) 426.04 703.9 T
+438.46 703.82 431.01 703.82 2 L
+N
+(n=100000) 456.71 533.07 T
+2 12 Q
+(F) 153.01 514 T
+(igur) 159.8 514 T
+(e 7.) 179.36 514 T
+(Results of) 196.69 514 T
+1 F
+(for_test) 246.7 514 T
+2 F
+( benc) 283.36 514 T
+(hmark for various iter) 308.83 514 T
+(ation counts.) 414.98 514 T
+(\050Columns r) 132.46 500 T
+(epr) 186.35 500 T
+(esent minimum, aver) 201.91 500 T
+(a) 301.37 500 T
+(g) 307.25 500 T
+(e) 313.13 500 T
+(, and maximum times o) 318.34 500 T
+(ver ten trials.\051) 429.21 500 T
+0 0 612 792 C
+72 252 540 486 C
+0 0 0 1 0 0 0 1 K
+128.57 327.71 128.57 473.91 2 L
+0.5 H
+2 Z
+0 X
+N
+121.18 327.71 202.5 327.71 2 L
+N
+121.18 473.91 128.57 473.91 2 L
+N
+121.18 444.67 128.57 444.67 2 L
+N
+121.18 386.19 128.57 386.19 2 L
+N
+121.18 356.95 128.57 356.95 2 L
+N
+121.18 415.43 128.57 415.43 2 L
+N
+135.96 327.71 143.36 382.94 R
+N
+143.36 327.71 150.75 386.6 R
+N
+150.75 327.71 158.14 413.4 R
+N
+172.93 327.71 180.32 354.92 R
+5 X
+V
+0 X
+N
+180.32 327.71 187.71 355.32 R
+5 X
+V
+0 X
+N
+187.71 327.71 195.11 358.17 R
+5 X
+V
+0 X
+N
+1 9.75 9.85 QQ
+(5) 113.79 468.22 T
+(0) 113.79 322.01 T
+(PyFront) 128.57 314.7 T
+(Python) 172.93 314.7 T
+1 9.86 9.75 QQ
+(T) 0 90 108.33 363.58 TF
+(ime \05010) 0 90 108.33 369.2 TF
+1 7.89 7.8 QQ
+(-3) 0 90 104.39 399.25 TF
+1 9.86 9.75 QQ
+( secs.\051) 0 90 108.33 405.74 TF
+1 9.75 9.85 QQ
+(i = 100) 150.75 300.08 T
+(i = 1000) 250.88 298.62 T
+(i = 4000) 457.87 298.62 T
+(i = 2000) 350.35 298.62 T
+232.07 327.71 232.07 473.91 2 L
+N
+224.68 327.71 306 327.71 2 L
+N
+224.68 473.91 232.07 473.91 2 L
+N
+224.68 444.67 232.07 444.67 2 L
+N
+224.68 386.19 232.07 386.19 2 L
+N
+224.68 356.95 232.07 356.95 2 L
+N
+224.68 415.43 232.07 415.43 2 L
+N
+239.46 327.71 246.85 420.3 R
+N
+246.85 327.71 254.25 428.43 R
+N
+254.25 327.71 261.64 472.29 R
+N
+276.42 327.71 283.82 365.88 R
+5 X
+V
+0 X
+N
+283.82 327.71 291.21 367.1 R
+5 X
+V
+0 X
+N
+291.21 327.71 298.6 372.79 R
+5 X
+V
+0 X
+N
+(5) 217.28 468.22 T
+(0) 217.28 322.01 T
+(PyFront) 232.07 314.7 T
+(Python) 276.42 314.7 T
+1 9.86 9.75 QQ
+(T) 0 90 211.83 363.58 TF
+(ime \05010) 0 90 211.83 369.2 TF
+1 7.89 7.8 QQ
+(-2) 0 90 207.88 399.25 TF
+1 9.86 9.75 QQ
+( secs.\051) 0 90 211.83 405.74 TF
+335.57 327.71 335.57 473.91 2 L
+N
+328.17 327.71 409.49 327.71 2 L
+N
+328.17 473.91 335.57 473.91 2 L
+N
+328.17 444.67 335.57 444.67 2 L
+N
+328.17 386.19 335.57 386.19 2 L
+N
+328.17 356.95 335.57 356.95 2 L
+N
+328.17 415.43 335.57 415.43 2 L
+N
+342.96 327.71 350.35 439.39 R
+N
+350.35 327.71 357.74 442.23 R
+N
+357.74 327.71 365.14 444.67 R
+N
+379.92 327.71 387.32 372.38 R
+5 X
+V
+0 X
+N
+387.32 327.71 394.71 373.6 R
+5 X
+V
+0 X
+N
+394.71 327.71 402.1 376.85 R
+5 X
+V
+0 X
+N
+1 9.75 9.85 QQ
+(10) 318.32 468.22 T
+(0) 320.78 322.01 T
+(PyFront) 335.57 314.7 T
+(Python) 379.92 314.7 T
+1 9.86 9.75 QQ
+(T) 0 90 315.32 363.58 TF
+(ime \05010) 0 90 315.32 369.2 TF
+1 7.89 7.8 QQ
+(-2) 0 90 311.38 399.25 TF
+1 9.86 9.75 QQ
+( secs.\051) 0 90 315.32 405.74 TF
+439.06 327.71 439.06 473.91 2 L
+N
+431.67 327.71 513 327.71 2 L
+N
+431.67 473.91 439.06 473.91 2 L
+N
+431.67 444.67 439.06 444.67 2 L
+N
+431.67 386.19 439.06 386.19 2 L
+N
+431.67 356.95 439.06 356.95 2 L
+N
+431.67 415.43 439.06 415.43 2 L
+N
+446.46 327.7 453.85 428.02 R
+N
+453.85 327.71 461.24 431.27 R
+N
+461.24 327.71 468.64 437.77 R
+N
+483.42 327.71 490.81 370.35 R
+5 X
+V
+0 X
+N
+490.81 327.71 498.21 371.97 R
+5 X
+V
+0 X
+N
+498.21 327.71 505.6 374.41 R
+5 X
+V
+0 X
+N
+1 9.75 9.85 QQ
+(0.25) 414.01 469.85 T
+(0) 424.28 322.01 T
+(PyFront) 439.06 314.7 T
+(Python) 483.42 314.7 T
+1 9.86 9.75 QQ
+(T) 0 90 418.82 363.83 TF
+(ime \050secs.\051) 0 90 418.82 369.44 TF
+2 12 Q
+(F) 136.12 280 T
+(igur) 142.91 280 T
+(e 8.) 162.47 280 T
+(Results of) 179.8 280 T
+1 F
+(recursi) 229.81 280 T
+(v) 262.16 280 T
+(e_test) 267.98 280 T
+2 F
+( benc) 295.97 280 T
+(hmark for various r) 321.45 280 T
+(ecur) 415.34 280 T
+(sion counts.) 436.54 280 T
+(\050Columns r) 132.46 266 T
+(epr) 186.35 266 T
+(esent minimum, aver) 201.91 266 T
+(a) 301.37 266 T
+(g) 307.25 266 T
+(e) 313.13 266 T
+(, and maximum times o) 318.34 266 T
+(ver ten trials.\051) 429.21 266 T
+0 0 612 792 C
+0 0 0 1 0 0 0 1 K
+FMENDPAGE
+%%EndPage: "9" 9
+%%Page: "10" 10
+612 792 0 FMBEGINPAGE
+0 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 1 K
+1 10 Q
+0 X
+(tion mean that the frame stack must be simulated in) 72 713.33 T
+(addition to the v) 72 701.33 T
+(alue stack.) 137.03 701.33 T
+(Once) 90 683.33 T
+(full) 113.24 683.33 T
+(compatibility) 129.28 683.33 T
+(is) 184.76 683.33 T
+(achie) 193.57 683.33 T
+(v) 214.43 683.33 T
+(ed,) 219.27 683.33 T
+(the) 233.36 683.33 T
+(second) 247.72 683.33 T
+(goal) 277.64 683.33 T
+(is) 72 671.33 T
+(to) 80.92 671.33 T
+(optimize) 90.95 671.33 T
+(the) 128.2 671.33 T
+(PyFront) 142.67 671.33 T
+(API) 177.15 671.33 T
+(and) 195.51 671.33 T
+(generated) 212.2 671.33 T
+(code.) 253.32 671.33 T
+(The) 279.2 671.33 T
+(current) 72 659.33 T
+(v) 102.71 659.33 T
+(ersion) 107.56 659.33 T
+(of) 134.4 659.33 T
+(PyFront) 145.12 659.33 T
+(includes) 179.75 659.33 T
+(the) 215.47 659.33 T
+(use) 230.09 659.33 T
+(of) 245.81 659.33 T
+(local) 256.54 659.33 T
+(v) 278.37 659.33 T
+(ari-) 283.12 659.33 T
+(ables for the local name space \050which w) 72 647.33 T
+(as required to) 232.13 647.33 T
+(get loop times belo) 72 635.33 T
+(w Python 1.5 speeds,\051 and module) 148.14 635.33 T
+(wide constant initialization.  Future optimizations may) 72 623.33 T
+(include) 72 611.33 T
+(constant) 103.86 611.33 T
+(folding,) 139.61 611.33 T
+(common) 173.43 611.33 T
+(sub-e) 210.85 611.33 T
+(xpression) 232.36 611.33 T
+(elimi-) 273.11 611.33 T
+(nation, local v) 72 599.33 T
+(ariable aliases, and type based optimiza-) 128.69 599.33 T
+(tion.  Constant folding w) 72 587.33 T
+(ould e) 171.63 587.33 T
+(v) 196.1 587.33 T
+(aluate constant) 200.85 587.33 T
+(e) 72 575.33 T
+(xpressions, and generate the resulting constant instead) 76.29 575.33 T
+(of generating the Python API call.  Common sub-) 72 563.33 T
+(e) 72 551.33 T
+(xpression elimination w) 76.29 551.33 T
+(ould use an operation hashing) 172.3 551.33 T
+(method to determine when a v) 72 539.33 T
+(alue may be reused, gen-) 193.12 539.33 T
+(erating a temporary holding v) 72 527.33 T
+(ariable in the C code) 190.62 527.33 T
+(which w) 72 515.33 T
+(ould be used instead of performing redundant) 106.06 515.33 T
+(computation.  Local v) 72 503.33 T
+(ariable aliases w) 159.52 503.33 T
+(ould simulate the) 225.51 503.33 T
+(local v) 72 491.33 T
+(ariable name space during symbolic e) 98.69 491.33 T
+(x) 249.34 491.33 T
+(ecution,) 254.19 491.33 T
+(allo) 72 479.33 T
+(wing) 86.75 479.33 T
+(an) 108.96 479.33 T
+(y) 118.25 479.33 T
+(constant) 125.46 479.33 T
+(assignments) 161 479.33 T
+(to) 212.1 479.33 T
+(propag) 222.09 479.33 T
+(ate) 249.81 479.33 T
+(through) 263.68 479.33 T
+(and be folded where appropriate.) 72 467.33 T
+(Finally) 90 449.33 T
+(,) 117.69 449.33 T
+(type) 122.2 449.33 T
+(based) 141.42 449.33 T
+(optimizations) 166.2 449.33 T
+(will) 222.65 449.33 T
+(be) 240.22 449.33 T
+(prototyped) 251.66 449.33 T
+(in PyFront.  The data \337o) 72 437.33 T
+(w graph b) 169.53 437.33 T
+(uilt by PyFront pro-) 209.32 437.33 T
+(vides a means for propag) 72 425.33 T
+(ation of constant types, b) 172.48 425.33 T
+(ut) 272.55 425.33 T
+(w) 72 413.33 T
+(ould most lik) 79.12 413.33 T
+(ely be unable to consistently resolv) 131.81 413.33 T
+(e the) 272.48 413.33 T
+(type) 72 401.33 T
+(of) 91.51 401.33 T
+(inputs) 102.12 401.33 T
+(and) 128.86 401.33 T
+(v) 145.59 401.33 T
+(ariables.) 150.34 401.33 T
+(PyFront) 188.51 401.33 T
+(w) 223.03 401.33 T
+(ould) 230.15 401.33 T
+(address) 250.22 401.33 T
+(the) 282.49 401.33 T
+(type resolution problem by pro) 72 389.33 T
+(viding a type e) 195.73 389.33 T
+(xtension) 254.74 389.33 T
+(scheme.  The proposed type e) 72 377.33 T
+(xtension scheme w) 190.71 377.33 T
+(ould) 266.71 377.33 T
+(in) 72 365.33 T
+(v) 79.38 365.33 T
+(olv) 84.18 365.33 T
+(e the insertion of a uniquely named dictionary at) 96.81 365.33 T
+(the top le) 72 353.33 T
+(v) 108.97 353.33 T
+(el of a module.  The dictionary w) 113.82 353.33 T
+(ould map) 247.03 353.33 T
+(from re) 72 341.33 T
+(gular e) 101.56 341.33 T
+(xpressions to strings containing type) 128.9 341.33 T
+(information.  When a name is referenced during sym-) 72 329.33 T
+(bolic) 72 317.33 T
+(e) 94.18 317.33 T
+(x) 98.47 317.33 T
+(ecution,) 103.32 317.33 T
+(the) 137.43 317.33 T
+(type) 151.83 317.33 T
+(system) 171.22 317.33 T
+(w) 201.18 317.33 T
+(ould) 208.3 317.33 T
+(attempt) 228.25 317.33 T
+(to) 260.43 317.33 T
+(match) 270.38 317.33 T
+(the label to one of the re) 72 305.33 T
+(gular e) 169.05 305.33 T
+(xpression k) 196.39 305.33 T
+(e) 242.12 305.33 T
+(ys in the) 246.41 305.33 T
+(type dictionary) 72 293.33 T
+(.  If type information w) 131.62 293.33 T
+(as a) 224.84 293.33 T
+(v) 239.91 293.33 T
+(ailable, it) 244.66 293.33 T
+(w) 72 281.33 T
+(ould) 79.12 281.33 T
+(be) 99.24 281.33 T
+(used) 111.03 281.33 T
+(to) 131.7 281.33 T
+(select) 141.82 281.33 T
+(type) 166.94 281.33 T
+(speci\336c) 186.5 281.33 T
+(operations,) 219.4 281.33 T
+(circum-) 265.9 281.33 T
+(v) 72 269.33 T
+(enting Python API calls.  Otherwise, the standard) 76.85 269.33 T
+(Python API call w) 72 257.33 T
+(ould be emitted as already done by) 145.51 257.33 T
+(the current PyFront.) 72 245.33 T
+(The) 90 227.33 T
+(PyFront) 107.83 227.33 T
+(type) 142.34 227.33 T
+(dictionary) 161.84 227.33 T
+(w) 204.67 227.33 T
+(ould) 211.79 227.33 T
+(of) 231.85 227.33 T
+(fer) 239.93 227.33 T
+(the) 253.31 227.33 T
+(follo) 267.81 227.33 T
+(w-) 286.45 227.33 T
+(ing features:) 72 215.33 T
+(\245) 72 203.33 T
+(Non-intrusi) 90 203.33 T
+(v) 135.86 203.33 T
+(e:) 140.71 203.33 T
+(The) 150.12 203.33 T
+(type) 167.85 203.33 T
+(dictionary) 187.26 203.33 T
+(w) 230 203.33 T
+(ould) 237.12 203.33 T
+(be) 257.09 203.33 T
+(parsed) 268.71 203.33 T
+(by Python as a normal module member) 90 191.33 T
+(.  Speci\336-) 246.66 191.33 T
+(cally) 90 179.33 T
+(,) 108.79 179.33 T
+(the) 113.6 179.33 T
+(type) 128.12 179.33 T
+(dictionary) 147.65 179.33 T
+(w) 190.5 179.33 T
+(ould) 197.62 179.33 T
+(map) 217.71 179.33 T
+(a) 237.23 179.33 T
+(set) 243.98 179.33 T
+(of) 257.39 179.33 T
+(strings) 268.02 179.33 T
+(to strings, requiring no additional constructs, k) 90 167.33 T
+(e) 276.56 167.33 T
+(y-) 280.85 167.33 T
+(w) 90 155.33 T
+(ords, or import modules.  The dictionary\325) 97.12 155.33 T
+(s pres-) 262.11 155.33 T
+(ence) 90 143.33 T
+(w) 110.63 143.33 T
+(ould) 117.75 143.33 T
+(simply) 137.84 143.33 T
+(add) 167.37 143.33 T
+(some) 184.12 143.33 T
+(byte) 207.54 143.33 T
+(code) 227.07 143.33 T
+(o) 248.25 143.33 T
+(v) 253.1 143.33 T
+(erhead) 257.95 143.33 T
+(to) 286.91 143.33 T
+(the module, and w) 90 131.33 T
+(ould not change the module\325) 163.78 131.33 T
+(s) 277.66 131.33 T
+(semantics as a Python script.) 90 119.33 T
+(\245) 72 107.33 T
+(Self) 90 107.33 T
+(documenting:) 108.55 107.33 T
+(By) 168.44 107.33 T
+(using) 182.55 107.33 T
+(re) 206.66 107.33 T
+(gular) 214.28 107.33 T
+(e) 237.27 107.33 T
+(xpressions) 241.57 107.33 T
+(as) 286.23 107.33 T
+(k) 90 95.33 T
+(e) 94.9 95.33 T
+(ys in the type dictionary) 99.19 95.33 T
+(, v) 195.2 95.33 T
+(ariable naming con-) 204.95 95.33 T
+(v) 90 83.33 T
+(entions could be emplo) 94.85 83.33 T
+(yed in a similar f) 187.8 83.33 T
+(ashion to) 255.47 83.33 T
+(currently used naming con) 333 713.33 T
+(v) 438.97 713.33 T
+(entions \050such as Hun-) 443.82 713.33 T
+(g) 333 701.33 T
+(arian pre\336x notation\051 [Simon) 337.95 701.33 T
+(yi.]  These naming) 454.18 701.33 T
+(con) 333 689.33 T
+(v) 347.04 689.33 T
+(entions, assuming some standard w) 351.89 689.33 T
+(as fol-) 493.17 689.33 T
+(lo) 333 677.33 T
+(wed, w) 340.53 677.33 T
+(ould increase code readability and type) 369.31 677.33 T
+(consistenc) 333 665.33 T
+(y e) 374.51 665.33 T
+(v) 386.2 665.33 T
+(en without the use of PyFront.) 391.05 665.33 T
+(\245) 315 653.33 T
+(Optional: The type dictionary w) 333 653.33 T
+(ould pro) 461.22 653.33 T
+(vide the) 494.68 653.33 T
+(opportunity to de\336ne types do) 333 641.33 T
+(wn to speci\336c v) 452.75 641.33 T
+(ari-) 515.55 641.33 T
+(ables, b) 333 629.33 T
+(ut w) 363.35 629.33 T
+(ould not be required to use PyFront.) 380.75 629.33 T
+(F) 315 611.33 T
+(or e) 320.41 611.33 T
+(xample, Hung) 335.53 611.33 T
+(arian notation uses a \322n\323 pre\336x for) 392.14 611.33 T
+(inte) 315 599.33 T
+(gers.  In PyFront, adding a line such as) 329.85 599.33 T
+(\322__p) 315 587.33 T
+(yf_type_dict = {\324n[A-Za-z0-9_]*\325 : \324int\325}\323  w) 334.34 587.33 T
+(ould) 517.21 587.33 T
+(implement the inte) 315 575.33 T
+(ger pre\336x association.  The prime) 389.85 575.33 T
+(dra) 315 563.33 T
+(wback to this system \050as an) 327.62 563.33 T
+(y similar type system\051 is) 437.18 563.33 T
+(that le) 315 551.33 T
+(g) 339.57 551.33 T
+(ac) 344.52 551.33 T
+(y Python code w) 353.25 551.33 T
+(ould ha) 420.09 551.33 T
+(v) 449.61 551.33 T
+(e to be modi\336ed to) 454.46 551.33 T
+(tak) 315 539.33 T
+(e adv) 327.12 539.33 T
+(antage of type optimizations.) 348.25 539.33 T
+(A) 333 521.33 T
+(\336nal) 342.67 521.33 T
+(note) 362.91 521.33 T
+(about) 382.59 521.33 T
+(the) 407.26 521.33 T
+(type) 421.94 521.33 T
+(system:) 441.61 521.33 T
+(it) 474.63 521.33 T
+(could) 482.64 521.33 T
+(be) 507.32 521.33 T
+(used) 519.21 521.33 T
+(to e) 315 509.33 T
+(xpress such concepts as static module v) 329.57 509.33 T
+(ariables) 487.63 509.33 T
+(\050allo) 315 497.33 T
+(wing global v) 333.08 497.33 T
+(ariables to be optimized in a similar) 387.83 497.33 T
+(f) 315 485.33 T
+(ashion to local v) 318.23 485.33 T
+(ariables,\051 or e) 383.81 485.33 T
+(v) 438.26 485.33 T
+(en constance \050allo) 443.11 485.33 T
+(wing) 515.06 485.33 T
+(global constant assignments to be treated lik) 315 473.33 T
+(e macros.\051) 492.11 473.33 T
+(If these type e) 315 461.33 T
+(xtensions were emplo) 371.22 461.33 T
+(yed, recursi) 458.33 461.33 T
+(v) 504.73 461.33 T
+(e calls) 509.58 461.33 T
+(and calls to other functions in the module could be) 315 449.33 T
+(replaced by direct calls to the C function, eliminating) 315 437.33 T
+(the recursi) 315 425.33 T
+(v) 356.68 425.33 T
+(e call o) 361.53 425.33 T
+(v) 390.26 425.33 T
+(erhead seen in section 5.) 395.11 425.33 T
+0 12 Q
+(7.) 315 400 T
+(Conclusion) 342 400 T
+1 10 Q
+(By translating Python control \337o) 333 382.33 T
+(w into C control) 463.87 382.33 T
+(\337o) 315 370.33 T
+(w) 325.31 370.33 T
+(, replacing the Python v) 331.88 370.33 T
+(alue stack with C v) 426.9 370.33 T
+(ariables,) 503.31 370.33 T
+(and inlining Python API calls normally made by the) 315 358.33 T
+(Python interpreter) 315 346.33 T
+(, PyFront achie) 387.09 346.33 T
+(v) 447.67 346.33 T
+(es modest increases) 452.52 346.33 T
+(in Python script performance.  While certain design) 315 334.33 T
+(trade-of) 315 322.33 T
+(fs) 346.4 322.33 T
+(in) 355.71 322.33 T
+(the) 365.58 322.33 T
+(current) 379.89 322.33 T
+(implementation) 410.3 322.33 T
+(add) 475.16 322.33 T
+(o) 491.69 322.33 T
+(v) 496.54 322.33 T
+(erhead) 501.39 322.33 T
+(to) 530.13 322.33 T
+(calling con) 315 310.33 T
+(v) 358.76 310.33 T
+(erted functions, the) 363.61 310.33 T
+(y are also needed to) 440.39 310.33 T
+(assist PyFront with its goal of compatibility) 315 298.33 T
+(.  As these) 489.37 298.33 T
+(trade-of) 315 286.33 T
+(fs are weighed and future plans are imple-) 346.4 286.33 T
+(mented, PyFront performance should continue to) 315 274.33 T
+(impro) 315 262.33 T
+(v) 338.74 262.33 T
+(e.  Further de) 343.59 262.33 T
+(v) 396.66 262.33 T
+(elopment of such features as the) 401.51 262.33 T
+(proposed type system will enable PyFront to pro) 315 250.33 T
+(vide a) 509.01 250.33 T
+(non-intrusi) 315 238.33 T
+(v) 358.64 238.33 T
+(e, and mostly automatic path from Python) 363.49 238.33 T
+(modules to f) 315 226.33 T
+(aster and statically compiled C code.) 364.9 226.33 T
+FMENDPAGE
+%%EndPage: "10" 10
+%%Page: "11" 11
+612 792 0 FMBEGINPAGE
+0 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 1 K
+0 12 Q
+0 X
+(8.) 72 712 T
+(W) 99 712 T
+(orks Cited) 110.1 712 T
+1 10 Q
+(Aho, A.V) 72 695.33 T
+(., Sethi, R., and Ulman, J.D.) 109.87 695.33 T
+2 F
+(Compiler) 227.37 695.33 T
+(s: Principles, T) 265.05 695.33 T
+(ec) 325.52 695.33 T
+(hniques, and T) 334.25 695.33 T
+(ools.) 392.5 695.33 T
+1 F
+(Computer Science Series.) 416.67 695.33 T
+(Reading, Massachusetts: Addison-W) 90 683.33 T
+(esle) 237.24 683.33 T
+(y) 252.64 683.33 T
+(, 1986.) 256.99 683.33 T
+(Fly) 72 671.33 T
+(,) 84.69 671.33 T
+(Charles.) 89.44 671.33 T
+(\322Grammar) 124.74 671.33 T
+(-based) 167.3 671.33 T
+(Rapid) 195.65 671.33 T
+(Application) 221.79 671.33 T
+(De) 271.26 671.33 T
+(v) 282.67 671.33 T
+(elopment.) 287.52 671.33 T
+(\323) 326.54 671.33 T
+380.39 670.33 335.48 670.33 2 L
+0.5 H
+0 Z
+N
+(http://www) 335.48 671.33 T
+387.79 670.33 380.39 670.33 2 L
+N
+(.p) 380.39 671.33 T
+421.22 670.33 387.79 670.33 2 L
+N
+(ython.or) 387.79 671.33 T
+436.12 670.33 421.22 670.33 2 L
+N
+(g/w) 421.22 671.33 T
+540 670.33 436.12 670.33 2 L
+N
+(orkshops/1996-11/papers/) 436.12 671.33 T
+192.22 658.33 90 658.33 2 L
+N
+(GRAD/html/GRADpaper) 90 659.33 T
+235.56 658.33 192.22 658.33 2 L
+N
+(.book.html) 192.22 659.33 T
+(Simon) 72 647.33 T
+(yi, Charles.  \322Program Identi\336er Naming Con) 97.97 647.33 T
+(v) 280.33 647.33 T
+(entions.) 285.18 647.33 T
+(\323) 315.87 647.33 T
+370.22 646.33 325.31 646.33 2 L
+N
+(http://www) 325.31 647.33 T
+539.92 646.33 370.22 646.33 2 L
+N
+(.strangecreations.com/library/c/naming.txt) 370.22 647.33 T
+(V) 72 635.33 T
+(an Rossum, Guido.) 78.11 635.33 T
+2 F
+(Python/C API Refer) 159.78 635.33 T
+(ence Manual.) 239.4 635.33 T
+1 F
+(  Reston, V) 293.83 635.33 T
+(ir) 338.23 635.33 T
+(ginia: Corporation for National Research Initia-) 344.16 635.33 T
+(ti) 90 623.33 T
+(v) 95.31 623.33 T
+(es, December 31, 1997.) 100.16 623.33 T
+(W) 72 611.33 T
+(eise,) 80.64 611.33 T
+(D.,) 101.15 611.33 T
+(Cre) 115.84 611.33 T
+(w) 130.03 611.33 T
+(R.,) 139.71 611.33 T
+(Ernst,) 153.84 611.33 T
+(M.,) 179.91 611.33 T
+(and) 196.27 611.33 T
+(Steensguard,) 213.17 611.33 T
+(B.) 267.01 611.33 T
+(\322V) 281.11 611.33 T
+(alue) 291.66 611.33 T
+(Dependence) 310.78 611.33 T
+(Graphs:) 362.67 611.33 T
+(Representation) 396.79 611.33 T
+(W) 459.24 611.33 T
+(ithout) 468.28 611.33 T
+(T) 494.08 611.33 T
+(axation.) 499.39 611.33 T
+(\323) 530.63 611.33 T
+(In) 90 599.33 T
+2 F
+(Principles of Pr) 100.83 599.33 T
+(o) 164.27 599.33 T
+(gr) 169.17 599.33 T
+(amming Langua) 177.91 599.33 T
+(g) 243.09 599.33 T
+(es) 247.99 599.33 T
+1 F
+(, pages 297-310.  Portland, Ore) 256.32 599.33 T
+(gon: A) 381.15 599.33 T
+(CM Press, January 1994.) 408.25 599.33 T
+0 12 Q
+(9.) 72 574 T
+(Benchmark Data) 99 574 T
+(T) 171.55 550 T
+(able 1: Results of while_test benchmark in seconds.) 178.45 550 T
+0 10 Q
+(System) 103.53 525.33 T
+(A) 195.18 525.33 T
+(v) 201.4 525.33 T
+(erage) 206.3 525.33 T
+(Maximum) 283.78 525.33 T
+(Minimum) 378.21 525.33 T
+(i) 491.81 525.33 T
+1 9 Q
+(PyFront) 78 504 T
+(0.000151) 171.6 504 T
+(0.000237) 265.2 504 T
+(0.000140) 358.8 504 T
+(100) 452.4 504 T
+(Python) 78 485 T
+(0.000299) 171.6 485 T
+(0.000327) 265.2 485 T
+(0.000295) 358.8 485 T
+(PyFront) 78 466 T
+(0.003176) 171.6 466 T
+(0.020530) 265.2 466 T
+(0.001099) 358.8 466 T
+(1000) 452.4 466 T
+(Python) 78 447 T
+(0.003690) 171.6 447 T
+(0.012221) 265.2 447 T
+(0.002732) 358.8 447 T
+(PyFront) 78 428 T
+(0.010875) 171.6 428 T
+(0.011622) 265.2 428 T
+(0.010723) 358.8 428 T
+(10000) 452.4 428 T
+(Python) 78 409 T
+(0.027499) 171.6 409 T
+(0.028712) 265.2 409 T
+(0.027156) 358.8 409 T
+(PyFront) 78 390 T
+(0.108263) 171.6 390 T
+(0.110256) 265.2 390 T
+(0.106739) 358.8 390 T
+(100000) 452.4 390 T
+(Python) 78 371 T
+(0.276231) 171.6 371 T
+(0.282810) 265.2 371 T
+(0.273740) 358.8 371 T
+(PyFront) 78 352 T
+(1.081822) 171.6 352 T
+(1.089260) 265.2 352 T
+(1.078540) 358.8 352 T
+(1000000) 452.4 352 T
+(\050not illustrated.\051) 452.4 341 T
+(Python) 78 333 T
+(2.755389) 171.6 333 T
+(2.828164) 265.2 333 T
+(2.744902) 358.8 333 T
+0 12 Q
+(T) 177.71 306 T
+(able 2: Results of f) 184.61 306 T
+(or_test benchmark in seconds.) 278.96 306 T
+0 10 Q
+(System) 103.53 281.33 T
+(A) 195.18 281.33 T
+(v) 201.4 281.33 T
+(erage) 206.3 281.33 T
+(Maximum) 283.78 281.33 T
+(Minimum) 378.21 281.33 T
+(i) 491.81 281.33 T
+1 9 Q
+(PyFront) 78 260 T
+(0.000257) 171.6 260 T
+(0.000444) 265.2 260 T
+(0.000234) 358.8 260 T
+(100) 452.4 260 T
+(Python) 78 241 T
+(0.000330) 171.6 241 T
+(0.000358) 265.2 241 T
+(0.000326) 358.8 241 T
+(PyFront) 78 222 T
+(0.002122) 171.6 222 T
+(0.002833) 265.2 222 T
+(0.002020) 358.8 222 T
+(1000) 452.4 222 T
+(Python) 78 203 T
+(0.003060) 171.6 203 T
+(0.003086) 265.2 203 T
+(0.003050) 358.8 203 T
+(PyFront) 78 184 T
+(0.022115) 171.6 184 T
+(0.040743) 265.2 184 T
+(0.019935) 358.8 184 T
+(10000) 452.4 184 T
+(Python) 78 165 T
+(0.030748) 171.6 165 T
+(0.031951) 265.2 165 T
+(0.030324) 358.8 165 T
+(PyFront) 78 146 T
+(0.203508) 171.6 146 T
+(0.213573) 265.2 146 T
+(0.200051) 358.8 146 T
+(100000) 452.4 146 T
+(Python) 78 127 T
+(0.307384) 171.6 127 T
+(0.309501) 265.2 127 T
+(0.305754) 358.8 127 T
+(PyFront) 78 108 T
+(2.019005) 171.6 108 T
+(2.026224) 265.2 108 T
+(2.012978) 358.8 108 T
+(1000000) 452.4 108 T
+(\050not illustrated.\051) 452.4 97 T
+(Python) 78 89 T
+(3.079594) 171.6 89 T
+(3.130966) 265.2 89 T
+(3.067530) 358.8 89 T
+72 539.75 72 326.25 2 L
+V
+N
+165.6 540.25 165.6 325.75 2 L
+V
+N
+259.2 540.25 259.2 325.75 2 L
+V
+N
+352.8 540.25 352.8 325.75 2 L
+V
+N
+446.4 540.25 446.4 325.75 2 L
+V
+N
+540 539.75 540 326.25 2 L
+V
+N
+71.75 540 540.25 540 2 L
+V
+N
+71.75 516 540.25 516 2 L
+V
+N
+71.75 497 446.65 497 2 L
+V
+N
+71.75 478 540.25 478 2 L
+V
+N
+71.75 459 446.65 459 2 L
+V
+N
+71.75 440 540.25 440 2 L
+V
+N
+71.75 421 446.65 421 2 L
+V
+N
+71.75 402 540.25 402 2 L
+V
+N
+71.75 383 446.65 383 2 L
+V
+N
+71.75 364 540.25 364 2 L
+V
+N
+71.75 345 446.65 345 2 L
+V
+N
+71.75 326 540.25 326 2 L
+V
+N
+72 295.75 72 82.25 2 L
+V
+N
+165.6 296.25 165.6 81.75 2 L
+V
+N
+259.2 296.25 259.2 81.75 2 L
+V
+N
+352.8 296.25 352.8 81.75 2 L
+V
+N
+446.4 296.25 446.4 81.75 2 L
+V
+N
+540 295.75 540 82.25 2 L
+V
+N
+71.75 296 540.25 296 2 L
+V
+N
+71.75 272 540.25 272 2 L
+V
+N
+71.75 253 446.65 253 2 L
+V
+N
+71.75 234 540.25 234 2 L
+V
+N
+71.75 215 446.65 215 2 L
+V
+N
+71.75 196 540.25 196 2 L
+V
+N
+71.75 177 446.65 177 2 L
+V
+N
+71.75 158 540.25 158 2 L
+V
+N
+71.75 139 446.65 139 2 L
+V
+N
+71.75 120 540.25 120 2 L
+V
+N
+71.75 101 446.65 101 2 L
+V
+N
+71.75 82 540.25 82 2 L
+V
+N
+FMENDPAGE
+%%EndPage: "11" 11
+%%Page: "12" 12
+612 792 0 FMBEGINPAGE
+0 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 1 K
+0 12 Q
+0 X
+(T) 161.79 712 T
+(able 3: Results of r) 168.69 712 T
+(ecursi) 264.46 712 T
+(v) 295 712 T
+(e_test benchmark in seconds.) 300.88 712 T
+0 10 Q
+(System) 103.53 687.33 T
+(A) 195.18 687.33 T
+(v) 201.4 687.33 T
+(erage) 206.3 687.33 T
+(Maximum) 283.78 687.33 T
+(Minimum) 378.21 687.33 T
+(i) 491.81 687.33 T
+1 9 Q
+(PyFront) 78 666 T
+(0.002010) 171.6 666 T
+(0.002934) 265.2 666 T
+(0.001886) 358.8 666 T
+(100) 452.4 666 T
+(Python) 78 647 T
+(0.000949) 171.6 647 T
+(0.001040) 265.2 647 T
+(0.000936) 358.8 647 T
+(PyFront) 78 628 T
+(0.034421) 171.6 628 T
+(0.049501) 265.2 628 T
+(0.031700) 358.8 628 T
+(1000) 452.4 628 T
+(Python) 78 609 T
+(0.013491) 171.6 609 T
+(0.015399) 265.2 609 T
+(0.013080) 358.8 609 T
+(PyFront) 78 590 T
+(0.078262) 171.6 590 T
+(0.080017) 265.2 590 T
+(0.076403) 358.8 590 T
+(2000) 452.4 590 T
+(Python) 78 571 T
+(0.031356) 171.6 571 T
+(0.033385) 265.2 571 T
+(0.030542) 358.8 571 T
+(PyFront) 78 552 T
+(0.177236) 171.6 552 T
+(0.188143) 265.2 552 T
+(0.171520) 358.8 552 T
+(4000) 452.4 552 T
+(Python) 78 533 T
+(0.075773) 171.6 533 T
+(0.080134) 265.2 533 T
+(0.072615) 358.8 533 T
+72 701.75 72 526.25 2 L
+V
+0.5 H
+0 Z
+N
+165.6 702.25 165.6 525.75 2 L
+V
+N
+259.2 702.25 259.2 525.75 2 L
+V
+N
+352.8 702.25 352.8 525.75 2 L
+V
+N
+446.4 702.25 446.4 525.75 2 L
+V
+N
+540 701.75 540 526.25 2 L
+V
+N
+71.75 702 540.25 702 2 L
+V
+N
+71.75 678 540.25 678 2 L
+V
+N
+71.75 659 446.65 659 2 L
+V
+N
+71.75 640 540.25 640 2 L
+V
+N
+71.75 621 446.65 621 2 L
+V
+N
+71.75 602 540.25 602 2 L
+V
+N
+71.75 583 446.65 583 2 L
+V
+N
+71.75 564 540.25 564 2 L
+V
+N
+71.75 545 446.65 545 2 L
+V
+N
+71.75 526 540.25 526 2 L
+V
+N
+FMENDPAGE
+%%EndPage: "12" 12
+%%Trailer
+FMENDDOCUMENT
+%%BoundingBox: 0 0 612 792
+%%PageOrder: Ascend
+%%Pages: 12
+%%DocumentFonts: Times-Bold
+%%+ Times-Roman
+%%+ Times-Italic
+%%+ Courier
+%%+ Times-BoldItalic
+%%+ Courier-Oblique
+%%+ Courier-Bold
+%%DocumentNeedsFonts: Times-Bold
+%%+ Times-Roman
+%%+ Times-Italic
+%%+ Courier
+%%+ Times-BoldItalic
+%%+ Courier-Oblique
+%%+ Courier-Bold
+%%DocumentSuppliedFonts:
+%%EOF

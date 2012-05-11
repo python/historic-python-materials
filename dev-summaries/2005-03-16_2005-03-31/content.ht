@@ -1,0 +1,247 @@
+Title: python-dev Summary for 2005-03-16 through 2005-03-31
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2005-03-16 through 2005-03-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-03-16_2005-03-31.html]
+
+
+
+=====================
+Summary Announcements
+=====================
+
+---------------
+My last summary
+---------------
+So, after nearly 2.5 years, this is my final python-dev Summary.  Steve Bethard, Tim Lesher, and Tony Meyer will be taking over for me starting with the April 1 - April 15 summary (and no, this is not an elaborate April Fool's).  I have learned a ton during my time doing the Summaries and I appreciate python-dev allowing me to do them all this time.  Hopefully I will be able to contribute more now in a programming capacity thanks to having more free time.
+
+--------------------
+PyCon was fantastic!
+--------------------
+For those of you who missed PyCon, you missed a great one!  It is actually my favorite PyCon to date.  Already looking forward to next year.
+
+--------------------
+Python fireside chat
+--------------------
+Scott David Daniels requested a short little blurb from me expounding on my thoughts on Python.  Not one to pass on an opportunity to just open myself and possibly shoot myself in the foot, I figured I would take up the idea.  So here we go...
+
+First, I suspect Python 3000 stuff will start to make its way into Python.  Stuff that doesn't break backwards compatibility will most likely start to be implemented as we head toward the Python 2.9 barrier (Guido has stated several times that there will never be a Python 2.10).  Things that are not backwards-compatible will most likely end up being hashed out in various PEPs.  All of this will allow the features in Python 3000 to be worked in over time so there is not a huge culture shock.
+
+As for things behind the scenes, work on the back-end will move forward.  Guido himself has suggested that JIT work should be looked into (according to an interview at http://www.devsource.com/article2/0,1759,1778272,00.asp).  I know I plan to fiddle with the back-end to see if the compiler can be made to do more work.
+
+Otherwise I expect changes to be made, flame wars to come and go, and for someone else to write the python-dev Summaries.  =)
+
+
+=========
+Summaries
+=========
+
+----------------
+Python 2.4.1 out
+----------------
+Anthony Baxter, on behalf of python-dev, has released `Python 2.4.1`_.
+
+.. _Python 2.4.1: http://www.python.org/2.4.1/
+
+Contributing threads:
+  - `RELEASED Python 2.4.1, release candidate 1 <http://mail.python.org/pipermail/python-dev/2005-March/051992.html>`__
+  - `RELEASED Python 2.4.1, release candidate 2 <http://mail.python.org/pipermail/python-dev/2005-March/052270.html>`__
+  - `BRANCH FREEZE for 2.4.1 final, 2005-03-30 00:00 UTC <http://mail.python.org/pipermail/python-dev/2005-March/052444.html>`__
+  - `RELEASED Python 2.4.1 (final) <http://mail.python.org/pipermail/python-dev/2005-March/052467.html>`__
+
+
+-----------------
+AST branch update
+-----------------
+I, along with some other people, sprinted on the `AST branch`_ at PyCon.  This led to a much more fleshed out design document (found in Python/`compile.txt`_ in the AST branch), the ability to build on Windows, and applying Nick Coghlan's fix for hex numbers.
+
+Nick also did some more patch work and asked how AST work should be tagged.  There is now an AST category on SourceForge that people should use to flag things as for the AST.  They should also, by default, assign such items to me ("bcannon" on SF).  We have also taken to flagging threads on the AST with "[AST]" as the first item in the subject line.
+
+There was also a slight discussion/clarification on the functions named marshal_write_*() that output a byte format for the AST that is supposed to be agnostic of implementation.  This will most likely end up being used as the way to pass AST objects back and forth between C and Python code.  But with the name collision of the word "marshal" with the actual 'marshal' module, it needs to be changed.  I have suggested
+
+- byte_encode
+- linear_form
+- zephyr_encoding
+- flat_form
+- flat_prefix
+- prefix_form
+
+while Nick Coghlan suggsted
+
+- linear_ast
+- bytestream_ast
+
+Obviously I prefer "form" and Nick prefers "ast".  With Nick's reply being independent of mine it will most likely have "linear" or "byte" in the name.
+
+With the patches for descriptors and generator expressions sitting on SF, syntactic support for all of Python 2.4 should get applied shortly.  After that it will come down to bug hunting and such.  There is a todo list in the design doc for those interested in helping out.
+
+.. _AST branch: http://cvs.sourceforge.net/viewcvs.py/python/python/dist/src/Python/?only_with_tag=ast-branch
+.. _compile.txt: http://cvs.sourceforge.net/viewcvs.py/python/python/dist/src/Python/Attic/compile.txt?rev=1.1.2.10&only_with_tag=ast-branch&view=markup
+
+Contributing threads:
+  - `Procedure for AST Branch patches <http://mail.python.org/pipermail/python-dev/2005-March/052308.html>`__
+  - `[AST] A somewhat less trivial patch than the last one. . . <http://mail.python.org/pipermail/python-dev/2005-March/052336.html>`__
+  - `[AST] question about marshal_write_*() fxns <http://mail.python.org/pipermail/python-dev/2005-March/052340.html>`__
+
+
+-------------------------------------------------------
+Putting docstrings before function declarations is ugly
+-------------------------------------------------------
+The idea of moving docstrings before a 'def' was proposed, making it like most other practices in other languages.  But very quickly people spoke up against the suggestion.  A main argument was people just like the current way much better.  I personally like the style so much that even in my C code I put the comment for all functions after the first curly brace, indented to match the flow of code.
+
+There was also an issue of ambiguity.  How do you tell where the docstring for a module is when there is a function definition with a comment right after?::
+
+  """Module doc"""
+
+  """Fxn doc"""
+  def foo(): pass
+
+There is an ambiguity there thanks to constant string concatenation.
+
+In the end no one seemed to like the idea.
+
+Contributing threads:
+  - `docstring before function declaration <http://mail.python.org/pipermail/python-dev/2005-March/052406.html>`__
+
+
+-------------------------------------------
+PyPI improvements thanks to PyCon sprinting
+-------------------------------------------
+Thanks to the hard work of Richard Jones, "Fred Drake, Sean Reifschneider, Martin v. Löwis, Mick Twomey, John Camara, Andy Harrington, Andrew Kuchling, David Goodger and Ian Bicking (with Barry Warsaw in a supporting role)" accordinng to Richard, there are a bunch of new features to PyPI_ (pronounced "pippy" to prevent name clashes with PyPy).  These improvements include using reST_ for descriptions, a new 'upload' feature for Distutils (requires Python 2.5), ability to sign releases using OpenPGP (requires Python 2.5), metadata fields are now expected to be UTF-8 encoded, interface cleanup, and saner URLs for projects (e.g., http://www.python.org/pypi/roundup/0.8.2).
+
+.. _PyPI: http://www.python.org/pypi/
+
+Contributing threads:
+  - `New PyPI broken package editing <http://mail.python.org/pipermail/python-dev/2005-March/052360.html>`__
+  - `Re: python/dist/src/Lib/distutils/command upload.py, 1.3, 1.4 <http://mail.python.org/pipermail/python-dev/2005-March/052362.html>`__
+
+
+-------------------------------
+Decorators for class statements
+-------------------------------
+The desire to have decorators applied to class statements was brought up once again.  Guido quickly responded, though, stating that unless a compelling use case that showed them much more useful than metaclasses it just would not happen.
+
+Contributing threads:
+  - `@decoration of classes <http://mail.python.org/pipermail/python-dev/2005-March/052369.html>`__
+
+
+===============
+Skipped Threads
+===============
++ itertools.walk()
++ Problems with definition of _POSIX_C_SOURCE
++ thread semantics for file objects
+    Assume nothing is thread-safe
++ Draft PEP to make file objects support non-blocking mode.
++ Faster Set.discard() method?
++ __metaclass__ problem
++ Example workaround classes for using Unicode with csv module...
++ Change 'env var BROWSER override' semantics in webbrowser.py
++ bdist_deb checkin comments
++ Python 2.4 | 7.3 The for statement
++ Patch review: all webbrowser.py related patches up to	2005-03-20
++ webbrowser.py: browser >/dev/null 2>&1
++ C API for the bool type?
++ Shorthand for lambda
++ FYI: news items about Burton Report on P-languages
++ using SCons to build Python
++ 64-bit sequence and buffer protocol
++ Pickling instances of nested classes
++ python.org/sf URLs aren't working?
+
+
+
+========
+Epilogue
+========
+
+------------
+Introduction
+------------
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+March 16, 2005 through March 31, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the sixty-first summary written by Brett Cannon (it's been fun).
+
+To contact me, please send email to brett at python.org.  Do *not*
+post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python CVS online, go to
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  I do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow me to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-03-01_2005-03-15.html
+.. _original text file: http://www.python.org/dev/summary/2005-03-16_2005-03-31.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

@@ -1,0 +1,188 @@
+Title: python-dev Summary for 2003-05-16 through 2003-05-31
+Sitemap-ignore: yes
+
+<div class="document" id="python-dev-summary-for-2003-05-16-through-2003-05-31">
+<h1 class="title">python-dev Summary for 2003-05-16 through 2003-05-31</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> from May 16, 2003 through May 31, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have an archived summary of each thread started on the list.  To comment on anything mentioned here, just post to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> or <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join <a class="reference" href="http://www.python.org/dev/">python-dev</a>!</p>
+<p>This is the eighteenth summary written by Brett Cannon (has his own room with a door for the first time in over 22 years).</p>
+<p>All summaries are archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a> (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; its simple and is accepted for <a class="reference" href="http://www.python.org/dev/peps/pep-0012">PEP markup</a>.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is unless it is from the original text file.</p>
+<p>The in-development version of the documentation for Python can be found at <a class="reference" href="http://www.python.org/dev/doc/devel/">http://www.python.org/dev/doc/devel/</a> and should be used when wanting to look up any documentation on something mentioned here.  To view files in the Python CVS online, go to <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/">http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/</a> .</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#summary-announcements" id="id42" name="id42">Summary Announcements</a></li>
+<li><a class="reference" href="#vacation-python-2-2-3-release" id="id43" name="id43">Vacation; Python 2.2.3 release.</a></li>
+<li><a class="reference" href="#c-new-style-classes-and-gc" id="id44" name="id44">C new-style classes and GC</a></li>
+<li><a class="reference" href="#attribute-lookup" id="id45" name="id45">Attribute lookup</a></li>
+<li><a class="reference" href="#introduction" id="id46" name="id46">Introduction</a></li>
+<li><a class="reference" href="#quickies" id="id47" name="id47">Quickies</a></li>
+</ul>
+</div>
+<div class="section" id="summary-announcements">
+<h1><a class="toc-backref" href="#id42" name="summary-announcements">Summary Announcements</a></h1>
+<p>Sorry about the delay for this summary.  I was visiting my mother and that puts me out of my hacking groove.  I also had a roommate move out which means I got to move into his room.  And on top of all of that I just decided where I am going to go for grad school in computer science ( <a class="reference" href="http://www.calpoly.edu/">Cal Poly San Luis Obispo</a> ).  Life just likes to dump everything on you at once, huh?</p>
+</div>
+<div class="section" id="vacation-python-2-2-3-release">
+<h1><a class="toc-backref" href="#id43" name="vacation-python-2-2-3-release"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035642.html">Vacation; Python 2.2.3 release.</a></a></h1>
+<dl>
+<dt>Related threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035796.html">Preparing docs for Python 2.2.3</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035797.html">Python 2.2.3</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035801.html">One other 2.2.3 failure</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035807.html">RELEASED Python 2.2.3c1</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035835.html">_sre changes</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035851.html">Python bug 544473 - bugfix candidate - was it applied?</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035856.html">Plans for Python 2.2.3 final</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035872.html">Python 2.2.3 docs freeze</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035905.html">RELEASED Python 2.2.3 (final)</a></li>
+</ul>
+</dd>
+</dl>
+<p><a class="reference" href="http://www.python.org/2.2.3/">Python 2.2.3</a> has gone out the door!</p>
+</div>
+<div class="section" id="c-new-style-classes-and-gc">
+<h1><a class="toc-backref" href="#id44" name="c-new-style-classes-and-gc"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035661.html">C new-style classes and GC</a></a></h1>
+<p>Jim Fulton updated the tutorial for creating new C types to use new-style classes.  This led to the question of what the right way was for dealing with garbage collection.  In terms of the tp_dealloc slot, having it call obj-&gt;ob_type-&gt;tp_free is best since that works the best when the type is subclassed.</p>
+<p>This also led to a discussion about the magic of PyType_Ready and whether it should do more.  This wonderful function fills in tp_alloc and tp_free if tp_base and tp_bases are empty (they are set appropriately for PyBaseObject which is the C version of object).  What was changed was that now the function does the right thing if the object should be checked for cycles based on settings in tp_flags.</p>
+<p>Paul Moore was worried about the loss of the tutorial for classic types.  The response was that as long as they don't mess with there code it will continue to work, but if they decide to change something they should probably update.  Michael Hudson's Misc/pymemcompat.h file is also helpful since it allows you to use 2.3's memory API but macro-replaces the call with the proper code all the way back to 1.5.2 .  It was suggested adding a Misc/pyapipcompat.h for PyAPI_FUNC, PyAPI_DATA, and PyMODINIT_FUNC.</p>
+</div>
+<div class="section" id="attribute-lookup">
+<h1><a class="toc-backref" href="#id45" name="attribute-lookup"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035730.html">Attribute lookup</a></a></h1>
+<p>For the last summary I asked for the help of python-dev to find out the exact algorithm used to do attribute lookup for new-style classes (I don't care about classic classes since they are sooo 2.1  =).  A bunch of people jumped in and made suggestions, but I am going to steal the explanation from Raymond Hettinger's explanation of descriptors which can be found at <a class="reference" href="http://users.rcn.com/python/download/Descriptor.htm">http://users.rcn.com/python/download/Descriptor.htm</a> .  =)</p>
+<p>The attribute lookup order gives &quot;data descriptors priority over instance variables, instance variables priority over non-data descriptors, and assigns lowest priority to __getattr__ if provided.&quot;  This is all is done by object.__getattribute__ .  If you define your own __getattribute__ none of this is done unless you  explicitly call object's implementation.  You have to worry about calling a descriptor's __get__ method yourself if you decide not to call object.__getattribute__ .</p>
+<p>Raymond's descriptor essay/explanation/(group of words put together in attempt to make a coherent idea which he does) explains the difference between a data descriptor and non-data descriptor, but instead of make you wait I will just tell you.  A data descriptor defines both a __get__ and __set__ method while a non-data descriptor defines only __get__.  This makes sense when you think about non-data-descriptors such as functions.  You have no need to assign to a function so not having a __set__ in no way harms the usage of a function plus it negates the need for any special flag or anything to define the difference between data and non-data descriptors.</p>
+</div>
+<div class="section" id="introduction">
+<h1><a class="toc-backref" href="#id46" name="introduction"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035792.html">Introduction</a></a></h1>
+<dl>
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035864.html">Contracts PEP</a></li>
+</ul>
+</dd>
+</dl>
+<p>What started off as Jeffrey Robert's introducing himself ended up becoming a short howto on how to get involved on python-dev.  It was suggested to work on <a class="reference" href="http://codespeak.net/pypy/index.cgi?home">pyPy</a> (although that is not exactly python-dev but is still cool and you could learn a lot about Python on a more abstract level =).  Multiple people suggested working on bugs and patches.  I specifically suggested looking at patches in development to learn what they were doing to the code's semantics.  Mention of the AST branch and working on that was also brought up.</p>
+<p>Terrence Way then introduced himself and mentioned he had written a PEP about programming with contracts.  It led to, in the end, Guido saying that he wanted to wait and let more implementations get out there and be weeded out before he started pronouncing on PEPs on the subject.</p>
+</div>
+<div class="section" id="quickies">
+<h1><a class="toc-backref" href="#id47" name="quickies">Quickies</a></h1>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035655.html">test_urllibnet failing on Windows</a></dt>
+<dd>os.fdopen does not work with sockets under Windows when fetching its argument from fileno .</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035660.html">[development doc updates]</a></dt>
+<dd>Here is a simple intelligence test: what do you think this email was about based on its subject?  Get it right and you earned yourself a lollipop (on your own dime).</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035669.html">test_time fails with current CVS</a></dt>
+<dd>A bug report has been filed.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035676.html">a strange case</a></dt>
+<dd><dl class="first">
+<dt>Splinter threads:</dt>
+<dd><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035731.html">Unifying modules and classes?</a></dd>
+</dl>
+<p class="last">Apparently the 2.2.x branch allows you to subclass a module.  This has been fixed in 2.3 .  And once again Guido stated that erasing the line separating classes and modules is not going to happen while his benevolently dictating body still has air in it (okay, he didn't say it that way, but I am sure he wouldn't object to a little artistic license to get his point across =).  But if you really feel the need to have a module be a class just stick an instance in sys.modules; just don't expect everything to play well with it, though.</p>
+</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035699.html">test_bsddb185 failing under OS X</a></dt>
+<dd>Tests were failing for me under OS X.  After Skip Montanaro and I independently came up with a better way for the test to clean up after itself the tests passed from some odd reason.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035701.html">Need advice, maybe support</a></dt>
+<dd>Christian Tismer was given two bits in tp_flags for <a class="reference" href="http://www.stackless.com/">Stackless</a> to create Stackless-aware types that can identify recursive, indirect function calls in C.  The two bits will greatly simplify the implementation of Stackless 3.0.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035713.html">[Python-Dev] SF oddity</a></dt>
+<dd>Remember folks, look out for horizontal scroll bars along with vertical ones.</dd>
+</dl>
+<dl>
+<dt>Weekly Python Bug/Patch Summary</dt>
+<dd><ul class="first last simple">
+<li>Ending on <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035716.html">2003-05-18</a></li>
+<li>Ending on <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035834.html">2003-05-25</a></li>
+</ul>
+</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035718.html">doctest extensions</a></dt>
+<dd>Jim Fulton came up with some possible additions for doctest.  You can see them at <a class="reference" href="http://cvs.zope.org/Zope3/src/zope/testing/doctestunit.py?rev=HEAD&amp;content-type=text/vnd.viewcvs-markup">http://cvs.zope.org/Zope3/src/zope/testing/doctestunit.py?rev=HEAD&amp;content-type=text/vnd.viewcvs-markup</a> .  If you would like to see them added then speak up.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035500.html">+= on return of function call result</a></dt>
+<dd>This is a continuation from <a class="reference" href="http://www.python.org/dev/summary/2003-05-01_2003-05-15.html">last summary</a>.
+Samuele Pedroni wrote a simple function that simulates what was originally desired.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035727.html">Using emacs' unexec to speed Python startup</a></dt>
+<dd><dl class="first">
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035769.html">portable undumper in xemacs</a></li>
+</ul>
+</dd>
+</dl>
+<p class="last">Some people tried  to speed up loading Python for <a class="reference" href="http://www.gnu.org/software/emacs/emacs.html">some editor</a> when what they should have been doing is learning how to use a <a class="reference" href="http://www.vim.org/">better editor</a>.  =)</p>
+</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035747.html">[debian build error]</a></dt>
+<dd>Some issue with using Debian packages and Python 2.2 with gcc 3.3 and libstdc++5.  A Debian bug report has been filed.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035764.html">urllib2 proxy support broken?</a></dt>
+<dd>Yes, but Gustavo Niemeyer found the bug and came up with a patch.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035773.html">Python Run-Time System and Extensions</a></dt>
+<dd>Daniel Silva is writing a compiler for Python to <a class="reference" href="http://www.plt-scheme.org/">PLT Scheme</a> code.  He asked for suggestions on which of two ways to go for being able to run C extension code.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035788.html">Descriptor API</a></dt>
+<dd>We all learned what the difference is between a data and non_data descriptor (which you can know too by reading the summary for <a class="reference" href="#attribute-lookup">Attribute lookup</a> ).</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035799.html">Of what use is commands.getstatus()</a></dt>
+<dd>Guido ended up saying the commmands module should be redesigned, probably put into shutil, and then have the old version deprecated.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035840.html">Change to ossaudiodev setparameters() method</a></dt>
+<dd>Some day Greg Ward will get his ossaudiodev module to work on both Guido's home machine and work machine.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035844.html">RE: Decimal class</a></dt>
+<dd>A Decimal class is currently being worked on in the CVS sandbox.  The question as to whether the values should be immutable was raised.  Everyone agreed that they should be immutable.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035849.html">install debian package</a></dt>
+<dd>python-dev is not the right place to bring up issues with Debian packages.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035873.html">Release question</a></dt>
+<dd>Branches in CVS for Python are pretty much only used for minor versions (the &quot;3&quot; in &quot;2.3.x&quot;).  Since 2.3 is in beta that means no semantic changes to the code.  Any new features must wait for 2.4 development to start which occurs when 2.3 is out the door.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035874.html">Algoritmic Complexity Attack on Python</a></dt>
+<dd>Someone tried to point out that Python was vulnerable to an attack if you naively took in user-supplied keys to a dictionary.  The big lesson is that Python's hash function can change between releases and that it will always be as fast as possible but can still be nailed by worst-case situations.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035890.html">KeyboardInterrupt on Windows</a></dt>
+<dd>An optimization on the JUMP_ABSOLUTE opcode was not dealing with asynchronous exceptions since it was skipping the signal checks in the interpreter loop.  It has been fixed.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035908.html">more-precise instructions for &quot;Python.h first&quot;?</a></dt>
+<dd>David Abrahams didn't like the restriction of having to put Python.h before all other headers in C/C++ code.  The problem is some key macro definitions are set in Python.h that are needed on some platforms.</dd>
+</dl>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="2003-05-16_2003-05-31.txt">View document source</a>.
+Generated on: 2003-06-12 20:32 UTC.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>

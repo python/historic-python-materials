@@ -1,0 +1,396 @@
+Title: python-dev Summary for 2005-10-01 through 2005-10-15
+Content-type: text/x-rst
+Encoding: latin1
+
+python-dev Summary for 2005-10-01 through 2005-10-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-10-01_2005-10-15.html]
+
+
+
+=============
+Announcements
+=============
+
+----------------------------
+QOTF: Quote of the Fortnight
+----------------------------
+
+From Phillip J. Eby:
+
+    So, if threads are "easy" in Python compared to other
+    langauges, it's *because of* the GIL, not in spite of it.
+
+Contributing thread:
+
+- `Pythonic concurrency <http://mail.python.org/pipermail/python-dev/2005-October/057062.html>`__
+
+[SJB]
+
+----------------------------------------
+GCC/G++ Issues on Linux: Patch available
+----------------------------------------
+
+Christoph Ludwig provided the previously `promised patch`_ to address some of the issues in compiling Python with GCC/G++ on Linux.  The patch_ keeps ELF systems like x86 / Linux from having any dependencies on the C++ runtime, and allows systems that require main() to be a C++ function to be configured appropriately.
+
+.. _promised patch: http://www.python.org/dev/summary/2005-07-01_2005-07-15.html#gcc-g-issues-on-linux
+.. _patch: http://python.org/sf/1324762
+
+Contributing thread:
+
+- `[C++-sig] GCC version compatibility <http://mail.python.org/pipermail/python-dev/2005-October/057230.html>`__
+
+[SJB]
+
+=========
+Summaries
+=========
+
+---------------------
+Concurrency in Python
+---------------------
+
+Michael Sparks spent a bit of time descibing the current state and future goals of the Kamaelia_ project.  Mainly, Kamaelia aims to make concurrency as simple and easy to use as possible.  A scheduler manages a set of generators that communicate with each other through Queues.  The long term goals include being able to farm the various generators off into thread or processes as needed, so that whether your concurrency model is cooperative, threaded or process-based, your code can basically look the same.
+
+There was also continued discussion about how "easy" threads are.  Shane Hathaway made the point that it's actually locking that's "insanely difficult", and approaches that simplify how much you need to think about locking can keep threading relatively easy -- this was one of the strong points of ZODB.  A fairly large camp also got behind the claim that threads are easy if you're limited to only message passing.  There were also a few comments about how Python makes threading easier, e.g. through the GIL (see `QOTF: Quote of the Fortnight`_) and through threading.threads's encapsulation of thread-local resources as instance attributes.
+
+.. _Kamaelia: http://kamaelia.sourceforge.ne
+
+Contributing threads:
+
+- `Pythonic concurrency - cooperative MT <http://mail.python.org/pipermail/python-dev/2005-October/056898.html>`__
+- `Pythonic concurrency <http://mail.python.org/pipermail/python-dev/2005-October/057023.html>`__
+
+[SJB]
+
+-------------------------------------
+Organization of modules for threading
+-------------------------------------
+
+A few people took issue with the current organization of the threading modules into Queue, thread and threading.  Guido views Queue as an application of threading, so putting it in the threading module is inappropriate (though with a deeper package structure, it should definitely be a sibling).  Nick Coghlan suggested that Queue should be in a threadtools module (in parallel with itertools), while Skip proposed a hierarchy of modules with thread and lock being in the lowest level one, and Thread and Queue being in the highest level.  Aahz suggested (and Guido approved) deprecating the thread module and renaming it to _thread at least in Python 3.0.  It seems the deprecation may happen sooner though.
+
+Contributing threads:
+
+- `Making Queue.Queue easier to use <http://mail.python.org/pipermail/python-dev/2005-October/057184.html>`__
+- `Autoloading? (Making Queue.Queue easier to use) <http://mail.python.org/pipermail/python-dev/2005-October/057216.html>`__
+- `threadtools (was Re: Autoloading? (Making Queue.Queue easier to use)) <http://mail.python.org/pipermail/python-dev/2005-October/057262.html>`__
+- `Threading and synchronization primitives <http://mail.python.org/pipermail/python-dev/2005-October/057269.html>`__
+
+[SJB]
+
+-------------------------
+Speed of Unicode decoding
+-------------------------
+
+Tony Nelson found that decoding with a codec like mac-roman or iso8859-1 can take around ten times as long as decoding with utf-8.  Walter Dörwald provided a patch_ that implements the mapping using a unicode string of length 256 where undefined characters are mapped to u"\ufffd".  This dropped the decode time for mac-roman to nearly the speed of the utf-8 decoding.  Hye-Shik Chang showed off a fastmap decoder with comparable performance.  In the end, Walter's patch was accepted.
+
+.. patch: http://www.python.org/sf/1313939
+
+Contributing thread:
+
+- `Unicode charmap decoders slow <http://mail.python.org/pipermail/python-dev/2005-October/056958.html>`__
+
+[SJB]
+
+------------------
+Updates to PEP 343
+------------------
+
+Jason Orendorff proposed replacing the __enter__() and __exit__() methods on context managers with a simple __with__() method instead.  While Guido was unconvinced that __enter__() and __exit__() should be dropped, he was convinced that context managers should have a __with__() method in parallel with the __iter__() method for iterators.  There was some talk of special-casing the @contextmanager decorator on the __with__() method, but no conclusion.
+
+Contributing threads:
+
+- `Proposed changes to PEP 343 <http://mail.python.org/pipermail/python-dev/2005-October/057040.html>`__
+- `PEP 343 and __with__ <http://mail.python.org/pipermail/python-dev/2005-October/056931.html>`__
+
+[SJB]
+
+----------------------
+str and unicode issues
+----------------------
+
+Martin Blais wanted to completely disable the implicit conversions between unicode and str, so that you would always be forced to call either .encode() or .decode() to convert between one and the other.  This is already available through adding ``sys.setdefaultencoding('undefined')`` to your sitecustomize.py file, but the suggestion started another long discussion over unicode issues.  Antoine Pitrou suggested that a good rule of thumb is to convert to unicode everything that is semantically textual, and to only use str for what is to be semantically treated as a string of bytes.  Fredrik Lundh argued against this for efficiency reasons -- pure ASCII text would consume more space as a unicode object.
+
+There were suggestions that in Python 3.0, opening files in text mode will require an encoding and produce string objects, while opening files in binary mode will produce bytes objects.  The bytes() type will be a mutable array of bytes, which can be converted to a string object by specifying an encoding.
+
+Contributing threads:
+
+- `Divorcing str and unicode (no more implicit conversions). <http://mail.python.org/pipermail/python-dev/2005-October/056916.html>`__
+- `unifying str and unicode <http://mail.python.org/pipermail/python-dev/2005-October/056934.html>`__
+- `bytes type <http://mail.python.org/pipermail/python-dev/2005-October/056945.html>`__
+
+[SJB]
+
+----------------------------------------------------------------------
+Allowing \*args syntax in tuple unpacking and before keyword arguments
+----------------------------------------------------------------------
+
+Gustavo Niemeyer propsed the oft-seen request for allowing the \*args syntax in tuple unpacking, e.g.::
+
+    for first, second, *rest in iterator:
+
+Guido requested a PEP, saying that he wasn't convinced that there was much of a gain over the already valid::
+
+    for item in iterator:
+        (first, second), rest = item[2:], item[:2]
+
+Greg Ewing and others didn't like Guido's suggestion as it violates DRY (Don't Repeat Yourself).  Others also chimed in with some examples in support of the proposal, but no one has yet put together a PEP.
+
+In a related matter, Guido indicated that he wants to be able to write keyword-only arguments after a \*args, so that you could, for example, write::
+
+    f(a, b, *args, foo=1, bar=2, **kwds)
+
+People seemed almost unanimously in support of this proposal, but, to quote Nick Coghlan, it has still "never bugged anyone enough for them to actaully get around to fixing it".
+
+Contributing thread:
+
+- `Extending tuple unpacking <http://mail.python.org/pipermail/python-dev/2005-October/057056.html>`__
+
+[SJB]
+
+----------
+AST Branch
+----------
+
+Guido gave the AST branch a three week ultimatum: either the branch should be merged into MAIN within the next three weeks, or the branch should be abandoned entirely.  This jump-started work on the branch, and the team was hoping to merge the changes the weekend of October 15th.
+
+Contributing threads:
+
+- `Python 2.5a1, ast-branch and PEP 342 and 343 <http://mail.python.org/pipermail/python-dev/2005-September/056449.html>`__
+- `Python 2.5 and ast-branch <http://mail.python.org/pipermail/python-dev/2005-October/056986.html>`__
+- `AST branch update <http://mail.python.org/pipermail/python-dev/2005-October/057281.html>`__
+
+[SJB]
+
+-----------------------------------
+Allowing "return obj" in generators
+-----------------------------------
+
+Piet Delport suggested having ``return obj`` in generators be translated into ``raise StopIteration(obj)``.  The return value of a generator function would thus be available as the first arg in the StopIteration exception.  Guido asked for some examples to give the idea a better motivation, and felt uncomfortable with the return value being silently ignored in for-loops.  The idea was postponed until at least one release after a PEP 342 implementation enters Python, so that people can have some more experience with coroutines.
+
+Contributing threads:
+
+- `Proposal for 2.5: Returning values from PEP 342 enhanced generators <http://mail.python.org/pipermail/python-dev/2005-October/056957.html>`__
+- `PEP 342 suggestion: start(), __call__() and unwind_call() methods <http://mail.python.org/pipermail/python-dev/2005-October/057042.html>`__
+- `New PEP 342 suggestion: result() and allow &quot;return with arguments&quot; in generators (was Re: PEP 342 suggestion: start(), __call__() and unwind_call() methods) <http://mail.python.org/pipermail/python-dev/2005-October/057116.html>`__
+
+[SJB]
+
+-----------------------------
+API for the line-number table
+-----------------------------
+
+Greg Ewing suggested trying to simplify the line-number table (lnotab) by simply matching each byte-code index with a file and line number.  Phillip J. Eby pointed out that this would make the stdlib take up an extra megabyte, suggesting two tables instead, one matching bytecodes to line numbers, and one matching the first line-number of a chunk with its file.  Michael Hudson suggested that what we really want is an API for accessing the lnotab, so that the implementation that is chosen is less important.  The conversation trailed off without a resolution.
+
+Contributing thread:
+
+- `Simplify lnotab? (AST branch update) <http://mail.python.org/pipermail/python-dev/2005-October/057285.html>`__
+
+[SJB]
+
+------------------------------
+Current directory and sys.path
+------------------------------
+
+A question about the status of `the CurrentVersion registry entry`_ led to a discussion about the different behaviors of sys.path across platforms.  Apparently, on Windows, sys.path includes the current directory and the directory of the script being executed, while on Linux, it only includes the directory of the script.
+
+.. _the CurrentVersion registry entry: http://www.python.org/windows/python/registry.html
+
+Contributing thread:
+
+- `PythonCore\CurrentVersion <http://mail.python.org/pipermail/python-dev/2005-October/057095.html>`__
+
+[SJB]
+
+----------------------------------
+Changing the __class__ of builtins
+----------------------------------
+
+As of Python 2.3, you can no longer change the __class__ of any builtin.  Phillip J. Eby suggested that these rules might be overly strict; modules and other mutable objects could probably reasonably have their __class__s changed.  No one seemed really opposed to the idea, but no one offered up a patch to make the change either.
+
+Contributing thread:
+
+- `Assignment to __class__ of module? (Autoloading? (Making Queue.Queue easier to use)) <http://mail.python.org/pipermail/python-dev/2005-October/057253.html>`__
+
+[SJB]
+
+------------------------------------------
+exec function specification for Python 3.0
+------------------------------------------
+
+In Python 3.0, exec is slated to become a function (instead of a statement).  Currently, the presence of an exec statement in a function can cause some subtle changes since Python has to worry about exec modifying function locals.  Guido suggested that the exec() function could require a namespace, basically dumping the exec-in-local-namespace altogether.  People seemed generally in favor of the proposal, though no official specification was established.
+
+Contributing thread:
+
+- `PEP 3000 and exec <http://mail.python.org/pipermail/python-dev/2005-October/057135.html>`__
+
+[SJB]
+
+------------------------------------
+Adding opcodes to speed up self.attr
+------------------------------------
+
+Phillip J. Eby experimented with adding LOAD_SELF and SELF_ATTR opcodes to improve the speed of object-oriented programming.  This gained about a 5% improvement in pystone, which isn't organized in a very OO manner.  People seemed uncertain as to whether paying the cost of adding two opcodes to gain a 5% speedup was worth it.  No decision had been made at the time of this summary.
+
+Contributing thread:
+
+- `LOAD_SELF and SELF_ATTR opcodes <http://mail.python.org/pipermail/python-dev/2005-October/057321.html>`__
+
+[SJB]
+
+--------------------------------------
+Dropping support for --disable-unicode
+--------------------------------------
+
+Reinhold Birkenfeld tried unsuccessfully to make the test-suite pass with --disable-unicode set.  M.-A. Lemburg suggested that the feature should be ripped out entirely, to simplify the code.  Martin v. Löwis suggested deprecating it to give people a chance to object.  The plan is now to add a note to the configure switch that the feature will be removed in Python 2.6.
+
+Contributing threads:
+
+- `Tests and unicode <http://mail.python.org/pipermail/python-dev/2005-October/056897.html>`__
+- `--disable-unicode (Tests and unicode) <http://mail.python.org/pipermail/python-dev/2005-October/056920.html>`__
+
+[SJB]
+
+-----------------------------------------
+Bug in __getitem__ inheritance at C level
+-----------------------------------------
+
+Travis Oliphant discovered that the addition of the mp_item and sq_item descriptors and the resolution of any comptetion for __getitem__ calls is done  *before*  the inheritance of any slots takes place.  This means that if you create a type in C that supports the sequence protocol, and tries to inherit the mapping protocol from a parent C type which does not support the sequence protocol, __getitem__ will point to the parent type's __getitem__ instead of the child type's __getitem__.  This seemed like more of a bug than a feature, so the behavior may be changed in future Pythons.
+
+Contributing thread:
+
+- `Why does __getitem__ slot of builtin call sequence methods first? <http://mail.python.org/pipermail/python-dev/2005-October/056901.html>`__
+
+[SJB]
+
+================
+Deferred Threads
+================
+
+- `Early PEP draft (For Python 3000?) <http://mail.python.org/pipermail/python-dev/2005-October/057251.html>`__
+- `Pythonic concurrency - offtopic <http://mail.python.org/pipermail/python-dev/2005-October/057294.html>`__
+
+===============
+Skipped Threads
+===============
+
+- `PEP 350: Codetags <http://mail.python.org/pipermail/python-dev/2005-October/056894.html>`__
+- `Active Objects in Python <http://mail.python.org/pipermail/python-dev/2005-October/056896.html>`__
+- `IDLE development <http://mail.python.org/pipermail/python-dev/2005-October/056907.html>`__
+- `Help needed with MSI permissions <http://mail.python.org/pipermail/python-dev/2005-October/056908.html>`__
+- `C API doc fix <http://mail.python.org/pipermail/python-dev/2005-October/056910.html>`__
+- `Static builds on Windows (continued) <http://mail.python.org/pipermail/python-dev/2005-October/056976.html>`__
+- `Removing the block stack (was Re: PEP 343 and __with__) <http://mail.python.org/pipermail/python-dev/2005-October/057001.html>`__
+- `Removing the block stack <http://mail.python.org/pipermail/python-dev/2005-October/057008.html>`__
+- `Lexical analysis and NEWLINE tokens <http://mail.python.org/pipermail/python-dev/2005-October/057014.html>`__
+- `PyObject_Init documentation <http://mail.python.org/pipermail/python-dev/2005-October/057039.html>`__
+- `Sourceforge CVS access <http://mail.python.org/pipermail/python-dev/2005-October/057051.html>`__
+- `__doc__ behavior in class definitions <http://mail.python.org/pipermail/python-dev/2005-October/057066.html>`__
+- `Sandboxed Threads in Python <http://mail.python.org/pipermail/python-dev/2005-October/057082.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-October/057092.html>`__
+- `test_cmd_line failure on Kubuntu 5.10 with GCC 4.0 <http://mail.python.org/pipermail/python-dev/2005-October/057094.html>`__
+- `defaultproperty (was: Re: RFC: readproperty) <http://mail.python.org/pipermail/python-dev/2005-October/057120.html>`__
+- `async IO and helper threads <http://mail.python.org/pipermail/python-dev/2005-October/057121.html>`__
+- `defaultproperty <http://mail.python.org/pipermail/python-dev/2005-October/057129.html>`__
+- `Fwd: defaultproperty <http://mail.python.org/pipermail/python-dev/2005-October/057131.html>`__
+- `C.E.R. Thoughts <http://mail.python.org/pipermail/python-dev/2005-October/057137.html>`__
+- `problem with genexp <http://mail.python.org/pipermail/python-dev/2005-October/057175.html>`__
+- `Python-Dev Digest, Vol 27, Issue 44 <http://mail.python.org/pipermail/python-dev/2005-October/057207.html>`__
+- `Europeans attention please! <http://mail.python.org/pipermail/python-dev/2005-October/057233.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+October 01, 2005 through October 15, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the 5th summary written by the python-dev summary taskforce of
+Steve Bethard and Tony Meyer (thanks Steve!).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/trunk/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  We do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow us to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-09-01_2005-09-15.html
+.. _original text file: http://www.python.org/dev/summary/2005-10-01_2005-10-15.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

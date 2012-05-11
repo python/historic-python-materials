@@ -1,0 +1,192 @@
+Title: Python-dev summary: 2000-07-01 to 2000-07-15
+
+<pre>
+This is a first experiment in whether I can make a useful,
+interesting, somewhat coherent summary of python-dev activity.  
+If reaction is favorable, and time permits, it may become a biweekly 
+posting.
+
+--amk
+
+==================
+
+
+
+The 2-week period started with reactions to Guido's June 30
+announcement that the 2.0b1 release would be delayed for an indefinite
+period due to legal wrangling.  This gave everyone a second chance to
+contribute more patches while waiting for the release, and the
+activity level remained high.  Two dominant issues for this time
+period were Unicode-related issues, and list comprehensions.
+
+The Unicode issues, as usual, turned on the question of where strings
+and Unicode strings should be interchangeable.  A discussion in the
+thread "Minidom and Unicode" considered whether it's legal to return a
+Unicode string from __repr__.  The consensus was that it should be
+legal, despite fears of breaking code that expects only an 8-bit
+string, and the CVS tree was patched accordingly.  Python's
+interpreter mode uses repr() to display the results of expressions,
+and it will convert Unicode strings to ASCII, using the unicode-escape
+encoding.  The following code, typed into the interpreter, will print
+'abc\u3456'.
+
+class C:
+    def __repr__(self): return u'abc\u3456'
+print repr( C() )
+
+Hashing also presented a problem.  As M.-A. Lemburg explained in 
+<a href="http://www.python.org/pipermail/python-dev/2000-July/006843.html">http://www.python.org/pipermail/python-dev/2000-July/006843.html</a>:
+
+	The problem comes from the fact that the default encoding can
+	be changed to a locale specific value (site.py does the lookup
+	for you), e.g.  given you have defined LANG to be us_en,
+	Python will default to Latin-1 as default encoding.
+
+	This results in 'הצü' == u'הצü', but hash('הצü') !=
+	hash(u'הצü'), which is in conflict with the general rule about
+	objects having the same hash value if they compare equal.
+
+The resolution seems to be simply removing the ability to change the
+default encoding and adopt ASCII as the fixed default; if you want to
+use other encodings, you must specify them explicitly.
+
+List comprehensions originated as a patch from Greg Ewing that's now
+being kept up-to-date versus the CVS tree by Skip Montanaro.
+Originally they weren't on the roadmap for 1.6, but with the greater
+version number jump to 2.0, GvR is more willing to incorporate larger
+changes.  Augmented assignment, as in 'a += 1', and range literals,
+so [0:10] is the same as range(10), may also make their way into 2.0.
+
+List comprehensions provide a more concise way to create lists in
+situations where map() and filter() would currently be used.  To take
+some examples from the patched-for-list-comprehensions version of the
+Python Tutorial:
+
+&gt;&gt;&gt; spcs = ["  Apple", " Banana ", "Coco  nut  "]
+&gt;&gt;&gt; print [s.strip() for s in spcs]
+['Apple', 'Banana', 'Coco  nut']
+&gt;&gt;&gt; vec1 = [2, 4, 6]
+&gt;&gt;&gt; vec2 = [4, 3, -9]
+&gt;&gt;&gt; print [x*y for x in vec1 for y in vec2]
+[8, 6, -18, 16, 12, -36, 24, 18, -54]
+
+A lengthy subthread about intuitiveness sprang from the second example, and
+from a patch from Thomas Wouters that implements parallel 'for' loops.  The
+patch makes "for x in [1,2]; y in ['a','b']" cause x,y to be 1,'a', and then
+2,'b'.  The thread circulated around whether people would expect this syntax
+to produce the Cartesian product of the two lists: (1,'a'), (1, 'b'), (2,
+'a'), (2, 'b').  No clear answer or final syntax has emerged yet, though GvR
+seems to be leaning toward adding new built-ins such as zip() instead of new
+syntax. Greg Wilson has been trying out syntaxes on Python-unaware people
+and asking them what they'd expect:
+    <a href="http://www.python.org/pipermail/python-dev/2000-July/006427.html">http://www.python.org/pipermail/python-dev/2000-July/006427.html</a>
+
+The alternative to new syntax is to add a new built-in function for parallel
+'for' loops, so you would code 'for x,y in zip([1,2], ['a','b']):'.  A
+lengthy and very dull discussion ensued about the name 'zip': should it be
+'plait', 'knit', 'parallel', or even 'marry'?
+
+Some new procedures for Python development were set out:  Tim Peters 
+wrote some guidelines for using SourceForge's patch manager:
+      <a href="http://www.python.org/pipermail/python-dev/2000-July/005923.html">http://www.python.org/pipermail/python-dev/2000-July/005923.html</a>
+
+Barry Warsaw announced a series of Python Extension Proposal (PEP)
+documents, which will play the role of RFCs for significant changes to
+Python:
+     <a href="http://www.python.org/pipermail/python-dev/2000-July/006347.html">http://www.python.org/pipermail/python-dev/2000-July/006347.html</a>
+
+Mark Hammond gave the first glimpse of a fourth Python implementation:
+"This new compiler could be compared, conceptually, with JPython - it
+is a completely new implementation of Python.  It has a compiler that
+generates native Windows .DLL/.EXE files.  It uses a runtime that
+consists of a few thousand lines of C# (C-Sharp) code.  The Python
+programs can be debugged at the source level with Visual Studio 7, as
+well as stand-alone debuggers for this environment.  Python can
+sub-class VB or C# classes, and vice-versa."
+      <a href="http://www.python.org/pipermail/python-dev/2000-July/006307.html">http://www.python.org/pipermail/python-dev/2000-July/006307.html</a>
+
+Other bits:
+
+Skip Montanaro experimented with using code coverage tools to measure
+the effectiveness of the Python test suite, by seeing which lines of
+code (both C and Python) that are exercised by the tests.  
+Start browsing at:
+    <a href="http://www.musi-cal.com/~skip/python/Python/dist/src/">http://www.musi-cal.com/~skip/python/Python/dist/src/</a>
+
+Skip also added support to the readline module for saving and loading
+command histories.
+
+ESR suggested adding a standard lexer to the core, and /F suggested an
+extension to regular expressions that would make them more useful for 
+tokenizing:
+	<a href="http://www.python.org/pipermail/python-dev/2000-July/005320.html">http://www.python.org/pipermail/python-dev/2000-July/005320.html</a>
+
+CVS problems were briefly a distraction, with dangling locks
+preventing commits to the Lib/ and Modules/ subdirectories for a few
+days.  Despite such glitches, the move to SourceForge has accelerated
+development overall, as more people can make check-ins and review
+them.
+
+For some time Tim Peters has been suggesting removing the Py_PROTO
+macro and making the sources require ANSI C; mostly this is because
+the macro breaks the C cross-referencing support in Tim's editor.  :)
+The ball finally started rolling on this, and snowballed into a
+massive set of patches to use ANSI C prototypes everywhere.  Fred
+Drake and Peter Schneider-Kamp rose to the occasion and edited the
+prototypes in dozens of files.
+
+Jeremy Hylton pointed out that "Tuple, List, String, and Dict have a
+Py*_Size method.  The abstract object interface uses
+PySequence_Length.  This is inconsistent and hard to remember," and
+suggested that *_Size be made the standard form, and *_Length will be
+deprecated.
+
+Just before the cutoff date, Paul Prescod proposed a new help()
+function for interactive use, and began implementing it:
+     <a href="http://www.python.org/pipermail/python-dev/2000-July/006634.html">http://www.python.org/pipermail/python-dev/2000-July/006634.html</a>
+
+Huaiyu Zhu suggested adding new operators to support matrix math:
+    <a href="http://www.python.org/pipermail/python-dev/2000-July/006652.html">http://www.python.org/pipermail/python-dev/2000-July/006652.html</a>
+
+A slew of minor patches and bugfixes were made, too.  Some highlights:
+  * Ka-Ping Yee improved the syntax error messages.
+  * ESR made various changes to ConfigParser.py
+  * Some of Sam Rushing's patches from Medusa were applied to add
+  os.setreuid() and friends; AMK is working on adding the poll()
+  system call.  
+  * /F was his usual "patching machine" self, integrating PythonWin's
+  win32popen function so that os.popen will now work correctly on
+  Windows as well as Unix, writing PyErr_SafeFormat() to prevent
+  buffer overflows, and proposing some patches to reduce the 600K size
+  of the Unicode character database.
+
+Some fun posts came up during the near-endless zip()/plait()/whatever
+naming thread:
+
+<a href="http://www.python.org/pipermail/python-dev/2000-July/006208.html:">http://www.python.org/pipermail/python-dev/2000-July/006208.html:</a>
+
+       "BTW: How comes, that Ping very often invents or introduces very
+       clever ideas and concepts, but also very often chooses unclear
+       names for them?  Is it just me not being a native english
+       speaker?"
+
+       "I don't know.  Perhaps my florx bignal zupkin isn't very
+       moognacious?"
+
+       -- Peter Funk and Ka-Ping Yee, 12 Jul 2000
+
+<a href="http://www.python.org/pipermail/python-dev/2000-July/006338.html">http://www.python.org/pipermail/python-dev/2000-July/006338.html</a>,
+while everyone was trying to think up alternative names for zip():
+
+	"Let me throw one more out, in honor of our fearless leader's
+	recent life change: marry().  Usually only done in pairs, and
+	with two big sequences, I get the image of a big Unification
+	Church event :)"
+
+	"Isn't it somewhat of a political statement to allow marriages
+	of three or more items? I always presumed that this function
+	was n-ary, like map."
+
+	-- Barry Warsaw and Paul Prescod
+
+</pre>

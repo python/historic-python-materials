@@ -1,0 +1,406 @@
+Binding Python to C++
+=====================
+
+(Guido van Rossum, 3 Nov. 1994)
+
+I've been asked to write a bit about how to create Python extensions 
+that provide interfaces to C++ class libraries.  Warning: as proposed at 
+the workshop, the examples in this draft contain *lots* of Spam.
+
+My starting point is the desire to be able to do it without changes to 
+the Python run-time system (and the conviction that this is indeed 
+possible).  Additions may be possible to avoid some of the tedium 
+involved in writing these extensions but those additions can always be 
+made part of the extension if the run-time system does not provide them.
+
+I will start out showing how to do it manually.  Automating the process 
+is of course possible, but not necessarily trivial, depending on the 
+complexity of the class library and the information you have to work 
+with.  In particular, as Skip Montanaro points out in his kick-off notes 
+about C++ bindings, the C+ class definitions (in the header files) don't 
+contain enough information.
+
+
+A simple example
+----------------
+
+Let's begin with a trivial example.  Suppose we have file "spam.h" with 
+the following contents:
+
+================================================================
+// my C++ syntax is a little rusty -- hope the intent is clear
+class Spam {
+public:
+	// Normal constructor and destructor
+	Spam(int);
+	~Spam();
+	int eggs(const char *);
+	int ham;
+	// Not sure how realistic it is to have public instance variables
+	// but they're not hard to implement...
+// private stuff is not relevant
+}
+================================================================
+
+I have made one more assumption: that we generally operate on all 
+objects through pointers.  I believe this is often true for class 
+libraries, and in any case we can always take an object's address.
+
+The wrapping module should initially have the following functionality:
+
+1) create new Spam objects
+2) destroy Spam objects
+3) get and set the ham instance variable
+4) call the eggs() method
+
+(I am going to add a few more later in the example.)
+
+So far this is all very similar to wrapping around C, but I will sketch 
+a fairly complete solution so we know exactly what we're talking about.  
+If you already know how to do this, just skip to the end of the C++ code 
+here.
+
+================================================================
+// Use old style API -- I haven't got rename1.h handy :-)
+#include "allobjects.h"
+#include "modsupport.h"
+#include "spam.h"
+
+// Mostly boilerplate...
+struct spamobject {
+	OB_HEAD
+	Spam *sp_spam;
+};
+staticforward typeobject Spamtype;
+#define is_spamobject(x) ((x)->ob_type == Spamtype)
+
+// Internal new<object> function, takes pointer to existing Spam object
+static object *newspamobject(Spam *spam) {
+	spamobject *sp = NEWOBJECT(Spamtype);
+	if (sp == NULL) return NULL;
+	sp->sp_spam = spam;
+	return sp;
+}
+
+// Destructor for spamobject
+static void spam_dealloc(spamobject *sp) {
+	delete sp->sp_spam;
+	free(sp);
+}
+
+// Spam::eggs method wrapper
+static object *spam_eggs(spamobject *sp, object *args) {
+	char *str;
+	if (!newgetargs(args, "s", &str)) return NULL;
+	int ret = sp->sp_spam->eggs(str);
+	return mkvalue("i", ret);
+}
+
+// List of wrapped Spam methods
+static struct methodlist spam_methods[] = {
+	{"eggs", (method)spam_eggs, 1},
+	{0, 0, 0}
+};
+
+// Get attribute for spamobject
+static object *spam_getattr(spamobject *sp, char *name) {
+	// For simplicity, I don't use structmember.h in this example
+	if (strcmp(name, "ham") == 0)
+		return mkvalue("i", sp->sp_spam->ham);
+	return findmethod(spam_methods, name, sp);
+}
+
+ // Set attribute for spamobject
+static object *spam_setattr(spamobject *sp, char *name, object *value) {
+	if (strcmp(name, "ham") != 0) {
+		err_setstr(AttributeError, name);
+		rturn NULL;
+	}
+	int i;
+	if (!getattr(value, "i", &i)) return NULL; // Hmm...
+	sp->sp_spam->ham = i;
+	INCREF(None);
+	return None;
+}
+
+// Here should be an initializer for Spamtype...
+
+// Module-global function to create a new Spam object
+static object *spam_Spam(object *, object *args) {
+	int i;
+	if (!newgetargs(args, "i", &i)) return NULL;
+	Spam *spam = new Spam(i);
+	if (spam == NULL) {
+		// Here we must set the exception ourselves!
+		err_setstr(MemoryError, "Spam() constructor failed");
+		return NULL;
+	}
+	object *sp = newspamobject(spam);
+	if (sp == NULL) delete spam; // You need this!
+	return sp;
+}
+
+// List of module-global functions
+static struct methodlist spam_functions[] = {
+	{"Spam", spam_Spam, 1},
+	{0, 0, 0}
+};
+
+// Module initialization function
+extern "C" void initspam() {
+	initmodule("spam", spam_functions);
+}
+================================================================
+
+This is all completely C-like.  Now let's add features to the example 
+C++ class to complicate matters and see how we can cope.
+
+
+Adding instance pointers
+------------------------
+
+The first complication (and one which also occurs when wrapping around C 
+libraries) is that some functions or methods return values or take 
+arguments that are themselves pointers to class instances.  Often these 
+will be instances of other classes, but that doesn't really matter for 
+the example.  Let's assume we add a new method spam() which returns a 
+pointer to a Spam instance (*taking* a Spam pointer isn't that much of a 
+difficulty).  Our first approach is this:
+
+================================================================
+static object *spam_spam(spamobject *sp, object *args) {
+	if (!newgetargs(args, "")) return NULL;
+	Spam *spam = sp->sp_spam->spam();
+	return newspamobject(spam);
+}
+================================================================
+
+This looks relatively harmless, but may contain a subtle bug: when the 
+new (Python) spamobject is deleted, the Spam instance that it points to 
+is also deleted.  However this may be wrong.  Note that here the C++ 
+header file doesn't give enough information -- it doesn't tell us 
+whether the returned Spam instance was newly created (so the caller of 
+the spam() method must also take care of its disposal) or a pointing to 
+a Spam instance that is "owned" by something else (so disposing it woul 
+be a bug).  Note that, while a 'const' modifier for the return type of 
+the method declaration can be taken as a hint that the receiver 
+shouldn't dispose of it, its absence doesn't imply that it should.
+
+Let's assume we've read the manual and now we know that we really 
+shouldn't dispose of the Spam instance returned by the spam() method.  
+Of course the Spam instances that we created ourselves created using the 
+"new Spam(...)" constructor must still be disposed of.  One solution is 
+to add a flag to the spamobject structure and to the newspamobject() 
+function:
+
+================================================================
+truct spamobject {
+	OB_HEAD
+	Spam *sp_spam;
+	int sp_owned;
+};
+[...]
+static object *newspamobject(Spam *spam, owned) {
+	spamobject *sp = NEWOBJECT(Spamtype);
+	if (sp == NULL) return NULL;
+	sp->sp_spam = spam;
+	sp->sp_owned = owned;
+	return sp;
+}
+[...]
+static void spam_dealloc(spamobject *sp) {
+	if (sp->sp_owned) delete sp->sp_spam;
+	free(sp);
+}
+================================================================
+
+Plus of course the necessary modifications to the calls to 
+newspamobject().
+
+[[Note that using Donald Beaudry's subtyping of built-in types, we could 
+also have cloned the Spamtype object and given it a dealloc function 
+that didn't destroy the Spam instance.  This would save the space for 
+the flag in each spamobject plus the test in the dealloc function, at 
+the cost of an extra dealloc function and a more complicated 
+implementation of is_spamobject().]]
+
+There is a semantic problem with this approach, which may or may not be 
+relevant: even if the spam() method always returns the same Spam 
+instance, the Python wrapper will return a new spamobject each time.  
+This means that using the 'is' or '==' operators to compare wrapped Spam 
+instances for identity won't work properly.  By defining a comparison 
+discipline for spamobjects that compares the contained Spam instance 
+pointers, we can ensure that at least '==' will work.
+
+A fix that fixes 'is' as well requires having some kind of mapping from 
+Spam instances to spamobjects.  One solution would be to have Spam 
+instances actually contain the spamobject pointer.  This only works if 
+we have control over the Spam implementation or if it reserves space for 
+some 'user data' that we can use.  Alternatively, we could maintain an 
+exhaustive list of all the spamobjects we've ever created and search 
+through it -- perhaps a hash algorithm would be appropriate, or we could 
+use a Python dictionary.  All this is getting pretty elaborate, and it 
+may be easier to simply tell the users of our wrapper module to use '==' 
+for identity comparisons (as long as the class doesn't have a more 
+elaborate notion for comparisons).
+
+
+Adding virtual functions
+------------------------
+
+The presence of virtual functions by themselves is not much of a 
+complication -- it is the assumption that the user can derive a class 
+and override it which makes this interesting.  Let's assume the spam() 
+function is virtual.  We have to completely redo the implementation now, 
+but I'm not going to write it all down.
+
+Since we can't derive Python classes from built-in wrapper objects, the 
+first thing we have to do (remember the requirement of no changes to the 
+Python run-time) is create wrapper classes in Python as well.  We rename 
+the C module to _spam and create a spam.py containing the following:
+
+================================================================
+import _spam
+
+class Spam:
+	def __init__(self, i):
+		self._self = _spam.Spam(i)
+	def eggs(self, s):
+		return self._self.eggs(s)
+================================================================
+
+Implementing the 'ham' instance variable is a problem.  The best I can 
+come up with would be to add __getattr__ and __setattr__ hooks:
+
+================================================================
+	def __getattr__(self, name):
+		return getattr(self._spam, name)
+	def __setattr__(self, name, value):
+		if name[0] == '_':
+			self.__dict__[name] = value
+		else:
+			setattr(self._spam, name, value)
+================================================================
+
+We're not finished yet.  The above class creates a new C++ Spam instance 
+each time a Python Spam object is created.  If we want to have Python 
+Spam objects initialized from existing C++ Spam instances, one solution 
+is to have a base class _Spam (in Python) which takes an existing C++ 
+Spam instance.  (This is a similar problem to our first wrapper without 
+the 'owned' flag.)  For instance:
+
+================================================================
+class _Spam:
+	def __init__(self, _spam):
+		self._spam = _spam
+	# insert all methods from previous class Spam here
+	def spam(self):
+		return _Spam(self._spam.spam())
+
+class Spam(_Spam):
+	def __init__(self, i):
+		_Spam.__init__(self, _spam.Spam(i))
+================================================================
+
+This allows us to derive Python classes from Spam, but it doesn't solve 
+the problem (yet) of how to let the C++ code call a virtual function 
+that's overridden in Python.  We're coming to that now.
+
+First, in C++, we also define an auxiliary class:
+
+================================================================
+class Spam_ : public Spam {
+public:
+	Spam_(spamobject *, int);
+	~Spam();
+	virtual Spam *spam();
+	spamobject *sp;
+	
+}
+================================================================
+
+and we instantiate this class instead of Spam in spam_Spam().  The 
+constructor initializes the spamobject pointer to its first argument 
+(without incrementing its reference count -- otherwise the two would 
+become indestructible).  The destructor should set this pointer to NULL 
+(mostly to avoid dereferencing it during destruction of the contained 
+objects).
+
+We must also ensure that the _spam.Spam class called from Python passes 
+itself to the Spam_ instance creation function:
+
+================================================================
+	def __init__(self, i):
+		self._self = _spam.Spam(self, i)
+================================================================
+
+and this function must of course do the right thing:
+
+================================================================
+static object *spam_Spam(object *, object *args) {
+	int i;
+	object *sp;
+	if (!newgetargs(args, "Oi", &sp, &i)) return NULL;
+	if (!is_spamobject(sp)) {
+		err_setstr(TypeError,
+			"Spam() constructor requires spamobject argument");
+	Spam *spam = new Spam_(((spamobject *)sp)->sp_spam, i);
+	// unchanged from here on
+================================================================
+
+The virtual function Spam_::spam() is the most interesting:
+
+================================================================
+static Spam *Spam_::spam() {
+	object *method = getattr(sp, "spam");
+	if (method == NULL) {
+		err_clear();
+		return Spam::spam();
+	}
+	object *args = mkvalue("");
+	objcet *res = call_object(method, args);
+	DECREF(args);
+	DECREF(method);
+	if (res != NULL && is_spamobject(res)) {
+		Spam *spam = ((spamobject *)res)->sp_spam;
+		DECREF(res); // <--------------------------- (*)
+		return spam;
+	}
+	// Problem -- The python code failed.
+	if (res != NULL) {
+		DECREF(res);
+		err_setstr(TypeError,
+			"spam() method didn't return spam object");
+	}
+	print_error();
+	return NULL; // hope for the best
+}
+================================================================
+
+The most obvious problem with this kind of code is the problem of what 
+to do if the Python function called raises an exception or returns an 
+object of the wrong type.  In this case I have chosen to print the error 
+and return a NULL pointer, which may or may not be expected by the 
+caller.  Another solution may be to call the base class' method -- 
+essentially pretending the derived class did not override the virtual 
+function after all.  This is probably safer for the C++ code receiving 
+the return value, but may mask errors in Python code (unless the 
+exception is still printed).
+
+Finally, there's the line marked with (*).  This has nothing (at least 
+not much) to do with the fact that we're overriding virtual functions.  
+The problem is that we're passing a Spam instance from Python to C++ and 
+it's not clear who the owner is.  If Python created it with the 
+intention to pass ownership to the C++ code (giving the latter the 
+responsibility to delete it) then the 'owned' flag should be cleared 
+before calling DECREF().  On the other hand if Python created it and 
+expected to keep ownership, the 'owned' flag should remain set.  And if 
+Python did not create it the 'owned' flag should remain clear.  If we 
+should have cleared the 'owned' flag but we don't, Python may end up 
+destroying the spamobject wrapper and deleting the C++ Spam instance as 
+a consequence, thereby potentially causing a crash.
+
+I can't second-guess the use intended by the Spam class designer, so 
+again here we run into the problem of not enough information provided by 
+the C++ headers.  I wonder whether the designers of IDL, ILU or BDL 
+provide syntax to distinguish between such cases...

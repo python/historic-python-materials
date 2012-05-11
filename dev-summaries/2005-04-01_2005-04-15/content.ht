@@ -1,0 +1,379 @@
+Title: python-dev Summary for 2005-04-01 through 2005-04-15
+Content-type: text/x-rst
+
+python-dev Summary for 2005-04-01 through 2005-04-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-04-01_2005-04-15.html]
+
+
+
+======================
+Summary Announcements
+======================
+
+---------------------------
+New python-dev summary team
+---------------------------
+
+This summary marks the first by the team of Steve Bethard, Tim Lesher,
+and Tony Meyer.  We're trying a collaborative approach to the
+summaries: each fortnight, we'll be getting together in a virtual
+smoke-filled back room to divide up the interesting threads.  Then
+we'll stitch together the summaries in roughly the same form as you've
+seen in the past. We'll mark each editor's entries with his initials.
+
+Thanks to Brett Cannon for sixty-one excellent python-dev summaries.
+Also, thanks for providing scripts to help get the new summaries off
+the ground! We're looking forward to the contributions you'll make to
+the Python core, now that the summaries aren't taking up all your
+time.
+
+[TDL]
+
+=========
+Summaries
+=========
+
+-----------------------
+Acceptable diff formats
+-----------------------
+
+Nick Coghlan asked if context diffs are still favoured for patches.
+Historically, context diffs were preferred, but it appears that unified
+diffs are the today's choice.  Raymond Hettinger made the sensible
+suggestion that whichever is most informative for the particular patch
+should be used, and Bob Ippolito pointed out that if CVS is replaced with
+subversion, unified diffs will have better support.  The `patch submission
+guidelines`_ will be updated at some point to reflect the preference for
+unified diffs, although if your diff program doesn't support '-u', then
+context diffs are ok - plain patches are, of course, not.
+
+Contributing threads:
+
+- `Unified or context diffs? <http://mail.python.org/pipermail/python-dev/2005-April/052657.html>`__
+
+.. _patch submission guidelines: http://www.python.org/patches/
+
+[TAM]
+
+
+---------------
+Developers List
+---------------
+
+Raymond Hettinger has started a `project to track developers`_ and the
+(tracker and commit) privileges they have, and who gave them the privileges,
+and why (for example, was it for a one-shot project). Removing inactive
+developers should improve clarity, institutional memory, security, and makes
+everything tidier.  Raymond has begun contacting recently inactive
+developers to check whether they still require the privileges they have.
+
+Contributing threads:
+
+- `Developer list update <http://mail.python.org/pipermail/python-dev/2005-April/052540.html>`__
+
+.. _project to track developers: http://cvs.sourceforge.net/viewcvs.py/*checkout*/python/python/dist/src/Misc/developers.txt
+
+[TAM]
+
+----------------------
+Right Operator Methods
+----------------------
+
+Greg Ewing explored an issue with new-style classes that define only
+right operator methods (__radd__, __rmul__, etc.)  Instances of such
+a class cannot be added/multiplied/etc. together as Python raises a
+TypeError. Armin Rigo explained the rule: if the instances on both sides
+of an operator are of the same class, only the non-reversed method is
+ever called. Armin also explained that an __add__ or __mul__ method that
+returns NotImplemented may be called twice when Python attempts to
+differentiate between numeric and sequence operations.
+
+Contributing threads:
+
+- `New style classes and operator methods <http://mail.python.org/pipermail/python-dev/2005-April/052577.html>`__
+
+[SJB]
+
+------------------------------------------
+Hierarchical groups in regular expressions
+------------------------------------------
+
+Chris Ottrey demoed his `pyre2 project`_ that can extract a hierarchy of
+strings when nested groups match in a regular expression.  The current
+re module (in the stdlib) only matches the last occurrence of a group in
+the string, throwing away any preceding matches. People discussed some
+of pyre2's proposed API, with the main suggestion being to extend the
+API to support unnamed (positional) groups in addition to named groups.
+
+Though a number of people expressed interest in the idea, it was not
+clear whether the functionality should be included in the standard
+library. However, most agreed that if it was included, it should
+be integrated with the existing re module. Gustavo Niemeyer offered to
+perform this integration if an API could be agreed upon. Further
+discussion was moved to the pyre2 `development wiki`_ and `mailing
+list`_.
+
+Contributing threads:
+
+- `hierarchicial named groups extension to the re library <http://mail.python.org/pipermail/python-dev/2005-April/052508.html>`__
+
+.. _pyre2 project: http://pyre2.sourceforge.net/
+
+.. _development wiki: http://py.redsoft.be/pyre2/wiki/
+
+.. _mailing list: http://lists.sourceforge.net/lists/listinfo/pyre2-devel
+
+[SJB]
+
+-------------------------------
+Security capabilities in Python
+-------------------------------
+
+The issue of security came up again, and Ka-Ping Yee suggested that in
+Python's restricted execution mode secure proxies can be created by
+using lexical scoping.  He posted `some code`_ for revealing only
+certain "facets" of an object by using a function to declare a proxy
+class that used a function's local variables to build the proxy. Thus
+to access the attributes used in the proxy class, you need to access
+things like im_func or func_closure, which are not accessible in
+restricted execution mode.
+
+James Y Knight illustrated how strategic overriding of __eq__ in a
+subclass of str could allow access to the hidden "facets". Eyal Lotem
+suggested that such an attack could be countered by implementing
+"facets" in C, but having to turn to C every time you needed a
+particular security construct seemed unappealing.
+
+Contributing threads:
+
+- `Security capabilities in Python <http://mail.python.org/pipermail/python-dev/2005-April/052580.html>`__
+
+.. _some code: http://zesty.ca/python/facet.py
+
+[SJB]
+
+---------------------------------
+Improving GilState API Robustness
+---------------------------------
+
+Michael Hudson noted that his changes to thread handling in the
+readline module appeared to trigger `bug 1176893`_ ("Readline
+segfault"). However, he believed the problem lay in the GilState API,
+rather than in his changes: PyGilState_Release crashes if
+PyEval_InitThreads wasn't called, even if the code you're writing
+doesn't use multiple threads.
+
+He proposed several solutions, but no clear favorite emerged from
+respondents, and Tim Peters noted that `PEP 311`_, Simplified Global
+Interpreter Lock Acquisition for Extensions, "specifically disowns
+responsibility for worrying about whether Py_Initialize and
+PyEval_InitThreads have been called."  After further discussion,
+Michael checked in a change to PyGilState_Release that calls
+PyEval_SaveThread instead of PyEval_ReleaseThread, fixing the problem.
+
+Bob Ippolito wondered whether just calling PyEval_InitThreads directly
+in Py_Initialize might be a better idea.  No objections were raised,
+so long as the underlying OS locking mechanisms weren't overly
+expensive; some initial benchmarks indicated that this approach was
+viable, at least on Linux and OS X.
+
+Contributing threads:
+
+- `threading (GilState) question <http://mail.python.org/pipermail/python-dev/2005-April/052562.html>`__
+
+.. _bug 1176893: http://www.python.org/sf/1176893
+
+.. _PEP 311: http://www.python.org/dev/peps/pep-0311
+
+[TDL]
+
+----------------------------------------
+Unicode byte order mark decoding
+----------------------------------------
+
+Evan Jones saw that the UTF-16 decoder discards the byte-order mark
+(BOM) from Unicode files, while the UTF-8 decoder doesn't. Although
+the BOM isn't really required in UTF-8 files, many Unicode-generating
+applications, especially on Microsoft platforms, add it.
+
+Walter Dörwald created a patch_ to add a UTF-8-Sig codec that
+generates a BOM on writing and skips it on reading. A long discussion
+ensued on the history of the Unicode standard and Microsoft's
+influence over its evolution.  Stephen Turnbull suggested (and
+Marc-Andre Lemburg agreed) that BOM and signature handling be moved to
+a higher-level API, but no overall consensus was achieved.
+
+Contributing threads:
+
+- `Unicode byte order mark decoding <http://mail.python.org/pipermail/python-dev/2005-April/052501.html>`__
+
+.. _patch: http://www.python.org/sf/1177307
+
+[TDL]
+
+--------------------
+Marshalling Infinity
+--------------------
+
+Scott David Daniels kicked off a very long thread by asking what (un)marshal
+should do with floating point NaNs.  The current behaviour (as with any NaN,
+infinity, or signed zero) is undefined: a platform-dependant accident,
+because Python is written to C89, which has no such concepts.  Tim Peters
+pointed out all code for (de)serialing C doubles should go through
+_PyFloat_Pack8()/_PyFloat_Unpack8(), and that the current implementation
+suggests that the routines could simply copy bytes on platforms that use the
+standard IEEE-754 single and double formats natively.  Michael Hudson
+obliged by creating a `patch to implement this`_.
+
+The consensus was that the correct behaviour is that packing a NaN or
+infinity shouldn't cause an exception.  When unpacking, an IEEE-754 platform
+shouldn't cause an exception, but a non-754 platform should, since there's
+no sensible value that it can be unpacked to, and errors should never pass
+silently.
+
+Contributing threads:
+
+- `marshal / unmarshal <http://mail.python.org/pipermail/python-dev/2005-April/052593.html>`__
+
+.. _patch to implement this: http://python.org/sf/1181301
+
+[TAM]
+
+---------------------------------
+Location of the sign bit in longs
+---------------------------------
+
+Michael Hudson asked about the possibility of longs storing the sign bit
+somewhere other than the current location, suggesting the top bit of
+ob_digit[0].  Tim Peters suggested that it would be better to give struct
+_longobject a distinct sign member.  This simplifies code, costs no extra
+bytes for some longs, and 8 extra bytes for others, and shouldn't hurt
+binary compatibility.
+
+Michael coughed up a `longobject patch`_, which seems likely to be checked
+in.
+
+Contributing threads:
+
+- `marshal / unmarshal <http://mail.python.org/pipermail/python-dev/2005-April/052593.html>`__
+
+.. _longobject patch: http://python.org/sf/1177779
+
+[TAM]
+
+
+===============
+Skipped Threads
+===============
+
+- python-dev Summary for 2005-03-16 through 2005-03-31 [draft]
+- [Python-checkins] python/dist/src/Lib/logging handlers.py, 1.19, 1.19.2.1
+- [Python-checkins] python/dist/src/Modules mathmodule.c, 2.74, 2.75
+- Weekly Python Patch/Bug Summary
+- Mail.python.org
+- New bug, directly assigned, okay?
+- inconsistency when swapping obj.__dict__ with a dict-like object...
+- Pickling instances of nested classes
+- args attribute of Exception objects
+
+
+
+========
+Epilogue
+========
+
+------------
+Introduction
+------------
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+April 01, 2005 through April 15, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the first summary written by the python-dev summary cabal of
+Steve Bethard, Tim Lesher, and Tony Meyer (So long, Brett, and thanks for all the fish!).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tim Lesher (tlesher at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python CVS online, go to
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  I do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow me to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/
+.. _original text file: http://www.python.org/dev/summary/2005-04-01_2005-04-15.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

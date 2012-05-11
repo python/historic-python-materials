@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Stackless Python -- Continuations On Stage</TITLE>
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<FONT SIZE=5><H1 ALIGN="CENTER">Stackless Python --</H1>
+<H1 ALIGN="CENTER">Continuations On Stage</H1>
+</FONT><P ALIGN="CENTER"></P>
+<P ALIGN="CENTER">Christian Tismer</P>
+<I><P ALIGN="CENTER">Mission Impossible Software Team</P>
+</I><FONT SIZE=2><P ALIGN="CENTER"></FONT><A HREF="mailto:tismer@tismer.com">tismer@tismer.com</A></P>
+<FONT SIZE=2><P ALIGN="JUSTIFY"></P>
+</FONT><H2>Overview</H2>
+<FONT SIZE=2><P ALIGN="JUSTIFY">This demo will try to explain how continuations work and how they can be used. Having read the paper on Stackless Python is helpful but not mandatory. Visitors are welcome to try these new non-local jump facilities.</P>
+<P ALIGN="JUSTIFY">Instead of an implementation of coroutines and generators as C extensions, we will see how they can be expressed in Python, using the continuation module. Since the theory of continuations is not very broadly known, a small introduction is given.</P>
+</FONT><H2>Continuations</H2>
+<FONT SIZE=2><P ALIGN="JUSTIFY">"The current continuation at any point in the execution of a program is an abstraction of the <I>rest of the program&quot;</P>
+</I><P ALIGN="JUSTIFY">This abstract definition will be much easier to understand in an interactive session. Visitors are invited to play with continuations as first class objects and learn about the consequences of that sentence.</P>
+</FONT><H2><A NAME="_Ref470115957">Generators</A></H2>
+<FONT SIZE=2><P ALIGN="JUSTIFY">Instead of a direct implementation of coroutines and generators, I decided to use the most general approach: Implement continuations as first class callable objects, and express generators and coroutines in Python. These objects can be tried interactively.</P>
+</FONT><H2>Threads vs. Continuations </H2>
+<FONT SIZE=2><P ALIGN="JUSTIFY">Few people might know that there is a generator implementation using threads. It can be found in the source distribution under demo/threads/Generator.py. Its performance will be benchmarked against an equivalent implementation using continuations.</P>
+</FONT><H2>Stackless Python Benchmarks</H2>
+<FONT SIZE=2><P ALIGN="JUSTIFY">Some benchmarks comparing Stackless Python against standard Python will be presented. Guess which version achieves more PyStones under Windows? <FONT FACE="Wingdings">&#74;</FONT>
+</P>
+</FONT><H2>Parallel Pattern Matching</H2>
+<FONT SIZE=2><P ALIGN="JUSTIFY">In order to show Stackless Python’s power, we will see 10000 tiny tasks working in parallel on a pattern-matching problem. This cannot be done with threads due to their massive memory overhead.</P>
+<P ALIGN="JUSTIFY">One implementation will be shown that uses explicit scheduler calls. With some luck, we will also see implicit task switching which is planned for Stackless Python 1.1.</P>
+</FONT><H2>Animated Coroutine Transfer</H2>
+<FONT SIZE=2><P ALIGN="JUSTIFY">Together with a simple coroutine example, the current tree of stack frames will be visualized by animated graphics.</P>
+</FONT><H2>Stackless Extension Modules</H2>
+<FONT SIZE=2><P ALIGN="JUSTIFY">All existing extension modules will also work with Stackless Python. Writing an extension module that allows the new features to be used needs a couple of design considerations. A framework for Stackless Extensions will be presented, together with a working implementation of a module that defines its own interpreter function. Extensions following this pattern have the same flexibility as Python functions.</P>
+<P ALIGN="JUSTIFY">User-defined functions need no longer be callbacks, but can now be expressed by coroutines, which are often faster at runtime and easier to design.</P>
+<U><P ALIGN="JUSTIFY">The <I>Mission Impossible Software Team</I> (MI5) will be founded during the conference.</P></U></FONT></BODY>
+</HTML>

@@ -1,0 +1,726 @@
+<html> <head>
+<title>Using the Python Object Publisher</title>
+<!-- $Id: UsingBobo.html,v 1.2 1996/10/09 20:03:28 paul Exp $-->
+<!--
+$Log: UsingBobo.html,v $
+Revision 1.2  1996/10/09 20:03:28  paul
+Small syntactic changes for Scott's uniformity.
+
+Revision 1.1  1996/10/09 19:57:49  paul
+Moved from previous filename.
+
+Revision 1.1  1996/10/07 15:22:21  paul
+First commit.  Basic layout, with abstract inserted.
+
+-->
+</head>
+
+<body bgcolor="#ffffff" text="#000000" link="#000066"  vlink="#808080" alink="#808080">
+
+<h1 align="center">Using the Python Object Publisher</h1>
+
+<p align="center">
+Paul Everitt, <em><a href="mailto:paul@digicool.com">paul@digicool.com</a></em>
+</p>
+
+<p align="center">
+Digital Creations, L.C.<br>
+910 Princess Anne Street Suite 300<br>
+Fredericksburg, VA 22401<br>
+<em><a target="_top" href="http://www.digicool.com">http://www.digicool.com</a></em>
+</p>
+<hr>
+
+<h2>Abstract</h2>
+
+<p><em>The Python Object Publisher (Bobo) allows objects to be
+published without any Common Gateway Interface (CGI) or Hypertext
+Transfer Protocol (HTTP) specific code. Complex object hierarchies can
+be published with Uniform Resource Locators (URLs) that mimic the
+object hierachies. Form data, including file upload data, are
+marshalled into method parameters. Most tasks associated with the
+interaction between an application (such as URL traversal, parsing
+form data, parsing queries, parsing headers, parsing cookie data,
+access control, and error handling) are performed automatically. This
+paper provides an overview and simple examples.</em></p>
+
+<h2>Background</h2>
+
+<p>Publishing dynamic information on the web is straightforward.
+Publishing it <em>coherently</em> is unnecessarily difficult.</p>
+
+<p>Generally, connecting code to the Web involves the use of the
+Common Gateway Interface[<a href="#CGI">1</a>] (CGI). For Python[<a
+href="#PythonHomePage">2</a>], this involves using the
+<code>cgi.py</code> module. The purpose of this module is to assist in
+bringing HTML form data into your Python application.</p>
+
+<p>For many uses, this is a wonderful boost. However, the scope of the
+module doesn't assist in returning the necessary HTTP headers.  Nor
+does it provide support for things such as parsing cookies, or
+handling exceptions.</p>
+
+<p>Moreover, your code is wired to use CGI.  What if you would like to
+use FastCGI[<a href="#FastCGI">3</a>], or ILU[<a href="#ILU">4</a>],
+or COM/DCOM[<a href="#COM">5</a>] as a server-extension mechanism?
+Or, if you would like to use a native Python-HTTP service? Or, when
+you would like to use your application <em>without</em> the Web
+(e.g. from the command line for debugging, or in a GUI framework?</p>
+
+<p>This gives some background on the Python Object Publisher[<a
+name="#Bobo">6</a>], affectionately known as Bobo. The original
+premise was to provide a level of abstraction between our ways to
+publish objects. To date, we have used:
+
+<ul>
+  <li> CGI, 
+  <li> ILU,
+  <li>  FastCGI,
+  <li>  PersistentCGI[<a href="pCGI">7</a>],
+  <li>  a Python-HTTP server
+</ul>
+
+and are looking at COM/DCOM as well as CORBA[<a
+href="#CORBA">7</a>]. The layer of abstraction would immunize that
+actual application from the infrastructure. Or, as the docstring says:
+
+<pre>The Python object publisher provides a simple mechanism for
+publishing a collection of Python objects as World Wide Web (Web)
+resources without any plumbing (e.g. CGI) specific code.</pre>
+
+<p>Next, we wanted the ability to prevent application errors from
+returning strange traceback messages. As well, we wanted to find a way
+to map a URL into a full message sent to invoke an operation on an
+object.  For instance, having:<br><br>
+
+<a name="SampleURL"><code>http://www.here.com/cgi-bin/example/Cars/Pinto/purchase?name=Bob</code></a>
+<br><br>
+
+maps into an object traversal of <code>Cars</code> to invoke the
+<code>purchase</code> method on the instance <code>Pinto</code>,
+sending in an argument of <code>name</code> with a value of
+<code>Bob</code>.</p>
+
+<p>Subsequently, we began adding many more new features, and
+integrating other work to turn Bobo into an excellent environment for
+publishing Python objects. The next section discusses the
+benefits.</p>
+
+
+<h2>Benefits</h2>
+
+<p>The following is an overview of some reasons to use Bobo:
+<ul>
+
+<li>Applications do not have to include code for interfacing with the
+    web server.
+
+<li>Applications can be moved from one publishing mechanism, such as
+    CGI, to another mechanism, such as Fast CGI or ILU Requestor, with
+    no change.
+
+<li>Python objects are published as Python objects.  The web server
+    "calls" the objects in much the same way that other Python objects
+    would.
+
+<li>Automatic conversion of URL to object/subobject traversal.
+
+<li>Automatic marshaling of form data, cookie data, and request
+    meta-data to Python function arguments.
+
+<li>Automated exception handling.
+
+<li>Automatic generation of CGI headers.
+
+<li>Automated authentication and authorization using a rich mechanism.
+
+<li>With a name like Bobo, it's gotta be good.
+
+</ul>
+
+
+<h2>Typical Bobo Setup</h2>
+
+<p>To setup a module to be published by Bobo, you first decide what
+mechanism you'd like to use. Presuming you'd like to use CGI, you
+first setup your CGI directory, and a different directory that
+contains your application and its modules. This distinction enables
+you to protect your code by placing it outside of your Web root. Also,
+it allows many CGI areas to share the same code base.</p>
+
+<p>Next, you join the two by making a symbolic link. The source would
+be a generic module that implemented the Bobo plumbing for CGI, which
+is named <code>cgi-module-publisher</code>. This generic module would
+be in the same directory as your application. The target of the
+symbolic link would be the application's name <em>in the CGI
+directory</em>.</p>
+
+<p>For instance, in the URL mentioned <a href="#SampleURL">above</a>,
+you might have the application installed in
+<code>/apps/mambo</code>. The main module is
+<code>example.py</code>, located in that directory. However, your Web
+root is in <code>/httpd/docs</code>, with a CGI directory of
+<code>/httpd/docs/cgi-bin</code>. You would publish
+example.py with the command:<br><br>
+
+<font size="-1"><code>ln -s /apps/mambo/cgi-module-publisher
+/httpd/docs/cgi-bin/example</code></font></p>
+
+<p>What happens? The CGI call executes <code>example</code>, which is
+a symbolic link to the CGI module publisher. This standard Bobo module
+then looks for a module in its directory that has the same name as the
+CGI script (basically, the Python variable
+<code>sys.argv[1]</code>). Bobo then imports that module, and starts
+looking for objects that match the request. We call this publishing
+your object "under Bobo control", as Bobo is encapsulating your
+objects.</p>
+
+<p>A final note is that the ".", or current working directory, is
+still over in the CGI directory, even though your module can import
+things from the application directory.</p>
+
+
+<h2>Example</h2>
+
+<p>Of course, everyone would like to start out with a code
+snippet. Here is an overview of a sample Bobo application. Let's say
+we have the following module:
+
+<pre><font size="-1"><xmp>
+#!/usr/local/bin/python 
+'''An example module for the Bobo paper.
+
+This gives a simple example of nested objects, and publishing objects
+which receive messages from the Web. The URL might be:
+
+   http://yourplace.mars/cgi-bin/example/Cars/Pinto/purchaseForm'''
+
+class Car:
+    '''Vehicle, four wheels, you know what I mean.'''
+
+    def purchaseForm(self,PARENT_URL):
+	'''Give a short form back to collect purchase info.'''
+
+	form = (
+	    '<h1>Purchase Information</h1>\n'
+	    '<p>Please enter the information below:\n'
+	    '<form action="%s/purchase" method="GET">\n'
+	    'Name: <input name="name"> Age: <input name="age:int">\n'
+	    '<input type="submit" </form></p>')
+
+	# PARENT_URL is supplied by Bobo, and tracks location in PATH_INFO
+	response = form % PARENT_URL
+
+	# Set TITLE, and return body
+	return ('Purchase Information Form',response)
+
+    def purchase(self,name,age):
+	'''Send back some calculation.'''
+
+	form = ('<h1>Thank You For Your Purchase</h1>'
+		'<p>Well, %s, I think you are %s in dog years.</p>')
+
+	# Bobo converted age to an integer, as directed in the form
+	dog_years = age / 7
+	response = form % (name,dog_years)
+	return ('Purchase made',response)
+
+pinto = Car()
+taurus = Car()
+lecar = Car()
+
+# Make a dictionary, but give it a fake docstring to make it public
+Cars__doc__ = "Clever hack, n'est-ce pas?"
+Cars = {'Pinto':pinto, 'Taurus':taurus, 'LeCar':lecar}
+</xmp></font></pre>
+</p>
+
+<p>The following URLs will give back the listed results:
+<ol>
+
+  <li> <code>cgi-bin/example/help</code>: Returns the docstring for the module.
+
+  <li> <code>cgi-bin/example/Cars/help</code>: Returns the docstring for
+the Cars dictionary.
+
+  <li> <code>cgi-bin/example/Cars/Pinto/help</code>: Returns the docstring
+for the Pinto instance.
+
+  <li> <code>cgi-bin/example/Cars/Pinto/purchaseForm</code>: Give the form
+to interact with a Car instance.
+
+</ol>
+</p>
+
+<p>For example, here is what the Web server returns for the last URL:
+
+<pre><font size="-1"><xmp>
+GET /cgi-bin/example/Cars/Pinto/purchaseForm HTTP/1.1
+
+HTTP/1.0 200 OK
+Date: Tuesday, 08-Oct-96 15:37:19 GMT
+Server: Open-Market-Secure-WebServer/2.0.0.RC3
+MIME-version: 1.0
+Security-Scheme: S-HTTP/1.1
+Content-Length: 450
+Content-Type: text/html
+
+<html>
+<head>
+<title>Purchase Information Form</title>
+	<base href="http://here.com/cgi-bin/">
+</head>
+<body>
+<h1>Purchase Information</h1>
+<p>Please enter the information below:
+<form action="http://here.com/cgi-bin/example/Cars/Pinto/purchase" method="GET">
+Name: <input name="name"> Age: <input name="age:int">
+<input type="submit" </form></p>
+</body>
+</html>
+</xmp></font></pre>
+</p>
+
+<p>This example shows several interesting Bobo features:
+
+<ul>
+
+  <li> Bobo handles a great deal of the HTTP (and some of the HTML) 
+for you,
+
+  <li> Modules and objects can have builtin help methods, which return
+docstrings over the Web,
+
+  <li> The Cars dictionary was mapped to a hierarchical URL, 
+
+  <li> The Cars dictionary had simulated metadata (a docstring)
+assigned to it,
+
+  <li> Instance methods are invoked with arguments passed in and
+converted to the right type,
+
+  <li> The whole thing looks like a normal Python application and has
+little Web-dependent constructs.
+
+</ul>
+</p>
+
+
+<h2>Publishing Objects</h2>
+<p>  Objects are published by including them in a published module.
+  When a module is published, any objects that:
+
+<ul>
+
+  <li>can be found in the module's global name space,
+
+  <li>that do not have names starting with an underscore,
+
+  <li>that have non-empty documentation strings, and
+
+  <li>that are not modules
+
+</ul>
+
+are published.</p>
+
+<p>  Alternatively, a module variable named <code>web_objects</code> can be
+  defined.  If this variable is defined, it should be bound to a
+  mapping object that maps published names to published objects.
+  Objects that are published through a module's <code>web_objects</code> are not
+  subject to the restrictions listed above. For example, modules or
+  objects without documentation strings may be published by including
+  them in a module's <code>web_objects</code> attribute.</p>
+
+<p>  Subobjects (or sub-sub objects, ...) of published objects are
+  also published, as long as the subobjects:</p>
+<ul>
+
+  <li>have non-empty doc strings,
+
+  <li>have names that do not begin with an underscore, and
+
+  <li>are not modules.
+
+</ul>
+</p>
+
+<p>  A subobject that cannot have a docstring may be published by
+  including a special attribute in the containing object named:
+  subobject_name__doc__.  For example, if foo.bar.spam doesn't have a
+  doc string, but foo.bar has a non-empty attribute
+  foo.bar.spam__doc__, then foo.bar.spam can be published.</p>
+
+<p>  Note that object methods are considered to be subobjects.</p>
+
+<p>  Object-to-subobject traversal is done by converting steps in the URI
+  path to get attribute or get item calls.  For example, in traversing
+  from <code>http://some.host/some_module/object</code> to
+  <code>http://some.host/some_module/object/subobject</code>, the module
+  publisher will try to get <code>some_module.object.subobject</code>.  If the
+  access fails with other than an attribute error, then the object
+  publisher raises a "NotFound" exception.  If the access fails with
+  an attribute error, then the object publisher will try to obtain the
+  subobject with: <code>some_module.object["subobject"]</code>.  If this access
+  fails, then the object publisher raises a <code>"Not Found"</code> exception.  If
+  either of the accesses suceeds, then, of course, processing continues.</p>
+
+<p>  If the final object encountered when traversing the URL has an
+  <code>index_html</code> attribute, the object traversal will continue to this
+  attribute.   This is useful for providing default methods for objects.</p>
+
+<p>  In some cases, a parent object may hold special attributes for a
+  subobject.  This may be the case either when a subobject cannot have
+  the special attribute or when it is convenience for the parent
+  object to manage attribute data (e.g. to share attribute data among
+  multiple children).  When the object publisher looks for a special
+  attribute, it first trys to get the attribute from the published
+  object.  If it fails to get the special attribute, it uses the same
+  access mechanism used to extract the subobject from the parent
+  object to get an attribute (or item) using a name obtained by
+  concatenating the subobject name with the special attribute
+  name. For example, let <code>foo.bar</code> be a dictionary, and foo.bar.spam
+  an item in the dictionary.  When attempting to obtain the special
+  attribute <code>__realm__</code>, the object publisher will first try to
+  evaluate <code>foo.bar.spam.__realm__</code>, and then try to evaluate:
+  <code>foo.bar["spam"+"__realm__"]</code>. </p>
+
+
+<h2>Controlling Returned HTML</h2>
+
+<p> A published object, or the returned value of a called published
+  object can be of any Python type.  If the returned value has an
+  <code>asHTML</code> method, then this method will be called to convert the
+  object to HTML; otherwise, the returned value will be converted to a
+  string and examined to see if it appears to be an HTML document.  If
+  it appears to be an HTML document, then the response content-type
+  will be set to <code>text/html</code>.  Otherwise, the content-type will be set
+  to <code>text/plain</code>.</p>
+
+<p>  A special case is when the returned object is a two-element tuple.
+  If the return object is a two-element tuple, then the first element
+  will be converted to a string and treated as an HTML title, and
+  the second element will be converted to a string and treated as
+  the contents of an HTML body. An HTML document is created and
+  returned (with type text/html) by adding necessary html, head,
+  title, and body tags.</p>
+
+<p>  If the returned object is None or the string representation of the
+  returned object is an empty string, then the HTTP return status will
+  be set "No Content", and no body will be returned.  On some
+  browsers, this will cause the displayed document to be unchanged.</p>
+
+<p>For instance, if an invoked method ends with the statement:
+
+<pre><xmp>
+return ('Your car has been purchased',
+        '<h2>Thank you!</h2><p>Your money will look great in our account.</p>'
+       )
+</xmp></pre>
+
+then an HTML document will be returned. A <code>TITLE</code> of
+"Your car has been purchased" will be inserted into a skeletal HTML
+snippet. </p>
+
+<p>Bobo will also assist in setting the BASE tag to alleviate the
+affects of nested object references in PATH_INFO.</p>
+
+
+<h2>Exception Handling</h2> <p> Unhandled exceptions are caught by the
+object publisher and are translated automatically to nicely formatted
+HTTP output.</p>
+
+<p> When an exception is raised, the exception type is mapped to an
+HTTP code by matching the value of the exception type with a list of
+standard HTTP status names.  Any exception types that do not match
+standard HTTP status names are mapped to "Internal Error" (500). The
+standard HTTP status names are: <code>"OK"</code>,
+<code>"Created"</code>, <code>"Accepted"</code>, <code>"No
+Content"</code>, <code>"Multiple Choices"</code>,
+<code>"Redirect"</code>, <code>"Moved Permanently"</code>,
+<code>"Moved Temporarily"</code>, <code>"Not Modified"</code>,
+<code>"Bad Request"</code>, <code>"Unauthorized"</code>,
+<code>"Forbidden"</code>, <code>"Not Found"</code>, <code>"Internal
+Error"</code>, <code>"Not Implemented"</code>, <code>"Bad
+Gateway"</code>, and <code>"Service Unavailable"</code>, Variations on
+these names with different cases and without spaces are also
+valid.</p>
+
+<p> An attempt is made to use the exception value as the body of the
+returned response.  The object publisher will examine the exception
+value.  If the value is a string that contains some white space, then
+it will be used as the body of the return error message.  It appears
+to be HTML, the error content type will be set to
+<code>text/html</code>, otherwise, it will be set to
+<code>text/plain</code>.  If the exception value is not a string
+containing white space, then the object publisher will generate it's
+own error message.</p>
+
+<p>The exceptions to the above are not covered here.</p>
+
+<h2>Handling Request Data</h2>
+
+<p>One of the essential benefits of Bobo is that you get to write
+Python code that looks like Python code. That is, if you have a method
+that expects some arguments, Bobo will get those values out of the
+request and pass them into your object.</p>
+
+<p>How does Bobo do it? First, it traverses the PATH_INFO to get to
+the final object.  Let's say the final object is a method of an
+instance. This method in your module is expecting 'name' and 'age' to
+be passed in, as stated in the method signature <code>(self, name,
+age)</code>. Bobo inspects the incoming form data, finds the values
+for the 'name' and 'age' fields, and passes them in as arguments as it
+calls your method "under Bobo control".</p>
+
+<p>If you put an argument in your method signature, it must be in the
+request.  Otherwise, Bobo will return a HTTP error with a
+nicely-formatted error message. You can get around this by providing
+default arguments for those variables that are not mandatory. For
+instance, you could have a method signature of <code>(self, name,
+age=None)</code>.</p>
+
+<p>    Normally, string arguments are passed to called objects. The
+    called object must be prepared to convert string arguments to
+    other data types, such as numbers.</p>
+
+<p>    If file upload fields are used; however, then FileUpload objects
+    will be passed instead for these fields.  FileUpload objects
+    bahave like file objects and provide attributes for inspecting the
+    uploaded file's source name and the upload headers, such as
+    content-type. </p>
+
+<p>    If field names in form data are of the form: name:type, then an
+    attempt will be to convert data from from strings to the indicated
+    type.  The data types currently supported are: </p>
+<dl><dt>        float<dd><p>Python floating point numbers</p>
+
+
+<dt>        int<dd><p>Python integers</p>
+
+
+<dt>        long<dd><p>Python long integers</p>
+
+
+<dt>        string<dd><p>python strings</p>
+
+
+<dt>        regex<dd><p>Python case-sensitive regular expressions</p>
+
+
+<dt>        Regex<dd><p>Python case-insensitive regular expressions</p>
+
+
+<dt>        date<dd><p>Date-time values</p>
+
+</dl>
+
+<p>    For example, if the name of a field in an input
+    form is age:int, then the field value will be passed in argument,
+    age, and an attempt will be made to convert the argument value to
+    an integer.  This conversion also works with file upload, so using
+    a file upload field with a name like myfile:string will cause the
+    UploadFile to be converted to a string before being passed to the
+    object.  </p>
+
+<p>Additionally, Bobo will bind special values to variables and make
+them available in method signatures. The most common are those
+supported in the standard <code>cgi.py</code> module. However, other
+interesting arguments might be the <code>REQUEST</code> and
+<code>RESPONSE</code> objects can be obtained. These allow finer
+control of Bobo's handling of the operation.</p>
+
+<p>The most interesting additions to the extended variables are those
+that provide new services. For instance, supporting cookies is a
+breeze. If you expect a value from a cookie, just put the name of the
+cookie in the method signature. Bobo will get it for you. Also, there
+are variables that can help in object traversal, such as BASE,
+PARENT_URL (the URL to the spot above you in the hierarchy), and
+others.</p>
+
+
+<h2>Access Control</h2>
+
+<p>  Access to an object (and it's subobjects) may be further restricted
+  by specifying an object attribute named <code>__allow_groups__</code>.  If set,
+  this attribute should contain a collection of authorization groups.
+  The <code>__allow_groups__</code> attribute may be a mapping object, in which
+  case it is a collection of named groups.  Alternatively, the
+  <code>__allow_groups__</code> attribute may be a sequence, in which case it is
+  a collection of named groups.  Each group must be a dictionary that
+  use names as keys (i.e. sets of names).  The values in these
+  dictionaries may contain passwords for authenticating each of the
+  names.  Alternatively, passwords may be provided in separate "realm"
+  objects.  If no realm is provided, then basic authentication will be
+  used and the object publisher will attempt to authenticate the
+  access to the object using one of the supplied name and password
+  pairs.  The basic authentication realm name used is
+  <code>module_name.server_name</code>, where <code>module_name</code> is the name of the
+  module containing the published objects and server_name is the name
+  of the web server.</p>
+
+<p>  The module used to publish an object may contain it's own
+  <code>__allow_groups__</code> attribute, thereby limiting access to all of the
+  objects in a module.</p>
+
+<p>  If multiple objects in the URI path have <code>__allow_groups__</code>
+  attributes, then the <code>__allow_groups__</code> attribute from the last
+  object in the path that has this attribute will be used.  The
+  <code>__allow_groups__</code> attribute for a subobject overrides
+  <code>__allow_groups__</code> attributes for containing objects, however, if
+  named groups are used, group data from containing objects may be
+  inherited by contained objects.  If a published object uses named
+  groups, then for each named group in the published object, group
+  data from groups with the same name in contained objects will be
+  inherited from container objects if:
+
+<ul>
+  <li>The contained object uses named groups,
+  <li>There is no object that is a subobject of the container
+       object, that is a container of the published object and that has
+       unnamed groups.
+</ul>
+</p>
+
+
+<p>  If the name of a group is the python object, <code>None</code>, then data from
+  named groups in container objects will be inherited even if the
+  grouped don't appear in the inheriting object, subject to the
+  restrictions above.</p>
+
+<p>  When group data are inherited, then inherited data is appended to
+  the existing data.  When groups contain names and passwords,
+  individual user names may have multiple passwords if they appear in
+  multiple groups.</p>
+
+<p>  Note that an object may have an <code>__allow_groups__</code> attribute that is
+  set to None, in which case the object will be public, even if
+  containing objects are not.</p>
+
+
+<h2>Debugging and Testing</h2>
+
+<p>Bobo provides some facilities to assist in tracking errors.  At the
+base level, Bobo provides traceback information in the HTML that is
+returned to the user. The traceback information is sent as an HTML
+comment, so that the average user does not see it.</p>
+
+<p>Also, Bobo provides some command-line facilities. There is a
+<code>bobo.py</code> module that simulates that HTTP request, thus
+recreating most of the environment of an actual request. This
+command-line Bobo also provides:
+
+<ul>
+  
+  <li> Extended integration with the Python debugger to allow skipping
+to the point where a published object is actually called,
+       
+  <li> Providing username and passwords for protected operations,
+
+  <li> Timing tests to measure performance, and
+
+  <li> Integration with the Python profiler, generating a profiler
+data file
+
+</ul>
+</p>
+
+
+<h2>Related Services Integrated With Bobo</h2>
+
+<p>We have invested serious time in using Bobo for fielding commercial
+work. Along the way, we have tackled several other problem areas and
+integrated their solutions with Bobo.</p>
+
+<p>For instance, the area of dynamic generation of HTML is addressed
+with our DocumentTemplate module.  These objects are particularly
+integrated with Bobo, and have been designed to work with Bobo
+features such as nested traversal of objects.</p>
+
+<p>Also, our persistent object storage effort (affectionately
+nicknamed Bobobase) is integrated. Specifically, other components are
+ensured to be pickleable and to work with the transaction capabilities
+of Bobobase.</p>
+
+<h2>Issues</h2>
+
+<p>Below is a brief treatment of Bobo issues:
+
+<ol>
+  <li> Arguments are collected and passed in using metainfo available in
+functions. The interface for this metainfo is not documented, and
+Guido has asserted that it might be deprecated. However, the interface
+has been discussed in the newsgroup.
+
+  <li> Some interesting objects currently can have no metadata, except
+docstrings. This means that Bobo applications have to adopt a
+convention to provide method metainformation. For instance, there is a
+special way to add docstrings to things that cannot have docstrings,
+such as dictionaries. Also, the <code>__allow_groups__</code> for a
+method is assigned outside the method, using a specially-named
+variable.
+
+  <li> The current behavior of Python's <code>getattr</code> has created some
+curious Bobo hacks, specifically to support lazy access of persistent
+data. Furthermore, the act of traversing a hierarchy of objects, as
+represented by the URL, could be more tightly controlled using
+improved attribute referencing.
+
+  <li> Class attributes.
+
+</ol>
+
+
+<h2>Current Status</h2>
+
+<p>Bobo is freely-available. It currently exists as a set of modules,
+with some extensions for optimization (though the extensions are not
+necessary). It has been heavily tested, in support of paid-for
+applications.</p>
+
+<p>However, there has been very little optimization. Currently, we
+have a research project to add subclassable C types. The hope is that
+several pieces of Bobo could be tightly-controlled in ways not
+possible due to the issues raised above.</p>
+
+<p>Finally, we are working on pushing Bobo out of the nest. This first
+involves getting it working well on Windows. Also, we need to work on
+our ILU support, and some of the other infrastructure items. As well,
+we have a lot of documentation and proselytizing to do.</p>
+
+
+<h2>References</h2>
+<p>
+<ol>
+  
+  <li><a name="CGI"></a><em>Common Gateway Interface - 1.1</em><br>
+  <a
+href="http://www.ast.cam.ac.uk/%7Edrtr/cgi-spec.html">http://www.ast.cam.ac.uk/%7Edrtr/cgi-spec.html</a>
+ 
+  <li><a name="PythonHomePage"></a><em>Python Home Page</em><br><a
+href="http://www.python.org/">http://www.python.org/</a>
+
+  <li><a name="FastCGI"></a> <em>FastCGI</em><br><a
+href="http://www.fastcgi.com/">http://www.fastcgi.com/</a>
+
+  <li><a name="ILU"></a><em>ILU</em><br><a href="ftp://ftp.parc.xerox.com/pub/ilu/ilu.html">ftp://ftp.parc.xerox.com/pub/ilu/ilu.html</a>
+
+  <li><a name="COM"></a><em>COM/ActiveX/DCOM</em><br><a href="http://www.activex.org/">http://www.activex.org/</a>
+
+  <li><a name="Bobo"></a><em>Python Object Publisher, alias Bobo</em><br><a href="http://www.digicool.com/releases/">http://www.digicool.com/</a>
+
+  <li><a name="pCGI"></a><em>PersistentCGI</em><br><a href="http://www.digicool.com/releases/">http://www.digicool.com/</a>
+
+  <li><a name="CORBA"></a><em>CORBA</em><br><a href="http://www.omg.org/">http://www.omg.org/</a>
+
+
+</ol>
+</p>
+
+<hr>
+<strong>ID: </strong>$Id: UsingBobo.html,v 1.2 1996/10/09 20:03:28 paul Exp $<br>
+<address>paul@digicool.com</address>
+<!-- hhmts start -->
+Last modified: Wed Oct  9 16:03:01 1996
+<!-- hhmts end -->
+</body> </html>

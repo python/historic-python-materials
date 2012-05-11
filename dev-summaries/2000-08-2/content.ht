@@ -1,0 +1,143 @@
+Title: Python-dev summary: 2000-08-16 to 2000-08-31
+
+<pre>
+Python 1.6 progress
+===================
+
+David Ascher announced the first beta release of ActivePython 1.6,
+build 100. "ActivePython contains the convenience of swift
+installation, coupled with commonly used modules, providing you with a
+total package to meets your Python needs. Additionally, for Windows
+users, ActivePython provides a suite of Windows tools, developed by
+Mark Hammond."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-August/008835.html">http://mail.python.org/pipermail/python-dev/2000-August/008835.html</a>
+
+The binary distribution can be downloaded from:
+        <a href="http://www.ActiveState.com/Products/ActivePython/">http://www.ActiveState.com/Products/ActivePython/</a>
+
+
+Python 2.0 progress
+===================
+
+The current plan is to release Python 2.0b1 around Monday, Sept. 4.
+This represents a slip of about a week from the previously planned
+date.  The release is *very* close now, since the flurry of patches is
+now focusing on cosmetic matters such as READMEs and NEWS files.  At
+this point, 2.0 is considered to be in feature freeze; any PEPs that
+haven't been rejected outright will have to be postponed until Python
+2.1 (or whatever the next version is numbered).
+
+After months of discussion, the augmented assignment patch was checked
+in.  Python 2.0 will support statements such as 'L[3] += 1' as C does,
+though there's no ++ or -- to increment or decrement by 1.  The patch
+was written by Thomas Wouters, using changes to Python's grammar by
+Michael Hudson.
+
+Thomas also spearheaded a patch for renaming objects on import that
+quickly went through a few versions, and was checked in.  The patch
+adds 'import name1 as name2' and 'from module import name1 as name2'
+as legal Python syntax.
+
+Not all the suggested language changes went in; a patch to add range
+literals was defeated.  The patch would have made 'for i in [1:10]'
+equivalent to 'for i in range(1,10)'.  The general reaction was that
+people liked the idea, but no one was very enamored of the [1:10]
+syntax.  Tim Peters's opinion is representative.  "As the reviewer, I
+spent about 2 hours playing with it, trying it out in my code.  And I
+simply liked it less the more I used it."  In the same posting Tim
+proposed an alternate syntax inspired by Haskell.
+        <a href="http://mail.python.org/pipermail/python-dev/2000-August/008864.html">http://mail.python.org/pipermail/python-dev/2000-August/008864.html</a>
+
+Tim Peters wrote a PEP, #223, enshrining the change to the
+interpretation of \x (as mentioned in the previous python-dev
+summary):
+        <a href="http://python.sourceforge.net/peps/pep-0223.html">http://python.sourceforge.net/peps/pep-0223.html</a>
+
+Certain unlimited recursions can make Python dump core; there's a
+maximum recursion limit, but certain execution paths can sidestep the
+limit checks and run until the stack overflows and the interpreter
+dies.  On Windows and MacOS, there's a PyOS_CheckStack() function that
+can check whether the stack is nearing overflow.  Jeremy Hylton
+wondered about whether it's possible to write a similar function for
+Unix.  Start with Jeremy's post and then read the lengthy resulting
+thread:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-August/008904.html">http://mail.python.org/pipermail/python-dev/2000-August/008904.html</a>
+
+Near the end of the month, a discussion started about the possibility
+of adding a pragma statement.  M.-A. Lemburg: "I've been tossing some
+ideas around w/r to adding pragma style declarations to Python and
+would like to hear what you think about these: ..."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-August/008833.html">http://mail.python.org/pipermail/python-dev/2000-August/008833.html</a>
+
+Greg Wilson was supportive but warned that the mechanism should be a
+general one: "Pragmas are a way to give instructions to the
+interpreter; when you let people give something instructions, you're
+letting them program it, and I think it's best to design your
+mechanism from the start to support that."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-August/008893.html">http://mail.python.org/pipermail/python-dev/2000-August/008893.html</a>
+
+Greg Ewing, on the other hand, thought pragmas are a bad idea: "As
+this discussion demonstrates, it's far too fuzzy and open-ended a
+concept -- nobody can agree on what sort of thing a pragma is supposed
+to be."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-August/008979.html">http://mail.python.org/pipermail/python-dev/2000-August/008979.html</a>
+
+A mailing list was created to discuss BeOpen.com's license for Python
+2.0:
+        <a href="http://mailman.beopen.com/mailman/listinfo/license-py20">http://mailman.beopen.com/mailman/listinfo/license-py20</a>
+
+Guido's announcement: "Now that the CNRI license issues are nearly
+settled, BeOpen.com needs to put its own license on Python 2.0 (as a
+derivative work of CNRI's Python 1.6) too.  We want an open discussion
+about the new license with the Python community, and have established
+a mailing list for this purpose."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-August/008856.html">http://mail.python.org/pipermail/python-dev/2000-August/008856.html</a>
+
+
+Other matters
+=============
+
+comp.lang.python.announce is finally back!  Only a single moderator
+was named in the CFV for c.l.py.a, and he's been busy or otherwise
+difficult to contact for a long time, so the newsgroup has been
+effectively dead.  The problem has now been solved, by giving Mailman
+the ability to gateway a mailing list to a moderated newsgroup and
+creating a list of moderators who can approve postings.  Submissions
+should be sent to &lt;python-announce@python.org&gt;.
+
+There was some worrying on python-list about whether changes are being
+added too quickly to Python 2.0, resulting in less stability.  Skip
+Montanaro wrote a rebuttal: "Many of the things that are new in 2.0
+have been proposed on the list off and on for a long time.  Unicode
+support, list comprehensions, augmented assignment and extensions to
+the print statement come to mind.  They are not new ideas tossed in
+with a beer chaser (like "&lt;blink&gt;")."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-August/008811.html">http://mail.python.org/pipermail/python-dev/2000-August/008811.html</a>
+
+Tim O'Malley's Cookie.py module has been added to the standard
+library.  Some subsequent discussion followed about whether to drop
+the SerialCookie and SmartCookie classes, since they unpickle
+untrusted data, and are therefore unsafe: "Question: should
+SerialCookie and SmartCookie be removed?  If they're not there, people
+won't accidentally use them because they didn't read the docs and
+missed the warning."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-August/008957.html">http://mail.python.org/pipermail/python-dev/2000-August/008957.html</a>
+
+Barry Warsaw checked in his Python implementation of a gettext module,
+for internationalizing programs by providing translations of output
+messages: "My goal was to build a fast C wrapper module around the C
+library, and to provide a pure Python implementation of an identical
+API for platforms without GNU gettext."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-August/008537.html">http://mail.python.org/pipermail/python-dev/2000-August/008537.html</a>
+
+
+Charles Waldman finally tracked down the cause of the mysterious
+test_fork1.py crash, and submitted a patch to fix it that was accepted: 
+        <a href="http://mail.python.org/pipermail/python-dev/2000-August/008558.html">http://mail.python.org/pipermail/python-dev/2000-August/008558.html</a>
+
+AMK suggested adding a convenience API function to insert an integer
+into a module dictionary, since several modules contain duplicated
+code to do that.  "Suggested prototype and name:
+PyDict_InsertInteger(dict *, string, long)"  
+        <a href="http://mail.python.org/pipermail/python-dev/2000-August/008498.html">http://mail.python.org/pipermail/python-dev/2000-August/008498.html</a>
+</pre>

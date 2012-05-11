@@ -1,0 +1,448 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 3.0//EN" "html.dtd">
+<HTML>
+<HEAD>
+<TITLE>Achieving high-performance with long-running World-Wide Web applications</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#000066"  VLINK="#808080" ALINK="#808080">
+<FONT FACE="Arial" SIZE="2">
+
+
+<H2 ALIGN="CENTER">
+Achieving high-performance with long<BR>
+running World-Wide Web applications
+</H2>
+
+<P ALIGN="CENTER">
+Brian Lloyd, <I><A HREF="mailto:brian@digicool.com">brian@digicool.com</A></I>
+</P>
+
+<P ALIGN="CENTER">
+Digital Creations, L.L.C.<BR>
+910 Princess Anne St.<BR>
+Fredericksburg, VA 22401<BR>
+<I><A TARGET="_top" HREF="http://www.digicool.com">http://www.digicool.com</A></I>
+</P>
+
+<HR>
+
+
+
+
+
+<P><BIG><BIG>Abstract</BIG></BIG></P>
+
+<P><I>
+       Dramatic performance gains can be gained by avoiding long
+       startup times associated with Common Gateway Interface (CGI)
+       applications, especially when a large number of Python modules
+       are used. Avoiding startup overhead is even more important when 
+       expensive connections to external persistent data stores are
+       required.  Management of persistent data is simplified if only
+       one process is accessing the data.  This paper discusses
+       strategies for implementing long-running World-Wide Web
+       applications and experience with three of these strategies.
+</I></P>
+<BR>
+
+
+
+<P><BIG><BIG>Introduction</BIG></BIG></P>
+<P>
+As widespread usage of the Web continues to grow, the deployment of dynamic Web 
+applications is quickly displacing the publishing of static content in many 
+organizations' Internet strategies.  The use of Python and other high-level scripting 
+languages with CGI allow very rapid application development. However, many organizations 
+are finding CGI insufficient for providing the performance required to implement more complex  
+applications. Lack of CGI support for long-running processes incurs large performance 
+penalties on applications with high initialization overhead or which need to establish 
+connections to enterprise data sources. Web applications often must be designed around 
+the constraints of CGI rather than designed to the requirements of the problem to be solved. 
+In fact, some designs simply cannot be reasonably implemented in a standard CGI environment.
+</P>
+
+<P>
+Several strategies for achieving connectivity with long-running processes exist, 
+notably:
+<DL>
+<DT> <BR><B>Web server API integration</B>
+<DD> Many popular Web servers provide a server API which can be used to 
+     route HTTP requests to long-running processes. The method used to route 
+     requests, however, must be implemented by the application developer. 
+     This strategy can provide 
+     very high-performance, but at a cost. Most server APIs are not compatible, 
+     and applications written to a specific API lose the general portability afforded 
+     by CGI. Portability may be further constrained by the IPC mechanism used to provide 
+     connectivity to the long-running process. API applications generally must be written 
+     in C, requiring a more significant development effort than would be the case if 
+     Python or another RAD language could be used. Finally, bugs in applications written 
+     directly to a server API can introduce instabilities in the server itself, which is 
+     a problem for sites requiring high availability.
+     <P>
+     Digital Creations' ILU Requester provided long-running process support by hooking 
+     a Web server API and attempting to minimize the restrictions imposed on the Web 
+     application. As we shall see, however, the problems associated with writing directly to 
+     a server API kept this strategy from being a viable architecture for publishing long-running 
+     applications through the Web.
+     </P>
+
+<DT> <BR><B>Open Market's FastCGI</B>
+<DD> Open Market's FastCGI <A HREF="#FCGI">[1]</A> can provide connectivity to 
+     long-running processes as well as simulate standard CGI. FastCGI is compatible 
+     with applications written in Python and other common CGI scripting languages,
+     and generally does not require that applications be FastCGI-aware. FastCGI
+     is an open protocol, though implementations are currently only available for 
+     Open Market, Apache, and NCSA Web servers. As of this writing, no implementations 
+     are available for Windows platforms. The FastCGI standard also defines 
+     several &quot;roles&quot; available to a Web application other than the traditional 
+     &quot;Responder&quot; role, which can allow an application to log requests or perform 
+     authorization rather than respond to HTTP requests directly.
+
+<DT> <BR><B>Digital Creations' Persistent CGI</B>
+<DD> Persistent CGI (PCGI) is a simple, lightweight mechanism that allows HTTP requests
+     to be handled by long-running Python processes (though most any scripting language
+     could easily implement PCGI support). PCGI is designed to work on any Web server 
+     that supports standard CGI, and requires no specific support on the part of a Web 
+     application. PCGI also provides support for Digital Creations' Python Object Publisher 
+     system.
+     
+
+</DL>
+</P>
+
+
+<P>
+Digital Creations has developed a number of Python-based Web applications which 
+have required long-running process support. In the course of development, we have 
+used several variations of the strategies above. Following is a discussion of each 
+strategy and it's usefulness in implementing high performance Web applications.
+</P>
+
+
+
+
+
+<BR>
+<P><BIG><BIG>Inter-Language Unification (ILU) Requester</BIG></BIG></P>
+<P>
+Digital Creations' ILU Requester <A HREF="#REQUESTER">[2]</A> was our first attempt 
+to provide Web connectivity to Python applications using ILU <A HREF="#ILU">[3]</A>.
+The ILU Requester is implemented as a server API mechanism which allows ILU object 
+servers to be registered with the Web server. Published Python objects
+which implement the HTTP ISL via Digital Creations' wwworb <A HREF="#HTTPISL">[4]</A> 
+abstraction become Web-accessible resources with a minimum of direct ILU support 
+in the application.
+</P>
+
+<P>
+ILU provides a number of powerful features including the ability to use many different 
+communication abstractions (TCP, RPC, DCOM, IIOP), broad platform support, and advanced 
+features like distributed garbage collection. With support for higher-level RAD languages 
+such as Python, these features qualify ILU as a natural component for creating robust, 
+widely interoperable Web-based solutions.
+</P>
+
+<P>
+The ILU Requester was compelling in that it offered the possibility of publishing
+both local and remote objects, written in any ILU-supported language. It also provided 
+a standard development interface via the HTTP ISL which made it easy to implement 
+frameworks and abstractions to keep the specifics of ILU out of application code. 
+While the HTTP interface allowed applications to avoid dealing with the mechanics of an 
+HTTP request, writing to the interface dictated certain aspects of the design of the 
+application. This design did not allow Python programs to leverage native Python types, 
+though HTTP itself is typeless.
+</P>
+
+<P>
+In the course of releasing commercial software using these technologies, it became 
+apparent that the weakness of the ILU Requester is in it's Web server API integration. The 
+APIs provided by various Web server vendors vary greatly, making it extremely 
+difficult to provide Requester implementations for a wide range of servers and 
+platforms. While HTTP ISL / wwworb applications written in Python are well insulated from server/platform 
+issues, maintaining Requesters compatible with numerous versions of many popular 
+Web server APIs quickly became a resource drain.
+
+ILU continues to have intriguing possibilities as a 
+component in distributed high-performance Web architecture, but clearly a more portable 
+and maintainable implementation than was achieved with the Requester is required.
+</P>
+
+
+
+
+
+
+
+<BR>
+<P><BIG><BIG>FastCGI</BIG></BIG></P>
+<P>
+FastCGI appeared at roughly the same time that we were looking for a more 
+Web server-independent application architecture.
+In addition to providing connectivity to long-running Web applications, FastCGI 
+provides other features such as process control, and allows applications to service 
+HTTP requests indirectly in Authorization or Logging roles. We used Open Market's 
+Secure Web Server to evaluate FastCGI and attempted to port one of our existing ILU Requester 
+based applications to use it.
+</P>
+<P>
+FastCGI, from a Python application perspective, works by replacing the low-level 
+stdin / stdout /stderr implementation used by the application with an implementation 
+that uses the FastCGI protocol to pass requests between Web server and application.
+This method allows streaming of data from an application back to the 
+HTTP client, which offers greater perceived performance for applications such as 
+search engines, which may return large result sets.
+
+As it uses TCP sockets as its IPC mechanism, it is possible to build distributed 
+applications using FastCGI. The FastCGI specification describes an ambitious architecture 
+which allows for multi-threaded application architectures and future additions to the 
+&quot;roles&quot; a FastCGI application may perform. Open Market 
+sells several Web server products which offer FastCGI support, and as of this writing offers 
+patch modules for NCSA httpd 1.5.2 and Apache  which add support for FastCGI on those servers.
+</P>
+
+<P>
+A useful feature of FastCGI is it's ability to perform automatic process control on 
+long-running applications. FastCGI aware Web servers can be configured to automatically restart 
+stalled or crashed applications. This is particularly important for long-running applications 
+which may use external libraries where instabilities or resource leakage are out of the developer's 
+control. A consistent method of starting Web processes is also easier on the end users of the 
+application.
+</P>
+
+<P>
+It proved very easy to transition our Python based long running chat server application 
+to FastCGI as it was based on our wwworb Request/Response abstractions. In testing of the 
+application it was found that there were size limitations on the amount of data that could 
+be returned by a Web application which, if exceeded, would cause the active Web server thread 
+to block other server threads. Under heavy load conditions, a server thread returning a large amount 
+of data to a slow client on a 14.4Kbps modem connection can cause significant overall performance 
+degradation due to the blocking issue. This is largely an implementation issue that surely will 
+be addressed in time, but at present the blocking issue potentially negates any performance 
+increases gained by using a long-running process. As commercial application developers, the 
+currently small number of Web servers which offer FastCGI support was an issue for us. There 
+is a feeling in the community that a Win32 port of FastCGI would be difficult. The prospects 
+for Win32 support for FastCGI applications, at least in the near term, seems unclear. 
+The combination of these factors led us to conclude that FastCGI is not yet a solid 
+foundation for our long-running Web solutions.
+</P>
+
+
+
+<BR>
+<P><BIG><BIG>Persistent CGI</BIG></BIG></P>
+<P>
+Needing a workable, server-independent solution to the problem of connecting to 
+long-running processes through the Web, Digital Creations developed Persistent CGI (PCGI) as 
+the simplest working solution to publishing Python applications. PCGI, used with the Python 
+Object Publisher <A HREF="#PYTHON_OBJECT_PUBLISHER">[5]</A>, provides a transparent, high-performance solution for publishing long-running 
+services.
+It is a less ambitious solution than FastCGI or the ILU Requester systems, but offers 
+similar performance benefits while remaining Web server independent. 
+</P>
+
+<P>
+  Persistent CGI allows a long running process to be published via the WWW
+  on any server which supports CGI, and requires no specific support
+  in the published application (beyond the fact that the design of the
+  application will reflect the intent that the application be a long-
+  running process).  Persistent CGI works by providing a "publisher" component,
+  which initiates the application and listens for incoming requests, and
+  a "wrapper" component which is essentially a very lightweight, optimized CGI
+  program (written in C). The wrapper passes HTTP requests to the long-running process
+  via a simple protocol, and returns the application's response.
+</P>
+
+<P>
+PCGI also provides rudimentary process control. An installed PCGI application is actually started 
+by the wrapper component which handles the first CGI request to the application. The wrapper, 
+for speed purposes, will immediately attempt to connect to the target application upon execution by the 
+Web server. If, however, the wrapper finds that it cannot connect, it will attempt to 
+restart the resource, wait for it to initialize and re-attempt a connection. 
+(If at this point the connection still can't be made, an error is assumed and an appropriate 
+message returned to the client.)
+</P>
+
+<P>
+<DL>
+<DT> <B>The PCGI &quot;Wrapper&quot;</B>
+<DD> A very lightweight &quot;wrapper&quot; process which is instantiated by and captures 
+     the CGI request from  the Web server. The wrapper uses a small text file to determine 
+     the necessary information to connect to the target process via an IPC mechanism appropriate 
+     for the platform (currently UNIX sockets on Unix, INET sockets on Win32). After establishing 
+     a connection to the process, the wrapper relays the CGI request and buffers the response before 
+     terminating the connection to the process. Finally the wrapper rebuilds the CGI response, returning 
+     it to the Web server via the normal stdout and stderr.
+
+
+
+<DT> <BR><B>The PCGI &quot;Publisher&quot;</B>
+<DD> The PCGI Publisher is a Python module which is actually used to start the long-running process, 
+     providing the necessary mechanisms to listen for connections from PCGI wrapper processes. Upon 
+     receiving a PCGI request, the publisher builds the request into a dictionary containing the enviroment 
+     and a File object containing stdin . The PCGI Publisher passes the rebuilt CGI request to the Python Module Publisher, 
+     which performs namespace resolution, calls the appropriate object or method, and stores the response into 
+     two File objects representing stdout and stderr. The publisher then converts the captured stdout and stderr objects 
+     to a PCGI stream, sending it to the wrapper before terminating it's end of the connection and 
+     waiting for a new request.
+</DL>
+<BR>
+
+The integration of PCGI with the Python Object Publisher allows application code to remain 
+completely independent of the method used to contact it. The generation of the PCGI information 
+file used by the wrapper executable is able to be pushed out to installation utilities, and 
+the entire IPC mechanism could be changed at a later time without affecting application logic. 
+(This is in fact the case on Win32 platforms which do not support UNIX domain sockets.)
+
+
+
+
+<P>
+<BR>
+Initial tests indicate that Persistent CGI provides performance similar to 
+ server API or FastCGI based solutions. By buffering the requests and responses
+of a PCGI application, the wrapper minimizes the time the application actually spends servicing 
+a request, and provides immunity from any buffering quirks of the particular Web server in use. 
+
+The fact that the wrapper, no matter how fast or light, still causes some small amount of CGI overhead 
+is made up for in that:
+<UL>
+<LI> the application can run on a much broader range of servers and platforms
+<LI> per-request overhead is finite and constant, unrelated to the application
+</UL>
+</P>
+
+<BR>
+With a powerful application abstraction layer such as the Python Object Publisher, 
+PCGI can achieve much better performance than common CGI without sacrificing portability. 
+The external nature of PCGI allows for future improvement or extension without affecting 
+application code. It could in fact be implemented as a Web server API mechanism for 
+certain high-load applications, providing further performance increases and lower system 
+overhead.
+</P>
+
+
+
+<TABLE WIDTH="100%" ALIGN="CENTER" BORDER="1">
+<TH COLSPAN="4">
+<FONT FACE="Arial" SIZE="2">
+<I><CENTER>Comparison of long-running process connectivity strategies</CENTER></I>
+</FONT>
+</TH>
+
+<TR>
+<TD></TD>
+<TD ALIGN="LEFT" BGCOLOR="#EFEFEF"><FONT FACE="Arial" SIZE="2"><B>ILU Requester</B></FONT></TD>
+<TD ALIGN="LEFT" BGCOLOR="#EFEFEF"><FONT FACE="Arial" SIZE="2"><B>FastCGI</B></FONT></TD>
+<TD ALIGN="LEFT" BGCOLOR="#EFEFEF"><FONT FACE="Arial" SIZE="2"><B>Persistent CGI</B></FONT></TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" BGCOLOR="#E6E6F0">
+<FONT FACE="Arial" SIZE="2"><I>Web Server Independent</I></FONT>
+</TD>
+<TD><FONT FACE="Arial" SIZE="2">No</FONT></TD>
+<TD><FONT FACE="Arial" SIZE="2">No</FONT></TD>
+<TD><FONT FACE="Arial" SIZE="2">Yes</FONT></TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" BGCOLOR="#E6E6F0">
+<FONT FACE="Arial" SIZE="2"><I>Multiple Platform Support</I></FONT>
+</TD>
+<TD><FONT FACE="Arial" SIZE="2">No</FONT></TD>
+<TD><FONT FACE="Arial" SIZE="2">No</FONT></TD>
+<TD><FONT FACE="Arial" SIZE="2">Yes</FONT></TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" BGCOLOR="#E6E6F0">
+<FONT FACE="Arial" SIZE="2"><I>Distributed Object Communications</I></FONT>
+</TD>
+<TD><FONT FACE="Arial" SIZE="2">Yes</FONT></TD>
+<TD><FONT FACE="Arial" SIZE="2">No</FONT></TD>
+<TD><FONT FACE="Arial" SIZE="2">No</FONT></TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" BGCOLOR="#E6E6F0">
+<FONT FACE="Arial" SIZE="2"><I>Typed Protocol</I></FONT>
+</TD>
+<TD><FONT FACE="Arial" SIZE="2">Yes</FONT></TD>
+<TD><FONT FACE="Arial" SIZE="2">No</FONT></TD>
+<TD><FONT FACE="Arial" SIZE="2">No</FONT></TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" BGCOLOR="#E6E6F0">
+<FONT FACE="Arial" SIZE="2"><I>Development Effort</I></FONT>
+</TD>
+<TD><FONT FACE="Arial" SIZE="2">Large</FONT></TD>
+<TD><FONT FACE="Arial" SIZE="2">Small</FONT></TD>
+<TD><FONT FACE="Arial" SIZE="2">Small</FONT></TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" BGCOLOR="#E6E6F0">
+<FONT FACE="Arial" SIZE="2"><I>Process Activation</I></FONT>
+</TD>
+<TD><FONT FACE="Arial" SIZE="2">No</FONT></TD>
+<TD><FONT FACE="Arial" SIZE="2">Yes</FONT></TD>
+<TD><FONT FACE="Arial" SIZE="2">Yes</FONT></TD>
+</TR>
+
+</TABLE>
+
+
+
+
+<BR><BR>
+<P><BIG><BIG>Future</BIG></BIG></P>
+<P>
+
+As the distributed object world matures and the Web continues to move from content to 
+code, multi-tiered abstractions such as the combination of PCGI and the Python Object 
+Publisher provide the basis for future interoperability. These abstractions could allow the 
+incorporation of ILU, IIOP, DCOM, or other emerging 
+technologies to publish robust, complex systems with a minumum of effort. It is easy to 
+envision a Python Object Publisher that allows a single long-running resource to respond to 
+requests via both HTTP and IIOP (or any combination of protocols!) while maintaining a single, 
+unaffected codebase. Recent trends toward the deployment of client-side objects make these 
+possibilities even more compelling.
+</P>
+
+
+
+<BR>
+<HR>
+<BR>
+<P><BIG><BIG>References</BIG></BIG></P>
+</P>
+<OL>
+<LI><A NAME="FCGI">Brown, Mark R.</A><BR>
+    <I>FastCGI: A High-Performance Gateway Interface</I><BR>
+    Open Market, Inc.<BR>
+    Position paper for the workshop &quot;Programming the Web - a search for APIs&quot;,<BR>
+    Fifth International World-Wide Web Conference, 6 May 1996, Paris, France.<BR>
+    <A TARGET="_top" HREF="http://www.fastcgi.com/kit/doc/www5-api-workshop.html">http://www.fastcgi.com/kit/doc/www5-api-workshop.html</A>
+    <P>
+
+<LI><A NAME="REQUESTER">The ILU Requester: Object Services in HTTP Servers</A><BR>
+    <A TARGET="_top" HREF="http://www.w3.org/pub/WWW/TR/WD-ilu-requestor">http://www.w3.org/pub/WWW/TR/WD-ilu-requestor</A> 
+    <P>
+
+<LI><A NAME="ILU">Xerox PARC's Inter-Language Unification</A><BR>
+    <A TARGET="_top" HREF="ftp://ftp.parc.xerox.com/pub/ilu/ilu.html">ftp://ftp.parc.xerox.com/pub/ilu/ilu.html</A> 
+    <P>
+
+<LI><A NAME="HTTPISL">Digital Creations' HTTP ISL</A><BR>
+    <A TARGET="_top" HREF="http://www.digicool.com/releases/">http://www.digicool.com/releases/</A> 
+    <P>
+
+<LI><A NAME="PYTHON_OBJECT_PUBLISHER">Python Object Publisher</A><BR>
+    <A TARGET="_top" HREF="http://www.digicool.com/Papers/PythonObjectPublisher.html">http://www.digicool.com/Papers/PythonObjectPublisher.html</A> 
+    <P>
+</OL>
+
+</FONT>
+</BODY>
+</HTML>

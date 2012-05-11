@@ -1,0 +1,625 @@
+python-dev Summary for 2003-06-01 through 2003-06-30
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from June 1, 2003 through June 30, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have an archived summary of each thread started on the list.  To comment on anything mentioned here, just post to python-list@python.org or `comp.lang.python`_ with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the eighteenth/nineteenth summary written by Brett Cannon (has his own room with a door for the first time in his life).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; its simple and is accepted for `PEP markup`_.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+The in-development version of the documentation for Python can be found at http://www.python.org/dev/doc/devel/ and should be used when wanting to look up any documentation on something mentioned here.  Python PEPs (Python Enhancement Proposals) are located at http://www.python.org/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+.. contents::
+
+
+.. _last summary: http://www.python.org/dev/summary/2003-05-16_2003-05-31.html
+
+
+=====================
+Summary Announcements
+=====================
+I lost Internet on the morning of June 18 and did not regain it until June 29.  Since it was so close to the end of the month I decided to just combine the next summary into this month-long summary.
+
+During my Internet blackout that reminded me of the days back when I spent my days playing video games and watching television, my future life as a graduate student began to form.  Since I am going to have the joy of taking three upper-division undergraduate courses this upcoming fall semester I don't think I am going to have the time to do the summaries when school starts, at least in the capacity I am doing them currently.
+
+At minimum I suspect I will have to cut back on the depth of them since I refuse to put the summaries before hacking on the core (hacking is more fun and I would like to think I can contribute more to Python that way).  If you want this job I will be willing to give it up starting in September (I want a full year's worth of summaries behind me before I am willing to pass the torch).  But if no one takes it I can probably continue to do them in a rather informal way by summarizing only big threads that I find interesting until someone steps forward to do a good, thorough job.
+
+If you *really* want to do the summaries at the same level of depth as I am currently doing them and are interested in taking over starting in September, give me an email at brett@python.org .
+
+
+================================================
+`Descriptor write-up [Draft:  Please comment]`__
+================================================
+__ http://mail.python.org/pipermail/python-dev/2003-June/035922.html
+
+Related threads:
+    - `Descriptor write-up [second draft]`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-June/035936.html
+
+Raymond Hettinger has written an paper on descriptors covering what they are to how to write your own.  Since not only are properties class methods, static methods, and 'super' object descriptors (more on the last one later on in this summary) but descriptors are used throughout Python now to create bound objects for functions, methods, etc.
+
+It would behoove all serious Python programmers to read http://users.rcn.com/python/download/Descriptor.htm .
+
+
+======================================
+`Where to put the interrupt module?`__
+======================================
+__ http://mail.python.org/pipermail/python-dev/2003-June/036265.html
+
+Not earth-shattering, but to make sure that people know when new things are added to the stdlib I figured I should make this thread have a full-blown summary.
+
+Thanks to the development work on IDLEfork_, a new function in the thread module called interrupt_main has been added.  It raises KeyboardInterrupt in the main thread of a program.  The reason the exception is KeyboardInterrupt and not some new exception is because KeyboardInterrupt is the only asynchronous error in Python.
+
+There was discussion of making it much more general, which led to the PyThreadState_SetAsyncState API that allows the raising of an exception in another thread.
+
+.. _IDLEfork: http://idlefork.sf.net/
+
+
+==========================================
+`Can't compile _tkinter.c with Redhat 9`__
+==========================================
+__ http://mail.python.org/pipermail/python-dev/2003-June/036277.html
+
+`Red Hat`_, apparently, modified their distribution of Tcl_ so as to support `UCS-4`_ text encoding so that their distribution of Python 2.2 could be compiled with UCS-4 support.  Problem is that this does not allow Python to compile with UCS-2 support; you **have** to compile with UCS-4 support and not UCS-2 under Red Hat 9 with their custom version of Tcl.
+
+Thanks to Martin v. Lšwis, 2.3 has been modified so that Python compiled in either UCS-4 or UCS-2 will work with standard Tcl which is UCS-2 natively.
+
+.. _Red Hat: http://www.redhat.com/
+.. _Tcl: http://www.tcl.tk/
+.. _UCS-4: http://www.wikipedia.org/wiki/UCS-4
+
+
+===========
+`PEP-317`__
+===========
+__ http://mail.python.org/pipermail/python-dev/2003-June/036027.html
+
+Splintered threads:
+    - `Exception masking/chaining`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-June/036070.html
+
+A discussion of PEP 317 broke out on python-dev.  You can read the PEP for details but it advocated removing string exceptions (they are going to be gone in Python 3) and implicit exception instantiation (that is not changing).  The PEP was eventually rejected and has the details of why it was rejected in the end.
+
+Part of this discussion forked off to discuss exception masking.  The idea came up that it might be nice for an exception to keep a reference to a previous exception that was still uncaught at that point.  An example is an exception in the function passed to map; the function gets returned without knowing that it was in map.  Masking it wouldn't work though since you then wouldn't know about the error in the function itself.  But if there was a way to raise an exception from map that reference the original exception from the function then no information would be lost.  Chaining the exceptions together would most likely just be sticking the previous exception in an attribute of the new one.  This was all originally discussed `in January <http://mail.python.org/pipermail/python-dev/2003-January/032492.html>`__ and `February <http://mail.python.org/pipermail/python-dev/2003-February/032864.html>`__ of this year.
+
+There was also discussion of adding the traceback for an exception as an attribute of the exception.  This would make getting respective tracebacks easier period but also easier if exception chaining was implemented.  The traceback would most likely be attached to the exception when it is caught and not at instantiation.
+
+Both of these ideas are just that, ideas.  They most likely won't occur until exceptions are moved over to new-style classes which probably won't be for a while.
+
+
+===========================
+`towards a faster Python`__
+===========================
+__ http://mail.python.org/pipermail/python-dev/2003-June/036059.html
+
+Related threads:
+  - `problem with assignment shadows builtin warning`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-June/036422.html
+
+A new warning has been added to Python for when you inject an attribute into a module to shadows a built-in::
+
+    import os
+    os.open = 42
+
+This is in hopes of making this kind of thing illegal so as to allow the bytecode to be optimized for accessing built-ins.  It also led to package imports, such as ``import A.B.C`` to work directly on the namespace dict instead of doing essentially ``setattr(A, 'B', A.B); setattr(A.B, 'C', A.B.C)``.
+
+
+============================
+`Sneaky 'super' instances`__
+============================
+__ http://mail.python.org/pipermail/python-dev/2003-June/036155.html
+
+Splinter threads:
+    - `PEP 246 and Protocols`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-June/036235.html
+
+Discovering that an instance to the 'super' type is both an instance of a class *and* a non-data descriptor was causing issues for pydoc and inspect led to the question of whether there was any definitive way to tell whether an object was an instance of a class defined by using the 'class' statement in Python.  It turns out there is: if object.__class__.__flags__ >> 9 & 1 is 1 (which is the Py_TPFLAGS_HEAPTYPE in C) *and* its metaclass is or a subclass of type.
+
+This then spawned a discussion about protocols and interfaces (which was discussed once way back when under the title `type categories`_) since protocols could supposedly allow one to define a protocol for what makes up a 'super' instance.  None of this will get into the language (if it ever gets in) until Guido can really think it through and that will be a while.
+
+.. _type categories: 
+
+===================================
+`Details on Python shutting down`__
+===================================
+__ http://mail.python.org/pipermail/python-dev/2003-June/036386.html
+
+What happens while Python is shutting down?  Well, it calls Py_Finalize in Python/pythonrun.c .  This means that signals are turned off, gc.collect is called, calls PyImport_Cleanup in Python/import.c, and then calls. gc.collect one more time.
+
+PyImport_Cleanup is where modules are torn down.  __main__ is deleted, then everything but sys and __builtin__, and then sys and __builtin__ (in that order).  Now "deletion" as mentioned he is setting the module to None in sys.modules, setting all names starting with a single underscore to None in the module, and then all others sans __builtins__ .
+
+This is why when you define a __del__ method you need to make sure that all things referenced in it are local; global names in the module will have been set to None by the time the code is called if the object is collected during shutdown and raise an exception.
+
+
+==================================================================
+`Re: [Python-checkins] python/dist/src/Objectslistobject.c,2.15`__
+==================================================================
+__ http://mail.python.org/pipermail/python-dev/2003-June/036445.html
+
+list.index now has optional start and end arguments.
+
+
+==========================
+`RELEASED: Python 2.3b2`__
+==========================
+__ http://mail.python.org/pipermail/python-dev/2003-June/036623.html
+
+Related threads:
+  - `2.3b2 this weekend`__
+  - `Python 2.3b2 branch tag created`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-June/036596.html
+__ http://mail.python.org/pipermail/python-dev/2003-June/036614.html
+
+Title says it all.  Big thing with this beta release is the new version of IDLE.  As with all betas, please download it and give it a whirl to try to shake out any bugs that need fixing *ASAP*; we are going to aim for an August 1 release date for final thanks to Apple planning to incorporate Python 2.3 into Panther_.
+
+.. _Panther: http://www.apple.com/macosx/panther/
+
+
+=============================================
+`Re: Activating `-i' from inside a script?`__
+=============================================
+__ http://mail.python.org/pipermail/python-dev/2003-June/036579.html
+
+Related threads:
+  - `Delayed `-i'! :-)`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-June/036636.html
+
+Thanks to Skip Montanaro and someone curious at comp.lang.python_ you can now set the PYTHONINSPECT environment variable to something and then be started into an interactive interpreter if an exception propagates all the way to the end of a program without being caught.
+
+
+========
+Quickies
+========
+Weekly Python Bug/Patch Summary
+-------------------------------
+    - `2003-06-01`__
+    - `2003-06-08`__
+    - `2003-06-15`__
+    - `2003-06-22`__
+    - `2003-06-29`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-June/035926.html
+__ http://mail.python.org/pipermail/python-dev/2003-June/036021.html
+__ http://mail.python.org/pipermail/python-dev/2003-June/036364.html
+__ http://mail.python.org/pipermail/python-dev/2003-June/036525.html
+__ http://mail.python.org/pipermail/python-dev/2003-June/036610.html
+
+
+`BaseHTTPServer parsing`__
+---------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/035948.html
+
+Code marked as internal to a module in the stdlib means you should not directly reference it in your code lest you are willing to deal with possible future breakage when a refactoring of that module is done.
+
+
+`popen2.py strangeness`__
+-------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/035955.html
+
+A race condition in popen2 was found and fixed in 2.3 but was not solved in time for 2.2.3 .  It has been marked for backporting for 2.2.4 .
+
+
+`timsort?`__
+------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/035958.html
+
+The new sorting algorithm for lists (known affectionately as "timsort" since Tim Peters wrote that tricky piece of code) is a 2.3 feature.  But if you would like it for older versions of Python you can get it from http://py-stablesort.sourceforge.net/ .
+
+
+`Mundane dict __setitem__...`__
+-------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/035970.html
+
+The hash value for an object in a dictionary is not guaranteed to be done based on identity; having two names set to equal tuples and used as keys will overwrite each other.
+
+
+`Meaning of trailing comma?`__
+------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/035990.html
+
+Improper for python-dev, but Michael Chermside was nice enough to answer the question nonetheless.
+
+
+`test_strptime failed`__
+------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/035995.html
+
+A failing test was reported.  Follow-up on the thread is still pending.
+ 
+
+`IDLEfork Re-integration into Python`__
+---------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/035994.html
+
+The new version of IDLE (being developed by the `IDLEfork`_ team) is going to be kept in Lib/idlelib/ .
+
+
+`On Syntax Extensibility (again)`__
+-----------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036002.html
+
+Samuele Pedroni's thoughts on blocks (like thunks) in Python.  This goes way back to the `2003-02-01 summary`_ and the `thunks <http://www.python.org/dev/summary/2003-02-01_2003-02-15.html#thunks>`__ summary.
+
+.. _2003-02-01 summary: http://www.python.org/dev/summary/2003-02-01_2003-02-15.html
+
+
+`The Python interpreter is not fully thread-safe.`__
+----------------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036004.html
+
+It is going to be added to the documentation for threading in the Python core that it does not support free threading.  For those of you who aren't familiar with what free threading is (it apparently comes from the Windows programming world), it means that something can be called at any time from any thread.  In other words it is thread-safe without requiring any special API.
+
+
+`urllib2 proxy support broken?`__
+---------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036005.html
+
+This was initially covered in the `last summary`_.
+The broken proxy support in urllib2 has been fixed.
+
+
+`Re: [Python-checkins] python/dist/src/Lib  pprint.py`__...
+-----------------------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036008.html
+
+A patch applied to pprint to try to notice if a type's __repr__ had changed was backed out.
+
+
+`mimetypes.guess_all_extensions()`__
+------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036076.html
+
+Now returns the empty list when there are no matching extensions.
+ 
+
+`[OT] Thank you, python-dev`__
+------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036083.html
+
+An email from me to python-dev thanking the list for everything they have done since it helped get me into grad school.
+
+
+`Re: [DB-SIG] API suggestion: expose 'quote' method`__
+------------------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036108.html
+
+Email about adding an optional quote function to the Python `DB-API`_ spec.
+ 
+.. _DB-API: http://www.python.org/topics/database/
+
+
+`Updated 2.3 Release Schedule`__
+--------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036163.html
+
+Don't expect 2.3 final to be released until some time after OSCON (it ends on July 11).
+
+
+`cPickle coredump with 2.3/cvs`__
+---------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036187.html
+
+Someone was having core dump on them thanks to cPickle, but with no one else able to reproduce the problem so it's up to the OP to help solve this one.
+
+
+`Patch to remove eval from csv sniffer`__
+-----------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036203.html
+
+A patch for the new csv package was questioned since 2.3 is in beta.  Guido gave the clear, though, since the chances of people's code being dependent on the package were negligible.
+
+
+`Proposal to drop f_tstate`__
+-----------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036204.html
+
+A misunderstanding on the use of the f_tstate value in frames in C code.
+
+
+`Caching of builtins and globals in action`__
+---------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036228.html
+
+Samuele Pedroni playing with caching accesses to globals and built-ins.
+
+
+`Two useful patches involving tracebacks`__
+-------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036230.html
+
+After discussing a useful patch, the idea of refactoring the cgitb and traceback module for 2.4 came up and seemed to be agreed upon to be a good idea.
+ 
+
+`PEP-311 operational?`__
+------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036282.html
+
+Someone asking if PEP 311 has been applied.
+ 
+
+`Can we switch different "byte code interpreters"?`__
+-----------------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036105.html
+
+Answer: no.
+Lesson learned: when you want to start a new thread do not piggyback on an existing one unless it is somehow related.
+
+
+`Sporadic test failures in Lib/test/test_mimetools.py`__
+--------------------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036299.html
+
+When writing tests that base results on the time difference between time measurements you *must* make sure that the difference is big enough to be noticed by a platforms time.time function (Windows only measures 18.2 times a second).
+
+
+`porting problems`__
+--------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036308.html
+
+Someone has gotten Python to run on an XBox and GameCube.  =)
+
+
+`Python language standard; LSB`__
+---------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036325.html
+
+Python has no "standard"; CPython is as close as you are going to get.
+
+
+`VC 7.1 compiler for key developers - last call!`__
+---------------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036339.html
+
+Guido asked for key developers who wanted a free copy of VC 7.1 to speak up.
+
+
+`PEP280 and my experiment`__
+----------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036356.html
+
+Taking cues from PEP 280, Samuele Pedroni experimented with caching access to builtins and globals and got about a 15% increase.
+
+
+`On the possibility of "optimizing" range() calls in for-loops`__
+-----------------------------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036358.html
+
+The idea of optimizing the bytecode for calls to range in 'for' loops is still being thrown around.  Alex Martelli, though, pointed out that if you just need to do something a set number of times nothing beats itertools.repeat .
+
+`Changes to IDLE`__
+-------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036366.html
+
+All new bugs and patches in regards to IDLE should go into the Python tracker.
+
+
+`zipfile.py (SF #755031)`__
+---------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036372.html
+
+A bug with zipfile was found and subsequently patched.
+
+
+`New PEP: 319`__
+----------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036387.html
+
+A new PEP on adding a keyword for synchronizing code has been put online.
+
+
+`Py2.3 Todo List`__
+-------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036453.html
+
+Related threads:
+  - `More work on SRE`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-June/036520.html
+
+Essentially a discussion as to whether to apply Gustavo Niemeyer's patch to remove the recursion limit from the re module and to add sys.(get|set)defaultsourceencoding functions.  The former is in (with help of a coverage tool that comes with gcc and is talked about at https://moin.conectiva.com.br/GustavoNiemeyer/2003-06-19 ) and the latter had new tests added but won't have the code removing recursion limits applied  until after 2.3.
+
+.. _EuroPython: http://www.europython.org/
+
+
+`Handler.setLevel()`__
+----------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036466.html
+
+Misunderstanding over how the method worked.
+
+
+`No Net at home`__
+------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036485.html
+
+I lost Internet, as you probably know from the `Summary Announcements`_ section, on June 18 and didn't get it back until June 29.
+
+
+`SF CVS hosed?`__
+-----------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036489.html
+
+Usual issues with cvs.  Some talk about Subversion_.
+
+.. _Subversion: http://subversion.tigris.org/
+
+
+`curses module has_key emulation`__
+-----------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036501.html
+
+Problem with curses was found and a proposed patch at http://www.python.org/sf/759208 has been created.
+
+
+`A vote against dict(keyword=value) sugar`__...
+-----------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036502.html
+
+What the subject says.
+
+
+`Python on dual-processor Macs?`__
+----------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036530.html
+
+Greg Ewing was worried about a bug he heard about on dual-processor Macs.  Jack Jansen said it was solved, though.
+
+
+`Patch  595601`__
+-----------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036537.html
+
+A race condition with files and closing/reading is being worked on at http://www.python.org/sf/595601 .
+
+
+`cookie support for FancyURLopener?`__
+--------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036553.html
+
+Someone asking if a certain feature was under development.
+
+
+`proposed Tkinter change; any likelihood of acceptance?`__
+----------------------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036555.html
+
+Not for 2.3.0, but maybe for 2.4 or 2.3.1 .
+
+
+`Python hash function`__
+------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036556.html
+
+Damien Morton continues to try to speed up Python, this time by trying to speed up the hashing of strings.
+
+
+`Py2.1`__
+---------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036564.html
+
+Backporting a fix all the way to Python 2.1 is only needed if it is really critical.
+
+
+`deprecate dbm module & add bsddb185 module for 2.2`__
+------------------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036569.html
+
+"No" and probably "if you put the effort into it yourself".
+
+
+`OSCON Lightning Talk Proposals still being accepted`__
+-------------------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036574.html
+
+If you want to give a lightning talk at OSCON_, read this email.
+
+.. _OSCON: http://conferences.oreilly.com/oscon/
+
+
+`Yet more SRE`__
+----------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036575.html
+
+Gustavo Niemeyer fiddles with the re module some more.
+
+
+`Python 2.3b1, distutils and PEP 263`__
+---------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036577.html
+
+Bug in Distutils is squashed involving the shebang line.
+
+
+`test_copy_reg failing in 2.3 CVS`__
+------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036582.html
+
+Dealt with by a comment.
+
+
+`socket timeouts and httplib`__
+-------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036587.html
+
+Dealt with by adding a specific exception for timeouts.
+
+
+`Embedding Python, threading and scalability`__
+-----------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036589.html
+
+David Abrahams redirecting a question to python-dev.
+
+
+`[ANN] SciPy '03 -- The 2nd Annual Python for Scientific Computing Workshop`__
+------------------------------------------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036591.html
+
+Title says it all.
+
+
+`Proposed DNS query library`__
+------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036604.html
+
+Take a look at dnspython_ if you need DNS stuff.
+
+.. _dnspython: http://www.dnspython.org
+
+
+`Problems in stdlib before 2.3b2`__
+-----------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036606.html
+
+They are being/have been dealt with.
+
+
+`Running tests on freebsd5`__
+-----------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036611.html
+
+...had two failures.  They are being worked on.
+
+
+`threads duplicated on fork() prevent child from terminating properly`__
+------------------------------------------------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036619.html
+
+Person was told to file a bug report.
+
+
+`Meaty debugging mystery`__
+---------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036627.html
+
+... which Martin v. Lšwis figured out the basic cause although how it is happening is still unknown.
+
+
+`2.3b2 known bugs?`__
+---------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036632.html
+
+The bugs listed previously at http://www.python.org/2.3/bugs.html have been fixed but two new ones take their place.
+
+
+`Problem with 2.3b2 tarfile?`__
+-------------------------------
+__ http://mail.python.org/pipermail/python-dev/2003-June/036637.html
+
+Solaris tar was choking on a *really* long pathname in the stdlib.  The pathname will most likely end up being changed to be under 100 characters so as to meet the POSIX tarfile format specification.

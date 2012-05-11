@@ -1,0 +1,77 @@
+<TITLE>A Generic data collection system through WWW forms</TITLE>
+<BODY>
+
+<H1>A Generic data collection system through WWW forms, based on a
+Python OOD program. </H1>
+<HR>
+<A HREF = "abstract.html">[Abstract]</A>
+<A HREF = "introduction.html">[Introduction]</A>
+<A HREF = "methods.html">[Methods]</A>
+<A HREF = "discussion.html">[Discussion]</A>
+<A HREF = "references.html">[References]</A>
+<HR>
+<H2>Introduction</H2>
+
+The EMBL outstation - the EBI, maintains one of the world's largest
+databases of nucleic acid (gene) sequences. The information is provided by
+research laboratories around the world. Each data record is very complex
+and contains a large amount of information which accompanies the sequence.
+Therefore, the process of submitting data to the database is very
+demanding and complicated.<P>
+
+Some of the common ways of providing information were by editing a text
+based form , or using a dedicated program which runs on a personal
+computer and interactively guides the submitter in the steps of submission
+and as an end result, creates a formatted text file. The text file 
+is then sent by email.  There are drawbacks to these methods. Editing a
+text file is not interactive and there is no machine based proccess to
+validate the completeness of data. The standalone program on the other
+hand, requires re-writing of the code for each platform. It is also 
+very difficult to keep the program up-to-date with the dynamically
+developing database. These drawbacks led to a search for better ways of
+interactive data collection.<P>
+
+The recent development of WWW based data entry forms opened a door to an
+excellent interface between providers and maintainers of information. WWW
+forms have many advantages. They provide a uniform graphic user interface.
+They are machine independent and they provide means for a constant, online
+update and maintenance by the server administrator.<P>
+
+HTML documents, and especially forms are lend themselves gracefully to
+object oriented development. The fact that each element of an HTML
+document is created by a standard primitive fits well with the concept of
+objects. This is especially evident in form elements that have a "TYPE"
+primitive in their tags.<P>
+
+Processing of the data stream which is provided by a submitted WWW form is
+done by a CGI script. When the data submission process is complicated and
+involves many validation steps of field contents and many forms, a simple
+script is not sufficient and a need for a high-level program arises. The
+Python programming language is especially suitable for writing such
+programs. Python's unique combined ability to serve as a fast scripting
+language and at the same time as a high level object oriented development
+language turns it into a very powerful development tool for WWW
+development. <P>
+
+
+This article describes a data submission system that has been developed by
+the author at the EBI. The system is based on a collection of Python
+objects which define the basic properties of the system and the basic
+steps in the cycle of aquiring, validating and submitting information. The
+objects are defined in a generic way which enables the same basic system
+to cater different data collection schemes. The design of the system makes
+it easy to support various concepts such as data hiding, dynamic creation
+of forms, preservation of data items for later use and providing context
+sensitive help. A data submission system for the EMBL database has been
+released to the public in May 1995 and it has been operating successfuly
+since then, providing more than 850 data entries so far.<P>
+
+
+
+
+<HR>
+<CITE>Written by <A HREF = "http://www.ebi.ac.uk/ebi_docs/staff/benny.html">Benny shomer</A>, The EBI. <P>
+      <A HREF = "http://www.ebi.ac.uk/ebi_docs/staff/bennymail.html">bshomer@ebi.ac.uk</A>
+</CITE>
+<HR>
+</BODY>

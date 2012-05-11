@@ -1,0 +1,85 @@
+Title: python-dev Summary for 2004-11-16 through 2004-11-30
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2004-11-16 through 2004-11-30
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from November 16, 2004 through November 30, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the fifty-third summary written by Brett Cannon (Another quarter begins).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-11-01_2004-11-15.html
+.. _original text file: http://www.python.org/dev/summary/2004-11-16_2004-11-30.ht
+
+
+
+=====================
+Summary Announcements
+=====================
+PyCon_ is coming up!  Being held March 23-25 in Washington, DC, registration is now open at http://www.python.org/pycon/2005/register.html for credit card users (you can pay by check as well; see the general info page for the conference).
+
+.. _PyCon: http://www.python.org/pycon/2005/
+
+=========
+Summaries
+=========
+---------------------------------------------
+Would you like the source with your function?
+---------------------------------------------
+Would you like all functions and classes to contain a __pycode__ attribute that contains a string of the code used to compile that code object?  Well, that very idea was proposed.  You would use a command-line switch to turn on the feature in order to remove the memory and any performance overhead for the default case of not needing this feature.
+
+Some might ask why this is needed when inspect.getsource and its ilk exist.  The perk is that __pycode__ would always exist while inspect.getsource is a best attempt but cannot guarantee it will have the source.
+
+Beyond a suggested name change to __source__, various people have suggested very different uses.  Some see it as a convenient way to save interpreter work easily and thus not lose any nice code snippet developed interactively.  Others see a more programmatic use (such as AOP "advice" injection).  Both are rather different and led to the thread ending on the suggestion that a PEP be written that specifies what the intended use-case to make sure that need is properly met.
+
+Contributing threads:
+  - `__pycode__ extension <http://mail.python.org/pipermail/python-dev/2004-November/049953.html>`__
+
+===============
+Skipped Threads
+===============
+- PEP 310 Status
+- python 2.3.5 release?
+      look for 2.3.5 possibly in January
+- Current CVS, Cygwin and "make test"
+- syntactic shortcut - unpack to variably sizedlist
+      mostly discussed `last summary`_
+- Python 2.4, MS .NET 1.1 and distutils
+- Trouble installing 2.4
+- Looking for authoritative documentation on packages, import & ihooks
+      no docs exist, but feel free to write some!  =)
+- String literal concatenation & docstrings
+      literal string concatenation only works if the newline separating the strings is not significant to the parser
+- print "%X" % id(object()) not so nice
+      does 'id' need to return only a positive?  No, but it would be nice.
+- Bug in PyLocale_strcoll
+- Multilib strikes back
+- File encodings
+      file.write does not work with Unicode strings; have to decode them to ASCII on your own

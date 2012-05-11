@@ -1,0 +1,130 @@
+
+<HTML>
+<HEAD>
+<TITLE>Generating User Documentation from Doc Strings</TITLE>
+</HEAD>
+
+<BODY>
+<H1>Generating User Documentation <BR>
+from Doc Strings</H1>
+<HR><H2>Table of Contents</H2>
+
+<UL>
+<A HREF=3D"#HDR0"><STRONG>1.  doc_collect, by Daniel Larsson</STRONG></A>
+
+<BR>
+
+<A HREF=3D"#HDR1">
+<STRONG>2.  My attempt at automatic generation of documentation for extension modules
+</STRONG></A>
+
+<UL>
+<A HREF=3D"#HDR2">2.1.  Problems</A>
+<BR>
+
+<A HREF=3D"#HDR3">2.2.  Proposal</A>
+</UL>
+
+<A HREF=3D"#HDR4">
+<STRONG>3.  Should we say anything more about doc string format?</STRONG></A>
+</UL>
+
+
+<HR><!-- This file was created with the fm2html filter.The filter is copy=
+right Norwegian Telecom Research and was programmed by Jon Stephenson von=
+ Tetzchner.  -->An obvious application of doc strings is the generation
+of user documentation in "printed" form and in browsers.<p>
+I have been able to (easily) automatically generate user documentation
+from doc strings.<p>
+Now that we have some experience using doc strings, is there anything that
+can be done to make them more useful?<p>
+<H2><A NAME=3D"HDR0">1.  doc_collect, by Daniel Larsson</A></H2>
+
+<UL>
+<LI>Reads Python modules and generates manual pages in a variety of formats.<BR>
+
+<LI>class or def statements become headings, with doc strings as section bodies.<BR>
+
+<LI>Minimal source parsing to get class and function names.<BR>
+
+<LI>Some attempt is made to recognize textual attributes from ASCII text.
+ For example "- spam" becomes: " spam"<BR>
+
+<LI>Separate "manual page" for each module function and class.<BR>
+</UL>
+
+
+<H2><A NAME=3D"HDR1">2.  My attempt at automatic generation of documentation
+for extension modules</A></H2>
+
+<UL>
+<LI>Currently just for extension modules<BR>
+
+<LI>One "manual page" per module<BR>
+<A HREF="doc.figure.id.1.gif"><img src="doc.figure.id.1.gif"></A><p>
+
+<LI>Section for module functions<BR>
+
+<LI>A section for each built-in type <BR>
+<A HREF="doc.figure.id.2.gif"><img src="doc.figure.id.2.gif"></A><p>
+
+<LI>Each function or method is a sub-section<BR>
+
+<LI>If doc string is of form <BR>
+"spam(a,b,) -- Description of spam ...", then the subsection heading is 
+"spam(a,b)" as in the Python library reference.<BR>
+<A HREF="doc.figure.id.3.gif"><img src="doc.figure.id.3.gif"></A><p>
+</UL>
+
+
+<H3><A NAME=3D"HDR2">2.1.  Problems</A></H3>
+
+<UL>
+<LI>Extension modules need to export types<BR>
+
+<LI>Need to be able to get at method doc strings without creating instances.<BR>
+</UL>
+
+
+<H3><A NAME=3D"HDR3">2.2.  Proposal</A></H3>
+I suggest the creation of a "method list" type. Method list object
+pointers could optionally be created by extension modules and a pointer put in
+the type object structure. <p>
+A standard getattr function should also be provided that uses method lists
+objects. Perhaps python could call it automatically.<p>
+I would be willing to come up with a first-cut implementation.<p>
+Method list object requirements?<p>
+
+<UL>
+<LI>Get ands store method names, function pointers, and doc strings from
+existing method-list structure.<BR>
+
+<LI>Optionally use a dictionary to speed method lookup for large method
+lists.<BR>
+
+<LI>Other method information? (e.g. signatures)<BR>
+
+<LI>???<BR>
+</UL>
+
+
+<H2><A NAME=3D"HDR4">3.  Should we say anything more about doc string format?
+</A></H2>
+
+<UL>
+<LI>Organization?<BR>
+
+<LI>Format Markup?<BR>
+
+<LI>Structure Markup?<BR>
+
+<LI>Implicit markup? (e.g. "- spam" -&gt; " spam")<BR>
+</UL>
+
+
+It is critical for doc strings to be readily available in the interpreter,
+so if explicit markup is used, then we need to provide standard
+formatting tools within the interpreter. <p>
+<A NAME=3D"ENDFILE"><PRE> </PRE></A>
+</BODY>
+</HTML>

@@ -1,0 +1,146 @@
+Title: python-dev Summary for 2003-08-16 through 2003-08-31
+Sitemap-ignore: yes
+
+<body>
+<div class="document" id="python-dev-summary-for-2003-08-16-through-2003-08-31">
+<h1 class="title">python-dev Summary for 2003-08-16 through 2003-08-31</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> from August 16, 2003 through August 31, 2003.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> or <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join <a class="reference" href="http://www.python.org/dev/">python-dev</a>!</p>
+<p>This is the twenty-fourth summary written by Brett Cannon (a year's worth of summaries by yours truly now under his belt; does this mean I am certifiably insane?).</p>
+<p>All summaries are archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a> (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; its simple and is accepted for <a class="reference" href="http://www.python.org/dev/peps/pep-0012">PEP markup</a> and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is unless it is from the original text file.</p>
+<p>The in-development version of the documentation for Python can be found at <a class="reference" href="http://www.python.org/dev/doc/devel/">http://www.python.org/dev/doc/devel/</a> and should be used when looking up any documentation on something mentioned here.  Python PEPs (Python Enhancement Proposals) are located at <a class="reference" href="http://www.python.org/dev/peps/">http://www.python.org/dev/peps/</a> .  To view files in the Python CVS online, go to <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/">http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/</a> .  Reported bugs and suggested patches can be found at the <a class="reference" href="http://sourceforge.net/tracker/?group_id=5470">SourceForge</a> project page.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#summary-announcements" id="id1" name="id1">Summary Announcements</a></li>
+<li><a class="reference" href="#summaries" id="id2" name="id2">Summaries</a><ul>
+<li><a class="reference" href="#python-using-parrot-new-code-interpreter-or-strange-evolutionary-parternship" id="id3" name="id3">Python using Parrot; new code interpreter or strange evolutionary parternship?</a></li>
+<li><a class="reference" href="#python-2-3-1-on-its-way" id="id4" name="id4">Python 2.3.1 on its way?</a></li>
+<li><a class="reference" href="#making-looping-generators-more-efficient" id="id5" name="id5">Making looping generators more efficient</a></li>
+<li><a class="reference" href="#use-of-the-logging-package-in-the-standard-library" id="id6" name="id6">Use of the logging package in the standard library</a></li>
+<li><a class="reference" href="#some-waxings-on-pep-310" id="id7" name="id7">Some waxings on PEP 310</a></li>
+<li><a class="reference" href="#proposed-pep-for-a-close-method-for-generators" id="id8" name="id8">Proposed PEP for a 'close' method for generators</a></li>
+<li><a class="reference" href="#email-sig-created" id="id9" name="id9">email-sig created</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="summary-announcements">
+<h1><a class="toc-backref" href="#id1" name="summary-announcements">Summary Announcements</a></h1>
+<p>This is the twenty-fourth summary written by me.  This is significant because this means I have written enough summaries to cover a year's worth of email traffic on python-dev (had I not taken a summary off back in October this milestone would have been hit for the first half of August which represented a physical year since I started doing the summaries).  It has truly been worth the experience.</p>
+<p>But how much of an experience has it been?  Well, for a long time now I have been planning on writing some code to calculate how much email I have read, who wrote most of that email, and what threads made up the most.  With my move to San Luis Obispo finished I finally had a chance to write said code in an imperfect manner (imperfect because of things like names which are a pain because some people have their name set differently at different computers; &quot;Barry Warsaw&quot; compared to &quot;Barry A. Warsaw&quot;; threads are worse thanks to the changing of subject titles in the middle of a thread) so as to give me some approximate numbers.</p>
+<p>I have read 9469 emails that have passed through the python-dev mailing list.  The top six emailers (out of approx. 433 unique emailers) have been:</p>
+<ul class="simple">
+<li>Brett Cannon (277 emails when you deal with me just using my last initial; 2.9% of all emails)</li>
+<li>Barry Warsaw (305 emails when you also count his middle initial; 3.2%)</li>
+<li>Skip Montanaro (481 emails; 5.1%)</li>
+<li>Martin v. Löwis (627 emails, when calculated looking for all names that had &quot;Martin&quot; and &quot;wis&quot; in them; 6.6%)</li>
+<li>Tim Peters (694 emails; 7.3%)</li>
+<li>Guido van Rossum (a whopping 1407 emails; 14.8%)</li>
+</ul>
+<p>The average person posted 21.9 emails over the emails I covered.  But only about 24 people had more than a single percentage (more than 94 emails) worth of emails accredited to them.  That means that about 5.5% of the unique posters on python-dev accounted for 66.8% of all email (and I have gotten to know a good amount of those 24).</p>
+<p>As for threads (of which there were approx. 1252 unique threads, and I mean approximately), the top five are:</p>
+<ul class="simple">
+<li>&quot;type categories&quot; (115 emails; 1.2% of all emails)</li>
+<li>&quot;PEP239 (Rational Numbers) Reference Implementation and new issues&quot; (123 emails; 1.3%)</li>
+<li>&quot;PEP-317&quot; (125 emails: 1.3%)</li>
+<li>&quot;python/dist/src/Python import.c,2.210,2.211&quot; (146 emails; 1.5%)</li>
+<li>&quot;Extended Function syntax&quot; (263 emails; 2.8%)</li>
+</ul>
+<p>What does this tell you and me?  First, I have an addiction to Python.  Second, PEPs really do get discussed.  And third, Python development is alive and well.</p>
+<p>OK, enough statistics.  As for this summary, it turned out rather light thanks to a couple of things.  One is the shutdown of mail delivery by mail.python.org during the SoBig virus' peak.  This not only cut back on the number of emails, but also led to me deleting <em>a lot</em> of bogus email on my other emails accounts.  My blanket deleting may have caught legitimate emails so it is possible I accidently deleted some python-dev stuff, although if I did it was minimal.  Another contributing factor to the light summary is that a lot of regulars on python-dev were on vacation.  This looks like it will happen again for the first half of September so expect the next summary to be light as well.</p>
+</div>
+<div class="section" id="summaries">
+<h1><a class="toc-backref" href="#id2" name="summaries">Summaries</a></h1>
+<div class="section" id="python-using-parrot-new-code-interpreter-or-strange-evolutionary-parternship">
+<h2><a class="toc-backref" href="#id3" name="python-using-parrot-new-code-interpreter-or-strange-evolutionary-parternship">Python using Parrot; new code interpreter or strange evolutionary parternship?</a></h2>
+<p><a class="reference" href="http://pirate.tangentcode.com/">Pirate</a> has now reached version 0.01 alpha.  It lacks classes and imports but can run a decent amount of Python code.  At least there is now a proof-of-concept that Python running on top of the <a class="reference" href="http://www.parrotcode.org/">Parrot</a> VM is possible.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037684.html">pirate 0.01 alpha!</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="python-2-3-1-on-its-way">
+<h2><a class="toc-backref" href="#id4" name="python-2-3-1-on-its-way">Python 2.3.1 on its way?</a></h2>
+<p>Raymond Hettinger suggesting pushing for a quick release of Python 2.3.1 so that the 2.3 branch could be established as a stable version.  Several bugs and performance enhancements have been committed to the 2.3 maintenance branch.  Anthony Baxter stepped forward as release czar with Raymond Hettinger saying he would help and Barry Warsaw volunteering his wisdom as a battle-hardened release czar.</p>
+<p>This discussion also brought up the question of whether a .chm help file for the Windows distribution would be worth using instead of including the HTML distribution of the documentation as it stands now.  It was agreed that it was a good thing to have since it allowed for better searching.  Tim Peters also discovered the install went faster since it would not have to copy a ton of individual HTML files.</p>
+<p>Python 2.3.1 has a &quot;verbal&quot; release date of the third week of September; there has not been a PEP to set the release schedule officially.</p>
+<p>Help would be appreciated in dealing with bug and patch reports on SourceForge.  Even if all you do is add a comment saying &quot;this patch looks fine&quot; or &quot;I can reproduce this bug&quot; it can be a great help.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037687.html">Py2.3.1</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037866.html">HTMLHelp for Py2.3.1</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037840.html">Fixing Patches and Bugs for Py2.3.1</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="making-looping-generators-more-efficient">
+<h2><a class="toc-backref" href="#id5" name="making-looping-generators-more-efficient">Making looping generators more efficient</a></h2>
+<p>Would you like to see deeply nested generators be more efficient in returning their values?  Clark Evans would and made such a request.  He essentially wanted to have nested generator calls propogate their values to the first non-generator call directly and thus bypass all of the generator maintenance code.  There was no direct reaction to this.</p>
+<p>Shane Holloway followed with the idea of having special syntax for when you yield each value of an iterator.  The idea, once again, would be to speed this common case in the interpreter by skipping some bookkeeping overhead.  A few syntax versions were offered, but the idea was all the same: special-case <tt class="literal"><span class="pre">for</span> <span class="pre">item</span> <span class="pre">in</span> <span class="pre">iterable:</span> <span class="pre">yield</span> <span class="pre">item</span></tt> to something like <tt class="literal"><span class="pre">yield</span> <span class="pre">*iterable</span></tt>.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037708.html">cooperative generators</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037738.html">Graph exploration with generators</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="use-of-the-logging-package-in-the-standard-library">
+<h2><a class="toc-backref" href="#id6" name="use-of-the-logging-package-in-the-standard-library">Use of the logging package in the standard library</a></h2>
+<p>Want to help out the development of Python?  Know how to use the logging package?  Then python-dev wants you!  There are several modules in the stdlib that have home-grown logging code that could (and probably should) be using the logging package instead to simplify life.  Read the email that started the contributing thread and see if you can't help out by converting the module over to using the logging package today!</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037743.html">Unification of logging in Python's Standard Library</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="some-waxings-on-pep-310">
+<h2><a class="toc-backref" href="#id7" name="some-waxings-on-pep-310">Some waxings on PEP 310</a></h2>
+<p>PEP 310 proposes the 'with' syntax that came up a while back that sparked an immense discussion on python-dev.  The idea was to have a more fool-proof way of having an enter and exit method be called before executing some specified code.  The common example was acquiring a lock, executing some code, and then releasing the lock all without having to deal with an explicit try/finally statement.  Samuele Pedroni tried to clarify how it should work exactly by requiring __exit__ instead of making it optional (read the PEP to understand what this means).</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037795.html">PEP 310(with-syntax): close synonym of __exit__</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="proposed-pep-for-a-close-method-for-generators">
+<h2><a class="toc-backref" href="#id8" name="proposed-pep-for-a-close-method-for-generators">Proposed PEP for a 'close' method for generators</a></h2>
+<p>Samuele Pedroni has written a pre-PEP on defining a way to have generators grow a way to have a 'close' method that is called when their execution is finished so as to handle resources correctly.  This is in response to not being able to contain yield statements within try/finally blocks.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037803.html">pre-PEP: Resource-Release Support for Generators</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="email-sig-created">
+<h2><a class="toc-backref" href="#id9" name="email-sig-created">email-sig created</a></h2>
+<p>Barry Warsaw has created the <a class="reference" href="http://www.python.org/sigs/email-sig/">email-sig</a> to steer development of version 3 of the email package in hopes of having it done for Python 2.4 .</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/meta-sig/2003-August/001273.html">New SIG: email-sig</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="2003-08-16_2003-08-31.txt">View document source</a>.
+Generated on: 2003-09-13 02:51 UTC.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>

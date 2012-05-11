@@ -1,0 +1,77 @@
+<TITLE>A Generic data collection system through WWW forms</TITLE>
+<BODY>
+<HR>
+<A HREF = "abstract.html">[Abstract]</A>
+<A HREF = "introduction.html">[Introduction]</A>
+<A HREF = "methods.html">[Methods]</A>
+<A HREF = "discussion.html">[Discussion]</A>
+<A HREF = "references.html">[References]</A>
+<HR>
+<PRE>
+<STRONG>1.</STRONG><BR>
+email = subs_obj.email('email', '', 'email_help.html', 40, 80)
+email.item_second_title = 'e-mail address'
+
+
+<STRONG>2.</STRONG><BR>
+journal = Goption('journal', '','journal_help.html',3)
+journal.item_title = 'Journal:'
+journal.line_break = 0
+journal.option_list(['Biochem. Biophys. Res. Commun.', 'Biochem. J.',\
+'Biochemistry', 'Biochim. Biophys. Acta', 'Cell', 'Curr. Genet.'])<P>
+
+
+<STRONG>3.</STRONG><BR>
+viral_circular = __Gcheckbox('viral_circular')
+viral_circular.item_second_title = 'circular'
+viral_circular.line_break = 0
+
+
+
+<STRONG>4.</STRONG><BR>
+dtemp = Goblignum10('dtemp', '', '', 85, 100)
+dtemp.item_title = w.hr(1) + 'Denaturation:'
+dtemp.item_second_title = ' dC. '
+dtemp.item_line_title = 'Temperature: '
+dtemp.line_break = 0
+
+</PRE>
+<HR>
+<STRONG>Figure 3.</STRONG><BR>
+<CITE>
+Examples for instance invokations of class that inherit 'item'. <BR>
+<STRONG>1.</STRONG> An email item. It has a unique validation method that
+	checks the email syntax and the existance of the domain. This
+	item's instance uses a 'item_second_title' variable which causes
+	it's title to be displayed following the input field. The
+	parameters that are being passed to the __init__ method are the
+	item's key, value, name of a help file (if it is given, an
+	anchored help icon is displayed) and the lengths of the field and
+	maximal length of input.
+<STRONG>2.</STRONG> An option list item. The item has an associated 
+	'option_list' to be displayed. The parameter '3' given following
+	the help file determines the option to be selected by default. The
+	'line_break' data field determines if the item can be displayed on
+	the same line with other items or not.
+<STRONG>3.</STRONG> A special case of an item that supports a concept of
+	data hiding. This item is initially hidden. It becomes non-valid
+	(and thus visual) only if the submitter provided information that is
+	associated with the item's field. For example here, only if the
+	submitter submits the sequence of a virus, this checkbox will be
+	presented, requesting further details about the nature of the
+	virus.  
+<STRONG>4.</STRONG> An obligatory numeric item with minimum and maximum
+	values. The item is non-valid as long as it's value is empty or
+	out of the range given. This overlap in validations may seem as
+	redundant, but since the minimum/maximum fields may be ommited
+	(any range is allowed), this is not the case.
+
+</CITE>
+
+<HR>
+<ADDRESS>Written by <A HREF = "http://www.ebi.ac.uk/ebi_docs/staff/benny.html">Benny shomer</A>, The EBI. <P>
+      <A HREF = "http://www.ebi.ac.uk/ebi_docs/staff/bennymail.html">bshomer@ebi.ac.uk</A>
+</ADDRESS>
+<HR>
+
+<Plaintext>

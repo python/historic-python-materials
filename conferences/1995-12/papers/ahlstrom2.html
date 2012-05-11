@@ -1,0 +1,315 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0 plus SQ/ICADD Tables//EN" "html.dtd"
+>
+<HTML><HEAD><TITLE>WPY status 12-1995</TITLE></HEAD>
+<BODY><H1>Status of WPY, a portable GUI module for Python</H1><STRONG>Presented
+at the December 1995 Python workshop by <A HREF="mailto:jim@interet.com">
+James C. Ahlstrom</A></STRONG><H2>What is WPY?</H2><P>Wpy is a Python
+module which provides a class library, a message system and other tools
+for writing portable graphical user interface (GUI) code.  You import
+"wpy.py" into your Python program and use it to write GUI code which
+will run unchanged on Unix/X using Tk, or on Microsoft Windows 3.1 and
+NT.  Python is ideally suited to GUI development since it is a fast
+object-oriented scripting language with advanced data types such as
+lists and dictionaries.  Code written with WPY runs with native look and
+feel on the supported platforms.  WPY is free software published with
+the same licensing restrictions as Python itself (hardly any).  It comes
+with 2000 lines of documentation and seven small demo programs.</P><P>Development
+of WPY started a year ago,  and a <A HREF="http://www.python.org/workshops/1995-05/ahlstrom.html"
+>paper presented at the May 1995  Python workshop</A> described the WPY
+design objectives.  Since that time progress has been made and lessons
+learned.  Currently there is a strong WPY port to Windows NT and to
+Unix/Tk.  The NT port also runs well on Windows 95, and will run on
+Windows 3.1 and 3.11 using Microsoft's win32s software.  Unfortunately,
+the win32s system is slow, especially on the small memory systems which
+can not upgrade to Windows 95.  A special Windows 3.1 port is needed.
+The NT port also runs on OS/2 using a prior version of win32s and OS/2's
+ability to run Windows programs, but the Windows 3.1 port will be a more
+satisfactory solution for OS/2 also.  The Unix port runs on a stock
+build of Python with Tk version 4.0 and the tkintermodule.c module
+included with the Python distribution.  All extra WPY support on Unix is
+supplied in Python in the wpy_tk.py module.</P><P>Native ports to other
+platforms have not been attempted.  For the Mac, Microsoft publishes a
+tool to enable MFC code to be compiled for the Mac, and this should
+result in an immediate port, assuming a volunteer who owns the tool can
+be found.  A native OS/2 port would be nice, but no volunteers have
+emerged.</P><P>  WPY is not a port of something else, it is new code. 
+It is a small simple system with a minimum of layers and a small
+footprint.  On Unix/Tk/X, WPY code consists of the Python modules wpy.py
+(2247 lines, 76K bytes), wpy_tk.py (1527 lines, 53K bytes) and wpycon.py
+(607 lines, 14K bytes), plus wpy_tk.def (small).  Currently no C code is
+used to support WPY on Unix.  A stock linux binary of Python with Tk is
+about 900K bytes.  On NT, WPY consists of wpy.py, wpycon.py and 12 C++
+modules totalling 6412 lines.  Python.exe for NT is 312 K bytes
+consisting of about 230 Kb of stock Python and 82Kb of WPY C++ support,
+a truly tiny footprint.</P><H2>Programming Model</H2><P>The WPY
+programming model is based on Microsoft Foundation Classes (MFC) with as
+few changes as possible.  A program written for WPY is completely
+analogous to the equivalent program written in C++, and looks like C++
+transliterated into Python.  The exceptions (discussed below) are in the
+direction of a higher level model.  More specifically, the following are
+the most important elements of any GUI programming model:</P><UL>
+<LI>The class hierarchy is exactly that of MFC, and method names are
+mostly identical.  There are a few exceptions which arise when MFC uses
+flag bits to change the meaning of a class.  For example, MFC has only
+one button class with a flag to distinguish between push buttons, check
+buttons and radio buttons.  These are three separate classes in WPY. 
+Also, since MFC lacks geometry management, this is supplied using Python
+multiple inheritance.</LI>
+<LI>The GUI model is Document/View (not widget nor window based), just
+as in MFC.  That means that the programmer concentrates on opening files
+and providing a method for drawing a document, while the system creates
+whatever windows are required.  Usually the programmer will never
+directly create a window, but merely specify the type of View should one
+be required.</LI>
+<LI>Both WPY and MFC provide a large number of standard menu items,
+complete with status window text and default handlers.  Use of standard
+menu items is required for Windows programs, and makes programming
+easier in Unix.</LI>
+<LI>WPY uses the MFC message handling procedures.  Basically, there are
+three kinds of messages which are sent to GUI objects which may be able
+to handle them.  Messages of type "Window" such as Create Window, Resize
+Window, Destroy Window are sent to the affected window object.  "User
+interaction" messages such as key press and mouse events are sent to the
+active view.  That is, the user interacts with the document through the
+view of the document.  "Command messages" such as menu selection events
+and button presses are aggressively routed.  That means that when a
+command event happens, a whole series of GUI objects are inspected to
+see if they have a message handler ( a method for the button press, menu
+item, etc.) available.  If they do, that method is called, otherwise the
+search continues for a suitable handler.  For all messages, there is no
+requirement that a handler exist, and there is no need to "bind", "hook"
+or otherwise register to get a message.  This is standard MFC but very
+different from Tk.  However, WPY only supports a small fraction of the
+message blizzard which MFC and Win32 produce.  Only very elementary
+messages are supported, those which are generated by most any GUI, and
+are easily available on both MFC and Tk.</LI>
+<LI>In WPY, a program consists mostly of class definitions which define
+message handling methods.  The whole program mostly just waits for the
+user to do something so it can react to it.  This is common to most
+(all?) GUI's.  A WPY program generally will have a CWinApp class
+(representing the whole application) with an InitInstance() method.  WPY
+will call this method at the start of the application, and the user is
+expected to create a main window, choose the single or multiple document
+interface <A HREF="#sdimdi">(see below)</A>, and set up menus and
+status bars at that time.  This is standard MFC.  It is also possible to
+just run simple Python scripts, and a Python interactive window program
+is available.</LI></UL><P>There are a few differences between WPY and
+MFC.  The most drastic one concerns drawing to a view.  In Tk, drawn
+objects (like text, lines, rectangles, etc.) are placed in a "canvas" (a
+view) and are assigned a number to identify them.  They can be moved,
+erased, etc.  In MFC, the user must draw with a drawing tool
+(DrawText(), LineTo(), etc.) into a "device context" associated with the
+view.  The device context could also be associated with a printer, and
+this method provides device independent drawing.  But in MFC objects do
+not retain their identity, they are just ink.  To erase one, you would
+mark the area as invalid, and the MFC system would eventually call the
+user's OnDraw() method.  The OnDraw() method must be provided by the
+programmer, and it must draw the document to the view.  It is possible
+to write an OnDraw() method which draws the whole view every time it is
+called, but in practice MFC requires an OnDraw() which will draw only
+the area to be updated.  This must be done to achieve acceptable
+scrolling speed and a quick re-draw if another window is moved out of
+the way of the view (an "expose" event in Tk/X).  It is harder to write
+this more sophisticated OnDraw() method.  Also, it is often more natural
+to think of the drawn objects as, well, objects.  For example, in an
+html document, anchor text is a text object in a different color which
+can react to a mouse press.  So the anchor text should be an object.</P><P>
+In the end, conformity with the Python language was judged more
+important than conformity with MFC.  Python is too high level a language
+to pester the programmer with complex OnDraw() methods and expose events
+just to support decent scrolling.  So the WPY drawing model more closely
+resembles Tk than MFC, although the MFC semantics are preserved. 
+Specifically, the user must write an OnDraw() method which draws the
+whole view, just as in standard MFC.  But the WPY system (on NT) will
+attempt to refresh the screen from its own record of the drawn objects,
+and will seldom call the users OnDraw() method.  Also, the drawing tools
+return class instances which represent the objects being drawn, and WPY
+provides methods to re-draw the objects (for example, with changed
+text), and to find the object under a mouse click.  These operations are
+supported directly by Tk, and on NT support comes from C++ code (for
+speed).</P><H2>Current Features</H2><P>WPY is currently at version
+0.32, and is being actively developed.  It is at the "incomplete but
+useful" stage.  The available classes are:</P> 
+<UL>
+<LI>WpyGeometry:  provides geometry management <A HREF="#geometry">(see
+below)</A>.</LI>
+<LI>CDrawnLine CDrawnRectangle CDrawnText CDrawnImage:  objects drawn
+to a view (items in a canvas).  These are not MFC classes.</LI>
+<LI>CImage:  gif or ppm images may be read in and drawn to a view on
+all platforms, so that portable image code is possible (written in C++
+using Win32, not MFC).  Windows also supports  bmp and dib images.  Not
+an MFC class.  Directly supported on Tk.</LI>
+<LI>CDC:  device context to draw to.</LI>
+<LI>CBrush CFont CPen:  drawing tools for text, lines, rectangles, etc.
+ Controls line width, color, text font, etc.</LI>
+<LI>CWinApp CDocument:  basic MFC application classes.</LI>
+<LI>CWnd:  parent rectangular visible object class.</LI>
+<LI>CFrameWnd CMDIFrameWnd CMDIChildWnd:  basic MFC frame windows.</LI>
+<LI>CSingleDocTemplate CMultiDocTemplate:  basic MFC document
+templates.</LI>
+<LI>CStatusBar:  window decoration, appears and disappears on all
+platforms in response to menu View selections by user.</LI>
+<LI>CPushButton CCheckButton CRadioButton:  basic GUI buttons, but
+these check themselves unlike MFC.</LI>
+<LI>CLabel CMessage:  static controls.</LI>
+<LI>CScrollBar CListBox CEdit:  other basic controls.</LI>
+<LI>CDialog CFileDialogOpen: CFileDialogSave CWpyDialog
+CTkIgnEscDialog:  a general purpose dialog class, and special purpose
+dialogs.</LI>
+<LI>CScrollView CEditView:  MFC view classes.</LI>
+<LI>CMenu:  bar and popup hierarchical menus.</LI>
+<LI>CMenuButton CMenuCheck CMenuRadio CMenuLine:  items to place on
+your menus, automatic checking unlike MFC.</LI>
+<LI>MenuFile MenuFileNew MenuFileOpen MenuFileClose MenuFileSave
+MenuFileSaveas MenuFileExit MenuEdit MenuEditUndo MenuEditRedo
+MenuEditCut MenuEditCopy MenuEditPaste MenuEditDelete MenuEditSelectall
+MenuView MenuViewStatusbar MenuWindow MenuWindowNewwindow
+MenuWindowCascade MenuWindowTilehorz MenuWindowTilevert
+MenuWindowArrangeicons MenuHelp MenuHelpAbout: predefined menu items.</LI></UL><H2
+><A NAME="geometry">Geometry Management</A></H2><P>Consider a dialog
+box with a text message and two buttons, Yes and No.  Geometry
+management means the way a GUI produces a layout for that dialog, that
+is, how you must specify the size and position of the controls. 
+Geometry should be device independent so that the layout is valid for
+any screen resolution.  Good geometry management makes using a GUI much
+easier because a considerable amount of programmer time is devoted to
+layout.</P><P>In Windows, layout is done with a resource editor which
+would display a picture of the dialog box and allow the user to move
+controls to the desired position.  The resultant positions are expressed
+relative to a character size on the screen and are recorded in resource
+files.  These resource files are incorporated into the program as binary
+data.  Use of resource files is not possible within WPY due to its
+dynamic nature.  MFC itself lacks any geometry management.  A control is
+created with the C++ "new" operator, and then the Create method is
+called for the new control.  The size and position of the control must
+be specified in pixels in the Create method.  MFC does have messages
+which can be used to perform layout.  When a window is created the
+OnCreate() method of the window is called followed by the OnSize()
+method.  The size of the window is available when OnSize() is called. 
+If the user resizes the window, another OnSize() message is generated. 
+Positions of controls can be set within OnSize() and will be
+recalculated when required.  For dialogs (the usual container of
+controls) only an OnInitDialog() message exists since dialogs can not be
+resized by the user.</P><P>Tk has two geometry managers available, the
+placer and the packer.  The placer fixes the position of the control
+either in pixels or as a decimal relative to its window.  That is,
+either as the point (40, 80) in pixels, or as (0.10, 0.20) where the
+decimal locations are relative to  the window the control is in.  The
+packer is more sophisticated.  The packer locates controls around the
+edges of the window using up the available space as it goes along, and
+then sizes the window to be the right size to contain the controls.  It
+is possible to add a border to controls to space them out from the edge.
+ The ability to size the container window is especially valuable, since
+this size normally depends on its contents.  But I personally find the
+packer awkward to use since controls are seldom really wanted at the
+edge of windows.  Others find it quite convenient.  In Tk, geometry is
+an attribute of the control, and controls have a border, an edge to be
+packed at, and a packing order.  The Tk system maintains the correct
+location itself based on these attributes, and there is no need for an
+OnSize() message.</P><P>In WPY, controls have a two step creation
+process as in MFC.  The object is first constructed from its class and
+then its Create() method is called.  In WPY, the control has a default
+size in pixels when it is constructed even though the object does not
+exist in the GUI until it is created with Create().  This size is used
+to perform layout in the OnSize() method of the window or the
+OnInitDialog() message of the dialog.  There a number of utility methods
+available which resemble the Tk placer, and which enable the programmer
+to specify positions in pixels, or in decimals relative to any other
+window or control.  The size of a meter and of a character are available
+in pixels so that device independent layout is possible.  To layout the
+above dialog example, create the following as a function within the
+dialog's OnInitDialog() method.  First construct the message text as a
+static control.  An aspect ratio can be specified for multi-line
+messages.  Then construct the two buttons with their text.  Call the
+utility WpyMakeEqualSize() for the two buttons to set their size to the
+largest one.  Set the width of the dialog to 1.2 times the width of the
+text, and the height to 1.2 times the text height plus 3 times the
+button height.  Then call either WpyPlace or WpyMakeEqualSpaceX to place
+the button centers at 0.333 and 0.667 within the dialog and 1.5 button
+heights up.  Finally call Create() for each control.</P><P>In WPY,
+geometry is not an attribute of the control as in Tk, nor does it lack
+geometry management as in MFC.  Geometry management is a function to be
+executed in response to a request by the system.  The controls have a
+size and location attribute, but this only affects the control when it
+is created or when its Move() method is called.  So geometry is set in a
+function created by the programmer making use of the known sizes of the
+controls before they are created.  I personally find it easy to write
+these functions, but I have a mathematical background.  Others may find
+it awkward.  My feeling is that better geometry management is desirable,
+and that the current system is too low level.  The good news is that all
+OS GUI interfaces are done, and a new geometry manager can be written
+all in Python independent of any particular platform.  Or the fabled
+Visual Python layout tool could be written in WPY to perform visual
+layout as in Windows.</P><H2>Design Issues</H2><P>Normal MFC programs
+rely on "resources" for their menus, icons, window header text, and for
+other static text items.  Resources are compiled-in static data, and so
+are incompatible with WPY which must interpret Python programs on the
+fly.  Getting rid of all of MFC's dependencies on resources was the most
+difficult WPY design issue.  Luckily there seems to be a progression
+towards less reliance on resources in recent MFC releases.  See also
+another <A HREF="http://www.python.org/workshops/">paper</A> presented
+at this workshop on the method used by WPY to extend the MFC C++ classes
+in Python.</P><P>All significant technical issues now seem to be
+solved, and the "only" remaining problem is how to support the same GUI
+model on different platforms.  To implement a typical new WPY feature,
+it is first necessary to figure out how to implement it on MFC.  It is
+easiest to do that in Python after first making a few MFC calls
+available to Python in a C-language interface module in the usual way. 
+The reason is that it is faster to program in Python, and programming in
+MFC is (at least for me) often an experimental science.  There always
+seems to be multiple ways to do something, only one of which makes sense
+and works.  After some experimentation, an understanding of how MFC
+"feels" about a feature is attained.  Then the identical feature is
+written in Tk in Python scripts.  Even though the Tk version will
+require more support because the Python feature will be phrased in MFC
+terms, the time required to implement an MFC feature in Tk is about the
+same as in MFC because Tk is simpler and yet quite powerful.  After an
+understanding of Tk is acquired, it is time to design a sensible WPY
+feature which is simple, high level, elegant and easily implemented in
+both MFC and Tk.  The implementation is split among the files wpy.py and
+wpy_tk.py, and some is in C++ for MFC.  Because of Python's excellent C
+interfaces, the mix of C and Python is optimized for simplicity while
+keeping in mind that wpy.py is common to all platforms.  If problems
+develop due to incompatible models, the abstraction level is raised and
+details are omitted in favor of simplicity.  Finally a new WPY feature
+is available and documented, and a simple port to two platforms is
+available.</P><P>A typical problem would be <A NAME="sdimdi">Microsoft's
+Multi Document Interface</A> or MDI.  Their Single Document Interface
+(SDI) just means that there is only one window for the app, and that is
+not a problem.  But MDI appears as a main window with multiple small
+windows clipped to be contained within it.  Each small window has a
+menu, but its menu is displayed on the main window when the small window
+is active.  If there are no small windows, a default main menu is
+displayed.  There are also menu commands to rearrange the order of small
+windows.  The basic problem here isn't technical, it is that the look of
+MDI seems to drive Unix people crazy, and they hate it.  They are used
+to just plain one window, or just plain several windows when required. 
+But access to MDI is required for Windows people.  So if a programmer
+writes an MDI Python WPY app, how does it look on Unix?  I have
+published a first and second try, but I am still looking for a third. 
+Try demo05.py on Unix and see.</P><P>Generally I find MFC to be quite
+complicated, large, full of features, generally high level in window
+creation, and yet surprisingly low level in other areas.  For example,
+classes generally have dozens of non-orthogonal methods, plus many other
+behaviors available from dozens more flag bits, yet MFC expects the
+programmer to worry about an excessive amount of low level detail.  For
+example, MFC buttons do not provide their own checking nor do menu
+buttons.  The search through all the MFC features looking for the right
+way to do something is often a long one.</P><P>On the other hand, Tk is
+a smaller, tighter, more sensible package with a better balance of size
+versus power.  But it is consistently low or medium level in
+abstraction.  For example, there is no concept of "window" nor how to
+create one.  Instead you just make anything you want out of the basic
+widgets, and even then the anonymous X window manager will do something
+unknown with it anyway.  This follows the traditional X-Windows approach
+of being vendor neutral and allowing the programmer to put the scroll
+bar on the left if he wants.  But there is no way to enforce any user
+interface requirements.  Still, Tk is an admirable job and it is easy to
+like it for Unix programming.  Mr. Osterhout is working on a Windows
+version of Tk which will support the native look and feel of Windows,
+but I am on record as being skeptical that that is possible without a
+major change in Tk.</P><P>In summary, WPY keeps the good features of
+MFC and follows it closely enough to make it easy to learn, yet still
+looks natural in Python, protects the programmer from drudgery and
+presents a high level model.  At least that has been the intent.</P><P>James
+C. Ahlstrom<BR><A HREF="mailto:jim@interet.com">jim@interet.com</A></P></BODY></HTML>

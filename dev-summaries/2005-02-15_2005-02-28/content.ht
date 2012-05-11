@@ -1,0 +1,267 @@
+Title: python-dev Summary for 2005-02-15 through 2005-02-28
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2005-02-15 through 2005-02-28
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-02-15_2005-02-28.html]
+
+
+
+=====================
+Summary Announcements
+=====================
+
+------------------------
+Status of the candidates
+------------------------
+It looks like all three candidates for taking over the Summaries (Tony Meyer, Steven Bethard, and Tim Lesher) have agreed to actually do the Summaries together.  SO no break in the Summaries and I don't have to agonize over choosing a successor.
+
+-----------
+PyCon Looms
+-----------
+PyCon_ is coming soon!
+
+.. _PyCon: http://www.pycon.org/
+
+
+=========
+Summaries
+=========
+
+-------------
+PEP movements
+-------------
+`PEP 309`_ is now final since the 'functional' module has now been checked into Python.
+
+.. _PEP 309: http://www.python.org/dev/peps/pep-0309
+
+Contributing threads:
+  - `PEP 309 enhancements <http://mail.python.org/pipermail/python-dev/2005-February/051785.html>`__
+  - `PEP 309 <http://mail.python.org/pipermail/python-dev/2005-February/051789.html>`__
+
+------------------------------------------------------
+Indices for slices other objects with __int__ not okay
+------------------------------------------------------
+Travis Oliphant asked if it would be possible to patch slicing so that any object that defines __int__ could be used.
+
+Guido didn't like this idea, though.  Float, for instance, has __int__ defined.  Guido admitted he "unfortunately copied a design mistake from C here".  He said he might add a __trunc__ magic method in Python 3000 for objects that really can't be viewed as an int but are willing to have data loss to give one.
+
+Contributing threads:
+  - `Fixing _PyEval_SliceIndex so that integer-like objects can be used <http://mail.python.org/pipermail/python-dev/2005-February/051669.html>`__
+  - `Fix _PyEval_SliceIndex (Take two) <http://mail.python.org/pipermail/python-dev/2005-February/051672.html>`__
+
+
+--------------------------------------------
+Why can't ``class C(): pass`` be acceptable?
+--------------------------------------------
+No reason.  =)  So as of Python 2.5 it is acceptable to have empty parentheses for class definitions.  It does create a classic class and not a new-style one.
+
+Contributing threads:
+  - `Requesting that a class be a new-style class <http://mail.python.org/pipermail/python-dev/2005-February/051691.html>`__
+
+
+----------------------------------
+What basestring is truly meant for
+----------------------------------
+What is basestring for?  According to Guido it is purely for unicode and str to inherit from to help with checks in code where either type is acceptable.  It is *not* meant to be used as a base class for any other classes.
+
+Contributing threads:
+  - `UserString <http://mail.python.org/pipermail/python-dev/2005-February/051710.html>`__
+
+------------------------------------------------------
+Quickly opening an SF bug/patch in Firefox/Thunderbird
+------------------------------------------------------
+Martin v. Löwis posted a way to use the DictionarySearch_ plug-in for Mozilla to launch a browser with the highlighted patch/bug #.  See the email for the thread on how to get it to work.
+
+.. _DictionarySearch: http://dictionarysearch.mozdev.org/download.php/http://downloads.mozdev.org/dictionarysearch/dictionarysearch_0.8.xpi
+
+Contributing threads:
+  - `Quick access to Python bug reports in Thunderbird <http://mail.python.org/pipermail/python-dev/2005-February/051804.html>`__
+
+
+--------------------------------
+Optimizing ``x in [1, 2, 3]``
+--------------------------------
+Raymond Hettinger has been trying to teach the peepholer some new tricks to optimize ``x in [1, 2, 3]`` and the like into a faster operation.  Initially he got it to change the list to a tuple.  He then tried turning the list into a frozenset, but that had the unforeseen issue of breaking semantics since it then required the object being checked for to be hashable.
+
+So Raymond suggested introducing a SearchSet that tried the comparison as a frozenset first, and upon failure of hashing, to old way of just looking at each item in the list.
+
+But this seemed like overkill since most lists would be small; probably usually under 4 items.  But Fredrik Lundh suggested expanding it to ``x == 1 or x == 2 or x == 3``.  This seemed like a performance boost when the items of the list were lists since the COMPARE_OP opcode special-cases comparing ints.  But for other instances it probably isn't worth it unless more special-casing is done in the opcodes.
+
+Contributing threads:
+  - `Prospective Peephole Transformation <http://mail.python.org/pipermail/python-dev/2005-February/051651.html>`__
+
+------------------
+A DupStore opcode?
+------------------
+Raymond Hettinger suggested a new opcode called DupStore that would replace load;store opcode pairs.  Guido questioned if this was leading down a road of adding too much extra code for little benefit.
+
+Off this a discussion about speeding up frame allocation, an area viewed as needing some optimization, started up.
+
+Contributing threads:
+  - `Store x Load x --> DupStore <http://mail.python.org/pipermail/python-dev/2005-February/051716.html>`__
+
+
+---------------------------------------
+Slow unit tests should be distinguished
+---------------------------------------
+note:: written by Tony Meyer
+
+Guido clarified that unit tests should distinguish between "regular" tests
+and slow ones by use of the unit test 'resource' keys, as a result of Peter
+Åstrand asking for comments about `bug #1124637`_, which complained that
+test_subprocess is too slow.  The suggested solution was to add another
+resource for subprocess, so that generally a quick version would run, but a
+longer, more thorough test would run with -uall or -usubprocess.  Along the
+way, it was discovered that the reason that Windows already ran
+test_subprocess quickly was because there was code special-casing it to be
+fast.  The resource solution was checked in, although Windows was left
+special-cased.
+
+.. _bug #1124637: http://www.python.org/sf/1124637
+
+Contributing threads:
+   - `[ python-Bugs-1124637 ] test_subprocess is far too slow (fwd) <http://mail.python.org/pipermail/python-dev/2005-February/051618.html>`__
+
+
+-----------------------------------
+Clarification of the '5 for 1' deal
+-----------------------------------
+note:: written by Tony Meyer
+
+It seems that the offer that some python-dev'ers have made to review a patch
+in exchange for reviews of five (originally ten) other patches is finally
+being taken up by various people.  However, python-dev traffic has increased
+with patch and bug reviews, and the question was posed whether reviews
+should be posted in general, or only for this specific deal.
+
+The answer is that the comments should also be entered via the SourceForge
+tracking system, but that a brief message covering a bunch (rather than
+individual) of reviews is acceptable for python-dev, at least for now.  New
+reports should almost never be posted to python-dev, however, and should be
+entered via the tracking system.
+
+This offer isn't official policy, but a reference to it will be added to
+Brett's summary of the development process.  However, people should also
+remember that it may take developers some time to find time to deal with
+reviews, and so have patience after posting their review.
+
+Contributing threads:
+   - `discourage patch reviews to the list? <http://mail.python.org/pipermail/python-dev/2005-February/051475.html>`__
+   - `Some old patches <http://mail.python.org/pipermail/python-dev/2005-February/051705.html>`__
+   - `Five review rule on the /dev/ page? <http://mail.python.org/pipermail/python-dev/2005-February/051633.html>`__
+
+
+===============
+Skipped Threads
+===============
++ pymalloc on 2.1.3
++ Exceptions *must*? be old-style classes?
++ subclassing PyCFunction_Type
++ Windows Low Fragementation Heap yields speedup of ~15%
++ string find(substring) vs. substring in string
++ Some old patches
++ Comment regarding PEP 328
+
+
+
+========
+Epilogue
+========
+
+------------
+Introduction
+------------
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+February 15, 2005 through February 28, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the fifty-nineth summary written by Brett Cannon (two more to go!).
+
+To contact me, please send email to brett at python.org.  Do *not*
+post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+If you are looking for a way to expand your knowledge of Python's
+development and inner-workings, consider writing the python-dev
+Summaries yourself!  I am willing to hand over the reins to someone
+who is willing to do a comparable or better job of writing the
+Summaries.  If you are interested, please email me at
+brett at python.org.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python CVS online, go to
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  I do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow me to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-02-01_2005-02-14.html
+.. _original text file: http://www.python.org/dev/summary/2005-02-15_2005-02-28.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

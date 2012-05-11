@@ -1,0 +1,67 @@
+Title: Python-dev summary: 2000-11-16 to 2000-11-30
+
+<pre>
+It was a quiet two weeks, with only 215 postings to python-dev.  Guido
+was on vacation, which doubtless contributed to the silence.
+
+
+Python standardization?
+=======================
+
+Mark Lutz worried about whether Python is changing too quickly.
+"Things seem to be changing too fast for many developers to keep up,
+and it seems to me that a formal standard doc might help ease a few
+fears I've seen out there.  Books used to be a sort of de facto
+standard, but even they aren't reliable anymore; and the manuals
+aren't useful as a standard if they are open to arbitrary change every
+few months."
+  <a href="http://www.python.org/pipermail/python-dev/2000-November/010703.html">http://www.python.org/pipermail/python-dev/2000-November/010703.html</a>
+
+M.-A. Lemburg was dubious: "I don't see how a Python standard would do
+any good. Standards have version numbers as well and change at about
+the same rate (e.g. take Unicode 2.0 vs. Unicode 3.0)."
+  <a href="http://www.python.org/pipermail/python-dev/2000-November/010704.html">http://www.python.org/pipermail/python-dev/2000-November/010704.html</a>
+
+Christian was more positive: "I don't see the danger of bureaucracy so
+much. Instead, setting a standard is a sign of maturity for a language."
+  <a href="http://www.python.org/pipermail/python-dev/2000-November/010705.html">http://www.python.org/pipermail/python-dev/2000-November/010705.html</a>
+
+It's doubtful Mark will gain much comfort from the discussion, because
+most people viewed a standard as specifying degrees of flexibility
+exploitable by alternative implementations of Python, which would only
+lead to *more* variations, not fewer.
+
+
+Other stuff
+===========
+
+In a boring echo of the .setdefault() method, some new dictionary
+methods of minor usefulness were suggested, for looping through a
+dictionary without actually constructing the full .keys() or .values()
+list.  As Tim points out, these methods would be handy for
+constructing an efficient set class: "This operation can't be done
+efficiently in Python code if the set is represented by a dict (the
+best you can do is materialize the full list of keys first, and pick
+one of those).  That means my Set class often takes quadratic time for
+what *should* be linear-time algorithms." 
+  <a href="http://www.python.org/pipermail/python-dev/2000-November/010787.html">http://www.python.org/pipermail/python-dev/2000-November/010787.html</a>
+
+Jeffrey C. Ollie notified the python-dev list that, as an experiment,
+he embedded Python in the Exim mail transport agent: "I imagine that
+embedding Python in Exim will be interesting to those folks writing
+virus scanners or for VERY tight integration of Mailman with Exim."  
+There were no follow-ups.
+  <a href="http://www.python.org/pipermail/python-dev/2000-November/010780.html">http://www.python.org/pipermail/python-dev/2000-November/010780.html</a>
+
+The .capitalize() method is inconsistent between Unicode and regular
+strings, and the documentation is unclear about its definition.  Does
+S.capitalize() return the string with its first character capitalized
+and no other changes, or with the rest of the string lowercase?  Guido
+ruled that the latter interpretation is the intended one.
+  <a href="http://www.python.org/pipermail/python-dev/2000-November/010836.html">http://www.python.org/pipermail/python-dev/2000-November/010836.html</a>
+
+AMK submitted PEP 229, aiming to use the Distutils to build and
+install Python's standard library in place of the current
+Modules/Makefile.pre.in and makesetup mechanism.
+  <a href="http://python.sourceforge.net/peps/pep-0229.html">http://python.sourceforge.net/peps/pep-0229.html</a>
+</pre>

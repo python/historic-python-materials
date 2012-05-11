@@ -1,0 +1,243 @@
+Title: python-dev Summary for 2004-04-01 through 2004-04-30
+Content-type: text/x-rst
+
+python-dev Summary for 2004-04-01 through 2004-04-30
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from April 01, 2004 through April 30, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the thirty-ninth and fortieth summary written by Brett Cannon (Should
+be doing homework instead).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-04-01_2004-04-30.html
+.. _original text file: http://www.python.org/dev/summary/2004-04-01_2004-04-30.ht
+
+
+
+=====================
+Summary Announcements
+=====================
+Well, as you may have noticed, I wasn't able to keep up the pace of releasing the summaries twice in a month.  Joys of school.  Hopefully over the summer I will be able to semi-monthly releases since I will only be working and not have homework hanging over my head 24/7.
+
+To give everyone a a heads-up, a release candidate for Python 2.3.4 is going to be released May 13/14 (depending where you are on the globe).  If you have time, please download it and run the regression test suite (instructions can be found in the module documentation for the 'test' package) and report any issues you have.
+
+
+=========
+Summaries
+=========
+--------------------------------------------------------
+Method decorators and the discussion that will never end
+--------------------------------------------------------
+Method decorators and `PEP 318`_ were discussed ad nausea this past month.  The PEP should be updated in the near future.
+
+.. _PEP 318: http://www.python.org/dev/peps/pep-0318
+
+Contributing threads:
+  - `PEP 318 -- a couple use cases <http://mail.python.org/pipermail/python-dev/2004-April/043902.html>`__
+  - `PEP 318: Decorators last before colon/bakeoff <http://mail.python.org/pipermail/python-dev/2004-April/043911.html>`__
+  - `PEP 318 bake-off? <http://mail.python.org/pipermail/python-dev/2004-April/043952.html>`__
+  - `PEP 318: Is decorators the right term for these things? <http://mail.python.org/pipermail/python-dev/2004-April/043973.html>`__
+  - `Re: PEP 318: Let's propose some useful built-in decorators <http://mail.python.org/pipermail/python-dev/2004-April/043975.html>`__
+  - `Help with PEP 318 <http://mail.python.org/pipermail/python-dev/2004-April/044011.html>`__
+  - `PEP 318: Properties <http://mail.python.org/pipermail/python-dev/2004-April/044012.html>`__
+  - `PEP 318: More examples of decorator use <http://mail.python.org/pipermail/python-dev/2004-April/044132.html>`__
+  - `PEP 318: How I would implement decorators <http://mail.python.org/pipermail/python-dev/2004-April/044133.html>`__
+  - `PEP 318 - check for consensus <http://mail.python.org/pipermail/python-dev/2004-April/044251.html>`__
+
+
+------------------------------------------------------------
+Relative imports: the *other* discussion that will never end
+------------------------------------------------------------
+`PEP 328`_, which covers relative imports, has been updated to cover its lengthy discussion.  It seems the PEP is pretty much finalized.
+
+.. _PEP 328: http://www.python.org/dev/peps/pep-0328
+
+Contributing threads:
+  - `Re: PEP 328 -- relative and multi-line import <http://mail.python.org/pipermail/python-dev/2004-April/043978.html>`__
+  - `Some comments on PEP 328 (absolute/relative imports) <http://mail.python.org/pipermail/python-dev/2004-April/043998.html>`__
+  - `PEP 328: __path__ <http://mail.python.org/pipermail/python-dev/2004-April/044017.html>`__
+  - `from ...sys import path <http://mail.python.org/pipermail/python-dev/2004-April/044024.html>`__
+
+
+--------------------
+stdlib: Python or C?
+--------------------
+The question of whether stdlib modules should be coded in Python or C came up again.  Armin Rigo posted some numbers comparing performance of heapq using the Python version both in a stock Python interpreter and in Psyco_ and then the C version.  Armin's quick timings showed that the Python version of heapq was actually faster than the C version when used in Psyco.
+
+If it is possible to get the Python version to go faster, should it and future modules be coded in Python?  The usual arguments over maintenance and readability were brought up.  In the end the Python version of heapq was put back into the library with the C version renamed to _heapq.
+
+.. _Psyco: http://psyco.sf.net/
+
+Contributing threads:
+  - `Python is faster than C <http://mail.python.org/pipermail/python-dev/2004-April/044054.html>`__
+
+
+-----------------------------------
+Getting an Interest Group on Artima
+-----------------------------------
+Bill Venners of Artima_ asked if there was anyone who wanted to act as a moderator for an interest group for Python on the site.  If you are interested, read the email for details.
+
+.. _Artima: http://www.artima.com/
+
+Contributing threads:
+  - `Python Interest Group <http://mail.python.org/pipermail/python-dev/2004-April/044131.html>`__
+
+
+-------------------------------
+Informative reprs for iterators
+-------------------------------
+Raymond Hettinger suggested having the repr of iterators for built-in types list the first three objects returned by the iterator.  That way you would actually know what was in the iterator.  It was suggested only for iterators where the length of the iterator was known and extracting the first three objects from the iterator to display them would be cheap.
+
+In the end, though, it was not added for built-in types.  Some itertools iterators, though, did get more informative reprs.
+
+Contributing threads:
+  - `More imformative iterator representations <http://mail.python.org/pipermail/python-dev/2004-April/044136.html>`__
+  - `Proposed iterator representations <http://mail.python.org/pipermail/python-dev/2004-April/044166.html>`__
+
+
+------------------------------
+Turning globals into constants
+------------------------------
+Raymond Hettinger came up with some code that could take a code object and make all globals constants, thus speeding up access and removing code that did this explicitly (``_len = len``, etc.).  It was proposed for the stdlib in `PEP 329`_, but was rejected in the end for being too "hackish" in terms of fiddling with bytecode directly.
+
+It did bring up the idea of trying to come up with a way to flag built-ins that might be masked.  If the compiler knew what built-ins were not going to be masked a direct lookup in the built-in namespace would be all that was needed to access a built-in.  As it stands now, though, since an external module could inject a shadowing function into the global namespace of a module (such as having module bar having the code ``import foo; foo.len = lambda x: 42`` to shadow 'len' in the module foo), Python has to check the global namespace first, and then the built-in namespace for all non-local name accesses.  That is costly and it could possibly be avoided since the common case is to not shadow a built-in.
+
+Guido suggested having programmers have to specify when a built-in could be shadowed.  This could be compared to the 'volatile' keyword in C; the programmer has to specify when the compiler should not try to optimize access.  This seemed like the best way to go since forcing the programmer to flag when a built-in will *not* be shadowed would be more work for the common case.  Obviously this would all break backwards-compatibility and thus would either require a __future__ statement initially or would be like true division and always be a __future__ import until Python 3.0 .  But it was all just being thrown around with no concrete ideas on implementation and such.
+
+.. _PEP 329: http://www.python.org/dev/peps/pep-0329
+
+Contributing threads:
+  - `Candidate Function Decorator <http://mail.python.org/pipermail/python-dev/2004-April/044204.html>`__
+  - `PEP 329: Treating Builtins as Constants... <http://mail.python.org/pipermail/python-dev/2004-April/044396.html>`__
+  - `peps 329, 266, 267 <http://mail.python.org/pipermail/python-dev/2004-April/044492.html>`__
+
+
+-----------------------------
+Decimal "stuff" was discussed
+-----------------------------
+Two big topics came up about the Decimal package.  The first one was over whether there should be an exponent limit.  The discussion went back and forth, but in the end it was decided that having a limit is good since it will prevent undetected overflow and underflow.
+
+The second topic was about adding extra methods.  This was shot down since the point of the Decimal module is to follow the standard as put forth at http://www2.hursley.ibm.com/decimal/decarith.html .  After the module has been in the library and seen some wide usage then possible additions beyond the standard could be made.
+
+exponent limit
+repr (passable to eval if possible)
+sticking to spec initially
+
+Contributing threads:
+  - `Decimal data type issues <http://mail.python.org/pipermail/python-dev/2004-April/044208.html>`__
+  - `Decimal conversion to string <http://mail.python.org/pipermail/python-dev/2004-April/044269.html>`__
+  - `Decimal - context manipulation <http://mail.python.org/pipermail/python-dev/2004-April/044485.html>`__
+
+
+-------------------------------------------------
+Magic hashing numbers segues into JIT compilation
+-------------------------------------------------
+Raymond Hettinger suggested using a different number for hashing since it could be expressed in terms of shifts and additions.  But Tim Peters said it was a bad idea to futz with the number since the current one had proven its usefulness for so long and had been studying in a Python-specific way years ago.
+
+Since part of the justification for changing to another number was the number of cycles it would take to do the calculations, the discussion shifted to JIT compilation.  Clarification for JIT compared to specialized compilation (former does single compiled version of a function while the latter does multiple versions based on the argument types) came up along with wondering how some of the optimizations used in the Self_ language could be applied to Python.
+
+.. _Self: http://research.sun.com/self/language.html
+
+Contributing threads:
+  - `String hash function multiplier <http://mail.python.org/pipermail/python-dev/2004-April/044235.html>`__
+  - `Optimization targets - refcount <http://mail.python.org/pipermail/python-dev/2004-April/044304.html>`__
+
+
+----------------------------------
+Modules that need some documentin'
+----------------------------------
+Yours truly compiled a list of modules that need documentation that can be found both in the email starting this thread (although I made one mistake on that list of including the imp module) or at http://www.python.org/cgi-bin/moinmoin/ModulesThatNeedDocs where Michael Chermside was nice enough to put it on up on the wiki.
+
+Writing docs for modules is not that hard and is a great way to help out.  See http://www.python.org/dev/doc/devel/doc/doc.html on how to do documentation using LaTeX.  And if that scares you, even just writing the docs in reST_ is helpful since someone else can volunteer to convert it to LaTeX.
+
+Contributing threads:
+  - `Possible modules that could use docs <http://mail.python.org/pipermail/python-dev/2004-April/044392.html>`__
+
+
+--------------------------------------
+A change in the name of the CVS server
+--------------------------------------
+SourceForge_ started forcing people to use cvs.sf.net:/cvsroot/python as the location of the CVS server as compared to the previously supported (but not "official") path of cvs.python.sf.net:/cvsroot/python that shows up as SSH reporting a possible man-in-the-middle attack.  Barry Warsaw posted a Python script by Greg Ward that would traverse a CVS checkout and change the name of the CVS server.  That script can be found at http://mail.python.org/pipermail/python-dev/2004-April/044593.html .
+
+Contributing threads:
+  - `SSH problems getting into SourceForge's CVS? <http://mail.python.org/pipermail/python-dev/2004-April/044592.html>`__
+
+
+---------------------------
+A ConfigParser replacement?
+---------------------------
+Dan Gass presented his `config.py`_ to python-dev to see if there was any interest in adding it.  While he was given the standard response that no new modules will be accepted for inclusion in the stdlib until it has seen widespread acceptance and use by the community, Barry Warsaw suggested a possible ConfigParser replacement shootout ala the `getopt-sig`_ and how it was decided that optparse (aka Optik_) should be the suggested command-line parser used.  This won't happen for 2.4, but if people are interested enough this could be done for 2.5 if someone decides to spear-head this.
+
+People also immediately pointed out ZConfig_ (by our very own Fred Drake) as another possibility.
+
+.. _config.py: http://config-py.sf.net/
+.. _getopt-sig: http://mail.python.org/mailman/listinfo/getopt-sig
+.. _Optik: http://optik.sourceforge.net/
+.. _ZConfig: http://www.zope.org/Members/fdrake/zconfig/
+
+Contributing threads:
+  - `Proposal: A more powerful alternative to ConfigParser <http://mail.python.org/pipermail/python-dev/2004-April/044520.html>`__
+  - `Proposal: A more powerful alternativeto... <http://mail.python.org/pipermail/python-dev/2004-April/044529.html>`__
+
+
+-----------------------------------------
+Moving forward with generator expressions
+-----------------------------------------
+Guido said he wanted to get generator expressions into CVS.  While this is good and all, it still doesn't address the whole argument over whether early or late binding for variables in the genexps should be used (in case you have not been following, early binding would have a genexp save the state of the variables used in the genexp at creation time while late binding will use the state of the variables at the time of each execution of the genexp).  Since Guido prefers the late binding for simplicity, he suggested using it for 2.4a1 and a2.  If it was found that late binding was bad then for 2.4b1 early binding could be used.  No one had issues with that idea.
+
+What people did have issue with was the whole thing about late bindings period.  Basically the issue boils down to whether late binding is too much of a surprise for the cases where they can have issues.  But Greg Ewing pointed out that the use case that genexps were being created for were for arguments to functions; a use case where the genexp is used immediately and whose possible abuse of variables would not be an issue.  It was realized that genexps are not exactly the same as listcomps and thus not a direct replacement.  Genexps are meant for places where memory is going to be an issue; if a listcomp would do just a good of a job, then just go ahead and use a listcomp.
+
+Contributing threads:
+  - `PEP 289 - Generator Expressions - Let's Move Forward <http://mail.python.org/pipermail/python-dev/2004-April/044555.html>`__
+
+
+---------------------------------------------------
+How should gettext return strings from an .mo file?
+---------------------------------------------------
+Gustavo Niemeyer noticed that if you called 'gettext.gettext' it would return the exact bytes stored in the .mo file.  Apparently `GNU gettext`_ translates the bytes according to the current locale instead of just passing them through untouched.  Gustavo wanted to make Python match the GNU implementation.
+
+Barry Warsaw and Martin v. Loewis disagreed, though.  Since Python's way of doing it has been that way for so long, they didn't want to break backwards-compatibility.  It was also stated that code should use 'gettext.ugettext' anyway.
+
+In the end it was agreed upon that if Gustavo wanted this functionality he should add another function to 'gettext' (such as 'lgettext') that did what he wanted.
+
+.. _GNU gettext: http://www.gnu.org/software/gettext/gettext.html
+
+Contributing threads:
+  - `Small issues in gettext support <http://mail.python.org/pipermail/python-dev/2004-April/044569.html>`__
+
+
+-----------------------------------------------
+And how long have you been hacking on the core?
+-----------------------------------------------
+Anthony Baxter, fearless release manager, decided to run the Misc/ACKS file through ``cvs annotate`` which prints out who edited every line and when it was edited and then he sorted it.  This was to see when people were added to the ACKS file and thus find our roughly how long people have been hacking on the Python core.
+
+The file wasn't started until January 26, 1994 so a lot of the "old-timers" don't have exact dates (of which Anthony is one of them).  Yours truly was added on July 19, 2002.
+
+Contributing threads:
+  - `today's pointless, yet slightly terrifying, factoid(s) <http://mail.python.org/pipermail/python-dev/2004-April/044574.html>`__

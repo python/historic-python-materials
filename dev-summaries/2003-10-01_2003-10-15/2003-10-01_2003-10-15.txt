@@ -1,0 +1,147 @@
+python-dev Summary for 2003-10-01 through 2003-10-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from October 1, 2003 through October 15, 2003.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the twenty-seventh summary written by Brett Cannon (about to turn a quarter century old; so young yet so wise =).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+The in-development version of the documentation for Python can be found at http://www.python.org/dev/doc/devel/ and should be used when looking up any documentation on something mentioned here.  PEPs (Python Enhancement Proposals) are located at http://www.python.org/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2003-09-01_2003-09-15.html
+
+
+=====================
+Summary Announcements
+=====================
+Python-dev had a major explosion in emails thanks to some proposed changes to list.sort (summarized in `Decorate-sort-undecorate eye for the list.sort guy`_).  That got covered.  Some behind-the-scenes stuff that would not interest the general Python community was left out for my personal sanity.
+
+It looks like I will not have major issues continuing writing the Summaries in terms of school interfering.  The only big issue will be how long past their closure date does it take me to get them out.  In other words, unless my schoolwork load suddenly becomes heavy continuously I should be able to keep doing the Summaries until my personal sanity gives out.
+
+This summary is brought to you by the songs "Insanity_" by `Liz Phair`_ and "`Harder to Breathe`_" by `Maroon 5`_ (note these links require iTunes_ to be installed; now available on Windows!).
+
+.. _Insanity: http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewAlbum?playlistId=1760071&selectedItemId=1759480
+.. _Liz Phair: http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewArtist?artistId=22707
+.. _Harder to Breathe: http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewAlbum?playlistId=1798612&selectedItemId=1798604
+.. _Maroon 5: http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewArtist?artistId=1798556
+.. _iTunes: http://www.apple.com/itunes/
+
+=========
+Summaries
+=========
+--------------------------------------------------------------------
+I gave a talk at PyCon 2004 and all I got was respect and admiration
+--------------------------------------------------------------------
+I summarized this last month, but this is important so I am doing it again (and will continue to mention it until no more proposals are being accepted).  PyCon_
+is ramping up for 2004 and is putting out a `Call for Proposals`_.  Since PyCon is meant to be very broad-reaching you can propose anything from a scientific paper to a tutorial.
+
+If you have any inkling to give a talk please send in a proposal.  It can be rough; the key is that what you want to discuss can be understood from the proposal.  So take a look at the link and consider coming to PyCon as a speaker and not just a attendee.
+
+.. _PyCon: http://www.python.org/pycon/dc2004/
+.. _Call for Proposals: http://www.python.org/pycon/dc2004/cfp.html
+
+Contributing threads:
+  - `PyCon DC 2004: Call for Proposals <http://mail.python.org/pipermail/python-dev/2003-October/038502.html>`__
+
+
+---------------
+Web-SIG started
+---------------
+As stated on the SIGs page, "The Python `Web SIG`_ is dedicated to improving Python's support for interacting with World Wide Web services and clients."  If there is some web-related functionality that you think Python should, this is the place to discuss it.  If you think an existing Python module could stand a redesign then this is the proper forum for your ideas.
+
+.. _Web SIG: http://www.python.org/sigs/web-sig/
+
+Contributing threads:
+  - `Any movement on a SIG for web lib enchancements? <http://mail.python.org/pipermail/python-dev/2003-October/038519.html>`__
+
+
+--------------------------------------------
+I have seen the future and it includes 2.3.3
+--------------------------------------------
+Anthony Baxter, release manager for Python `2.3.1`_ and `2.3.2`_, is already planning a 2.3.3 release in about three months time.  He initially suggested that the goal of this release should be to have Python build on as many platforms as possible.
+
+Michael Hudson listed "HPUX/ia64, various oddities on Irix" as the major troublemakers.  He suggested that a sustained push to fix these build problems happen instead of trying to do it last-minute.  Michael also thought it would be a good idea to try to find experts on the trouble platforms instead of having someone getting access to some machine and floundering since they don't know the OS.
+
+Skip Montanaro quickly chimed in with http://www.python.org/cgi-bin/moinmoin/PythonTesters which is a wiki page that lists people who are available to help with testing on various OSs.  Please have a look and if you think you could help out on an OS add yourself.
+
+.. _2.3.1: http://www.python.org/2.3.1/
+.. _2.3.2: http://www.python.org/2.3.2/
+
+Contributing threads:
+  - `2.3.3 plans <http://mail.python.org/pipermail/python-dev/2003-October/038527.html>`__
+
+
+-------------------
+Helping you help us
+-------------------
+In response to Martin v. Lšwis' email on how to handle patches, Michael Bartl expressed his disappointment that nothing had happened to his patches.  It was explained to him that because of time restraints on python-dev that it can take time for people to get to all of the patches, but that his work was greatly appreciated and would eventually be looked at.  Since the email Martin has managed to take a look at them (even accepted one).
+
+The question of searching on SourceForge_ through the tracker items also came up.  There is a search box on the left side of the page, but it is not extensive.  Better than nothing.
+
+I also posted an essay I wrote that is meant to act as a guide to how Python is developed and how anyone can help with the development regardless of abilities.  You can look at the email below in the "Draft of an essay on Python development" thread referenced below in "Contributing threads".  Hopefully it will end up on python.org once it is in its final form.
+
+Contributing threads:
+  - `Patches & Bug help revisited <http://mail.python.org/pipermail/python-dev/2003-October/038621.html>`__
+  - `Draft of an essay on Python development (and how to	help) <http://mail.python.org/pipermail/python-dev/2003-October/038677.html>`__
+
+
+--------------------------------------------
+Making DLLs fatter for lower file dependency
+--------------------------------------------
+Thomas Heller suggested adding more modules to the Windows DLL as built-in so as to cut back on the number of files required to get Python to run (py2exe_ stands to benefit from this).  The issue of having a larger DLL to have to load into memory was brought up, but Martin v. Lšwis said that DLLs only load into memory what is needed to run and not the entire DLL.
+
+The issue of making the overall DLL larger in terms of disk space was brought up, but the worry was partially minimized when the list of modules to add was limited to small modules that do not have external dependencies.
+
+But zlib might break that last rule in order to allow importation from compressed zip files.  The idea of integrating the zlib source into the Python tree was brought up, but shot down for licensing issues on top of keeping the code synchronized.
+
+.. _py2exe: http://py2exe.sf.net/
+
+Contributing threads:
+  - `buildin vs. shared modules <http://mail.python.org/pipermail/python-dev/2003-October/038622.html>`__
+
+
+--------------------------------------------------
+Decorate-sort-undecorate eye for the list.sort guy
+--------------------------------------------------
+Raymond Hettinger suggested adding built-in support for the decorate-sort-undecorate (DSU) sorting idiom to list.sort (see the Python Cookbook recipe at http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52234 which is recipe 2.3 in the dead tree version or Tim Peters' intro to chapter 2 for details on the idiom).  After a long discussion on the technical merits of various ways to do this, list.sort gained the keyword arguments 'key' and 'reverse'.
+
+'key' takes in a function that accepts one argument and returns what the item should be sorted based on.  So running ``[(0,0), (0,2), (0,1)].sort(key=lambda x: x[1])`` will sort the list based on the second item in each tuple.  Technically the sort algorithm just runs the item it is currently looking at through the function and then handles the sorting.  This avoids having to actually allocate another list.  If 'key' and 'cmp' are both provided then 'key' is called on the items to be sorted and the function's return values are then passed to 'cmp'.
+
+'reverse' does what it sounds like based on whether its argument is true or false.
+
+list.sort also became guaranteed to be stable (this include 'reverse').
+
+A discussion of whether list.sort should return self came up and was *very* quickly squashed by Guido.  The idea of having a second method, though, that did sort and returned a copy of the sorted list is still being considered.
+
+Contributing threads:
+  - `decorate-sort-undecorate <http://mail.python.org/pipermail/python-dev/2003-October/038652.html>`__
+  - `list.sort <http://mail.python.org/pipermail/python-dev/2003-October/038772.html>`__
+
+
+-------------------------------
+New Python 2.3.2 Windows binary
+-------------------------------
+Some invalid DLLs made it into the 2.3.2 Windows binary distribution by accident.  It seems to mostly affect Windows 98 and NT 4 users.  The binary has been fixed and put up online.  You can tell if you downloaded the fixed version by checking the filename; the new one is named Python-2.3.2-1.exe (notice the "-1").
+
+Contributing threads:
+  - `Python-2.3.2 windows binary screwed <http://mail.python.org/pipermail/python-dev/2003-October/038746.html>`__
+
+
+-----------------------------------
+A call for cool itertools additions
+-----------------------------------
+Have an idea for something that should be added to itertools?  Read http://mail.python.org/pipermail/python-dev/2003-October/038916.html and see if it matches the criteria.  If it does send it off to Raymond Hettinger.

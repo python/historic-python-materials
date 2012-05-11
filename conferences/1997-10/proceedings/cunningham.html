@@ -1,0 +1,884 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+    <!-- SGI_COMMENT COSMOCREATE -->
+    <!-- SGI_COMMENT VERSION NUMBER="1.0.1" -->
+</HEAD>
+<BODY BACKGROUND="../../../pics/BlueLong.gif"
+      BGCOLOR="#FFFFFF"
+      TEXT="#000000"
+      LINK="#0000FF"
+      VLINK="#7070B0">
+
+<UL>
+
+<a href="index.html">Proceedings of the 6th International Python Conference</A>
+<HR SIZE="1" NOSHADE>
+<CENTER><H3 ALIGN="CENTER">
+User-Centered Evolutionary Software Development Using Python and Java<BR>
+ </H3>
+</CENTER><CENTER><P ALIGN="CENTER">
+Douglas Cunningham (dougc@cmu.edu)<BR>
+ Eswaran Subrahmanian (sub@cmu.edu), Arthur Westerberg (aw0a@cmu.edu)<BR>
+ <I>Engineering Design Research Center, Carnegie Mellon University, 
+Pittsburgh, PA</I> <BR>
+ </P>
+</CENTER><BLOCKQUOTE>
+<B>Abstract</B></BLOCKQUOTE>
+<BLOCKQUOTE>
+<FONT SIZE="2">The two language approach to software development has 
+been investigated by several language designers. The primary hypothesis 
+of such an approach being that both strong compile-time type checking 
+and loose run-time type checking are desirable in evolutionary software 
+development. Java is a static type-checked language which offers 
+performance, robustness and modularity as such, while Python is a 
+run-time type-checked language which offers rapid prototyping, dynamic 
+run-time modification, and delayed evaluation. The premise of this work 
+is that evolutionary software development can be more efficient using 
+both languages together than using either language alone.</FONT></BLOCKQUOTE>
+<BLOCKQUOTE>
+<FONT SIZE="2">The Java Python Interface (JPI) is an interface between 
+Java and Python which allows the two languages to interoperate through 
+dynamic message lookup and the conversion and exchange of objects and 
+exceptions. Through the JPI, Python can be used as a scripting language 
+for Java-from a Python interpreter one can prototype AWT components and 
+even create bindings which call Python code. In addition, the JPI can 
+be used to add user level Python scripting to Java programs. </FONT><BR>
+ </BLOCKQUOTE>
+<H3>
+1 Introduction </H3>
+<P>
+Over the last decade the use and value of prototypes in design, both in 
+software and other engineering disciplines, has been investigated and 
+discussed by researchers [Budde92] [Krogh96]. Evolutionary software 
+development, which consists of the rapid prototyping of new components 
+and their evolution into hardened components [Budde92], offers many 
+benefits to the object-oriented software development process [Cox91]. 
+Included among these benefits is the ability to address rapidly 
+changing software requirements. In addition, the efficiency gained from 
+user-centered design, which consists of constant user feedback 
+impacting the software design, has received significant attention 
+recently [Landauer95]. </P>
+<P>
+The requirements of user-centered and evolutionary software development 
+cycles share many similarities but also include conflicting aspects. 
+User-centered development demands the ability to rapidly add features, 
+modify behavior, and create new user interface components. Evolutionary 
+software development can have these same requirements but also requires 
+the creation of well-defined modules and stable, efficient code. </P>
+<P>
+Clean module interfaces, compile-time error checking, and performance 
+make statically typed languages such as C++ [Stroustrup87] and Java 
+[Arnold96] useful for the creation of hardened components. Meanwhile, 
+rapid prototyping, fast compile-test-debug cycles, and high programming 
+flexibility make dynamically typed languages such as Python [Watters96] 
+and Tcl [Ousterhout94] appropriate for the rapid creation of prototype 
+components. </P>
+<P>
+Ousterhout argues that a two language approach proves both feasible and 
+practical for software development [Ousterhout97]. For example, 
+languages such as Python and Tcl provide consistent interfaces to C to 
+allow developers to move performance critical methods and procedures 
+into C without modification of the calling code. In addition, the 
+dynamic language can be used to make calls to and exchange data between 
+existing C or C++ modules. </P>
+<P>
+The Java Python Interface (JPI) attempts to merge the strengths of two 
+languages which are very similar in syntax and function. The purpose of 
+the JPI is two fold: 1) allow for the simultaneous development of 
+prototype components in Python and hardened components in Java, and 2) 
+allow for the addition of user-level Python scripting to Java programs. </P>
+<P>
+This paper will describe the motivation of such an approach, and then 
+focus on the technical details of the JPI. </P>
+<H3>
+2 Motivation </H3>
+<P>
+Design practices in software engineering vary widely from usage of the 
+waterfall model to the evolutionary development model. In addition, 
+explorations into user- centered design in software engineering have 
+increased over the last few years [Karat96]. Although a unified 
+definition of user-centered design has not been reached, Karat offers 
+elements of one. Karat draws on Gould's four high level principles of 
+good design as a partial definition of user-centered design. </P>
+<BLOCKQUOTE>
+<FONT SIZE="2">The principles include early and continual focus on 
+users (suggesting that this involves direct user involvement in the 
+design process), early and continual evaluation, iterative design and 
+development, and integrated (whole system) design. [Karat96]</FONT> </BLOCKQUOTE>
+<P>
+In order to carry out design in this fashion the development 
+environment must allow for the co- existence of stable modules with 
+well-specified interfaces and newly prototyped modules with still- 
+changing interfaces. In addition, the ability to quickly prototype new 
+features, particularly in a running system, with a fast 
+compile-test-debug cycle is required, while at the same time, the 
+ability to statically determine code validity is necessary. </P>
+<H4>
+2.1 Two Languages </H4>
+<P>
+Supporting the above requirements well requires a language which can 
+support both static and dynamic components at the same time. Currently, 
+the most widely used development languages do not allow for this type 
+of flexibility. Instead, developers are often left to choose a language 
+which does not satisfy all of the necessary requirements. 
+Unfortunately, choosing a single language leaves many pitfalls in the 
+development process. </P>
+<P>
+If developers choose to use a statically typed language they often 
+encounter problems in the early prototyping and development phases. 
+First, they may begin to define programming module interfaces 
+prematurely which can cause delays for other developers when modules 
+are redefined and require recompilation of part or all of the system. 
+Second, they are forced to engage in long compile-test-debug cycles due 
+to the longer compilation times of static languages and the need to 
+restart the program and recreate the state under which the error 
+occurred. Third, determining the cause of an error can be difficult due 
+to the inability to directly query the running program for information 
+other than through the use of a debugger. Fourth, it is difficult to 
+debug part of an incomplete program since the compiler will not allow 
+the program to run until all of the compile-time errors are corrected. 
+While a static language offers many benefits, these limitations often 
+make it difficult to rapidly prototype all or part of an application. </P>
+<P>
+On the other hand, if developers choose to use a dynamically typed 
+language they often encounter problems in the latter phases of 
+development when performance, scalability, and maintainability are 
+crucial. First, they may end up not defining module interfaces well 
+since the language often will not require the strict specification of 
+the interface to a module. Second, they often encounter performance 
+problems when writing computationally intensive code and as a result 
+spend a great deal of time optimizing code. Third, they suffer scale 
+problems related to CPU and memory usage when a system becomes large. 
+Fourth, the detection of all coding errors, except syntactical, is 
+delayed until the actual line of code containing the error is executed 
+- meaning completely exhaustive tests must be written in order to check 
+the validity of code. Despite the benefits of a highly dynamic 
+language, these limitations make it difficult to maintain a large piece 
+of software. </P>
+<P>
+Fortunately, alternatives exist to choosing either a static or dynamic 
+language. Languages such as Python and Tcl, offer the option of using 
+both a dynamic component, the language itself, and a static component, 
+C. Therefore, a developer can use a language such as Python to 
+prototype and debug new code and then reimplement that code in C for 
+performance and scalability. This two language approach to software 
+development offers many benefits over using a single language. 
+Programmers can prototype new features, work out their logic, and fix 
+errors without the need to engage in a long compile-test-debug cycle. 
+Once code logic has been established and verified, the code can then be 
+moved into the static language to gain speed and robustness and force 
+the creation of a well-defined interface. </P>
+<H4>
+2.2 Java and Python </H4>
+<P>
+The use of two languages does not immediately solve the challenges 
+facing a development team. Often, using two languages can have as many 
+problems as using a single language. </P>
+<P>
+For several years, the <EM>n</EM>-dim project at Carnegie Mellon 
+University has investigated the two language approach with an object 
+system called BOS [Dutoit96]. BOS, standing for Basic Object System, 
+allows for the prototyping of code in an interpreted language called 
+stitch and the hardening of code in C, much like Python and Tcl. Our 
+experiences have shown that the main drawback of this approach is that 
+moving code into C is a costly effort since it requires a complete 
+reimplementation of the code and often the logic. As a result, 
+developers typically take the first step of prototyping code in the 
+dynamic language and then neglect the needed step of reimplementing the 
+code in the static language despite the performance and scalability 
+gains. Recently, tools such as SWIG [Beazley97] make this process 
+easier for languages including Perl, Python, and Tcl, but they still 
+require significant work on the part of the programmer. </P>
+<P>
+Python and Java share many common features [Masse96] - they are both 
+object-oriented, support garbage collection, provide object-based 
+exception handling, guarantee memory safety, and have a similar syntax. 
+As a result, using them together in the two language approach offers a 
+potential solution to the barrier of converting prototype code to 
+hardened code. Given the ability to seamlessly communicate between the 
+two languages, one could maintain different parts of a program in each 
+language. Classes prototyped in Python could easily be converted to 
+Java classes, but at the same time, particular methods, such as those 
+undergoing a lot of rapid change, could be kept in Python. The 
+similarities of Python and Java allow for the transition of code from 
+one language to the other to be extremely easy and even offer the 
+possibility of complete automation. </P>
+<P>
+The Java Python Interface (JPI), provides a mechanism for this type of 
+communication. Messages can be sent to Java objects from Python and 
+vice-versa, argument conversions are performed between the two 
+languages, objects from one language can `exist' in the memory space of 
+the other, and exceptions thrown from one language can be caught in the 
+other. The following section describes the JPI in more detail and gives 
+examples of how it can be used to satisfy the requirements of both 
+rapid prototyping and code hardening in software development. </P>
+<H3>
+3 The JPI Overview </H3>
+<P>
+The JPI is an interface between Java and Python. It allows for the 
+dynamic manipulation of Java objects through the use of Python and 
+vice-versa. By writing Python code one can program using existing Java 
+classes. In addition, the syntactical similarities between Python and 
+Java are great enough that the conversion of prototyped Python code to 
+hardened Java code is very easy and can even be largely automated. </P>
+<P>
+The JPI consists of a simple interface between the two languages, but 
+at the same time, it is quite powerful. An example of the use of the 
+JPI is the Python class shown in Example&nbsp;1 which creates a Java 
+AWT button and prints `Hello World!' when it is clicked. This section 
+describes the implementation of the JPI. </P>
+<CENTER>
+<TABLE BORDER="1" CELLPADDING="6">
+    <TR>
+        <TD><PRE>
+# HelloWorld.py 
+
+import java 
+Frame = java.findClass(&quot;java.awt.Frame&quot;) 
+Button = java.findClass(&quot;java.awt.Button&quot;) 
+PyEventListener = \ 
+java.findClass(&quot;PyEventListener&quot;)
+
+class HelloWorld:
+
+  def __init__(this): 
+    # Create a frame and a button 
+    frame = Frame.new(&quot;Hello World Test&quot;) 
+    button = Button.new(&quot;Click Here&quot;) 
+    frame.add(button) 
+    frame.pack() 
+    frame.setVisible(1) 
+
+    # Create a listener object which will 
+    # call this object back when an event 
+    # occurs and add it to the button 
+    listener = PyEventListener.new(this) 
+    button.addActionListener(listener) 
+
+    # Tell the listener what event to 
+    # listen for and what message to send 
+    # when the event occurs 
+    listener.listenFor(&quot;actionPerformed&quot;, &quot;printMessage&quot;)
+
+  def printMessage(this, event): 
+    print &quot;Hello World!&quot; 
+
+% java Python 
+&gt;&gt;&gt; from HelloWorld import * 
+&gt;&gt;&gt; hw = HelloWorld() # Button appears 
+&gt;&gt;&gt; # Click away! 
+Hello World! 
+Hello World! 
+Hello World! 
+Hello World! 
+Hello World!</PRE>
+        </TD>
+    </TR>
+    <CAPTION ALIGN="BOTTOM"><H5>
+    Example 1: HelloWorld Python class using Java AWT</H5>
+    </CAPTION>
+</TABLE>
+</CENTER>
+<H4>
+3.1 Basics </H4>
+<P>
+The JPI consists of a Python C module (java), a Python C type 
+(JavaObject), and three simple Java classes (Python, PyObject, and 
+PyEventListener). </P>
+<UL>
+    <LI>
+    The `java' module implements the simple functionality of looking up 
+    Java classes through a `findClass' method. 
+    <LI>
+    The `JavaObject' type wraps an actual Java object in a Python C type. 
+    Any messages sent to a `JavaObject' are answered by dynamically finding 
+    the appropriate method defined for the Java object. 
+    <LI>
+    The `Python' class implements the functionality of sending code to 
+    Python to be evaluated and allows the getting and setting of attributes 
+    in Python's main module. This class also implements the method for 
+    dynamically finding and invoking Java methods. 
+    <LI>
+    The PyObject class wraps an actual Python object in a Java object. 
+    Messages can be sent to the Python object by invoking the `send' method 
+    with a message name and arguments. 
+    <LI>
+    The `PyEventListener' class is provided to listen for AWT events. 
+</UL>
+<P>
+In addition, the `java' module and `Python' class handle the object 
+conversions described below. </P>
+<H4>
+3.2 Java Classes </H4>
+<P>
+To create a Java instance a program must first obtain a class to 
+instantiate. This is done using the `findClass' method of the `java' 
+module. It is useful to assign classes to variables for more convenient 
+use. Once a class is obtained, the `new' message will invoke a 
+constructor matching the arguments provided. Example&nbsp;2 
+demonstrates this. </P>
+<CENTER>
+<TABLE BORDER="1" CELLPADDING="6">
+    <TR>
+        <TD><PRE>
+# Get the Java AWT Frame class 
+&gt;&gt;&gt; Frame = java.findClass(&quot;java.awt.Frame&quot;)
+
+# Create a Frame instance 
+&gt;&gt;&gt; f = Frame.new(&quot;My Frame&quot;) 
+
+</PRE>
+            <P>
+            Equivalent Java code: </P>
+            <PRE>
+
+Frame f = new Frame(&quot;My Frame&quot;); </PRE>
+        </TD>
+    </TR>
+    <CAPTION ALIGN="BOTTOM"><H5>
+    Example 2: Creating an instance of a Java class </H5>
+    </CAPTION>
+</TABLE>
+</CENTER>
+<P>
+In addition, the static fields and methods of a class can be accessed 
+through this handle to a Java class. As Example&nbsp;3 shows, sending a 
+message to a Java class from Python looks almost exactly as it does in 
+Java.</P>
+<CENTER>
+<TABLE BORDER="1" CELLPADDING="6">
+    <TR>
+        <TD><PRE>
+# Get the Java System class
+&gt;&gt;&gt; System = java.findClass(&quot;java.lang.System&quot;)
+
+# Invoke the static currentTimeMillis 
+# method on the System class 
+&gt;&gt;&gt; t = System.currentTimeMillis() 
+
+</PRE>
+            <P>
+            Equivalent Java code: </P>
+            <PRE>
+
+long t = System.currentTimeMillis() </PRE>
+        </TD>
+    </TR>
+    <CAPTION ALIGN="BOTTOM"><H5>
+    Example 3: Accessing a static method</H5>
+    </CAPTION>
+</TABLE>
+</CENTER>
+<H4>
+3.3 Java Instance Methods and Variables </H4>
+<P>
+Messages are sent to Java through a dynamic message lookup scheme. The 
+`JavaObject' Python C type, which wraps a Java object, contains a 
+global reference, provided by the JNI, to the actual Java object. When 
+a message is sent to a `JavaObject' a dynamic message lookup ensues in 
+order to find out if the actual Java object has a method with the 
+correct name and argument types. If an appropriate method is found it 
+is invoked. If no method is found, then the lookup proceeds to search 
+for an instance variable with the correct name and argument type. If a 
+matching variable is found, then the variable is either set (if one 
+argument was provided) or its contents retrieved (if no argument was 
+provided). If no variable is found or more than one argument was sent, 
+then an exception is thrown. </P>
+<P>
+Example&nbsp;4 shows Python code which both invokes a method and gets 
+the value of a variable. Unfortunately, as the example demonstrates, 
+accessing a variable is not as seamless as sending messages since it 
+requires an extraneous set of parenthesis. The reason for this is that 
+the `JavaObject' type uses the `getattr' function to answer any 
+messages sent to the object. Since the `getattr' function is not given 
+the information of whether the user is attempting to invoke a method or 
+get the contents of a variable, it is not possible to know whether a 
+method or variable lookup should be done. Presumably this information 
+is available to Python, but it is not passed to `getattr'. An 
+alternative solution to forcing the use of parentheses is to have the 
+variable lookup take precedence over the method lookup, but the 
+behavior would still not be ideal. </P>
+<CENTER>
+<TABLE BORDER="1" CELLPADDING="6">
+    <TR>
+        <TD><PRE>
+# `o' is a Java object with the method 
+# `length' and variable `elems' 
+
+# Send the `length' message with no 
+# arguments to invoke the `length' method 
+&gt;&gt;&gt; num = o.length() 
+
+# Send the `elems' message to get the 
+# contents of the `elems' variable 
+&gt;&gt;&gt; el = o.elems() </PRE>
+        </TD>
+    </TR>
+    <CAPTION ALIGN="BOTTOM"><H5>
+    Example 4: Accessing a Java method and variable</H5>
+    </CAPTION>
+</TABLE>
+</CENTER>
+<P>
+Likewise, the Java class, PyObject, wraps an actual Python object. An 
+instance of PyObject contains a pointer to the actual Python object and 
+a `send' method is provided to send a message to the Python object. 
+Clearly, the code to send a message to Python is not as clean. This is 
+because Java does not provide any mechanism for answering any message 
+sent to an object such as Python's `getattr'. Example&nbsp;5 gives the 
+implementation of a Java method called `reverseRange' which takes a 
+Python object as an argument and sends it the `reverse' message. </P>
+<CENTER>
+<TABLE BORDER="1" CELLPADDING="6">
+    <TR>
+        <TD><PRE>
+// This method sends the `reverse' 
+// message to a Python range 
+public void reverseRange(PyObject r) throws Exception { 
+  // If the object passed in does 
+  // not answer `reverse' then an 
+  // exception will be thrown 
+  r.send(&quot;reverse&quot;); 
+}</PRE>
+        </TD>
+    </TR>
+    <CAPTION ALIGN="BOTTOM"><H5>
+    Example 5: Message send from Java to Python object </H5>
+    </CAPTION>
+</TABLE>
+</CENTER>
+<H4>
+3.4 Object Conversions </H4>
+<P>
+Sending messages without arguments or without receiving results would 
+be quite limiting. Therefore, an integral aspect of the JPI is the 
+passing of objects between Java and Python through type conversions. 
+The supported type conversions from Java to Python are listed in Table&nbsp;1, 
+and the type conversions from Python to Java are listed in Table&nbsp;2. </P>
+<CENTER>
+<TABLE BORDER="2" CELLPADDING="0" CELLSPACING="0">
+    <CAPTION ALIGN="BOTTOM"><H5>
+    Table 1: Java to Python Conversions</H5>
+    </CAPTION>
+    <TR>
+        <TH ALIGN="CENTER"><B>Java Type</B></TH>
+        <TH ALIGN="CENTER"><B>Python Type</B></TH>
+    </TR>
+    <TR>
+        <TD ALIGN="CENTER" NOWRAP>Integer, int</TD>
+        <TD ALIGN="CENTER" NOWRAP>int</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="CENTER" NOWRAP>Long, long</TD>
+        <TD ALIGN="CENTER" NOWRAP>long</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="CENTER" NOWRAP>Float, float</TD>
+        <TD ALIGN="CENTER" NOWRAP>float</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="CENTER" NOWRAP>Double, double</TD>
+        <TD ALIGN="CENTER" NOWRAP>float</TD>
+    </TR>
+    <TR>
+        <TD WIDTH="150" ALIGN="CENTER" NOWRAP>Boolean, boolean</TD>
+        <TD ALIGN="CENTER" NOWRAP>0, 1</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="CENTER" NOWRAP>String</TD>
+        <TD ALIGN="CENTER" NOWRAP>str</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="CENTER" NOWRAP>PyObject</TD>
+        <TD ALIGN="CENTER" NOWRAP>object</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="CENTER" NOWRAP>Object</TD>
+        <TD WIDTH="95" ALIGN="CENTER" NOWRAP>JavaObject</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="CENTER" NOWRAP>null</TD>
+        <TD ALIGN="CENTER" NOWRAP>None</TD>
+    </TR>
+</TABLE>
+</CENTER>
+<CENTER>
+<TABLE BORDER="2" CELLPADDING="0" CELLSPACING="0">
+    <CAPTION ALIGN="BOTTOM"><H5>
+    Table 2: Python to Java Conversions</H5>
+    </CAPTION>
+    <TR>
+        <TH ALIGN="CENTER">Python Type</TH>
+        <TH ALIGN="CENTER">Java Type</TH>
+    </TR>
+    <TR>
+        <TD ALIGN="CENTER" NOWRAP>int</TD>
+        <TD WIDTH="200" ALIGN="CENTER" NOWRAP>Integer, int, Boolean, 
+            boolean</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="CENTER" NOWRAP>long</TD>
+        <TD ALIGN="CENTER" NOWRAP>Long, long</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="CENTER" NOWRAP>float</TD>
+        <TD ALIGN="CENTER" NOWRAP>Double, double, Float, float</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="CENTER" NOWRAP>str</TD>
+        <TD ALIGN="CENTER" NOWRAP>String</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="CENTER" NOWRAP>object</TD>
+        <TD ALIGN="CENTER" NOWRAP>PyObject</TD>
+    </TR>
+    <TR>
+        <TD WIDTH="95" ALIGN="CENTER" NOWRAP>JavaObject</TD>
+        <TD ALIGN="CENTER" NOWRAP>Object</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="CENTER" NOWRAP>None</TD>
+        <TD ALIGN="CENTER" NOWRAP>null</TD>
+    </TR>
+</TABLE>
+</CENTER>
+<P>
+The argument conversion code will convert objects in both directions 
+when used in an argument list or when returning results. If an object 
+can not be converted to a primitive type it will be converted to either 
+a PyObject or a JavaObject depending on the direction of conversion. An 
+exception to this rule is the `new' primitive of the `java' C module 
+which always returns a JavaObject. The code in Example&nbsp;6 
+demonstrates several object conversions. </P>
+<CENTER>
+<TABLE BORDER="1" CELLPADDING="6">
+    <TR>
+        <TD><PRE>
+# Vector class and new instance are 
+# converted to JavaObject type 
+&gt;&gt;&gt; Vector = java.findClass(&quot;java.util.Vector&quot;) 
+&gt;&gt;&gt; v = Vector.new() 
+
+# Create Python range - no conversions here 
+&gt;&gt;&gt; r = range(5) 
+
+# Python range is converted to a PyObject 
+&gt;&gt;&gt; v.addElement(r) 
+
+# int 0 is converted to Java int 0 and 
+# element found is converted from PyObject 
+# back to Python range 
+&gt;&gt;&gt; print v.elementAt(0) 
+[0, 1, 2, 3, 4] </PRE>
+        </TD>
+    </TR>
+    <CAPTION ALIGN="BOTTOM"><H5>
+    Example 6: Object Conversions</H5>
+    </CAPTION>
+</TABLE>
+</CENTER>
+<P>
+The JPI attempts to support object conversions well in both directions, 
+but there are no guarantees that a problematic situation can not arise. 
+As illustrated in Example&nbsp;7, a Java class could define two methods 
+with the same name and arguments similar enough that a message sent 
+from Python could potentially be answered by both methods. Currently, 
+the choice is arbitrary - the first method it finds will be the one 
+selected. There is, of course a way around this as the example also 
+shows. </P>
+<CENTER>
+<TABLE BORDER="1" CELLPADDING="6">
+    <TR>
+        <TD><PRE>
+// Java class Test implements two 
+// different `set' methods 
+public class Test() { 
+  public void set(int i) { } 
+  public void set(boolean b) { } 
+} 
+
+</PRE>
+            <P>
+            Argument conversion code must choose which `set' method to invoke: </P>
+            <PRE>
+
+&gt;&gt;&gt; o = java.findClass(&quot;Test&quot;).new() 
+&gt;&gt;&gt; o.set(1234) 
+
+</PRE>
+            <P>
+            Work-around for this creates an Integer object: </P>
+            <PRE>
+
+&gt;&gt;&gt; Integer = java.findClass(&quot;java.lang.Integer&quot;) 
+&gt;&gt;&gt; o = java.findClass(&quot;Test&quot;).new() 
+&gt;&gt;&gt; i = Integer.new(1234) 
+&gt;&gt;&gt; o.set(i) </PRE>
+        </TD>
+    </TR>
+    <CAPTION ALIGN="BOTTOM"><H5>
+    Example 7: Ambiguity due to object conversions </H5>
+    </CAPTION>
+</TABLE>
+</CENTER>
+<H4>
+3.5 Exception Handling </H4>
+<P>
+Exceptions are handled by the JPI by converting an exception back and 
+forth between a Python exception and a Java exception as it passes up 
+the call stack. The programmer can catch the exception in either of the 
+languages. Currently though, the exception handling mechanism loses 
+information about the original exception when it is converted between 
+languages. So an exception occurring when sending a message to Java 
+will result in a general Exception object being thrown. Due to this 
+drawback, the JPI prints out the exception information just before 
+conversion so that the programmer can see the actual exception that 
+occurred. Future work will improve upon this such that in either 
+language the actual exception which was thrown will be passed back and 
+forth. The current and future behavior are shown in Example&nbsp;8. </P>
+<CENTER>
+<TABLE BORDER="1" CELLPADDING="6">
+    <TR>
+        <TD><PRE>
+&gt;&gt;&gt; v = Vector.new() 
+&gt;&gt;&gt; v.elementAt(0) 
+java.lang.ArrayIndexOutOfBoundsException: 0 &gt;= 0 
+  at java.util.Vector.elementAt 
+      (Vector.java) 
+  at Python.dynamicMessageSend 
+      (Python.java:241) 
+  at Python.runInterpreter 
+      (Python.java:444) 
+  at Python.main 
+      (Python.java:467) 
+Traceback (innermost last): 
+  File &quot;&lt;string&gt;&quot;, line 1, in ? 
+java.error: Exception thrown from Java 
+java.lang.Exception: Exception thrown from Python 
+  at Python.runInterpreter 
+      (Python.java:444) 
+  at Python.main 
+      (Python.java:467) 
+
+</PRE>
+            <P>
+            While the future behavior should be: </P>
+            <PRE>
+
+&gt;&gt;&gt; v = Vector.new() 
+&gt;&gt;&gt; v.elementAt(0) 
+java.lang.ArrayIndexOutOfBoundsException: 0 &gt;= 0 
+  at java.util.Vector.elementAt 
+      (Vector.java) 
+  at Python.dynamicMessageSend 
+      (Python.java:241) 
+  at Python.runInterpreter 
+      (Python.java:444) 
+  at Python.main 
+      (Python.java:467) </PRE>
+        </TD>
+    </TR>
+    <CAPTION ALIGN="BOTTOM"><H5>
+    Example 8: Exception Handling</H5>
+    </CAPTION>
+</TABLE>
+</CENTER>
+<H4>
+3.6 Other Implementation Details </H4>
+<P>
+<B>Classes and Interfaces.</B> In order to have a Python class 
+implement a Java interface or subclass a specific class, a Java class 
+doing so must be created which then forwards messages to a Python 
+object. The PyEventListener class is an example of this. The 
+PyEventListener class implements all of the AWT event listener 
+interfaces. Its constructor requires a PyObject to which it will 
+forward calls to the interface methods. The PyEventListener serves 
+merely as a custom wrapper for a PyObject to satisfy the interface 
+requirements of methods which demand some type of event listener. 
+Example&nbsp;1 gives an example of how the PyEventListener can be used. </P>
+<P>
+<B>The (Fake) Interpreter.</B> The JPI provides its own interpreter 
+because difficulties were encountered when trying to run the Python 
+interpreter from C. This fake interpreter merely reads input and sends 
+it to Python for the real interpretation, but as a result, the behavior 
+of the interpreter does not exactly match that of Python. Multi- line 
+expressions are finished as soon as a blank line is entered, and 
+results are not printed automatically, the `print' command must be 
+used. </P>
+<P>
+<B>Reserved Words.</B> There is also a problem when sending messages 
+which correspond to Python reserved words, e.g., print. This is because 
+the Python parser looks for the reserved words and immediately 
+generates an error if the reserved word is not being used properly. 
+Therefore, trying to send a message to a Java object which matches a 
+reserved word will result in a syntax error. The work around for this 
+is to use the `send' method defined on `JavaObject' to by-pass the 
+Python parser. The `send' method takes the message to be sent as its 
+first argument. </P>
+<H3>
+4 Other Approaches </H3>
+<P>
+Other approaches to building software out of both static and dynamic 
+components exist-a language supporting both static and dynamic modules 
+could be written, different languages could be chosen for integration, 
+and the languages could be integrated in different ways. </P>
+<P>
+As described in Section 2, the <EM>n</EM>-dim group has experimented 
+with a prototype-based object-oriented system, BOS, which satisfies 
+many of the requirements outlined above [Dutoit96]. For example, BOS 
+allows for method and variable declarations to be typed or untyped. 
+Although BOS currently does not perform any static type-checking, this 
+feature could be added to BOS to verify code validity when types are 
+provided. In this way, developers could opt to leave out typing 
+information when in the prototyping phase and later add typing 
+information when in the code- hardening phase. </P>
+<P>
+One of the goals of the JPI was to have a system which consisted of 
+commercially supported, or near commercially supported, languages. 
+Section 2 described the reasons for choosing Python and Java. The 
+similarities were great enough that an integration of the two could be 
+much cleaner than any other alternatives. For example, if the attempt 
+was to integrate Python and C++, then garbage collection issues would 
+certainly be an obstacle. Python could not maintain a handle to a C++ 
+object without concern of when the C++ object is destroyed. With Java, 
+Python can simply call a JNI function which establishes a global 
+reference to the Java object. This prevents the Java object from being 
+garbage collected even when Python is the only reference holder. 
+Likewise, when Java holds a reference to a Python object the object's 
+reference counter can be incremented to prevent garbage collection. In 
+both cases, the referring wrapper object can release its hold on the 
+object when the wrapper object is itself garbage collected. </P>
+<P>
+Another approach to building a system with both dynamic and static 
+components is through the use of an interfacing tool such as CORBA or 
+ILU. These tools allow the programmer to specify the interface of a 
+module such that the module can be used from a different language, by 
+another program, or even by a program running on a different machine. 
+While this offers flexibility with regards to the number of possible 
+ways in which the module can be used, it requires the rigid 
+specification of a module interface. In fact, CORBA and ILU are 
+orthogonal to the JPI and do not conflict with, but instead augment, 
+its usefulness. </P>
+<P>
+Finally, this is not the only project attempting to integrate Python 
+and Java. Kevin Butler from Brigham Young University has implemented a 
+package called PyJava which also provides an integration between Java 
+and Python. Although the functionality is quite similar, the 
+development methods employed are very different. While a full 
+comparison of the two approaches is beyond the scope of this paper, the 
+most notable difference in functionality is that PyJava currently only 
+allows for Python to call Java and not vice-versa. </P>
+<H3>
+5 Future Directions </H3>
+<P>
+This integration of Java and Python is not yet complete and still 
+reveals many seams. Improvements can be made to the JPI and changes to 
+Java and Python could also improve the quality of the integration. </P>
+<P>
+First, the JPI needs more work in the areas of exception handling and 
+threads. Improvements to these two aspects of the JPI are currently 
+being investigated. </P>
+<P>
+Second, if Python provided a way of finding out the pretenses under 
+which `getattr' was being called, then the extraneous set of 
+parenthesis, mentioned in Section 3, could be disposed of when 
+accessing Java variables. Also, if the Python interpreter could be 
+modified such that it does not generate an error when a reserved word 
+is used as a message name, then code calling a Java method would not 
+need to use the `send' primitive described above. Both of these changes 
+would make code written in Python closer to its Java equivalent. </P>
+<P>
+Third, there are changes to Java that would allow for better access to 
+Java objects and a symmetric way of calling Python. A privileged code 
+status would allow certain code modules (e.g. a debugger, JPI, etc.) to 
+access private and protected methods and variables. This feature is 
+mentioned in the Java documentation but has yet to be included in a 
+release. Also, a Java feature similar to Python's `getattr' would allow 
+for a symmetric way of calling Python. For example, Java could reserve 
+a method which will get invoked when no other method can answer the 
+message. This feature could be explicitly turned on so as not to damage 
+the benefits of compilation. Hence, this method could be added to the 
+PyObject class so that any message sent to it from Java could be 
+forwarded to Python. </P>
+<P>
+The JPI is still under development. Features to tighten the match 
+between Java and Python are being investigated, while bugs and porting 
+issues are being addressed as well. </P>
+<H3>
+6 Conclusions </H3>
+<P>
+The JPI has been used extensively by the author. Despite the described 
+shortcomings it has proven very valuable. Code can be prototyped very 
+quickly in Python and, once it works properly, moved to Java. Programs 
+can be interactively debugged such that the state of a running program 
+can be queried and modified to find the cause of a bug and the 
+potential corrections for it. Graphical interfaces can be prototyped 
+using the Java AWT and modifications can be made directly from the 
+Python command line such that the programmer can experiment with layout 
+and appearance without needing to recompile and rerun the program. User 
+level scripts can be added to programs such that run-time 
+customizations can be made to programs. </P>
+<P>
+Finally, due to the many similarities between Java and Python, the JPI 
+is able to support the two language approach to software development in 
+an intuitive manner. For example, in one particular case a LoginDialog 
+class was prototyped in Python while establishing the look and feel and 
+then reimplemented in Java once completed. The dynamic nature of Python 
+allowed for many iterations of the look and feel to be experimented 
+with over the course of a day. Once the final design was determined, 
+the LoginDialog class was reimplemented in Java. The reimplementation 
+consisted primarily of a syntax conversion and was completed in less 
+than an hour. </P>
+<H3>
+7 References </H3>
+<BLOCKQUOTE>
+[Arnold96] Arnold, K., J. Gosling, The Java Programming Language, 
+Addison-Wesley, 1996. </BLOCKQUOTE>
+<BLOCKQUOTE>
+[Beazley97] Beazley, D., The SWIG User's Manual, 1997. </BLOCKQUOTE>
+<BLOCKQUOTE>
+[Budde92] Budde, R., K. Kautz, K. Kuhlenkamp, and H. Z&uuml;llighoven, 
+Prototyping: An Approach to Evolutionary System Development, Springer 
+Verlag, New York, 1992. </BLOCKQUOTE>
+<BLOCKQUOTE>
+[Cox91] Cox, B., Object-Oriented Programming: an Evolutionary Approach, 
+Reading, Mass, 1991. </BLOCKQUOTE>
+<BLOCKQUOTE>
+[Dutoit96] Dutoit, A., S. Levy, D. Cunningham, and R. Patrick, 
+&quot;The Basic Object System: Supporting a Spectrum From Prototypes to 
+Hardened Code,&quot; OOPSLA 96 Conference Proceedings, Vol. 31, No. 10, 
+pp. 104- 121, October 1996. </BLOCKQUOTE>
+<BLOCKQUOTE>
+[Karat96] Karat, J., &quot;User Centered Design: Quality or 
+Quackery?,&quot; interactions, Vol. 3, No. 4, pp. 18-20, July/August 
+1996. </BLOCKQUOTE>
+<BLOCKQUOTE>
+[Krogh96] Krogh, B., S. Levy, A. Dutoit, and E. Subrahmanian, 
+&quot;Strictly Class-Based Modeling Considered Harmful,&quot; 
+Proceedings of the 29th Hawaii International Conference on System 
+Sciences (HICSS), Maui, Hawaii, January 1996. </BLOCKQUOTE>
+<BLOCKQUOTE>
+[Landauer95] Landauer, T. K., The Trouble with Computers: Usefulness, 
+Usability, and Productivity, MIT Press, Cambridge, Mass., 1995. </BLOCKQUOTE>
+<BLOCKQUOTE>
+[Masse96] Masse, R., &quot;An Analysis of Two Next-Generation 
+Languages: Java and Python,&quot; Unpublished paper 
+(http://www.python.org/~rmasse/papers/java- python/), 1996. </BLOCKQUOTE>
+<BLOCKQUOTE>
+[Ousterhout94] Ousterhout, J., Tcl and the Tk Toolkit, Addison- Wesley, 
+1994. </BLOCKQUOTE>
+<BLOCKQUOTE>
+[Ousterhout97] Ousterhout, J., &quot;Scripting: Higher Level 
+Programming for the 21st Century,&quot; Unpublished draft 
+(http://www.sunlabs.com/~ouster/ scripting.html), Sun Microsystems 
+Laboratories, 1997. </BLOCKQUOTE>
+<BLOCKQUOTE>
+[Stroustrup87] Stroustrup, B., The C++ Programming Language, 
+Addison-Wesley, 1987. </BLOCKQUOTE>
+<BLOCKQUOTE>
+[Watters96] Watters, A., G. van Rossum, and J. C. Ahlstrom, Internet 
+Programming with Python, MIS Press/ Henry Holt Publishers, 1996. </BLOCKQUOTE>
+</UL>
+</BODY>
+</HTML>

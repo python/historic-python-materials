@@ -1,0 +1,132 @@
+Title: Python-dev summary: 2001-02-15 to 2001-02-28
+
+Thanks for all the positive feedback for the last summary!
+
+<pre>
+ This is a summary of traffic on the python-dev mailing list between
+ Feb 15 and Feb 28 (inclusive) 2001.  It is intended to inform the
+ wider Python community of ongoing developments.  To comment, just
+ post to python-list@python.org or comp.lang.python in the usual
+ way. Give your posting a meaningful subject line, and if it's about a
+ PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep
+ iteration) All python-dev members are interested in seeing ideas
+ discussed by the community, so don't hesitate to take a stance on a
+ PEP if you have an opinion.
+
+ This is the second python-dev summary written by Michael Hudson.
+
+ New summaries will appear at:
+
+  <a href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a>
+
+   Posting distribution (with apologies to mbm)
+
+   Number of articles in summary: 400
+
+       |                         ]|[                            
+       |                         ]|[                            
+    60 |                         ]|[                            
+       |                         ]|[                            
+       |                         ]|[                            
+       |                         ]|[                     ]|[    
+       |                         ]|[     ]|[             ]|[    
+       |                         ]|[     ]|[             ]|[    
+    40 |                         ]|[     ]|[             ]|[ ]|[
+       |                         ]|[     ]|[             ]|[ ]|[
+       |     ]|[                 ]|[ ]|[ ]|[             ]|[ ]|[
+       | ]|[ ]|[                 ]|[ ]|[ ]|[             ]|[ ]|[
+       | ]|[ ]|[                 ]|[ ]|[ ]|[             ]|[ ]|[
+       | ]|[ ]|[                 ]|[ ]|[ ]|[             ]|[ ]|[
+    20 | ]|[ ]|[                 ]|[ ]|[ ]|[             ]|[ ]|[
+       | ]|[ ]|[             ]|[ ]|[ ]|[ ]|[         ]|[ ]|[ ]|[
+       | ]|[ ]|[             ]|[ ]|[ ]|[ ]|[         ]|[ ]|[ ]|[
+       | ]|[ ]|[             ]|[ ]|[ ]|[ ]|[ ]|[     ]|[ ]|[ ]|[
+       | ]|[ ]|[     ]|[     ]|[ ]|[ ]|[ ]|[ ]|[     ]|[ ]|[ ]|[
+       | ]|[ ]|[     ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[     ]|[ ]|[ ]|[
+     0 +-033-037-002-008-006-021-071-037-051-012-002-021-054-045
+        Thu 15| Sat 17| Mon 19| Wed 21| Fri 23| Sun 25| Tue 27|
+            Fri 16  Sun 18  Tue 20  Thu 22  Sat 24  Mon 26  Wed 28
+
+ A slightly quieter week on python-dev.  As you can see, most Python
+ developers are too well-adjusted to post much on weekends.  Or
+ Mondays.
+
+ There was a lot of traffic on the bugs, patches and checkins lists in
+ preparation for the upcoming 2.1b1 release.
+
+
+    * backwards incompatibility *
+
+ Most of the posts in the large spike in the middle of the posting
+ distribution were on the subject of backward compatibility.  On of
+ the unexpected (by those of us that hadn't thought too hard about it)
+ consequences of nested scopes was that some code using the dreaded
+ "from-module-import-*" code inside functions became ambiguous, and
+ the plan was to ban such code in Python 2.1.  This provoked a storm
+ of protest from many quarters, including python-dev and
+ comp.lang.python.  If you really want to read all of this, start
+ here:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-February/013003.html">http://mail.python.org/pipermail/python-dev/2001-February/013003.html</a>&gt;
+
+ However, as you will know if you read comp.lang.python, PythonLabs
+ took note, and in:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-February/013125.html">http://mail.python.org/pipermail/python-dev/2001-February/013125.html</a>&gt;
+ 
+ Guido announced that the new nested scopes behaviour would be opt-in
+ in 2.1, but code that will break in python 2.2 when nested scopes
+ become the default will produce a warning in 2.1.  To get the new
+ behaviour in a module, one will need to put
+
+    from __future__ import nested_scopes
+
+ at the top of the module.  It is possible this gimmick will be used
+ to introduce further backwards compatible features in the future.
+
+
+    * obmalloc *
+
+ After some more discussion, including Neil Schemenauer pointing out
+ that obmalloc might enable him to make the cycle GC faster, obmalloc
+ was finally checked in.
+
+ There's a second patch from Vladimir Marangoz implementing a memory
+ profiler.  (sorry for the long line)
+
+  &lt;<a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=401229&amp;group_id=5470&amp;atid=305470">http://sourceforge.net/tracker/index.php?func=detail&amp;aid=401229&amp;group_id=5470&amp;atid=305470</a>&gt;
+
+ Opinion was muted about this; as Neil summed up in:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-February/013205.html">http://mail.python.org/pipermail/python-dev/2001-February/013205.html</a>&gt;
+
+ noone cares enough to put the time into it and review this patch.
+ Sufficiently violently wielded opnions may swing the day...
+
+
+    * pydoc *
+
+ Ka-Ping Yee checked in his amazing pydoc.  pydoc was described in
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-January/011538.html">http://mail.python.org/pipermail/python-dev/2001-January/011538.html</a>&gt;
+
+ It gives command line and web browser access to Python's
+ documentation, and will be installed as a separate script in 2.1.
+
+
+    * other stuff *
+
+ It is believed that the case-sensitive import issues mentioned in the
+ last summary have been sorted out, although it will be hard to be
+ sure until the beta.
+
+ The unit-test discussion petered out.  Nothing has been checked in
+ yet.
+
+ The iteraators discussion seems to have disappeared.  At least, your
+ author can't find it!
+
+Cheers,
+M.
+
+</pre>

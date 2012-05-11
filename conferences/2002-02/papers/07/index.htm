@@ -1,0 +1,531 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice/5.2 (Linux)">
+	<META NAME="CREATED" CONTENT="20011002;18453900">
+	<META NAME="CHANGEDBY" CONTENT="Gregory Trubetskoy">
+	<META NAME="CHANGED" CONTENT="20011216;23413500">
+
+</HEAD>
+<BODY>
+<H1 ALIGN=CENTER>Mod_Python - Integrating Python with Apache</H1>
+<H6 ALIGN=CENTER><A HREF="mailto:grisha@modpython.org">Gregory
+Trubetskoy</A></H6>
+<H3>Abstract</H3>
+<P><A HREF="#mod_python">Mod_python [1]</A> is an <A HREF="#apache">Apache
+server [2]</A> module that embeds the Python interpreter within the
+server and provides an interface to Apache server internals as well
+as a basic framework for simple application development in this
+environment. The advantages of mod_python are versatility and speed.</P>
+<P>This paper describes mod_python with the focus on the
+implementation, its philosophy and challenges.</P>
+<P>It is intended for an audience already familiar with web
+application development in general and Apache in particular, as well
+as preferably mod_python itself. Knowledge of C and some
+understanding of Python internals is helpful as well.</P>
+<H3>Project Goal</H3>
+<P>Quite simply - it is integration of Python and Apache. Apache is a
+sort of a Swiss knife of web serving, especially the upcoming 2.0
+version, which does not limit itself to HTTP but can serve any
+protocol for which there exists a module. Mod_python aims to provide
+direct access to the riches of this functionality for Python
+developers. 
+</P>
+<P>While speed is definitely a key benefit of mod_python and is taken
+very seriously during design decisions, it would be wrong to identify
+it as the sole reason for mod_python's existence.</P>
+<P>At least for now, providing &quot;inline Python&quot; type
+functionality a l&aacute; <A HREF="#php">PHP [15]</A> is not a goal
+of this project. This is because the integration with Apache can
+still use a lot of improvement, and there does not seem to be a clear
+consensus within the Python community on how to embed Python code in
+HTML, with quite a few modules floating around, each doing it their
+own way.</P>
+<H3>Project Status</H3>
+<P>Mod_python was initially released in April 2000 as a replacement
+for an earlier project called <A HREF="#httpdapy">Httpdapy [3]</A>
+(1998), which in turn was a port to Apache of <A HREF="#nsapy">Nsapy
+[4]</A> (1997). Nsapy was based on an embedding example by Aaron
+Watters in the <A HREF="#ipwp">Internet Programming with Python [5]</A>
+book.</P>
+<P>Mod_python is stable enough to be used in production. The latest
+stable version at the time of this writing is 2.7.6. This version is
+written for 1.3 version of the Apache server. All of the development
+effort these days is focused on the next major version of mod_python,
+3.0, which will support the upcoming Apache 2.0.</P>
+<H3>Quick Intro</H3>
+<P>Mod_python consists of two components - an Apache dynamically
+loadable module <CODE>mod_python.so</CODE> (this module can also be
+statically linked into Apache) and a Python package <CODE>mod_python</CODE>.</P>
+<P>Assuming that mod_python is loaded into Apache, consider this
+configuration excerpt:</P>
+<PRE>DocumentRoot /foo/bar
+&lt;Directory /foo/bar&gt;
+          AddHandler python-program .py
+          PythonHandler hello
+&lt;/Directory&gt;</PRE><P>
+The following script named <TT>hello.py</TT> resides in the <CODE>/foo/bar</CODE>
+directory:</P>
+<PRE>from mod_python import apache
+
+def handler(req):
+        req.send_http_header()
+        req.write(&quot;hello %s&quot; % req.remote_host)
+        return apache.OK</PRE><P>
+A request to <CODE>http://yourdomain/somefile.py</CODE> would result
+in a page showing <CODE>&quot;hello 1.2.3.4&quot;</CODE> where
+1.2.3.4 is the IP of the client. 
+</P>
+<P>Just about every mod_python script begins with &quot;<CODE>from
+mod_python import apache</CODE>&quot;. <CODE>apache</CODE> is a
+module inside the <CODE>mod_python</CODE> package that provides the
+interface to Apache constants (such as <CODE>OK</CODE>) and many
+useful functions. Note also the <CODE>Request </CODE>object <CODE>req</CODE>,
+which provides information about the current request, the connection
+and an interface to more internal Apache functions, in this example
+<CODE>send_http_header()</CODE> to send HTTP headers and <CODE>write()</CODE>
+method to send data back to the client. 
+</P>
+<H3>Apache Modules, Request Phases and Mod_python</H3>
+<P>Apache processes incoming requests in <I>phases</I>. A phase is
+one of a series of small tasks that each need to take place to
+service a request. For example, there is a phase during which a URI
+is mapped to a file on disk, a phase during which authentication
+happens, a phase to generate the content, etc. Altogether, Apache 1.3
+has 10 phases (11 if you consider clean-ups a phase).</P>
+<P>The key architectural feature of the Apache server is that it can
+allow a <I>module</I> to process any phase of a request. This way a
+module can augment the server behavior in any way whatsoever. (<I>module</I>
+in this context does not refer to a Python module; an Apache module
+is usually a shared library or DLL that gets loaded at server
+startup, though modules can also be statically linked with the
+server). 
+</P>
+<P>Mod_python is an Apache module. What makes it different from most
+other Apache modules is that it itself doesn't do anything, but
+provide the ability to do what Apache modules written in C do to be
+done in Python. To put it another way, it delegates phase processing
+to user-written Python code.</P>
+<P>This figure shows a diagram of Apache request processing.</P>
+<P align="center"><IMG SRC="image7a.gif" BORDER=0><BR><BR><BR>
+</P>
+<P>Each Apache module can provide a handler function for any of the
+request processing phases. There are 4 types of return values
+possible for every handler. 
+</P>
+<OL>
+	<LI><P>DECLINED means the module declined to handle this phase,
+	Apache moves to the next module in the module list. 
+	</P>
+	<LI><P>OK means that this phase has been processed, Apache will move
+	on to the next phase without giving any more modules an opportunity
+	to handle this phase. 
+	</P>
+	<LI><P>An error return (which is any <A HREF="#httpdapy">HTTP [7]</A>
+	error constant) will cause Apache to produce an error page and jump
+	to the Logging phase. 
+	</P>
+	<LI><P>A special value of DONE means the whole request has been
+	serviced, Apache will jump to the Logging phase.</P>
+</OL>
+<P>The DECLINED return is somewhat deceiving, because many modules
+actually perform some action and then return DECLINED to give other
+modules an opportunity to handle the phase. The example below
+illustrates how the DECLINED return can be used in a handler that
+inserts a silly reply header into every request:</P>
+<PRE>from mod_python import apache
+
+def fixup(req):
+
+    req.headers_out[&quot;X-Grok-this&quot;] = &quot;Python-Psychobabble&quot;
+    return apache.DECLINED</PRE><P>
+At this point it should be a bit clearer how this functionality is
+different from CGI environment. Comparing CGI with mod_python is not
+very meaningful, because the scope of CGI is much narrower. One
+difference is that CGI is intended exclusively for dynamic content
+generation, which is not a requirement for mod_python scripts. For
+example, consider a mod_python script that implements a custom
+logging mechanism for the entire server, which plays no role in
+content generation. 
+</P>
+<H3>Apache Objects</H3>
+<P>Apache request processing makes use of a few important C
+structures, access to which is available through mod_python.</P>
+<H4><CODE>request_rec</CODE> - the Request Record</H4>
+<P><CODE>request_rec</CODE> is probably the largest and most
+frequently encountered structure. It contains all the information
+associated with processing a request (about 50 members total). 
+</P>
+<P>Mod_python provides a wrapper around <CODE>request_rec</CODE>, a
+built-in type <CODE>mp_request</CODE>. The <CODE>mp_request</CODE>
+type is not meant to be used directly. Instead, each mod_python
+handler gets a reference to an instance of a <CODE>Request</CODE>
+class, a regular Python class which is a wrapper around <CODE>mp_request</CODE>
+(which is a wrapper around <CODE>request_rec</CODE>). This is so that
+mod_python users could attach their own attributes to the <CODE>Request</CODE>
+instance as a way to maintain state across different phases.</P>
+<P>The <CODE>Request</CODE> class provides methods for sending
+headers and writing data to the client.</P>
+<H4><CODE>conn_rec</CODE> - the Connection Record</H4>
+<P><CODE>conn_rec</CODE> keeps all the information associated with
+the connection. It is a separate structure from <CODE>request_rec</CODE>
+because <A HREF="#rfc2068">HTTP [7]</A> allows for multiple requests
+to be serviced over the same connection. 
+</P>
+<P>The connection record is accessible in mod_python through the
+<CODE>mp_conn</CODE> built-in type, a reference to which is always
+available via <CODE>connection</CODE> member of the <CODE>Request</CODE>
+object (<CODE>req.connection</CODE>).</P>
+<H4><CODE>server_rec </CODE>- the Server Record</H4>
+<P><CODE>server_rec</CODE> keeps all the information associated with
+the virtual server, such as the server name, its IP, port number,
+etc. It is available via the <CODE>server</CODE> member of the
+<CODE>Request</CODE> object (<CODE>req.server</CODE>).</P>
+<H4><CODE>ap_table</CODE> - Apache table</H4>
+<P>All key/value lists (for example <A HREF="#rfc822">RFC 822 [8]</A>
+headers) in Apache are stored in <I>tables</I>. A table is a
+construct very similar to a Python dictionary, except that both keys
+and values must be strings, key lookups are case insensitive and a
+table can have duplicate keys. Internally, Apache tables differ from
+Python dictionaries in that lookups do not using hashing, but rather
+a simple sequential search (although there was a proposal to use
+hashing in Apache 2.0).</P>
+<P>Mod_python provides a wrapper for tables, an <CODE>mp_table</CODE>
+object, which acts very much like a Python dictionary. If there are
+duplicate keys, <CODE>mp_table</CODE> will return a list. To allow
+addition of duplicate keys, <CODE>mp_table</CODE> provides an <CODE>add()</CODE>
+method.</P>
+<P>Here is some code to illustrate how <CODE>mp_table</CODE> acts:</P>
+<PRE>from mod_python import apache
+
+def handler(req):
+
+    t = apache.make_table()
+    t[&quot;Set-Cookie&quot;] = &quot;Foo: bar;&quot;
+    t.add(&quot;Set-Cookie&quot;) = &quot;Bar: foo;&quot;
+
+    s = t[&quot;Set-Cookie&quot;]  # s is [&quot;Foo: bar;&quot;, &quot;Bar: foo;&quot;]
+
+    return apache.DECLINED</PRE><H3>
+Subinterpreters</H3>
+<P>The Python C API has a function to initialize a sub-interpreter,
+<CODE>Py_NewInterprer()</CODE>. Here is an excerpt from the <A HREF="#api">Python/C
+API Reference manual [6]</A> documenting this function:</P>
+<BLOCKQUOTE>Create a new sub-interpreter. This is an (almost) totally
+separate environment for the execution of Python code. In particular,
+the new interpreter has separate, independent versions of all
+imported modules, including the fundamental modules __builtin__ ,
+__main__ and sys . The table of loaded modules (sys.modules) and the
+module search path (sys.path) are also separate. The new environment
+has no sys.argv variable. It has new standard I/O stream file objects
+sys.stdin, sys.stdout and sys.stderr (however these refer to the same
+underlying FILE structures in the C library).</BLOCKQUOTE>
+<P>This valuable feature of Python is not available from within
+Python itself, so most Python users are not even aware of it. But it
+makes good sense to take advantage of this functionality for
+mod_python, where one Apache process can be responsible for any
+number of unrelated applications at the same time. By default,
+mod_python creates a subinterpreter for each virtual server, but this
+behavior can be altered.</P>
+<P>When a subinterpreter is created, a reference to it is saved in a
+Python dictionary keyed by subinterpreter names, which are always
+strings. This dictionary is internal to mod_python.</P>
+<P>During phase processing, prior to executing the user Python code,
+mod_python has to decide which interpreter to use. By default, the
+interpreter name will be the name of the virtual server, which is
+available via <CODE>req-&gt;server-&gt;server_hostname</CODE> Apache
+variable. If the <EM>PythonInterpPerDirectory</EM> is <EM>On</EM>,
+then the name of the interpreter will be the directory being accessed
+(from <CODE>req-&gt;filename</CODE>), and with
+<EM>PythonInterpPerDirective<SPAN STYLE="font-style: normal"> </SPAN><I>On</I></EM>,
+the directory where the <EM>Python*Handler</EM> directive currently
+in effect is specified (which can be some parent directory). The
+interpreter name can also be forced using <I>PythonInterpreter</I>
+directive.</P>
+<P>Once mod_python has a name for the interpreter, we check the
+dictionary of subinterpreters for this name, if it exists, we switch
+to it, else a new subinterpreter is created.</P>
+<H3>Phase Processing Inside Mod_python</H3>
+<P>After mod_python has been given control by Apache to process a
+phase of a request, it steps through the following actions. (This is
+a simplified list.)</P>
+<UL>
+	<LI><P>Determine the interpreter to use by looking at directives
+	currently in effect, possibly the server name and the directory.</P>
+	<LI><P>Get/Create a subinterpreter.</P>
+	<LI><P>Get/Create a <I>CallBack</I> object. The CallBack object is a
+	Python object whose methods provide all the functionality
+	implemented in Python. 
+	</P>
+	<LI><P>Create an <CODE>mp_request</CODE> object. (for performance
+	reasons <CODE>mp_conn</CODE> and <CODE>mp_server</CODE> objects are
+	created on-demand, so if the user code never refers to them they
+	would never be created)</P>
+	<LI><P>Call <CODE>CallBack.Dispatch()</CODE> passing it a reference
+	to <CODE>mp_request</CODE> and the name of the phase being
+	processed. 
+	</P>
+	<LI><P><I>(From here on all the processing is done in Python rather
+	than C)</I></P>
+	<LI><P>Instantiate a <CODE>Request</CODE> object, a wrapper around
+	<CODE>mp_request.</CODE></P>
+	<LI><P><SPAN STYLE="font-style: normal">Set up <CODE>sys.path</CODE>
+	by prepending (if not already there) the directory being accessed.</SPAN></P>
+	<LI><P STYLE="font-style: normal">Import (or if modification date is
+	later than the last import, reload) the Python module specified in
+	the configuration.</P>
+	<LI><P STYLE="font-style: normal">Locate the handler function/object
+	inside the module.</P>
+	<LI><P><SPAN STYLE="font-style: normal">Call the user
+	function/object passing it a reference to <CODE>Request</CODE>
+	object.</SPAN></P>
+	<LI><P STYLE="font-style: normal">Return the return value to
+	mod_python.</P>
+	<LI><P><I>(At this point execution moves back from Python to C)</I></P>
+	<LI><P STYLE="font-style: normal">Mod_python returns the return
+	value and control to Apache.</P>
+</UL>
+<H3>Memory Management and Cleanups</H3>
+<P>Memory management is always a challenge for long running
+processes. One has to be very careful to always remember to free all
+memory allocated during request processing, no matter what errors
+take place. 
+</P>
+<P>To combat this problem, Apache provides memory <I>pools. </I>The
+Apache API has a rich set of functions for allocating memory,
+manipulating strings, lists, etc., and each of these functions always
+takes a pool pointer. For example, instead of allocating memory using
+<CODE>malloc</CODE>() et al, Apache modules allocate memory using
+<CODE>ap_palloc</CODE>() and passing it a pool pointer. All memory
+allocated in such a way can then be freed at once by destroying the
+pool. Apache creates several pools with varying lifetimes, and
+modules can create their own pools as well. The pool probably used
+the most is the request pool, which is created for every request and
+is destroyed at the end of the request.</P>
+<P>Unfortunately, the Python interpreter cannot use Apache pools. So
+for the most part, mod_python programmer is at the mercy of the
+Python reference counting and garbage collecting mechanism (or lack
+thereof). In most cases it works just fine. In those cases where you
+do see the Apache process growing the simplest solution is to
+configure the server to recycle itself every few thousand requests
+using the <I>MaxRequestsPerChild</I> directive.</P>
+<P>Apache provides API's to execute cleanup functions just before a
+pool is destroyed. A cleanup is registered by calling the
+<CODE>ap_register_cleanup()</CODE> C function which takes three
+arguments: a pool pointer, a function pointer, and a void pointer to
+some arbitrary data. Just before the pool is destroyed, the function
+will be called and passed the pointer as the only argument.
+Mod_python uses cleanups internally to destroy <CODE>mp_request</CODE>
+and <CODE>mp_tables</CODE>. 
+</P>
+<P>Cleanups are available to mod_python users via
+<CODE>Request.register_cleanup()</CODE> and
+<CODE>request.server.register_cleanup()</CODE>. The former runs after
+every request, the latter runs when the server exits.</P>
+<H3>Standard Handlers</H3>
+<P>As an astute reader probably noticed, mod_python (or rather
+Apache) associates a handler with a directory (<I>SetHandler</I>) or
+a file type (<I>AddHandler</I>), but not a specific file. In the
+quick example in the beginning of this paper it really doesn't matter
+what file is being accessed in the &quot;/foo/bar&quot; directory.
+For as long as it ends with .py, same <CODE>hello</CODE> handler will
+be invoked always yielding the same result. In fact the file referred
+to in the URI doesn't even need to exist.</P>
+<P>A natural question would then be &quot;Why can't I access multiple
+mod_python scripts in one directory?&quot; (or &quot;This isn't very
+useful!&quot;). The answer here is that mod_python expects there to
+be an intermediate layer between it and the application. This layer
+(handler) is up to the user's imagination, but a couple of functional
+handlers (standard handlers) is bundled with mod_python.</P>
+<H4>CGI Handler (mod_python.cgihandler)</H4>
+<P>This handler is for users who want to use their existing CGI code
+with mod_python. This handler sets up a fake CGI environment and runs
+the user program. A couple of interesting implementation challenges
+were encountered here.</P>
+<P>At first, this handler used to set up the CGI environment through
+the standard <CODE>os.environ </CODE>object. For whatever reason
+(Python bug?) this frequent environment manipulation introduced a
+memory leak (about a kilobyte per request), so as a quick hack,
+<CODE>os.environ</CODE> was replaced with a regular dictionary
+object. This works fine for the most part, but is a problem for
+scripts that use environment as a way to communicate with
+subsequently called programs, notably some database interfaces which
+expect database server information in an environment variable.</P>
+<P>Another problem was that since cgihandler uses import/reload to
+run a module, &quot;indirect&quot; module imports by the &quot;main&quot;
+module would become noops after the first hit. This became a problem
+for users who expected the top level code in those indirectly
+imported modules to be executed for every hit. To solve this problem,
+cgihandler now examines the <CODE>sys.modules</CODE> variable before
+and after importing the user scripts, and in the end, deletes any
+newly appeared modules from <CODE>sys.modules</CODE>, causing those
+modules to be imported again next time.</P>
+<P>Last but not the least, the <A HREF="#cgi">CGI specification [14]</A>
+strongly recommends that the server set the current directory to the
+directory in which the script is located. There is no thread safe way
+of changing the current directory and so the cgihandler uses a thread
+lock in multithreaded environment (e.g. Win32) which is held for as
+long as the script runs essentially forcing the server to process one
+cgihandler request at a time. 
+</P>
+<P>Given all of the above problems, the cgihandler is not a
+recommended development environment, but is regarded as a stop gap
+measure for users who have a lot of legacy CGI code, and should be
+used with caution and only if really necessary. 
+</P>
+<H4>Publisher Handler (mod_python.publisher)</H4>
+<P>The publisher handler is probably the best way to start writing
+web applications using mod_python. The functionality of the publisher
+handler was inspired by the ZPublisher, a component of <A HREF="#zope">Zope
+[10]</A>. 
+</P>
+<P>The idea is that a URI is mapped to some object inside a module,
+the &quot;/&quot; in the URI having the same meaning as a &quot;.&quot;
+in Python. So http://somedomain/somedir/module/object/method would
+invoke method <I>method</I><SPAN STYLE="font-style: normal"> of
+object </SPAN><I>object</I><SPAN STYLE="font-style: normal"> inside
+module </SPAN><I>module</I><SPAN STYLE="font-style: normal"> in
+directory </SPAN><I>somedir</I><SPAN STYLE="font-style: normal">, and
+the return value of the method would be sent to the client.</SPAN></P>
+<P>Here is a &quot;hello world&quot; example:</P>
+<PRE>def hello(req, who=&quot;nobody&quot;):
+
+    return &quot;Hello, %s!&quot; % who</PRE><P>
+If the file containing this code is called <CODE>myapp.py</CODE> in
+directory <CODE>somedir</CODE>, then <CODE>hello</CODE> function can
+be accessed via http://somedomain/somedir/myapp/hello which should
+result in a page showing &quot;Hello, nobody!&quot;, whereas
+http://somedomain/somedir/myapp/hello?who=John should result in
+&quot;Hello, John!&quot;.</P>
+<P>Note that the first argument is a <CODE>Request</CODE> object,
+which means all the advanced mod_python functionality is still
+available when using the publisher handler.</P>
+<H3>Debugging</H3>
+<P>Debugging mod_python applications can be difficult. Mod_python
+provides support for the Python debugger (pdb) via the
+<I>PythonEnablePdb</I> configuration directive, but its usability is
+limited because the debugger is an interactive tool that uses
+standard input and output and therefore can only be used when Apache
+is running in foreground mode (-X switch in Apache 1.3 or
+-DONE_PROCESS in 2.0).</P>
+<P>Mod_python sends any traceback information to the server log, and
+with <I>PythonDebug</I> directive set to <I>On</I> (default is <I>Off</I>),
+the traceback information is sent to the client.</P>
+<P>For programmers who like to use the <CODE>print</CODE> statement
+as a debugging tool, the technique favored by the author is to
+instead <CODE>raise</CODE> a variable optionally surrounded by &quot;`&quot;
+(back quotes) from any point in the code with the <I>PythonDebug</I>
+directive <I>On</I><SPAN STYLE="font-style: normal">. This will make</SPAN>
+the value of the variable appear on the browser and is as effective
+as <CODE>print</CODE>.</P>
+<H3>Threads</H3>
+<P>Mod_python is thread-safe and runs fine on Win32, where Apache is
+multithreaded. 
+</P>
+<P>One should be careful to make sure that any extension modules that
+an application uses are thread-safe as well. For example, many
+database access drivers on Windows are not thread safe, and some kind
+of a thread lock needs to be used to make sure no two threads try to
+run the driver code in parallel.</P>
+<P>Interestingly, the Python interpreter itself isn't completely
+thread safe, and to run multiple threads it maintains a thread lock
+that is released every 10 Python bytecode instructions to let other
+threads run. If any, the negative impact of that is most likely
+negligible. 
+</P>
+<H3>On Design and Implementation</H3>
+<H4>Mod_perl</H4>
+<P>Those familiar with <A HREF="#mod_perl">mod_perl [10]</A> will
+notice that some functionality of mod_python is remarkably similar to
+mod_perl, for example the names of the Apache configuration
+directives are exactly the same except the word Perl is substituted
+for Python.</P>
+<P>It would be wrong not to say that much of mod_python
+functionality, especially in the area of Apache configuration, was
+intentionally made <I>functionally</I> similar to mod_perl. Under the
+hood they have next to nothing in common, mainly because Perl and
+Python interpreters are quite different.</P>
+<P>There were good reasons for similarities though. First, there is
+no sense in reinventing the wheel - mod_perl has encountered and
+solved many problems just as applicable to mod_python. Second, since
+both projects had similar goals, except the language of choice was
+different, it made sense to keep the outside look consistent,
+especially the Apache configuration. Oftentimes the person who has to
+deal with the Apache config is a System Administrator, not a
+programmer, and consistency would make SysAdmin's job easier.</P>
+<H4>Python vs C</H4>
+<P>In a web application environment speed and low overhead are
+extremely important. Many people don't appreciate how really
+important it is until their site gets featured on another big volume
+site (the so called &quot;/. effect&quot;) but instead of getting
+lots of hard earned publicity, they get a bunch of frustrated web
+surfers trying to get to a site so overloaded that no one can access
+it.</P>
+<P>Considering this angle, C always wins over Python. If the author
+of mod_python had more time, a much larger percentage of mod_python
+would be implemented in C. But given the length of time it takes to
+write quality C code, initially a decision was made to implement in C
+only those parts which cannot be done in Python.</P>
+<H4>SWIG</H4>
+<P><A HREF="#swig">SWIG [13]</A> was given some consideration as a
+tool to provide the mapping to Apache C structures (such as
+request_rec). There are a few problems with SWIG. The main advantages
+of SWIG are speed and ease with which an interface to a C library can
+be created. The resulting C code is not necessarily meant to be easy
+to read, and SWIG itself becomes yet another tool that is required
+for compilation in an already pretty complicated build environment.
+Altogether, for a long-term project like mod_python, where quality is
+more important than the timeline, SWIG does not seem to be the right
+choice.</P>
+<H3>Future Direction and Apache 2.0</H3>
+<P>As has been mentioned before, the main focus of development today
+is compatibility with Apache 2.0. Apache 2.0 is architecturally quite
+a bit different from its predecessor (1.3), so much so that it would
+not be very easy or practical to try to write code that works with
+both 1.3 and 2.0. It is possible, but the code becomes a tangle of
+<CODE>#ifedef</CODE> statements because the majority of the API
+functions have been renamed. So the next major version of mod_python
+will support Apache 2.0 only.</P>
+<P>Apache 2.0 is actually a combination of two software packages. One
+is the server itself, the other is the underlying library, the <A HREF="#apr">Apache
+Portable Runtime (APR) [12]</A>. The APR is a general purpose library
+designed to provide functionality common in daemons of all kinds and
+to abstract the OS specifics (thus &quot;Portable&quot;). Future
+versions of mod_python will eventually provide an interface to large
+part or perhaps all of the APR.</P>
+<P>Another big improvement in 2.0 is the introduction of <I>filters</I><SPAN STYLE="font-style: normal">
+and </SPAN><I>connection handlers</I>. The alpha version of
+mod_python 3.0 already supports filters. (A filter would be the right
+place to implement inline Python). A connection handler is a handler
+at a level below HTTP. Using a connection handler one could implement
+an entirely different protocol, e.g. FTP. At the time of this writing
+mod_python 3.0 alpha does not support connection handlers, but such
+support is in the plans.</P>
+<H3>References</H3>
+<P><A NAME="mod_python"></A><A NAME="apache"></A><A NAME="httpdapy"></A><A NAME="nsapy"></A><A NAME="ipwp"></A><A NAME="api"></A><A NAME="rfc2068"></A><A NAME="rfc822"></A><A NAME="zope"></A><A NAME="mop_perl"></A><A NAME="apr"></A><A NAME="swig"></A><A NAME="cgi"></A><A NAME="php"></A>
+[1] Mod_python. <A HREF="http://www.modpython.org/">http://www.modpython.org/</A><BR>[2]
+Apache Http Server. <A HREF="http://httpd.apache.org/">http://httpd.apache.org/</A><BR>[3]
+Httpdapy. <A HREF="http://www.ispol.com/home/grisha/httpdapy">http://www.ispol.com/home/grisha/httpdapy</A><BR>[4]
+Nsapy. <A HREF="http://www.ispol.com/home/grisha/nsapy">http://www.ispol.com/home/grisha/nsapy</A><BR>[5]
+Aaron Watters, Guido van Rossum, James C. Ahlstrom, Internet
+Programming with Python, M&amp;T Books, 1996.<BR>[6] Guido van
+Rossum, Fred L. Drake, Jr, Python/C API Reference Manual, PythonLabs.
+<A HREF="http://www.python.org/doc/current/api/">http://www.python.org/doc/current/api/</A>.
+<BR>[7] R. Fielding, UC Irvine, J. Gettys, J. Mogul, DEC, H. Frystyk,
+T. Berners-Lee, MIT/LCS, &quot;Hyper Text Transfer Protocol --
+HTTP/1.1&quot;, RFC 2068, IETF January 1997.
+<A HREF="http://www.ietf.org/rfc/rfc2068.txt?number=2068">http://www.ietf.org/rfc/rfc2068.txt</A><BR>[9]
+Crocker, D., &quot;Standard for the Format of ARPA Internet Text
+Messages&quot;, STD 11, RFC 822, UDEL, August 1982.
+<A HREF="http://www.ietf.org/rfc/rfc822.txt">http://www.ietf.org/rfc/rfc822.txt</A><BR>[10]
+Zope <A HREF="http://www.zope.org/">http://www.zope.org/</A><BR>[11]
+Mod_perl, Apache/Perl Integration. <A HREF="http://perl.apache.org/">http://perl.apache.org/</A><BR>[12]
+Apache Portable Runtime. <A HREF="http://apr.apache.org/">http://apr.apache.org/</A><BR>[13]
+Simplified Wrapper and Interface Generator. <A HREF="http://www.swig.org/">http://www.swig.org/</A><BR>[14]
+Ken A L Coar, The WWW Common Gateway Interface Version 1.1.
+<A HREF="http://cgi-spec.golux.com/draft-coar-cgi-v11-03.txt">http://cgi-spec.golux.com/draft-coar-cgi-v11-03.txt</A>
+<BR>[15] PHP. <A HREF="http://www.php.net/">http://www.php.net/</A></P>
+</BODY>
+</HTML>

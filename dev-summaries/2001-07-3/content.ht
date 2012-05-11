@@ -1,0 +1,186 @@
+Title: Python-dev summary: 2001-07-16 to 2001-07-31
+
+<pre>
+And following close behind the grossly delayed July 4-15 one,
+here's the python-dev summary for July 16-31.
+
+Two Python releases came out during this period.  As usually happens
+in the interval surrounding a release, there were two kinds of
+discussions on python-dev: a few lengthy ones thrashing around an
+issue, and lots of little short ones to resolve a single bug or issue.
+
+--amk
+
+
+Python 2.1.1 released
+=====================
+
+Python 2.1.1, a bugfix release, was issued on July 20th as announced
+by GvR.  Thomas Wouters was the release manager, and did a fine job of
+backporting patches from the 2.2 CVS tree. 
+        <a href="http://www.python.org/2.1.1/">http://www.python.org/2.1.1/</a>
+
+2.1.1 makes a slight modification to Python's license for the sake of
+GPL compatibility, so there should no longer be any impediment (if
+there ever was) to 2.1 finding its way into Linux distributions.
+Roswell, the new Red Hat beta, already includes Python 2.1.1, and it
+should also make its way into Debian testing before too long.
+
+The first alpha release of Python 2.2 was also issued during this
+period, on July 18.
+        <a href="http://www.python.org/2.2/">http://www.python.org/2.2/</a>
+        
+2.2a1 includes new support for iterators and generators, plus the
+usual pile of bugfixes, of course.  The source distribution for 2.2a1
+was taken from 'descr-branch', the experimental branch in CVS
+containing significant changes to the implementation of Python's
+object model (PEP 252 and 253).  Guido is working on a tutorial for
+these changes:
+        <a href="http://www.python.org/2.2/descrintro.html">http://www.python.org/2.2/descrintro.html</a>
+
+As usual I'm writing up an explanation of the changes in 2.2:
+        <a href="http://www.amk.ca/python/2.2/">http://www.amk.ca/python/2.2/</a>
+
+Neil Schemenauer posted some patches to make ExtensionClass compile
+with 2.2a1, and ran the MEMS Exchange's basic unit tests successfully;
+this amounts to 3569 test case over roughly 18,000 lines of code, so
+this is a good sign.
+        <a href="http://mail.python.org/pipermail/python-dev/2001-July/016494.html">http://mail.python.org/pipermail/python-dev/2001-July/016494.html</a>
+
+No one else reported any problems with the descr-branch changes, so on
+July 31 Tim Peters announced that the descr-branch would be merged
+back into the trunk and the branch brought to a close.  That was done
+a day or so later.
+
+
+Division
+========
+
+I came back from vacation to find comp.lang.python filled with an
+endless and at times vitriolic flame war over PEP 238, "Non-integer
+Division".  It seems to have been triggered to some degree by GvR
+posting a proposed patch, which gave the impression that the issue was decided
+and the solution set in stone:
+        <a href="http://mail.python.org/pipermail/python-dev/2001-July/016174.html">http://mail.python.org/pipermail/python-dev/2001-July/016174.html</a>
+
+The resulting firestorm didn't touch python-dev much, so I don't
+need to summarize them.  They did lead to a revised version of PEP 238,
+discussing many of the suggestions and ideas that were raised:
+        <a href="http://python.sourceforge.net/peps/pep-0238.html">http://python.sourceforge.net/peps/pep-0238.html</a>
+
+
+Parrot
+======
+
+Another lengthy thread started when Eric S. Raymond reported on 
+some discussions from the Open Source Conference:
+        "The Perl people are receptive -- indeed, some of them are
+        actively pushing -- the idea that their new bytecode should
+        not be Perl-specific.  Dan Sugalski, the current lead for the
+        bytecode interpreter project, has named it Parrot.  At the
+        Perl 6 talk I attended, Chip Salzenberg speculated in public
+        about possibly supporting a common runtime for Perl, Python,
+        Ruby, and Intercal(!)."
+        <a href="http://mail.python.org/pipermail/python-dev/2001-July/016406.html">http://mail.python.org/pipermail/python-dev/2001-July/016406.html</a>
+
+Guido didn't immediately rule the idea out:
+        "Obviously, just as the new design is aiming at Perl 6, it
+        would be aiming at Python 3.  Nothing's impossible these days,
+        so I am keeping an open mind.  I expect that in addition to
+        the bytecode, the entire runtime architecture would have to be
+        shared though for this to make sense, and I'm not sure how
+        easy that would be, even if Perl is willing to be flexible.
+        Most of Python's run-time semantics are very carefully defined
+        and shouldn't be changed in order to fit in the common
+        runtime."
+        <a href="http://mail.python.org/pipermail/python-dev/2001-July/016413.html">http://mail.python.org/pipermail/python-dev/2001-July/016413.html</a>
+        
+The resulting discussions ranged over a number of topics: regex
+implementations, Python's current virtual machine, the proposed Perl6
+virtual machine, how to support both Python and Perl semantics at the
+same time, and the mechanics of standards committees.  The only
+concrete outcome of all this chatter was that Raymond will write an
+architectural comparison of the existing Python and Perl bytecodes.
+
+It's far too early to say if anything will come of this, so a common
+VM should be viewed as an interesting, but not particularly likely,
+possibility for now; when more details of the Parrot VM's design
+become clear, the idea will no doubt resurface.
+
+
+cgitb.py
+========
+
+?!ng resurfaced after a lengthy absence, and proposed the cgitb module
+for addition.  Demoed at IPC9, cgitb.py sets an exception-handling
+hook using sys.excepthook that produces a nicely formatted traceback
+instead of just letting the script cause an HTTP 500 'Internal Server
+Error'.  For your debugging convenience, the traceback also includes
+the local variables at each level of the stack.
+
+The module itself isn't controversial, but ?!ng's suggestion of adding
+an 'if' to site.py to automatically enable it was.  Writing errors to
+standard output instead of standard error, and in particular sending
+them out to a potentially hostile Web user, made most people nervous.
+The consensus was to add the module, but authors of CGI scripts would
+have to choose to enable the formatted tracebacks, instead of having
+them automatically enabled.
+
+
+Frank Willison
+==============
+
+On July 31st, we heard that Frank Willison, the editor-in-chief at
+O'Reilly, had died suddenly the day before.  Paul Prescod posted the
+news, adding an eloquent tribute:
+        <a href="http://mail.python.org/pipermail/python-dev/2001-July/016479.html">http://mail.python.org/pipermail/python-dev/2001-July/016479.html</a>
+
+Tim O'Reilly wrote a memorial on the O'Reilly Web site, and there's
+also a page of comments from Willison's friends and acquaintances.  
+        <a href="http://www.oreilly.com/news/frank_0701.html">http://www.oreilly.com/news/frank_0701.html</a>
+
+
+Random bits
+===========
+
+Panu A Kalliokoski wrote 'Selecting', a module containing an
+abstraction for writing asynchronous servers, much like asyncore but
+claimed to be easier to use.
+        <a href="http://mail.python.org/pipermail/python-dev/2001-July/016000.html">http://mail.python.org/pipermail/python-dev/2001-July/016000.html</a>
+
+Paul Prescod reported on the existence of a Python port to the Sony
+Playstation 2.  It exists, but unfortunately isn't publicly available.
+        <a href="http://mail.python.org/pipermail/python-dev/2001-July/016365.html">http://mail.python.org/pipermail/python-dev/2001-July/016365.html</a>
+        
+Moshe Zadka asked if anyone has copies of old versions of Python
+hanging around.  He's found 1.2, but would really like versions
+preceding 1.0.
+
+Discussion of the file encoding directive (covered in the previous
+python-dev summary) continued, but there was no convergence toward a
+solution.  It looks like this issue will be dropped for a while.
+
+IPv6 support for the socket module was committed, and various minor
+problems came up.  All were quickly fixed.
+        <a href="http://mail.python.org/pipermail/python-dev/2001-July/016216.html">http://mail.python.org/pipermail/python-dev/2001-July/016216.html</a>
+        
+
+Unanswered questions
+====================
+
+Some questions were posted that deserved answers, but didn't get any
+(in public, at least).  I'll misuse my editorial power in an effort to
+nudge someone into action.
+
+Martin Sjögren wondered why the Py_BEGIN_ALLOW_THREADS and
+Py_END_ALLOW_THREADS macros don't take an argument specifying a variable
+to save the thread state to.  He said he needed this, but didn't explain why.
+        <a href="http://mail.python.org/pipermail/python-dev/2001-July/016190.html">http://mail.python.org/pipermail/python-dev/2001-July/016190.html</a>
+
+Andrew MacIntyre, who's working on an up-to-date OS/2 port of Python,
+noticed that the parser doesn't use Python's memory allocation hooks
+to allocate parser nodes.  When he tried modifying the parser code to
+use the allocation hooks, the resulting interpreter worked but took a
+massive performance hit.
+        <a href="http://mail.python.org/pipermail/python-dev/2001-July/016129.html">http://mail.python.org/pipermail/python-dev/2001-July/016129.html</a>
+</pre>

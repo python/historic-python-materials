@@ -1,0 +1,69 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>From XML to PowerPoint via COM</TITLE>
+</HEAD>
+<BODY>
+
+<B><FONT SIZE=4><P ALIGN="CENTER">From XML to PowerPoint via COM</P>
+</B></FONT>
+<P ALIGN="CENTER">Paul Prescod</P>
+<P ALIGN="CENTER"></P>
+<I><P ALIGN="CENTER">ISOGEN Consulting Engineer</P>
+<P ALIGN="CENTER">paul@prescod.net</P>
+</I>
+<P>&nbsp;</P>
+<FONT SIZE=2><P>Python is the ultimate glue language. Unix users are very familiar with using Python to talk to programs through sockets and text files. On Windows it is possible to talk to proprietary Microsoft software through the COM communication layer. COM is completely object oriented and fits the "Python model" very nicely. This demonstration shows how I keep my slide materials in a completely open file format (XML) and pump it into that most proprietary and recalcitrant Microsoft program, PowerPoint. Using technologies like PythonCOM, Python programmers can build a bridge from the open software, open standard world to the closed packages that most businesses still rely upon.</P>
+
+<P>The XML for a slideshow looks like this:</P>
+
+</FONT><FONT FACE="Courier,Courier New" SIZE=2><P>&lt;slide&gt;</P>
+<P>&lt;title&gt;Compared to Perl&lt;/title&gt; </P>
+<P>&lt;points&gt;</P>
+<P>&lt;point&gt;Easier to learn&lt;/point&gt;</P>
+<P>&lt;point&gt;Easier to read&lt;/point&gt;</P>
+<P>&lt;point&gt;Easier to extend&lt;/point&gt;</P>
+<P>&lt;point&gt;More portable.&lt;/point&gt;</P>
+<P>&lt;/points&gt;</P>
+<P>&lt;/slide&gt;</P>
+
+</FONT><FONT SIZE=2><P>This is parsed into a grove. A grove is a parsed representation for a data file (in this case XML). This software predates the popular DOM API otherwise that would be the obvious choice due to the excellent support provided by packages like PyDOM and 4DOM.</P>
+
+<P>A tree-walker pattern traverses the grove and triggers different methods based on the element’s type. Handlers are registered like this:</P>
+
+</FONT><FONT FACE="Courier,Courier New" SIZE=2><P>visitor.add( "emph", Emph)</P>
+</FONT><FONT SIZE=2>
+<P>This registers a method named &quot;Emph&quot; as a handler for &quot;emph&quot; elements. The handler uses methods and properties from the PowerPoint COM API:</P>
+
+</FONT><FONT FACE="Courier,Courier New" SIZE=2><P>def Emph( node, context):</P>
+<P>    r=context.textFrame.TextRange</P>
+<P>    r.InsertAfter( node.data() )</P>
+<P>    r.Font.Bold=1</P>
+<P>    r.Font.NameOther="Emph"</P>
+</FONT><FONT SIZE=2>
+<P>These calls are partially documented but their real runtime semantics must be discovered through trial and error. Between the COM and PythonCOM dynamic dispatch, the system is also not very high performance. PowerPoint is not designed as a component in an efficient batch publishing system.</P>
+<P> </P>
+<P>If elements could only dispatch based on element type name then it might make sense to automatically look up a method named &quot;emph&quot; for element types named &quot;emph&quot;. I chose not to implement this short-cut because an explicit handler registration system allows more sophisticated handlers to be registered.</P>
+
+<P>In this case I am looking for a &quot;title&quot; element type in a &quot;slide&quot; element type. I dispatch to a method named &quot;Title&quot;.</P>
+
+</FONT><FONT FACE="Courier,Courier New" SIZE=2><P>visitor.add( </P>
+<P>ElementPattern( gi="title", </P><DIR>
+<DIR>
+
+<P>ancestors=["slide"] ), </P></DIR>
+</DIR>
+
+<P>Title )</P>
+</FONT><FONT SIZE=2>
+<P>Images and other objects can be embedded without any special processing. The XML merely refers to the image.</P>
+
+</FONT><FONT FACE="Courier,Courier New" SIZE=2><P>&lt;img-slide filename="diagram.wmf"&gt;</P>
+<P>&lt;title&gt;A Diagram&lt;/title&gt;</P>
+<P>&lt;/img-slide&gt;</P>
+</FONT><FONT SIZE=2>
+<P>One general issue in this form of transformation is that slide shows are inherently visual. Editing them in a text file is somewhat analogous to editing a diagram in a text file. While it is possible, it is probably not appropriate for the average executive or sales manager. For those that need to handle large volumes of slide materials, though, the benefits in terms of manageability outweigh the costs.</P>
+
+<P>This sort of project could be accomplished with PowerPoint Visual Basic macros but Python’s flexibility is what makes maintenance reasonable despite the baroque details of the PowerPoint API.</P></FONT></BODY>
+</HTML>

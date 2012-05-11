@@ -1,0 +1,916 @@
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<META NAME="GENERATOR" CONTENT="TtH 2.01">
+                                                                  
+
+
+
+
+
+      
+
+
+
+   
+<title> Python for Scene and Model Description for Computer Graphics</title>
+
+<body BGCOLOR="#FFFFFF">
+ 
+<H1 align=center>Python for Scene and Model Description for Computer Graphics </H1>
+
+<p>
+
+<H3 align=center>Mark Tigges
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Brian Wyvill <br>mtigges@cpsc.ucalgary.ca &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ blob@cpsc.ucalgary.ca<br>Department of Computing Science, University
+ of Calgary  </H3>
+ 
+<H2> Abstract</H2>
+    Python is a general purpose language for use in many applications.
+  In this work we have used Python as the input scene and
+  model description language for a suite of rendering and modeling
+  tools developed at the University of Calgary.  Little languages have
+  been used extensively in this arena.  Most notably
+  Lua&nbsp;[<a href="#Lua:DDJ" name=CITELua:DDJ>7</a>,<a href="#software:Lua" name=CITEsoftware:Lua>5</a>], and the Renderman
+  Languages&nbsp;[<a href="#Renderman" name=CITERenderman>16</a>].
+  
+<p>
+  Python has been used at the University of Calgary for the
+  construction of very complex models.  We describe a set of software
+  tools for interactive rendering of models and the description of scenes
+  built up from these models.  We also describe a
+  parallel rendering system all based on Python.  Parallel renderings are
+  computed on a 30 node distributed memory computer, a discussion of
+  using MPI&nbsp;[<a href="#software:MPI" name=CITEsoftware:MPI>6</a>] in concert with Python is given.
+
+<p>
+<p>        <H2><A NAME="tth_sEc1">
+1</A>&nbsp;&nbsp;Introduction</H2>
+<A NAME="sec:introduction">
+</A>
+
+<p>
+One of the major problems of building complex digital scenes for the
+rendering of synthetic images, is that model descriptions often come
+from a wide variety of different sources and output needs to be
+customized to different rendering software depending on user
+requirements.  Thus it is necessary to handle a wide variety of input
+and output formats.  These formats result from complex GUI
+applications for both modeling and animation, input formats for
+rendering packages, and special purpose languages for physically
+correct scene description&nbsp;[<a href="#software:MGF" name=CITEsoftware:MGF>18</a>].  There are many aspects
+to consider.  One of these aspects should be the programmibility of
+the description format.  This essentially implies a format which
+generates models.  Flexibility can mainly be achieved through
+parameterization of all aspects of the model.  Some scene 
+description systems support this very well and others do not.
+
+<p>
+Research in the GraphicsJungle laboratory&nbsp;[<a href="#software:jsp" name=CITEsoftware:jsp>8</a>] is
+partly focused on shape description with implicit surfaces.  An
+implicit surface is a point set which satisfies some non-trivial
+implicit function.  The typical implicit surface uses a function
+similar to function&nbsp;<A href="#eqn:is">1</A>.
+<A NAME="eqn:is">
+</A><A NAME="eqn:soft-object-field">
+</A>
+<center><img src="formulae.jpg"></center>
+
+Where s<sub>i</sub> returns the distance to a skeleton (point, line, circle
+<em>etc</em>.), f is a (usually sigmoidal) field function which when
+summed with others produces soft blending between the influences of
+sibling skeletons, and c<sub>i</sub> is a skeleton dependent scalar
+coefficient.  This definition implies a set of geometric elements
+(point, line, circle <em>etc</em>.), which form the user defined
+skeleton.  For any point in space, the function F, returns a scalar
+value.  This value is a measure relative to the weighting supplied by
+f of the influence of the skeleton for the given point.  To define a
+surface using this definition a particular value can be chosen in the
+range of F, called the iso-value.  When F is applied to the volume
+of space surrounding the skeleton a set of iso-valued points is found
+which lie in the surface of interest (see
+[<a href="#Bloomenthal:Introduction97" name=CITEBloomenthal:Introduction97>4</a>] for details of implicit surface
+models).
+
+<p>
+      <H3><A NAME="tth_sEc1.1">
+1.1</A>&nbsp;&nbsp;Problem Statement</H3>
+
+<p>
+The problem being addressed by this paper is how to specify the
+primitive user defined skeletons.  Of course this problem is not
+unique to implicit surfaces.  The same problem exists when modeling
+with any other paradigm (CSG<a href="#tthFtNtAAC" name=tthFrefAAC><sup>2</sup></a>, subdivision<a href="#tthFtNtAAD" name=tthFrefAAD><sup>3</sup></a> <em>etc</em>).  The varied solutions for the specification of
+models break down as follows.  First, a GUI program can be written.
+Such a program allows the interactive construction of a model and a
+scene graph.  Second, a declarative text file can be used to specify
+in serial the structure of the model.  Third, a full programming
+language can be used.  This in fact exists by default in our system,
+since the data structures and algorithms are implemented in&nbsp;C<sup>++</sup>.
+However the raw implementation in a compiled language is likely not as
+flexible as it could be, nor is the compile/link/run cycle
+advantageous for efficient development of a geometric model.
+
+<p>
+The GUI solution suffers from flexibility.  A user is constrained to
+working within the GUI which is constrictive for an expert user and is
+often more applicable in a production environment.  In contrast we
+work within a research environment where experimentation at a variety
+of levels within the system requires a programattic interface
+such as provided by Python.  The vast majority of contemporary
+computer users balk at the suggestion that any meaningful and
+efficient work can be done through any non graphical user interface.
+
+<p>
+The purpose of a GUI is to handhold.  A brand new computer user will
+be able to compose and print a document using a GUI word processor.
+If the same user begins with L<sup>A</sup>T<sub>E</sub>X&nbsp;nothing will be done without
+serious consultation with documentation.  For modeling and scene
+description the same holds true however it becomes extremely difficult
+to produce a GUI which is immediately comfortable.  For graphics one need
+only look at the GUI<em>s</em> that exist.  It is very difficult to construct a
+comprehensive GUI whereas it is easy to produce parameteric or
+procedural models using application specific tools.  With the release
+to the public of Blender&nbsp;[<a href="#software:blender" name=CITEsoftware:blender>11</a>], a high end modeling,
+animation and rendering package, eveybody has the technical capability
+to create first rate images and animations.  The learning curve of the
+GUI for this software (and its competetitors) is extremely steep.  The
+nature of the problem of specifiying three dimensional models and
+changes to them over time is such an inherently complex problem that
+creating a simple yet comprehense GUI has proven formidable.  It is
+not at all clear though that a programmatic paradigm is inherently
+better, what is clear though is that for users who are doing graduate
+level research on implicit surfaces it is far better.
+
+<p>
+The declarative text file format fares a bit better than the GUI.  It
+is the most common format, a prime example is the input format for
+Rayshade&nbsp;[<a href="#software:Rayshade" name=CITEsoftware:Rayshade>9</a>] or POV-Ray&nbsp;[<a href="#software:POVray" name=CITEsoftware:POVray>14</a>].
+The obvious problem with this method is that it is difficult for
+novice users.  Evidence to support this is the existence of a large
+number of tools (of varying usefulness) which provide a GUI frontend
+to the specification file format.  In our case this isn't that large a
+consideration since as noted above it is mostly graduate students and
+researchers who use the system.  Parameteric models can be defined in
+such a declarative text file by using a preprocessor like
+M4&nbsp;[<a href="#software:M4" name=CITEsoftware:M4>12</a>] or the C preprocessor.
+
+<p>
+      <H3><A NAME="tth_sEc1.2">
+1.2</A>&nbsp;&nbsp;Language Choice</H3>
+
+<p>
+Besides Python, the choices for this project included
+Lua&nbsp;[<a href="#Lua:DDJ" name=CITELua:DDJ>7</a>], Scheme, Java and Tcl.  Lua was an obvious choice
+for the simple reason that it is small, fast and originally developed
+by computer graphics researchers.  Two choices not enumerated were VB
+and Perl, these were trivially rejected due to either not being
+available on Unix, or seemingly too steep a learning curve for people
+whose only interest in the chosen language is to use the modeling
+suite.  Scheme would have been a good choice due to the large amount
+of documentation available for it and its ease of expression
+construction.  Java also supports a large amount of documentation and
+is relatively easy to learn, the difficulty in embedding it in an
+application ultimately caused its dismissal.  Tcl was rejected due to
+the expressiveness of the language not being suitable for the
+hierarchical structures we wanted to be able to define.
+
+<p>
+This left the final choice being between Lua and Python.  Ultimately
+the choice was made in Python's favour because it seemed that everyone
+could program with Python&nbsp;[<a href="#ProgrammingForEveryone" name=CITEProgrammingForEveryone>17</a>].  The lack of
+Lua documentation made its learning curve too steep for use only as a
+modeling tool.
+
+<p>
+      <H3><A NAME="tth_sEc1.3">
+1.3</A>&nbsp;&nbsp;Outline</H3>
+
+<p>
+In order to use any programming language for the task of model and
+scene description, several pieces of software are required.  For our
+case of scene description of implicit surface models the most obvious
+piece was the Python extension modules which expose the C<sup>++</sup>&nbsp;API for
+the implicit surface and scene graph data structures to accessible
+types.  Since the nature of the development of a geometric model is
+evolutionary, it is extremely likely that the model will need to be
+refined many times.  A prototyping tool for interactive viewing of a
+model was also developed and necessarily embeds the language of choice
+in order to execute the model code.  The last piece of software
+required was a modified interpreter which could orchestrate
+inter-process communication across a network of workstations.  This
+requirement was so that we could take advantage of the high
+performance computing cluster system available at our University.
+Both Python and Lua satisfied all of these requirements.  The
+availability of ``Programming Python''&nbsp;[<a href="#Lutz:PP" name=CITELutz:PP>13</a>] influenced our
+choice of Python considerably.
+
+<p>
+The remainder of this paper is organized in the following manner.  The
+extension modules are discussed in
+section&nbsp;<A href="#sec:extension-modules">2</A>.  The interactive program <tt>pybv</tt>&nbsp;is
+discussed in section&nbsp;<A href="#sec:pybv">3</A>.  A description of the use of
+Python with MPI is given in section&nbsp;<A href="#sec:mpipython">4</A>.  Finally,
+conclusions and future work are discussed in
+section&nbsp;<A href="#sec:conclusions">5</A>.
+
+<p>
+        <H2><A NAME="tth_sEc2">
+2</A>&nbsp;&nbsp;Extension Modules</H2>
+<A NAME="sec:extension-modules">
+</A>
+
+<p>
+This section discusses the extension modules that provide the
+framework for the construction of Python objects which encapsulate
+implicit surfaces and the scene graphs used to display them.  Both the 
+implicit surface software and the scene graph software are
+C<sup>++</sup>&nbsp;hierarchies.  Therefore the modules which encapsulate them must
+provide the ability to create instances and the ability to manipulate
+the public interface of the instances.
+
+<p>
+There are two possibilities for wrapping these hierarchies for use in
+Python.  The first is to use a tool like SWIG&nbsp;[<a href="#software:SWIG" name=CITEsoftware:SWIG>1</a>] to
+completely wrap the data structures.  The second is to generate the
+wrapper by hand providing a completely different interface suited only
+to model definition.  The trade off between these two is essentially
+one of flexibility and ease of use.  The choice made for our project
+is the latter.  
+
+<p>
+The reason for choosing a minimally exposing wrapper of the underlying
+API was simple.  Computer graphics is a compute intensive application
+and contrary to the example set by the Renderman&nbsp;[<a href="#Renderman" name=CITERenderman>16</a>]
+shading language the systems for modeling and rendering should not be
+implemented in an interpreted language.  If we were to use a tool
+like SWIG and mirror the complete modeling and rendering API's then
+there would be no reason for a user to not use Python for everything.
+This would include creating new types of implicit functions to be used
+inside composite implicit surface models.  This is not a recommended
+practice since it is very expensive to create polygonal approximations
+and compute line intersections with these models, both of which are
+required for rendering images of the models.  If the image synthesis
+includes interpreting some code the time to render an image increases
+unacceptably.  The extension modules only expose the construction of
+the hierarchies to facilitate the eventual rendering of images.
+Anything more would be beside the point and allow Python code to
+execute during rendering rather than just scene construction causing
+interminably long rendering times.
+
+<p>
+      <H3><A NAME="tth_sEc2.1">
+2.1</A>&nbsp;&nbsp;BlobTree</H3>
+
+<p>
+Our implicit surface system implements the <em>BlobTree</em>&nbsp;[<a href="#Wyvill:is98" name=CITEWyvill:is98>19</a>].
+This is a hierarchically based data structure.  An example is shown in
+figure&nbsp;<A href="#fig:blobtree">1</A>.  An instance of a <em>BlobTree</em>&nbsp;is an <em>n</em>-ary
+tree.  The leaves of the tree form the user defined skeleton of
+geometric primitives.  The interior nodes are either transformation
+operations or they are blending operations.  A transformation node may
+be as simple as a translation, or rotation, or it may be as complex as
+a non-linear warping of the space.  A blending operation in effect
+specifies what exactly F, (equation&nbsp;<A href="#eqn:soft-object-field">2</A>),
+looks like.  In section&nbsp;<A href="#sec:introduction">1</A>, summation was used.
+However, some other function can also be used to implement varying
+degrees of blending, or in fact, in the extreme, the CSG operators:
+difference, intersection and union.  Boolean operations which combine
+sub-<em>BlobTree</em>&nbsp;using the inferred operation producing a more complicated
+surface.
+
+<p>
+
+<p><A NAME="tth_fIg1">
+</A> 
+<center><img src="blobtree.jpg"></center><br> <center>      Figure 1: An example <em>BlobTree</em>.</center>
+<A NAME="fig:blobtree">
+</A>
+<p>
+<p>
+Exposing a minimum of the underlying API in the extension module which
+wraps this data structure is not very difficult. A simple procedural
+stack based approach is taken to define objects.  For those familiar
+with the programmatic interface of OpenGL this is clear, for those who
+are not the following example illustrates the approach.  
+
+<p>
+
+   <b>Example 1</b> <em>
+<A NAME="ex:peanut">
+</A>
+The Python function defining the model shown in
+figure&nbsp;<A href="#fig:blobtree">1</A>.
+
+  <font size="-1">
+<p>
+  
+<DL compact>              <tt>  </tt><dt><b></b></dt>
+	<dd> def half_peanut(dx,dy):
+
+  
+<DL compact>  
+<p>
+            <tt>  </tt><dt><b></b></dt>
+	<dd> o = pyjbt.BlobTree()
+<dt><b></b></dt>
+	<dd> o.intersection()
+<dt><b></b></dt>
+	<dd> o.blend()
+<dt><b></b></dt>
+	<dd> o.push()
+<dt><b></b></dt>
+	<dd> o.translate(-dx,0,0)
+<dt><b></b></dt>
+	<dd> o.point()
+<dt><b></b></dt>
+	<dd> o.pop()
+<dt><b></b></dt>
+	<dd> o.push()
+<dt><b></b></dt>
+	<dd> o.translate(dx,0,0)
+<dt><b></b></dt>
+	<dd> o.point()
+<dt><b></b></dt>
+	<dd> o.pop()
+<dt><b></b></dt>
+	<dd> o.end()
+<dt><b></b></dt>
+	<dd> o.translate(0,dy,0)
+<dt><b></b></dt>
+	<dd> o.plane()
+<dt><b></b></dt>
+	<dd> o.end()
+<dt><b></b></dt>
+	<dd> return o
+
+<p>
+  </DL>  </DL></font></em>
+The above example shows how the definition of an implicit surface
+using our system is accomplished.  The extension module is named <tt>
+pyjbt</tt> and exposes the <em>BlobTree</em>&nbsp;data type.  Interior nodes in the
+hierarchy are constructed through maintained levels in a stack of
+composite nodes (eg. blend, intersection <em>etc.</em>), using the push and
+pop functions.  The leaf nodes are always the skeletons, in this case
+point and plane.  This example is a parameterized model.  Namely it is
+parameterized on how far apart the point skeletons are from the origin
+and at what position along the y-axis the intersection should take
+place.
+
+<p>
+The reason for choosing this stack based approach is mostly due to its 
+traditional use in this role in computer graphics.  However that
+statement does not do justice to why it is the traditional choice.
+The extension module provides a procedural interface to what in the
+C<sup>++</sup>&nbsp;implementation is an object hierarchy.  For the construction of a 
+tree of instances of types in this hierarchy where each level of the
+tree defines attributes inherited by subtrees the stack based approach
+is the most natural.  See&nbsp;[<a href="#blinn:blobby-man" name=CITEblinn:blobby-man>3</a>] for a complete
+discussion on this topic.
+
+<p>
+This module has been successfully used to build very complex models.
+In figure&nbsp;<A href="#fig:shell">2</A> a rendering is given of a model which is
+built from well over 500 nodes.  The Python code for this model is
+nearly 800 lines.  Every aspect of the model has been parameterized.  A
+considerable portion of the model is procedural.  Rather than directly
+specfying the points the author implemented algorithms in Python to
+compute the desired effect.  For instance the helical structure of the
+shell is computed using mathematical models described by Meinhardt
+<em>et al.</em>&nbsp;[<a href="#Meinhardt:seashells" name=CITEMeinhardt:seashells>10</a>], the placement of the spikes are
+also due to procedural codes.
+
+<p>
+
+<p><A NAME="tth_fIg2">
+</A> 
+<center><img src="shell.clr.jpg"></center><br> <center>      Figure 2: A procedurally defined model of the <em>Cabrets Murex</em>
+  seashell.</center>
+<A NAME="fig:shell">
+</A>
+<p>
+<p>
+      <H3><A NAME="tth_sEc2.2">
+2.2</A>&nbsp;&nbsp;Scene Graph</H3>
+
+<p>
+A scene graph is a data structure which encodes the geometry and
+reflectance information used to render a digital image.  The rendering
+software used at the University of Calgary is a distributed ray
+tracing system developed in our lab.  It serves as a platform for
+experimentation for new ray intersection algorithms for implicit
+surfaces.
+
+<p>
+In order to render scenes easily one needs a very simple interface to
+specify the scene graph.  Input formats such as seen in the
+POV-ray&nbsp;[<a href="#software:POVray" name=CITEsoftware:POVray>14</a>] and Rayshade&nbsp;[<a href="#software:Rayshade" name=CITEsoftware:Rayshade>9</a>]
+systems are not very flexible.  The specification of the scene graph
+is given in a very serial manner.  There is no break up of the graph
+into logical units.  Python provides three levels of abstraction for
+components of the scene graph: modules, functions and classes.  A
+very simple Python extension module for generating a scene graph can
+be used in any of these three manners.  At the module level a user
+specifies the scene in a completely serial fashion.  At the functional 
+level the scene graph can be composed of a set of function calls,
+and similarly for the class level, conviently segmenting the graph
+into a coherent group of components, easily written and easily understood.
+
+<p>
+The following example shows why this is so beneficial.  The example
+shows the code needed to produce a short animation.  The animation
+features an implicit surface constructed from two point skeletons.
+The two skeletons move further apart from each other with each frame.
+The ease of use of Python and the readability of it makes it an
+extremely valuable tool for this application.
+
+<p>
+
+   <b>Example 2</b> <em>
+<A NAME="ex:scene">
+</A>
+A simple scene graph parameterized on time through the use of
+function-level modularization.  (The sequence of images can be found
+at <a href="http://www.cpsc.ucalgary.ca/~mtigges/mpipython.html">http://www.cpsc.ucalgary.ca/&#126;&nbsp;mtigges/mpipython.html</a>)
+
+  <font size="-1">
+<p>
+  
+<DL compact>              <tt>  </tt><dt><b></b></dt>
+	<dd> import pyjbt, pyrtl
+<dt><b></b></dt>
+	<dd> 
+<dt><b></b></dt>
+	<dd> def peanut(x):
+
+  
+<DL compact>  
+<p>
+            <tt>  </tt><dt><b></b></dt>
+	<dd> o = pyjbt.BlobTree()
+<dt><b></b></dt>
+	<dd> o.blend()
+<dt><b></b></dt>
+	<dd> o.diffuse((1,1,0))
+<dt><b></b></dt>
+	<dd> o.translate(-x,0,0)
+<dt><b></b></dt>
+	<dd> o.point()
+<dt><b></b></dt>
+	<dd> o.diffuse((0,0,1))
+<dt><b></b></dt>
+	<dd> o.translate(2*x,0,0)
+<dt><b></b></dt>
+	<dd> o.point()
+<dt><b></b></dt>
+	<dd> o.end()
+<dt><b></b></dt>
+	<dd> return o
+
+<p>
+  </DL><dt><b></b></dt>
+	<dd>
+<dt><b></b></dt>
+	<dd> def scene(frame,total_frames):
+
+  
+<DL compact>  
+<p>
+            <tt>  </tt><dt><b></b></dt>
+	<dd> s = pyrtl.World()
+<dt><b></b></dt>
+	<dd> s.lookat((0,0,4))
+<dt><b></b></dt>
+	<dd> s.soft(peanut(float(frame)/
+
+  
+<DL compact>  
+<p>
+            <tt>  </tt><dt><b></b></dt>
+	<dd> float(total_frames)*1.2))
+
+<p>
+  </DL><dt><b></b></dt>
+	<dd> s.render()
+<dt><b></b></dt>
+	<dd> s.save('frame.%d.ppm' % frame)
+
+<p>
+  </DL><dt><b></b></dt>
+	<dd>
+<dt><b></b></dt>
+	<dd> import sys
+<dt><b></b></dt>
+	<dd>
+<dt><b></b></dt>
+	<dd> total_frames = sys.argv[1]
+<dt><b></b></dt>
+	<dd> frame = 0
+<dt><b></b></dt>
+	<dd> while frame &lt;= total_frames:
+
+  
+<DL compact>  
+<p>
+            <tt>  </tt><dt><b></b></dt>
+	<dd> pyrtl.Print('Rendering frame:%d' % frame)
+<dt><b></b></dt>
+	<dd> pyrtl.NewAlloc()
+<dt><b></b></dt>
+	<dd> scene(frame)
+<dt><b></b></dt>
+	<dd> pyrtl.KillAlloc()
+<dt><b></b></dt>
+	<dd> frame = frame+1
+
+<p>
+  </DL>  </DL></font></em>
+        <H2><A NAME="tth_sEc3">
+3</A>&nbsp;&nbsp;Interactive Renderer</H2>
+<A NAME="sec:pybv">
+</A>
+
+<p>
+The preceding section outlined our methods for the description of
+models and scene graphs.  These scene graphs can only be viewed by
+rendering with the ray tracing library.  However, using ray tracing to
+render an image of a model is not very efficient.  In order to build a
+model it is more convenient to render it interactively.  This can be
+done by finding a polgonal approximation which can be rendered on a
+workstation at interactive speeds.  This need is filled by
+<tt>pybv</tt>&nbsp;[<a href="#software:pybv" name=CITEsoftware:pybv>15</a>], an interface between the rasterization
+systems windowed output and a Python interpreter.
+
+
+<p>
+<p>
+
+<center><A NAME="tth_fIg3"></A> <img src="pybv.jpg"></center><br> <center>      Figure 3: The <tt>pybv</tt>&nbsp;main window showing the twisted blend of two line
+  primitives.</center> 
+<p>
+<p>
+The use of Python described in the previous section extends the
+language to provide data types and services for the description and
+rendering of models and scenes.  In this section the
+software described embeds the interpreter.  The input for <tt>pybv</tt>&nbsp;is a
+Python module.  This module must adhere to a certain form.  It must have
+a function called <tt>blobtrees</tt>.   This function returns a list of
+tuples, each tuple describes one model defined in the module.  This
+description includes a text string label, a function (which must
+return a <em>BlobTree</em>, the arguments to pass to the function and a set of
+arguments used to polygonize and view the model).
+
+<p>
+When <tt>pybv</tt>&nbsp; is invoked it uses <tt>PyImport_ImportModule</tt> to load
+the module definitions into the dictionary.
+This dictionary is then
+accessed through GUI elements of the application to invoke the
+functions described by the return value of the <tt>blobtrees</tt>
+function (see example&nbsp;<A href="#ex:blobtrees">3</A>).
+Each time one of these functions is invoked the resulting <em>BlobTree</em>&nbsp;is
+polygonized and then rasterized to the display.  The cycle to create a
+model is an edit/reload cycle.  This is in contrast to an
+edit/compile/run cycle that would exist if Python were not used as a
+glue to the specification of models and users simply written against the
+C<sup>++</sup>&nbsp;interface.  
+
+<p>
+
+   <b>Example 3</b> <em>
+<A NAME="ex:blobtrees">
+</A>
+An example <tt>blobtrees</tt> function.  This function is called by the
+<tt>pybv</tt> program through its embedded python interpreter to query
+what implicit surface objects can be constructed by the module.  The
+returned value is a list of functions which can be called to construct 
+implicit surface models.
+
+  <font size="-1">
+<p>
+  
+<DL compact>              <tt>  </tt><dt><b></b></dt>
+	<dd> def blobtrees():
+
+  
+<DL compact>  
+<p>
+            <tt>  </tt><dt><b></b></dt>
+	<dd> return [
+
+  
+<DL compact>  
+<p>
+            <tt>  </tt><dt><b></b></dt>
+	<dd>('half-peanut',
+<dt><b></b></dt>
+	<dd> half_peanut,
+<dt><b></b></dt>
+	<dd> (0.6,0.1))
+
+<p>
+  </DL><dt><b></b></dt>
+	<dd> ]
+
+<p>
+  </DL>  </DL></font></em>
+This system was used to create the model in figure&nbsp;<A href="#fig:shell">2</A>.
+The complexity of this model, in that case, prohibited the viewing of
+the entire model at once.  There were two reasons for this
+restriction.  The Python code executed too slowly for effective
+interaction, but more seriously the polygonization of the model took
+too long for an accurate representation.  The use of <tt>pybv</tt>&nbsp;and the
+extension modules provided an easy and effective work around.  The
+system afforded the definition of multiple functions one for each part 
+of the shell.  The <tt>blobtrees</tt> function gave reference to each
+major part that the user wished to be able to view indepently.  This
+allowed hierarchical abstraction of the entire model to its constituent
+parts, something which is quite difficult to do with a GUI program.  
+
+<p>
+The net result of the combination of extending and embedding Python is
+a very convienient rapid prototyping environment for the development
+of our models.  To measure its value one could do a user test in
+comparison with a GUI designed for the same task.  Such a user test
+however has not been completed.  Personally the author finds the cycle
+of text editing the source of the model with subsequent interpretation
+of that text by <tt>pybv</tt>'s embedded interpreter a very satisfying and
+efficient process.
+
+<p>
+        <H2><A NAME="tth_sEc4">
+4</A>&nbsp;&nbsp;Python with MPI</H2>
+<A NAME="sec:mpipython">
+</A>
+
+<p>
+In this section the embedding of Python into a simplified interpreter
+is discussed which allows Python to be used as the input description
+language in a distributed computing message passing environment.  The
+University of Calgary is equipped with a 30 node cluster of computers.
+Since there are few computing applications which scale to distributed
+parallel computing as efficiently as ray tracing our graphics group was
+extremely excited at the availability of this resource.
+
+<p>
+To take advantage of this hardware system we needed an interface
+between the resident message passing system on the cluster and our
+python extension modules.  The message passing system resident on the
+cluster is MPI&nbsp;[<a href="#software:MPI" name=CITEsoftware:MPI>6</a>] a very flexible system in very wide
+use.  Our extension modules had to be modified to distribute portions
+of the scene to render.  However in order to use the extension modules
+which now used MPI the Python interpreter needed to be aware of MPI
+for initialization and cleanup of the MPI state machine.  
+
+<p>
+When a render job is submitted to the cluster each machine builds its
+own data structure for the scene graph.  This infers that each machine 
+runs the Python interpreter locally.  To facilitate this the Python
+interpreter has been embedded in a program called <tt>mpipython</tt>.  This
+program is assigned the following tasks:
+
+<UL>
+<p>
+
+<li> Initialize the Python interpreter.
+
+<li> Initialize the MPI library.
+
+<li> Communicate the Python scene graph input and the <tt>
+    PYTHONPATH</tt> variable.
+
+<li> Execute the script.
+</UL>
+<p>
+The last item is due to the fact that the slave children do not
+receive the same run-time environment as the master.  The difference
+between the above enumeration and previous work&nbsp;[<a href="#beazley:ipc6" name=CITEbeazley:ipc6>2</a>] is
+that there is no parallel execution of the Python code.  Each node in
+the job executes the script in serial.  The reason for this is that
+the time to execute any one line of the script is trivial compared to
+the one line which causes the scene to be rendered.
+
+<p>
+The scene graph extension module implements the parallel rendering
+code.  The scene graph exposes a function called <tt>prender</tt>.  This
+function, instead of invoking the rendering code from the ray-tracing
+library directly, orchestrates the rendering through each of the child
+processes.  The master process keeps track of which scan lines have
+been rendered and sends to each child in turn a line to render.  When
+a child has finished a line it sends the information back to the
+master requesting a new one.  In addition to responding to the
+completed lines from the children the master is also rendering its own
+lines.   
+
+<p>
+The modeler writing the scene description language in Python should
+not be aware that the scene will be interpreted and rendered in
+parallel.  To this end the extension modules do not expose the MPI
+interface to the modeling environment.  The extension modules render a
+scene; if a parallel environment exists then the image synthesis is
+distributed across the cluster.  The extended Python interpreter
+ensures that the MPI environment is initialized and is able to
+facilitate the required communication.  The choice of MPI is then
+reduced to the typical reasons that one would choose MPI over an
+alternative, say PVM.
+
+<p>
+        <H2><A NAME="tth_sEc5">
+5</A>&nbsp;&nbsp;Conclusions and Future Work</H2>
+<A NAME="sec:conclusions">
+</A>
+
+<p>
+A set of Python tools developed in the graphics lab at the University
+of Calgary has been presented.  The tools use Python in
+multiple ways.  
+
+<p>
+Python is extended with the atomic data types around which
+our research interests centre.  This allows us to use Python for the
+description of instances of  this data giving us the benefit
+of the natural expressiveness and readability of Python.  This
+provides us with a very efficient and useable system.  
+
+<p>
+Python is embedded in a GUI program which allows the code describing
+our models to be executed and a derived tesselation displayed.  This
+provides an edit/interpret/view cycle which makes model design
+relatively painless.  The alternative is a GUI program which through a
+point and click interface allows the construction of a model.  Python
+provides a clear syntax, which for certain types of models,
+particularly models with procedural elements (for example geometric
+spirals) makes modeling easier than a full GUI directed interface.
+
+<p>
+Python is again embedded in order to run the interpreter coherently
+across nodes of a distributed memory computer.  This embedding allows
+the use of MPI for the communication of data across the child nodes
+involved in the rendering of an image.It has been found in our experience
+that Python and its associated C API is very flexible in supporting
+the variety of design issues in modeling.
+
+<p>
+The use of Python as the glue between our modeling and rendering
+systems has provided us the benefit of procedural animation.  The
+Python code allows the expression of a scene parameterically over time
+allowing for very flexible descriptions of animations without any
+extension of the underlying languages in their native C<sup>++</sup>language.
+
+<p>
+Future work could centre on providing a complete wrapper of the API
+using SWIG&nbsp;[<a href="#software:SWIG" name=CITEsoftware:SWIG>1</a>].  It has been noted before that this
+is possibly undesireable due to the fact that Python should not be
+used directly in rendering code due to speed of execution issues.
+However, it should be noted that if the user is careful enough, the
+full flexibility of exposing the complete C<sup>++</sup>&nbsp;hierarchy can be 
+used without risk.
+
+<p>
+
+<H2>Acknowledgements</H2>
+
+<p>
+The authors are indebted to the reviewers for careful reading and
+excellent suggestions for improvement.  The authors would like to
+thank the adminstrators of the MACI Cluster for High Performance
+Computing.  Also deserving of thanks is Callum Galbraith for the sweat
+and tears put into the construction of the Cabrets Murex model.  This
+work was partially supported by grants from the Natural Sciences and
+Engineering Research Council of Canada.
+
+<p>
+<H2>References</H2>
+<DL compact>
+
+<p>
+<dt>[<a href="#CITEsoftware:SWIG" name=software:SWIG>1</a>]</dt><dd>
+David&nbsp;M. Beazley.
+ Simplified wrapper and interface generator.
+ <a href="http://www.swig.org">http://www.swig.org</a>.
+
+<p>
+<dt>[<a href="#CITEbeazley:ipc6" name=beazley:ipc6>2</a>]</dt><dd>
+David&nbsp;M. Beazley and Peter&nbsp;S. Lomdahl.
+ Feeding a large scale physics application to python.
+ In <em>Sixth International Python Conference</em>, 1997.
+ <a href="http://www.python.org/workshops/1997-10/proceedings/beazley.html">http://www.python.org/workshops/1997-10/proceedings/beazley.html</a>.
+
+<p>
+<dt>[<a href="#CITEblinn:blobby-man" name=blinn:blobby-man>3</a>]</dt><dd>
+Jim Blinn.
+ Nested transformations and blobby man.
+ <em>IEEE Computer Graphics And Applications</em>, 7, 1987.
+
+<p>
+<dt>[<a href="#CITEBloomenthal:Introduction97" name=Bloomenthal:Introduction97>4</a>]</dt><dd>
+Jules Bloomenthal, editor.
+ <em>Introduction to Implicit Surfaces</em>.
+ Morgan Kaufmann, July 1997.
+
+<p>
+<dt>[<a href="#CITEsoftware:Lua" name=software:Lua>5</a>]</dt><dd>
+Waldemar Celes, Roberto Ierusalimschy, and Luiz&nbsp;Henrique de&nbsp;Figueiredo.
+ Lua: the programming language.
+ <a href="http://www.tecgraf.puc-rio.br/lua/">http://www.tecgraf.puc-rio.br/lua/</a>.
+
+<p>
+<dt>[<a href="#CITEsoftware:MPI" name=software:MPI>6</a>]</dt><dd>
+The&nbsp;MPI Consortium.
+ Message passing interface.
+ <a href="http://www-unix.mcs.anl.gov/mpi/">http://www-unix.mcs.anl.gov/mpi/</a>.
+
+<p>
+<dt>[<a href="#CITELua:DDJ" name=Lua:DDJ>7</a>]</dt><dd>
+Luiz&nbsp;Henrique de&nbsp;Figueredo, Roberto Ierusalimschy, and Waldemar Celes.
+ Lua: an extensible embedded language.
+ <em>Dr. Dobb's Journal</em>, pages 26-33, December 1996.
+
+<p>
+<dt>[<a href="#CITEsoftware:jsp" name=software:jsp>8</a>]</dt><dd>
+University of&nbsp;Calgary Graphics<i>Jungle</i>&nbsp;Lab.
+ Jungle software projects.
+ <a href="http://www.cpsc.ucalgary.ca/Redirect/GJ/software/jspdoc/index.html">http://www.cpsc.ucalgary.ca/Redirect/GJ/ software/jspdoc/index.html</a>.
+
+<p>
+<dt>[<a href="#CITEsoftware:Rayshade" name=software:Rayshade>9</a>]</dt><dd>
+Craig Kolb, David&nbsp;P. Dobkin, and David&nbsp;C. Hoffman.
+ Rayshade rendering software.
+ <a href="http://www-graphics.stanford.edu/~cek/rayshade/">http://www-graphics.stanford.edu/&#126;&nbsp;cek/rayshade/</a>.
+
+<p>
+<dt>[<a href="#CITEMeinhardt:seashells" name=Meinhardt:seashells>10</a>]</dt><dd>
+Hans Meinhardt, Przemyslaw Prusinkiewicz, and Deborah Fowler.
+ <em>The Algorithmic Beauty of Seashells</em>.
+ Springer Verlag, 1998.
+
+<p>
+<dt>[<a href="#CITEsoftware:blender" name=software:blender>11</a>]</dt><dd>
+NaN.
+ Blender.
+ <a href="http://www.blender.nl/">http://www.blender.nl/</a>.
+
+<p>
+<dt>[<a href="#CITEsoftware:M4" name=software:M4>12</a>]</dt><dd>
+GNU project.
+ M4: A powerful macro processor.
+ <a href="http://www.gnu.org">http://www.gnu.org</a>.
+
+<p>
+<dt>[<a href="#CITELutz:PP" name=Lutz:PP>13</a>]</dt><dd>
+Programming Python.
+ <em>Mark Lutz</em>.
+ O'Reilly, 1997.
+
+<p>
+<dt>[<a href="#CITEsoftware:POVray" name=software:POVray>14</a>]</dt><dd>
+The POV-Ray Team.
+ Persistence of vision ray tracer.
+ <a href="http://www.povray.org/">http://www.povray.org/</a>.
+
+<p>
+<dt>[<a href="#CITEsoftware:pybv" name=software:pybv>15</a>]</dt><dd>
+Mark Tigges.
+ pybv.
+ <a href="http://www.cpsc.ucalgary.ca/~mtigges/pybv">http://www.cpsc.ucalgary.ca/&#126;&nbsp;mtigges/pybv</a>.
+
+<p>
+<dt>[<a href="#CITERenderman" name=Renderman>16</a>]</dt><dd>
+Steve Upstill.
+ <em>The Renderman Companion : A Programmer's Guide to Realistic
+  Computer Graphics</em>.
+ Addison Wesley, 1989.
+
+<p>
+<dt>[<a href="#CITEProgrammingForEveryone" name=ProgrammingForEveryone>17</a>]</dt><dd>
+Guido van Rossum.
+ Computer programming for everybody.
+ Technical Report 90120-1a, Corporation for National Research
+  Initiatives, 1999.
+
+<p>
+<dt>[<a href="#CITEsoftware:MGF" name=software:MGF>18</a>]</dt><dd>
+Greg Ward, Rob Shakespeare, Ian Ashdowne, and Holly Rushmeier.
+ Materials and geometry format.
+ <a href="http://radsite.lbl.gov/mgf/">http://radsite.lbl.gov/mgf/</a>.
+
+<p>
+<dt>[<a href="#CITEWyvill:is98" name=Wyvill:is98>19</a>]</dt><dd>
+Brian Wyvill, Eric Galin, and Andrew Guy.
+ Extending the csg tree - warping, blending and boolean operations in
+  an implicit surface modeling system.
+ In <em>Proceedings of the Third Eurographics Workshop on Implicit
+  Surfaces</em>, June 1998.
+
+<p>
+</DL><hr><H3>Footnotes:</H3>
+
+<p><a name=tthFtNtAAC></a><a href="#tthFrefAAC"><sup>2</sup></a> <em>CSG</em>: Constructive solid
+geometry, the construction of complex volumes through boolean
+operations of more simpler volumes.
+<p><a name=tthFtNtAAD></a><a href="#tthFrefAAD"><sup>3</sup></a> Inferrance
+of a complex surface by subdivision and refinement of a complex of
+polygons
+
+</body>
+</HTML>

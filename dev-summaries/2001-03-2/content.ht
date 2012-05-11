@@ -1,0 +1,107 @@
+Title: python-dev summary: 2001-03-15 - 2001-03-29
+
+<pre>
+ This is a summary of traffic on the python-dev mailing list between
+ Mar 15 and Mar 29 (inclusive) 2001.  It is intended to inform the
+ wider Python community of ongoing developments.  To comment, just
+ post to python-list@python.org or comp.lang.python in the usual
+ way. Give your posting a meaningful subject line, and if it's about a
+ PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep
+ iteration) All python-dev members are interested in seeing ideas
+ discussed by the community, so don't hesitate to take a stance on a
+ PEP if you have an opinion.
+
+ This is the fourth summary written by Michael Hudson.
+ Summaries are archived at:
+
+  <a href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a>
+
+   Posting distribution (with apologies to mbm)
+
+   Number of articles in summary: 410
+
+    50 |                 [|]                                    
+       |                 [|]                                    
+       |                 [|]                                    
+       |                 [|]                                    
+    40 |                 [|]                                    
+       |                 [|] [|]                                
+       | [|]             [|] [|]                                
+       | [|]             [|] [|] [|]     [|]                    
+    30 | [|]             [|] [|] [|]     [|]                    
+       | [|]             [|] [|] [|]     [|]                    
+       | [|]             [|] [|] [|]     [|] [|]                
+       | [|]         [|] [|] [|] [|]     [|] [|]             [|]
+    20 | [|] [|]     [|] [|] [|] [|]     [|] [|]             [|]
+       | [|] [|]     [|] [|] [|] [|] [|] [|] [|]             [|]
+       | [|] [|]     [|] [|] [|] [|] [|] [|] [|]     [|]     [|]
+       | [|] [|]     [|] [|] [|] [|] [|] [|] [|]     [|]     [|]
+    10 | [|] [|] [|] [|] [|] [|] [|] [|] [|] [|]     [|]     [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|] [|]     [|]     [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|]
+     0 +-044-024-013-029-059-046-040-022-040-031-007-019-008-028
+        Thu 15| Sat 17| Mon 19| Wed 21| Fri 23| Sun 25| Tue 27|
+            Fri 16  Sun 18  Tue 20  Thu 22  Sat 24  Mon 26  Wed 28
+
+ Bug-fixing for 2.1 remained a priority for python-dev this fortnight
+ which saw the release of 2.1b2 last Friday.
+
+
+    * Python 2.0.1 *
+
+ Aahz posted his first draft of PEP 6, outlining the process by which
+ maintenance releases of Python should be made.
+
+  &lt;<a href="http://python.sourceforge.net/peps/pep-0006.html">http://python.sourceforge.net/peps/pep-0006.html</a>&gt;
+
+ Moshe Zadka has volunteered to be the "Patch Czar" for Python 2.0.1.
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-March/013952.html">http://mail.python.org/pipermail/python-dev/2001-March/013952.html</a>&gt;
+
+ I'm sure we can all join in the thanks due to Moshe for taking up
+ this tedious but valuable job!
+
+
+    * Simple Generator implementations *
+
+ Neil Schemenauer posted links to a couple of "simple" implementations
+ of generators (a.k.a. resumable functions) that do not depend on the
+ stackless changes going in.
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-March/013648.html">http://mail.python.org/pipermail/python-dev/2001-March/013648.html</a>&gt;
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-March/013666.html">http://mail.python.org/pipermail/python-dev/2001-March/013666.html</a>&gt;
+
+ These implementations have the advantage that they might be
+ applicable to Jython, something that sadly cannot be said of
+ stackless.
+ 
+
+    * portable file-system stuff *
+
+ The longest thread of the summary period started off with a request
+ for a portable way to find out free disk space:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-March/013706.html">http://mail.python.org/pipermail/python-dev/2001-March/013706.html</a>&gt;
+
+ After a slightly acrimonious debate about the nature of Python
+ development, /F produced a patch that implements partial support for
+ os.statvfs on Windows:
+
+  &lt;<a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=410547&amp;group_id=5470&amp;atid=305470">http://sourceforge.net/tracker/index.php?func=detail&amp;aid=410547&amp;group_id=5470&amp;atid=305470</a>&gt;
+
+ which can be used to extract such information.
+
+ A side-product of this discussion was the observation that although
+ Python has a module that does some file manipulation, shutil, it is
+ far from being as portable as it might be - in particular it fails
+ miserably on the Mac where it ignores resource forks.  Greg Ward then
+ pointed out that he had to implement cross-platform file copying for
+ the distutils
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-March/013962.html">http://mail.python.org/pipermail/python-dev/2001-March/013962.html</a>&gt;
+
+ so perhaps all that needs to be done is for this stuff to be moved
+ into the core.  It seems very unlikely there will be much movement
+ here before 2.2.
+</pre>

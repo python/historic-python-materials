@@ -1,0 +1,269 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0 plus SQ/ICADD Tables//EN" "html.dtd"
+>
+<HTML><HEAD><TITLE>Python extend C++ 12-1995</TITLE></HEAD>
+<BODY><H1>Extending C++ Classes with Python</H1><STRONG>Presented at
+the December 1995 Python workshop by <A HREF="mailto:jim@interet.com">James
+C. Ahlstrom</A></STRONG><P>This paper describes a way to derive Python
+classes from an existing C++ class library.  These Python classes will
+inherit C++ methods from parent classes and Python can call these
+methods.  Python can also override C++ methods, and these can be called
+by Python or by C++.  In short, we want Python to act just like C++ as
+part of an existing class hierarchy.  There is more than one way to do
+this.  This paper describes the method used to make Microsoft's
+Foundation Class Library (MFC) available in <A HREF="http://www.python.org/workshops/1995-05/ahlstrom.html"
+>WPY, a Python GUI module,</A> and the examples below are taken from
+WPY. </P><H2>Inheritance</H2><P>Assume that we have a C++ class
+library available, MFC for example.  We want to derive a Python class
+such that the Python object inherits methods from all its parent classes
+whether these are Python classes or C++ classes.  So we must describe to
+Python what the C++ class hierarchy is.  A simple way is to just write
+out the C++ class hierarchy as Python classes.  This is a part of the
+MFC class hierarchy in Python, and a derived Python class and object:</P><PRE
+># Read the MFC manual and write out the following:
+class CObject:
+  pass
+class CCmdTarget(CObject):
+  pass
+class CWnd(CCmdTarget):
+  pass
+class CDialog(CWnd):
+  def __init__(self, parent, text):  # Python WPY support.
+    self.wpyChildList = []
+    self.wpyText  = text
+    self.wpyParent = parent
+    self.wpyFlags = wpyFlagsDialog
+    self.wpyDefaultButton = None
+
+# Derive a Python class to inherit from C++ classes.
+class My_Dialog(CDialog):
+  pass
+
+
+# Make a Python dialog object
+py_dialog = My_Dialog(None, "Sample Dialog")</PRE><P>We can now start
+to see how to call a C++ method.  Suppose we call the GetClientRect()
+method of py_dialog.  This method is a C++ method in class CWnd.  So we
+must first add it to CWnd, and then call into C++ to execute the method.
+ The basic rule is that the C++ method must be defined at its correct
+place in the C++ class hierarchy.  So our CWnd class now looks like
+this: </P><PRE>class CWnd(CCmdTarget):
+  def GetClientRect(self):
+    rect = CRect()
+    rect.wpyFlags = self.wpyFlags
+    rect.wpyLocX, rect.wpyLocY, rect.wpySizeX, rect.wpySizeY =\
+         _wpy.GetClientRect(self)
+    return rect    # a CRect giving size (location is 0,0) 
+		   # of client area
+</PRE><P>The method GetClientRect() is a CWnd method just as it should
+be.  But the  real C++ version is declared as CWnd::GetClientRect(RECT
+*).  We have altered the arguments to be more Python-like.  Instead of 
+altering a rectangle tuple, the Python version returns a Python
+rectangle class object.  It is frequently necessary to redesign method
+arguments and method return values so that they are more natural in
+Python.  It is convenient to do this in the method definitions in the
+Python class hierarchy.  The actual C++ method returns its rectangle as
+four integers, and these are assigned to the Python CRect.  To return an
+error to Python, it is often convenient to return Python "None" instead
+of the usual object, although that is not done here.</P><P>We need a
+C-language interface module to link the Python name to a C function. 
+This is described in the <I>Extending and Embedding the Python
+Interpreter</I> document which comes with Python.  In the example, the
+module named "_wpy" is a C-language module defined in the file
+wpy_ntmo.cpp, and it has a function which corresponds to GetClientRect
+defined as follows:</P><PRE>extern "C" static PyObject *
+WpyGetClientRect(PyObject *self, PyObject *args)
+{
+  RECT rect;
+  PyObject * obj;
+  if (!PyArg_Parse (args, "O", &amp;obj))
+    return NULL;
+  CWnd * pWnd = (CWnd *) theApp.GetCppObject(obj);
+  VERIFY_WINDOW(pWnd);
+  pWnd->GetClientRect(&amp;RECT);
+  PyObject *pyobj = Py_BuildValue("(iiii)",
+    rect.left, rect.top, rect.right, rect.bottom);
+  return pyobj;
+}
+</PRE><P>This module simply gets its one argument (a Python object),
+calls the CWnd method GetClientRect with a local RECT pointer, and
+returns the four integers of the rectangle.  Since Python has great C
+interfaces, it could have created the Python CRect object and returned
+that itself, but that was not done here.  The only troublesome aspect of
+this function is where to get a CWnd object in C++, since all that is
+available is a Python object.</P><H2>Object Twins</H2><P>For the above
+scheme to work, we need a C++ object which is associated with each
+Python object.  When a Python object is required in a C++ method the
+corresponding C++ object is used.  When C++ calls a method of an object,
+the method of the corresponding Python object is called.  When C++ or
+Python deletes the object, the twin object is deleted too.  It can be a
+little tricky to accomplish all this.  For the above dialog example,
+Python is responsible for creating the dialog object, and C++ will not
+create this object on its own.  So we can use a Create() method for our
+dialog class which notifies the GUI that a CDialog object should be
+created.  This Python method is:</P><PRE>class CDialog(CWnd):
+  def Create(self):
+    # Create a modeless dialog (not used for modal)
+    _wpy.CDialogCreate(self, self.wpyParent)
+    return self
+</PRE><P>The arguments are the ones required for the basic C++ call,
+and must include the Python dialog object "self".  In C++ the
+corresponding function is:</P><PRE>extern "C" static PyObject *
+WpyCDialogCreate(PyObject *self, PyObject *args)
+{
+  PyObject *pydialog, *pywnd;
+  if (!PyArg_Parse (args, "(OO)", &amp;pydialog, &amp;pywnd))
+    return NULL;  // Argument is self, parent
+  CWnd * window = (CWnd*)theApp.GetCppObject(pywnd);  
+  // NULL return OK.
+  CWpythonDialog * dialog = new CWpythonDialog();
+  if (!dialog){
+    ERR_CREATE
+    return NULL;
+  }
+  theApp.RecordObjects(dialog, pydialog, TRUE);
+  if (!dialog->Create(IDD_DIALOG1, window)){
+    ERR_CREATE
+    return NULL;
+  }
+  //dialog->ShowWindow(SW_SHOW);
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+</PRE><P>Note that this function has created a new C++ object of class
+CWpythonDialog, a C++ class derived from CDialog.  This C++ object is
+the twin to the Python object.  The method RecordObjects() records these
+objects as twins, method GetCppObject(PyObject) returns the C++ object
+given the Python object, and method GetPythonObject(CObject) returns the
+Python object given the C++ object.</P><P>We are now finished with
+calling a C++ method from Python.  We first construct a Python object,
+either directly from CDialog or from a class derived from CDialog, such
+as My_Dialog above.  We then call its Create() method to notify the GUI
+that we are creating a dialog box.  This creates a C++ dialog box which
+is an instance of the CWpythonDialog class, and records the C++ object
+and the Python object as twins.  We can then call the method
+GetClientRect() of the Python object.  Python inheritance will locate
+the method as a method of CWnd, the correct C++ method.  This method
+will call into C++ using the usual C-language interface.  The interface
+will look up the C++ object which corresponds to the Python object
+performing the call, and the C++ method GetClientRect() will be called
+for this C++ object.  The return rectangle will be returned to Python as
+four integers, which will be assembled into a Python CRect object which
+becomes the return value of the method call.</P><P>In general, WPY will
+create a C++ object derived from an MFC class for every Python object
+created, it will record the C++ and corresponding Python objects as
+twins, and it will provide a way to look up the twin of either object. 
+There are several ways to do this.  In the above example, the
+RecordObjects() method was called to do the recording.  This is a method
+of the application instance, which is convenient since there is exactly
+one app instance and its object is in a global variable.  The
+RecordObjects() method creates an entry in two C++ dictionaries, one for
+C++ to Python, one for Python to C++.  Actually, most WPY classes call
+RecordObjects() from within the C++ constructor instead of from within a
+create method as in the example.  This requires that the Python object
+pointer be passed to the constructor (not a problem).  The method
+UnRecordCpp() is available to remove the two dictionary entries, and it
+is always called within the C++ destructor.</P><P>Another altenative
+which is arguably better is to record the Python object pointer as an
+attribute of the C++ object.  It is then directly available, and a
+dictionary is not necessary.  This is a good idea, but in WPY some
+classes are used directly, so no derived class is available for the
+pointer.  The dictionary is used uniformly just for consistency.  The
+C++ pointer can also be  stored as a Python int ( a long) as an
+attribute of the Python object, but since there is no protection against
+the programmer changing this attribute, the cast back to a pointer made
+me a little nervous.</P><H2>C++ Calls Python</H2><P>To complete the
+picture we need to see how C++ would call a method of a Python object. 
+Consider the OnOK() method of CDialog.  This method is called when the
+user presses the enter key while the dialog has the focus.  It usually
+dismisses the dialog and returns the same result as pressing the OK
+button.  To send this event to Python, we must first create the method
+in CWpythonDialog as a C++ virtual function override.  Here is the code:</P><PRE
+>void CWpythonDialog::OnOK()
+{
+  theApp.CallPython(this, "OnEnter");
+}
+</PRE><P>When C++ calls this method, the method simply calls the Python
+object.  First, the dictionary (or other method) returns the Python
+object twin, then the attribute "OnEnter" is looked up.  If it is found,
+the CallObject() function executes the Python method.  Care must be
+taken to be sure that CallPython() follows Python inheritance to find
+the method to call.  It is easy to provide for method arguments, for a
+return value, and for what to do if the Python method does not exist.</P><H2
+>Virtual Methods</H2><P>We now can now create a Python method which
+overrides a C++ method by using our interface in both directions, Python
+to C++ and C++ to Python.  For each virtual method create the base class
+Python method which calls the C++ method, and create the C++ method
+which calls the Python method.  Consider a C++ call to that method.  The
+C++ function will call the Python method, and if it does not exist,
+Python inheritance will return the Python base class method.  That
+method will be called, and it will call back into C++.  That means that
+C++ has called its own base class (through Python) just as it should. 
+If the Python method does exist, it will be called.  The Python method
+may or may not call the base class method as desired.</P><P>Now
+consider a Python call to the Python method.  If the method does not
+exist, Python inheritance will return the base class method, and the C++
+method will be called.  If the Python method does exist, it will be
+called, and it is still free to call the C++ base class method too. 
+Note that this scheme enables Python to override any C++ methods, even
+ones which are not virtual.  Of course this is because in Python all
+methods are virtual.  Since I havn't found a way to prevent this, I have
+decided to consider it a "feature".</P><H2>Problems</H2><P>The main
+problem in this scheme is deciding who is responsible for creating
+objects (C++ or Python) and maintaining the twin objects.  In the above
+example, Python had to create the object (a dialog box), since dialog
+boxes do not pop up unless the programmer writes one in Python.  In WPY,
+two step creation is used for all objects because this is convenient for
+other reasons (geometry management), so there is a Create() method.  But
+that is not the point, since a create method can be called from __init__
+too.  The point is that Python created the object, and if the object
+goes out of scope it will be deleted and garbage collected (with the
+usual exception for circular references).  Of course, we need to be sure
+C++ does not try to access an object which Python has deleted.  And the
+Python programmer has a right to expect that if the object does go out
+of scope, the C++ object is deleted too.  To achieve this we need to
+make sure that C++ never INCREF's the Python object, even though it
+retains a reference to it in its dictionary, because that would prevent
+Python from deleting it.  We also would need a __del__  method which
+would notify the C++ system that Python has deleted the object so that
+C++ could delete it too, and remove it from the dictionaries.  This is
+the general case.  In the dialog box example above, these problems do
+not happen because dialog boxes stay in existence until the user (or the
+programmer) explicitly deletes them, so a complete cleanup can be done
+then.</P><P>If C++ creates the object, we have a different situation. 
+Then Python must be called to create a Python object, and INCREF must be
+called to prevent Python from deleting the object until C++ is done with
+it.  In WPY these synchronous create/delete events are handled  by
+understanding exactly what MFC and Python are trying to do with an
+object; that is, you have to know what you are doing.  Luckily Visual
+C++ complains about memory leaks, as most errors are in the direction of
+keeping objects too long, not in referencing a deleted object.  It is
+also possible to throw the problem back on the programmer by requiring a
+Destroy() method call as well as a Create() method.  In WPY this is done
+only when it makes sense anyway.  The implication is that the Python
+objects may exist, but that MFC will delete objects only when Destroy()
+is called.</P><P>Another problem concerns the C++ object pointers.  It
+is sometimes necessary to test for what kind of pointer we have been
+given from Python so that the proper C++ method can be called.  In
+Visual C++ this is possible with the IsKindOf() method.  Use of this
+method should not really be necessary in an object oriented system, so
+this is a little worrisome.  Also, pointers are stored in the
+dictionaries as generic CObject pointers, and they are cast to the
+proper type when used.  Casting pointers is always objectionable, but I
+have found no easy solution.  Pointers can be checked for proper type
+with the IsKindOf method, or by scrutinizing the Python object for known
+attributes of that type.  Fortunately the Python "self" (C++ "this")
+pointer is correct, since its value is assigned through the inheritance
+mechanism, so the concern is only with method arguments.</P><H2>Summary</H2><P
+>This scheme for extending C++ MFC in Python is very effective and
+convenient in WPY.  In WPY, MFC method calls are usually not just
+mechanical calls of plain MFC methods.  They have additional logic to
+alter the arguments and the return values to a more Python-like form.
+And they have additional Python logic to support the Tk GUI system which
+has no access to MFC.  I also like having the complete class hierarchy
+and method list available and visible in Python.  The scheme tends to
+result in a maximum of Python code and a minimum of C, my favorite
+balance.  It is also a simple scheme as such things go, and I find I can
+understand it even at 1 AM.  But because of the special nature of WPY I
+do not know if it is the best scheme for any C++ class library.  If you
+give it a try, I would appreciate a note on how it works for you.</P><P>James
+C. Ahlstrom<BR><A HREF="mailto:jim@interet.com">jim@interet.com</A></P></BODY></HTML>

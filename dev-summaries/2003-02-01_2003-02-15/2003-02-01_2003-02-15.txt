@@ -1,0 +1,508 @@
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+python-dev Summary from 2003-02-01 through 2003-02-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+This is a summary of traffic on the `python-dev mailing list`_ from February 1, 2003 through February 15, 2003.  It is intended to inform the wider Python community of on-going developments on the list that might be of interest to them.  To comment on anything mentioned here, just post to python-list@python.org or `comp.lang.python`_ with a subject line delineating what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join python-dev!
+
+This is the eleventh summary written by Brett Cannon (and still sane even after over 800 emails for this summary).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (else it is probably regular expression syntax); you can safely ignore it (although I suggest learning reST; its simple and is accepted for PEP markup).  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+.. contents::
+
+
+======================
+Summary Announcements
+======================
+
+I just realized how much regex syntax I use in the summaries.  You might help you read the summaries if you know it.  =)
+
+I renamed the 'Skipped Threads' section that I introduced in the last section to 'Quickies' since they are not really skipped but are just "quickie" summaries that I don't feel warrant a full-blown summary (or I was just feeling lazy  =).
+
+
+==================================
+`Acquire/release functionality`__
+==================================
+__ http://mail.python.org/pipermail/python-dev/2003-February/032752.html
+
+Splinter threads:
+    - `Extended Function syntax <http://mail.python.org/pipermail/python-dev/2003-February/032694.html>`__
+    - `exec/with thunk-handling proposal <http://mail.python.org/pipermail/python-dev/2003-February/032800.html>`__
+    - `Extended Function syntax (PEP time) <http://mail.python.org/pipermail/python-dev/2003-February/032775.html>`__
+    - `With statement <http://mail.python.org/pipermail/python-dev/2003-February/032900.html>`__
+    - `Pre-PEP: with syntax <http://mail.python.org/pipermail/python-dev/2003-February/033264.html>`__
+
+As part of the massive thread that caused some hoopla on the list about how to try to keep info manageable on the list, a suggested syntax for an acquire/release setup came up.  It basically defines a way to have a method called before the beginning of the execution of a block of code and then a method to be called when the block is finished.  It uses a suggested keyword 'with'.
+
+Read `PEP 310`_ for all the details (thanks to Paul Moore and Michael Hudson for writing the PEP; I would have gone insane summarizing this!).
+
+.. _PEP 310: http://www.python.org/peps/pep-0310.html
+
+
+=============================
+`Extended Function syntax`__
+=============================
+__ http://mail.python.org/pipermail/python-dev/2003-February/032694.html
+
+Splinter threads:
+    - `Property syntax <http://mail.python.org/pipermail/python-dev/2003-February/032763.html>`__
+    - `question??? <http://mail.python.org/pipermail/python-dev/2003-February/032767.html>`__
+
+Thanks goes to Samuele Pedroni for writing up a technical summary of all of this and sending me a copy.
+
+This whole thread started up over a suggested extended synatax for functions::
+
+ def fxn(args) [fun1, fun2, ..., funX]:
+    ...code...
+
+This was to be equivalent to::
+
+ fxn = funX(...(fun2(fun1(fxn)))...)
+
+This came up as a way to make it easier for using things such as property(), classmethod(), and staticmethod() since you could define things as::
+
+  def fxn(args) [staticmethod]:
+      ...code...
+
+A variant on all of this that was proposed was::
+
+ def fxn(args) as fun1, fun2, ..., funX:
+      ...code...
+
+or::
+
+ def fxn(args) is fun1, fun2, ..., funX:
+      ...code...
+
+
+The two proposed syntaxes above were suggested to be made very general so that you could do something like::
+
+ def fxn(args) as function:
+      ...code...
+
+It would be difficult and kludgy, though, to make the above syntax work for both function and staticmethod.  And since this was all about how make using property() easier, property-specific suggestions included:
+
+ class klass(object):
+     property prup:
+         ...code...
+
+or::
+
+ class klass(object):
+     def prup as property:
+          ...code...
+
+The problem with the former is that it requires turning "property" into a keyword.
+
+None of these are PEPs yet nor have had BDFL pronouncement.
+
+
+===========
+`thunks`__
+===========
+__ http://mail.python.org/pipermail/python-dev/2003-February/032828.html
+
+Splinter threads:
+    - `Extended Function syntax <http://mail.python.org/pipermail/python-dev/2003-February/032694.html>`__
+    - `exec/with thunk-handling proposal <http://mail.python.org/pipermail/python-dev/2003-February/032800.html>`__
+
+Thanks to Samuele Pedroni for providing me a technical summary that I was able to use to help write this summary.
+
+The concept of adding thunks to Python came up through the extended function syntax thread (in case you don't know what a thunk is, you can think of it as a chunk of code that is compiled and ready to use but is not executed until a later time).  Some suggested syntaxes were::
+
+ lvalue = thunk(args):
+     ...code...
+
+or::
+
+ do lvalue = thunk(args):
+     ...code...
+
+The lvalues would be optional.  Samuele Pedroni suggested of thinking of thunk(args) more like thunk_consumer_maker(args) since the thunk would "be a reification of the
+...code... suite, i.e. an object for ...code...".
+
+As with the extended function syntax, no PEPs have been done nor any BDFL pronouncements.
+
+
+===========================
+`Capabilities in Python`__
+===========================
+__ http://mail.python.org/pipermail/python-dev/2003-February/032690.html
+
+Splinter threads:
+	- `Property Syntax <http://mail.python.org/pipermail/python-dev/2003-February/032763.html>`__
+
+Continuation of `Capabilities in Python`_ from the `last summary`_.
+
+After comments were made that the way capabilities were described earlier in the thread were strange, Ben Laurie got to the point and said that if he gets "secure bound methods" he will have what he wants.  Going with the ticket analogy that was used earlier, Ben said that he didn't like having an intermediate ticket checker like the proxies used by Zope; the "ticket is the method".
+
+Jeremy commented on some of Ben and Ka-Ping Yee's comments.  It seems that security code is sprinkled throughout the interpreter; centralizing it would help secure Python.
+
+The thread stopped on python-dev (the emails suggested the discussion was taken off-list) with no specific plans on changes.
+
+.. _Capabilities in Python: http://www.python.org/dev/summary/2003-01-16_2003-01-31.html#capabilities-in-python
+.. _last summary: http://www.python.org/dev/summary/2003-01-16_2003-01-31.html
+
+
+==========================
+`native code compiler?`__
+==========================
+__ http://mail.python.org/pipermail/python-dev/2003-February/032780.html
+
+Ignoring all the emails that were in direct relation in dealing with the whole mini-flame war that this thread started on, it did lead to a bet between Guido and Dan Sugalski over whether Parrot_ or CPython would run a standard Python benchmark suite the fastest.  The stakes are $10, a round of beer for the winning development team, and a pie in the face of the loser.
+
+Since python-dev's honor is partially at stake, various ideas came up about how to speed up the core.  One idea was to inline built-in functions by giving them their own bytecode.  So, for instance, len() might be inlined in bytecode as BUILTIN_LEN instead of having to bother with a function call to the actual len() code in the core.
+
+Another suggestion was to continue work on namespace access.  These are covered in `PEP 266`_, `PEP 267`_, and `PEP 280`_.  Guido also suggested "not to allow binding *new* globals *if* they shadow certain builtins" so as to save on the name lookup.
+
+Skip Montanaro mentioned his `peephole optimizer`_.
+
+There was also a mention of rattlesnake_; a register-based VM that Skip started and Neil Schemenauer picked up.
+
+Taking a fresh look at PyEval_EvalCodeEx_ was also mentioned since a great expense is setting up a function call.
+
+
+.. _Parrot: http://www.parrotcode.org
+.. _PEP 266: http://www.python.org/peps/pep-0266.html
+.. _PEP 267: http://www.python.org/peps/pep-0267.html
+.. _PEP 280: http://www.python.org/peps/pep-0280.html
+.. _peephole optimizer: http://www.musi-cal.com/~skip/python/spam7/optimizer.html
+.. _rattlesnake: http://www.musi-cal.com/~skip/python/rattlesnake20010813.tar.gz
+.. _PyEval_EvalCodeEx: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Python/ceval.c
+
+=================
+`trying times`__
+=================
+__ http://mail.python.org/pipermail/python-dev/2003-February/032938.html
+
+Splinter threads:
+    - `Why did Fredrik leave the party? <http://mail.python.org/pipermail/python-dev/2003-February/032947.html>`__
+    - `who uses new language features? <http://mail.python.org/pipermail/python-dev/2003-February/033028.html>`__
+    - `trying times thunks <http://mail.python.org/pipermail/python-dev/2003-February/032994.html>`__
+    - `Shame on us all! <http://mail.python.org/pipermail/python-dev/2003-February/032975.html>`__
+    - `How to troll python-dev <http://mail.python.org/pipermail/python-dev/2003-February/033056.html>`__
+    - `How to lose potential users/developers <http://mail.python.org/pipermail/python-dev/2003-February/033062.html>`__
+
+During the whole with/do/thunk thread and another thread from a disgruntled person who didn't like how the list responded to his email, Samuele Pedroni let the list know that Fredrik Lundh (a.k.a. effbot) had unsubscribed from python-dev, disillusioned with how things had ended up.
+
+There was a suggestion to spin a list off of python-dev that handled "blue-sky" discussions.  This was basically killed because most people who would subscribe to the new list would be subscribed to python-dev and thus would basically a moot point.
+
+There are two things to be learned from this thread.  One is to make sure you change the subject line of an email when you are replying to an email but changing the focus.  The other is to make sure not to say anything in an email that comes off as accusatory.  One of the reasons this whole email thread turned negative was that a statement made in the initial email was received as condescending and questioning the abilities of python-dev when trying to guess as to why something had not been implemented.  It is best to ask why something has not been done then ask and then immediately wager an answer to your own question.
+
+
+=============================
+`Fixed-point numeric type`__
+=============================
+__ http://mail.python.org/pipermail/python-dev/2003-February/032965.html
+
+Splinter threads:
+    - `Why did Fredrik leave the party? <http://mail.python.org/pipermail/python-dev/2003-February/032947.html>`__
+    - `FixedPoint and % specifiers. <http://mail.python.org/pipermail/python-dev/2003-February/033044.html>`__
+
+Michael McLay brought up the point that although FixedPoint had received BDFL pronouncement for inclusion into the stdlib, it still had not happened.  It was then pointed out that no one had put the effort into doing the work necessary to make sure that the package was ready to be added.
+
+A discussion then started amongst some people about some details of the package.  There was a discussion of naming of certain methods and such.  One conclusion that was reached before the discussion was taken off-list was that the package's interface should be minimized and kept as simple as possible while still being useful.
+
+.. _FixedPoint: http://fixedpoint.sf.net/
+
+
+========================================
+`Passing floats to "i" parser marker`__
+========================================
+__ http://mail.python.org/pipermail/python-dev/2003-February/032969.html
+
+MA Lemburg brought up the question of what the ramifications will be with `PyArg_Parse()`_ issuing a DeprecationWarning instead of TypeError when a float is passed as an argument where "i" is used as the argument type.  What causes this to not be cut and dry is that floats have an __int__ method that actually loses information so you can't just use int() to do conversions and still have the same value.
+
+Guido said that, in hindsight, there should have been a function that converts an int-like objects to real ints and another to convert floats to ints; this separates conversions that might lose information.  He also said that eventually "i" will raise a TypeError when less code will be broken by this behavior.
+
+The history of how the "i" argument marker was given.  Apparently, way back when, someone said that "i" should not only accept true ints as it did in its first incarnation.  So having it use __int__ was added.  Unfortunately no one realized that float implemented __int__ and obviously floats for things such as indexing are not reasonable.  Raising a warning is a step towards eliminating this wart.
+
+The acronym YAWTM (You Are Worrying Too Much) and its snarky younger brother YADWTM (You are DEFINITELY Worrying Too Much) were also brought into this world in this thread.
+
+.. _PyArg_Parse(): http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Python/getargs.c
+
+
+===================================================================================
+`Python 2.3a1's mandatory use of cyclic GC causes existing applications to fail`__
+===================================================================================
+__ http://mail.python.org/pipermail/python-dev/2003-February/033020.html
+
+Splinter threads:
+    - `__slots__ <http://mail.python.org/pipermail/python-dev/2003-February/033115.html>`__
+
+Robert Ledwith wished that Python 2.3 would support the --without-cycle-gc compile option that is scheduled to be eliminated; objects would have a smaller footprint and was faster.
+
+The reason the option was removed in the first place was that the code for the trashcan (handles the deallocation of objects) "is nearly obvious when we can rely on gc being there".  With GC turned off extension modules cannot use the trashcan without editing the source of Python itself.
+
+Christian Tismer (who wrote the trashcan code) said that it could actually choose whether or not to take in an object based on its type.  So what could happen is there could be a non-GC type that would cause the object to not even interact the trashcan and thus not complicate the code.  The leading idea was to have a nogcobject that acted as the "true" root object which 'object' inheriting from nogcobject while causing GC to be used.
+
+It was also pointed out that __slots__ saves a lot of space on objects when used.  It was then suggested that you be able to specify the type of each thing in __slots__ since that would save even more space when the type is a simple one.  Guido said that it seemed a new name would be needed for this attribute.  He also said that the idea allowing you to specify the order of the objects was good.
+
+==========================================
+`Pre-PEP: Mutable keys in dictionaries`__
+==========================================
+__ http://mail.python.org/pipermail/python-dev/2003-February/033043.html
+
+Just van Rossum posted a rough PEP proposing a new protocol to allow mutable objects as keys in dictionaries.  His suggestion was that if an object was mutable the dictionary's __setitem__() would call the key's __immutable_copy__() and use that as the key.  The dict's __contains__()  would use __temporary_immutable__() from the object (this is needed so as to return something that defines __eq__() and __hash__() in order to be able to do the comparison against other keys).  Just claimed that putting this in 'would add no overhead for the "normal" case (when keys _are_ directly hashable)'.
+
+The question of whether this would be thread-safe was raised.  Just said it would be for Python code thanks "to the wonders of the Global Interpreter Lock".
+
+Guido responded that he didn't think implementing this would have no performance hit.  If anything, he thought that it "may reduce code locality and hence cause the code to miss the cache more often than before".  He suggested just coming up with a subclass of dict that implemented this.  That was not an option, though, because the entire reason for this was to make dicts work more easily with PyObjC_ and thus would need to be built in.  So Guido ended up asking Just to implement it and benchmark it to see what kind of hit was taken.
+
+.. _PyObjC: http://pyobjc.sf.net/
+
+
+======================
+`Trinary Operators`__
+======================
+__ http://mail.python.org/pipermail/python-dev/2003-February/033061.html
+
+Splinter threads:
+    - `Quantifiers <http://mail.python.org/pipermail/python-dev/2003-February/033201.html>`__
+    - `vox populii illiterati <http://mail.python.org/pipermail/python-dev/2003-February/033207.html>`__
+    - `Vote-Pop <http://mail.python.org/pipermail/python-dev/2003-February/033263.html>`__
+    - `For review: PEP 308 - If-then-else expression <http://mail.python.org/pipermail/python-dev/2003-February/033178.html>`__
+    - `PEP 308 <http://mail.python.org/pipermail/python-dev/2003-February/033234.html>`__
+    - `Update to PEP308:  if-then-else expression <http://mail.python.org/pipermail/python-dev/2003-February/033318.html>`__
+    - `some data on the debate <http://mail.python.org/pipermail/python-dev/2003-February/033336.html>`__
+
+A thread on `comp.lang.python`_ sprung up about adding a ternary operator to Python (yes, the title says "Trinary Operators", but that is apparently not technically correct).  In case you are not a C programmer, the ternary operator can be thought of an if/else statement that acts like an expression (it's the ``<cond>?<true stmt>:<false stmt>`` syntax from C).  Another way of thinking of it is as an if/else statement that is inlined.
+
+Guido was sick of this debate coming up, so he wrote `PEP 308`_ on the subject and has left it up to comp.lang.python to argue this one out (he actually explicitly said not to discuss it on python-dev) and decide on the final fate of this idea.  If you have an opinion voice it on comp.lang.python since this will also be used as a test to see if more things should be put on c.l.py for discussion instead of python-dev.
+
+As of this writing, Samuele Pedroni updated the list on posting stats for those of us who don't follow c.l.py.  Two syntactic choices are currently in the running (this is ignoring objections to the whole idea).  One is ``if <cond>: <true stmt> else: <false stmt>`` and the other is ``<cond> ?? <true stmt> || <false stmt>``.
+
+.. _PEP 308: http://www.python.org/peps/pep-0308.html
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+
+
+============================================================
+`For review: PEP 307 - Extensions to the pickle protocol`__
+============================================================
+__ http://mail.python.org/pipermail/python-dev/2003-February/033182.html
+
+Splinter threads:
+    - `pickle me, Elmo? <http://mail.python.org/pipermail/python-dev/2003-February/033294.html>`__
+
+`PEP 307`_ has been unleashed upon the world.  Guido and Tim Peters came up with a new pickling protocol (aptly named protocol 2; I am sure it took a lot of Guido's magical pickles to come up with that name).  The reason for doing this was to have the pickle for new-style classes not be so immense (this was brought to the forefront by datetime_ and the hell that Tim and Guido went through to get it to pickle reasonably).  Everything is backwards compatible since it is a new protocol, so there is no need to panic.  Still interesting in terms of what they are doing, though, so you might want to read it.
+
+Paul DuBois asked if it would be possible at some point to be able to pickle a class or function definition.  Paul was informed that pickling is meant for data only.  Jeremy Hylton, though, has managed to pull something like what Paul wants off in Zope 3 by subclassing Pickler and UnPickler from the pickle_ module (so doesn't work with cPickle_).
+
+Arne Koewing asked if pickling weak references could be done.  Short answer, no.  Long answer, not unless you want great pain trying to do implement it.
+
+.. _PEP 307: 
+.. _datetime: http://www.python.org/dev/doc/devel/lib/module-datetime.html
+.. _pickle: http://www.python.org/dev/doc/devel/lib/module-pickle.html
+.. _cPickle: http://www.python.org/dev/doc/devel/lib/module-cPickle.html 
+
+
+======================
+`Unicode filenames`__
+======================
+__ http://mail.python.org/pipermail/python-dev/2003-February/033215.html
+
+Jack van Rossum was "tempted to set Py_FileSystemDefaultEncoding_ to "utf8" for OSX".  He tried it and it works well, but he noticed that os.listdir() returns strings and not Unicode objects.  So obviously the question came up as to whether to change this so that it returned Unicode when Py_FileSystemDefaultEncoding_ is set to something that is non-NULL.
+
+The issue is round-trip passing of strings.  If you get something from os.listdir() you would like to be able to pass to file() with no issues.  The question is how to handle this need without breaking backwards-compatibility.
+
+
+.. _Py_FileSystemDefaultEncoding: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Python/bltinmodule.c
+
+
+============================================
+`GadflyDA in core? Or as add-on-product?`__
+============================================
+__ http://mail.python.org/pipermail/python-dev/2003-February/033312.html
+
+Splinter threads:
+    - `Gadfly in Python core <http://mail.python.org/pipermail/python-dev/2003-February/033343.html>`__
+
+Continuation of `GadflyDA in core?...`_ from the `last summary`_.
+
+As was summarized before, there was talk of adding Gadfly_ to the stdlib.  Two issues with adding it was its license and having kjbuckets_ as a dependency.  The first one was solved when Aaron Watters said he would be happy to transfer the license to the PSF_.  The second is currently being worked on.
+
+Another issue came up, though.  Gadfly is approximately 11,000 lines of Python code (Richard Jones thinks 1,200 lines could be removed by taking out the parser builder).  That is an immense chunk of code with no one stepping forward to be the active maintainer of it.  Without someone willing to make sure the code does not suffer from bit rot there is a chance Gadfly won't be allowed into the stdlib.  If you happen to think you can take on maintenance responsibilities, please step forward and let it be known.
+
+.. _GadflyDA in core?...: http://mail.python.org/pipermail/python-dev/2003-January/032295.html
+.. _Gadfly: http://gadfly.sf.net/
+.. _PSF: http://www.python.org/psf/
+.. _kjbuckets: http://starship.python.net/crew/aaron_watters/kjbuckets/
+
+
+=============================================================================
+`PEP Draft: Simplified Global Interpreter Lock acquisition for extensions`__
+=============================================================================
+__ http://mail.python.org/pipermail/python-dev/2003-February/032958.html
+
+Splinter threads:
+    - `Change definition of Py_END_ALLOW_THREADS? <http://mail.python.org/pipermail/python-dev/2003-February/033311.html>`__
+    - `Updated AutoThreadState pre-PEP <http://mail.python.org/pipermail/python-dev/2003-February/033393.html>`__
+
+In an attempt to make it easier for C code to access the GIL in complicated, threaded situations where knowledge about the state of the Python interpreter is limited, Mark Hammond has come up with a new API that is covered in `PEP 311`_.  In essence, Mark has come up with a way to allow external C code to get the GIL to do work with Python code in a threaded environment without having to know too much about the status of the interpreter in regards to threading.
+
+.. _PEP 311: http://www.python.org/peps/pep-0311.html
+
+
+=================================
+`CALL_ATTR, A Method Proposal`__
+=================================
+__ http://mail.python.org/pipermail/python-dev/2003-February/033410.html
+
+Glyph Lefkowitz suggested creating a new bytecode instruction for doing method calls since the current setup takes 3 separate bytecode calls and is about 20% slower than a function call according to Glyph.  Guido said he was all for a special bytecode as long as the semantic meaning, in the end, is the same.
+
+Skip Montanaro suggested caching the results of getattr().  Guido said it could only work if the getattr() for each object did the caching.  Glyph clarified, though, that he was not going after caching but just cutting the bytecode instruction count for a method count down 'to mean "call this method" rather than "get this attribute, call the result"'.
+
+
+=========
+Quickies
+=========
+
+`Python roadmap <http://mail.python.org/pipermail/python-dev/2003-February/032688.html>`__
+    Roman Suzi asked about the direction of Python.  Led to discussion of shadowing built-ins and Neal Norwitz adding a check to PyChecker_ to warn against this.
+
+`New version of PEP 304 <http://mail.python.org/pipermail/python-dev/2003-February/032727.html>`__
+    Single email about `PEP 304`_ and how it might deal with Windows.
+
+`disable writing .py[co] <http://mail.python.org/pipermail/python-dev/2003-February/032704.html>`__
+    Clarifies the misunderstanding of how Python handles writing .py[co] files on read-only filesystems and how PEP 304 will allow you to specify not writing the files.
+
+`Anyone willing to look over a zlib fix? <http://mail.python.org/pipermail/python-dev/2003-February/032708.html>`__
+   Email about a fix for zlib_ when dealing with huge compressed files.
+
+`database APIs <http://mail.python.org/pipermail/python-dev/2003-February/032733.html>`__
+    A question about possible `DB 2.0 API`_ helper functions was brought up and moved to the DB-SIG_.
+
+`PEP 42:  sizeof(obj) builtin <http://mail.python.org/pipermail/python-dev/2003-February/032772.html>`__
+   Continuation of a thread from the `last summary`_ that basically said 1) writing sizeof() for Python would be *extremely* difficult, and 2) Java has no API for finding out how much space something takes up.  I was going to put in a snide comment here about Java, but I restrained myself; at least Jython makes Java okay.  =)
+
+`Weekly Python Bug/Patch Summary <http://mail.python.org/pipermail/python-dev/2003-February/033216.html>`__
+   Lots of bugs, lots of patches, and MvL is on vacation.  =)
+
+`bsddb3 upgrade woes - more gentle transition? <http://mail.python.org/pipermail/python-dev/2003-February/032804.html>`__
+   Skip Montanaro pointed out some people have had issues using bsddb3_ because it requires using the newest Sleepycat DB format.  Skip scratched his own itch by writing `Tools/scripts/{db2pickle,pickle2db}.py`_.
+
+`Atomic operations <http://mail.python.org/pipermail/python-dev/2003-February/033077.html>`__
+    An idea of having a keyword to shut down threads so as to guarantee code being executed synchronously.  Led to a link of an article suggesting having a keyword that delayed the raising of exceptions from signals so as to make sure code finished executing without interruption.
+
+`Idea for avoiding exception masking <http://mail.python.org/pipermail/python-dev/2003-February/032864.html>`__
+    Continuation of a thread summarized in the `last summary`_ about how to handle exceptions that would get masked by other exceptions.
+
+`BUILDEXE erroneously empty on 2.2.2 for Mac OS X? <http://mail.python.org/pipermail/python-dev/2003-February/032946.html>`__
+    Skip Montanaro had problems building on OS X out of the tree on the 2.2 maintenance branch.  Appropriate patches were backported and thus the problem was fixed.
+
+`Unicode-like objects <http://mail.python.org/pipermail/python-dev/2003-February/032948.html>`__
+    Just van Rossum asked if there was a way to make an object act like a Unicode object.  This turned into the thread `Bridging strings from Python to other languages <http://mail.python.org/pipermail/python-dev/2003-February/032964.html>`__ and how to go possibly make strings from OS X's Cocoa API play nicely with Python strings.
+
+`I have something I'd like to use the farm for. <http://mail.python.org/pipermail/python-dev/2003-February/033016.html>`__
+    Michael Hudson cross-posted to python-dev about how he wanted to use the `Snake Farm`_ to test a patch for `signal.sigprocmask()`_ to find out what OSs it worked on.
+
+`Negated hex/oct constants (SF #660455) <http://mail.python.org/pipermail/python-dev/2003-February/033029.html>`__
+    Guido discovered that negating a negative number represented as a hex constant (such as -0xffffffff) is different from a negative hex number with the negation applied to parantheses (such as -(0xffffffff)).  It was decided to leave it since it will be correct in 2.4 and is already this way in 2.2.
+
+`Deprecating modules after 2.3a1? <http://mail.python.org/pipermail/python-dev/2003-February/033138.html>`__
+    Jack Jansen wanted to know if it was okay to deprecate module even though an alpha for Python 2.3 had gone out.  Guido said it was fine.  Jack also mentioned that Python 2.4 will have no Mac OS9 support.
+
+`Why is the GIL not in PyInterpreterState? <http://mail.python.org/pipermail/python-dev/2003-February/033159.html>`__
+    Tobias Oberstein asked hwo to go about making sure multiple interpreters in a single process didn't step all over each other because of threading issues.  Was told that Python doesn't have support for something like that but if he could come up with a patch that was good it would probably be accepted.
+
+`contributing documentation (fwd) <http://mail.python.org/pipermail/python-dev/2003-February/033179.html>`__
+    A paper on the MRO and how it works was posted at http://www.python.org/2.3/mro.html ; it's a good paper and easy to read.
+
+`Unicode source code <http://mail.python.org/pipermail/python-dev/2003-February/033214.html>`__
+    Thanks to Just van Rossum, compile(), eval(), and exec accept Unicode objects.
+
+`Grzegorz Adam Hankiewicz found a parsing bug in HTMLParser. <http://mail.python.org/pipermail/python-dev/2003-February/033242.html>`__
+    Read the name of the thread to figure this extremely complex discussion was about.  =)
+
+`UNREF invalid object <http://mail.python.org/pipermail/python-dev/2003-February/033253.html>`__
+    Today, children, we learned that one should call "PyObject_Del only on the "self" argument to the type's tp_dealloc function", "which is called *by* the expansion of Py_DECREF(self)"anyway, so everything should go through Py_DECREF()_.  Now everyone thank Mr. Peters for teaching us this valuable lesson!  <"Thank you, Mr. Peters!">
+
+`bitwise operators and lambdas <http://mail.python.org/pipermail/python-dev/2003-February/033289.html>`__
+    Someone suggested moving bitwise operators to a module and a shorthand for lambda.  The chances of the moving of the bitwise operators happening are about as good as George W. Bush winning the Nobel Peace Prize for his work in Iraq.  The lambda shorthand, though, became `PEP 312`_.
+
+`[Python-checkins] python/dist/src/Python bltinmodule.c,2.276,2.277 <http://mail.python.org/pipermail/python-dev/2003-February/033304.html>`__
+    Tim Peters wanted to get rid of all the code for the MPW compiler used for Mac OS9.  Jack Jansen said to wait until after Python 2.3.
+
+`Adding Japanese Codecs to the distro <http://mail.python.org/pipermail/python-dev/2003-February/033309.html>`__
+    Hye-Shik Chang opened http://python.org/sf/684142 to incorporate Korean Codecs into the stdlib.
+
+`dict "setdefault". Feaure request or bugfix? <http://mail.python.org/pipermail/python-dev/2003-February/033321.html>`__: `lazy evaluation redux <http://mail.python.org/pipermail/python-dev/2003-February/033322.html>`__
+    Someone wanted the second argument to {}.setdefault() to be lazily evaluated which would require special-casing since it would go against how Python works.  The idea of lazy functions as a built-in syntax and special syntax for no-argument lambdas was brought up.
+
+`[meta] EIBTI: can we acronimize? <http://mail.python.org/pipermail/python-dev/2003-February/033327.html>`__
+    Lalo Martin wants to start shortening "Explicit is better than implicit" as the acronym EIBTI.  I think that it doesn't exist as an acronym until it ends up on acronymfinder.com.  =)
+
+`Codecs Data <http://mail.python.org/pipermail/python-dev/2003-February/033339.html>`__
+    Gustavo Niemeyer asked about making the codecs data currently in codecsmodule.c available to all interpreters when multiple ones are launched (currently the codecs are only available to the first interpreter started).  The discussion led to the conclusion that PyInterpreterState_ should be augmented to store the codecs.
+
+`str.join, string.join <http://mail.python.org/pipermail/python-dev/2003-February/033342.html>`__
+    Christian Tismer asked if anyone else thought it would be a good idea to turn the join() method on strings into a class method so that the common idiom ``','.join(lines)`` would turn into ``str.join(lines, ',')``.  Some people agreed before Guido said that the thread should be moved off of python-dev and over to comp.lang.python_.
+
+`when is binary mode required for pickle? <http://mail.python.org/pipermail/python-dev/2003-February/033362.html>`__
+   Skip Montanaro wanted to know when he needed to open or save a pickle file in binary mode (the 'b' option for file()).  The answer is that protocol 0 allows you to open a pickle in text mode, but protocols 1 and 2 require it.  So the safe answer is to always use binary mode for pickles.
+
+`SF CVS down? <http://mail.python.org/pipermail/python-dev/2003-February/033367.html>`__
+    I wondered if the SourceForge_ CVS was down or if my connection problems were just me.
+
+`Overly creative config in socketmodule.c <http://mail.python.org/pipermail/python-dev/2003-February/033371.html>`__
+    Tim Peters discovered a bad configuration in socketmodule.c_ using ``#if 1``.  Neal Norwitz fixed even though he was not the guilty party in writing the bad code.
+
+`Chancing SF tracker email preferences <http://mail.python.org/pipermail/python-dev/2003-February/033380.html>`__
+    Guido wanted to stop having all follow-up comments posted to SourceForge_ mailed to python-bugs-list@ or patches@ .  He asked if anyone had any objection to this.  So far several people have spoken up and said they liked receiving the emails.
+
+`import curdir, pardir, sep, pathsep, defpath, from relevant *path modules <http://mail.python.org/pipermail/python-dev/2003-February/033387.html>`__
+   Skip Montanaro that all of the mentioned functions in the subject of this thread were contained in os.py_ when in fact they should be in the various os.path modules (such as posixpath_).  Skip moved them and has os_ still import them so there is not visible change in the API.
+
+`PEP-242 Numeric kinds -- disposition <http://mail.python.org/pipermail/python-dev/2003-February/033400.html>`__
+    Paul DuBois asked that `PEP 242`_ be rejected since it is included with Numeric_ currently and be removed in the next release.
+
+`Re: [Python-checkins] python/nondist/peps pep-0311.txt,NONE,1.1 <http://mail.python.org/pipermail/python-dev/2003-February/033404.html>`__
+    Just van Rossum saying that he does not like the use of "auto" as a prefix as stated as a possibility for `PEP 311`_.
+
+`PEP 308: "then" "else" for deprecating "and" "or" side effects <http://mail.python.org/pipermail/python-dev/2003-February/033399.html>`__
+    Christian Tismer suggested replacing "and" and "or" with "then" and "else" for doing binary short circuit testing (such as ``arg = arg else "Default"`` instead of ``arg = arg or "Default"``).  Also suggested ``arg when cond1 else cond2`` as a possible ternary operator.  Still being tossed around on python-dev.
+
+`PEP308 alternative syntax: bool method <http://mail.python.org/pipermail/python-dev/2003-February/033423.html>`__
+   Someone suggested adding a method to booleans to act like a ternary operator.  Before the discussion was moved to comp.lang.python as all ternary discussions should be, the point was made that it could not support short circuiting.
+
+`non-binary operators <http://mail.python.org/pipermail/python-dev/2003-February/033428.html>`__
+   Thread that popped into existence on python-dev part-way through its discussion on comp.lang.python (which is why it died on python-dev quickly) about how ternary operators are different compared to two chained binary operators (like ``a < b < c``).
+
+`Import lock knowledge required! <http://mail.python.org/pipermail/python-dev/2003-February/033436.html>`__
+    Mark Hammond asked for help with dealing with a deadlock with import locking.
+
+`Changes to logging <http://mail.python.org/pipermail/python-dev/2003-February/033438.html>`__
+    Vinay Sajip said he had patches for the logging_ package ready to go and asked for comments, which he received.
+
+`execve vulnerability <http://mail.python.org/pipermail/python-dev/2003-February/033451.html>`__ : `Python execvpe symlink race condition <http://mail.python.org/pipermail/python-dev/2003-February/033458.html>`__
+    Someone reported a vulnerability that was fixed since Python 2.2.2.
+
+.. _PyChecker: http://pychecker.sf.net/
+.. _PEP 304: http://www.python.org/peps/pep-0304.html
+.. _zlib: http://www.python.org/dev/doc/devel/lib/module-zlib.html
+.. _DB 2.0 API: http://www.python.org/topics/database/DatabaseAPI-2.0.html
+.. _DB-SIG: http://www.python.org/sigs/db-sig/
+.. _bsddb3: http://pybsddb.sourceforge.net/bsddb3.html
+.. _Tools/scripts/{db2pickle,pickle2db}.py: 
+.. _Snake Farm: http://www.lysator.liu.se/~sfarmer/
+.. _signal.sigprocmask(): http://www.python.org/dev/doc/devel/lib/module-signal.html#l2h-2249
+.. _PyObject_Del(): http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Objects/object.c
+.. _Py_DECREF(): http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Include/object.h
+.. _PyInterpreterState: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/pystate.h
+.. _socketmodule.c: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/socketmodule.c
+.. _os.py: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Lib/os.py
+.. _posixpath: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Lib/posixpath.py
+.. _os: http://www.python.org/dev/doc/devel/lib/module-os.html
+.. _PEP 242: http://www.python.org/peps/pep-0242.html
+.. _Numeric: http://www.pfdubois.com/numpy/
+.. _PEP 312: http://www.python.org/peps/pep-0312.html
+.. _logging: http://www.python.org/dev/doc/devel/lib/module-logging.html
+.. _SourceForge: http://www.sf.net/

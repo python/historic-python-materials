@@ -1,0 +1,160 @@
+Title: Python-dev summary: 2001-02-01 to 2001-02-14
+
+<pre>
+It is with some trepidation that I post:
+
+ This is a summary of traffic on the python-dev mailing list between
+ Feb 1 and Feb 14 2001.  It is intended to inform the wider Python
+ community of ongoing developments.  To comment, just post to
+ python-list@python.org or comp.lang.python in the usual way. Give
+ your posting a meaningful subject line, and if it's about a PEP,
+ include the PEP number (e.g. Subject: PEP 201 - Lockstep iteration)
+ All python-dev members are interested in seeing ideas discussed by
+ the community, so don't hesitate to take a stance on a PEP if you
+ have an opinion.
+
+ This is the first python-dev summary written by Michael Hudson.
+
+ New summaries will probably appear at:
+
+  <a href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a>
+
+ When I get round to it.
+
+  Posting distribution (with apologies to mbm)
+
+  Number of articles in summary: 498
+
+   80 |                 ]|[                                    
+      |                 ]|[                                    
+      |                 ]|[                                    
+      |                 ]|[                                    
+      |     ]|[         ]|[                                    
+   60 |     ]|[         ]|[                                    
+      |     ]|[         ]|[                                    
+      |     ]|[         ]|[                                    
+      |     ]|[         ]|[ ]|[                                
+      |     ]|[         ]|[ ]|[                                
+   40 |     ]|[         ]|[ ]|[         ]|[             ]|[    
+      |     ]|[ ]|[ ]|[ ]|[ ]|[         ]|[             ]|[    
+      |     ]|[ ]|[ ]|[ ]|[ ]|[         ]|[             ]|[    
+      | ]|[ ]|[ ]|[ ]|[ ]|[ ]|[         ]|[         ]|[ ]|[    
+      | ]|[ ]|[ ]|[ ]|[ ]|[ ]|[         ]|[         ]|[ ]|[ ]|[
+   20 | ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[     ]|[ ]|[     ]|[ ]|[ ]|[
+      | ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[     ]|[ ]|[     ]|[ ]|[ ]|[
+      | ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[     ]|[ ]|[     ]|[ ]|[ ]|[
+      | ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[
+      | ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|[
+    0 +-029-067-039-037-080-048-020-009-040-021-008-030-043-027
+       Thu 01| Sat 03| Mon 05| Wed 07| Fri 09| Sun 11| Tue 13|
+           Fri 02  Sun 04  Tue 06  Thu 08  Sat 10  Mon 12  Wed 14
+
+ A fairly busy fortnight on python-dev, falling just short of five
+ hundred articles.  Much of this is making ready for the Python 2.1
+ release, but people's horizons are beginning to rise above the
+ present.
+
+
+   * Python 2.1a2 *
+ 
+ Python 2.1a2 was released on Feb. 2.  One of the more controversial
+ changes was the disallowing of "from module import *" at anything
+ other than module level; this restriction was weakened after some
+ slightly heated discussion on comp.lang.python.
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-February/012815.html">http://mail.python.org/pipermail/python-dev/2001-February/012815.html</a>&gt;
+
+ It is possible that non-module-level "from module import *" will
+ produce some kind of warning in Python 2.1 but this code has not yet
+ been written.
+
+
+   * Performance *
+
+ Almost two weeks ago, we were talking about performance.  Michael
+ Hudson posted the results of an extended benchmarking session using
+ Marc-Andre Lemburg's pybench suite:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-January/012330.html">http://mail.python.org/pipermail/python-dev/2001-January/012330.html</a>&gt;
+
+ to which the conclusion was that python 2.1 will be marginally
+ slower than python 2.0, but it's not worth shouting about.  The use
+ of Vladimir Marangoz's obmalloc patch in some of the benchmarks
+ sparked a discussion about whether this patch should be incorporated
+ into Python 2.1.  There was support from many for adding it on an
+ opt-in basis, since when nothing has happened...
+
+
+   * Imports on case-insensitive file systems *
+
+ There was quite some discussion about how to handle imports on a
+ case-insensitive file system (eg. on Windows).  I didn't follow the
+ details, but Tim Peters is on the case (sorry), so I'm confident it
+ will get sorted out.
+
+
+   * Sets &amp; iterators *
+
+ The Sets discussion rumbled on, moving into areas of syntax.  The
+ syntax:
+
+   for key:value in dict:
+
+ was proposed.  Discussion went round and round for a while and moved
+ on to more general iteration constructs, prompting Ka-Ping Yee to
+ write a PEP entitled "iterators":
+
+  &lt;<a href="http://python.sourceforge.net/peps/pep-0234.html">http://python.sourceforge.net/peps/pep-0234.html</a>&gt;
+
+ Please comment!
+
+ Greg Wilson announced that BOFs for both sets and iterators have
+ been arranged at the python9 conference in March:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-February/012824.html">http://mail.python.org/pipermail/python-dev/2001-February/012824.html</a>&gt;
+
+
+   * Stackless Python in Korea *
+
+ Christian Tismer gave a presentation on stackless python to over 700
+ Korean pythonistas:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-February/012601.html">http://mail.python.org/pipermail/python-dev/2001-February/012601.html</a>&gt;
+
+ I think almost everyone was amazed and delighted to find that Python
+ has such a fan base.  Next stop, the world!
+
+   * string methodizing the standard library *
+
+ Eric Raymond clearly got bored one evening and marched through the
+ standard library, converting almost all uses of the string module to
+ use to equivalent string method.  
+
+
+   * Python's release schedule *
+
+ Skip Montanaro raised some concerns about Python's accelerated
+ release schedule, and it was pointed out that the default Python for
+ both debian unstable and Redhat 7.1 beta was still 1.5.2.  Have
+ *you* upgraded to Python 2.0?  If not, why not?
+
+
+   * Unit testing (again) *
+
+ The question of replacing Python's hoary old regrtest-driven test
+ suite with something more modern came up again.  Andrew Kuchling
+ enquired whether the issue was to be decided by voting or BDFL fiat:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-February/012830.html">http://mail.python.org/pipermail/python-dev/2001-February/012830.html</a>&gt;
+
+ Guido obliged:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-February/012831.html">http://mail.python.org/pipermail/python-dev/2001-February/012831.html</a>&gt;
+
+ There was then some discussion of what changes people would like to
+ see made in the standard-Python-unit-testing-framework-elect
+ (PyUnit) before they would be happy with it.
+
+Cheers,
+M.
+</pre>

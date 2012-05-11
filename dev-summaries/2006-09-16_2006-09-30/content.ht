@@ -1,0 +1,323 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-09-16 through 2006-09-30
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-09-16_2006-09-30]
+
+
+
+=========
+Summaries
+=========
+
+---------------
+Import features
+---------------
+
+Fabio Zadrozny ran into the `previously reported relative import issues`_ where a ``from . import xxx`` always fails from a top-level module. This is because relative imports rely on the ``__name__`` of a module, so when it is just ``"__main__"``, they can't handle it properly.
+
+On the subject of imports, Guido said that one of the missing import features was to be able to say "*this* package lives *here*". Paul Moore whipped up a Python API to an import hook that could do this, but indicated that a full mechanism would need to pay more attention to the environment (e.g. PYTHONPATH and .pth files).
+
+There was also some discussion about trying to have a sort of per-module ``sys.path`` so that you could have multiple versions of the same module present, with different modules importing different versions. Phillip J. Eby suggested that this was probably not a very common need, and that implementing it would be quite difficult with things like C extensions only being able to be loaded once.
+
+In general, people seemed interested in a pure-Python implementation of the import mechanism so that they could play with some of these approaches. It looked like Brett Cannon would probably be working on that.
+
+.. _previously reported relative import issues: http://www.python.org/dev/summary/2006-06-16_2006-06-30/#relative-imports-and-pep-338-executing-modules-as-scripts
+
+Contributing thread:
+
+- `New relative import issue <http://mail.python.org/pipermail/python-dev/2006-September/068806.html>`__
+
+----------------------------
+Python library documentation
+----------------------------
+
+A less-trolly-than-usual post from Xah Lee started a discussion about the Python documentation.  Greg Ewing and others suggested following the documentation style of the Inside Macintosh series: first an "About this module" narrative explaining the concepts and how they fit together, followed by the extensive API reference. Most people agreed that simply extracting the documentation from the docstrings was a bad idea -- it lacks the high-level overview and gives equal importance to all functions, regardless of their use.
+
+Contributing thread:
+
+- `Python Doc problems <http://mail.python.org/pipermail/python-dev/2006-September/069023.html>`__
+
+-----------------------
+OS X universal binaries
+-----------------------
+
+Jack Howarth asked about creating universal binaries for OS X that would support 32-bit or 64-bit on both PPC and x86. Ronald Oussoren pointed out that the 32-bit part of this was already supported, but indicated that adding 64-bit support simultaneously might be more difficult. Ronald and Martin v. Löwis discussed strategies for modifying pyconfig.h, though it seemed these solutions might cause distutils to detect some architecture features incorrectly. Martin suggested that this was more a problem of distutils than pyconfig.h.
+
+Contributing thread:
+
+- `python, lipo and the future? <http://mail.python.org/pipermail/python-dev/2006-September/068800.html>`__
+
+----------------------------------
+Finer-grained locking than the GIL
+----------------------------------
+
+Martin Devera was looking into replacing the global interpreter lock (GIL) with finer-grained locking, tuned to minimize locking by assuming that most objects were used only by a single thread. For objects that were shared across multiple threads, this approach would allow non-blocking reads, but require all threads to "come home" before modifications could be made. Phillip J. Eby pointed out that most object accesses in Python are actually modifications too, due to reference counting, so it looked like Martin's proposal wouldn't work well with the current refcounting implementation of Python. After Martin v. Löwis found a bug in the locking algorithm, Martin Devera decided to take his idea back to the drawing board.
+
+Contributing thread:
+
+- `deja-vu .. python locking <http://mail.python.org/pipermail/python-dev/2006-September/068828.html>`__
+
+---------------------------
+OS X and ssize_t formatting
+---------------------------
+
+The buildbots spotted an OS X error in the itertools module. After Jack Diederich fixed a bug where ``size_t`` had been used instead of ``ssize_t``, Neal Norwitz noticed some problems with ``%zd`` on OS X. Despite documentation to the contrary in both the man page and the C99 Standard, using that specifier on OS X treats a negative number as an unsigned number. Ronald Oussoren and others reported the bug to Apple.
+
+Contributing thread:
+
+- `test_itertools fails for trunk on x86 OS X machine <http://mail.python.org/pipermail/python-dev/2006-September/068898.html>`__
+
+-------------------
+itertools.flatten()
+-------------------
+
+Michael Foord asked about including a flatten function that would take a sequence with sub-sequences nested to an arbitrary depth and create a simple non-nested sequence from that. People were strongly opposed to adding this as a builtin, but even as an itertools function, there was disagreement. How should strings, dicts and other arbitrary iterables be flattened? Since there wasn't one clear answer, it looked like the proposal didn't have much of a chance.
+
+Contributing thread:
+
+- `Suggestion for a new built-in - flatten <http://mail.python.org/pipermail/python-dev/2006-September/068941.html>`__
+
+-------------------------------
+Class definition syntax changes
+-------------------------------
+
+Fabio Zadrozny noted that in Python 2.5, classes can now be declared as::
+
+    class C():
+        ...
+
+Some folks wanted the result to be a new-style class, but the presence or absence of ``()`` was deemed too subtle of a cue to make the new-style/old-style distinction. For the Python 2.X series, explicit subclassing of ``object`` will still be necessary.
+
+Contributing thread:
+
+- `Grammar change in classdef <http://mail.python.org/pipermail/python-dev/2006-September/068782.html>`__
+
+----------------------
+Python 2.5 and GCC 4.2
+----------------------
+
+Armin Rigo found some more signed integer overflows when using GCC 4.2 like the ones `reported earlier`_. Because Python 2.5 final was scheduled to be released in 24 hours, and it looked like there wouldn't be too many people affected these problems, they were deferred until 2.5.1. For the moment at least, the README indicates that GCC 4.1 and 4.2 shouldn't be used to compile Python.
+
+.. _reported earlier: http://www.python.org/dev/summary/2006-08-16_2006-08-31/#gcc-4-2-and-integer-overflows
+
+Contributing threads:
+
+- `Before 2.5 - More signed integer overflows <http://mail.python.org/pipermail/python-dev/2006-September/068781.html>`__
+- `GCC 4.x incompatibility <http://mail.python.org/pipermail/python-dev/2006-September/068879.html>`__
+
+----------------------------------
+Discard method for dicts and lists
+----------------------------------
+
+Gustavo Niemeyer and Greg Ewing suggested adding ``dict.discard()`` and ``list.discard()`` along the lines of ``set.discard()``. Fred L. Drake, Jr. explained that ``dict.discard(foo)`` is currently supported with ``dict.pop(foo, None)``. There was more debate about the ``list`` version, but most people seemed to think that wrapping ``list.remove()`` with the appropriate if-statement or try-except was fine.
+
+Contributing threads:
+
+- `dict.discard <http://mail.python.org/pipermail/python-dev/2006-September/068884.html>`__
+- `list.discard? (Re: dict.discard) <http://mail.python.org/pipermail/python-dev/2006-September/068912.html>`__
+
+--------------------
+weakref enhancements
+--------------------
+
+tomer filiba offered some additions to the weakref module, weakattr_ and weakmethod_. Raymond Hettinger questioned how frequently these would be useful in the real world, but both tomer and Alex Martelli assured him that they had real-world use-cases for these. However, there didn't generally seem to be enough support for them to include them in the standard library.
+
+.. _weakattr: http://sebulba.wikispaces.com/recipe+weakattr
+.. _weakmethod: http://sebulba.wikispaces.com/recipe+weakmethod
+
+Contributing thread:
+
+- `weakref enhancements <http://mail.python.org/pipermail/python-dev/2006-September/069031.html>`__
+
+------------------------
+AST structure guarantees
+------------------------
+
+Anthony Baxter asked that the AST structure get the same guarantees as the byte-code format, that is, that it would change as little as possible so that people who wanted to hack it wouldn't have to change their code for each release. Pretty much everyone agreed that this was a good idea.
+
+In a related thread, Sanghyeon Seo asked if the AST structure should become part of the Python specification so that other implementations like IronPython_ would use it as well.  While most people felt like it would be good if the various specifications had similar AST representations, it seemed like mandating it as part of the implementation would lock things down too much.
+
+.. _IronPython: http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython
+
+Contributing threads:
+
+- `IronPython and AST branch <http://mail.python.org/pipermail/python-dev/2006-September/068778.html>`__
+- `IronPython and AST branch <http://mail.python.org/pipermail/python-dev/2006-September/068787.html>`__
+- `AST structure and maintenance branches <http://mail.python.org/pipermail/python-dev/2006-September/068970.html>`__
+
+-----------------------------
+PEP 302: phase 2 import hooks
+-----------------------------
+
+For his dissertation work, Brett Cannon needed to implement phase 2 of the `PEP 302`_ import hooks. He asked for feedback on whether it would be easier to do this within the current C code, or whether it would be better to rewrite the import mechanisms in Python first. Phillip J. Eby gave some advice on how to restructure things, and suggested that the C code was somewhat delicate and having a Python implementation around would be a Good Thing. Armin Rigo strongly recommended rewriting things in Python.
+
+.. _PEP 302: http://www.python.org/dev/peps/pep-0302/
+
+Contributing thread:
+
+- `difficulty of implementing phase 2 of PEP 302 in Python source <http://mail.python.org/pipermail/python-dev/2006-September/069017.html>`__
+
+--------------------------------------
+Testsuite, Windows and spaces in paths
+--------------------------------------
+
+Martin v. Löwis was trying to fix some bugs where spaces in Windows paths caused some of the testsuite to fail. For example, test_popen was getting an error because ``os.popen`` invoked::
+
+    cmd.exe /c "c:\Program Files\python25\python.exe" -c "import sys;print sys.version"
+
+which failed complaining that c:\Program is not a valid executable. Jean-Paul Calderon and Tim Peters explained that the ``cmd.exe`` part is necessary to force proper cmd.exe-style argument parsing and to allow environment variable substitution. After scrutinizing the MS quoting rules, it seemed like fixing this for Python 2.5 was too likely to introduce incompatibilities, so it was postponed to 2.6.
+
+Contributing thread:
+
+- `Testsuite fails on Windows if a space is in the path <http://mail.python.org/pipermail/python-dev/2006-September/068784.html>`__
+
+-----------------------------------------
+PEP 353: Backwards-compatibility #defines
+-----------------------------------------
+
+David Abrahams suggested a modification to the suggested backwards-compatibility #define incantation of `PEP 353`_ so that the PY_SSIZE_T_MAX and PY_SSIZE_T_MIN would only ever get defined once. There was some discussion about whether or not this was absolutely necessary, but everyone agreed that the change was probably sensible regardless.
+
+.. _PEP 353: http://www.python.org/dev/peps/pep-0353/
+
+Contributing thread:
+
+- `Pep 353: Py_ssize_t advice <http://mail.python.org/pipermail/python-dev/2006-September/068944.html>`__
+
+----------------
+Shrinking Python 
+----------------
+
+Milan Krcmar asked about what he could drop from Python to make it small enough to fit on a platform with only 2 MiB of flash ROM and 16 MiB of RAM. Giovanni Bajo suggested dropping the CJK codecs (which account for about 800K), though he also noted that after that there weren't any really low-hanging fruit. Martin v. Löwis suggested that he might also get a gain out of dropping support for dynamic loading of extension modules, and linking all necessary modules statically. Gustavo Niemeyer pointed him to `Python for S60`_ and `Python for Maemo`_ which had to undergo similar stripping down.
+
+.. _Python for S60: http://opensource.nokia.com/projects/pythonfors60/
+.. _Python for Maemo: http://pymaemo.sf.net
+
+Contributing thread:
+
+- `Minipython <http://mail.python.org/pipermail/python-dev/2006-September/068987.html>`__
+
+
+================
+Deferred Threads
+================
+- `Removing __del__ <http://mail.python.org/pipermail/python-dev/2006-September/068875.html>`__
+- `Caching float(0.0) <http://mail.python.org/pipermail/python-dev/2006-September/069049.html>`__
+- `PEP 355 status <http://mail.python.org/pipermail/python-dev/2006-September/069059.html>`__
+- `PEP 351 - do while <http://mail.python.org/pipermail/python-dev/2006-September/069088.html>`__
+
+
+==================
+Previous Summaries
+==================
+- `Signals, threads, blocking C functions <http://mail.python.org/pipermail/python-dev/2006-September/068996.html>`__
+
+
+===============
+Skipped Threads
+===============
+- `Thank you all <http://mail.python.org/pipermail/python-dev/2006-September/068780.html>`__
+- `BRANCH FREEZE/IMMINENT RELEASE: Python 2.5 (final). 2006-09-19, 00:00UTC <http://mail.python.org/pipermail/python-dev/2006-September/068819.html>`__
+- `RELEASED Python 2.5 (FINAL) <http://mail.python.org/pipermail/python-dev/2006-September/068851.html>`__
+- `release25-maint branch - please keep frozen for a day or two more. <http://mail.python.org/pipermail/python-dev/2006-September/068852.html>`__
+- `Download URL typo <http://mail.python.org/pipermail/python-dev/2006-September/068855.html>`__
+- `Exceptions and slicing <http://mail.python.org/pipermail/python-dev/2006-September/068866.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-September/068872.html>`__
+- `release25-maint is UNFROZEN <http://mail.python.org/pipermail/python-dev/2006-September/068878.html>`__
+- `Small Py3k task: fix modulefinder.py <http://mail.python.org/pipermail/python-dev/2006-September/068883.html>`__
+- `win32 - results from Lib/test - 2.5 release-maint <http://mail.python.org/pipermail/python-dev/2006-September/068888.html>`__
+- `Weekly Python Patch/Bug Summary ** REVISED ** <http://mail.python.org/pipermail/python-dev/2006-September/068893.html>`__
+- `[Python-checkins] release25-maint is UNFROZEN <http://mail.python.org/pipermail/python-dev/2006-September/068937.html>`__
+- `Python network Programmign <http://mail.python.org/pipermail/python-dev/2006-September/068938.html>`__
+- `Relative import bug? <http://mail.python.org/pipermail/python-dev/2006-September/068942.html>`__
+- `GCC patch for catching errors in PyArg_ParseTuple <http://mail.python.org/pipermail/python-dev/2006-September/068958.html>`__
+- `Typo.pl scan of Python 2.5 source code <http://mail.python.org/pipermail/python-dev/2006-September/068963.html>`__
+- `Maybe we should have a C++ extension for testing... <http://mail.python.org/pipermail/python-dev/2006-September/068971.html>`__
+- `Python 2.5 bug? Changes in behavior of traceback module <http://mail.python.org/pipermail/python-dev/2006-September/068975.html>`__
+- `Need help with C - problem in sqlite3 module <http://mail.python.org/pipermail/python-dev/2006-September/068979.html>`__
+- `PyErr_CheckSignals error return value <http://mail.python.org/pipermail/python-dev/2006-September/068994.html>`__
+- `python-dev summary for 2006-08-01 to 2006-08-15 <http://mail.python.org/pipermail/python-dev/2006-September/069002.html>`__
+- `2.4.4c1 October 11, 2.4.4 final October 18 <http://mail.python.org/pipermail/python-dev/2006-September/069003.html>`__
+- `[SECUNIA] "buffer overrun in repr() for unicode strings" Potential Vulnerability (fwd) <http://mail.python.org/pipermail/python-dev/2006-September/069007.html>`__
+- `List of candidate 2.4.4 bugs? <http://mail.python.org/pipermail/python-dev/2006-September/069008.html>`__
+- `openssl - was: 2.4.4c1 October 11, 2.4.4 final October 18 <http://mail.python.org/pipermail/python-dev/2006-September/069013.html>`__
+- `Collecting 2.4.4 fixes <http://mail.python.org/pipermail/python-dev/2006-September/069024.html>`__
+- `os.unlink() closes file? <http://mail.python.org/pipermail/python-dev/2006-September/069052.html>`__
+- `Tix not included in 2.5 for Windows <http://mail.python.org/pipermail/python-dev/2006-September/069070.html>`__
+- `Possible semantic changes for PEP 352 in 2.6 <http://mail.python.org/pipermail/python-dev/2006-September/069091.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+September 16, 2006 through September 30, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 13th written by 
+Steve Bethard. 
+
+To contact me, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

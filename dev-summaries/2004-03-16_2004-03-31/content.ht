@@ -1,0 +1,283 @@
+Title: python-dev Summary for 2004-03-16 through 2004-03-31
+Content-type: text/x-rst
+
+python-dev Summary for 2004-03-16 through 2004-03-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from March 16, 2004 through March 31, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the thirty-eighth summary written by Brett Cannon (who managed to
+actually convince someone to employ him for the summer).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-03-16_2004-03-31.html
+.. _original text file: http://www.python.org/dev/summary/2004-03-16_2004-03-31.ht
+
+
+
+=====================
+Summary Announcements
+=====================
+Well, I am no longer looking for a summer job!  One of my professors was
+gracious enough to offer me a research position with him for the summer working
+on Internet2 stuff so the summer job request is now gone... until next summer.
+=)
+
+PyCon_ happened during the timespan this summary covers.  Unlike last year when emails to python-dev actually went down, there was a good amount of traffic at the conference.  A good portion of this was due to the sprint on Python's core that took place.  A bunch of core developers showed up for the whole weekend and used part of that time to answer emails.  Great for python-dev but made my life a little difficult.  =)  But the sprint overall was a definite gain with various tweaks done, improvements to the profiler, and a bunch of bugs and patches closed (actually had the number of open patches and bugs have a net loss of 7 and 10 from that week, respectively; that has not happened in a while).
+
+The release schedule (and thus what is definitely planned and what can go in if it gets finished in time) was set while at PyCon.  Read the summary entitled `Python 2.4 release schedule`_ below for details and links.
+
+.. _PyCon: http://www.pycon.org/
+
+=========
+Summaries
+=========
+----------------------------
+"I want to be like Raymond!"
+----------------------------
+So, you want to speed up Python like Raymond Hettinger has?  Well, he posted an email listing various optimizations he has on his list to try out.  That specific email can be found at http://mail.python.org/pipermail/python-dev/2004-March/043276.html
+
+This also brought back the debate of whether pure Python modules should be recoded in C for performance.  See previous threads for a longer discussion on the subject.
+
+Contributing threads:
+  - `Joys of Optimization <http://mail.python.org/pipermail/python-dev/2004-March/043276.html>`__
+  - `todo (was: Joys of Optimization) <http://mail.python.org/pipermail/python-dev/2004-March/043335.html>`__
+
+
+--------------
+Decimal update
+--------------
+`PEP 327`_ was revised to make certain issues more explicit and to discuss possible function naming (summarized below).  This lead to a discussion about how to name various things.  Although there are historical violations of the coding standard, the names should follow `PEP 7`_ and `PEP 8`_.
+
+The testing suite is also finished along with the PEP essentially being finished.
+
+.. _PEP 327: http://www.python.org/dev/peps/pep-0327
+
+
+Contributing threads:
+  - `Changes to PEP 327: Decimal data type <http://mail.python.org/pipermail/python-dev/2004-March/043155.html>`__
+  - `PEP 327: Decimal data type <http://mail.python.org/pipermail/python-dev/2004-March/043809.html>`__
+
+
+--------------------------------------------------------------------------
+<in a stereotypical coach voice>Follow the coding standard, people</voice>
+--------------------------------------------------------------------------
+Discussing naming conventions came up while discussing PEP 327.  The basic conclusion is that older modules don't follow the coding standards laid out in `PEP 7`_ and `PEP 8`_, but that does not mean new code should be allowed to break the rules.
+
+.. _PEP 7: http://www.python.org/dev/peps/pep-0007
+.. _PEP 8: http://www.python.org/dev/peps/pep-0008
+
+Contributing threads:
+  - `Changes to PEP 327: Decimal data type <http://mail.python.org/pipermail/python-dev/2004-March/043155.html>`__
+  - `(class) module names clarification <http://mail.python.org/pipermail/python-dev/2004-March/043265.html>`__
+  - `(old) module names <http://mail.python.org/pipermail/python-dev/2004-March/043286.html>`__
+
+
+----------------------------------------------------
+"It depends on what the meaning of the word 'is' is"
+----------------------------------------------------
+The idea of redefining how 'is' operates when comparing immutable types came up.  It was suggested that when two immutable objects of the same type were being compared that it should be an equivalence test instead of an identity test.  For instance::
+
+  >>> x = 99
+  >>> y = 99
+  >>> x is y
+  True
+
+while::
+
+  >>> x = 100
+  >>> y = 100
+  >>> x is y
+  False
+
+is false.  The point was made, though, that unless you are comparing to None that 'is' should not be used for comparing immutables and instead the equality operator ('==') should be used instead.  There is backwards-compatibility issues with changing this.
+
+Guido pronounced that 'is' ain't changing.
+
+Contributing threads:
+  - `A proposal has surfaced on comp.lang.python to redefine "is" <http://mail.python.org/pipermail/python-dev/2004-March/043181.html>`__
+  - `redefining is <http://mail.python.org/pipermail/python-dev/2004-March/043222.html>`__
+  - `(not) redefining is <http://mail.python.org/pipermail/python-dev/2004-March/043285.html>`__
+
+
+---------------------------------
+Getting PyChecker into the stdlib
+---------------------------------
+The idea of adding PyChecker_ to the stdlib came up once again.  Support seems to be there but the developers of PyChecker did not speak up.  PyChecker 2 is under development and that changes how PyChecker does things significantly (analyzes bytecode directly) which might be why they were mum on the topic.
+
+.. _PyChecker: http://pychecker.sf.net/
+
+
+-------------------------------
+Simplifying logging.basicConfig
+-------------------------------
+Simplifying basicConfig in the logging package to making logging to a file simpler was proposed.  One person suggested more examples in the documentation ala unittest.  Another person disagreed.
+
+No change has been made at this point nor any specific statement as to whether any will be.
+
+Contributing threads:
+  - `Some changes to logging <http://mail.python.org/pipermail/python-dev/2004-March/043290.html>`__
+
+
+--------------------------
+A new committer amongst us
+--------------------------
+Phillip J. Eby gained CVS commit privileges to help with development of Distutils.  But Phillip has been active on python-dev for a while so I am sure he can be put to work on some other things as well.  =)
+
+Contributing threads:
+  - `new Python CVS committer <http://mail.python.org/pipermail/python-dev/2004-March/043338.html>`__
+
+
+----------------
+Working on HP-UX
+----------------
+Cameron Laird is still interested in working on the port of Python on HP-UX.  If you are interested in helping out please contact him.
+
+Contributing threads:
+  - `Portability:  update and oblique apology <http://mail.python.org/pipermail/python-dev/2004-March/043364.html>`__
+
+
+-------------------------------------------
+Binding variables for generator expressions
+-------------------------------------------
+What would you expect in this situation using generator expressions?::
+
+  gen_exps = []
+  for cnt in range(10):
+    gen_exps.append(x**2 for x in range(cnt))
+
+If you thought that gen_exps would contain 10 generators that each return a list longer than the one previous then you like capture binding for generator expressions (capturing the values of all free variables used in the generator expression at definition time).  If you though there would be 10 generators that all had the power of 2 from 0 to 9 then you like late binding (using the value of the free variables in the generator expression at execution time of the generator).
+
+Guido brought this up in his keynote for PyCon_ and said that he preferred late binding.  The reasoning is that there are no surprises in terms of corner cases and having more obvious values for the free variables.
+
+The point about performance of generator expressions was also brought up using the now-standard ``sum(x**2 for range(1000))`` example.  Using a list comprehension was actually slightly faster (less than 10%) then the generator expression.  This is partially thanks to Raymond's tweaking of list comprehensions by adding the LIST_APPEND opcode.  The rest is due to generator expressions creating an actual generator and thus having to create eval frames and playing with them.  But it was pointed out that if the number passed into 'range' is raised then generator expressions quickly end up winning because the execution fits in the cache better, especially if xrange is used. 
+
+Contributing threads:
+  - `An issue recently brought up in patch #872326 <http://mail.python.org/pipermail/python-dev/2004-March/043396.html>`__
+  - `Possible resolution of generator expression variable... <http://mail.python.org/pipermail/python-dev/2004-March/043443.html>`__
+  - `genexps slow? <http://mail.python.org/pipermail/python-dev/2004-March/043777.html>`__
+
+
+--------------------------------------------------
+More than you ever wanted to know about decorators
+--------------------------------------------------
+Decorators were the topic for the latter half of March.  Initially the discussion focused on where to put the list of decorators (if Guido's patch as found at http://www.python.org/sf/926860 is any indication he has a preference with the decorators coming on the line above the function/method definition) should go.  With C# having a similar functionality as what is being proposed roughly following C#'s syntax was considered a good thing, albeit tweaked so that the decorator list goes on its own line (reason being the LL(1) parser is too dumb to handle it coming before the 'def' on the same line and it alleviates the issue of having a long decorator list that would a full line anyway.
+
+With the winning syntax, though, there is the issue of preexisting code and the work at interpreter prompt.  The former is a problem for code that happens to have a list that is not assigned to anything before a function definition; why anyone would have a list defined that is not assigned is beyond me.  As for the latter issue, that is a slight problem.  To get around it you can stick the definition in an 'if' statement::
+
+  if True:
+      [decorate, this]
+      def marthastewart(): pass
+
+Slight pain, but it has been generally accepted that placing decorators on their own line is just so much easier to deal with aesthetically this minor inconvenience has been viewed as acceptable.
+
+After PyCon Guido talked to some people who suggested having another way of tacking on metadata separate from using descriptors, partially since C#'s version of decorators is mostly for metadata.  But tacking on attributes to a function can be done using the proposed decorators by defining some auxiliary function that takes in named arguments that specify the name of the attribute and the value to set it and returns a callable that will take in a function and assign the attributes.
+
+This also brought up the discussion of setting function attributes from within a function since decorators will most likely be used to set metadata.  The idea of having attributes set for the function if a name starts with '.' was brought up but Guido said he wanted to save that syntax for within a 'with' block.  The other suggestion was to do ``func.attribute`` where "func" is the name of the function is being defined, but Guido gave that a -1000 vote so that ain't about to happen.
+
+Contributing threads:
+  - `order of decorator application? <http://mail.python.org/pipermail/python-dev/2004-March/043411.html>`__
+  - `PEP 318 - posting draft <http://mail.python.org/pipermail/python-dev/2004-March/043414.html>`__
+  - `PEP 318 <http://mail.python.org/pipermail/python-dev/2004-March/043425.html>`__
+  - `method decorators (PEP 318) <http://mail.python.org/pipermail/python-dev/2004-March/043528.html>`__
+  - `PEP 318 and syntax coloring <http://mail.python.org/pipermail/python-dev/2004-March/043643.html>`__
+  - `decorators (not transformations) <http://mail.python.org/pipermail/python-dev/2004-March/043540.html>`__
+  - `PEP318 metaclass approach <http://mail.python.org/pipermail/python-dev/2004-March/043589.html>`__
+  - `method decorators <http://mail.python.org/pipermail/python-dev/2004-March/043613.html>`__
+  - `Yet Another Decorator Syntax Suggestion  (YADSS) <http://mail.python.org/pipermail/python-dev/2004-March/043640.html>`__
+  - `PEP 318: Singleton decorator <http://mail.python.org/pipermail/python-dev/2004-March/043682.html>`__
+  - `PEP 318: Preserve function signatures <http://mail.python.org/pipermail/python-dev/2004-March/043683.html>`__
+  - `PEP 318: Security use case <http://mail.python.org/pipermail/python-dev/2004-March/043684.html>`__
+  - `PEP 318: Decorators last before colon <http://mail.python.org/pipermail/python-dev/2004-March/043685.html>`__
+  - `PEP 318: Set attribs with .name = value <http://mail.python.org/pipermail/python-dev/2004-March/043686.html>`__
+  - `Re: Python-Dev Digest, Vol 8, Issue 91 <http://mail.python.org/pipermail/python-dev/2004-March/043698.html>`__
+
+
+---------------------------
+Python 2.4 release schedule
+---------------------------
+If you read `PEP 320`_ you will notice an alpha is currently planned in July with a possible release in September if the alphas and betas go well.
+
+To see what is planned for this release read the PEP.  Looks like some really cool new additions to Python (under the hood, stdlib, and to syntax) might make this release.
+
+.. _PEP 320: http://python.org/dev/peps/pep-0320
+
+Contributing threads:
+  - `Timing for Py2.4 <http://mail.python.org/pipermail/python-dev/2004-March/043681.html>`__
+
+
+------------------------------------------
+Cutting down on string creation at startup
+------------------------------------------
+Martin v. Loewis discovered that Python in CVS created about 12,000 strings while Python 2.2 created 8,000 strings.  Martin subsequently changed 'marshal' so as to share strings that are the same instead of having to constantly create strings, discover they have been interned, and then destroy the second copy.
+
+Contributing threads:
+  - `Python startup time: String objects <http://mail.python.org/pipermail/python-dev/2004-March/043475.html>`__
+
+
+----------------------------------
+f_tstate going the way of the dodo
+----------------------------------
+In case you don't catch the meaning of the title, f_tstate is going to be removed.
+
+Contributing threads:
+  - `Last chance! <http://mail.python.org/pipermail/python-dev/2004-March/043594.html>`__
+
+
+---------------------------------------------------------------
+Tentative fix for OpenVMS and its dislike of UNIVERSAL_NEWLINES
+---------------------------------------------------------------
+See http://www.python.org/sf/903339 for the proposed patch.
+
+Contributing threads:
+  - ` OpenVMS file system and UNIVERSAL_NEWLINES <http://mail.python.org/pipermail/python-dev/2004-March/043660.html>`__
+
+
+----------------------------------------------
+The hell that is floating point representation
+----------------------------------------------
+The discussion came up over the output of ``repr(1.1)``, which is '1.1000000000000001' (although, apparently, a few years back this was not the case).  The objection was risen that this can surprise people since repr is what 'marshal' uses for writing .pyc files.  But the counter-argument was that this forces people to deal with the issues inherent in binary floating point.  Plus it makes the value consistent across platforms if you pass around a .pyc file since the value the programmer used is explicitly stated.  The status quo is staying put.
+
+It was also pointed out that decimal floating point has similar issues as binary floating point, but at least you get to specify the accuracy at the cost of speed.
+
+Contributing threads:
+  - `Expert floats <http://mail.python.org/pipermail/python-dev/2004-March/043703.html>`__
+  - `repr(1.1) <http://mail.python.org/pipermail/python-dev/2004-March/043726.html>`__
+
+
+----------------------------------------
+Relative imports getting a bunch of dots
+----------------------------------------
+For `PEP 328`_ (which deals with relative imports of modules), Guido pronounced that he prefers the multiple dots to delineate going up a level in the directory hierarchy for handling relative imports.
+
+The other big issue with this PEP is backwards-compatibility.  Since this will introduce relative paths, by default all imports that don't have at least a leading dot for where something is being imported will be considered absolute.  This means that if you want to import something in the same directory as the module you are importing into you will have to specify that it is a relative import unless your current directory is in sys.path .  The PEP explains the issues rather well.
+
+.. _PEP 328: http://www.python.org/dev/peps/pep-0328
+
+Contributing threads:
+  - `PEP 328 -- relative and multi-line import <http://mail.python.org/pipermail/python-dev/2004-March/043739.html>`__

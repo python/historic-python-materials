@@ -1,0 +1,291 @@
+Title: python-dev Summary for 2005-03-01 through 2005-03-15
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2005-03-01 through 2005-03-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-03-01_2005-03-15.html]
+
+
+
+=====================
+Summary Announcements
+=====================
+
+-----------------------------
+Second to last summary for me
+-----------------------------
+Just a reminder, after this Summary there is only one more left for me to write.  After that Tim Lesher, Tony Meyer, and Steven Bethard will be taking over.
+
+-----------------
+See you at PyCon!
+-----------------
+PyCon_ is practically upon us!  If you are going to be there, great!  Please feel free to say hello if you run into me (will be at the sprints and the conference Wednesday and Thursday; skipping Friday to see a friend).  Always happy to stop-and-chat.
+
+.. _PyCon: http://www.pycon.org/
+
+
+------------------------
+2.4.1 should be out soon
+------------------------
+Python 2.4c2 has now been released.  Assuming no major issues come up, 2.4 final will be out March 29; day after PyCon.
+
+But in order to make sure no issues come up, we need the code to be tested!  Please get the code and run the regression tests.  If you are on a UNIX system it is as easy as running ``make test`` (``make testall`` is even better).  The tests can also be run on non-UNIX systems; see http://docs.python.org/lib/regrtest.html on how.
+
+
+=========
+Summaries
+=========
+
+----------------------
+2.4 should be out soon
+----------------------
+Python 2.4.1c1 was releaseed, but enough bugs were found and subsequently fixed that c2 release will occur before 2.4 final comes out.
+
+Contributing threads:
+  - `2.4.1c1 March 10th, 2.4.1 March 17th <http://mail.python.org/pipermail/python-dev/2005-March/051832.html>`__
+  - `BRANCH FREEZE for 2.4.1rc1, 0000 UTC, 2005-03-10 <http://mail.python.org/pipermail/python-dev/2005-March/051929.html>`__
+  - `branch release24-maint is unfrozen, 2.4.1rc2? <http://mail.python.org/pipermail/python-dev/2005-March/052017.html>`__
+  - `os.access and Unicode <http://mail.python.org/pipermail/python-dev/2005-March/051906.html>`__
+  - `RELEASED Python 2.4.1, release candidate 1 <http://mail.python.org/pipermail/python-dev/2005-March/051992.html>`__
+  - `distutils fix for building Zope against Python 2.4.1c1 <http://mail.python.org/pipermail/python-dev/2005-March/052068.html>`__
+  - `Python2.4.1c1 and win32com <http://mail.python.org/pipermail/python-dev/2005-March/052080.html>`__
+  - `Open issues for 2.4.1 <http://mail.python.org/pipermail/python-dev/2005-March/052099.html>`__
+
+
+-------------------------------------------
+Getting state of all threads in interpreter
+-------------------------------------------
+Florent Guillaume wrote some code for Zope that returned the current state of all threads in the interpreter, regardless of whether they were hung or not.  Tim Peters suggested someone write up some code so that this could be made available in Python itself.
+
+Fazal Majid has volunteered to implement this.
+
+Contributing threads:
+  - `Useful thread project for 2.5? <http://mail.python.org/pipermail/python-dev/2005-March/051856.html>`__
+
+
+---------------------------------
+No new features in micro releases
+---------------------------------
+A bug in os.access() not allowing Unicode strings triggered the discussion of whether it was a bugfix to repair the issue or a new feature.  In the end it was decided it was a bugfix.  But the point was specified that micro releases should never have any new feature, no matter how small.
+
+Contributing threads:
+  - `[Python-checkins] python/dist/src/Modules ossaudiodev.c, 1.35, 1.36 <http://mail.python.org/pipermail/python-dev/2005-March/051889.html>`__
+  - `No new features <http://mail.python.org/pipermail/python-dev/2005-March/051919.html>`__
+  - `os.access and Unicode <http://mail.python.org/pipermail/python-dev/2005-March/051906.html>`__
+  - `rationale for the no-new-features approach <http://mail.python.org/pipermail/python-dev/2005-March/051930.html>`__
+
+
+-------------------------------------
+Python wins Jolt "Productivity Award"
+-------------------------------------
+Python was runner-up in the `15th annual Jolt Awards`_ in the category of "Languages and Development Environments", being given the "Productivity Award".  Python is now award-winning.  =)
+
+.. _15th annual Jolt Awards: http://www.sdmagazine.com/jolts/15th_jolt_finalists.html
+
+Contributing threads:
+  - `FWD: SD MAgazine.com - Jolt Awards Winners <http://mail.python.org/pipermail/python-dev/2005-March/052008.html>`__
+  - `Python 2.4 won the "Jolt productivity award" last night <http://mail.python.org/pipermail/python-dev/2005-March/052246.html>`__
+
+
+------------------------------
+New built-ins: any() and all()
+------------------------------
+Python 2.5 gains two new built-ins: any(), which returns True if the iterable passed to it contains any true items, and all(), which returns True if all the items in the iterable passed to it are true.
+
+Contributing threads:
+  - `Adding any() and all() <http://mail.python.org/pipermail/python-dev/2005-March/052010.html>`__
+
+
+--------------------------------
+Abbreviating list comprehensions
+--------------------------------
+The idea of allowing list comprehensions when the item being appended to the new list is passed directly in was proposed: ``[x in seq if f(x)`` would be equivalent to ``[x for x in seq if f(x)]``.
+
+The debate on this one is still going, but my gut says it won't be accepted; TOOWTDI and all.
+
+Contributing threads:
+  - `Adding any() and all() <http://mail.python.org/pipermail/python-dev/2005-March/052010.html>`__
+  - `comprehension abbreviation <http://mail.python.org/pipermail/python-dev/2005-March/052059.html>`__
+
+
+-------------------------
+sum() semantics discussed
+-------------------------
+Guido's blog entry on `the fate of reduce() in Python 3000`_ (which reiterated Guido's plan to cut map(), reduce(), filter() and lambdas (what about zip()?) caused a huge discussion on whether sum() worked the best way possible.  As it stands now, sum() only accepts a sequence of numbers (sort of; more later) and its optional second argument works as an initial value to build off of.  You can abuse the second argument to allow for adding other things (such as ``sum([[1], [2], [3]], [])``), but don't do that.  =)
+
+The suggestion was put forth of making the second argument more of a default argument if the passed-in sequence was empty.  Otherwise the second argument would be ignored.  But further discussion solidified the idea that sum() works quite well as it is and thus won't be changed in Python 3000.
+
+.. _the fate of reduce() in Python 3000: http://www.artima.com/weblogs/viewpost.jsp?thread=98196
+
+Contributing threads:
+  - `sum() <http://mail.python.org/pipermail/python-dev/2005-March/052067.html>`__
+  - `Rationale for sum()'s design? <http://mail.python.org/pipermail/python-dev/2005-March/052134.html>`__
+
+-----------------------------
+Experimenting with subversion
+-----------------------------
+note: written by Tony Meyer
+
+Martin v. Löwis did an automatic conversion of the Python CVS repository to
+(fellow Jolt winner) `Subversion`_, to see how well the process worked.  He
+discovered that although the conversion process takes several hours, there
+were only minor problems with the conversion.  It seems likely that if
+SourceForge does offer subversion repositories, as they have indicated they
+will, then Python will switch to this.  Martin plans to continue collecting
+issues/complaints about the conversion conversion and to integrate solutions.
+
+.. _Subversion: http://subversion.tigris.org
+
+Contributing threads:
+   - `Migrating to subversion <http://mail.python.org/pipermail/python-dev/2005-March/051873.html>`__
+
+--------------------
+Ordered Dictionaries
+--------------------
+note: written by Tony Meyer
+
+A suggestion was made that hashed sets and maps that iterate in the order
+that the keys were added to the set/map could be added to 'collections'.  The
+original use case presented was to remove duplicates without changing order,
+but it was pointed out that there are other, better, ways to do this.
+Although better use cases were presented, the consensus was that (in Barry
+Warsaw's words) "while the concept of 'an ordered dictionary' is nice and
+seemingly generic enough, [the] exact semantics and other design factors
+will either tend to push the stdlib implementation into ever more
+complexity, or won't prevent people from continuing to roll their own
+because the stdlib version 'isn't quite right'".  A `cookbook recipe`_ is
+available, however.
+
+.. _cookbook recipe: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/107747
+
+Contributing threads:
+   - `LinkedHashSet/LinkedHashMap equivalents <http://mail.python.org/pipermail/python-dev/2005-March/051915.html>`__
+
+-----------------
+Easier decorators
+-----------------
+note: written by Tony Meyer
+
+Nick Coghlan suggested that an update_meta() function be added that copies
+across appropriate metadata of functions being decorated (such as __name__,
+__doc__, and __dict__), to make the process of decorating simpler, and more
+robust in the long term (e.g. if a new attribute should be copied in the
+future, update_meta can be updated, rather than individual decorators).  A
+`patch`_ implementing this behaviour was submitted.
+
+.. _patch: http://www.python.org/sf/1161819
+
+Contributing threads:
+   - `@deprecated (was: Useful thread project for 2.5?) <http://mail.python.org/pipermail/python-dev/2005-March/051935.html>`__
+   - `func.update_meta (was: @deprecated) <http://mail.python.org/pipermail/python-dev/2005-March/052084.html>`__
+   - `(no subject) <http://mail.python.org/pipermail/python-dev/2005-March/052161.html>`__
+
+
+
+===============
+Skipped Threads
+===============
++ Re: python-dev Summary for 2005-01-16 through	2005-01-31
++ Documentation for __new__
++ Decimal & returning NotImplemented (or not)
++ itemgetter/attrgetter extension
++ Re: [Python-checkins] python/dist/src/Lib/idlelib NEWS.txt, 1.49.2.3, 1.49.2.4 idlever.py, 1.22.2.1, 1.22.2.2
++ code blocks using 'for' loops and generators
++ can we stop pretending _PyTyple_Lookup is internal?
+
+
+
+
+========
+Epilogue
+========
+
+------------
+Introduction
+------------
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+March 01, 2005 through March 15, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the sixtieth summary written by Brett Cannon (Sprinting my Spring break away...).
+
+To contact me, please send email to brett at python.org.  Do *not*
+post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python CVS online, go to
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  I do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow me to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-02-15_2005-02-28.html
+.. _original text file: http://www.python.org/dev/summary/2005-03-01_2005-03-15.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

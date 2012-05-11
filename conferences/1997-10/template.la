@@ -1,0 +1,261 @@
+
+% TEMPLATE for Usenix papers, specifically to meet requirements of
+%  TCL97 committee.
+% originally a template for producing IEEE-format articles using LaTeX.
+%   written by Matthew Ward, CS Department, Worcester Polytechnic Institute.
+% adapted by David Beazley for his excellent SWIG paper in Proceedings,
+%   Tcl 96
+% turned into a smartass generic template by De Clarke, with thanks to
+%   both the above pioneers
+% use at your own risk.  Complaints to /dev/null.
+% make it two column with no page numbering, default is 10 point
+\documentstyle[twocolumn]{article}
+\pagestyle{empty}
+
+%set dimensions of columns, gap between columns, and space between paragraphs
+%\setlength{\textheight}{8.75in}
+\setlength{\textheight}{9.0in}
+\setlength{\columnsep}{0.25in}
+\setlength{\textwidth}{6.45in}
+\setlength{\footheight}{0.0in}
+\setlength{\topmargin}{0.0in}
+\setlength{\headheight}{0.0in}
+\setlength{\headsep}{0.0in}
+\setlength{\oddsidemargin}{0in}
+%\setlength{\oddsidemargin}{-.065in}
+%\setlength{\oddsidemargin}{-.17in}
+\setlength{\parindent}{0pc}
+
+% started out with art10.sty and modified params to conform to IEEE format
+% further mods to conform to Usenix standard
+
+\makeatletter
+%as Latex considers descenders in its calculation of interline spacing,
+%to get 12 point spacing for normalsize text, must set it to 10 points
+\def\@normalsize{\@setsize\normalsize{12pt}\xpt\@xpt
+\abovedisplayskip 10pt plus2pt minus5pt\belowdisplayskip \abovedisplayskip
+\abovedisplayshortskip \z@ plus3pt\belowdisplayshortskip 6pt plus3pt
+minus3pt\let\@listi\@listI} 
+
+%need a 12 pt font size for subsection and abstract headings
+\def\subsize{\@setsize\subsize{12pt}\xipt\@xipt}
+
+%make section titles bold and 12 point, 2 blank lines before, 1 after
+\def\section{\@startsection {section}{1}{\z@}{24pt plus 2pt minus 2pt}
+{12pt plus 2pt minus 2pt}{\large\bf}}
+
+%make subsection titles bold and 11 point, 1 blank line before, 1 after
+\def\subsection{\@startsection {subsection}{2}{\z@}{12pt plus 2pt minus 2pt}
+{12pt plus 2pt minus 2pt}{\subsize\bf}}
+\makeatother
+
+\newcommand{\ignore}[1]{}
+%\renewcommand{\thesubsection}{\arabic{subsection}.}
+
+\begin{document}
+
+%don't want date printed
+\date{}
+
+%make title bold and 14 pt font (Latex default is non-bold, 16 pt)
+\title{\Large \bf Wonderful : A Terrific Application and Fascinating Paper}
+
+%for single author (just remove % characters)
+\author{{Your N.\ Here} \\
+{\em Your Department} \\
+{\em Your Institution}\\
+{\em Your City, State, ZIP}\\
+{\em yourname@host.site.dom}}
+
+%  My Department \\
+%  My Institute \\
+%  My City, ST, zip}
+ 
+% If you have Two Authors use this:
+%\author{\begin{tabular}[t]{c@{\extracolsep{8em}}c}
+%  Author First 			& Author Second \\
+% \\
+%  Department of Author First,	   	& Company Employing Me, \\
+%  with a Continuation			& MyCity, S2~~ZZZZ2.  \\
+%  and                                  & \\
+%  Even More Continuation 		& \\
+%  Institution First,  City1, S1~~ZZZZ1.	& 
+%\end{tabular}}
+
+\maketitle
+
+% You have to do this to suppress page numbers.  Don't ask.
+\thispagestyle{empty}
+
+
+\subsection*{Abstract}
+{\em
+Your Abstract Text Goes Here.  Just a few facts.
+Whet our appetites.
+}
+
+\section{Introduction}
+
+A paragraph of text goes here.  Lots of text.  Plenty of interesting
+text. \\
+
+More fascinating text. Features galore, plethora of promises.\\
+
+\section{This is Another Section}
+
+Some embedded literal typset code might 
+look like the following :
+
+{\tt \small
+\begin{verbatim}
+int wrap_fact(ClientData clientData,
+              Tcl_Interp *interp,
+              int argc, char *argv[]) {
+    int result;
+    int arg0;
+    if (argc != 2) {
+        interp->result = "wrong # args";
+        return TCL_ERROR;
+    }
+    arg0 = atoi(argv[1]);
+    result = fact(arg0);
+    sprintf(interp->result,"%d",result);
+    return TCL_OK;
+}
+\end{verbatim}
+}
+
+Now we're going to cite somebody.  Watch for the cite tag.
+Here it comes \cite{heidrich,otcl,perl5}.  And a bit later
+we will cite another one.  Stay tuned... \cite{ousterhout}.
+
+\section{This Section has SubSections}
+\subsection{First SubSection}
+
+Here's a typical figure reference.  The figure is centered at the
+top of the column.  It's scaled.  It's explicitly placed.  You'll
+have to tweak the numbers to get what you want.\\
+
+\begin{figure}[t]
+\begin{center}
+\begin{picture}(300,150)(0,200)
+\put(-15,-30){\special{psfile = fig1.ps hscale = 50 vscale = 50}}
+\end{picture}\\
+\end{center}
+\caption{Wonderful Flowchart}
+\end{figure}
+
+This text came after the figure, so we'll casually refer to Figure 1
+as we go on our merry way.
+
+\subsection{New Subsection}
+
+It can get tricky typesetting Tcl and C code in LaTeX because they share
+a lot of mystical feelings about certain magic characters.  You
+will have to do a lot of escaping to typeset curly braces and percent
+signs, for example, like this:
+``The {\tt \%module} directive
+sets the name of the initialization function.  This is optional, but is
+recommended if building a Tcl 7.5 module.
+Everything inside the {\tt \%\{, \%\}}
+block is copied directly into the output. allowing the inclusion of
+header files and additional C code." \\
+
+Sometimes you want to really call attention to a piece of text.  You
+can center it in the column like this:
+\begin{center}
+{\tt \_1008e614\_Vector\_p}
+\end{center}
+and people will really notice it.\\
+
+\noindent
+The noindent at the start of this paragraph makes it clear that it's
+a continuation of the preceding text, not a new para in its own right.
+
+
+Now this is an ingenious way to get a forced space.
+{\tt Real~$*$} and {\tt double~$*$} are equivalent. 
+
+Now here is another way to call attention to a line of code, but instead
+of centering it, we noindent and bold it.\\
+
+\noindent
+{\bf \tt size\_t : fread ptr size nobj stream } \\
+
+And here we have made an indented para like a definition tag (dt)
+in HTML.  You don't need a surrounding list macro pair.
+\begin{itemize}
+\item[]  {\tt fread} reads from {\tt stream} into the array {\tt ptr} at
+most {\tt nobj} objects of size {\tt size}.   {\tt fread} returns
+the number of objects read. 
+\end{itemize}
+This concludes the definitions tag.
+
+\subsection{Last SubSection}
+
+Well, it's getting boring isn't it.  This is the last subsection
+before we wrap it up.
+
+\section{Acknowledgments}
+
+A polite author always includes acknowledgments.  Thank everyone,
+especially those who funded the work. 
+
+\section{Availability}
+
+It's great when this section says that MyWonderfulApp is free software, 
+available via anonymous FTP from
+
+\begin{center}
+{\tt ftp.site.dom/pub/myname/Wonderful}\\
+\end{center}
+
+Also, it's even greater when you can write that information is also 
+available on the Wonderful homepage at 
+
+\begin{center}
+{\tt http://www.site.dom/\~{}myname/SWIG}
+\end{center}
+
+Now we get serious and fill in those references.  Remember you will
+have to run latex twice on the document in order to resolve those
+cite tags you met earlier.  This is where they get resolved.
+We've preserved some real ones in addition to the template-speak.
+After the bibliography you are DONE.
+
+\begin{thebibliography}{99}
+
+\bibitem[Beazley]{beazley} D.~M.~Beazley and P.~S.~Lomdahl, 
+{\em Message-Passing Multi-Cell Molecular Dynamics on the Connection
+Machine 5}, Parall.~Comp.~ 20 (1994) p. 173-195.
+
+\bibitem[RealName]{CitePetName} A.~N.~Author and A.~N.~Other, 
+{\em Title of Riveting Article}, JournalName VolNum (Year) p. Start-End
+
+\bibitem[ET]{embed} Embedded Tk, \\
+{\tt ftp://ftp.vnet.net/pub/users/drh/ET.html}
+
+\bibitem[Expect]{expect} Don Libes, {\em Exploring Expect}, O'Reilly \& Associates, Inc. (1995).
+
+\bibitem[Heidrich]{heidrich} Wolfgang Heidrich and Philipp Slusallek, {\em
+Automatic Generation of Tcl Bindings for C and C++ Libraries.},
+USENIX 3rd Annual Tcl/Tk Workshop (1995).
+
+\bibitem[Ousterhout]{ousterhout} John K. Ousterhout, {\em Tcl and the Tk Toolkit}, Addison-Wesley Publishers (1994).
+
+\bibitem[Perl5]{perl5} Perl5 Programmers reference,\\
+{\tt http://www.metronet.com/perlinfo/doc}, (1996).
+
+\bibitem[Wetherall]{otcl} D. Wetherall, C. J. Lindblad, ``Extending Tcl for
+Dynamic Object-Oriented Programming'', Proceedings of the USENIX 3rd Annual Tcl/Tk Workshop (1995).
+
+\end{thebibliography}
+
+\end{document}
+
+
+
+
+
+
+

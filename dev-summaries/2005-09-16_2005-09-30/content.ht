@@ -1,0 +1,393 @@
+Title: python-dev Summary for 2005-09-16 through 2005-09-30
+Content-type: text/x-rst
+Encoding: latin1
+
+python-dev Summary for 2005-09-16 through 2005-09-30
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-09-16_2005-09-30.html]
+
+
+
+=============
+Announcements
+=============
+
+-----------------------------
+QOTF: Quotes of the fortnight
+-----------------------------
+
+We have two quotes this week, one each from the two biggest threads of this fortnight: concurrency and conditional expressions.  The first quote, from Donovan Barda, puts Python's approach to threading into perspective:
+
+    The reality is threads were invented as a low overhead way of easily
+    implementing concurrent applications... ON A SINGLE PROCESSOR.
+    Taking into account threading's limitations and objectives, Python's
+    GIL is the best way to support threads. When hardware (seriously)
+    moves to multiple processors, other concurrency models will start to
+    shine.
+    
+Our second QOTF, by yours truly (hey, who could refuse a nomination from Guido?), is a not-so-subtle reminder to leave syntax decisions to Guido:
+
+    Please no more syntax proposals! ... We need to leave the syntax to
+    Guido.  We've already proved that ... we can't as a community agree
+    on a syntax.  That's what we have a BDFL for. =)
+
+Contributing threads:
+
+- `GIL, Python 3, and MP vs. UP <http://mail.python.org/pipermail/python-dev/2005-September/056609.html>`__
+- `Adding a conditional expression in Py3.0 <http://mail.python.org/pipermail/python-dev/2005-September/056617.html>`__
+
+[SJB]
+
+-------------------
+Compressed MSI file
+-------------------
+
+Martin v. Löwis discovered that a little more than a `MiB`_ could be saved in the size of Python installer by using LZX:21 instead of the standard MSZIP when compressing the CAB file.  After confirmation from several testers that the new format worked, the change (for Python 2.4.2 and beyond) was made.
+
+.. _MiB: http://en.wikipedia.org/wiki/Mibibyte
+
+Contributing thread:
+
+- `Compressing MSI files: 2.4.2 candidate? <http://mail.python.org/pipermail/python-dev/2005-September/056694.html>`__
+
+[TAM]
+
+=========
+Summaries
+=========
+
+-----------------------
+Conditional expressions
+-----------------------
+
+Raymond Hettinger proposed that the ``and`` and ``or`` operators be modified in Python 3.0 to produce only booleans instead of producing objects, motivating this proposal in part by the common (mis-)use of ``<cond> and <true-expr> or <false-expr>`` to emulate a conditional expression.  In response, Guido suggested that that the conditional expression discussion of `PEP 308`_ be reopened.  This time around, people seemed almost unanimously in support of adding a conditional expression, though as before they disagreed on syntax.  Fortunately, this time Guido cut the discussion short and pronounced a new syntax: ``<true-expr> if <cond> else <false-expr>``.  Although it has not been implemented yet, the plan is for it to appear in Python 2.5.
+
+.. _PEP 308: http://www.python.org/dev/peps/pep-0308
+
+Contributing threads:
+
+- `"and" and "or" operators in Py3.0 <http://mail.python.org/pipermail/python-dev/2005-September/056510.html>`__
+- `Adding a conditional expression in Py3.0 <http://mail.python.org/pipermail/python-dev/2005-September/056546.html>`__
+- `Conditional Expression Resolution <http://mail.python.org/pipermail/python-dev/2005-September/056846.html>`__
+
+[SJB]
+
+---------------------
+Concurrency in Python
+---------------------
+
+Once again, the subject of removing the global interpreter lock (GIL) came up.  Sokolov Yura suggested that the GIL be replaced with a system where there are thread-local GILs that cooperate to share writing; Martin v. Löwis suggested that he try to implement his ideas, and predicted that he would find that doing so would be a lot of work, would require changes to all extension modules (likely to introduce new bugs, particularly race conditions), and possibly decrease performance.  This kicked off several long threads about multi-processor coding.
+
+A long time ago (circa Python 1.4), Greg Stein experimented with free threading, which did yield around a 1.6 times speedup on a dual-processor machine.  To avoid the overhead of multi-processor locking on a uniprocessor machine, a separate binary could be distributed.  Some of the code apparently did make it into Python 1.5, but the issue died off because no-one provided working code, or a strategy for what to do with existing extension modules.
+
+Guido pointed out that it is not clear at this time how multiple processors will be used as they become the norm.  With the threaded programming model (e.g. in Java) there are problems with concurrent modification errors (without locking) or deadlocks and livelocks (with locking).  Guido's hunch (and mine, FWIW) is that instead of writing massively parallel applications, we will continue to write single-threaded applications that are tied together at the process level rather than at the thread level.  He also pointed out that it's likely that most problems get little benefit out of multiple processors.
+
+Guido threw down the gauntlet: rather than the endless discussion about this topic, someone should come up with a GIL-free Python (not necessarily CPython) and demonstrate its worth.  Phillip J. Eby reminded everyone that Jython, IronPython, and PyPy exist, and that someone could, for example, create a multiprocessor-friendly backend for PyPy.
+
+Guido also pointed out that fast threading benefits from fast context switches, which benefits from small register sets, and that the current trend in chips is towards larger register sets.  In addition, multiple processors with shared memory don't scale all that well (multiple processors with explicit interprocess communication (IPC) channels scale much better).  These all favour multi-processing over multi-threading.  Donovan Baarda went so far as to say (a QOTF, as above), that Python's GIL is the best way to support threads, which are for single-processor use, and that when multiple-processor platforms have matured more other concurrency models will likewise mature.  OTOH, Bob Ippolito pointed out that (in many operating systems) there isn't a lot of difference between threads and processes, and that threads can typically still use IPC.  Bob argued that the biggest argument for threading is that lots of existing C/C++ code uses threads.
+
+Simon Percivall argued that the problem is that Python offers ("out of the box") some support for multi-threaded programming, but little for multi-process programming beyond the basics (e.g. data sharing, communication, control over running processes, dealing out tasks to be handled).  Simon suggested that the best way to stop people complaining about the GIL is to provide solid, standardized support for multi-process programming.  The idea of a "multiprocess" module gained a reasonable amount of support.
+
+Phillip J. Eby outlined an idea he is considering PEPifying, in which one could switch all context variables (such as the Decimal context and the sys.* variables) simulaneously and instantaneously when changing execution contexts (like switching between coroutines).  He has a prototype implementation of the basic idea, which is less than 200 lines of Python and very fast.  However, he pointed out that it's not completely PEP-ready at this point, and he needs to continue considering various parts of the concept.
+ 
+Bruce Eckel joined the thread, and suggested that low-level threads people are only now catching up to objects, but as far as concurrency goes their brains still think in terms of threads, so they naturally apply thread concepts to objects.  He believes that pthread-style thinking is two steps backwards: you effectively throw open the innards of the object that you just spent time decoupling from the rest of your system, and the coupling is not predictable.
+
+Bruce and Guido had discussed offlist "active objects": defining a class as "active" would install a worker thread and concurrent queue in each object of that class, automatically turn method calls into tasks and enqueue them, and prevent any other interaction other than enqueued messages.  Guido felt that if multiple active objects could co-exist in the same process, but be prevented (by the language implementation) from sharing data except via channels, and dynamic reallocation of active objects across multiple CPUs were possible, then this might be a solution.  He pointed out that an implementation would really be needed to prove this.
+
+Phillip and Martin pointed out that preventing any other interaction other than enqueued messages is the difficult part; each active object would, for example, have to have its own sys.modules.  Phillip felt that such a solution (which Bruce posed as "a" solution, not "the" solution) wouldn't help with GIL removal, but would help with effective use of multiprocessor machines on platforms where fork() is available, if the API works across processes as well as threads.
+
+Bruce then restarted the discussion, putting forth eight criteria that he felt would be necessary for the "pythonic" solution to concurrency.  Items on the list were discussed further, with some disagreement about what was possible.  The concurrency discussion continues next month...
+
+Contributing threads:
+
+- `Variant of removing GIL. <http://mail.python.org/pipermail/python-dev/2005-September/056423.html>`__
+- `GIL, Python 3, and MP vs. UP (was Re: Variant of removing GIL.) <http://mail.python.org/pipermail/python-dev/2005-September/056458.html>`__
+- `GIL, Python 3, and MP vs. UP <http://mail.python.org/pipermail/python-dev/2005-September/056498.html>`__
+- `Active Objects in Python <http://mail.python.org/pipermail/python-dev/2005-September/056752.html>`__
+- `Pythonic concurrency <http://mail.python.org/pipermail/python-dev/2005-September/056801.html>`__
+- `Pythonic concurrency - cooperative MT <http://mail.python.org/pipermail/python-dev/2005-September/056860.html>`__
+
+[TAM]
+
+-----------------------------------
+Removing nested function parameters
+-----------------------------------
+
+Brett Cannon proposed removing support for nested function parameters so that instead of being able to write::
+
+    def f((x, y)):
+        print x, y
+
+you'd have to write something like::
+
+    def f(arg):
+        x, y = arg
+        print x, y
+
+Brett (with help from Guido) motivated this removal (for Python 3.0) by a few factors:
+
+(1) The feature has low visibility: "For every user who is fond of them there are probably ten who have never even heard of it." - Guido
+(2) The feature can be difficult to read for some people.
+(3) The feature doesn't add any power to the language; the above functions emit essentially the same byte-code.
+(4) The feature makes function parameter introspection difficult because tuple unpacking information is not stored in the function object.
+
+In general, people were undecided on this proposal.  While a number of people said they used the feature and would miss it, many of them also said that their code wouldn't suffer that much if the feature was removed.  No decision had been made at the time of the summary.
+
+Contributing thread:
+
+- `removing nested tuple function parameters <http://mail.python.org/pipermail/python-dev/2005-September/056459.html>`__
+
+[SJB]
+
+-----------------------------------------
+Evaluating iterators in a boolean context
+-----------------------------------------
+
+In Python 2.4 some builtin iterators gained __len__ methods when the number of remaining items could be made available.  This broke some of Guido's code that tested iterators for their boolean value (to distinguish them from None).  Raymond Hettinger (who supplied the original patch) argued that `testing for None`_ using boolean tests was in general a bad idea, and that knowing the length of an iterator, when possible, had a number of use cases and allowed for some performance gains.  However, Guido felt strongly that iterators should not supply __len__ methods, as this would lead to some people writing code expecting this method, which would then break when it received an iterator which could not determine its own length.  The feature will be rolled back in Python 2.5, and Raymond will likely move the __len__ methods to private methods in order to maintain the performance gains.
+
+.. _testing for None: http://www.python.org/dev/peps/pep-0290#testing-for-none
+
+Contributing threads:
+
+- `bool(iter([])) changed between 2.3 and 2.4 <http://mail.python.org/pipermail/python-dev/2005-September/056576.html>`__
+- `bool(container) [was bool(iter([])) changed between 2.3 and 2.4] <http://mail.python.org/pipermail/python-dev/2005-September/056879.html>`__
+
+[SJB]
+
+--------------------------------------------------
+Properties that only call the getter function once
+--------------------------------------------------
+
+Jim Fulton proposed adding a new builtin for a property-like descriptor that would only call the getter method once, so that something like::
+
+   class Spam(object):
+
+       @readproperty
+       def eggs(self):
+           ... expensive computation of eggs
+
+           self.eggs = result
+           return result
+
+would only do the eggs computation once.  Currently, you can't do this with a property() because the ``self.eggs = result`` statement tries to call the property's ``fset`` method instead of replacing the property with the result of the eggs() call.  A few other people commented that they'd needed similar functionality at times, and Guido seemed moderately interested in the idea, but there was no final resolution.
+
+Contributing thread:
+
+- `RFC: readproperty <http://mail.python.org/pipermail/python-dev/2005-September/056769.html>`__
+
+[SJB]
+
+--------
+Codetags
+--------
+
+Micah Elliott submitted his `Codetags PEP 350`_ (after revisions following the comp.lang.python discussion) to python-dev for comment.  A common feeling was that this (particularly synonyms) was over-engineering; Guido pointed out that he only uses XXX, and this is certainly the most common (although not only) example in the Python source itself.  Some suggestions were made, many of which Micah integrated into the PEP.
+
+The suggestion was made that an implementation should precede approval of the PEP.  Micah indicated that he would continue development on the tools, and that he encourages anyone interested in using a standard set of codetages to give these a try.
+
+.. _Codetags PEP 350: http://python.org/peps/pep-0350
+
+- `PEP 350: Codetags <http://mail.python.org/pipermail/python-dev/2005-September/056744.html>`__
+
+[TAM]
+
+----------------------------
+Improving set implementation
+----------------------------
+
+Raymond Hettinger suggested a "small, but interesting, C project" to determine whether the setobject.c implementation would be improved by recoding the set_lookkey() function to optimize key insertion order using Brent's variation of Algorithm D (c.f. Knuth vol. III, section 6.4, p525).  It has the potential to boost performance for uniquification applications with duplicate keys being identified more quickly, and possibly also more frequent retirement of dummy entires during insertion operations.
+
+Andrew Durdin pointed out that Brent's variation depends on the next probe position for a key being derivated from the key and its current position, which is incompatible with the current perturbation system; Raymond replaced perturbation with a secondary hash with linear probing.  Antoine Pitrou did some `experimenting with this`_, resulting in a -5% to 2% speedup with various benchmarks.
+
+Raymond has also been experimenting with a simpler approach: whenever there are more than three probes, always swap the new key into the first position and then unconditionally re-insert the swapped-out key.  He reported that, most of the time, this gives an improvement, and it doesn't require changing the perturbation logic.  This simpler approach is cheap to implement, but the benefits are also smaller, with it improving only the worse collisions.
+
+.. _experimenting with this: http://pitrou.net/python/sets
+
+- `C coding experiment <http://mail.python.org/pipermail/python-dev/2005-September/055965.html>`__
+
+[TAM]
+
+--------------
+Relative paths
+--------------
+
+Nathan Bullock suggested a ''relpath(path_a, path_b)'' addition to os.path that returns a relative path from path_a to path_b.  Trent Mick pointed out that there are a `couple of`_ `recipes for this`_, as well as `Jason Orendorff's Path module`_.  Several people supported this idea, and hopefully either Nathan or one of the recipe authors will submit a patch with this functionality.
+
+.. _couple of: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/302594 
+.. _recipes for this: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/208993 
+.. _Jason Orendorff's Path module: http://www.jorendorff.com/articles/python/path/ 
+
+Contributing threads:
+
+- `os.path.diff(path1, path2) <http://mail.python.org/pipermail/python-dev/2005-September/056391.html>`__
+- `os.path.diff(path1, path2) (and a first post) <http://mail.python.org/pipermail/python-dev/2005-September/056703.html>`__
+
+[TAM]
+
+----------------------------------
+Adding a vendor-packages directory
+----------------------------------
+
+Rich Burridge followed up a `comp.lang.python thread`_ about a "vendor-packages" directory for Python by submitting a `patch`_ and asking for comments about the proposal on python-dev.  General consensus was that the proposal needed a better rationale, explaining why this improved on simply adding a .pth file to the site-packages directory.
+
+Rich explained that the rationale is that Python files supplied by the vendor (Sun, Apple, RedHat, Microsoft) with their operating system software should go in a separate base directory to differentiate them from Python files installed specifically at the site.  However, Bob Ippolito pointed out that, as of OS X 10.4 ("Tiger") Apple already does this via a .pth file ("Extras.pth"), which points to ''/System/Library/Frameworks/Python.framework/Versions/2.3/Extras/lib/python'' and includes wxPython by default.
+
+Bob also pointed out that such a "vendor-packages.pth" should look like ''import site; site.addsitedir('/usr/lib/python2.4/vendor-packages')'' so that packages like Numeric, PIL, and PyObjC, which take advantage of .pth files themselves, work when installed to the vendor-packages location.
+
+Phillip J. Eby pointed out that it would be good to have a document for "Python Distributors" that explained these kind of things, and suggested that perhaps a volunteer or two could be found within the distutils-SIG to do this.
+  
+.. _comp.lang.python thread: http://mail.python.org/pipermail/python-list/2005-September/300029.html
+.. _patch: http://sourceforge.net/tracker/index.php?func=detail&aid=1298835&group_id=5470&atid=305470 
+
+Contributing thread:
+
+- `vendor-packages directory <http://mail.python.org/pipermail/python-dev/2005-September/056682.html>`__
+
+[TAM]
+
+=======================
+Version numbers on OS X
+=======================
+
+Guido asked if platform.system_alias() could be improved on OS X by mapping uname()'s ''Darwin x.y'' to ''OS X 10.(x-4).y''.  Bob Ippolito and others pointed out that this was not a good idea, because uname() only reports on the kernel version number and not the Cocoa API, which is really what OS X 10.x.y refers to.  He pointed out that the correct way to do it using a public API is to used gestalt, which is what platform.mac_ver() does.
+
+On further inspection, it was discovered that parsing the /System/Library/CoreServices/SystemVersion.plist property list is also a supported API, and would not rely on access to the Carbon API set.  Bob and Wilfredo Sánchez Vega provided sample code that would parse this plist; Marc-Andre Lemburg suggested that a patch be written for system_alias() that would use this method (if possible) for Mac OS.
+
+Contributing thread:
+
+- `Mapping Darwin 8.2.0 to Mac OS X 10.4.2 in platform.py <http://mail.python.org/pipermail/python-dev/2005-September/056651.html>`__
+
+[TAM]
+
+================
+Deferred Threads
+================
+
+- `Python 2.5a1, ast-branch and PEP 342 and 343 <http://mail.python.org/pipermail/python-dev/2005-September/056449.html>`__
+
+
+===============
+Skipped Threads
+===============
+
+- `Visibility scope for "for/while/if" statements <http://mail.python.org/pipermail/python-dev/2005-September/056669.html>`__
+- `inplace operators and __setitem__ <http://mail.python.org/pipermail/python-dev/2005-September/056766.html>`__
+- `Repository for python developers <http://mail.python.org/pipermail/python-dev/2005-September/056717.html>`__
+- `For/while/if statements/comprehension/generator expressions unification <http://mail.python.org/pipermail/python-dev/2005-September/056508.html>`__
+- `list splicing <http://mail.python.org/pipermail/python-dev/2005-September/056472.html>`__
+- `Compatibility between Python 2.3.x and Python 2.4.x <http://mail.python.org/pipermail/python-dev/2005-September/056437.html>`__
+- `python optimization <http://mail.python.org/pipermail/python-dev/2005-September/056441.html>`__
+- `test__locale on Mac OS X <http://mail.python.org/pipermail/python-dev/2005-September/056463.html>`__
+- `possible memory leak on windows (valgrind report) <http://mail.python.org/pipermail/python-dev/2005-September/056478.html>`__
+- `Mixins. <http://mail.python.org/pipermail/python-dev/2005-September/056481.html>`__
+- `2.4.2c1 fails test_unicode on HP-UX ia64 <http://mail.python.org/pipermail/python-dev/2005-September/056551.html>`__
+- `2.4.2c1: test_macfs failing on Tiger (Mac OS X 10.4.2) <http://mail.python.org/pipermail/python-dev/2005-September/056558.html>`__
+- `test_ossaudiodev hangs <http://mail.python.org/pipermail/python-dev/2005-September/056559.html>`__
+- `unintentional and unsafe use of realpath() <http://mail.python.org/pipermail/python-dev/2005-September/056616.html>`__
+- `Alternative name for str.partition() <http://mail.python.org/pipermail/python-dev/2005-September/056630.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-September/056713.html>`__
+- `Possible bug in urllib.urljoin <http://mail.python.org/pipermail/python-dev/2005-September/056736.html>`__
+- `Trasvesal thought on syntax features <http://mail.python.org/pipermail/python-dev/2005-September/056741.html>`__
+- `Fixing pty.spawn() <http://mail.python.org/pipermail/python-dev/2005-September/056750.html>`__
+- `64-bit bytecode compatibility (was Re: [PEAK] ez_setup on 64-bit linux problem) <http://mail.python.org/pipermail/python-dev/2005-September/056811.html>`__
+- `C API doc fix <http://mail.python.org/pipermail/python-dev/2005-September/056827.html>`__
+- `David Mertz on CA state e-voting panel <http://mail.python.org/pipermail/python-dev/2005-September/056840.html>`__
+- `[PATCH][BUG] Segmentation Fault in xml.dom.minidom.parse <http://mail.python.org/pipermail/python-dev/2005-September/056844.html>`__
+- `linecache problem <http://mail.python.org/pipermail/python-dev/2005-September/056856.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+September 16, 2005 through September 30, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the 4th summary written by the python-dev summary duo of
+Steve Bethard and Tony Meyer (I feel like the White Rabbit in Wonderland...).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/trunk/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  We do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow us to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-08-01_2005-08-15.html
+.. _original text file: http://www.python.org/dev/summary/2005-09-16_2005-09-30.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

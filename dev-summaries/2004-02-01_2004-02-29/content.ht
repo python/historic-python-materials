@@ -1,0 +1,212 @@
+Title: python-dev Summary for 2004-02-01 through 2004-02-29
+Content-type: text/x-rst
+
+python-dev Summary for 2004-02-01 through 2004-02-29
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from February 1, 2004 through February 29, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the thirty-fifth and -sixth summaries written by Brett Cannon (who can't wait to be at PyCon).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at http://www.python.org/dev/doc/devel/ and should be used when looking up any documentation on something mentioned here.  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-01-01_2004-01-31.html
+.. _original text file: http://www.python.org/dev/summary/2004-02-01_2004-02-29.ht
+
+=====================
+Summary Announcements
+=====================
+To continue my slight abuse of this space: I am still looking for a summer job or internship programming somewhere (does not have to be Python).  If you happen to have something at your company or know of something somewhere that you think might work for me please email me at brett@python.org .  Thanks.
+
+OK, on from pimping myself out for the summer to pimping PyCon_ (or at least I think that is how the youngsters these days would phrase that sentence =).  You can still register for the conference.  The talks have been chosen and scheduled; more info at http://pycon.org/dc2004/talks/ .  Talks look really great and cover a huge gamut of areas; bigger variety than last year in my opinion.
+
+There is going to be a Stackless sprint in Berlin March 10-14.  See the announcement email at http://mail.python.org/pipermail/python-dev/2004-February/042829.html .
+
+.. _PyCon: http://www.pycon.org/
+
+
+=========
+Summaries
+=========
+---------------------------------
+Python 2.3 branch open for fixin'
+---------------------------------
+Anthony Baxter, perpetual release manager for the 2.3 branch, announced that CVS commits for 2.3 were open again.  He mentioned he thought another release around May or June would probably happen unless a severe bug came up the required immediate patching and release.
+
+But Jim Fulton discovered a critical bug.  =)  It has been fixed in CVS, but no word on if the bug's severity has been judged by Anthony to warrant another release now.
+
+Contributing threads:
+  - `release23-maint is reopened for business. <http://mail.python.org/pipermail/python-dev/2004-February/042400.html>`__
+
+
+--------------------------------------------------------
+Early Spring cleaning for what platforms Python supports
+--------------------------------------------------------
+Skip Montanaro cleaned up the configure.in script for Python and in the process removed old support for unneeded OSs as stated in `PEP 11`_.  So SunOS 4 support is gone.  There was discussion of making Python 2.4 not support libc 5 since Python does not compile with it.  The suggestion was made of having configure.in detect libc 5 and if it found it then refuse to continue.
+
+Skip also removed optional universal newline support and antiquated pthread variants from 1997 and before.
+
+.. _PEP 11: http://python.org/dev/peps/pep-0011
+
+Contributing threads:
+  - `zapped several unsupported bits... <http://mail.python.org/pipermail/python-dev/2004-February/042427.html>`__
+  - `PEP-0011 up-to-date <http://mail.python.org/pipermail/python-dev/2004-February/042435.html>`__
+
+
+--------------------------------------------------
+Compiling in profiling support for the interpreter
+--------------------------------------------------
+Jeremy Hylton discovered his old way of turning on gprof_ profiling support when compiling Python no longer worked.  Hye-SHik Chang said he got it working by compiling using ``CC="cc -pg" LDFLAGS="-pg" ./configure``.  Martin v. Löwis suggested running configure with `` --without-cxx`` to get around the problem.
+
+.. _gprof: http://www.cs.utah.edu/dept/old/texinfo/as/gprof_toc.html
+
+Contributing threads:
+  - `building python with profiling support <http://mail.python.org/pipermail/python-dev/2004-February/042431.html>`__
+
+
+-----------------------------------
+Python and C89 play nicely together
+-----------------------------------
+The question of what version of C Python is required to work with came up.  The answer is that C89 is the version of Standard C Python requires.  Neither C89 with Amendment 1 (also called C95) nor C99 are required for Python to run (which, in this case, meant wchar.h is not required).
+
+Contributing threads:
+  - `*grumble* wchar.h <http://mail.python.org/pipermail/python-dev/2004-February/042438.html>`__
+  - `Another big ANSI-fication change... <http://mail.python.org/pipermail/python-dev/2004-February/042480.html>`__
+
+
+---------------------------------------
+Growing lists just got that much faster
+---------------------------------------
+Raymond Hettinger (along with the help of various other people on his initial patch) managed to come up with a way to speed up allocating space for list items (either from growth of an exisiting list or creation of a new list).
+
+While this was being discussed, though, the possibility of 3rd party code messing with the internal values of list items came up.  While no specific use-case was found, it was agreed upon that code outside of the Python core should not break the API; there is no guarantee the internals won't change.
+
+Raymond has also subsequently done a major clean-up of the entire PyList API that has netted wonderful speed-ups across the board.  And in case you are a big fan of list.pop(0) and list.insert(0, x), the collections module's deque object now handles your needs in a much faster fashion.  Kudos to him for doing all of this and helping to make sure Guido doesn't get a pie at OSCON 2004 (if you don't catch that reference about the pie, read http://python.org/dev/summary/2003-12-01_2003-12-31.html#pie-thon-competition-work-ramps-up )
+
+Contributing threads:
+  - `Optimization of the Year <http://mail.python.org/pipermail/python-dev/2004-February/042466.html>`__
+
+
+---------------------------------------------------
+Do we really need mutability for exceptions groups?
+---------------------------------------------------
+The question was raised as to why ``except (TypeError, ValueError):`` is acceptable while ``except [TypeError, ValueError]:`` (in other words why use tuples to group exceptions for an 'except' statement and not allow lists).  The question was in relation as to whether it had something to do with a tuple's immutability.
+
+Guido said it all had to do with a visual way of grouping tuples and nothing to do with what the underlying container was.  If he had it to do over again he would rather change it so that ``except TypeError, ValueError:`` did the same thing as above.  That change would alleviate the common error of expecting the above behavior using that syntax but instead getting the exception instance bound to ValueError.  But the change is not planned for any time in the future since Guido has no proposal on how to change the syntax to handle the assignment to a local variable for the exception instance.
+
+Contributing threads:
+  - `Syntax for "except" <http://mail.python.org/pipermail/python-dev/2004-February/042473.html>`__
+
+
+---------------------------
+No, you can't subclass Bool
+---------------------------
+Francois Pinard discovered that you can't subclass the Bool type.  This led to the question of "why?"  To this he received the answer that since Bool only has two instance, True and False, it shouldn't be allowed to be a superclass of anything since that would suggest more instances of Bool could exist. 
+
+Contributing threads:
+  - `bool does not want to be subclassed? <http://mail.python.org/pipermail/python-dev/2004-February/042535.html>`__
+
+
+-------------------------------------
+Function decoration and all that jazz
+-------------------------------------
+Bob Ippolito brought up Michael Hudson's function/method syntactic sugar to essentially implement `PEP 318`_ (Michael's patch can be found at http://starship.python.net/crew/mwh/hacks/meth-syntax-sugar-3.diff) as something he **really** wanted for PyObjC_.
+
+In case you don't know what the syntax is ``def fxn() [fun, stuff, here]: pass``, which ends up being the same as::
+
+  def fxn(): pass
+  fxn = here(stuff(fun(fxn)))
+
+Common use cases are for defining class
+
+The discussion then drifted in discussing how this syntax could even be used with classes and whether it could somehow supplant some metaclass uses.  Talking seemed to lead to it not really being that great of a use case.
+
+The order or application also came up.  It was suggested that the order be the reversed of that shown above so that it reads the way it would be written by hand instead of in application order.
+
+Using 'as' instead of brackets was brought up again; ``def fxn() as fun`` instead of ``def fxn() [fun]``.  An argument for this or any other syntax is that using brackets for this overloads the usage of them in Python itself and some feel that is unpythonic.  An explicit argument for the brackets, though, is that it is cleaner for multi-line use.  There was also the issue with using 'as' in terms of how would one look up its use in the docs?  Would someone look up under 'as' or under 'def' naturally?
+
+.. _PEP 318: http://python.org/dev/peps/pep-0318
+.. _PyObjC: http://pyobjc.sourceforge.net/
+
+Contributing threads:
+  - `Plea for function/method syntax sugar <http://mail.python.org/pipermail/python-dev/2004-February/042605.html>`__
+  - `new syntax for wrapping <http://mail.python.org/pipermail/python-dev/2004-February/042646.html>`__
+  - `PEP 318: What Java does <http://mail.python.org/pipermail/python-dev/2004-February/042750.html>`__
+  - `other uses for "as" <http://mail.python.org/pipermail/python-dev/2004-February/042780.html>`__
+  - `new syntax for wrapping (PEP 318) - Timothy's summary <http://mail.python.org/pipermail/python-dev/2004-February/042824.html>`__
+  - `[UPDATED] PEP 318 - Function/Method Decorator Syntax <http://mail.python.org/pipermail/python-dev/2004-February/042851.html>`__
+
+
+--------------------------------------
+Building Python with the free .NET SDK
+--------------------------------------
+Go to the email to see Garth's latest tool and instructions on building Python using Microsoft's free .NET SDK.
+
+Contributing threads:
+  - `Compiling python with the free .NET SDK <http://mail.python.org/pipermail/python-dev/2004-February/042595.html>`__
+
+
+-------------------------------------
+PEP 326 finished (but still rejected)
+-------------------------------------
+`PEP 326`_ ("A Case for Top and Bottom Values") has its final implementation linked from the PEP.  It has been rejected (as with all PEPs that have been pronounced upon, read the PEP for the reasons why), but the PEP's authors will nice enough to go ahead and finish the code for anyone who might want to use it anyway.
+
+.. _PEP 326: http://python.org/dev/peps/pep-0326
+
+Contributing threads:
+  - `PEP 326 <http://mail.python.org/pipermail/python-dev/2004-February/042672.html>`__
+
+
+------------------------------------------------
+time.strftime() now checks its argument's bounds
+------------------------------------------------
+Because of a possible crash from using negative values in the time tuple when passed to time.strftime(), it was decided to bound checks on all values in the time tuple.  This will break existing code that naively set all fields to 0 in a passed-in time tuple and thus did not set the values within the proper bounds (year, month, day, and day of year should not be 0).
+
+Contributing threads:
+  - `Boundary checks on arguments to time.strftime() <http://mail.python.org/pipermail/python-dev/2004-February/042675.html>`__
+
+
+--------------------------------------------
+OpenVMS throws a fit over universal newlines
+--------------------------------------------
+For Python 2.4 the option to compile without universal newline support was removed.  Well, it turns out that OpenVMS_ doesn't like this.  Apparently the OS is not stream-oriented for its filesystem but is records-based and this leads to there being no newlines in a text file unless it is opened as a plain file.
+
+Bug #903339 has been opened to deal with this.
+
+.. _Bug #903339: http://python.org/sf/903339
+.. _OpenVMS: http://www.openvms.org/
+
+Contributing threads:
+  - `OpenVMS file system and UNIVERSAL_NEWLINES support <http://mail.python.org/pipermail/python-dev/2004-February/042686.html>`__
+
+
+--------------------------------------------
+Forth-style argument passing for C functions
+--------------------------------------------
+Raymond Hettinger came up with the idea of adding a new function flag called METH_STACK that would call a C function to be called with a pointer to the execution stack and the number of arguments it is being passed.  This would allow the function to pop off its arguments on its own and bypass the expense of putting them into a tuple.
+
+The overall idea did not seem to win out.  But it does turn out that Michael Hudson has a patch that implements a similar idea at http://python.org/sf/876193 .  A discussion of whether more specific argument passing like METH_O should be considered.
+
+Contributing threads:
+  - `Idea for a fast calling convention <http://mail.python.org/pipermail/python-dev/2004-February/042807.html>`__

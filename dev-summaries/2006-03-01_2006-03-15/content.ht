@@ -1,0 +1,542 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-03-01 through 2006-03-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-03-01_2006-03-15]
+
+
+
+=============
+Announcements
+=============
+
+-----------------------
+Webstats for python.org
+-----------------------
+
+Thomas Wouters set up webalizer on dinsdale.python.org and added webstats for all subsites of python.org:
+
+* http://www.python.org/webstats/
+* http://beta.python.org/webstats/
+* http://bugs.python.org/webstats/
+* http://planet.python.org/webstats/
+* http://docs.python.org/webstats/
+* http://svn.python.org/webstats/
+
+Check 'em out if you're interested!
+
+Contributing thread:
+
+- `Webstats for www.python.org et al. <http://mail.python.org/pipermail/python-dev/2006-March/061930.html>`__
+
+[SJB]
+
+---------------------------
+Python 2.5 release schedule
+---------------------------
+
+The first releases scheduled for Python 2.5 are quickly approaching.  Check `PEP 356`_ for details, but the first alpha is due on April 1st.
+
+.. _PEP 356: http://www.python.org/dev/peps/pep-0356/
+
+Contributing thread:
+
+- `2.5 release schedule? <http://mail.python.org/pipermail/python-dev/2006-March/062185.html>`__
+
+[SJB]
+
+-----------
+Py3K branch
+-----------
+
+Guido has begun work on Py3K, starting a new branch to rip out some stuff like string exceptions and classic classes.  He's trying to get a "feel" for what Python 3.0 will look like, hopefully before his keynote in OSCON.
+
+Contributing thread:
+
+- `Py3k branch - please stay out :-) <http://mail.python.org/pipermail/python-dev/2006-March/062396.html>`__
+
+[SJB]
+
+-------------------------------------------
+Deprecated modules going away in Python 2.5
+-------------------------------------------
+
+A number of deprecated modules will be removed in Python 2.5, including:
+
+* reconvert.py
+* regex (regexmodule.c)
+* regex_syntax.py
+* regsub.py
+
+and a variety of things from lib-old.  These modules have been deprecated for a while now, and will be pulled in the next Python release.
+
+Contributing thread:
+
+- `Deprecated modules going away in 2.5 <http://mail.python.org/pipermail/python-dev/2006-March/062405.html>`__
+
+[SJB]
+
+=========
+Summaries
+=========
+
+-------------------------------
+Maintaining ctypes in SVN trunk
+-------------------------------
+
+Thomas Heller put ctypes into the Python SVN repository, and with the help of perky, Neal Norwitz and Thomas Wouters, updated it to take advantage of the new ssize_t feature. The "official" ctypes development will remain in its Sourceforge repository at least for a while since this makes it easy to test ctypes on the SF compile farm.
+
+Contributing threads:
+
+- `ctypes is in SVN now. <http://mail.python.org/pipermail/python-dev/2006-March/062211.html>`__
+- `Developing/patching ctypes (was: Re: integrating ctypes into python) <http://mail.python.org/pipermail/python-dev/2006-March/062243.html>`__
+- `Developing/patching ctypes <http://mail.python.org/pipermail/python-dev/2006-March/062244.html>`__
+
+[SJB]
+
+-----------------
+Windows buildbots
+-----------------
+
+Josiah Carlson had been working on getting a buildbot slave running on a Windows box, but eventually gave up due to crashes caused by VS.NET. Tim Peters fought his way through the setup with a XP box, posting `his lessons`_ to the wiki, and Trent Mick managed to follow a similar route and setup a Win2K buildbot slave.  Thanks to all who suffered through the config -- Windows buildbot coverage looks pretty good now!
+
+.. _his lessons: http://wiki.python.org/moin/BuildbotOnWindows
+
+Contributing threads:
+
+- `Another Windows buildbot slave <http://mail.python.org/pipermail/python-dev/2006-March/062068.html>`__
+- `Still looking for volunteer to run Windows buildbot <http://mail.python.org/pipermail/python-dev/2006-March/062267.html>`__
+
+[SJB]
+
+-----------------------------------
+Python 3.0: itr.next() or next(itr)
+-----------------------------------
+
+The end of last fortnight's defaultdict thread turned to discussing the fate of the iterator protocol's .next() method in Python 3.0.  Greg Ewing argued that renaming .next() to .__next__() and introducing a builtin function next() would be more consistent with the other magic methods and also more future-proof, since the next() function could be modified if the protocol method needed to change.  Raymond Hettinger was very strongly against this proposal, suggesting that trading a Python-level attribute lookup for a Python-level global lookup plus a C-level slot lookup was not a good tradeoff.
+
+The discussion then spread out to other protocol method/function pairs -- e.g. len() and __len__() -- and Oleg Broytmann suggested that they could all be replaced with methods, thus saving a lookup and clearing out the builtin namespace.  Neil Schemenauer and Michael Chermside argued against such a change, saying that the double-underscore pattern allows new special methods to be introduced without worrying about breaking user code, and that using functions for protocols forces developers to use the same names when the protocols are involved, while using methods could allow some developers to choose different names than others.
+
+Guido indicated that he'd like to do some usability studies to determine whether methods or functions were more intuitive for the various protocols.
+
+Contributing threads:
+
+- `defaultdict and on_missing() <http://mail.python.org/pipermail/python-dev/2006-March/061913.html>`__
+- `iterator API in Py3.0 <http://mail.python.org/pipermail/python-dev/2006-March/061927.html>`__
+- `iterator API in Py3. <http://mail.python.org/pipermail/python-dev/2006-March/061977.html>`__
+- `.len() instead of __len__() (was: iterator API in Py3.0) <http://mail.python.org/pipermail/python-dev/2006-March/062072.html>`__
+- `x.len() instead of len(x) in Py3.0 <http://mail.python.org/pipermail/python-dev/2006-March/062079.html>`__
+- `.len() instead of __len__() (was: iterator API inPy3.0) <http://mail.python.org/pipermail/python-dev/2006-March/062085.html>`__
+- `.len() instead of __len__() in Py3.0 <http://mail.python.org/pipermail/python-dev/2006-March/062086.html>`__
+
+[SJB]
+
+---------------------------
+Python 3.0: base64 encoding
+---------------------------
+
+This fortnight continued discussion from the last as to whether the base64 encoding should produce unicode or bytes objects. The encoding is specified in `RFC 2045`_ as "designed to represent arbitrary sequences of octets" using "a 65-character subset of US-ASCII". Traditionally, base64 "encoding" goes from bytes to characters, and base64 "decoding" goes from characters to bytes. But this is the inverse of the usual unicode meanings, where "encoding" goes from characters to bytes, and where "decoding" goes from bytes to characters.
+
+Thus some people felt that the recent proposal to have only bytes.decode(), which would produce unicode, and unicode.encode(), which would produce bytes, would be a major problem for encodings like base64 which used the opposite terminology.  A variety of proposals ensued, including putting .encode() and .decode() on both bytes and strings, having encode() and decode() builtins, and various ways of putting encoding and decoding into the unicode and bytes constructors or classmethods.
+
+No clear solution could be agreed upon at the time.
+
+.. _RFC 2045: http://www.ietf.org/rfc/rfc2045.txt
+
+Contributing thread:
+
+- `bytes.from_hex() <http://mail.python.org/pipermail/python-dev/2006-March/061914.html>`__
+
+[SJB]
+
+-----------------------------
+Coverity scans of Python code
+-----------------------------
+
+Ben Chelf of Coverity presented scan.coverity.com, which provides the results of some static source code analysis looking for a variety of code defects in a variety of open source projects, including Python. Full access to the reports is limited to core developers, but Neal Norwitz explained a bit what had been made available. The types of problems reported in Python include unintialized variables, resource leak, negative return values, using a NULL pointer, dead code, use after free and some other similar conditions. The reports provide information about what condition is violated and where, and according to Neal have been high quality and accurate, though of course there were some false positives. Generally, developers seemed quite happy with the reports, and a number of bugs have subsequently been fixed.
+
+Contributing threads:
+
+- `Coverity Open Source Defect Scan of Python <http://mail.python.org/pipermail/python-dev/2006-March/062088.html>`__
+- `About &quot;Coverity Study Ranks LAMP Code Quality&quot; <http://mail.python.org/pipermail/python-dev/2006-March/062322.html>`__
+- `Coverity report <http://mail.python.org/pipermail/python-dev/2006-March/062434.html>`__
+
+[SJB]
+
+-------------------------------
+Speeding up lookups of builtins
+-------------------------------
+
+Steven Elliott was looking into reducing the cost of looking up Python builtins. Two PEPs (`PEP 280`_ and `PEP 329`_) had already been proposed for similar purposes, but Steven felt these were biting off too much at once as they tried to optimize all global attribute lookups instead of just those of builtins.  His proposal would replace the global-builtin lookup chain with an array that indexed the builtins. A fast check for builtin shadowing would be performed before using a builtin; if no shadowing existed, the builtin would simply be extracted from the array, and if shadowing was present, the longer lookup sequence would be followed.
+
+Guido indicated that he would like to be able to assume that builtins are not shadowed in Python 3.0, but made no comment on the particular implementation strategy suggested.  Steven Elliott promised a PEP, though it was not yet available at the time of this summary.
+
+.. _PEP 280: http://www.python.org/dev/peps/pep-0280/
+.. _PEP 329: http://www.python.org/dev/peps/pep-0329/
+
+Contributing thread:
+
+- `Making builtins more efficient <http://mail.python.org/pipermail/python-dev/2006-March/062200.html>`__
+
+[SJB]
+
+-------------------------------------------------
+Requiring parentheses for conditional expressions
+-------------------------------------------------
+
+Upon seeing a recent checkin using conditional expressions, Jim Jewett suggested that parentheses should be required around all conditional expressions for the sake of readability. The usual syntax debate ensued, and in the end it looked like the most likely result was that `PEP 8`_ would be updated to suggest parentheses around the "test" part of the conditional expression if it contained any internal whitespace.
+
+.. _PEP 8: http://www.python.org/dev/peps/pep-0008/
+
+Contributing threads:
+
+- `conditional expressions - add parens? <http://mail.python.org/pipermail/python-dev/2006-March/062089.html>`__
+- `(no subject) <http://mail.python.org/pipermail/python-dev/2006-March/062101.html>`__
+
+[SJB]
+
+-----------------------------
+Exposing a global thread lock
+-----------------------------
+
+Raymond Hettinger suggested exposing the global interpreter lock to allow code to temporarily suspend all thread switching. Guido was strongly against the idea as it was not portable to Jython or IronPython and it was likely to cause deadlocks. However, there was some support for it, and others indicated that the only way it could cause deadlocks is if locks were acquired within the sections where thread switching was disabled, and that even these could be avoided by having locks raise an exception if acquired in such a section. However, Michael Chermside explained that supporting such a thing in Jython and IronPython would really be impossible, and suggested that the functionality be made available in an extension module instead.
+
+Raymond Hettinger then suggested modifying sys.setcheckinterval() to allow thread switching to be stopped, but Martin v. Löwis explained that even disabling this "release the GIL from time to time" setting would not disable thread switching as, for example, the file_write call inside a PRINT_* opcode releases the GIL around fwrite regardless.
+
+Contributing thread:
+
+- `Threading idea -- exposing a global thread lock <http://mail.python.org/pipermail/python-dev/2006-March/062346.html>`__
+
+[SJB]
+
+-----------------------------
+Making quit and exit callable
+-----------------------------
+
+Ian Bicking resuscitated a previous proposal to make ``quit`` and ``exit`` callable objects with informative __repr__ messages like ``license`` and ``help`` already have. Georg Brandl submitted a patch that makes ``quit`` and ``exit`` essentially synonymous with ``sys.exit`` but with better __repr__ messages.  The patch was accepted and should appear in Python 2.5.
+
+Contributing thread:
+
+- `quit() on the prompt <http://mail.python.org/pipermail/python-dev/2006-March/062156.html>`__
+
+[SJB]
+
+---------------------
+Python 3.0: Using C++
+---------------------
+
+Fredrik Lundh suggested that in Python 3.0 it might be useful to switch to C++ instead of C for Python's implementation. This would allow some additional type checking, some more reliable reference counting with local variable destructors and smart pointers, and "native" exception handling. However, it would likely make linking and writing extension modules more difficult as C++ does not interoperate with others as happily as C does.  Stephen J. Turnbull suggested that it might also be worth considering following the route of XEmacs -- all code must compile without warnings under both C and C++.
+
+No final decision was made, but for the moment it looks like Python will stick with the status quo.
+
+Contributing thread:
+
+- `C++ for CPython 3? (Re: str.count is slow) <http://mail.python.org/pipermail/python-dev/2006-March/061920.html>`__
+
+[SJB]
+
+----------------------
+A @decorator decorator
+----------------------
+
+Georg Brandl presented a `patch providing a ``decorator`` decorator`_ that would transfer a function's __name__, __doc__ and __dict__ attributes to the wrapped function.  Initially, he had placed it in a new ``decorator`` module, but a number of folks suggested that this module and the ``functional`` module -- which currently only contains partial() -- should be merged into a ``functools`` module. At the time of this summary, the patch had not been applied.
+
+.. _patch providing a ``decorator`` decorator: http://bugs.python.org/1448297
+
+Contributing thread:
+
+- `decorator module patch <http://mail.python.org/pipermail/python-dev/2006-March/062290.html>`__
+
+[SJB]
+
+-----------------------
+Expanding the use of as
+-----------------------
+
+Georg Brandl proposed that since ``as`` is finally becoming a keyword, other statements might allow ``as`` to be used for binding a name like the ``import`` and ``with`` statements do now.  Generally people thought that using ``as`` to name the ``while`` or ``if`` conditions was not really that useful, especially since the parallel to ``with`` statements was pretty weak -- ``with`` statements bind the result of the context manager's __enter__() call, not the context manager itself.
+
+Contributing thread:
+
+- `&quot;as&quot; mania <http://mail.python.org/pipermail/python-dev/2006-March/062128.html>`__
+
+[SJB]
+
+------------------------------
+Relative imports in the stdlib
+------------------------------
+
+Guido made a checkin using the new `relative import feature`_ in a few places. Because using relative imports can cause custom __import__'s to break (because they don't take the new optional fifth argument), Guido backed out the changes, and updated `PEP 8`_ to indicate that absolute imports were to be preferred over relative imports whenever possible.
+
+.. _relative import feature: http://www.python.org/dev/peps/pep-0328/
+
+Contributing threads:
+
+- `Using relative imports in std lib packages ([Python-checkins] r43033 - in python/trunk/Lib: distutils/sysconfig.py encodings/__init__.py) <http://mail.python.org/pipermail/python-dev/2006-March/062421.html>`__
+- `[Python-checkins] r43033 - in python/trunk/Lib: distutils/sysconfig.py encodings/__init__.py <http://mail.python.org/pipermail/python-dev/2006-March/062427.html>`__
+
+[SJB]
+
+------------------------------------
+Making staticmethod objects callable
+------------------------------------
+
+Nicolas Fleury suggested that staticmethod objects should be made callable so that code like::
+
+    class A(object):
+        @staticmethod
+        def foo(): pass
+        bar = foo()
+
+would work instead of compaining that staticmethod objects are not callable. Generally, people seemed to feel that most uses of staticmethods were better expressed as module-level functions anyway, and so catering to odd uses of staticmethods was not something Python needed to do.
+
+Contributing thread:
+
+- `Making staticmethod objects callable? <http://mail.python.org/pipermail/python-dev/2006-March/061948.html>`__
+
+[SJB]
+
+----------------------------------
+Adding a uuid module to the stdlib
+----------------------------------
+
+Fredrik Lundh suggested `adding Ka-Ping Yee's uuid module`_ to the standard library. Most people were agreeable to the idea, but with other uuid implementations around, there was some discussion about the details.  Phillip J. Eby suggested something more along the lines of `PEAK's uuid module`_, but no final decisions were made.
+
+.. _adding Ka-Ping Yee's uuid module: http://bugs.python.org/1368955
+.. _PEAK's uuid module: http://svn.eby-sarna.com/PEAK/src/peak/util/uuid.py?view=markup
+
+Contributing thread:
+
+- `how about adding ping's uuid module to the standard lib ? <http://mail.python.org/pipermail/python-dev/2006-March/062119.html>`__
+
+[SJB]
+
+-------------------------------
+A dict that takes key= callable
+-------------------------------
+
+Neil Schemenauer suggested providing dict variants in the collections module that would use the ids of the objects instead of the objects themselves. Guido suggested that it would likely be more useful to design a dict variant that took a key= argument like list.sort() does, and apply that key function to all keys in the dict. That would make implementing Neil's id-dict almost trivial and support a variety of other use-cases, like case-insensitive dicts. People seemed quite supportive of the proposal, but no patch was available at the time of this summary.
+
+Contributing thread:
+
+- `collections.idset and collections.iddict? <http://mail.python.org/pipermail/python-dev/2006-March/062100.html>`__
+
+[SJB]
+
+----------------------------
+Bug in __future__ processing
+----------------------------
+
+Martin Maly found `Guido's previously encountered bug`_ that Python 2.2 through 2.4 allows some assignment statements before the ``__future__`` import. Tim Peters correctly channeled Guido that this was a bug and would be fixed in Python 2.5.
+
+.. _Guido's previously encountered bug: http://mail.python.org/pipermail/python-dev/2006-January/060247.html
+
+Contributing thread:
+
+- `Bug in from __future__ processing? <http://mail.python.org/pipermail/python-dev/2006-March/062047.html>`__
+
+[SJB]
+
+-----------------------
+Cleaning up string code
+-----------------------
+
+Chris Perkins noted that ``str.count()`` is substantially slower than ``unicode.count()``. Ben Cartwright and others indicated that the source for these functions showed clearly that the unicode version had been better optimized. Fredrik Lundh and Armin Rigo both mentioned cleaning up the string code to avoid some of the duplication and potentially to merge the str and unicode implementations together. At the time of this summary, it didn't seem that any progress towards this goal had yet been made.
+
+Contributing thread:
+
+- `str.count is slow <http://mail.python.org/pipermail/python-dev/2006-February/061885.html>`__
+- `str.count is slow <http://mail.python.org/pipermail/python-dev/2006-March/061915.html>`__
+
+[SJB]
+
+---------------------------------------------
+Freeing Python-allocated memory to the system
+---------------------------------------------
+
+Tim Peters spent his PyCon time working on `a patch by Evan Jones`_, originally `discussed in January`_. The patch enables Python to free memory back to the operating system so that code like::
+
+    x = []
+    for i in xrange(1000000):
+       x.append([])
+    del x[:]
+ 
+does not continue to consume massive memory after the del statement. Tim gave python-devvers some time to review the patch for any speed or other issues, and then committed it.
+ 
+.. _a patch by Evan Jones: http://bugs.python.org/1123430
+.. _discussed in January: http://mail.python.org/pipermail/python-dev/2005-January/051255.html
+
+Contributing thread:
+
+- `Arena-freeing obmalloc ready for testing <http://mail.python.org/pipermail/python-dev/2006-March/061991.html>`__
+
+[SJB]
+
+------------------------------------------
+Modifying the context manager __exit__ API
+------------------------------------------
+
+After thinking things over, Guido decided that the context manager ``__exit__`` method should be required to return True if it wants to suppress an exception. This addressed the main concerns about the previous API, that if ``__exit__`` methods were required to reraise exceptions, a lot of ``__exit__`` methods might end up with easily-missed bugs.
+
+Contributing thread:
+
+- `__exit__ API? <http://mail.python.org/pipermail/python-dev/2006-March/062050.html>`__
+
+[SJB]
+
+-------------------------------
+Python 3.0: default comparisons
+-------------------------------
+
+In Python 3.0, Guido plans to ditch the default ``<  <=  >  >=`` comparisons currently provided, and only provide ``==  !=`` where by default all objects compare as unequal.
+
+Contributing thread:
+
+- `Keep default comparisons - or add a second set? <http://mail.python.org/pipermail/python-dev/2006-March/062404.html>`__
+
+[SJB]
+
+
+================
+Deferred Threads
+================
+- `[Python-checkins] r43041 - python/trunk/Modules/_ctypes/cfield.c <http://mail.python.org/pipermail/python-dev/2006-March/062416.html>`__
+
+==================
+Previous Summaries
+==================
+- `Proposal: defaultdict <http://mail.python.org/pipermail/python-dev/2006-March/061945.html>`__
+
+===============
+Skipped Threads
+===============
+- `New test failure on Windows <http://mail.python.org/pipermail/python-dev/2006-March/061928.html>`__
+- `.py and .txt files missing svn:eol-style in trunk <http://mail.python.org/pipermail/python-dev/2006-March/061929.html>`__
+- `Using and binding relative names (was Re: PEP forBetter Control of Nested Lexical Scopes) <http://mail.python.org/pipermail/python-dev/2006-March/061934.html>`__
+- `Stateful codecs [Was: str object going in Py3K] <http://mail.python.org/pipermail/python-dev/2006-March/061946.html>`__
+- `bytes thoughts <http://mail.python.org/pipermail/python-dev/2006-March/061966.html>`__
+- `wiki as scratchpad <http://mail.python.org/pipermail/python-dev/2006-March/061967.html>`__
+- `test_compiler failure <http://mail.python.org/pipermail/python-dev/2006-March/061970.html>`__
+- `DRAFT: python-dev Summary for 2006-01-16 through 2005-01-31 <http://mail.python.org/pipermail/python-dev/2006-March/061986.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-March/061987.html>`__
+- `When will regex really go away? <http://mail.python.org/pipermail/python-dev/2006-March/061988.html>`__
+- `ref leak w/except hooks <http://mail.python.org/pipermail/python-dev/2006-March/061995.html>`__
+- `Faster list comprehensions <http://mail.python.org/pipermail/python-dev/2006-March/062030.html>`__
+- `PEP 357 <http://mail.python.org/pipermail/python-dev/2006-March/062032.html>`__
+- `Lib/test/test_compiler.py fails <http://mail.python.org/pipermail/python-dev/2006-March/062035.html>`__
+- `FrOSCon 2006 - Call for {Papers|Projects} <http://mail.python.org/pipermail/python-dev/2006-March/062057.html>`__
+- `Outdated Python Info on www.unicode.org (fwd) <http://mail.python.org/pipermail/python-dev/2006-March/062058.html>`__
+- `My buildbot host upgraded to OSX 10.4 <http://mail.python.org/pipermail/python-dev/2006-March/062059.html>`__
+- `Slightly OT: Replying to posts <http://mail.python.org/pipermail/python-dev/2006-March/062074.html>`__
+- `New Future Keywords <http://mail.python.org/pipermail/python-dev/2006-March/062080.html>`__
+- `[Python-checkins] Python Regression Test Failures refleak (1) <http://mail.python.org/pipermail/python-dev/2006-March/062082.html>`__
+- `[Python-checkins] Python humor <http://mail.python.org/pipermail/python-dev/2006-March/062090.html>`__
+- `Two gcmodule patches <http://mail.python.org/pipermail/python-dev/2006-March/062105.html>`__
+- `Scientific Survey: Working Conditions in Open Source Projects <http://mail.python.org/pipermail/python-dev/2006-March/062134.html>`__
+- `_bsddb.c ownership <http://mail.python.org/pipermail/python-dev/2006-March/062137.html>`__
+- `str(Exception) changed, is that intended? <http://mail.python.org/pipermail/python-dev/2006-March/062149.html>`__
+- `Long-time shy failure in test_socket_ssl <http://mail.python.org/pipermail/python-dev/2006-March/062173.html>`__
+- `mail.python.org disruption <http://mail.python.org/pipermail/python-dev/2006-March/062175.html>`__
+- `Bug Day? <http://mail.python.org/pipermail/python-dev/2006-March/062191.html>`__
+- `Generated code in test_ast.py <http://mail.python.org/pipermail/python-dev/2006-March/062197.html>`__
+- `fixing log messages <http://mail.python.org/pipermail/python-dev/2006-March/062202.html>`__
+- `[Python-checkins] r42929 - python/trunk/Tools/scripts/svneol.py <http://mail.python.org/pipermail/python-dev/2006-March/062224.html>`__
+- `unicodedata.c no longer compiles on Windows <http://mail.python.org/pipermail/python-dev/2006-March/062241.html>`__
+- `multidict API <http://mail.python.org/pipermail/python-dev/2006-March/062250.html>`__
+- `Google ads on python.org? <http://mail.python.org/pipermail/python-dev/2006-March/062276.html>`__
+- `libbzip2 version? <http://mail.python.org/pipermail/python-dev/2006-March/062287.html>`__
+- `PythonCore\CurrentVersion <http://mail.python.org/pipermail/python-dev/2006-March/062297.html>`__
+- `Strange behavior in Python 2.5a0 (trunk) --- possible error in AST? <http://mail.python.org/pipermail/python-dev/2006-March/062318.html>`__
+- `Why are so many built-in types inheritable? <http://mail.python.org/pipermail/python-dev/2006-March/062334.html>`__
+- `checkin r43015 <http://mail.python.org/pipermail/python-dev/2006-March/062342.html>`__
+- `Topic suggestions from the PyCon feedback <http://mail.python.org/pipermail/python-dev/2006-March/062345.html>`__
+- `Another threading idea <http://mail.python.org/pipermail/python-dev/2006-March/062383.html>`__
+- `Octal literals <http://mail.python.org/pipermail/python-dev/2006-March/062400.html>`__
+- `[Python-checkins] r43022 - in python/trunk: Modules/xxmodule.c Objects/object.c <http://mail.python.org/pipermail/python-dev/2006-March/062407.html>`__
+- `[Python-checkins] Python Regression Test Failuresrefleak (1) <http://mail.python.org/pipermail/python-dev/2006-March/062409.html>`__
+- `[Python-checkins] r43028 - python/trunk/Modules/_ctypes/cfield.c <http://mail.python.org/pipermail/python-dev/2006-March/062413.html>`__
+- `PEP 338 implemented in SVN <http://mail.python.org/pipermail/python-dev/2006-March/062422.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+March 01, 2006 through March 15, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 15th written by
+the python-dev summary pair of Steve Bethard and Tony Meyer (some day we'll really catch up).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.  Unfortunately, even though reST is standardized, the
+wonders of programs that like to reformat text do not allow us to
+guarantee you will be able to run the text version of this summary
+through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _original text file: http://www.python.org/dev/summary/2006-03-01_2006-03-15.rst
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

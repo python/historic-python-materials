@@ -1,0 +1,301 @@
+Title: python-dev Summary for 2003-10-16 through 2003-11-15
+
+<div class="document" id="python-dev-summary-for-2003-10-16-through-2003-11-15">
+<h1 class="title">python-dev Summary for 2003-10-16 through 2003-11-15</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> from October 16, 2003 through November 15, 2003.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> (or email <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join <a class="reference" href="http://www.python.org/dev/">python-dev</a>!</p>
+<p>This is the twenty-eighth and twenty-ninth summaries written by Brett Cannon (does anyone even read this?).</p>
+<p>All summaries are archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a> (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for <a class="reference" href="http://www.python.org/dev/peps/pep-0012">PEP markup</a> and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is unless it is from the original text file.</p>
+<p>The in-development version of the documentation for Python can be found at <a class="reference" href="http://www.python.org/dev/doc/devel/">http://www.python.org/dev/doc/devel/</a> and should be used when looking up any documentation on something mentioned here.  PEPs (Python Enhancement Proposals) are located at <a class="reference" href="http://www.python.org/dev/peps/">http://www.python.org/dev/peps/</a> .  To view files in the Python CVS online, go to <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/">http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/</a> .  Reported bugs and suggested patches can be found at the <a class="reference" href="http://sourceforge.net/tracker/?group_id=5470">SourceForge</a> project page.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#summary-announcements" id="id1" name="id1">Summary Announcements</a></li>
+<li><a class="reference" href="#summaries" id="id2" name="id2">Summaries</a><ul>
+<li><a class="reference" href="#how-to-help-with-the-development-of-python" id="id3" name="id3">How to help with the development of Python</a></li>
+<li><a class="reference" href="#generator-expressions-list-comp-s-older-brother" id="id4" name="id4">Generator Expressions: list comp's older brother</a></li>
+<li><a class="reference" href="#list-sorted-is-born" id="id5" name="id5">list.sorted() is born</a></li>
+<li><a class="reference" href="#recursion-limit-in-re-is-now-history" id="id6" name="id6">Recursion limit in re is now history</a></li>
+<li><a class="reference" href="#copying-iterators-one-day-at-a-time" id="id7" name="id7">Copying iterators one day at a time</a></li>
+<li><a class="reference" href="#returning-py-none-true-false-now-easier-than-ever" id="id8" name="id8">Returning Py_(None, True, False) now easier than ever!</a></li>
+<li><a class="reference" href="#string-substitutions-dict-interpolation-replace-blah-s-with-blah" id="id9" name="id9">'String substitutions'/'dict interpolation'/'replace %(blah)s with $blah'</a></li>
+<li><a class="reference" href="#reduce-just-doesn-t-get-enough-mileage" id="id10" name="id10">&quot;reduce() just doesn't get enough mileage&quot;</a></li>
+<li><a class="reference" href="#pypy-update" id="id11" name="id11">PyPy update</a></li>
+<li><a class="reference" href="#never-say-python-is-finished" id="id12" name="id12">Never say Python is finished</a></li>
+<li><a class="reference" href="#rough-draft-of-decimal-object-pep" id="id13" name="id13">Rough draft of Decimal object PEP</a></li>
+<li><a class="reference" href="#relations-of-basestring-and-bye-bye-operator-ismappingtype" id="id14" name="id14">Relations of basestring and bye-bye operator.isMappingType</a></li>
+<li><a class="reference" href="#why-one-checks-into-the-trunk-before-a-maintenance-branch" id="id15" name="id15">Why one checks into the trunk before a maintenance branch</a></li>
+<li><a class="reference" href="#new-reversed-built-in" id="id16" name="id16">New reversed() built-in</a></li>
+<li><a class="reference" href="#cleaning-the-built-in-house" id="id17" name="id17">Cleaning the built-in house</a></li>
+<li><a class="reference" href="#passing-arguments-to-str-encode-decode" id="id18" name="id18">Passing arguments to str.(encode|decode)</a></li>
+<li><a class="reference" href="#where-oh-where-to-move-the-good-stuff-out-of-string" id="id19" name="id19">Where, oh where, to move the good stuff out of string?</a></li>
+<li><a class="reference" href="#supported-versions-of-sleepycat-for-bsddb" id="id20" name="id20">Supported versions of Sleepycat for bsddb</a></li>
+<li><a class="reference" href="#sets-now-at-blazing-c-speeds" id="id21" name="id21">Sets now at blazing C speeds!</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="summary-announcements">
+<h1><a class="toc-backref" href="#id1" name="summary-announcements">Summary Announcements</a></h1>
+<p>Thanks to midterms and projects my time got eaten up by school.  That postponed when I could work on the twenty-eighth summary so much that the twenty-ninth was need of being written.  So they are combined in into one to just get the stuff out the door.</p>
+<p>The second half of October had some major discussions happen.  Guido and Alex Martelli talking equals pain for me.  =)</p>
+<p>There was a large discussion on scoping and accessing specific namespaces.  Jeremy Hylton is working on a PEP on the subject so I am not going to stress myself over summarizing the topic.</p>
+<p>A big discussion on the first half of November was about weakrefs and shutdown.  Tim Peters figured out the problem (had to do with weakrefs referencing things already gc'ed and thus throwing a fit when trying to gc them later or keeping an object alive because of the weakref).  It was long and complicated, but the problem was solved.</p>
+<p>If you have ever wanted to see linked lists used in Python in a rather elegant way, take a look at Guido's implementation of itertools.tee at <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039593.html">http://mail.python.org/pipermail/python-dev/2003-October/039593.html</a> .</p>
+<p>Europython is going to be held from June 7-9, 2004 in Sweden.  See <a class="reference" href="http://mail.python.org/pipermail/europython/2003-November/003634.html">http://mail.python.org/pipermail/europython/2003-November/003634.html</a> for more details.</p>
+<p>PyCon is slowly moving along.  The registration site is being put through QA and the paper submission system is being worked on.  The Call for Proposals (CFP) is still on-going; details at <a class="reference" href="http://www.python.org/pycon/dc2004/cfp.html">http://www.python.org/pycon/dc2004/cfp.html</a> .  Keep an eye out for when we announce when the registration and paper submission systems go live.</p>
+</div>
+<div class="section" id="summaries">
+<h1><a class="toc-backref" href="#id2" name="summaries">Summaries</a></h1>
+<div class="section" id="how-to-help-with-the-development-of-python">
+<h2><a class="toc-backref" href="#id3" name="how-to-help-with-the-development-of-python">How to help with the development of Python</a></h2>
+<p>In an attempt to make it easy as possible for people to find out how they can help contribute to Python's development, I wrote an essay on the topic (mentioned last month, but some revisions have been done).  It covers how Python is developed and how <strong>anyone</strong> can contribute to the development process.  The latest version can be found at <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039473.html">http://mail.python.org/pipermail/python-dev/2003-October/039473.html</a> .</p>
+<p>Any comments on the essay are appreciated.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038677.html">Draft of an essay on Python development</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039473.html">2nd draft of &quot;How Py is Developed&quot; essay</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="generator-expressions-list-comp-s-older-brother">
+<h2><a class="toc-backref" href="#id4" name="generator-expressions-list-comp-s-older-brother">Generator Expressions: list comp's older brother</a></h2>
+<p>If you ever wanted to have the power of list comprehensions but without the overhead of generating the entire list you have Peter Norvig to thank initially, and then what seems like the rest of the world, for generator expressions.</p>
+<p><a class="reference" href="http://www.python.org/dev/peps/pep-0289">PEP 289</a> covers all the details, but here is a quick intro.  You can think of generator expressions as list comprehensions that return an iterator for each item instead a list items.  The syntax is practically the same as list comprehensions as well; just substitute parentheses for square brackets (most of the time; generator expressions just need parentheses around them, so being the only argument to a method takes care of the parentheses requirement).</p>
+<p>A quick example is:</p>
+<pre class="literal-block">
+(x for x in range(10) if x%2)
+</pre>
+<p>returns an iterator that returns the odd numbers from 0 to 10.  This make list comprehensions just syntactic sugar for passing a generator expression to list() (note how extra parentheses are not needed):</p>
+<pre class="literal-block">
+list(x for x in range(10) is x%2)
+</pre>
+<p>Having list comprehensions defined this way also takes away the dangling item variable for the 'for' loop.  Using that dangling variable is now discouraged and will be made illegal at some point.</p>
+<p>For complete details, read the PEP.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038652.html">decorate-sort-undecorate</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038804.html">accumulator display syntax</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039081.html">listcomps vs. for loops</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039356.html">PEP 289: Generator Expressions (second draft)</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="list-sorted-is-born">
+<h2><a class="toc-backref" href="#id5" name="list-sorted-is-born">list.sorted() is born</a></h2>
+<p>After the addition of the 'key' argument to list.sort(), people began to clamor for list.sort() to return self.  Guido refused to do give in, so a compromise was reached.  'list' now has a class method named 'sorted'; pass it an iterable and it will return a sorted list.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038811.html">decorate-sort-undecorate</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038825.html">inline sort option</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038855.html">sort() return value</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038947.html">copysort patch</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="recursion-limit-in-re-is-now-history">
+<h2><a class="toc-backref" href="#id6" name="recursion-limit-in-re-is-now-history">Recursion limit in re is now history</a></h2>
+<p>Thanks to Gustavo Niemeyer the recursion limit in the re module has now be removed!</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038839.html">SRE recursion</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038962.html">SRE recursion removed</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="copying-iterators-one-day-at-a-time">
+<h2><a class="toc-backref" href="#id7" name="copying-iterators-one-day-at-a-time">Copying iterators one day at a time</a></h2>
+<p>Reiteration for iterators came up as part of the immense discussion on generator expressions.  The difficulty of doing it generally came up.  This lead to Alex Martelli proposing magic method support for __copy__ in iterators that have want to allow making a copy of itself.  This was written down as <a class="reference" href="http://www.python.org/dev/peps/pep-0323">PEP 323</a>.</p>
+<p>As an interim solution, itertools grew a new function: tee.  It takes in an iterable and returns two or more iterators which independently iterate over the iterable.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038969.html">Reiterability</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039593.html">cloning iterators again</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039656.html">... python/nondist/peps pep-0323.txt, NONE ...</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039819.html">Guido's Magic Code</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="returning-py-none-true-false-now-easier-than-ever">
+<h2><a class="toc-backref" href="#id8" name="returning-py-none-true-false-now-easier-than-ever">Returning Py_(None, True, False) now easier than ever!</a></h2>
+<p>Py_RETURN_NONE, Py_RETURN_TRUE, and Py_RETURN_FALSE have been added to Python 2.4.  They are macros for returning the singleton mentioned in the name.  Documentation has yet to be written (my fault).</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039000.html">How to spell Py_return_None and friends</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039026.html">python/dist/src/Include object.h, 2.121, ...</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="string-substitutions-dict-interpolation-replace-blah-s-with-blah">
+<h2><a class="toc-backref" href="#id9" name="string-substitutions-dict-interpolation-replace-blah-s-with-blah">'String substitutions'/'dict interpolation'/'replace %(blah)s with $blah'</a></h2>
+<p>The idea of introducing string substitutions using '$' came up.  Guido said that if this was made a built-in feature it would have to wait until Python 3.  He was receptive to moving the functionality to a module, though.</p>
+<p>Barry Warsaw pasted code into <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039369.html">http://mail.python.org/pipermail/python-dev/2003-October/039369.html</a> that handles string substitutions.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039324.html">Can we please have a better dict interpolation syntax?</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="reduce-just-doesn-t-get-enough-mileage">
+<h2><a class="toc-backref" href="#id10" name="reduce-just-doesn-t-get-enough-mileage">&quot;reduce() just doesn't get enough mileage&quot;</a></h2>
+<p>That quote comes from Guido during the discussion over whether 'product' should be added as an accumulator function built-in like 'sum'.  The idea was shot down and conversation quickly turned to whether 'reduce' should stay in the language (the consensus was &quot;no&quot; since the function does not read well and its functionality can easily be done with a 'for' loop).</p>
+<p>A larger discussion on what built-ins should eventually disappear will be covered in the next Summary.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039326.html">product()</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="pypy-update">
+<h2><a class="toc-backref" href="#id11" name="pypy-update">PyPy update</a></h2>
+<p>The <a class="reference" href="http://codespeak.net/pypy/">PyPy</a> development group sent an update on their happenings to the list.  Turns out they are trying to get funding from the European Union.  They are also fairly close to getting a working version (albeit with some bootstrapping from CPython, but it will still be damn cool what they have pulled off even with this caveat).</p>
+<p>They also announced a sprint they are holding in Amsterdam from Dec. 14-21.  More info can be found at <a class="reference" href="http://codespeak.net/moin/pypy/moin.cgi/AmsterdamSprint">http://codespeak.net/moin/pypy/moin.cgi/AmsterdamSprint</a> .</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039579.html">PyPy: sprint and news</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="never-say-python-is-finished">
+<h2><a class="toc-backref" href="#id12" name="never-say-python-is-finished">Never say Python is finished</a></h2>
+<p>I asked python-dev for masters thesis ideas.  I great number of possibilities were put out.  If anyone out there is curious to see what some people would like to see done for Python in terms of a large project check the thread out.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039763.html">Looking for master thesis ideas involving Python</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="rough-draft-of-decimal-object-pep">
+<h2><a class="toc-backref" href="#id13" name="rough-draft-of-decimal-object-pep">Rough draft of Decimal object PEP</a></h2>
+<p>Facundo Batista has posted a rough draft of a PEP for a decimal object that is being worked on in the sandbox.  Comment on it on <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> if this interests you.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/039870.html">prePEP: Decimal data type</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="relations-of-basestring-and-bye-bye-operator-ismappingtype">
+<h2><a class="toc-backref" href="#id14" name="relations-of-basestring-and-bye-bye-operator-ismappingtype">Relations of basestring and bye-bye operator.isMappingType</a></h2>
+<p>The idea of introducing relatives of basestring for numbers came from Alex Martelli.  That idea was shot down for not being needed once the merger of int and long occurs.</p>
+<p>The point that operator.isMappingType is kind of broken came up.  Both Alex and Raymond Hettinger would not mind seeing it disappear.  No one objected.  It is still in CVS at the moment, but I would not count on it necessarily sticking around (although there are rumblings that there might be a way to fix it so it is partially useful).</p>
+<dl>
+<dt>Contributed threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/039885.html">reflections on basestring -- and other abstract basetypes</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/040122.html">operator.isMappingType</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="why-one-checks-into-the-trunk-before-a-maintenance-branch">
+<h2><a class="toc-backref" href="#id15" name="why-one-checks-into-the-trunk-before-a-maintenance-branch">Why one checks into the trunk before a maintenance branch</a></h2>
+<p>The question of whether checking a change into a maintenance branch before applying it to the main trunk was acceptable came up.  The short answer is &quot;no&quot;.  Basically the trunk gets more testing than the maintenance branches and thus the patch should have to prove its stability first.  Only then should it go into a maintenance branch.</p>
+<p>The same goes for changes to code that will eventually disappear in the trunk.  Someone might be planning on removing some code, but if that person falls off the face of the earth the code will still be there.  That means applying the patch to the code that is scheduled to disappear is still a good idea.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/039903.html">check-in policy, trunk vs maintenance branch</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="new-reversed-built-in">
+<h2><a class="toc-backref" href="#id16" name="new-reversed-built-in">New reversed() built-in</a></h2>
+<p>There was a new built-in named reversed(), and all rejoiced after giving the creator a thorough beating.</p>
+<p>Straight from the function's doc string: &quot;reverse iterator over values of the sequence&quot;.  <a class="reference" href="http://www.python.org/dev/peps/pep-0322">PEP 322</a> has the relevant details on this new built-in.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/039924.html">PEP 322:  Reverse Iteration</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="cleaning-the-built-in-house">
+<h2><a class="toc-backref" href="#id17" name="cleaning-the-built-in-house">Cleaning the built-in house</a></h2>
+<p>Guido asked what built-ins should be considered for deprecation.  Instantly intern, coerce, and apply came up.  apply already had a PendingDeprecationWarning and that will stay for the next release or two.  intern and coerce, though, did not have any major champions (intern had some fans, but just for the functionality).</p>
+<p>Guido did state that none of these built-in will be removed any time soon.  If they do get deprecated it does not lead to immediate removal.  Python 3, though, takes the gloves off and that can see them just completely disappear.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/039994.html">Deprecating obsolete builtins</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="passing-arguments-to-str-encode-decode">
+<h2><a class="toc-backref" href="#id18" name="passing-arguments-to-str-encode-decode">Passing arguments to str.(encode|decode)</a></h2>
+<p>The idea of allowing keyword arguments be passed to any specified encoder/decoder was brought up by Raymond Hettinger.  It seemed like an idea that was supported.  The idea of specifying the encoder or decoder based on the actual object instead of the current way of specifying a string that is passed to the registered codec search functions was suggested.</p>
+<p>Nothing has been finalized on this idea as of now.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/040055.html">Optional arguments for str.encode /.decode</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="where-oh-where-to-move-the-good-stuff-out-of-string">
+<h2><a class="toc-backref" href="#id19" name="where-oh-where-to-move-the-good-stuff-out-of-string">Where, oh where, to move the good stuff out of string?</a></h2>
+<p>It looks like ascii_* and possibly maketrans from the string module will be tacked on to the str type so that the string module can finally be removed from the language.  It has not been pronounced upon, but it looks like that is what the BDFL is leaning towards.</p>
+<p>Issues of using the methods of str as unbound methods did come up.  As it stands you cannot pass a unicode object to str.upper and thus there is no one uppercasing function as there is in the string module.  This issue brought up the problem of Unicode and locale ties and collation (how to sort things).</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/040067.html">other &quot;magic strings&quot; issues</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="supported-versions-of-sleepycat-for-bsddb">
+<h2><a class="toc-backref" href="#id20" name="supported-versions-of-sleepycat-for-bsddb">Supported versions of Sleepycat for bsddb</a></h2>
+<p>The basic answer is 3.2 - 4.2 should work when you compile from source.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/040196.html">which sleepycat versions do we support in 2.3.* ?</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="sets-now-at-blazing-c-speeds">
+<h2><a class="toc-backref" href="#id21" name="sets-now-at-blazing-c-speeds">Sets now at blazing C speeds!</a></h2>
+<p>Raymond Hettinger implemented the sets API in C!  The new built-ins are set (which replaces sets.Set) and frozenset (which replaces sets.ImmutableSet).  The APIs are the same as the sets module sans the name change from ImmutableSet to frozenset.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/040253.html">set() and frozenset()</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="2003-10-16_2003-11-15.txt">View document source</a>.
+Generated on: 2003-11-27 19:26 UTC.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>

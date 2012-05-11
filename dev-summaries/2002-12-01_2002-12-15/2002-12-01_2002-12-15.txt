@@ -1,0 +1,238 @@
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+python-dev Summary for 2002-12-01 through 2002-12-15
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+This is a summary of traffic on the `python-dev mailing list`_ between December 1, 2002 and December 15, 2002 (inclusive).  It is intended to inform the wider Python community of on-going developments on the list that might interest the wider Python community.  To comment on anything mentioned here, just post to python-list@python.org or comp.lang.python in the usual way; give your posting a meaningful subject line, and if it's about a PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep iteration). All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join python-dev!
+
+This is the seventh summary written by Brett Cannon (and thus my seventh attempt to get into amk's `Python Quotations <http://www.amk.ca/quotations/python-quotes/>`__).
+
+All summaries are now archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_; you can safely ignore it (although I suggest learning reST; its simple and is accepted for PEP markup).  Also, because of the wonders of programs that like to reformat, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is.  If you want to do that, get an original copy of the text file.
+
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+======================
+Summary Announcements
+======================
+
+Aahz  suggested that I try writing the summary from a third-person perspective so as to remove ambiguity if anyone ever quotes something from a summary which was written in first-person.  I am giving it a go in this summary although there is not much here that is affected.
+
+I am also trying to use extended characters for people's names.  Hopefully it will show up correctly when I send it out and in the HTML version of this.
+
+There was an error in the last summary where I gave Guido's position on something incorrectly (summary of dict evaluation order).  It has been fixed.  I am going to fix errors like that in old summaries with an errata note in the text version.  It won't show up in the HTML version, though.
+
+And go to PyCon_.  =)
+
+.. _PyCon: http://www.python.org/pycon/
+
+===================================
+`New universal import mechanism`__
+===================================
+__ http://mail.python.org/pipermail/python-dev/2002-December/030602.html
+
+Splinter threads:
+	- `New and Improved Import Hooks <http://mail.python.org/pipermail/python-dev/2002-December/030638.html>`__
+	- `Re: New and Improved Import Hooks <http://mail.python.org/pipermail/python-dev/2002-December/030708.html>`__
+	- `Re[2]: [Python-Dev] New and Improved Import Hooks <http://mail.python.org/pipermail/python-dev/2002-December/030776.html>`__
+	- `New Import Hook & New Zip Importer <http://mail.python.org/pipermail/python-dev/2002-December/030755.html>`__
+	- `(no subject) <http://mail.python.org/pipermail/python-dev/2002-December/030812.html>`__
+	- `Another approach for the import mechanism <http://mail.python.org/pipermail/python-dev/2002-December/030828.html>`__
+	- `Re: Another approach for the import mechanism <http://mail.python.org/pipermail/python-dev/2002-December/030985.html>`__
+	- `New Import Hook & New Zip Importer <http://mail.python.org/pipermail/python-dev/2002-December/030755.html>`__
+	- `Import: where's the PEP? <http://mail.python.org/pipermail/python-dev/2002-December/030868.html>`__
+	- `zipimport & import hooks <http://mail.python.org/pipermail/python-dev/2002-December/030886.html>`__
+	- `VFS <http://mail.python.org/pipermail/python-dev/2002-December/030952.html>`__
+	- `Zip imports, PEP 273, and the .zip extension <http://mail.python.org/pipermail/python-dev/2002-December/030953.html>`__
+	- `Import compromise <http://mail.python.org/pipermail/python-dev/2002-December/030956.html>`__
+	- `zipimport, round 3 (or would that be 37?) <http://mail.python.org/pipermail/python-dev/2002-December/030968.html>`__
+	- `Complexity of import.c <http://mail.python.org/pipermail/python-dev/2002-December/031000.html>`__
+	- `zipimport, round 4 <http://mail.python.org/pipermail/python-dev/2002-December/031009.html>`__
+	- `new import hooks & zip import <http://mail.python.org/pipermail/python-dev/2002-December/030755.html>`__
+
+In case you can't figure it out from the title of all of the splnter threads, there was an immense discussion about `PEP 273`_ and getting an import mechanism for zipped modules.  To give a little back-story, PEP 273 proposes allowing modules to be put into a zip file for easy distribution.  You could then just add the zip file to ```sys.path`_`` , PYTHONPATH_ , etc. and importing from the zip file would be handled properly.  It was scheduled to be included in Python 2.3 thanks to Paul Moore keeping James Ahlstrom's patch synced with CVS.  All was right with the world, more or less.
+
+But Just van Rossum didn't like the added complexity to import.c_.  This led to Just to write a new import mechanism.  Basically Just was unhappy with how much fiddling the PEP 273 patch was doing to import.c.  So, just like any self-respecting programmer would do, he came up with his own solution. =)  Most of the discussion revolved around a few central points.
+
+One was whether this was even worth the effort.  Since the PEP 273 patch worked, why should Just bother reinventing the wheel?  The whole reason Just decided to come up with another implementation was a major point.  The other was that he felt he could come up with a more general way of allowing custom importers *and* have zip imports a part of the core.  There was also a discussion of whether Gordon McMillan's `iu.py`_ wasn't a good solution; it was already well-tested and coded.  Just decided to still write his.
+
+Just wanted to be able to put arbitrary objects in ``sys.path`` like iu.py.  This would allow the object to be called to figure out whether it had the module being requested or not.  Taking the zip importer as an example, there would be a zipimporter instance in ``sys.path`` for each zip file in the path (once it was discovered it was a zip file; bootstrapping has been carefully handled).  The issue of backward-compatibility was instantly brought up.  It has been assumed that everything in ``sys.path`` was a string and starting to include zipimporter objects would break that.  The idea of making zipimporters (and any subsequent importers in the stdlib) subclasses of strings was brought up and basically accepted, although Guido viewed it as an ugly hack.
+
+But in the end, Just's version acts like iu.py.  The basic algorithm for handling zip files is::
+
+    def find_module(name, path):
+        if isbuiltin(name):
+            return builtin_filedescr
+        if isfrozen(name):
+            return frozen_filedescr
+        if path is None:
+            path = sys.path
+        for p in sys.path:  # I think Just meant to say ``path`` here
+            try:
+                v = zipimporter(p)
+            except ZipImportError:
+                pass
+            else:
+                w = v.find_module(name)
+                if w is not None:
+                    return w
+            ...handle builtin file system import...
+
+It is easily generalized to work for any registered importers.  There is also the idea of adding something called a "meta path" that iu.py has.  It would allow one to override any import by catching it before trying ``sys.path``.  This is part of what has allowed ``sys.path`` to have only strings even with zip file support.  The meta path can be set up for a zip importer that overrides ``sys.path`` for a zip file.
+
+One other discussion was over this was going to need a PEP.  Just has written up an explanation, but as to whether a PEP is required has not been decided.
+
+Just's implementation is now a patch at http://www.python.org/sf/652586 .
+
+.. _PEP 273: http://www.python.org/peps/pep-0273.html
+.. _sys.path: http://www.python.org/doc/current/lib/module-sys.html
+.. _PYTHONPATH: http://www.python.org/doc/current/tut/node8.html
+.. _import.c: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Python/compile.c
+.. _iu.py: http://www.mcmillan-inc.com/iu.html
+
+===================
+`Mac OSX issues`__
+===================
+__ http://mail.python.org/pipermail/python-dev/2002-December/030604.html
+
+Continuation of http://mail.python.org/pipermail/python-dev/2002-November/030525.html
+
+Guido got a hold of a OS X box and ran the test suite on it and found four tests that didn't pass.  One was for ``locale`` (which Guido didn't care about), another was the ``test_largefile`` test, another was for ``re``, and the last one was for ``socket``.
+
+The ``test_largefile`` suite seeks on a new file to a huge position.  On OS X and Windows 2000 this actually adds to the file up to the seek point so as to make it a complete file.  Windows 9x, on the other hand, just writes to that offset regardless of whether it is within the bounds of the file.  Because it creates such a huge file it takes forever to complete and thus has been made an optional test on OS X.
+
+The ``re`` tests were failing for a lack of space on the stack.  to allow the tests to pass you need to execute the statement ``ulimit -s 2000`` which ups the stack size to approximately 2 Mb.  This has sense been added to the regression testing framework to be done for you if needed.
+
+``socket`` was failing on ``.getsockbyaddr()`` when trying it for the machine's own name.  Barry Warsaw discovered that the test passed if you set hostnames by using NetInfo.
+
+==============================================================
+`RE: how to kill process on Windows started with os.spawn?`__
+==============================================================
+__ http://mail.python.org/pipermail/python-dev/2002-December/030595.html
+
+Skip Montanaro wanted to be able to kill a Windows process externally.  He suggested implemented a ``os.kill()`` function that would kill a process in a platform-independent way.  Problem is that Windows wants the process hook which is different from what POSIX wants.  Another issue is that the Windows docs say that you should not kill processes externally.  It seems the idea has been dropped.
+
+=========================================================
+`extension module .o files wind up in the wrong place`__
+=========================================================
+__ http://mail.python.org/pipermail/python-dev/2002-December/030644.html
+
+Skip Montanaro discovered that if you built Python in a subdirectory of the source directory (e.g., source in ``source/`` and you are building in ``source/build/``) the .o files are put in the wrong place (they use ``source/`` as the root directory to place things instead of ``source/build/``).  Someone resolved this issue for themselves by doing a ``make distclean`` and then running ``../configure``.  Skip is still trying to figure out of a bug report needs to be filed.
+
+=========================================
+`Make universal newlines non-optional`__
+=========================================
+__ http://mail.python.org/pipermail/python-dev/2002-December/030692.html
+
+Martin v. Lšwis asked if anyone mind not making universal newline support a compile option.  He volunteered to remove the ``#ifdef`` statements and such to get this done.  Jack Jansen (who wrote the universal newline code) pointed out that if it was required there could be issues on certain platforms.  Martin had no issue with this since this would force the platform maintainers to fix the code for it to work.  In the end Martin suggested leaving it an option in 2.3 and removing it as an option and requiring it in 2.4.
+
+============================================
+`Re: [Patches] Patch for xmlrpc encoding`__
+============================================
+__ http://mail.python.org/pipermail/python-dev/2002-December/030984.html
+
+A discussion over a patch for ``xmlrpclib`` ended up on python-dev.  The relevancy of it was that the statement ``sys.{get,set}defaultencoding`` is only useful for coercion of Unicode to byte strings.  It was also stated that ASCII should always be assumed to be the default encoding.  Also, never put any non-ASCII text in a string; that is what Unicode objects are for.
+
+==========================
+`PEP 242 Numeric kinds`__
+==========================
+__ http://mail.python.org/pipermail/python-dev/2002-December/030859.html
+
+Paul DuBois emailed the list mentioning how a group of people were supposed to get together to decide the fate of `PEP 242`_ in June 2002; that didn't happen.  So Paul suggested making the suggested "making it a separate deliverable on the Numeric_ site and withdrawing the PEP".  Everyone who responded pretty much said  to add the proposed module.  A final outcome has not been decided as to whether Paul will rescind the PEP or push it forward.  If you have an opinion on the matter, let it be known.
+
+.. _PEP 242: http://www.python.org/peps/pep-0242.html
+.. _Numeric: http://www.pfdubois.com/numpy/
+ 
+==================
+`We got leaks!`__
+==================
+__ http://mail.python.org/pipermail/python-dev/2002-December/030933.html
+
+Tim Peters discovered that the new datetime_ type was leaking memory.  The C version was slowly leaking about 10 references per loop through the testing suite.  But the Python version was leaking 37 reference per loop through.  Tim did his reference checking using this chunk of code::
+
+ def test_main():
+    import gc
+    r = unittest.TextTestRunner(stream=sys.stdout, verbosity=2)
+    s = test_suite()
+    while True:
+        r.run(s)
+        gc.collect()
+        print gc.garbage  # this is always an empty list
+        print '*' * 10, 'total refs:', sys.gettotalrefcount()
+
+This substituted for the ``test_main()`` for the testing suite printed out the reference numbers rather nicely.
+
+Well, it didn't take the weekend to solve.  Kevin Jacobs stepped up to help.  The first thing he found was that it was not occurring in a debug build (which is why when you are testing new code you should **always** run it in a debug build).  Then Kevin discovered the issue came up when executing a ``__hash__()`` call on anything.  Tim then realized a missing decrement in ``slot_tp_hash()`` was the culprit.  Then Kevin found another culprit in ``cPickle_``.  That was also patched (and everything has been flagged to be backported to the 2.2 branch).
+
+The reason this thread is being mentioned is because it 1) was all solved in 5 hours and 40 minutes which is pretty cool and 2) using the  chunk of code that Tim provided to stare at the reference count is a good way to look for memory leaks in your code.
+
+.. _datetime: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/nondist/sandbox/datetime/
+.. _cPickle: http://www.python.org/doc/current/lib/module-cPickle.html
+
+=========================
+`os.path.commonprefix`__
+=========================
+__ http://mail.python.org/pipermail/python-dev/2002-December/030947.html
+
+Armin Rigo noticed how ``os.path.commonprefix()`` works character-by-character and not by path separators as one might expect (although the  documentation does warn about its char-by-char nature).  Skip Montanaro suggested ``os.path.commonpathprefix()`` be added.  He mentioned that `Tools/scripts/trace.py`_ had such functionality.  As of this writing no one has taken the initiative to add the function.
+
+.. _Tools/scripts/trace.py: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Tools/scripts/trace.py
+
+========================================================
+`__getstate__() not inherited when __slots__ present`__
+========================================================
+__ http://mail.python.org/pipermail/python-dev/2002-December/030980.html
+
+Greg Ward noticed that "If a class and its superclass both define __slots__, it appears that __getstate__() is not inherited from the superclass."  He wasn't sure if this was a bug or a feature.  Well, it's a feature; since there  is no guarantee that the superclass's ``__getstate__()`` will know about the subclass's ``__slots__``, it is not automatically inherited.
+
+Kevin Jacobs provided the following snippet of code to deal with this "feature"::
+
+  def __getstate__(self):
+    state = getattr(self, '__dict__', {}).copy()
+    for obj in type(self).mro():
+      for name in getattr(obj,'__slots__',()):
+        if hasattr(self, name):
+          state[name] = getattr(self, name)
+    return state
+
+  def __setstate__(self, state):
+    for key,value in state.items():
+      setattr(self, key, value)
+
+====================
+`Tarfile support`__
+====================
+__ http://mail.python.org/pipermail/python-dev/2002-December/031086.html
+
+Gustavo Niemeyer asked for some help in reviewing the patch ( http://www.python.org/sf/651082 ) that adds Lars Gustabel's tarfile module to the stdlib.  The question of the license came up.  Lars said he would be willing to change the license over to the `Python Software Foundation`_ .  An initial license hand-off agreement is available at http://www.python.org/psf/psf-contributor-agreement.html .
+
+.. _Python Software Foundation: http://www.python.org/psf/
+
+==============================
+`Tcl, Tkinter, and threads`__
+==============================
+__ http://mail.python.org/pipermail/python-dev/2002-December/031107.html
+
+Martin v. Lšwis has now modified ```_tkinter`_`` as so to be able to be used when Tcl has been compiled with thread support.  Special thanks goes out to Martin for taking over maintenance of the module.
+
+.. __tkinter: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/_tkinter.c
+
+============
+`PEP 298`__
+============
+__ http://mail.python.org/pipermail/python-dev/2002-December/031109.html
+
+Splinter threads:
+
+	- `PEP-298: buffer interface widening too much? <http://mail.python.org/pipermail/python-dev/2002-December/031163.html>`__
+	- `PEP-298: buffer interface widening too much? <http://mail.python.org/pipermail/python-dev/2002-December/031184.html>`__
+
+Thomas Heller wanted to resolve whether to move forward with an implementation for `PEP 298`_ .  This led to a discussion over the specifics of the PEP.  Martin v. Lšwis wnated some more specific wording from the PEP.
+
+Todd Miller then stepped in to say he didn't like how much of an interface was being tacked on.  Martin commented that his `PEP 286`_ would help in this whole situation, which Todd ended up agreeing with.
+
+.. _PEP 298: http://www.python.org/peps/pep-0298.html
+.. _PEP 286: http://www.python.org/peps/pep-0286.html

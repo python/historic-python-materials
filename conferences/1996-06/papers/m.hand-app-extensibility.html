@@ -1,0 +1,395 @@
+<HTML>
+<HEAD>
+<TITLE>Application Extensibility in Python</TITLE>
+</HEAD>
+<BODY bgcolor="#ffffff">
+
+<H1 align=center>Application Extensibility in Python</H1>
+<H2 align=center><em><a href="mailto:manus@evolving.com">Manus Hand</a></em></H2>
+<HR>
+<H3>Abstract</H3>
+As an interpreted language, Python is extensible in a number of important
+ways.  The author has taken advantage of this aspect of the language in the
+implementation of a multi-featured and extensible mail and Web form handling
+and processing application.  This paper explores some of the methods by which
+Python has proven itself to be the perfect choice for this application and
+for others in this domain.
+
+<H3>Introduction</H3>
+<a href="http://www.csn.net/~mhand/DipPouch">Diplomacy</a> is a multi-player
+game published by The Avalon Hill Game Company.  The favorite game of both
+John F. Kennedy and Henry Kissinger, Diplomacy is a true chanceless
+battle of wits.
+
+Because it involves a considerable amount of negotiation between players
+before orders for the various pieces on the board are decided, the game of
+Diplomacy adapts perfectly for e-mail based play.
+
+After a negotiation period, the orders entered by each player for every
+gamepiece under his or her control are adjudicated simultaneously, and the
+results (success or failure) of each player's moves are determined based on the
+actions of the pieces controlled by the other players.
+<P>
+The play of Diplomacy is supported over e-mail by a public domain application
+simply known as
+<a href="ftp://ftp.ugcs.caltech.edu/pub/diplomacy/Sources/dipsrc.v8.0.tar.Z">the
+"judge."</a> Developed by <a href="mailto:ken@cac.washington.edu">Ken Lowe</a>
+and now maintained by a large <a href="mailto:judge-maint@nda.com">team of
+programmers</a>, the judge is written in C and runs at a large number of sites
+worldwide.  Diplomacy players issue orders and publish and distribute
+so-called "press" messages by sending e-mail to the judge account.  The judge
+program then "reads" this mail and responds to it appropriately after taking
+any requested action.
+<P>
+The game of Diplomacy is uniquely variantizable.  By this, it is meant that
+the basic ruleset of the game may be taken wholesale from its standard setting
+on a map of turn-of-the-century Europe to any number of different gameboards.
+Additionally, the rules themselves have proven malleable enough to have spawned
+a great multitude of cataloged variant games, and new variants appear at all
+times.
+
+It has been an often unworkable chore for the current judge to support the
+play of these many Diplomacy variants.
+<P>
+Beyond this, the current judge software is completely e-mail based, and to
+enable the play of Diplomacy using the World Wide Web would entail either
+a sophisticated CGI adapter program or a completely new adjudicator.  With
+this in mind, I set out to write a new adjudicator which would receive and
+parse messages sent both by e-mail and via Web forms.  The design goals for
+this effort also included making the new judge easily extensible for rule and
+gameboard variations.  This entailed the need for easy addition of new user
+commands and parameters to those initially recognized by the parser.
+
+<H3>Database Maintenance</H3>
+At a high level, the adjudicator program would need to maintain two distinct
+sets of persistent data.  The first of these would be the list of recognized
+(or registered) players, and the second would be all data for each of the
+various games being played (who the players in each game are, where the
+different pieces are currently located, when the next deadline for order
+submission is, which rule and "press" variants are in use, etc.).
+<P>
+For both of these datasets, the Python language itself was used to enable
+quick and easy storage and retrieval.  At the same time, data in storage
+is kept in a human-readable and modifiable format; it is in fact kept in
+the native language itself.
+<P>
+Without getting deep into details, the code in Listing 1 shows the relevant
+sections of the <tt>UserList</tt> class from the adjudicator code.
+
+<blockquote>
+<pre>
+class UserList:
+    def __init__(self, user_file):
+        self.user_file = user_file
+        execdict = { }
+        execfile(user_file, globals(), execdict)
+        self.users = execdict['users']
+    #   ----------------------------------------
+    def save(self):
+        file = open(self.user_file, 'w')
+        file.write('users = ' + `self.users`)
+        file.close()
+</pre>
+</blockquote>
+<p align=center><strong>Listing 1.
+    <tt>UserList</tt> Storage and Retrieval</strong>
+<P>
+As is apparent from the code above, an instance of the <tt>UserList</tt> class
+loads itself from and saves itself to a file on the file system, and it does
+so using executable Python code.  The <tt>users</tt> attribute in the 
+<tt>UserList</tt> class is a true Python dictionary (in actuality, it is
+a dictionary of dictionaries) and the code takes advantage of Python's
+ability to "print" dictionary (and other language) objects in parser readable
+format.
+<P>
+With this simple storage system in place, manipulation of the data contained
+in an instance of <tt>class&#160;UserList</tt> can be performed either manually
+(by editing the file containing the executable code) or by any number of
+distinct utility programs (including, but not limited to, the adjudicator
+itself) which put to use methods within the <tt>UserList</tt> class, each of
+which operates on the <tt>users</tt> dictionary object.  The ability to quickly
+review the contents of an object by instructing it to <tt>save()</tt> and
+then examining the file to which it was saved, and to manually correct any
+problems in the data while debugging the class implementation is invaluable.
+<P>
+Notice that the <tt>__init__</tt> method of the class passes a segregated
+local variable dictionary (named <tt>execdict</tt>) to the <tt>execfile</tt>
+function.  It is this (initially empty) dictionary within which the variable
+<tt>users</tt> is created and populated.  After return from the
+<tt>execfile</tt> function, this variable is copied into <tt>self.users</tt>.
+<P>
+This technique is used due to a bug in version 1.3 of the Python interpreter
+which prevents code executed by the <tt>exec</tt> command from properly
+updating local dictionaries.  Python's creator,
+<a href="mailto:guido@CNRI.Reston.VA.US">Guido Van Rossum</a> confirmed this
+as a bug and suggested this approach in mail to the author, which was then
+summarized in a posting to the
+<a href="news:comp.lang.python"><tt>comp.lang.python</tt></a> newsgroup.
+<P>
+Storage and retrieval of the <tt>Game</tt> class is founded on the same
+principle, although the class is more sophisticated than is the
+<tt>UserList</tt>
+class.  The relevant portions of the implementation of <tt>class&#160;Game</tt>
+and a global utility function are reproduced in Listing 2, below.
+
+<pre>
+class Game:
+    def __init__(self, game_name, template_name, variant_list,
+                 power_tuple, player_dict, deadline_dict, map_dict):
+        self.name       = game_name
+        self.type       = template_name
+        self.variants   = Variant(variant_list)
+        self.powers     = PowerList(power_tuple)
+        self.players    = PlayerList(player_dict)
+        self.deadline   = Deadline(deadline_dict)
+        self.map        = Map(map_dict)
+    #   ------------------------------------------------------------
+    def save(self):
+        file = open(game_dir + self.name, 'w')
+        file.write('game = Game(\n' +
+                        `self.name` + ',\n' +
+                        `self.type` + ',\n' +
+                        `self.variants` + ',\n' +
+                        `self.powers` + ',\n' +
+                        `self.players` + ',\n' +
+                        `self.deadline` + ',\n' +
+                        `self.map` + '\n)\n')
+        file.close()
+#   ================================================================
+def loadgame(game_name):
+    try:
+        execdict = { }
+        execfile(game_dir + game_name, globals(), execdict)
+        return execdict['game']
+    except IOError, detail:
+        if detail[0] > 2:
+            raise IOError, detail
+</pre>
+<p align=center><strong>Listing 2.
+    <tt>Game</tt> Storage and Retrieval</strong>
+<P>
+Here we see the same principle applied in a slightly modified form.  The
+global function <tt>loadgame</tt> is tasked with executing an assignment
+statement which is contained by an auxiliary file, and with returning the
+assigned variable as the result of the function call.  The variable assignment
+is a <tt>Game</tt> class member instantiation, and this class contains a
+<tt>save</tt> method which reconstructs the assignment statement in the
+auxiliary file.  Here we see that the auxiliary file is actually given a
+name which reflects the <tt>game_name</tt> of the object it instantiates.
+In this way, multiple instances of an object type can be supported.  This
+contrasts with the <tt>UserList</tt> class, which has no need to provide
+this functionality, and which therefore has a simpler implementation.
+<P>
+As can be seen, the <tt>Game</tt> class is sufficiently complex that it
+contains a larger number of data attributes than does the <tt>UserList</tt>
+class, and many of these are instances of other classes.  These other classes
+(<tt>Variant</tt>, <tt>Deadline</tt>, etc.) each contain a single data
+attribute, either a Python list or a Python dictionary object.  In this way,
+the <tt>__repr__</tt> method provided for each of these classes easily
+generates a printable form of the class instance,
+and one which is immediately Python-loadable for use in the <tt>__init__</tt>
+method.
+
+<H4>Plug and Play</H4>
+
+Another important requirement of the application being discussed is
+extensibility of the recognized command set.  Since new game variants are
+forever being
+defined, and since new functionality is always being suggested for support
+by an adjudicator, the application must be made easily extensible in this
+respect.  The design goal, then, is that new user commands -- new ways by which
+data elements (such as <tt>Game</tt> instances) may be altered by the user --
+must be easily integrated into the application.
+<P>
+With the Lowe judge (written in C), enhancements and alterations
+are the end result of a long and drawn-out development process.  The
+volunteer maintenance team works on an <em>ad hoc</em> schedule, and new
+platform issues are resolved
+with each numbered software release, when the software is built on each
+target machine.  The code itself has grown sufficiently complex that a person
+who has developed even a simple game variant or new user command must solicit
+for an expert on the maintenance team to enhance the code for the next release.
+<P>
+In the Python application, the language itself provides a true ease of
+extension.  As with data storage and retrieval, the chosen mechanism is
+the <tt>execfile</tt> function.
+<P>
+As with the current judge, the Python implementation supports a number
+of commands which appear in the incoming (e-mail or Web form generated)
+message.  Each of these commands occupy their own physical line of text,
+and must begin with a keyword specifying the command type.  In the Python
+implementation, there is no command list, no textual comparison, no function
+table, and no "case" statement, each of which would require maintenance for
+every enhancement.  Instead, Python itself is used to enable quick
+location and execution of the relevant code for each command.  This also
+enables any Python-fluent developer to very easily extend the application.
+<P>
+Consider the excerpt from the <tt>ProcessBody</tt> method of
+<tt>class Message</tt>, shown in Listing 3.  This code looks at each text
+line in a message body and performs the single command requested thereby:
+<pre>
+#   -----------------------------------------------------------------
+#   Set up a variables dictionary for use by the code which performs
+#   any requested command.  This dictionary contains the complete set
+#   of variables exported to such code.  A list and description of
+#   these variables, including their possible values when a command
+#   is invoked, is all the knowledge needed for any developer to add
+#   support for a new command to the application.
+#   -----------------------------------------------------------------
+execdict = {    'user':     self.user,  'address':  self.address,
+                'game':     None,       'role':     None,
+                'response': response,   'userbase': self.userbase }
+#   ---------------------------------
+#   Get each line in the message body
+#   ---------------------------------
+for textline in self.body:
+    #   -------------------------------------------------
+    #   Convert the line to lower-case letters and fill a
+    #   list to contain each (whitespace-separated) word.
+    #   (The first word is the command to be performed,
+    #   and empty lines are ignored.
+    #   -------------------------------------------------
+    commands = split(lower(line))
+    if not commands:
+        continue
+
+    #   ------------------------------------------------------------
+    #   Load this list into the dictionary which is to be used as
+    #   the local variable dictionary by the command-executing code.
+    #   ------------------------------------------------------------
+    execdict['commands'] = commands
+
+    try:
+        #   ----------------------------------------------------------
+        #   Now execute the command.  This involves simply executing
+        #   the code in a Python file (located in a certain directory)
+        #   which was given the same name as the requested command.
+        #   ----------------------------------------------------------
+        execfile(cmd_dir + commands[0] + '.py', globals(), execdict)
+
+        #   -------------------------------------------------
+        #   Note that after completion of the execfile(), the
+        #   contents of the execdict dictionary may have been
+        #   modified.  The adjudicator command which was
+    	#   executed may have loaded a "game", associated a
+    	#   "role" with the user, etc., etc.
+        #   -------------------------------------------------
+
+    except AbortMessage, detail:
+        #   ----------------------------------------------
+        #   The command code may raise certain defined
+        #   exceptions to indicate failure of the command;
+        #   one of these is AbortMessage.
+        #   ----------------------------------------------
+        <em>produce diagnostic output, etc.</em>
+        return
+    except IOError:
+        #   ---------------------------------------------------------
+        #   If the file having the appropriate name was not located
+        #   by execfile(), then the IOError exception will be raised.
+        #   ---------------------------------------------------------
+        <em>produce "no such command" output, etc.</em>
+</pre>
+<p align=center><strong>Listing 3.  Command Invocation</strong>
+<P>
+With this approach, implementation of a command locater is complete.  In
+this respect, the application can be though of as being a mini-operating
+system, where commands can be likened to executable files which are located
+and run by an operating system when requested from a command line.
+Regardless of the number and names of commands which are added to the
+processor (ignoring such operating restrictions as the number of files which
+may permissibly occupy the same directory), the code shown in Listing 3 will
+not need to be updated.  The file system itself is able to host the one and
+only list of supported commands.
+<P>
+There are many advantages to this method of command execution, including the
+fact that one need not dive into code to know what commands are available.
+Note that the command files to be executed are given the "<tt>.py</tt>" file
+extension.  While this is not necessary, it does enable the file to be
+dynamically <tt>import</tt>ed by auxiliary utility programs or even by the
+adjudicator itself.  Importing code needs only to provide a local dictionary
+containing the required local dictionary variables.  Thus, simply by using
+Python's <tt>__doc__</tt> facility and the <tt>import</tt> command, 
+documentation for each command can then be retrieved automatically.
+<P>
+It is worth noting that, alternative to loading "<tt>.py</tt>" files, the
+auxiliary commands could be loaded in byte-compiled ("<tt>.pyc</tt>") form.
+The code in Listing 3 need only be minimally changed to load and <tt>exec</tt>
+this form of auxiliary code file.  In a posting to the
+<tt>comp.lang.python</tt> newsgroup, Guido Van Rossum provided simple
+instructions for converting a byte-stream which was loaded from a
+<tt>.pyc</tt> file into an object which may be fed to the <tt>exec</tt>
+function.
+<P>
+Regardless of the chosen form of loading the command code, this implementation
+is also truly secure, in that the developer who adds a new command
+implementation file has access only to
+those variables which are passed to the code via the <tt>execdict</tt>
+dictionary.  This contrasts with the C implementation, which, for the
+same modification, would require a developer to open up the guts of the
+machine, giving him the ability to introduce any number of errors.
+<P>
+A developer who adds a new command to those supported by the application is
+also able to test his enhancements in a live environment as soon as he wishes
+to do so, and the lead-time for introduction of new features is nearly
+eliminated.
+<P>
+
+This approach is itself extensible, of course.  One of the commands supported
+by the application is the <tt>VARIANT</tt> command, which can alter a loaded
+<tt>Game</tt> object in a number of ways.  The code which implements this
+command simply walks the list of arguments to the command, and for each one
+attempts to execute (again using <tt>execfile</tt>) code in a file (located in
+a separate segregated directory) having the the same name as the argument in
+question.
+<P>
+Yet a further application of this same technique is found in the implementation
+of certain of the <tt>VARIANT</tt>s which can be applied to a game.  To
+contrive an example, a variant which, when set for a particular game, would
+forbids certain players from negotiating with certain others, would be
+implemented, like any other, by adding a Python code file which has the
+chosen name of the variant (let's call it <tt>restrict</tt>) to
+the directory in which the variant implementations are kept.  The code in this
+file, using methods of <tt>class&#160;Game</tt> and the <tt>game</tt>
+variable available to it via the passed local dictionary, would add the word
+"<tt>restrict</tt>" to the currently loaded <tt>Game</tt> object's
+<tt>variant</tt> list, and also add to that list some Python code (in this
+example, as simple as a forbidding <tt>if</tt> statement, perhaps) which the
+adjudicator will locate and execute whenever a <tt>PRESS</tt> command is
+given.  It is a
+simple matter to identify the few points in the course of game processing
+when it is appropriate to have the adjudicator search a <tt>Game</tt>
+object's <tt>variant</tt> list for code to be executed before proceeding.
+One such point is the
+invocation of a <tt>PRESS</tt> command, another is the advent of order
+adjudication, and yet a third would be the distribution of the results of a
+given game turn (as, for example, a variant may call for certain
+move results to be kept secret from certain players).
+<P>
+Note that these code snippets, loaded into a <tt>Game</tt> object by
+arguments to the <tt>VARIANT</tt> command, are persistent with the
+<tt>Game</tt> object (at least until the variant in question is "turned off"
+by a subsequent <tt>VARIANT</tt> command).  This, of course, is because
+these "hook-catching" code fragments are actually saved to disk as part of
+the object, and in a readable, reloadable form.  This brings us full-circle,
+back to the first application of <tt>execfile</tt> which was discussed in
+this paper.
+
+<H4>Conclusion</H4>
+
+This paper briefly discussed the ways in which Python's interpreted nature,
+and its ability to execute auxiliary Python code at locations which are
+determined at runtime can be used to great advantage.  Python offers a
+clean way of storing and retrieving data in a human- and machine-readable
+format, and Python enables the developer to write command or argument
+engines which can be made completely independent from the underlying
+implementations.  This makes Python applications not only very easy to
+enhance but to maintain and support.
+<P>
+<HR>
+<em><a href="http://www.csn.net/~mhand">Manus Hand</a>
+is a senior staff member and Senior Programmer with Denver-based
+<a href="http://www.evolving.com">Evolving Systems, Inc.</a>, a leading
+provider of software solutions for the telecommunications industry.</em>
+</BODY>
+</HTML>

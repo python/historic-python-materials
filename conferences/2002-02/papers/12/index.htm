@@ -1,0 +1,429 @@
+<HTML>
+<HEAD>
+<TITLE></TITLE>
+
+</HEAD>
+<BODY>
+
+<h1 align="center">HL4MI:</h1>
+<h2 align="center">Using Python To Integrate Gaming and Ubiquitous
+Computing</h2>
+<h6 align="center">Brian M. Dennis<br>
+Computer Science Department, Northwestern University<br>
+URL: http://kenya.cs.northwestern.edu/bmd/<br>
+e-mail: <a href="mailto:bmd@cs.northwestern.edu">bmd@cs.northwestern.edu</a></h6>
+<h3>Abstract. </h3>
+<p>The architecture and implementation of Half-Life for Multimodal Multimedia Interaction
+(HL4MI) is discussed. HL4MI is a project to explore ubiquitous computing and gaming. The commer-cial
+game Half-Life serves as a simulator for military tactical decision scenarios. Commodity PDAs,
+commercial wireless lan technology, and Internet based protocols are used to extend the game interface
+onto auxiliary devices.
+</p><p>
+The HL4MI architecture relies heavily on Python. Python is embedded into a modified Half-Life game
+server. The integrated interpreter announces interesting game events to distributed clients. A remote
+procedure call server also runs in the interpreter. This allows for clients to remotely control the game.
+Finally, clients on handheld devices are implemented using the C and Java versions of Python.
+</p>
+<h3>Introduction</h3>
+<p>
+Half-Life for Multimodal Multimedia Interfaces (HL4MI) is an innovative application of
+Python to gaming and ubiquitous computing. The project’s goal is to improve decision mak-ing
+in military command and control. The thesis of the project is that ubiquitous computing
+concepts can help achieve this end. Towards that end Python is used to implement a gam-ing/
+simulation infrastructure that supports the use of wirelessly connected personal digital
+assistants (PDAs) during game play.
+</p><p>
+HL4MI touches on almost every strength of the Python language. Python is embedded in
+the first person shooter game Half-Life [1] to provide a sensor network on the game’s virtual
+world. Python provides the glue around a content based messaging service. This messaging
+service distributes the sensor data. An RPC server is also implemented within Half-Life. This
+allows for remote control of the game server. Clients that monitor the game state and control
+the server are written in Python. Python’s portability and integration with GUI services are
+a key advantage here.
+</p><p>
+Figure 1 illustrates the HL4MI architecture at a high level. HL4MI can serve as a design
+example of a Python based ubiquitous computing environment. The design presents a simple,
+elegant system for remote observation and manipulation of a complex system.
+</p>
+<h3>Motivation and Design Goals</h3>
+<p>This work is being conducted as part of the DARPA Command Post of the Future (CPOF)
+Project. The CPOF program is charged with investigating how computing can improve com-mand
+and control decisions in combat. These situations involve distributed group communi-cation,
+fast decision making, high rates of information generation, and personnel mobility.
+</p><p align="center">
+<img src="image12a.gif">
+<h6 align=center>Fig. 1. A high level overview of the HL4MI infrastructure</h6></p>
+<p>Our thesis is that ad hoc collections of computers can lead to improvements in tacti-cal
+decision making. A system that coordinates small constellations of interactive devices
+(desktop, handheld, large displays) can provide the right interactive affordances at the right
+time.
+</p><p>
+Gaining access to a militarily realistic experimental environment is extremely difficult.
+First person shooter games, such as Half-Life, exhibit many of the decision making aspects of
+interest. Thus, such games can serve as first order approximations to the desired environment.
+</p><p>
+The approach of using a game in this fashion has a number of advantages. The simulation
+platform is readily accessible to a civilian population. Experimental subjects are easy to find
+and train. Maintenance and deployment issues are reduced. Since the simulation engine is
+software, the virtual world can be perfectly instrumented. The only major drawback is the
+level of fidelity to true military situations.
+</p><p>
+A key question is how to construct the ubiquitous computing infrastructure. The result
+must enable three major capabilities. First, observation of interesting events in the tactical
+environment must be possible. Second, there must be a mechanism for distributed clients
+to receive these events. This reception should not require tight coordination with the game
+server. Third, remote clients must have a means to affect the game world.
+</p><p>
+In the abstract, a distributed computing system is the end result. Distributed systems
+have a long history and are a continued area of research. There are any number of existing
+technologies to build such systems. Certainly widely popular object oriented solutions such
+as CORBA, DCOM, and Jini could have been brought to bear.
+</p><p>
+However, a scripting language based approach was chosen. One key reason is the ability
+to embed such languages within systems code. This makes integration with pre–existing
+systems easier. Successful scripting languages simplify network programming and support
+most popular network protocols. Architectural flexibility in HL4MI is an overarching concern.
+Scripting language support for gluing existing libraries and components together allows us
+to rapidly prototype connections to tools in the field. The accessibility of scripting langauges
+decreases the cost of bringing new programmers onto the project. Finally, deployment is
+simpler relative to most distributed object systems.
+</p><p>
+Given the scripting language approach, there are any number of implementations to
+choose from. Perl and Python, as two of the most mature and featureful languages, were
+considered. Python was settled upon for the following reasons. Python is almost trivially
+embedded within any application extensible through C or C++ code. Python can easily
+participate in most component systems and supports programming of almost all popular and
+emerging Internet protocols. Python implementations exist across a wide range of platforms,
+including the handheld devices of interest. Python code performance was satisfactory for most
+of our purposes and bottlenecks can be easily engineered around. All of our needs could be
+satisfied by Python, but the language interoperates well with other languages. Python is more
+consistent than Perl making the language more accessible to undergraduates, a major source
+of programmers for this project. Also, Python’s interaction with threads seems to be better
+implemented than Perl’s. Finally, the Jython implementation of Python turned out to be
+particularly advantageous. The differences in Windows CE C/C++, relative to the desktop,
+force severe limitations in ports of the most popular scripting languages. Insignia’s Jeode [2]
+Java virtual machine for Windows CE supports Jython on stock commercial handheld devices
+such as the Compaq iPaq.
+</p>
+<h3>HL4MI</h3>
+<p>Besides Python, the HL4MI architecture has three other major elements. The first is the
+game Half-Life, used as a virtual tactical decision environment. The second part is Elvin [3],
+a content based messaging system. Elvin is used to distribute game observations to interested
+parties. Lastly, clients on various platforms receive and process these observations. Clients
+present the information to end users or perform automated processing on their behalf.
+</p>
+<h4>Half-Life</h4>
+<p>There are a number of commercial games that could have been chosen for this project. Half-Life
+was selected due to the gameplay design and the extension capabilities of the game
+engine.
+</p><p>
+Half-Life is commendably extensible for a commercial game. Game play in Half-Life’s
+game server is embodied by a set of C++ classes. The source for this code is freely available.
+These classes are built into a dynamic link library (DLL) that is loaded at runtime into
+the main game engine. The engine periodically calls into the DLL to effect game logic.
+Numerous new games have been constructed with players, non-players, weapons, and game
+rules differing highly from stock Half-Life. As an example, one such commercial extension,
+Counter-Strike, simulates a hostage rescue situation.
+</p><p>
+This leads into how Half-Life’s gameplay style is advantageous. Straight Half-Life is
+a single player, single machine mission. However, Half-Life also supports network based
+team play. While still somewhat of a chaotic frenzy, elements of group communication and
+coordination come into play. In the real world of the military, such issues are at the core
+of tactical effectiveness. Network Half-Life is then a basis for more tactically sophisticated
+game play.
+</p>
+<h4>Elvin</h4>
+<p>Elvin is a daemon based system for content based, asynchronous messaging. Messages are
+essentially bags of named properties. The names are simple identifiers, while the actual prop-erty
+values can be strings, integers, longs, and opaque sequences of bytes. Long lived Elvin
+servers listen for client event announcements. Clients also inform Elvin servers what events
+they are interested in by providing subscriptions, patterns that match events of interest.
+Elvin daemons are then responsible for routing events to the appropriate registered clients.
+Figure 2 illustrates the Elvin architecture. Elvin supports ad hoc discovery of servers and
+<p align=center><img src="image12b.gif">
+<h6 align="center">Fig. 2. The Elvin architecture for content based routing</h6></p>
+can use a variety of transport mehanisms (UDP, TCP, HTTP, SSL) to connect clients with
+daemons. Work is ongoing to allow for federations of Elvin servers to span multiple subnets.
+This capability allows a cloud of Elvin daemons to form a reliable wide area messaging sys-tem.
+The Elvin distribution provides a pure Python module for connecting to Elvin servers,
+registering subscriptions, generating Elvin events and receiving announcements.
+</p><p>
+Using Elvin to distribute game observations provides HL4MI with two key capabilities.
+Distributed asynchronous messaging supports networked clients that do not centrally coordi-nate
+with the game server. The game server simply generates events of interest as frequently
+as possible with as much information as possible. Elvin’s content based routing then supports
+filtering of these events on a client’s behalf. This makes clients much simpler to program rel-ative
+to other messaging infrastructures such as pure IP Multicast, heavyweight message
+queues such as the Java Messaging Service, or advanced group communication systems such
+as Spread [4].
+</p>
+<h4>The HL4MI Architecture</h4>
+<p>HL4MI is an extension module (mod for short) for Half-Life. The HL4MI mod retains the
+networked, team game play from the publisher’s software developers kit. Embedded within
+the mod is a Python interpreter.
+</p><p>
+Various game events of significance are noted and forwarded to the interpreter for pro-cessing.
+These events are then transmitted to clients using Elvin. In addition, the interpreter
+implements a SOAP [5] based remote procedure call (RPC) server. Figure 3 provides an illus-tration
+of the architecture. The figures on the right represent diverse collections of interactive
+devices, the ultimate target of this work.
+</p><p align="center">
+<img src="image12c.gif">
+<h6 align="center">Fig. 3. The HL4MI architecture</h6></p>
+<p>The C implementation of Python has been designed to be easily embedded within C
+and C++ code. This made it straightforward to embed C-Python in a Half-Life mod. For
+each game instance, the game engine instantiates an instance of a gamerules class. Within
+this class we have an opportunity to initialize the Python interpreter. The mod implements
+a C++ Python module to support calls into the game world as part of the RPC server.
+Also as part of the initialization process, a pure Python module, pyhl, is imported into the
+interpreter. This module provides the dispatchMessage procedure.
+</p><p>
+dispatchMessage is intended to handle event callbacks. Game events are sent in as
+Python dictionaries. Dictionaries encourage callbacks to include as much information as
+possible. dispatchMessage can easily ignore information it does not know about. These
+events can be processed anyway the pyhl module sees fit. A key flexibility of this scheme is
+that event processing can be replaced without rebuilding HL4MI.
+</p><p>
+Generating Elvin events from the Python interpreter embedded into Half-Life is quite
+easy. Here are some examples of the types of events that are currently distributed to clients.
+Roughly once per second, every player’s position is announced. When players acquire or lose
+items, such as weapons, an announcement is made. Changes to player health as well as player
+deaths are announced. Player connections and disconnections, level intermissions, and game
+completions also generate notifications.
+</p><p align=center><blockquote><pre>
+Figure 4 illustrates a portion of a client designed to just listen for position announcements
+from one particular player.
+import elvin
+# The callback for position announcements
+def sub_cb(sub, nfn, insec, rock):
+print "bmd’s new location: %d, %d" % (nfn[’x’], nfn[’y’])
+# Establish a connection to the nearest Elvin
+# daemon responsible for generating HL4MI events
+connection = client.connection()
+connection.set_discovery(1)
+connection.set_scope("hl4mi")
+connection.open()
+# Listen only for position announcements about me
+sub_string = ’require(HL4MI) && type == "position" && player == "bmd"’
+sub = connection.subscribe(sub_string)
+sub.add_listener(sub_cb, connection)
+sub.register()
+#-- wait for delivery
+connection.run()</pre></blockquote>
+<h6 align=center>Fig. 4. A code sample of subscribing to HL4MI Elvin events using Python.</h6>
+</p><p>
+Clients can connect to the HL4MI infrastructure after a game has started. Forcing clients
+to recover strictly by listening for events would be inefficient and non-deterministic. In ad-dition
+to asynchronous events, the embedded Python interpreter implements a synchronous
+RPC server. Clients can use this mechanism to query the game state.
+</p><p>
+The SOAP protocol is used to implement the RPC server. SOAP is an emerging Web
+based standard, primarily for doing RPC using XML over HTTP. The benefits of using
+SOAP for this project were numerous. SOAP in Python is supported by a diverse number
+of packages. Deploying SOAP clients is easy, requiring only a TCP stack and XML parsing.
+This is especially advantageous for underpowered, mobile, handheld devices. SOAP supports
+interoperation with a wide range of languages such as Perl and Java. Our SOAP server library
+is currently SOAP.py version 0.9.7 [6]. Figure 5 illustrates Python code to remotely adjust a
+<p align="center"><blockquote><pre>
+import SOAP, random
+HL4MIEndPointURL = ’http://hl4mi.cs.nwu.edu/’
+NamespaceURI = ’urn:hl4mi’
+server = SOAP.SOAPProxy(HL4MIEndPointURL, namespace=NamespaceURI)
+roster = server.getRoster()
+unlucky = random.choice(roster)
+server.changeHealth(unlucky[’id’], -10)</pre></blockquote>
+<h6 align="center">Fig. 5. Sample code to remotely adjust a player’s health in HL4MI.</h6>
+player’s health.
+</p><p>
+A simple intial set of RPC calls is currently provided in HL4MI. Lists of the current
+teams and rosters for each team can be requested. The equipment a particular player has
+can be retrieved. Similarly, clients can query the current health and current team of a player.
+Text messages that appear on a player’s console can be sent from any SOAP enabled client.
+The same can be done for the game server’s log messages. Finally, clients can affect the game
+world by remotely changing the health of a player or causing the player to lose an item.
+</p>
+<h3>HL4MI Clients</h3>
+<p>The current set of clients are fairly primitive, but Python is still a central element of the
+process. Figure 6 presents some client screen captures from handheld devices. The leftmost
+capture is a two dimensional overhead view of the relative positions of the players within
+the game world. This is currently implemented in C++. The capture on the right is a client
+which displays the current health of a team of players. This second client is written using
+Jython running on Insignia’s Jeode Java virtual machine. The clients execute on Compaq
+iPaqs running Microsoft PocketPC 3.0. These handhelds are equipped with 802.11b wireless
+LAN cards. Clients are also being prototyped using C-Python on iPaqs running Handheld
+Linux.
+</p><p>
+Clients deployed on advanced tablet machines running Windows 2000 are being proto-typed
+using ActiveState Python. These tablets have a touch screen for pen based interaction.
+Python’s strong integration with a variety of graphical user interface toolkits (Tk, wxWin-dows,
+gtk, Qt) is advantageous. The tablet machines are Fujitsu Stylistic 3600s, equipped
+with a Pentium III, 256 Mb of memory, a 10 GB hard drive, and an 802.11b wireless lan
+card.
+</p><p align="center">
+<img src="image12d.jpg">
+<h6 align="center">Fig. 6. Screen captures of our current clients which run on handheld devices.</h6>
+</p>
+<h3>Future Directions</h3>
+<p>HL4MI currently provides a basic experimental infrastructure. Much work remains. Our ini-tial
+client set is starting to reveal programming patterns within the HL4MI framework. This
+knowledge can guide the construction of Python based class libraries, object frameworks,
+and/or language extensions to support programming in this domain. Further contributions
+will be in exploring how the availability of ubiquitous computing capabilities changes game
+play. These efforts fall into two areas: exploding the HUD out into multiple ubiquitous com-puting
+devices and pulling the context in to the game play.
+</p>
+<h4>Pythonic Programming Support</h4>
+<p>HL4MI provides mechanism to build ubiquitous clients for command and control. There is
+little experience building such clients. Asynchronous events lead to non-obvious patterns of
+control flow. Abstraction and composition of events and their descriptions is not a part of
+HL4MI. Can Pythonic programming styles ease the task of writing clients for this infras-tructure?
+The Elvin subscription language is limited, being a means for writing tri-valued logic
+expressions [7]. A lack of abstraction and composition constructs in the language constrains
+the complexity of subscriptions that can be expressed. Beyond a few conjunctions, subscrip-tions
+become unreadable. Wrapping a high level Pythonic toolkit around the subscription
+language should remove both of these problems.
+</p><p>
+Asynchronously generated events are a core element of HL4MI. However, event driven
+programming is not familiar and accessible to many programmers. Experience from GUI
+toolkits [8], iterators, state machines, coroutines, and continuations can provide guidance.
+Recent versions of the Python language (2.2) and alternative implementations, such as Stack-less
+Python [9], provide rich support for such programming constructs. Similar to the sub-scription
+language, a framework for HL4MI event processing could be built on top of these
+facilities.
+</p><p>
+Finally, large potential exists to incorporate automated proactive assistance in HL4MI.
+This step moves in the direction of artificial intelligence. Python based agent and machine
+learning frameworks, such as Narval [10], should be easy to integrate.
+</p>
+<h4>Exploding the HUD</h4>
+<p>The Python based sensor network embedded in Half-Life can be used in a more sophisticated
+fashion. Significant tactical events can be detected internally. For example, from current game
+events, a simple qualitative analysis of how “spread out” a team is can be calculated. This
+analysis could be constantly displayed ambiently on an unobtrusive device not connected to
+a player’s HUD. If a team becomes too spread out, then a team leader can be automatically
+informed.
+</p><p>
+Within HL4MI the varying affordances of different devices can be leveraged. The result
+of game analyses described above can be delivered to different devices. For example, using
+auditory channels might be more appropriate for alerting a commander to the fact that his
+team is too spread out. A wirelessly connected PDA with earbud headphones and streaming
+audio support could fill this role.
+</p><p>
+A colleague here at Northwestern University, Professor Ian Horswill, studies autonomous
+mobile robot systems. Some of Horswill’s students have applied his techniques to non-player
+characters in Half-Life, termed Flexbots [11]. Merging HL4MI and Flexbots is a prime ob-jective.
+The monitoring and control of Flexbots is a good opportunity to apply ubiquitous
+computing techniques. The point of autonomy is to allow an otherwise engaged player not to
+interact with his robotic teammates. However, the player does want to monitor these team-mates
+while consuming little cognitive bandwidth. As well, directing these robotic teammates
+is occasionally called for. In an ubiquitous enviromment, what are appropriate mechanisms
+to do so?
+</p>
+<h4>Pulling Context In</h4>
+<p>“Pulling context in”, refers to incorporating real world context into the game play. People
+can play games in different physical environments. Technologies such as Active Badges [12]
+and iButtons [13] support sensing of people’s location in the physical world. Can we take
+this information and change how Half-Life is played? In the near future, a player may be in
+a physical environment that has wall sized displays, sophisticated audio input and output,
+and network accessible data storage and processing. Some memebers of the team may be
+physically located with the player, while others are remote.
+</p><p>
+With an appropriate ubiquitous computing infrastructure, the game engine can incorpo-rate
+these varied contexts and adjust game play accordingly. For example, when an expe-rienced
+commander is colocated with members of his team, the commander may become a
+force multiplier, improving the combat effectiveness of the team’s virtual players. This is in
+addition to the fact that the team probably coordinates better thanks to physical proximity.
+Even more striking would be a game that increases the complication of play when a rich
+information environment is detected.
+</p>
+<h3>Related Work</h3>
+<p>The most relevant related work is Pederson’s QWPython project [14]. QWPython wraps a
+Python interpreter around the C++ core of QuakeWorld, a freely available server for mul-tiplayer
+Quake, a game similar to Half-Life. In QWPython, Python replaces the QuakeC
+language for implementing game logic. In contrast to HL4MI, QWPython is oriented toward
+implementing new gameplay styles. HL4MI’s first goal is integrating a game into an ubiqui-tous
+computing environment. Future efforts to incorporate ubquitous computing capabilities
+into the game play will be informed by QWPython.
+</p><p>
+As well, Asbahr [15] describes an embedding of Python in a next generation version
+of Ultima Online. Ultima Online is a multiplayer role-playing game; a much different style
+from Half-Life. Eve Online [16] is a similar massively multiplayer online game that relies on
+Stackless Python to implement game logic.
+</p><p>
+The MoPY [17] project has somewhat similar goals to HL4MI in terms of integrating
+Python and ubiquitous computing. MoPY takes a CORBA based approach to building the
+distributed infrastructure. The application space is oriented towards highly mobile clients
+supported over a wider area. Thus, network bandwidth and reliability constraints are much
+tighter. Also, the communication rate between the handhelds and applications is significantly
+reduced in comparison to HL4MI.
+</p><p>
+Rakotonirainy and Chilvers [18] describe a mobile computing infrastructure based upon
+the Hector [19] distributed object system. The project focused on transparent adaptive be-havior
+under mobility along with object migration in a distributed system. Interestingly the
+work seems to have been based on an earlier version of Elvin, validating the choice of Elvin
+for communication in HL4MI.
+</p>
+<h3>Conclusion</h3>
+<p>The Half-Life for Multimodal Multimedia Interaction architecture, (HL4MI), was presented.
+In HL4MI, Python was heavily used to integrate a first person shooter game into an ubiqui-tous
+computing infrastucture. HL4MI embeds Python into a network server for the commer-cial
+game Half-Life. The interpreter implements a remotely accessible sensor network on the
+virtual world. The Elvin messaging system allows clients to remotely observe the game state.
+A SOAP based RPC server for remotely controlling the game server was also incorporated.
+</p><p>
+Distributed clients that leverage this infrastructure run on a variety of networked devices.
+Besides stock desktop tools, tablet and PDA based prototype clients have been implemented.
+C-Python on Linux based handhelds and Jython on WinCE machines were used.
+</p><p>
+HL4MI is an ongoing concern. Future work will include more development of distributed
+multimodal interfaces. Game play design in an HL4MI environment will also be examined.
+Constructing Python based frameworks and toolkits for programming HL4MI tools will be
+a major effort.
+</p><p>
+HL4MI’s key lesson is that a combination of Python’s capabilities, a robust content based
+messaging system (Elvin), and an open RPC protocol (SOAP), lead to a rich and flexible
+distributed application infrastructure. This infrastructure can be used to elegantly integrate
+a commercial game with clients for ubiquitous computing. The HL4MI design serves as
+an example for any system which supports distributed observation of a complex, dynamic
+system.
+</p>
+<h3>References</h3>
+<ol>
+<li>Sierra Studios: The Official Half-Life Web Site.
+<a href="http://www.sierrastudios.com/games/half-life">http://www.sierrastudios.com/games/half-life</a> (1999)
+<li> Insignia Solutions, Inc.: Accelerated Java Solutions for Information Appliances.
+<a href="http://www.insignia.com/java enabled.htm">http://www.insignia.com/java enabled.htm</a> (2001)
+<li>Segall, B., Arnold, D., Boot, J., Henderson, M., Phelps, T.: Content Based Routing with Elvin4. In: AAUG2K,
+Canberra, Australia, AAUG (2000)
+<li>Amir, Y., Danilov, C., Stanton, J.: A low latency, loss tolerant architecture and protocol for wide area group
+communication. In: International Conference on Dependable Systems and Networks (FTCS-30, DCCA-8), New
+York, NY (2000)
+<li>Box, D., Enebuske, D., Kakivaya, G., Layman, A., Mendelsohn, N., Nielsen, H.F., Thatte, S., Winer, D.: Simple
+Object Access Protocol (SOAP) 1.1. <a href="http://www.w3.org/TR/SOAP">http://www.w3.org/TR/SOAP </a>(2000)
+<li>Ullman, C., Matthews, B.: Python Web Services. http://pywebsvcs.sourceforge.net/ (2001)
+<li>Distributed Systems Technology Centre: Elvin subscription language.
+<a href="http://elvin.dstc.edu.au/doc/esl4.html">http://elvin.dstc.edu.au/doc/esl4.html</a> (2001)
+<li>Ousterhout, J.: Why threads are a bad idea (for most purposes). Invited Talk at the 1996 USENIX Technical
+Conference. (1996)
+<li>Tismer, C.: Stackless Python. <a href="http://www.stackless.com">http://www.stackless.com/ </a>(1999–2001)
+<li> Logilab: Narval: Network Assistant Reasoning with a Validating Agent Language .
+<a href="http://www.logilab.org/narval/">http://www.logilab.org/narval/ </a>(2001)
+<li> Khoo, A., Dunham, G., Trienens, N., Sood, S.: Efficient, Realistic NPC Control Systems using Behavior-Based
+Techniques. In: Submitted to the AAAI 2002 Spring Symposium - Artificial Intelligence and Interactive Enter-tainment.
+(2001)
+<li> Want, R., , Hopper, A., Falcao, V., Gibbons, J.: The active badge location system. ACM Transactions on
+Information Systems 10 (1992) 91–102
+<li>Dallas Semiconductor: iButton. <a href="http://www.ibutton.com/">http://www.ibutton.com/</a> (2001)
+<li>Pederson, B.: QWPython. <a href="http://qwpython.sourceforge.net/">http://qwpython.sourceforge.net/ </a>(2001)
+<li>Asbahr, J.: Python for massively multiplayer virtual worlds. In: Ninth International Python Conferene, Python
+Software Activity (2001)
+<li>CCP, hf: Welcome to the World of Eve. http://www.eve-online.com/ (2001)
+<li>Weatherall, J., Scott, D.: Mobile computing with Python. In: Ninth International Python Conference, Python
+Software Activity (2001)
+<li>Rakotonirainy, A., M.Chilvers: A distributed infrastructure for mobile computing. In: Sixth International Python
+Conference, Santa Barbara, CA, Python Software Activity (1997)
+<li>Arnold, D., Bond, A., Chilvers, M., Taylor, R.: Hector: Distributed objects in Python. In: Fourth International
+Python Conference, Python Software Activity (1996)
+</ol>
+</BODY>
+</HTML>

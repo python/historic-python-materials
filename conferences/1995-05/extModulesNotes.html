@@ -1,0 +1,281 @@
+<html>
+<head>
+<h1>Extension Modules and Basic Applications</h1>
+</head>
+
+<body>
+<i> Moderator: Aaron Watters </i>
+<br>
+<i> Date: Wed May 24 </i>
+<br>
+URL: <code> http://www.python.org/misc/workshop5-95/extModulesNotes.html </code>
+<h2>Work in Progress Reports</h2>
+
+<h3> Python and the Web (Guido van Rossum)</h3>
+<ul>
+  <li> Recently took the html parser from Tim Berners Lee 
+       and put it in 1.2
+  <li> You can write an extensible WWW browser in Python
+  <li> Can also easily write a robot that runs the web
+       (Infoseek has done this in Python)
+  <li> Safe Python
+  <ul>
+    <li> Allow you to take a python program from the web and
+         run it in a restricted environment
+    <li> One thing needed is an uncatchable exception so you can
+         send an alarm to a running program to terminate it
+  </ul>
+  <li> Also working on a HTTP server class
+  <ul>
+    <li> work involves putting CGI functionality directly in the
+         server for performance
+    <li> none of this is completely working 
+    <li> planning on release for 1.3
+    <li> Might also be nice to redo imagemaps in a better way
+         (e.g. better way to determine regions)
+  </ul>
+  <li> Already a client class and a CGI class
+  <li> Also working on <i> remote import </i>
+  <ul>
+    <li> it would be really nice to have URL's on sys.path
+    <li> efficiency could be a problem if the URL's were towards
+         the beginning of the path, especially if the net is slow
+         or the server is down
+    <li> ...so caching is needed, currently underway
+    <li> negative caching also (e.g. the server did *not* have the
+	 module)
+    <li> There are curently there levels of confidence
+    <ul>
+      <li> level 0, believe the cache
+      <li> level 1, check the dates if they are diffenent, get the
+           file
+      <li> level 2, just get the file
+    </ul>
+    <li> Question to the audience, How do you trust a remote import?
+    <ul>
+      <li> ... no good answers, standard network authentication
+      <li> this doesn't prevent a trojan horse 
+    </ul>
+    <li> POST currently calls a CGI script
+  </ul>
+  <li> CNRI work on URN's
+       <a href = "http://www.cnri.reston.va.us/home/cstr/handle-intro.html">
+       handle server project</a>
+  <ul>
+    <li> URN's are sort of <i> location independant URL's</i>
+    <li> URN's just name the document uniquely and a server
+         gives you the actual location of the document
+    <li> CNRI currently has working handle servers 
+    <li> Guido's been working on a handle server interface in Python
+  </ul>
+</ul>
+<p>
+<h3> SQL in Python, Python in SQL (Aaron Watters)</h3>
+<ul>
+  <li> All the spare moments I have been implementing a prototype
+     database manager based on Python (e.g. SQL implemented in
+     python)
+  <li> SQL engines are very expensive
+  <li> want to get this out for free
+  <li> a filled-out implementation count be, if not a killer-app,
+       at least used in the universitys 
+  <li> Right now in the form of a proof-of-concept demo
+  <li> currently parsing is takes as long as the actual query
+  <li> currently has the SELECT statement working
+  <li> if it was ALL in python it would be slower
+  <li> Futures
+  <ul>
+     <li> interfaces to existing databases
+     <li> more SQL
+     <li> timestamping, more...
+  </ul>
+  <li> Also working on a different project that would present a bunch of
+       python classes as relation database information. (e.g. Object
+       oriented view of relational database)
+</ul>
+<h3> Andrew Kuchlings's Python Cryptographer's toolkit (Ken
+     Manheimer) </h3>
+<ul>
+  <li> Pretty substantial collection of cryptography functions written in C
+       with Python Class wrappers - so probably pretty fast
+  <li> Got into this work as way of writing a python one-time password
+       generator based on a shared secret DES key
+  <li> kit contains a bunch of encryption algorithm's, hashing functions,
+       and even some encoumbered code that forbids commercial use
+  <li> GNU public licence currently in use
+  <li> talking about writing wrappers for kerberos and Netscape's SSL
+</ul>
+<h3> Khoros module - an image processing package (Raymond Suorsa - NASA)
+     </h3>
+<ul>
+  <li> Khoros Overview
+  <ul>
+    <li> Huge image processing system
+    <li> can find edges, etc.
+    <li> current version is 2.0
+    <li> free on the net
+    <li> good a working on large datasets (e.g.  the whole dataset does
+         not have to be in memory)
+    <li> Organization
+    <ul>
+      <li>	presentation layer
+      <li>	data pipeline
+      <li>	pysical layer
+    </ul>
+    <li> Khiros interface 
+    <ul>
+      <li> Kroutines -	unix shell interface
+      <ul>
+        <li> Pro - all of Khoros in one shot
+        <li> Pro - no recompilation needed during testing
+        <li> Con - costly execution
+        <li> Con - aggressive dynamic binding is probably a bad thing
+      </ul>
+      <li> Klibrary -	c library interface - most efficient
+      <ul>
+        <li> Pro - fast execution with explicit binding
+	<li> Con - 25 Megs of source
+	<li> Con - Khorosmodule.c becomes HUGE
+      </ul>
+    </ul>
+  </ul>
+  <li> Python/Khoros Interface
+  <ul>
+      <li> simple example...
+      <pre>
+	import khoros
+	lenna = khoros.get("lenna.xv")
+	edgeLenna = khoros.kr("ingradient", args...)
+      </pre>	
+      <li> Can perform some degree of operations on kr objects
+      <pre>
+	lennaConCat = lenna + edgeLenna 	# add images together
+      </pre>
+  </ul>
+  <li> What's next
+  <ul>
+    <li> Get Khoral research interested
+    <li> incorporate multidimentional slicing with the ':' notation
+  </ul>
+</ul>
+<h3> Fortran Matrix extension (Jim Fulton - USGS)</h3>
+<ul>
+  <li> Able to call fortran
+  <li> interface is simplified
+  <li> error checking compatible with python exceptions
+  <li> fortran routings handle input arrays polymorphically
+  <li> simple built-in matrix type included
+  <li> Documentation strings
+  <li> fidl - provides a mechanism for calling fortran routines from Python
+  <ul>
+    <li> each fortran module is described in a fidl spec
+    <li> each fortran routine has a fidl spec
+    <li> the fidl compiler generates the python stubs from the specs
+  </ul>
+  <li> Matrices
+  <ul>
+    <li> similar to array objects
+    <li> homogeneous data
+    <li> n-dimensional arrays  behave like sequences of n-1 dimentinal
+         arrays
+    <li> foo[i][j][k] = spam    - works and works efficiently
+  </ul>
+  <liL Example
+  <pre>
+	import interp
+	b,c - dcsakm([0, .1, .2, .5], [100, 200, 10, 50])
+	for i in range(50):
+		print dcsval(i/100.0,b,c)
+  </pre>
+  <li> Note the Doc string in the function...
+  <pre>
+	Fit an Akima spline function
+
+	Usage: csbreak, cscoef = dcsakm(xdata, fdata)
+  </pre>
+</ul>
+<h3> MMACE's application execution control panel (Michael McLay) </h3>
+<ul>
+  <li> Design tools for the MicroWave and Millimeter industry
+  <li> Using python for a nice front-end
+  <li> Demo...
+</ul>
+<h3> Career Web (Eric Bouck) </h3>
+<ul>
+  <li> <a href="http://kracken.bevc.blacksburg.va.us/~ebouck/workshop2/cweb.html">
+       Overview Presentation</a>
+</ul>
+<h3> <a name="infoseek"> InfoSeek (Andy Benskey & Jim Roskind- InfoSeek) </a> </h3>
+<ul>
+  <li> <a href="http://www.infoseek.com"> Home Page</a>
+  <li> Used python after trying to implement an http server in perl
+  <li> modules written to handle accounting, etc
+  <li> searches are actually done in C
+  <li> python threads were not used - heavy weight forks used instead
+  <ul>
+    <li> problem was with reaping child processes due to some signal
+         wierdness
+    <li> used a dictionary stuffed with function calls... nice alternative 
+         to if-then-if - much faster too
+    <li> would be nice to have sys.environ more tightly coupled with 
+         the actual environment
+    <li> Guido - 'I hear you'
+    <li> developed a persistent object store
+    <ul>
+      <li> we want an object to survive beyond the process boundry
+      <li> pobject.py
+      <li> to deal with <i> type evolution </i> one overrides methods 
+           derived from a base class that was a persistent object
+      <li> Examples
+      <pre>
+	class M(pobject):
+	  def ...
+	m = M()
+	m.SetAlias('jar')
+	m2.FindAlias('jar')
+	m2.Find('jar')
+	m.GetID()
+      </pre>
+      <li> store an object in human-readable form... so above would be file:
+	   <b> M..jar </b> wich has a very python-dictionary like contents
+      <li> much like <i> pickle </i>
+      <li> supports the notion of polymorhphism
+      <li> strong relationship between naming and persistence
+      <li> implementation handles recursion
+	<pre>
+	   x = []
+	   x.append(x)
+	   # now archive this!
+	</pre>
+    </ul>
+    <li> developed a profiler with statistics generation capability
+         so one could determine where python is spending its time
+    <ul>
+      <li> why is this function being called 1500 times?
+      <li> profile.py
+      <li> <pre> run(" program ") </pre>
+      <li> pstats.py
+      <li> pstats.sort_stats().print_stats() # sorting and printing statistics 
+    </ul>
+    <li> contributing both to python distribution
+  </ul>
+</ul>
+<h3> The PLplot module (Michael McLay) </h3>
+<ul>
+  <li> Part of the MMACE demo...
+</ul>
+<h3> Identifying important extensions, current and future (Michael McLay) </h3>
+<h3> contributing modules to the PSA </h3>
+<h3> Executable HTML documents (Diane Hackborn - Oregon State University) </h3>
+<ul>
+  <li> <a href="http://www.cs.orst.edu/~hackbod/exechtml/">Information
+       page</a>
+  <li> Interface does not depend on python
+  <li> Another language could be dropped in cleanly
+  <li> Currently uses sockets to go back to the server (needs to be replaced
+       with URL's)
+  <li> Python interpreter is linked into the browser for performance
+
+</ul>
+</body>
+</html>

@@ -1,0 +1,104 @@
+Title: python-dev Summary for 2002-08-16 through 2002-09-01
+Sitemap-ignore: yes
+
+<div class="document">
+<p>This is a summary of traffic on the python-dev mailing list between August 16, 2002 and September 1, 2002 (exclusive).  It is intended to inform the wider Python community of ongoing developments.  To comment, just post to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> or comp.lang.python in the usual way. Give your posting a meaningful subject line, and if it's about a PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep iteration) All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on a PEP if you have an opinion.</p>
+<p>This is the first summary written by Brett Cannon.
+Summaries are archived no where at the moment.  =)   They will be, though, so stay tuned for the URL in future summaries.</p>
+<div class="section" id="type-categories">
+<h1><a name="type-categories">Type Categories</a></h1>
+<p>This VERY long thread was sparked by Andrew Koenig asking if a discussion of making type categories more explicit had ever occured (Andrew meant for category to mean &quot;the set of all types that implement a particular marker interface&quot;).  As Andrew later pointed out, he was asking about  &quot;a way of making notions such as 'file-like object' more formal and/or automatic&quot;.  The discussion quickly started using the term interface to mean defining a way to specify that an object implemented certain methods (think of it in terms of Java's 'implements' mechanism).</p>
+<p>Once definition was out of the way, the discussion took off.  Zope's implementation was pointed out ( <a class="reference" href="http://cvs.zope.org/Zope3/lib/python/Interface/">http://cvs.zope.org/Zope3/lib/python/Interface/</a> ) very quickly.  PEP 245 (Python Interface Syntax) was also brought to the attention of the list.  The idea of using inheritance to handle interfaces was brought up.  Guido said that he hasn't &quot;given up the hope that inheritance and interfaces could use the same mechanisms.  But Jim Fulton, based on years of experience in Zope, claims they really should be different&quot; in terms of how interfaces should be handled in objects.  Jeremy Hylton tried to channel Jim's opinion by pointing out that &quot;We'd like to use interfaces to make fairly strong claims.  If a class A implements an interface I, then we should be able to use an instance of A anywhere that an I is needed.&quot;  But &quot;the inheritance mechanism is too general&quot; because if a class A implements interface I and then a class B, which does not implement I, subclasses class A we end up with a class B that claims it has a certain interface which it doesn't actually have.  Guido understood the point, but still thought inheritence could be used &quot;if there was a way to &quot;shut off&quot; inheritance as far as isinstance() (or issubclass())&quot; is concerned.  Guido asked the simple question, &quot;Why do keep arguing for inheritance?  (a) the need to deny inheritance from an interface, while essential, is relatively rare IMO, and in <em>most</em> cases the inheritance rules work just fine; (b) having two separate but similar mechanisms makes the language larger.&quot;</p>
+<p>Samuele Pedroni asked that any implementation &quot;allow also for refering to anonymous super-interfaces of an interface in terms of the interface plus a subset of its signatures, also e.g. FileLike and just 'write'.  [that means an interface can be thought to correspond to a set of (tag,signature) tuples, where tag identifies the interface, and one can also just consider subsets of it]&quot;.</p>
+<p>The thread has finally seemed to have stopped (for now) with Guido saying he is mulling the whole thing in the back of his head.  This is a very sticky topic because of the number of design decisions required and how it might change the way people program in Python.</p>
+<p>There was also a partial sub-thread in this whole discussion about multimethods; basically a way to do overloading of methods based on parameter signature.  Most of the discussion was over syntax and such and how to handle resolution order.  It then seemed to go to the wayside when the main part of the thread took over again.</p>
+</div>
+<div class="section" id="type-categories-an-example">
+<h1><a name="type-categories-an-example">type categories -- an example</a></h1>
+<p>This thread was starteed when Andrew Koenig said that the reason he brought up his type category question was because he wanted a way so as to be able to identify members of a type easily.  He now had an example in a program he was writing where what the type of the argument was varied and thus what needed to be done to the data changed accordingly.  Jermey Hylton suggested the isinstance(obj, type(re.compile(''))) idiom.  Andrew asked if this was guaranteed to work, which Jeremy said no.  I asked why this was not guaranteed, and Frederick Lundh said because re.compile() is a factory fxn and it is possible that a future version could return a different object based on the pattern.</p>
+</div>
+<div class="section" id="python-build-trouble-with-the-new-gcc-binutils">
+<h1><a name="python-build-trouble-with-the-new-gcc-binutils">Python build trouble with the new gcc/binutils</a></h1>
+<p>Andrew Koenig said that he couldn't compile Python using the newest gcc (this was the day after the latest release hit servers).  With help from Zack Weinberg of Code Sourcery (who also recently rewrote the tempfile module), the problem was tracked down to binutils 2.13. being the culprit and was not Python's fault.</p>
+</div>
+<div class="section" id="last-call-mortal-interned-strings">
+<h1><a name="last-call-mortal-interned-strings">Last call: mortal interned strings</a></h1>
+<p>The patch <a class="reference" href="http://python.org/sf/576101">http://python.org/sf/576101</a> removes the default immortality of interned strings.  I believe it was in early August (possibly spilled over from late July) when Oren Tirosh proposed the idea and wrote the above mentioned patch.  There had been some discussion over whether any 3rd party code was reliant upon interned strings being immortal; none was found (MacPython was reliant upon it, but since it is under Python core control it was considered a moot point since it could be changed).  It has been checked in.  With the patch the way to make a string immortal is to call PyString_InternImmortal(); no code in the core uses this function.</p>
+</div>
+<div class="section" id="pep-218-sets-moving-set-py-to-lib">
+<h1><a name="pep-218-sets-moving-set-py-to-lib">PEP 218 (sets); moving set.py to Lib</a></h1>
+<p>Thanks to Greg Wilson (for writing the PEP), Alex Martelli (for writing the module initially), Guido (for refactoring Alex's code), Raymond Hettinger (for writing the docs and playing with the code himself), and Tim Peters (for some speedup code) the stdlib has now gained a sets module.  It has both the notion of mutable and immutable sets (the latter used when you have a set of sets).  There was discussion about how sets should print (sorted or not; unsorted was chosen) and what operators should be overloaded for working on sets (| and &amp; were chosen).  The module is a beautiful chunk of code and I highly recommend reading its source.</p>
+</div>
+<div class="section" id="a-few-lessons-from-the-tempfile-py-rewrite">
+<h1><a name="a-few-lessons-from-the-tempfile-py-rewrite">A few lessons from the tempfile.py rewrite</a></h1>
+<p>Zack Weinberg, after rewriting the tempfile module, brought up three points:
+1) Lack of dummy threads, 2) lack of a pthreads_once equivalent, and 3) lack of a way to skip tests from unittest.py via some built-in method.  Guido responded accordingly: 1) since some code uses the idiom of trying to import thread and catching the exception if it fails, Guido said he would be willing to accept a dummy_thread.py that would allow:</p>
+<dl>
+<dt>try:</dt>
+<dd>import thread as _thread</dd>
+<dt>except ImportError:</dt>
+<dd>import dummy_thread as _thread</dd>
+</dl>
+<p>to work.  No word on whether this is being written at the moment.  2) Guido said the method was, in his opinion, overkill.  He said to &quot;be Pythonic, live dangerously, accept the risk that a ^C can screw you.  It can anyway. :-)&quot;.  And as for 3) Guido deferred Zack to the PyUnit list and Steve Purcell since Python just tracks Steve's code (pyunit.sf.net).  Guido's suggestion was to stick code that was reliant on some other code in a separate testing suite that is only run when the reliant code is available.</p>
+</div>
+<div class="section" id="standard-datetime-objects">
+<h1><a name="standard-datetime-objects">Standard datetime objects?</a></h1>
+<p>Kevin Jacobs asked what stage the new datetime object was at.  Guido said it is in python/nondist/sandbox/datetime/ in CVS which also has comments pointing to a wiki containing the current work on it.  Fred L. Drake, Jr. is working on the C re-implementation and has now checked it into the sandbox in CVS.</p>
+</div>
+<div class="section" id="pep-269-versus-283">
+<h1><a name="pep-269-versus-283">PEP 269 versus 283</a></h1>
+<p>Jonathan Riehl noticed that PEP 283 said PEP 269 was dead; not good considering he was close to having a patch for PEP 269 (pgen module to interface with the C version).  Guido said he will revive the PEP.  The patch has since been put on SF at <a class="reference" href="http://python.org/sf/599331">http://python.org/sf/599331</a> .</p>
+</div>
+<div class="section" id="what-is-a-backport-candidate">
+<h1><a name="what-is-a-backport-candidate">What is a backport candidate?</a></h1>
+<p>Since Python 2.2 is going to be around for a long time, the question was brought up of what constitutes code that should be backported.  Guido made the following three points:</p>
+<ol class="arabic simple">
+<li>code trivial to backport should always be backported</li>
+<li>code patching 2.3 code should obviously not be backported</li>
+<li>2.2 code requires changes to use patch, but applies; gradients of this exist.</li>
+</ol>
+<p>So please, when submitting patches, mention whether you think the patch should be backported to the 2.2 tree and any possible dependencies it might have in a backport.</p>
+</div>
+<div class="section" id="python-nondist-sandbox-spambayes">
+<h1><a name="python-nondist-sandbox-spambayes">python/nondist/sandbox/spambayes</a></h1>
+<p>In response to Paul Graham's spam filter written using Baye's Rule (Slashdot post on it is at <a class="reference" href="http://developers.slashdot.org/article.pl?sid=02/08/16/1428238&amp;tid=156">http://developers.slashdot.org/article.pl?sid=02/08/16/1428238&amp;tid=156</a>), a thread spawned around this checkin of code that followed that paper's suggestions.  This thread quickly jumped into discussions on data structures, Baye's Rule, and a whole lot of talk about spam.  Very interesting if spam filtering interests you.  Tim Peters has been leading the drive on this chunk of code (and thanks to his illness that befelled him in late August which he has subsequently gotten over he had a few days of major hacking on it; Tim showed he is a performance stats whore &lt;wink&gt;).</p>
+<p>A very cool quote came out of this thread from Eric S. Raymond when discussing the spam filter he has been working on: &quot;This is actually the first new program I've coded in C (rather than Python) in a good four years or so&quot;.</p>
+</div>
+<div class="section" id="parsing-vs-lexing">
+<h1><a name="parsing-vs-lexing">Parsing vs. lexing.</a></h1>
+<p>In response to a question by Aahz about what the differences were between a lexer, parser, and tokenizer, Eric Raymond posted a good overview of the differences.  Guido later commented in an email mentioning SPARK and about how Python's lexer (pgen) works and why he wrote it.  He also made some other comments on lexers.  Jeremy Hylton pointed out a &quot;neat new paper about an old algorithm for recursive descent parsers with backtracking and unlimited lookahead&quot; by Bryan Ford at <a class="reference" href="http://www.brynosaurus.com/pub.html">http://www.brynosaurus.com/pub.html</a> .  Alex Martelli pointed out that this discussion reminded him of &quot;a long-ago interview with Borland's techies&quot;  in which they said they were able to make Borland PASCAL fit on a floppy while MS PASCAL took multiple floppies.  Their trick was &quot;we just did everything by the Dragon Book -- except that the parser is a hand-written recursive descent parser [Aho &amp;c being adamant defenders of Yacc &amp; the like], which buys us a lot&quot;.  Someone named Noah also emailed a discussion on lexers and parsers pulling in Finite State Machines, Push Down Autonoma, and Turing Machines in his discussion.</p>
+<p>Martin Sj?n says that Haskell's pattern matching and lazy evaluation makes lexers easy (even a Recursive-Descent parser), but unfortunately Haskell does not play with other languages nicely.  Haskell is where Python got it's list comprehension idea.</p>
+</div>
+<div class="section" id="python-dev-fw-security-hole-in-rexec">
+<h1><a name="python-dev-fw-security-hole-in-rexec">[Python-Dev] Fw: Security hole in rexec?</a></h1>
+<p>It was brought to the attention of the list that deleting __builtins__ allowed a compromise in rexec.  Guido pointed out that <a class="reference" href="http://python.org/sf/577530">http://python.org/sf/577530</a> reports this.  He also said don't trust rexec.</p>
+<p>A patch was submitted and checked in to document the view that rexec is really not that safe.</p>
+</div>
+<div class="section" id="a-cogen-module">
+<h1><a name="a-cogen-module">A `cogen' module</a></h1>
+<p>Francois Pinard asked about Cartesian products using the new sets module.  Guido didn't think people would in general need it.  Francois quickly started this thread of discussing a cogen module to generate Cartesian products and other ways of operating on sets.  The thread quickly died when Tim Peters posted &quot;his elaborate state-of-the-art code&quot;, as Guido called it.  But Francois said he would be back for more discussion on this.</p>
+</div>
+<div class="section" id="mersenne-twister">
+<h1><a name="mersenne-twister">Mersenne Twister</a></h1>
+<p>Raymond Hettinger volunteered to implement the Merseene Twister algorithm (one in Python exists at <a class="reference" href="http://www.math.keio.ac.jp/~matumoto/emt.html">http://www.math.keio.ac.jp/~matumoto/emt.html</a> ).  While discussing to implement in C or Python, Guido noticed that random.Random re-implements whrandom.  Guido then came up with the idea of writing a base random class that is subclassed where .random() can be implemented; Tim Peters agreed and suggested more methods to subclass.</p>
+</div>
+<div class="section" id="new-pep-format-restructuredtext">
+<h1><a name="new-pep-format-restructuredtext">New PEP Format: reStructuredText</a></h1>
+<p>David Goodger and Barry Warsaw have now gotten reST as a usable syntax for PEPs.  Read the PEPs on the subject to learn more:</p>
+<ul class="simple">
+<li>PEP 12 -- Sample reStructuredText PEP Template
+( <a class="reference" href="http://www.python.org/dev/peps/pep-0012">http://www.python.org/dev/peps/pep-0012</a> )</li>
+<li>PEP 258 -- Docutils Design Specification
+( <a class="reference" href="http://www.python.org/dev/peps/pep-0258">http://www.python.org/dev/peps/pep-0258</a> )</li>
+<li>PEP 287 -- reStructuredText Docstring Format
+( <a class="reference" href="http://www.python.org/dev/peps/pep-0287">http://www.python.org/dev/peps/pep-0287</a> )</li>
+</ul>
+<p>It has been suggested that the summaries try using reST; I am considering it.</p>
+</div>
+<div class="section" id="tiny-optimization-in-ceval-mainloop">
+<h1><a name="tiny-optimization-in-ceval-mainloop">tiny optimization in ceval mainloop</a></h1>
+<p>Jeremy Hylton noticed that in ceval that their is a test of whether the ticker was 0 or if things_to_do was set to true (explanation of the ticker, checkinterval, and the GIL follow this paragraph).  Jeremy wondered if we could just drop the ticker to 0 when things_to_do is true.  Jack Jansen, though, pointed out that clearing it is not guaranteed since there may be an interrupt routine when &quot;we fiddle things_to_do&quot;.  Skip Montanaro then pointed out that since neither ticker nor things_to_do is fiddled with unless the GIL is held that instead of causing each thread to execute this test that they could be made globals instead; he did a patch that implements this ( <a class="reference" href="http://python.org/sf/602191">http://python.org/sf/602191</a> ).  Guido then said that if there wasn't a decent speed improvement, then no patch would be checked in.  He then changed his mind when it was pointed out that it actually simplified the code.  Skip tested anyway, though, and there is a speed improvement.  This also brought up whether the default value of 10 for checkinterval was reasonable.  It was then agreed to be bumped up to 100.  Jack ran some code and said he noticed a definite improvement.</p>
+<p>Python's version of threading is not like in C.  There is something called the GIL (Global Interpreter Lock) which any thread wishing to execute Python code or play with Python objects must hold.  This means that when you have Python threads running (using the thread or threading module) they are usually all waiting in line to get the GIL.  Now for Python to decide when to release the GIL for another thread to grab it, it uses the ticker.  This variable counts down to zero by being decremented every time a Python opcode is executed (originally defaulted to 10, now defaulted to 100).  The ticker's starting value after each release of the GIL is what sys.checkinterval() sets.</p>
+<p>To get a better understanding of therading under Python I recommend reading Aahz's tutorials on threading.</p>
+</div>
+</div>

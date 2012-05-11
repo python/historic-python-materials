@@ -1,0 +1,765 @@
+<HTML>
+<HEAD>
+<TITLE>Design Patterns in Python</TITLE>
+</HEAD>
+<BODY BACKGROUND="../../../../pics/BlueLong.gif"
+      BGCOLOR="#FFFFFF"
+      TEXT="#000000"
+      LINK="#0000FF"
+      VLINK="#7070B0">
+
+<UL>
+
+<a href="index.html">Proceedings of the 6th International Python Conference</A>
+<HR SIZE="1" NOSHADE>
+<P><H1 ALIGN="CENTER">Design Patterns in Python</H1>
+<P ALIGN="CENTER"><STRONG>Vespe Savikko<BR> <BR>
+<EM>Software Systems Laboratory</EM> <BR>
+<EM>Tampere University of Technology</EM> <BR>
+<EM>FIN-33101 Tampere, Finland</EM> <BR>
+<EM>vespe@cs.tut.fi</EM> </STRONG></P>
+<P ALIGN="CENTER"><STRONG></STRONG></P>
+<P ALIGN="LEFT"></P>
+<P>
+<H3 CLASS="ABSTRACT">Abstract</H3>
+<P CLASS="ABSTRACT"><EM>
+The choice of implementation language affects the use of design
+patterns. Naturally some languages are better applicable for different
+tasks 
+than others. Each language has its own set of strengths and
+weaknesses. In 
+this paper we implement some of the better known design patterns in
+Python, whose object model is quite different from that of 
+conventional object-oriented languages. Thus we acquire some
+insight into the
+generality of the patterns in the context of Python.
+</EM> 
+</P>
+<P>
+<A NAME="sec:intro">
+<H1><A NAME="SECTION00010000000000000000">
+1 Introduction</A>
+</H1>
+
+In software engineering the term pattern describes a proven
+solution to a common problem in a specific context. Patterns can be
+divided into three
+different categories depending on their level of abstraction and
+implementation language independency: architectural patterns, design
+patterns and idioms [<A
+ HREF="#posa">BMR+96</A>]. In this work we concentrate on the
+latter two categories: design patterns as they are
+described in  what is known as the G<SMALL>ANG</SMALL>
+<SMALL>OF</SMALL> F<SMALL>OUR</SMALL> -book (G<SMALL>O</SMALL>F for 
+short) [<A
+ HREF="#gof">GHJV95</A>] and Python language
+idioms.
+The patterns are not only microarchitectural models but also  
+ useful as a
+common design vocabulary among software engineers. The overall
+architecture of the system and related design decisions can be
+explained by giving a set of patterns used. While new patterns do emerge
+ the G<SMALL>O</SMALL>F still remains as the definite reference on
+design patterns. For this reason it is important to introduce these
+patterns, the notions and the theory behind them and their applicability
+to Python community.
+<P>
+G<SMALL>O</SMALL>F is divided into three parts and each part describes
+the patterns 
+related to the theme of the part. The themes describe the purpose of
+the patterns. Creational patterns address object instantiation
+issues. Structural patterns concentrate on object composition and
+their relations in the runtime object structures. Whereas the
+structural patterns describe the layout of the object system, the
+behavioral patterns focus on the internal dynamics and object
+interaction in the system.
+<P>
+While the design patterns strive to be language independent they still
+require - at least implicitly - some support from the implementation
+language and especially from its object model. In G<SMALL>O</SMALL>F
+the languages 
+of choice are C++ and Smalltalk. Therefore the availability of 
+access specifiers and static member functions (class methods) are
+assumed. The aim here is to look at some G<SMALL>O</SMALL>F patterns
+and try to implement them in a language (Python) whose object model 
+is radically different from that of C+By doing this we can draw
+some conclusions about the generality of G<SMALL>O</SMALL>F patterns
+and what accommodations - if any - are necessary when applying them
+in Python programming environment. And while operating on the
+programming language level we look at some Python idioms and how they
+can help implement G<SMALL>O</SMALL>F patterns.
+<P>
+We begin with a short description of Python as an object language in
+Section <A HREF="#sec:python">2</A> and then move on to the selected
+patterns. We have chosen one pattern from each category of
+G<SMALL>O</SMALL>F: 
+Singleton (creational, Section <A
+HREF="#sec:singleton">3</A>), Chain of Responsibility
+(behavioral, Section <A HREF="#sec:chain">4</A>) and Proxy
+(structural, Section 
+<A HREF="#sec:proxy">5</A>). In Section <A HREF="#sec:conclusions">6</A> we sum up the
+lessons learned and further discuss the generality of our
+implementation solutions.
+<P>
+<A NAME="sec:python"></A>
+<H1><A NAME="SECTION00020000000000000000">
+2 Python</A>
+</H1>
+
+To put it briefly Python is a weakly and dynamically typed interpreted
+language. These attributes combined with a large assortment of
+extensions make Python a natural choice for different
+scripting tasks, for example CGI scripts. Python is also mentioned
+as a strong candidate for a steering language [<A
+ HREF="#dubois">Dub96</A>] because
+of its interpreted and expressive nature. From
+the object-oriented programming perspective Python has all the
+necessary features and more: classes, multiple inheritance,
+operator overloading. One peculiar aspect of Python's object
+model is its negligence towards data hiding. For the time being Python's
+policy can be described as ``encapsulation by courtesy'' meaning
+that a class instance assumes that none of its clients tries to break
+the class interface and manipulate instance attributes
+directly. However, the situation is not totally grim; language release 1.4
+implements privacy using name mangling. This solution is
+considered experimental before  a better conceived encapsulation
+mechanism is provided [<A
+ HREF="#python:tutorial">vR96</A>].
+<P>
+The other remarkable thing about Python objects is that they are not
+merely instances of their classes; their structures can change in
+runtime. This level of flexibility combined with the ability of the
+instance to 
+trap attribute access lays a foundation for various Python idioms. On
+the other hand it also requires some restraint from the programmer,
+because overly ``dynamic'' code can be very difficult to understand and
+maintain. This applies also to the Python programs in general; while
+the language makes it easy to achieve relatively complex tasks, it
+does not relieve us programmers from the demands of the sound design
+principles.
+<P>
+<A NAME="sec:singleton">
+<H1><A NAME="SECTION00030000000000000000">
+3 Singleton</A>
+</H1>
+
+Singleton pattern provides a mechanism to limit the number of the
+instances of the class 
+to one. Thus the same object is always shared by different parts of
+the code. Singleton can be seen as a more elegant solution to global
+variable because actual data is hidden behind Singleton class
+interface. First we look at how Singleton can be implemented in C++ and then provide a Python solution with the same features.
+<P>
+<A NAME="fig:singleton.h"></A>
+<table border=0>
+<tr><td>
+<hr>
+<pre>
+class Singleton {
+
+public:
+  static Singleton& Handle();
+  
+private:
+  static Singleton* psingle;
+  Singleton();
+  Singleton( const Singleton& );
+  Singleton& operator=( const Singleton& );
+};      
+</pre>
+<hr>
+<strong>Figure 1.</strong> Singleton class definition in C++
+</td></tr>
+</table>
+<P>
+Our minimal Singleton class definition (Fig.&nbsp;<A
+HREF="#fig:singleton.h">1</A>) has only 
+one public member: class method <TT>Handle</TT>. Defined interface is not
+very useful as such, because the client can do nothing with the
+instance, but now we concentrate only on the techniques that ensure
+only one Singleton instance at a time.
+<P>
+Private constructor forbids creating an object outside the class. Thus
+the clients of the class have to rely on the static member function
+<TT>Handle</TT>: it either creates a new instance or returns a
+reference to the Singleton object (Fig.&nbsp;<A
+HREF="#fig:Handle.cc">2</A>). 
+<P>
+<A NAME="fig:Handle.cc"></A>
+<table border=0>
+<tr><td>
+<hr>
+<pre>
+Singleton& Singleton::Handle() {
+
+  if( !psingle ) {
+    psingle = new Singleton;
+  }
+  return *psingle;
+}    
+</pre>
+<hr>
+<strong>Figure 2.</strong> Class method <tt>Handle</tt>
+</td></tr>
+</table>
+    
+<P>
+Because Python has no private constructors we have to find some
+other way to prevent instantiations. Our approach in
+Figure&nbsp;<A HREF="#fig:singleton.py">3</A> is to raise an
+exception if the Singleton 
+object is already instantiated (private class attribute
+<TT>__single</TT> is other than <TT>None</TT>). The exception
+object is the Singleton 
+instance! The downside of this solution is that it requires the
+clients to be prepared for the exception. It could also be argued that
+using exceptions for other purposes than error handling is not very
+good style. These concerns can be avoided to some extent by providing
+a similar <TT>Handle</TT> function than in
+Figure&nbsp;<A HREF="#fig:Handle.cc">2</A>. This function
+hides the unorthodox 
+instantiation 
+details and returns a reference to the Singleton object
+(Fig.&nbsp;<A HREF="#fig:Handle.py">4</A>).
+<P>
+<A NAME="fig:singleton.py">
+<table border=0>
+<tr><td>
+<hr>
+<pre>
+class Singleton:
+    __single = None
+    def __init__( self ):
+        if Singleton.__single:
+            raise Singleton.__single
+        Singleton.__single = self    
+</pre>
+<hr>
+<strong>Figure 3.</strong> Singleton class in Python
+</td></tr>
+</table>
+
+<P>
+Due to Python's type system the code in Figure&nbsp;<A
+HREF="#fig:Handle.py">4</A> 
+works for the whole Singleton hierarchy. Consider the following situation:
+class <TT>Singleton</TT> has subclasses <TT>Child</TT> and
+<TT>Junior</TT> as shown in Figure&nbsp;<A
+HREF="#fig:children">5</A>. Because there 
+exists an <EM>is-a</EM>  relationship between base class and a subclass
+there can be only one instance of the whole
+hierarchy. <TT>Singleton</TT> or <TT>Junior</TT> instance can be
+created with <TT>Handle</TT> function. The constructor of the
+<TT>Child</TT> class takes one - explicit - argument so the
+instantiation must be done with the direct constructor call or
+a specialized handle function. The following code
+demonstrates the Singleton hierarchy:
+<pre>
+&gt;&gt;&gt; child = Child( 'Monty' )
+&gt;&gt;&gt; junior = Handle( Junior )
+&gt;&gt;&gt; junior.name()
+'Monty'
+&gt;&gt;&gt; single = Handle()
+&gt;&gt;&gt; single
+&lt;Child instance at d1d88&gt;  
+</pre>
+Sometimes it is convenient to decide at runtime which Singleton class
+is instantiated. G<SMALL>O</SMALL>F proposes a registry-based approach where the client
+consults a special registry object, which contains a list of
+name-Singleton pairs. By requesting a Singleton by-name, the client
+receives a reference to the corresponding Singleton instance. Updating
+the registry may be problematic: Who does register a Singleton? If it
+is Singleton instance itself (in its constructor) then every possible
+Singleton must be instantiated in order to be accessible by the
+clients of the registry!
+<P>
+Fortunately simplification is possible through Python's namespace
+concepts. Local and 
+global scopes - or rather their dictionary representations - can be
+accessed via <TT>locals</TT> and <TT>globals</TT> functions. For
+example one can instantiate <TT>Junior</TT>:
+<pre>
+&gt;&gt;&gt; name = 'Junior'
+&gt;&gt;&gt; sclass = globals()[name]
+&gt;&gt;&gt; junior = Handle( sclass )
+&gt;&gt;&gt; junior
+&lt;Junior instance at d1bd8&gt;
+</pre>
+Of course, now the registry (scope dictionary) contains much more
+than only Singleton-related information, so there is always a
+risk that a client treats some function as a Singleton
+class. This unhappy coincidence can be avoided to some extent by using some
+naming convention for Singletons. A specific registry object is a good
+idea even in Python environment. Clients should not access scope
+dictionaries directly but through the registry. Now the registry can
+detect and deny any Singleton lookups that are illegal according to
+the agreed 
+naming convention. Again, this approach depends on the courtesy of
+the clients.
+<P>
+Perhaps the most foolproof and straightforward solution is to do the
+registration on the module level. Each module that contains Singleton
+classes should also contain initialization statements that register
+the class names with the registry module. Because modules are
+initialized only for the first time they are imported, a client gains
+access to the registry by importing the registry module. In a way a
+module can be thought of as a rudimentary Singleton. One advantage of
+this explicit registration approach is the option to implement as
+sophisticated a registry database as needed. In other words we can store
+more information about Singletons than just the class names, for
+example module names, base classes, different constraints and so
+on. The registry can also offer different services for Singleton
+lookup, statistics and debugging, for example.
+<P>
+<A NAME="fig:Handle.py">
+<table border=0>
+<tr><td>
+<hr>
+<pre>
+def Handle( x = Singleton ):
+    try:
+        single = x()
+    except Singleton, s:
+        single = s
+    return single    
+</pre>
+<hr>
+<strong>Figure 4.</strong> <tt>Handle</tt> function
+</td></tr>
+</table>
+
+    
+<A NAME="fig:children">
+<table border=0>
+<tr><td>
+<hr>
+<pre>
+class Child( Singleton ):
+    def __init__( self, name ):
+        Singleton.__init__( self )
+        self.__name = name
+    def name( self ):
+        return self.__name
+
+class Junior( Singleton ):
+    pass    
+</pre>
+<hr>
+<strong>Figure 5.</strong> Singleton subclasses
+</td></tr>
+</table>
+    <p>
+
+
+<A NAME="sec:chain">
+<H1>
+<A NAME="SECTION00040000000000000000">
+4 Chain of Responsibility</A>
+</H1>
+
+The motivation behind Chain of Responsibility pattern is to create a
+system that can serve different requests in a hierarchical manner. In
+other words if an object that is a part of the system does not know how
+to respond to the given request it passes it along the object
+tree. As the name implies, each object along the route of the request
+can take the responsibility and serve the request.
+<P>
+Chain of Responsibility pattern is often used in the context of
+graphical user interfaces 
+where one widget may contain several other widgets. As the windowing
+environment generates events the widgets either handle them or pass
+them to their parent widget (container), as in
+Figure&nbsp;<A HREF="#fig:chain">6</A>.
+<P>
+<A NAME="fig:chain">
+<table border=0>
+<tr><td>
+<hr>
+<img src="savikko-chain.gif">
+<hr>
+<strong>Figure 6.</strong> A simple window hierarchy
+</td></tr>
+</table>
+    
+<P>
+If <TT>MsgText</TT> receives an event its <TT>Handle</TT> method
+either handles the event or calls the <TT>Handle</TT> method of the
+<TT>SendDialog</TT> and so on. <TT>MsgText</TT> need not know
+which object - if any - will handle the event; the hierarchy does not
+have to be fixed. In some other context an <TT>MsgText</TT> object
+would behave similarly and so hierarchies can be modified at
+runtime. The hierarchy need not necessarily be tree-like. One
+variation of the pattern could be a system where objects create a
+ring-like structure and some or all of the objects could act as  clients as
+well as part of the chain.
+<P>
+Implementing the pattern in C++ is relatively straightforward: in our
+GUI example each object would be a subclass of the <TT>Widget</TT>
+class defined in Figure&nbsp;<A HREF="#fig:widget.h">7</A>. While this is also a feasible
+solution in Python, it does not use Python's object model to
+the full potential. A more dynamic and flexible approach is to use the
+techniques introduced in Guido van Rossum's Command Dispatch 
+pattern [<A
+ HREF="#python:dispatch">vR97</A>]: dynamic attribute lookup and addition.
+<P><BR>
+<A NAME="fig:widget.h">
+<table border=0>
+<tr><td>
+<hr>
+<pre>
+class Widget {
+
+public:
+  Widget( Widget* pw ): pwParent( pw ) {}
+  virtual void Handle( Event );
+private:
+  Widget* pwParent;
+};    
+</pre>
+<hr>
+<strong>Figure 7.</strong> <tt>Widget</tt> class definition
+</td></tr>
+</table>
+
+<P>
+With Python we need not restrict ourselves to the predefined set of
+methods as we did with with <TT>Widget</TT> hierarchy: the only way to
+handle the event was by <TT>Handle</TT> call. The idea behind the
+Command Dispatch pattern is to check at runtime whether the object has
+a proper method or not. Our <TT>Widget</TT> class in Python
+(Fig.&nbsp;<A HREF="#fig:widget.py">8</A>) provides its subclasses
+with this dispatch 
+mechanism. The use of the separate event class (<TT>Event</TT> in
+Figure&nbsp;<A HREF="#fig:widget.py">8</A>) emphasizes the fact that
+various kinds of 
+information can be transmitted through the chain. Only the
+<TT>name</TT> attribute is assumed. 
+Because new attributes
+can be added dynamically and new methods can be added through
+subclassing, the interface of the base <TT>Event</TT> class can be
+kept to a minimum.
+<P>
+<A NAME="fig:widget.py">
+<table border=0>
+<tr><td>
+<hr>
+<pre>
+class Event:
+    def __init__( self, name ):
+        self.name = name
+
+class Widget:
+    def __init__( self, parent = None ):
+        self.__parent = parent
+    def Handle( self, event ):
+        handler = 'Handle_' + event.name
+        if hasattr( self, handler ):
+            method = getattr( self, handler )
+            method( event )
+        elif self.__parent:
+            self.__parent.Handle( event )
+        elif hasattr( self, 'HandleDefault' ):
+            self.HandleDefault( event )    
+</pre>
+<hr>
+<strong>Figure 8.</strong> <tt>Event</tt> and <tt>Widget</tt> classes
+    in Python 
+</td></tr>
+</table>
+<p>
+
+When an event object is passed to <TT>Handle</TT> method, one of the
+four things may happen:
+<DL COMPACT>
+<DT>1.
+<DD>Each event has an associated name. If widget has a corresponding
+method (named <TT>Handle_<EM>eventname</EM> </TT>), it is executed
+<DT>2.
+<DD>If the object is not the last one in the chain, it passes the event
+  object to its parent
+<DT>3.
+<DD>If the object has a default handler for all kinds of events
+  (<TT>HandleDefault</TT> method) it is invoked if the object is the
+  last possible handler. Because <TT>HandleDefault</TT> should always
+  be available only on the end of the chain, it is not necessary or even
+  sensible to have it in the interface of the base class.
+<DT>4.
+<DD>The object dismisses the event if it can neither handle or forward it. 
+</DL>
+<P>
+<A NAME="fig:example">
+<table border=0>
+<tr><td>
+<hr>
+<pre>
+class MainWindow( Widget ):
+    def Handle_close( self, event ):
+        print 'MainWindow: ' + event.name
+    def HandleDefault( self, event ):
+        print 'Default: ' + event.name
+        
+class SendDialog( Widget ):
+    def Handle_paint( self, event ):
+        print 'SendDialog: ' + event.name
+
+class MsgText( Widget ):
+    def Handle_down( self, event ):
+        print 'MsgText: ' + event.name
+</pre>
+<hr>
+<strong>Figure 9.</strong> Widget hierarchy classes
+    in Python 
+</td></tr>
+</table>
+<P>
+Some Python classes for our GUI example are implemented in
+Figure&nbsp;<A HREF="#fig:example">9</A>. The following code builds the chain and
+demonstrates its use:
+<pre>
+&gt;&gt;&gt; mw = MainWindow()
+&gt;&gt;&gt; sd = SendDialog( mw )
+&gt;&gt;&gt; msg = MsgText( sd )
+&gt;&gt;&gt; edown = Event( 'down' )
+&gt;&gt;&gt; msg.Handle( edown )
+MsgText: down
+&gt;&gt;&gt; epaint = Event( 'paint' )
+&gt;&gt;&gt; msg.Handle( epaint )
+SendDialog: paint
+&gt;&gt;&gt; eodd = Event( 'odd' )
+&gt;&gt;&gt; msg.Handle( eodd )
+Default: odd
+</pre>
+One curious aspect of our solution is that an event handler need not
+necessarily be a method; it can also be a function object. This allows
+the programmer to add new event handlers to existing 
+objects instead of creating new classes through inheritance. Due to
+the Python's scoping rules an event function cannot access the
+attributes of its container object. However, because the event
+function itself is an attribute it can be deleted. In other words
+event functions provide means of creating temporary event handlers to
+an existing Chain of Responsibility hierarchy. A simple example:
+<pre>
+&gt;&gt;&gt; def PrintName( e ):
+...     print 'Name: ' + e.name
+... 
+&gt;&gt;&gt; sd.Handle_odd = PrintName
+&gt;&gt;&gt; msg.Handle( eodd )
+Name: odd
+&gt;&gt;&gt; del sd.Handle_odd
+&gt;&gt;&gt; msg.Handle( eodd )
+Default: odd
+</pre><p>
+
+<A NAME="sec:proxy">
+<H1><A NAME="SECTION00050000000000000000">
+5 Proxy</A>
+</H1>
+
+    <P>
+From the point of view of the object-oriented design the ability
+to trap attribute 
+access provides some new solutions to old problems. A good example is
+the Proxy pattern, which is used when an object has to be shielded from
+its clients. There may be a number of reasons for this: reference
+counting, different levels of access rights, lazy evaluation of the
+state of the object and so on. The runtime object structure for the
+pattern is shown in Figure&nbsp;<A HREF="#fig:proxy">10</A>.
+<P>
+<A NAME="fig:proxy">
+<table border=0>
+<tr><td>
+<hr>
+<img src="savikko-proxy.gif">
+<hr>
+<strong>Figure 10.</strong> Runtime object structure
+</td></tr>
+</table>
+<P>
+The client does not need to know that it is not accessing the real
+object (<TT>Subject</TT>) directly. In other words the proxy 
+substitutes for the real thing. In C++ this would
+mean that both the proxy and the subject class have a common base
+class. In Python the same effect can be achieved by masquerading the
+proxy instance as the subject by providing the same method
+interface. Our proxy class in Figure&nbsp;<A HREF="#fig:proxy.py">11</A> is based on
+near-universal <TT>Wrapper</TT> class [<A
+ HREF="#python:tutorial">vR96</A>]. As
+such the <TT>Proxy</TT> class is only a trivial wrapper for any
+subject. However, its main function is to serve as a base class for more
+specific proxy implementations. Because the <TT>__gettattr__</TT>
+method is called only as the last resort the proxy can handle a
+subject method differently by ``overloading'' it in the proxy class. 
+Let us consider the following situation: we access an instance of class
+<TT>RGB</TT> (Fig. <A HREF="#fig:rgb">12</A>) first directly, then using a generic
+Proxy instance as a wrapper and finally via <TT>NoBlueProxy</TT> instance
+(Fig. <A HREF="#fig:noblueproxy">13</A>):
+<pre>
+&gt;&gt;&gt; rgb = RGB( 100, 192, 240 )
+&gt;&gt;&gt; rgb.Red()
+100
+&gt;&gt;&gt; proxy = Proxy( rgb )
+&gt;&gt;&gt; proxy.Green()
+192
+&gt;&gt;&gt; noblue = NoBlueProxy( rgb )
+&gt;&gt;&gt; noblue.Green()
+192
+&gt;&gt;&gt; noblue.Blue()
+0
+</pre><p>
+
+
+<A NAME="fig:proxy.py">
+<table border=0>
+<tr><td>
+<hr>
+<pre>
+class Proxy:
+    def __init__( self, subject ):
+        self.__subject = subject
+    def __getattr__( self, name ):
+        return getattr( self.__subject, name )      
+</pre>
+<hr>
+<strong>Figure 11.</strong> Proxy base class
+</td></tr>
+</table>
+<P>
+<A NAME="fig:rgb">
+<table border=0>
+<tr><td>
+<hr>
+<pre>
+class RGB:
+    def __init__( self, red, green, blue ):
+        self.__red = red
+        self.__green = green
+        self.__blue = blue
+    def Red( self ):
+        return self.__red
+    def Green( self ):
+        return self.__green
+    def Blue( self ):
+        return self.__blue    
+</pre>
+<hr>
+<strong>Figure 12.</strong> Subject class
+</td></tr>
+</table>
+<P>
+<A NAME="fig:noblueproxy">
+<table border=0>
+<tr><td>
+<hr>
+<pre>
+class NoBlueProxy( Proxy ):
+    def Blue( self ):
+        return 0    
+</pre>
+<hr>
+<strong>Figure 13.</strong> More specific proxy implementation
+</td></tr>
+</table>
+
+<P>
+While Python provides some mechanisms that are usually implemented
+with the Proxy pattern (for example simple reference counting) the
+pattern is still highly applicable to the Python community.
+An excellent example is Daniel
+Larsson's RemoteCall package [<A
+ HREF="#larsson">Lar97</A>], which provides a simple
+mechanism for distributed applications. One of the key concepts in the
+system is the role of agents, which are client-side representations of
+the server-side objects - in other words, proxies. The history of the
+package also
+demonstrates a noteworthy aspect of patterns in general: the author
+recognized that he had applied a pattern only <EM>after</EM>  the
+implementation. 
+<P>
+<A NAME="sec:conclusions">
+<H1><A NAME="SECTION00060000000000000000">
+6 Conclusions</A>
+</H1>
+
+G<SMALL>O</SMALL>F patterns and Python can benefit from each other. While Python
+lacks some features that G<SMALL>O</SMALL>F assumes, it is not impossible to build
+pattern implementations that work like their G<SMALL>O</SMALL>F counterparts. Our
+Singleton implementation substituted private constructors with an
+exception mechanism and a class method with a regular function but the
+underlying pattern is still clearly Singleton. It is important to note
+the difference between a pattern and its implementation. In Singleton
+our main focus was to maintain the features of the pattern as
+described in G<SMALL>O</SMALL>F. This leads to a solution that is probably too
+obscure to be recognized as a Python pattern. A more intuitive - and
+perhaps Pythonlike - solution would be to abandon any encapsulation
+issues and simply provide a factory function for the Singleton
+instance [<A
+ HREF="#python:lundh_singleton">Lun97</A>].
+<P>
+The use of Python as an implementation language can also enhance the
+pattern. The flexible and dynamic nature of the language provides a
+good basis for a number of different and elegant solutions. Our Chain of Responsibility implementation makes the pattern more dynamic by implementing it
+with Command Dispatch pattern, which takes advantage of Python's
+runtime capabilities. These capabilities include runtime attribute
+lookup and addition. In other words the instances of the same class
+need not necessarily have identical structure and attribute access
+can be monitored and trapped. These mechanisms provide a fairly elegant
+way to implement various generic classes as in our Proxy
+implementation.
+<P>
+We have chosen three patterns to emphasize the issues discussed,
+but we are also confident that other G<SMALL>O</SMALL>F patterns can also be implemented
+in Python, and with similar results. While the patterns might
+end up with added dynamic and flexible features after the process, this
+would not necessarily erode 
+the usability and recognizability of the patterns. The familiarity and
+the order provided by the use of patterns may offer major benefits for
+various Python object systems and frameworks.
+<P><H2><A NAME="SECTIONREF">References</A>
+</H2>
+<DL COMPACT><P></P><DT><A NAME="posa"><STRONG>BMR+96</STRONG></A>
+<DD>
+Frank Buschmann, Regine Meunier, Hans Rohnert, Peter Sommerlad, and Michael
+  Stal.
+<BR><EM>Pattern-Oriented Software Architecture -- A System of
+  Patterns</EM>.
+<BR>John Wiley &amp; Sons, 1996.
+<BR>457 pages.
+<P><P></P><DT><A NAME="dubois"><STRONG>Dub96</STRONG></A>
+<DD>
+Paul Dubois.
+<BR><EM>Introduction to Python</EM> .
+<BR>Tutorial at TOOLS USA 96, August 1996.
+<P><P></P><DT><A NAME="gof"><STRONG>GHJV95</STRONG></A>
+<DD>
+Erich Gamma, Richard Helm, Ralph Johnson, and John Vlissides.
+<BR><EM>Design Patterns -- Elements of Reusable Object-Oriented
+  Software</EM>.
+<BR>Addison-Wesley, 1995.
+<BR>395 pages.
+<P><P></P><DT><A NAME="larsson"><STRONG>Lar97</STRONG></A>
+<DD>
+Daniel Larsson.
+<BR>RemoteCall package.
+<BR><a href="http://www.python.org">http://www.python.org</a>, September 1997.
+<P><P></P><DT><A NAME="python:lundh_singleton"><STRONG>Lun97</STRONG></A>
+<DD>
+Fredrik Lundh.
+<BR><EM>Singleton Pattern</EM> .
+<BR>Python Pattern-SIG mailing list, July 1997.
+<BR><a href="http://www.python.org">http://www.python.org</a>.
+<P><P></P><DT><A NAME="python:tutorial"><STRONG>vR96</STRONG></A>
+<DD>
+Guido van Rossum.
+<BR><EM>Python Tutorial</EM>, October 1996.
+<BR><a href="http://www.python.org">http://www.python.org</a>.
+<P><P></P><DT><A NAME="python:dispatch"><STRONG>vR97</STRONG></A>
+<DD>
+Guido van Rossum.
+<BR><EM>Command Dispatch Pattern</EM> .
+<BR>Python Pattern-SIG mailing list, May 1997.
+<BR><a href="http://www.python.org">http://www.python.org</a>.
+</DL>
+<P><BR><HR>
+</UL>
+</BODY>
+</HTML>

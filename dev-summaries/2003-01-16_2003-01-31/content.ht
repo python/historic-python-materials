@@ -1,0 +1,246 @@
+Title: python-dev Summary for 2003-01-16 through 2003-01-31
+Sitemap-ignore: yes
+
+<div class="document" id="python-dev-summary-for-2003-01-15-through-2003-01-31">
+<h1 class="title">python-dev Summary for 2003-01-15 through 2003-01-31</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> from January 16, 2003 to January 31, 2003.  It is intended to inform the wider Python community of on-going developments on the list that might be of interest.  To comment on anything mentioned here, just post to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> or comp.lang.python with subject line delineating what you discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join python-dev!</p>
+<p>This is the tenth summary written by Brett Cannon (double digits, baby!).</p>
+<p>All summaries are archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a>; you can safely ignore it (although I suggest learning reST; its simple and is accepted for PEP markup).  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is unless it is from the original text file.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#summary-announcements" id="id13" name="id13">Summary Announcements</a></li>
+<li><a class="reference" href="#adding-japanese-codecs-to-the-distro" id="id14" name="id14">Adding Japanese Codecs to the distro</a></li>
+<li><a class="reference" href="#make-install-failing-with-current-cvs" id="id15" name="id15">make install failing with current cvs</a></li>
+<li><a class="reference" href="#logging-package-rename-warn-to-warning" id="id16" name="id16">logging package -- rename warn to warning?</a></li>
+<li><a class="reference" href="#sys-exit-and-pythoninspect" id="id17" name="id17">sys.exit and PYTHONINSPECT</a></li>
+<li><a class="reference" href="#disable-writing-py-co" id="id18" name="id18">disable writing .py[co]</a></li>
+<li><a class="reference" href="#re-gadflyda-in-core-or-as-add-on-product" id="id19" name="id19">Re: GadflyDA in core? Or as add-on-product?</a></li>
+<li><a class="reference" href="#mixed-type-datetime-comparisons" id="id20" name="id20">Mixed-type datetime comparisons</a></li>
+<li><a class="reference" href="#itertools" id="id21" name="id21">Itertools</a></li>
+<li><a class="reference" href="#idea-for-avoiding-exception-masking" id="id22" name="id22">Idea for avoiding exception masking</a></li>
+<li><a class="reference" href="#extended-function-syntax" id="id23" name="id23">Extended Function syntax</a></li>
+<li><a class="reference" href="#capabilities-in-python" id="id24" name="id24">Capabilities in Python</a></li>
+<li><a class="reference" href="#skipped-threads" id="id25" name="id25">Skipped Threads</a></li>
+</ul>
+</div>
+<div class="section" id="summary-announcements">
+<h1><a class="toc-backref" href="#id13" name="summary-announcements">Summary Announcements</a></h1>
+<p>To make the Summaries more thorough I have decided to make a list of threads that I have decided not to summarize and give my reasoning behind why I decided to skip it which should also explain what the thread is about.  I doubt anyone will have complaints about doing this, but if you do let me know.  You can find this section entitled &quot;Skipped threads&quot; at the end of the summary.</p>
+<p>Some <a class="reference" href="http://www.python.org/pycon/">PyCon</a> announcements to make.  Registration is scheduled to start next week.  Also, the list of accepted papers is expected to be announced on-time.  The conference is shaping up and getting organized.  It should be a lot of fun <em>and</em> educational, so make sure you come to <a class="reference" href="http://www.python.org/pycon/">PyCon</a> !</p>
+</div>
+<div class="section" id="adding-japanese-codecs-to-the-distro">
+<h1><a class="toc-backref" href="#id14" name="adding-japanese-codecs-to-the-distro"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032197.html">Adding Japanese Codecs to the distro</a></a></h1>
+<p>MA Lemburg brought up a patch on SourceForge by Hisao SUZUKI (I am assuming the capitalization of the last name is a Japanese thing so I will stick with it in the summary) to add &quot;codecs for the Japanese encodings EUC-JP, Shift_JIS and ISO-2022-JP&quot; and donate the code to the <a class="reference" href="http://www.python.org/psf/">Python Software Foundation</a>.  MAL's reason for wanting to use these codecs over the current ones most commonly used with Python (written by Tamito KAJIYAMA whose codecs can be found at <a class="reference" href="http://www.asahi-net.or.jp/~rd6t-kjym/python/">http://www.asahi-net.or.jp/~rd6t-kjym/python/</a> ) was that Hisao's were smaller and written in pure Python.</p>
+<p>Martin v. Lwis thought it was fine to add the codecs but thought Tamito's should be the defaults if any codecs were added to Python.  His reasoning was that they have been in active development for a while and thus have been independently verified, in a way, to be correct.  He also didn't like the &quot;absence of the cp932 encoding in Suzuki's codecs&quot; since the &quot;suggestion to equate this to &quot;mbcs&quot; on Windows is not convincing&quot;.  He also thought it would be best to add the C version only.  He also suggested &quot;that it might be more worthwhile to expose platform codecs, which would give us all CJK codecs on a number of major platforms, with a minimum increase in the size of the Python distribution, and with very good performance&quot;.</p>
+<p>In response to Martin's comments, MAL thought that the benefit of the Python versions of the codecs was that they were easier to modify.  He suggested that the C version then be made available to download as a separate entity (which apparently has been suggested multiple times).  As for the independent verification, Hisao built his based on Java's codecs which MAL thought was pretty good verification that they should work.  MAL agreed that exposing more platform codecs would be good.</p>
+<p>Martin didn't go for the &quot;easier editing&quot; argument.  He noted that since the table was autogenerated you would need to know the algorithm that made the table in order to be able to edit it.</p>
+<p>Hye-Shik Chang responded with the support of the C version since it allows for much easier interprocess communication.  It also beat the Python version when it came to memory consumption by a large margin.</p>
+<p>Guido asked how Tamito would feel about adding these codecs, whether both sets outputted the same, and whether Tamito's codecs would still be preferred by people doing a lot of Japanese work.</p>
+<p>Martin reponded that he didn't think they produced the same result and that people would continue to use JapaneseCodecs (Tamito's codecs) as long as Python didn't include the cp932 codec.</p>
+<p>Barry Warsaw commented that Mailman used Tamito's codecs and no one has ever complained.  He said he would love to see one of the codecs included in Python.  Apparently their tend to be license issues with the various Asian codecs.  The <a class="reference" href="http://sf.net/projects/koco">KorenCodecs</a> (or KoCo) are licensed under LGPL, but Hye-Shik Chang said he would &quot;like to make an essence of KoreanCodecs in PSF License if python needs it&quot;.</p>
+<p>Atsuo Ishimoto voted for Tamito's codecs.  He said that the Japanese community would continue to use them regardless of what went into Python.  And in regards to the question of maintaining the codecs, Atsuo said the Japanese Python community would be willing to help Tamito with his but did not expect that kind of support for Hisao's codecs (Hisao has volunteered to maintain his codecs, though).</p>
+<p>MAL pointed out that &quot;Tamito's codecs have an installed size of 1790kB while Hisao's codecs are around 81kB&quot; and that was an issue.  Martin said that it was only 690kB if you only counted the C version.  The issue of size became a major point.  It was pointed out that Tamito's covered more codecs and being in C meant it only needed to be loaded in memory once for interprocess use.</p>
+<p>Tamito chimed in finally and commented that he was busy and would not be able to maintain the codecs until he graduated from graduate school.  MAL suggested that he start maintaining it when he had the time and Tamito agreed.</p>
+<p>I am not sure where the situation stands as of this moment.</p>
+</div>
+<div class="section" id="make-install-failing-with-current-cvs">
+<h1><a class="toc-backref" href="#id15" name="make-install-failing-with-current-cvs"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032213.html">make install failing with current cvs</a></a></h1>
+<p>Jack Jansen was having issues with <tt class="literal"><span class="pre">make</span> <span class="pre">install</span></tt> because he had various packages in site-python that had inconsistent tab usage and thus was raising a TabError during the <tt class="literal"><span class="pre">compileall()</span></tt> step.  Jack asked if site-packages could either be skipped by this step or at least not lead to the abortion of the install.  All of this was from a change in <tt class="literal"><span class="pre">compileall()</span></tt> that caused it to exit with a non-zero value if any errors were raised (although it continued to run).  That feature was left in; the Makefile was modified so as to skip site-packages.</p>
+</div>
+<div class="section" id="logging-package-rename-warn-to-warning">
+<h1><a class="toc-backref" href="#id16" name="logging-package-rename-warn-to-warning"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032220.html">logging package -- rename warn to warning?</a></a></h1>
+<p>Guido said that he would &quot;like to change 'warn' to 'warning' (and WARN to WARNING)&quot; in the <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-logging.html">logging</a> package.  His argument that nothing else was a verb in the package.</p>
+<p>Vinay Sajip (who wrote the logging package) said he was fine with the change, but warned it would break existing code that already used the package.  He suggested putting both names in with a warning that <tt class="literal"><span class="pre">warn</span></tt> was deprecated.  This was shot down since a new package does not need to start with anything deprecated.</p>
+<p>Then the discussion of whether to ditch fatal/FATAL since they are synonyms for crictical/CRITICAL came up.  Guido said the reverse should happen; keep FATAL and ditch CRITICAL (for the rest of this summary I will only refer to the capitalized version to keep things simple).  Some opposition came up, holding the view that CRITICAL was closer to the truth.  Vinay suggested SEVERE as a replacement.  Guido said it didn't &quot;tickle&quot; his &quot;fancy like fatal/FATAL does&quot;; CRITICAL was okay if no agreed upon replacement could be found.  A quick grepping of the package by me shows that CRITICAL is staying as well was WARN (will most likely not be documented, though, so don't use it for new code).</p>
+</div>
+<div class="section" id="sys-exit-and-pythoninspect">
+<h1><a class="toc-backref" href="#id17" name="sys-exit-and-pythoninspect"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032217.html">sys.exit and PYTHONINSPECT</a></a></h1>
+<p>Kevin Altis discovered that invoking the interpreter with the <tt class="literal"><span class="pre">-i</span></tt> argument does not prevent the interpreter from exiting if SystemExit is raised (<tt class="literal"><span class="pre">sys.exit()</span></tt> will raise the exception).  He thought it would be good if <tt class="literal"><span class="pre">-i</span></tt> would override even the SystemExit exception.  <a class="reference" href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=670311&amp;group_id=5470&amp;atid=105470">Bug #670311</a> was created for this, but no patch has been written yet (anyone care to step up and do this?).</p>
+</div>
+<div class="section" id="disable-writing-py-co">
+<h1><a class="toc-backref" href="#id18" name="disable-writing-py-co"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032270.html">disable writing .py[co]</a></a></h1>
+<dl>
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032342.html">Proto-PEP regarding writing bytecode files</a></li>
+</ul>
+</dd>
+</dl>
+<p>In the thread <a class="reference" href="http://www.python.org/dev/summary/2003-01-01_2003-01-15.html#parallel-pyc-construction">Parallel pyc construction</a> (as covered in the last summary), Paul Dubois brought up how he would like to be able to disable the writing of .py[co] files.  Well, this led to a long discussion that culminated into the creation of <a class="reference" href="http://www.python.org/dev/peps/pep-0304">PEP 304</a> by Skip Montanaro.  If this topic interests you then read the PEP.</p>
+</div>
+<div class="section" id="re-gadflyda-in-core-or-as-add-on-product">
+<h1><a class="toc-backref" href="#id19" name="re-gadflyda-in-core-or-as-add-on-product"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032295.html">Re: GadflyDA in core? Or as add-on-product?</a></a></h1>
+<p>The idea was proposed to add <a class="reference" href="http://gadfly.sourceforge.net/">Gadfly</a> to the stdlib.  Two issues came up about doing this.  One was that it would require having to deal with another license.  Aaron Watters (the original author of Gadfly) was emailed to ask if he would be willing to donate the code to the <a class="reference" href="http://www.python.org/psf/">Python Software Foundation</a>, but he did not respond (at least to the list).</p>
+<p>The other issue was the use of <a class="reference" href="http://starship.python.net/crew/aaron_watters/kjbuckets/">kjbuckets</a>.  Guido was -1 on letting it into the stdlib because he had &quot;heard it's some of .the hairiest C code ever written&quot;.  But Richard Jones said that Anthony Baxter is working on removing the dependency on kjbuckets by rewriting the code using the <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-sets.html">Sets</a> module introduced in Python 2.3.</p>
+<p>As of this writing the decision as to whether to add Gadfly has been put on hold until both of the above issues are resolved.</p>
+</div>
+<div class="section" id="mixed-type-datetime-comparisons">
+<h1><a class="toc-backref" href="#id20" name="mixed-type-datetime-comparisons"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032414.html">Mixed-type datetime comparisons</a></a></h1>
+<p>Tim Peters sent an email to the list saying that he had made changes to the <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-datetime.html">datetime</a> type so that it returned NotImplemented if the thing being compared to had a <tt class="literal"><span class="pre">timetuple()</span></tt> method so as to allow other implementations to provide the functionality.</p>
+<p>He also mentioned how you still can't compare datetimes and timedeltas.  This caused MA Lemburg to ask why not.  Tim said it just wouldn't make any sense since they don't even measure time in the same units.  Tim ended on saying that if MAL and Fredrik Lundh could come up with a good proposal Tim would get it in, otherwise his time on datetime for Python 2.3 is spent.</p>
+</div>
+<div class="section" id="itertools">
+<h1><a class="toc-backref" href="#id21" name="itertools"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032508.html">Itertools</a></a></h1>
+<p>Raymond Hettinger checked in his <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/itertoolsmodule.c">itertools</a> module into the sandbox for testing and asked for feedback.  He got it and has subsequently checked the module into the stdlib.</p>
+</div>
+<div class="section" id="idea-for-avoiding-exception-masking">
+<h1><a class="toc-backref" href="#id22" name="idea-for-avoiding-exception-masking"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032492.html">Idea for avoiding exception masking</a></a></h1>
+<p>Raymond Hettinger discovered that &quot;trapping an exception (a TypeError for a mutable argument passed to a dictionary) resulted in masking other errors that should have been passed through (potential TypeErrors in the called iterator for example)&quot;.  Raymond proposed a new function named PyErr_FormatAppend that would append the extra info.  Ka-Ping Yee suggested adding the original exception to the new exception as an attribute.  This was generally viewed as a good solution.  Questions of how to store traceback information and how to handle this in the C code has yet to be resolved.</p>
+</div>
+<div class="section" id="extended-function-syntax">
+<h1><a class="toc-backref" href="#id23" name="extended-function-syntax"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032498.html">Extended Function syntax</a></a></h1>
+<dl>
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032591.html">Property syntax</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032616.html">thunks (for all the fish)</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032663.html">question???</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032669.html">Syntax-wise</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032684.html">How about a meta-reserved word?</a></li>
+</ul>
+</dd>
+</dl>
+<p>This threads wins the award for longest thread summarized here (and possibly ever for a summary written by me).  Fair warning if you decide to read the actual thread.</p>
+<p>Also, none of this applies to Python 2.3; Guido promised syntactic stability for this next release and you will get it.</p>
+<p>Guido remembered that a proposal for extending the syntax of Python to make using things such as <tt class="literal"><span class="pre">property()</span></tt>, <tt class="literal"><span class="pre">staticmethod()</span></tt>, etc. much easier and wanted a reminder on where more info was.  The suggeted syntax was:</p>
+<pre class="literal-block">
+def name(arg, ...) [expr1, expr2, expr3, ...]:
+    ...body...
+</pre>
+<p>where <tt class="literal"><span class="pre">expr,</span> <span class="pre">...</span></tt> would be evaluated like <tt class="literal"><span class="pre">name</span> <span class="pre">=</span> <span class="pre">expr3(expr2(expr1(name)))</span></tt>.  Michael Hudson wrote up a patch which can be found at <a class="reference" href="http://starship.python.net/crew/mwh/hacks/meth-syntax-sugar-3.diff">http://starship.python.net/crew/mwh/hacks/meth-syntax-sugar-3.diff</a> with the original python-dev thread on this at <a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-February/020005.html">http://mail.python.org/pipermail/python-dev/2002-February/020005.html</a> .</p>
+<p>All of this led to an explosion of other syntax suggestions.  One that garnered some support was to make something like:</p>
+<pre class="literal-block">
+class Foo:
+    def Foo.bar(self, a, b, c):
+        ...body...
+</pre>
+<p>work by basically making a def statement work like <tt class="literal"><span class="pre">Foo.bar=new.function(CODE,</span> <span class="pre">GLOBS,</span> <span class="pre">'Foo.bar')</span></tt>.  If properties were made assignable then you could just use this syntax to assign to a property you instantiated.  People also came up with metaclass implementations of some things (which Guido didn't like because they &quot;all abuse the class keyword for something that's definitely not a class&quot;).</p>
+<p>An idea that Walter Drwald suggested was:</p>
+<pre class="literal-block">
+class Foo(object):
+   property myprop:
+       &quot;&quot;&quot;Doc string for myprop.&quot;&quot;&quot;
+       def __get__(self):
+           ...body...
+       def __set__(self, arg):
+           ...body...
+       def __delete__(self):
+           ...body...
+</pre>
+<p>Guido's objection was that it turned property into a keyword.  But he admitted that a new keyword would be okay if an elegant solution came about.</p>
+<p>Guido then made the suggestion of:</p>
+<pre class="literal-block">
+foo = property:
+    ...
+</pre>
+<p>This also garnered some support.  The problem with this is that it would require the parser to be able to go from '&quot;expression parsing mode&quot; to &quot;block parsing mode&quot;' in a new way.  But Guido seemed to solve it.  It would also allow the generalization of this to something along the lines of:</p>
+<pre class="literal-block">
+v = e:  # Possibility for adding args -- v = e:(x, y):
+   S  # Creates a thunk
+</pre>
+<p>which would be equivalent to:</p>
+<pre class="literal-block">
+v = e(T)  # T is a thunk created from S
+</pre>
+<p>None of this is meant to replace the suggested [expr, ...] syntax that started this whole thread.</p>
+<p>Another syntactic suggestion was:</p>
+<pre class="literal-block">
+def foo as property:
+    def __get__(self):
+        ...
+    def __set__(self, x):
+        ...
+</pre>
+<p>Which seemed to grab a lot of people's fancies.  This would allow for &quot;... as class&quot;, &quot;... as generator&quot;, etc.</p>
+<p>But the problem with all of these proposals is how to deal with namespaces.  Should, for instance, the thunks Guido suggested have their own namespace or use the one of their parent?  Should their be only one type of thunk or multiple types with different scoping rules based on the situation?  The namespace issue (especially for thunks) is still playing out.</p>
+</div>
+<div class="section" id="capabilities-in-python">
+<h1><a class="toc-backref" href="#id24" name="capabilities-in-python"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032672.html">Capabilities in Python</a></a></h1>
+<p>This thread actually came out of the whole property/thunk thing summarized directly above but was so tangential that I thought it deserved its own summary.</p>
+<p>Ben Laurie had apparently suggested that capabilities be added to Python.  Jeremy Hylton gave a pretty good description of a capability as &quot;a ticket.  The ticket is good for some event and possession of the ticket is sufficient to attend the event&quot;; limit abilities of objects based on what capabilities you possess.  The problem is that Python's introspection lets you see everything and thus you can get around restrictions; you can get into the event by sneaking out back and crawling under the fence all without having a ticket.  Jeremy mentioned Zope's proxy which fully wraps an object and forces all interaction through the proxy.</p>
+<p>Then Ka-Ping Yee stepped up to discuss the topic.  He made the point that &quot;creating a capability is equivalent to creating an object -- which you can only do if you hold the constructor&quot;.  Ping said that &quot;To build a capability system, all you need to do is to constrain the transfer of object references such that they can only be transmitted along other object references.  That's all.&quot;  In order to pull this off you would need to restrict access to only the declared interface of an object and have &quot;no global namespace of modules&quot;.  In other words have something like a private declaration for things and get rid of <tt class="literal"><span class="pre">sys.modules</span></tt>.  Ping suggested coming up with a &quot;secure-mode&quot; Python where these restrictions would be turned on.  Neil Schemenauer liked this idea.</p>
+</div>
+<div class="section" id="skipped-threads">
+<h1><a class="toc-backref" href="#id25" name="skipped-threads">Skipped Threads</a></h1>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032191.html">test_logging failing on Windows 2000</a> </dt>
+<dd>Since it dealt with a bug that received a patch I didn't worry about it.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032216.html">PyConDC sprints</a></dt>
+<dd>Meant for the people on python-dev directly, so no point in telling the general community about it.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032228.html">String method: longest common prefix of two strings</a></dt>
+<dd>Didn't go anywhere; Guido said he doesn't want to add every useful thing as a string method since there are already so many.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032234.html">very slow compare of recursive objects</a></dt>
+<dd>Discussed a patch about recursive compares.  Basically led to no change and dealt with how to make a tuple recursive.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032240.html">test_email always supposed to be skipped?</a></dt>
+<dd>Glitch in Makefile.pre.in which got fixed.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032449.html">extending readline functionality (patch)</a></dt>
+<dd>Someone sending a patch directly to python-dev; big no-no!  Use <a class="reference" href="http://www.sf.net/projects/python">SourceForge</a> for any all patches.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032284.html">Re: [Python-checkins] python/dist/src Makefile.pre.in,1.111,1.112</a></dt>
+<dd>No one ever responded to the email; problem was probably solved.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032313.html">Cookie.py too strict</a></dt>
+<dd>Barry Warsaw wanted to make the <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-Cookie.html">Cookie</a> module less strict in acceptance.  Michael Chermside suggested adding an argument to be able to specify whether the acceptance of data should be strict or not.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032469.html">HTMLParser patches</a></dt>
+<dd>Mentions two patches for <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-HTMLParser.html">HTMLParser</a> to fix some parsing problems.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032355.html">Name space pollution (fwd)</a></dt>
+<dd>Someone on <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python&amp;ie=ISO-8859-1&amp;hl=en&amp;btnG=Google+Search">c.l.py</a> didn't like the naming of a function <tt class="literal"><span class="pre">destructor</span></tt> in the core because it is such a common name and thus can clash with other code.  Guido said submit a patch or use some <tt class="literal"><span class="pre">#define</span></tt> tricks.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032373.html">logging package -- spurious package contents</a></dt>
+<dd>Guido didn't like the config file for the <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-logging.html">logging</a> package nor the extra handlers.  It was agreed to ditch the config file but keep the handlers.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032415.html">logging package -- documentation</a></dt>
+<dd>Better docs for the <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-logging.html">logging</a> package were uploaded and are ready to be applied.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032374.html">Re: [Zope3-dev] PosixTimeZone tzinfo implementation</a></dt>
+<dd>Single email mentioning the tm_gmtoff attribute of the datetime type.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032388.html">test_ossaudiodev hangs</a></dt>
+<dd>The <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/ossaudiodev.c">ossaudiodev</a> module was hanging in tests.  It has been disabled in <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/setup.py">setup.py</a>.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032400.html">Looking for a Windows bsddb fan</a></dt>
+<dd>Tim Peters upgraded the Windows distribution to berkeleydb 4.1.25; doing so caused a huge amount of test failures.  Turned out they were race conditions in the tests inherit in such complicated tests.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032429.html">Extension modules, Threading, and the GIL</a></dt>
+<dd>Mention of how the GIL puts a cramp into writing <a class="reference" href="http://www.daa.com.au/~james/pygtk/">PyGTK</a>.  This thread started last month ( <a class="reference" href="http://www.python.org/dev/summary/2003-01-01_2003-01-15.html#extension-modules-threading-and-the-gil">http://www.python.org/dev/summary/2003-01-01_2003-01-15.html#extension-modules-threading-and-the-gil</a> ).</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032417.html">the new 2.3a1 settimeout() with httplib and SSL</a></dt>
+<dd>There was a problem with the new timeout mechanism in <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-socket.html">socket</a> and SSL.  There is a a patch at <a class="reference" href="http://www.python.org/sf/676472">http://www.python.org/sf/676472</a> to fix the problem.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032457.html">non-blocking sockets and sendall</a></dt>
+<dd>Brian Ellin noticed that <tt class="literal"><span class="pre">socket.sendall()</span></tt> and non-blocking sockets don't work together.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032477.html">Re: [Python-checkins] python/dist/src/Lib/bsddb dbshelve.py,1.4,1.4.4.1</a></dt>
+<dd>Skip Montanaro asking whether bsddb185 should become &quot;a fallback to the fallback&quot;.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032428.html">xmlparse.c no longer compiles on Windows</a></dt>
+<dd>Tim Peters discovered <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/expat/xmlparse.c">xmlparse.c</a> had some #define lines for the non-existent case of no <tt class="literal"><span class="pre">memmove()</span></tt> function.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032506.html">fixing traceback.extract_stack() line numbers</a></dt>
+<dd>Greg Klanderman noticed that <tt class="literal"><span class="pre">traceback.extract_stack()</span></tt> only gives the first line of the method and not of the actual line that caused an issue.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032511.html">python2.3 on m68k-nommu uClinux, really slow</a></dt>
+<dd>Brad Clements got Python working on an m68k processor and performance was horrible.  He asked if anyone had any ideas on how to speed it up.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032519.html">native code compiler? (or, OCaml vs. Python)</a></dt>
+<dd>Someone asked if Python was ever going to have a native code compiler.  The answer is &quot;if you want to write one&quot; and to ask the question nicely.  It also became a debate over how difficult a native code compiler would be.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032525.html">Re: RHSA-2002:202-25</a></dt>
+<dd>Skip Montanaro sent an email about a security hole found in <tt class="literal"><span class="pre">os.exec*p()</span></tt> method that was patched back in August.  It has subsequently been back-patched to 2.1.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032587.html">map, filter, reduce, lambda</a></dt>
+<dd>Andrew Koenig commenting on the discussion from the <a class="reference" href="http://www.python.org/dev/summary/2003-01-01_2003-01-15.html">last summary</a>.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032543.html">Global interpreter lock/import mechanism</a></dt>
+<dd>Joerg Budischewski asked some questions about the proper way of doing some things in a C extension.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032544.html">Should Cygwin Python use --enable-runtime-pseudo-reloc?</a></dt>
+<dd>Title of this thread makes what it is about obvious.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032549.html">New PEP 306 needs proof reading.</a></dt>
+<dd>Another thread whose content is obvious by the title.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032605.html">StringIO not an iterator?</a></dt>
+<dd>Misunderstanding initially.  Guido then suggested that (c?)StringIO become its own iterator which became a bug report.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032638.html">SF patch #677429 (PEP293 callbacks)</a></dt>
+<dd>Walter Drwald asking for someone to look over a patch since Martin v. Lwis in on vacation (and this explains why I have not been bringing up the character palette so much in this summary for inserting umlauts =).</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/032685.html">rexec/bastion</a></dt>
+<dd>Someone asking an improper question on the list (Mailman lists this in February, but I am on Pacific time so I say it is in January  =).</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032597.html">PEP 42:  sizeof(obj) builtin</a></dt>
+<dd>Raymond Hettinger asked if people still wanted <tt class="literal"><span class="pre">sizeof()</span></tt> in Python.  One person said yes.  The difficulty of doing this correctly was also pointed out along with the suggestion that if this function is written it be a part of the <tt class="literal"><span class="pre">sys</span></tt> module.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032678.html">PEP 305 - CSV File API</a></dt>
+<dd>&quot;A new PEP (305), &quot;CSV File API&quot;, is available for reader feedback&quot;.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032654.html">New version of PEP 304</a></dt>
+<dd>A new version of PEP 304 is up.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032635.html">import.c:load_source_module() confusion</a></dt>
+<dd>Skip Montanaro had a question about returning when a possible error was signalled on an import.</dd>
+</dl>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="2003-01-16_2003-01-31.txt">View document source</a>.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>
+

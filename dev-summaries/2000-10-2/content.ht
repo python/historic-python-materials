@@ -1,0 +1,216 @@
+Title: Python-dev summary: 2000-10-17 to 2000-10-31
+
+<pre>
+Pythoneers Move to Digital Creations
+====================================
+
+The most significant news in this two-week span was the five
+Pythoneers (GvR, Fred Drake, Jeremy Hylton, Tim Peters, Barry Warsaw)
+leaving BeOpen and being hired by Digital Creations.
+
+The terms of their hiring seem quite liberal.  From GvR's
+announcement: "We will be spending part of our time on core Python
+development (including Jython and Mailman) and part of our time on
+Python infrastructure improvements that also benefit Zope."  And, a
+few paragraphs later: "All future work we do on Python as Digital
+Creations employees will be owned by a non-profit organization yet to
+be created.  We think of this new organization as the Python Software
+Foundation.  In the meantime (while the PSF is under construction) I
+will own such copyrights personally."
+        <a href="http://www.python.org/digicool.html">http://www.python.org/digicool.html</a>
+
+No official statement from DC has been made as of this writing, though
+Paul Everitt has made some informal statements: "I'd like to start by
+saying that Guido and I have known each other a long time now. Barry
+too. We all really like each other, but we also know how to disagree
+constructively."
+        <a href="http://weblogs.userland.com/zopeNewbies/discuss/msgReader$831">http://weblogs.userland.com/zopeNewbies/discuss/msgReader$831</a>
+
+There was only a slight amount of paranoia triggered by the news.
+Some people wondered if DC would begin dictating Python's development,
+or start slanting the standard library toward Zope (discouraging
+enhancements to the Web development tools, for example).  This
+scenario seems quite improbable.  Instead, my crystal ball says it's
+more likely that certain language features and proposals will be given
+more of GvR's attention than they've previously gotten.  For example,
+Jim Fulton, Zope's primary architect, has long been interested in ways
+to specify interfaces in Python:
+        <a href="http://www.foretec.com/python/workshops/1998-11/dd-fulton-sum.html">http://www.foretec.com/python/workshops/1998-11/dd-fulton-sum.html</a>
+
+So interfaces may suddenly become a bit more interesting to Guido.
+Mending the class/type dichotomy would also be useful for Zope, and
+that means the odds of ExtensionClass or some equivalent
+functionality, being added to Python have probably just increased.
+(See "Other Matters", below, for an example.  )  But I do expect Guido
+will keep calling the shots as to exactly how any such new features
+fit into the language.
+
+
+Whither Tk?
+===========
+
+It was an eventful two weeks for scripting languages in general,
+really.  On October 20th that a company called Interwoven announced
+that it will be acquiring Ajuba Solutions, formerly known as
+Scriptics.  Scriptics was the company founded by John Ousterhout to
+provide support for the Tcl scripting language and the Tk GUI toolkit.
+However, Interwoven isn't interested in Tcl/Tk at all and will not be
+funding its development.
+
+Ajuba knew this was coming, of course, and over the past few months
+efforts have been made to open up Tcl/Tk development to the community,
+taking such steps as moving the CVS trees to SourceForge, electing a
+Tcl Core Team with 14 members, and specifying processes for proposing
+and voting on core changes (the Tcl equivalent of PEPs).
+        <a href="http://dev.scriptics.com/community/coreteam/">http://dev.scriptics.com/community/coreteam/</a>
+        <a href="http://sourceforge.net/projects/tcl">http://sourceforge.net/projects/tcl</a>
+        <a href="http://sourceforge.net/projects/tktoolkit">http://sourceforge.net/projects/tktoolkit</a>
+
+However, this process is still in its infancy, and the announcement
+caused much worrying in the Tcl/Tk user community about the language's
+future and its continued maintenance.  This affects Python because Tk,
+through the Tkinter module, is the GUI most commonly used with
+Python.  Tkinter is included in the source distribution, it's the most
+extensively documented, and it's the most portable, supported on the
+Big Three platforms, namely Windows, Unix, and MacOS.
+
+Fredrik Lundh first posted a note about the announcement, and Eric
+S. Raymond raised the question of what this meant for Tkinter: "This
+raises anew a question I've been meaning to bring up for the last
+week: is it finally time to move away from Python's dependence on
+Tcl/Tk for GUI support?"
+        <a href="http://www.python.org/pipermail/python-dev/2000-October/016753.html">http://www.python.org/pipermail/python-dev/2000-October/016753.html</a>
+
+People were split on this question, though Guido was receptive to the
+idea ("Yes, it may be time to have this discussion again.") and
+pointed out some reasons to stick with Tkinter: "Tk has two very high
+quality widgets: the Canvas and Text widgets are unsurpassed in
+functionality and robustness by other widget sets.  You can draw more
+lines or characters per second in most toolkits, but few toolkits
+offer the convenience of marks and tags, not having to deal with
+refresh events, being able to group objects, move them around, change
+attributes, etc., etc., etc."
+        <a href="http://www.python.org/pipermail/python-dev/2000-October/016754.html">http://www.python.org/pipermail/python-dev/2000-October/016754.html</a>
+
+Greg Wilson's reaction was "Yes please", and he went on to explain
+what factors kept him using Tkinter for a recent course:
+        <a href="http://www.python.org/pipermail/python-dev/2000-October/016757.html">http://www.python.org/pipermail/python-dev/2000-October/016757.html</a>
+
+/F thought Tk was still a good choice, and said " ... and trust me, the
+Python 2.0/Tk8.4/Tkinter3000 combo will rock ;-)".  Tkinter3000
+is an improved Tk interface that /F has been working on, with 
+more flexibility and better performance.
+        <a href="http://tkinter.effbot.org">http://tkinter.effbot.org</a>
+
+/F also hoped that the Tcl Core Team would become more receptive to
+making it easier to use Tk from other languages without Tcl having to
+be in the middle, which would let the maintainers of Tkinter and the
+Perl/Tk interface participate more in Tk's development.
+
+Eric S. Raymond speculated about the success of Tcl's new development
+model: "Good for Tcl: Osterhout's rather lame attempts to develop
+under a mixed model have almost certainly come to an end in favor of
+an Apache-like model funded by big Tcl users."
+        <a href="http://www.python.org/pipermail/python-dev/2000-October/016763.html">http://www.python.org/pipermail/python-dev/2000-October/016763.html</a>
+
+Greg Ewing wondered if stdwin should be revived.  GvR and Raymond both
+thought that far too much work, and not productive of very good
+results.  "And stdwin would really look pathetic in this time", GvR
+observed.
+
+Python isn't tied very tightly to Tk, of course; well-maintained and
+reasonably complete bindings exist for many different GUI toolkits,
+such as Qt, GTk+, wxWindows, Windows MFC, and a few more.
+        <a href="http://www.thekompany.com/projects/pykde/">http://www.thekompany.com/projects/pykde/</a>
+        <a href="http://www.daa.com.au/~james/pygtk/">http://www.daa.com.au/~james/pygtk/</a>
+        <a href="http://wxpython.org/">http://wxpython.org/</a>
+        <a href="http://http://www.oreillynet.com/pub/a/217">http://http://www.oreillynet.com/pub/a/217</a>
+
+wxWindows is probably the most obvious second candidate, since it
+actually supports all of the Big Three platforms, and no other toolkit
+does.  Robin Dunn, author of the wxPython binding, posted to discuss
+the status of wxWindows on the Mac: "My understanding is that the
+version in CVS is nearly up to date with the features in the MSW and
+GTK versions, though I haven't had a chance to use it myself.  ... The
+next step I guess is getting it wrapped up in wxPython..."
+        <a href="http://www.python.org/pipermail/python-dev/2000-October/016764.html">http://www.python.org/pipermail/python-dev/2000-October/016764.html</a>
+
+There was no clear final decision, and my crystal ball didn't deign to
+give an answer.  Given all the uncertainties, it's probably best to
+wait and see.  If Tk's development continues to progress and becomes
+more open to languages other than Tcl, Tkinter will probably continue
+to be the most common Python GUI.  If not, we can consider this
+question in another 6 months, which will give wxWindows and wxPython
+time to develop on the Mac platform.  And who knows?  Maybe something
+else will happen, such as Qt or GTk+ being ported to the Macintosh.
+
+
+Gradual Migration
+=================
+
+Paul Prescod suggested that we should start thinking about how to make
+the transition to the vaporware Python 3000 easier: "Rather than
+delaying painful backwards-compatibility breakage I think we should
+make it less painful.  We should decide where we are going long before
+we ask our users to move there. I think we should start including
+alternatives to syntaxes and features that we know are broken. Once
+people move to the alternatives we can 'reassign' or remove the
+original syntax with much less pain."
+        <a href="http://www.python.org/pipermail/python-dev/2000-October/016776.html">http://www.python.org/pipermail/python-dev/2000-October/016776.html</a>
+
+Reaction was enthusiastic, GvR commenting: "I think the proper
+approach is to start a separate migration process for each of these
+proposed changes.  Each should be paced separately (the pace may
+depend on how hard to swallow the change is for users as well as how
+hard it is to implement the new functionality) and for each, a
+separate PEP in the 3000 series should be started."
+        <a href="http://www.python.org/pipermail/python-dev/2000-October/016780.html">http://www.python.org/pipermail/python-dev/2000-October/016780.html</a>
+
+Paul got approval to write PEP #5: "Guidelines for Language Evolution".
+        <a href="http://python.sourceforge.net/peps/pep-0005.html">http://python.sourceforge.net/peps/pep-0005.html</a>
+
+Along the way, Tim Peters commented: "Not just to be my usual self
+&lt;wink&gt;, but I do see a from-scratch rewrite as being less likely as
+the years go by.  There's nothing I know of in Guido's plans that
+can't be done incrementally instead -- and if he doesn't either,
+selling a total-rewrite project to an employer is probably impossible.
+The most successful projects I've seen and been on *did* rewrite all
+the code routinely, but one subsystem at a time."
+        <a href="http://www.python.org/pipermail/python-dev/2000-October/016819.html">http://www.python.org/pipermail/python-dev/2000-October/016819.html</a>
+
+
+Other matters
+=============
+
+Neil Schemenauer posted a proposal for a core change that would make
+ExtensionClass better able to simulate a Python instance: 
+"Extension classes can never pass the PyInstance_Check predicate.
+I've searched for all occurances of PyInstance_Check in the 2.0
+source.  In many places that PyInstance_Check occurs a more
+general 'is this an instance-like type' check would seem to be
+more suitable."
+        <a href="http://www.python.org/pipermail/python-dev/2000-October/016797.html">http://www.python.org/pipermail/python-dev/2000-October/016797.html</a>
+
+Guido thought this simply papers over the problem in this one
+particular case, and said "Rather than formalizing the exceptions made
+for instances, we should work on eradicating the differences between
+classes and types.  I believe that the plans for rich comparisons
+would or could also take care of this.  I hope I'll have more time
+soon to explore this."  Jim Fulton, in a brief followup, said "Me
+too."
+
+Barry Warsaw proposed adding a function to the sys module which would
+return the stack frame for getting the stack frame of the function's
+caller:
+        <a href="http://www.python.org/pipermail/python-dev/2000-October/016802.html">http://www.python.org/pipermail/python-dev/2000-October/016802.html</a>
+
+People liked the idea; M.-A. Lemburg, Greg Ward, and Ka-Ping Yee all
+had their own implementations of this function already.  ?!ng reminded
+the list of his inspect.py module which provides this function, and
+other functions for inspecting live Python code, and suggested it for
+inclusion in the standard library:
+        <a href="http://lfw.org/python/inspect.py">http://lfw.org/python/inspect.py</a>
+
+No resolution was arrived at.
+
+</pre>

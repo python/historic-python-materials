@@ -1,0 +1,356 @@
+Title: python-dev Summary for 2005-05-16 through 2005-05-31
+Content-type: text/x-rst
+
+python-dev Summary for 2005-05-16 through 2005-05-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-05-16_2005-05-31.html]
+
+=====================
+Summary Announcements
+=====================
+
+----
+QOTF
+----
+
+We have our first ever Quote of the Fortnight (QOTF), thanks to
+the wave of discussion over `PEP 343`_ and Jack Diederich:
+
+   I still haven't gotten used to Guido's heart-attack inducing early
+   enthusiasm for strange things followed later by a simple
+   proclamation I like.  Some day I'll learn that the sound of
+   fingernails on the chalkboard is frequently followed by candy for
+   the whole class.
+
+See, even threads about anonymous block statements can end happily! ;)
+
+.. _PEP 343: http://www.python.org/dev/peps/pep-0343
+
+Contributing thread:
+
+- `PEP 343 - Abstract Block Redux <http://mail.python.org/pipermail/python-dev/2005-May/053828.html>`__
+
+[SJB]
+
+------------------
+First PyPy Release
+------------------
+
+The first release of `PyPy`_, the Python implementation of Python, is
+finally available. The PyPy team has made impressive progress, and
+the current release of PyPy now passes around 90% of the Python
+language regression tests that do not depend deeply on C-extensions.
+The PyPy interpreter still runs on top of a CPython interpreter
+though, so it is still quite slow due to the double-interpretation
+penalty.
+
+.. _PyPy: http://codespeak.net/pypy
+
+Contributing thread:
+
+- `First PyPy (preview) release <http://mail.python.org/pipermail/python-dev/2005-May/053964.html>`__
+
+
+[SJB]
+
+--------------------------------
+Thesis: Type Inference in Python
+--------------------------------
+
+Brett C. successfully defended his masters thesis `Localized Type
+Inference of Atomic Types in Python`_, which investigates some of the
+issues of applying type inference to the current Python language, as
+well as to the Python language augmented with type annotations.
+Congrats Brett!
+
+.. _Localized Type Inference of Atomic Types in Python: http://www.drifty.org/thesis.pdf
+
+Contributing thread:
+
+- `Localized Type Inference of Atomic Types in Python <http://mail.python.org/pipermail/python-dev/2005- May/053993.html>`__
+
+
+[SJB]
+
+=========
+Summaries
+=========
+
+---------------------------
+PEP 343 and With Statements
+---------------------------
+
+The discussion on "anonymous block statements" brought itself closer
+to a real conclusion this fortnight, with the discussion around
+`PEP 343`_ and `PEP 3XX`_ converging not only on the semantics for
+"with statements", but also on semantics for using generators as
+with-statement templates.
+
+To aid in the adaptation of generators to with-statements, Guido
+proposed adding close() and throw() methods to generator objects,
+similar to the ones suggested by `PEP 325`_ and `PEP 288`_. The
+throw() method would cause an exception to be raised at the point
+where the generator is currently suspended, and the close() method
+would use throw() to signal the generator to clean itself up by
+raising a GeneratorExit exception.
+
+People seemed generally happy with this proposal and -- believe it or
+not -- we actually went an entire eight days without an email about
+anonymous block statements!! It looked as if an updated `PEP 343`_,
+including the new generator functionality, would be coming early the
+next month. So stay tuned. ;)
+
+.. _PEP 288: http://www.python.org/dev/peps/pep-0288
+
+.. _PEP 325: http://www.python.org/dev/peps/pep-0325
+
+.. _PEP 343: http://www.python.org/dev/peps/pep-0343
+
+.. _PEP 3XX: http://www.python.org/dev/peps/pep-0346
+
+Contributing threads:
+
+- `PEP 343 - Abstract Block Redux <http://mail.python.org/pipermail/python-dev/2005-May/053731.html>`__
+- `Simpler finalization semantics (was Re: PEP 343 - Abstract Block Redux) <http://mail.python.org/pipermail/python -dev/2005-May/053812.html>`__
+- `Example for PEP 343 <http://mail.python.org/pipermail/python-dev/2005-May/053855.html>`__
+- `Combining the best of PEP 288 and PEP 325: generator exceptions and cleanup <http://mail.python.org/pipermail/python-dev/2005-May/053885.html>`__
+- `PEP 343 - New kind of yield statement? <http://mail.python.org/pipermail/python-dev/2005-May/053905.html>`__
+- `PEP 342/343 status? <http://mail.python.org/pipermail/python-dev/2005-May/054007.html>`__
+- `PEP 346: User defined statements (formerly known as PEP 3XX) <http://mail.python.org/pipermail/python-dev/2005- May/054014.html>`__
+
+[SJB]
+
+-----------
+Decimal FAQ
+-----------
+
+Raymond Hettinger suggested that a decimal FAQ would shorten the module's
+learning curve, and drafted one.  There  were no objections, but few
+adjustments (to the list, at least).  Raymond will probably make the FAQ
+available at  some point.
+
+Contributing thread:
+
+- `Decimal FAQ <http://mail.python.org/pipermail/python-dev/2005-May/053982.html>`__
+
+[TAM]
+
+---------------------
+Constructing Decimals
+---------------------
+
+A long discussion took place regarding whether the decimal constructor
+should or should not respect context  settings, and whether matching the
+standard (and what the standard says) should be a priority.  Raymond
+Hettinger  took the lead in the status-quo (does not) corner, with Tim
+Peters leading the opposition.  Tim and Guido eventually  called in the
+standard's expert, Mike Cowlishaw.  He gave a very thorough explanation of
+the history behind his  decisions in this matter, and eventually weighed in
+on Raymond's side.  As such, it seems that the status-quo has  won (not that
+it was a competition, of course <wink>).
+
+For those that need to know, the unary plus operation, as strange as it
+looks, forces a rounding using the current  context.  As such, context-aware
+construction can be written::
+
+   val = +Decimal(string_repr)
+
+Contributing threads:
+
+- `Adventures with Decimal <http://mail.python.org/pipermail/python-dev/2005-May/053879.html>`__
+- `Decimal construction <http://mail.python.org/pipermail/python-dev/2005-May/053882.html>`__
+- `[Python-checkins] python/nondist/peps pep-0343.txt, 1.8, 1.9 <http://mail.python.org/pipermail/python-dev/2005- May/053766.html>`__
+
+[TAM]
+
+------------------------
+Handling old bug reports
+------------------------
+
+Facundo Batista continued with his progress checking the open bug reports,
+looking for bugs that are specific to  2.2.1 or 2.2.2.  The aim is to verify
+whether these bugs exist in current CVS, or are old-of-date.  There are no
+longer any bugs in the 2.1.x or 2.2.x categories, and Facundo wondered
+whether removing those categories would be a  good idea.  The consensus was
+that there was no harm in leaving the categories there, but that changing
+the text to  indicate that those versions are unmaintained would be a good
+idea.
+
+Raymond Hettinger reminded us that care needs to be taken in closing old bug
+reports.  Particularly, a bug report  should only be closed if (a) there are
+no means of reproducing the error, (b) it is impossible to tell what the
+poster meant, and they are no longer contactable, or (c) the bug is no
+longer present in current CVS.
+
+
+Contributing threads:
+
+- `Deprecating old bugs, now from 2.2.2 <http://mail.python.org/pipermail/python-dev/2005-May/054019.html>`__
+- `Closing old bugs <http://mail.python.org/pipermail/python-dev/2005-May/054031.html>`__
+- `Old Python version categories in Bug Tracker <http://mail.python.org/pipermail/python-dev/2005- May/054020.html>`__
+
+[TAM]
+
+------------------
+Exception chaining
+------------------
+
+Ka-Ping Yee has submitted `PEP 344`_, which is a concrete proposal for
+exception chaining.  It proposes three  standard attributes on trackback
+objects: __context__ for implicit chaining, __cause__ for explicit chaining,
+and  __traceback__ to point to the traceback.  Guido likes the motivation
+and rationale, but feels that the  specification needs more work.  A lot of
+discussion about the specifics of the PEP took place, and Ka-Ping is
+working these into a revised version.
+
+One of the major questions was whether there is no need for both __context__
+and __cause__ (to differentiate between  explicit and implicit chaining).
+Guido didn't feel that there was, but others disagreed.
+
+Discussion branched off into whether which attributes should be
+double-underscored, or not.  Guido's opinion is that  it depends who "owns"
+the namespace, and with "magic" behaviour caused (or indicated) by the
+presence of the  attribute.  He felt that the underscores in the proposed
+exception attributes should remain.
+
+
+.. _PEP 344: http://www.python.org/dev/peps/pep-0344
+
+Contributing threads:
+
+- `PEP 344: Exception Chaining and Embedded Tracebacks <http://mail.python.org/pipermail/python-dev/2005- May/053821.html>`__
+- `PEP 344: Implicit Chaining Semantics <http://mail.python.org/pipermail/python-dev/2005-May/053944.html>`__
+- `PEP 344: Explicit vs. Implicit Chaining <http://mail.python.org/pipermail/python-dev/2005-May/053945.html>`__
+- `Tidier Exceptions <http://mail.python.org/pipermail/python-dev/2005-May/053671.html>`__
+
+[TAM]
+
+------------------------------------
+Adding content to exception messages
+------------------------------------
+
+Nicolas Fleury suggested that there should be a standard method of adding
+information to an existing exception (to  re-raise it).  Nick Coghlan
+suggested that this would be reasonably simple to do with PEP 344, if all
+exceptions  were also new-style classes, but Nicolas indicated that this
+wouldn't work in some cases.
+
+Contributing threads:
+
+- `Adding content to exception messages <http://mail.python.org/pipermail/python-dev/2005-May/053903.html>`__
+
+[TAM]
+
+===============
+Skipped Threads
+===============
+
+- `Loading compiled modules under MSYS/MingGW? <http://mail.python.org/pipermail/python-dev/2005-May/053769.html>`__
+- `RFC: rewrite fileinput module to use itertools. <http://mail.python.org/pipermail/python-dev/2005-May/053820.html>`__
+- `Multiple interpreters not compatible with current thread module <http://mail.python.org/pipermail/python-dev/2005-May/053840.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-May/053875.html>`__
+- `Request for dev permissions <http://mail.python.org/pipermail/python-dev/2005-May/053877.html>`__
+- `python-dev Summary for 2005-05-01 through 2005-05-15 [draft] <http://mail.python.org/pipermail/python-dev/2005-May/053916.html>`__
+- `AST manipulation and source code generation <http://mail.python.org/pipermail/python-dev/2005-May/053991.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-May/054000.html>`__
+- `AST branch patches (was Re: PEP 342/343 status?) <http://mail.python.org/pipermail/python-dev/2005-May/054009.html>`__
+- `[Python-checkins] python/dist/src/Lib/test test_site.py, 1.6, 1.7 <http://mail.python.org/pipermail/python-dev/2005-May/054011.html>`__
+- `Split MIME headers into multiple lines near a space <http://mail.python.org/pipermail/python-dev/2005-May/054015.html>`__
+
+========
+Epilogue
+========
+
+------------
+Introduction
+------------
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+May 16, 2005 through May 31, 2005.
+
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.  You can
+also watch comp.lang.python or comp.lang.python.announce for new
+summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the fourth summary written by the python-dev summary cabal of
+Steve Bethard, Tim Lesher, and Tony Meyer.
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tim Lesher (tlesher at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list at python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/trunk/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.  Any
+unfamiliar punctuation is probably markup for reST_ (otherwise it is
+probably regular expression syntax or a typo =); you can safely ignore
+it.  I do suggest learning reST, though; it's simple and is accepted
+for `PEP markup`_ and can be turned into many different formats like
+HTML and LaTeX.  Unfortunately, even though reST is standardized, the
+wonders of programs that like to reformat text do not allow me to
+guarantee you will be able to run the text version of this summary
+through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/
+.. _original text file: http://www.python.org/dev/summary/2005-05-16_2005-05-31.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf

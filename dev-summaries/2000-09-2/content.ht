@@ -1,0 +1,83 @@
+Title: Python-dev summary: 2000-09-16 to 2000-09-30
+
+<pre>
+This two-week period continued to be slow, with only 395K of postings
+during this span.  This is down from 1.5Mb of messages in July and
+August, which were busy and contentious months.  Because the CVS tree
+is in a code freeze right now, waiting for the 2.0final release, no
+one can make large changes, and therefore there are no large changes
+to spur discussion, just bug fixes, about which usually little can be
+said.
+
+
+Releases
+========
+
+2.0beta2 was released on September 27:
+	<a href="http://www.pythonlabs.com/products/python2.0/">http://www.pythonlabs.com/products/python2.0/</a>
+List of changes from 2.0b1 to b2:
+	<a href="http://www.pythonlabs.com/products/python2.0/news.html">http://www.pythonlabs.com/products/python2.0/news.html</a>
+
+The current plan is to issue a release candidate around October 10th.
+If no problems show up after around a week, this release would become
+Python 2.0final.  So try out beta2, or at least be sure to try the
+2.0rc release when it becomes available.
+
+
+Unicode
+=======
+
+Barry Scott pointed out that the standard library doesn't support
+Unicode, in general.  He ran into a problem with smtplib.py, which
+would hang if passed a Unicode string.  "I found that I had a lot of
+unicode floating around from win32com that I was passing into
+wxPython. It checks for string and raises exceptions. More use of
+encode() and we are up and running.  Is this what you expected when
+you added unicode?"
+	<a href="http://mail.python.org/pipermail/python-dev/2000-September/009414.html">http://mail.python.org/pipermail/python-dev/2000-September/009414.html</a>
+
+The ultimate cause is that Unicode strings implement the buffer
+interface, a C-level API letting callers gain access to the internal
+representation of a string.  The buffer interface is used by
+PyArg_ParseTuple()'s "s#" format sequence, which is used by the
+.send() method of socket objects, so the net effect is that
+sock.send(unicodestr) writes the 2-byte representation of the string
+to the socket: 
+	<a href="http://mail.python.org/pipermail/python-dev/2000-September/009432.html">http://mail.python.org/pipermail/python-dev/2000-September/009432.html</a>
+
+
+Other matters
+=============
+
+M.-A. Lemburg wondered if there were any Python parsers which would
+find multiple errors: "Would it be possible to write a Python syntax
+checker that doesn't stop processing at the first error it finds but
+instead tries to continue as far as possible (much like make -k)?"
+	<a href="http://mail.python.org/pipermail/python-dev/2000-September/009453.html">http://mail.python.org/pipermail/python-dev/2000-September/009453.html</a>
+
+This led to a subthread on compiler generators. Greg Ward talked
+about ANTLR: "Unlike pgen, ANTLR is LL(k) -- it can support arbitrary
+lookahead, although k&gt;2 can make parser generation expensive (not
+parsing itself, just turning your grammar into code), as well as make
+your language harder to understand.  (I have a theory that pgen's k=1
+limitation has been a brick wall in the way of making Python's syntax
+more complex, i.e. it's a *feature*!)"
+	<a href="http://mail.python.org/pipermail/python-dev/2000-September/009498.html">http://mail.python.org/pipermail/python-dev/2000-September/009498.html</a>
+
+Greg Ward posted the release plans for the Distutils.  Distutils 1.0
+was released on October 2, and Greg will be on vacation from Oct. 4
+through 12th.  The Python 2.0 release is planned for October 10th, of
+course.
+	<a href="http://mail.python.org/pipermail/python-dev/2000-September/009574.html">http://mail.python.org/pipermail/python-dev/2000-September/009574.html</a>
+Distutils 1.0 announcement:
+	<a href="http://mail.python.org/pipermail/python-dev/2000-October/009700.html">http://mail.python.org/pipermail/python-dev/2000-October/009700.html</a>
+
+Guido suggested adding an .expand() method to the MatchObject class
+provided by the re module, and /F quickly responded by checking in 
+the change:
+	<a href="http://mail.python.org/pipermail/python-dev/2000-September/009451.html">http://mail.python.org/pipermail/python-dev/2000-September/009451.html</a>
+
+/F also committed the long-awaited patch to reduce the huge size of
+the Unicode character database, from over a megabyte down to around
+150K.
+</pre>

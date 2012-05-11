@@ -1,0 +1,364 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-12-01 through 2006-12-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-12-01_2006-12-15]
+
+
+
+=============
+Announcements
+=============
+
+Some of you may know that Steven Bethard, having taken over the summaries from
+Brett Cannon some time ago, is no longer able to keep up with them. After much
+holiday stress and busy days, I've come to take over this honor and archive all
+the goings on here. I hope I can do a good job, and allow the summaries to
+continue being a useful and transparent fixture.
+
+Also, after catching up with my backlog of summary work, I plan to begin the
+first summaries of python-3000 (and, possibly, but not likely, the python-
+ideas list), as more and more actual work, rather than debating and theory-talk,
+is going on there.
+
+Sincerly,
+Your new summary writer,
+Calvin Spealman
+
+=========
+Summaries
+=========
+
+-------------------------
+Indexing of Match Objects
+-------------------------
+
+Subscripting re match objects directly was proposed and the debate the waged
+mostly on how to deal with slicing and m.group(0) to be the entire match. The
+consensus seemed to be that returning a match object would break, largely
+because m[1:2][0] != m[1], which breaks intuition with slices. Returning a list
+as a slice also breaks the intuitions about the type of a slice.
+
+Contributing thread:
+
+- `a feature i'd like to see in python #2: indexing of match objects <http://mail.python.org/pipermail/python-dev/2006-December/070138.html>`__
+
+----------------------------------------
+Python and the Linux Standard Base (LSB)
+----------------------------------------
+
+Discussions about how to properly document the expected Python environment for
+all LSB compliant distributions continued shortly. Focus was on how distros have
+a need to split the standard library up, even if the entire thing is eventually
+installed, and issues such as Tkinter requiring X leading to standard modules
+being ommitted for flexable packages.
+
+Contributing thread:
+
+- `Python and the Linux Standard Base (LSB) <http://mail.python.org/pipermail/python-dev/2006-December/070112.html>`__
+
+-------------------------------------
+Number of Windows Installer Downloads
+-------------------------------------
+
+Guido was impressed with out download numbers on Windows, but most people just
+attributed it to other platforms including and mirroring Python. Even taking
+that to consideration, the ratio of Windows to source downloads has shifted in
+Windows favor a good bit. The use of Python in introductory courses at MIT was
+mentioned as something to push these numbers further in the near future.
+
+Contributing thread:
+
+- `[Python-checkins] MSI being downloaded 10x more than all other files?! <http://mail.python.org/pipermail/python-dev/2006-December/070294.html>`__
+
+--------------------------
+Deletion Through Iterators
+--------------------------
+
+The request was made to allow direct deletion of items from iterables through
+the iterator, but the idea was deemed unscalable to iterables in general and
+broken with dictionaries. The solutions to work around the problem were given
+and generally agreed to be sufficient (such as copying all the items you want
+to keep, instead).
+
+Contributing thread:
+
+- `a feature i'd like to see in python #1: better iteration control <http://mail.python.org/pipermail/python-dev/2006-December/070137.html>`__
+
+-------------------------
+LSB: Binary compatibility
+-------------------------
+
+The other side of the LSB issue was discussed, related to the CPython ABI, the
+.pyc bytecode and the marshall formats, and exactly which versions of Python
+may or may not gain a standard ABI, as well as how to carry this forward to
+future (already existing and evolving) version of Python. Some mention was made
+of the difficulties and conflicts being brought on by the idea of LSB standards
+for Python, while the benefits of this were challenged.
+
+Contributing thread:
+
+- `LSB: Binary compatibility <http://mail.python.org/pipermail/python-dev/2006-December/070191.html>`__
+
+----------------------------------------
+Adding resume (206) support to urllib(2)
+----------------------------------------
+
+Daniel Watkins asked about adapting his HTTP resuming support into urllib, but
+suggestions directly moved this to urllib2 and then to httplib. The conversation
+quickly drifted into talking about how abstract and minimal the urllib(2) should
+be, while the httplib module may grow increasing complex and feature supporting.
+The original poster made no final comment on his intentions to follow through
+with the patch.
+
+Contributing thread:
+
+- `Adding resume (206) support to urllib(2) <http://mail.python.org/pipermail/python-dev/2006-December/070320.html>`__
+
+-------------------
+__str__ and unicode
+-------------------
+
+The details of what an object's __str__() method must return were inquired. Must
+the string returned by a str or any basestring? It was announced to allow
+unicode objects, with no restriction on content. However, the caution that the
+return is likely to be encoded into the default encoding was given.
+
+Contributing thread:
+
+- `__str__ and unicode <http://mail.python.org/pipermail/python-dev/2006-December/070237.html>`__
+
+----------------------------------
+LSB: Selection of a Python version
+----------------------------------
+
+Martin v. Lowis announced that LSB will likely move forward with Python 2.4 as
+the first LSB standard Python version. How to handle future bug patches, as well
+as the comfort of the distributions for being required to support an outdated
+package (2.4 is already "retired") was considered. The consensus settled on a
+documented support for 2.4 moving forward with security patches, and likely
+even 2.3, as security patches are rare enough to not cause too many cycles to
+be spent on them.
+
+Contributing thread:
+
+- `LSB: Selection of a Python version <http://mail.python.org/pipermail/python-dev/2006-December/070189.html>`__
+
+------------------------------
+Threading, atexit, and logging
+------------------------------
+
+A bug (#1566280) was previously reported, related to the ordering of the atexit
+handlers for the logging and threading modules. Participants in the thread had
+a general agreement that the threading module using such a user visiable
+mechanism for cleanup and lifetime was a bad design in the first place to be
+remedied.
+
+Contributing thread:
+
+- `Threading, atexit, and logging <http://mail.python.org/pipermail/python-dev/2006-December/070233.html>`__
+
+-----------------------------------
+Creating dicts from dict subclasses
+-----------------------------------
+
+The built-in types can now be subclassed, but C code doesn't always realize
+this, and relies too heavily on the internals of the base class.  In this case,
+PyDict_Merge was assuming too much; replacing the PyDict_Check test with
+PyDict_CheckExact fixed the bug, but slowed things down a lot.
+
+Walter Dörwald suggested adding a not-quite-as-fast path for sensible mappings
+(including dict subclasses).  Unfortunately, there was a bit of disagreement
+over what constituted "sensible".  Should the middle-speed path use iteration
+over items (the exact content it needed), over keys (a bit faster in the current
+implemententation), or not even exist (to avoid limiting future
+implementations)?
+
+As of Jan 8, 2007, SVN has not been updated; there is no middle-speed path, and
+the bug is still possible.
+
+(Summary contributed by Jim Jewett)
+
+Contributing thread:
+
+- `Creating dicts from dict subclasses <http://mail.python.org/pipermail/python-dev/2006-December/070334.html>`__
+
+-----------------------------------------------------------------------------
+OT: World's oldest ritual discovered. Worshipped the python 70, 000 years ago
+-----------------------------------------------------------------------------
+
+This was a quick and off-topic post about other instances of python symbolism in
+ancient humanity, including a definition of our word "pythonic" to mean
+"prophetic", which seems fitting enough.
+
+Contributing thread:
+
+- `OT: World's oldest ritual discovered. Worshipped the python 70, 000 years ago <http://mail.python.org/pipermail/python-dev/2006-December/070123.html>`__
+
+------------------
+LSB: pyc stability
+------------------
+
+The LSB meetings brought up the issue of standardized bytecode formats, again.
+This has always been something discouraged from Python. Keeping the bytecode
+format free and the implementation open to ignoring old versions, has always
+been helpful for maintanence and development. The common reasoning of protecting
+IP was used, although most in-the-know consider this to be a false sense of
+security. Reguardless, it might be useful in legal ways, as trade secrets do
+require a reasonable attempt at hidding them in order to be recognized as such.
+
+The possible solution of importing encypted zip packages with a custom import
+hook was proposed and seems logical.
+
+Contributing thread:
+
+- `LSB: pyc stability <http://mail.python.org/pipermail/python-dev/2006-December/070187.html>`__
+
+-------------------------------
+Interpolated Strings (ala perl)
+-------------------------------
+
+Perl/PHP style string interpolation was brought up, but is found unreasonable
+for various reasons. Cons include the use of format strings in scopes outside
+where they are defined, the dangers of eval, and possibly the general resisting
+of any idea coming from Perl. This seems a highly unlikely proposal.
+
+Contributing thread:
+
+- `features i'd like [Python 3000?] ... #4: interpolated strings ala perl <http://mail.python.org/pipermail/python-dev/2006-December/070173.html>`__
+
+---------------------------
+Polling with Pending Calls?
+---------------------------
+
+Issues with the RPM library blocking interupts for long periods of time were
+brought up with proposed fixes by patching the rpmlib bindings to
+"automagically" poll for any pending calls. An existing patch was suggested but
+did not seem to fit the case at hand.
+
+Contributing thread:
+
+- `Polling with Pending Calls? <http://mail.python.org/pipermail/python-dev/2006-December/070181.html>`__
+
+---------------------
+Cross-compile Patches
+---------------------
+
+Patch 1597850 is being actively worked, and will improve the experience when
+compiling python for freeBSD from a linux environment.
+
+Contributing thread:
+
+- `cross-compile patches <http://mail.python.org/pipermail/python-dev/2006-December/070216.html>`__
+
+------------------------------------
+Open CPython VM for type information
+------------------------------------
+
+Would it make sense to modify the CPython virtual machine (bytecode) so that it
+was easier for other programs to produce bytecode?  Answer: No -- those programs
+should produce either C (which gets called as a function) or python (which gets
+interpreted by the python interpreter -- there are already interpreters that
+don't use CPython bytecode.
+
+Contributing thread:
+
+- `Open CPython VM for type information <http://mail.python.org/pipermail/python-dev/2006-December/070328.html>`__
+
+===============
+Skipped Threads
+===============
+
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-December/070119.html>`__
+- `Windows SDK <http://mail.python.org/pipermail/python-dev/2006-December/070308.html>`__
+- `help for a noob - version for a sharp ARM <http://mail.python.org/pipermail/python-dev/2006-December/070286.html>`__
+- `fileinput module tests <http://mail.python.org/pipermail/python-dev/2006-December/070307.html>`__
+- `fpectl: does a better implementation make sense? <http://mail.python.org/pipermail/python-dev/2006-December/070118.html>`__
+- `Small tweak to tokenize.py? <http://mail.python.org/pipermail/python-dev/2006-December/070127.html>`__
+- `features i'd like [Python 3000] ... #3: fix super() <http://mail.python.org/pipermail/python-dev/2006-December/070168.html>`__
+- `Makefile.pre.in Patch <http://mail.python.org/pipermail/python-dev/2006-December/070172.html>`__
+- `Python and LSB: Meeting Report <http://mail.python.org/pipermail/python-dev/2006-December/070186.html>`__
+- `Virtual Python (was Re: Python and the Linux Standard Base (LSB)) <http://mail.python.org/pipermail/python-dev/2006-December/070194.html>`__
+- `DRAFT: python-dev summary for 2006-11-16 through 2006-11-30 <http://mail.python.org/pipermail/python-dev/2006-December/070229.html>`__
+- `Looking for new Python-Dev Summarizers <http://mail.python.org/pipermail/python-dev/2006-December/070232.html>`__
+- `Adding C99 bool to struct module <http://mail.python.org/pipermail/python-dev/2006-December/070276.html>`__
+- `Spam and semi-spam and neo-spam <http://mail.python.org/pipermail/python-dev/2006-December/070284.html>`__
+- `Next PyPy sprint: Leysin 8-14th January 2007 <http://mail.python.org/pipermail/python-dev/2006-December/070217.html>`__
+- `Distribution tools: What I would like to see <http://mail.python.org/pipermail/python-dev/2006-December/070234.html>`__
+- `RealClearPolitics - Articles - Exit Rumsfeld, Smiling <http://mail.python.org/pipermail/python-dev/2006-December/070283.html>`__
+
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+December 01, 2006 through December 15, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 1st written by Calvin Spealman.
+
+To contact me, please send email:
+
+- Calvin Spealman (ironfroggy at gmail dot com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

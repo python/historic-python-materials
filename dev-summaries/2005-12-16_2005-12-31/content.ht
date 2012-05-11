@@ -1,0 +1,530 @@
+Title: python-dev Summary for 2005-12-16 through 2005-12-31
+Content-type: text/x-rst
+Encoding: latin1
+
+python-dev Summary for 2005-12-16 through 2005-12-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-12-16_2005-12-31.html]
+
+
+
+=============
+Announcements
+=============
+
+----------------------------
+QOTF: Quote of the Fortnight
+----------------------------
+
+Python-dev is in love with Python, though sometimes too much, Fredrik Lundh contends:
+
+    ...in reality, some things are carefully thought out and craftily implemented, some things are engineering tradeoffs made at a certain time, and some things are just accidents -- but python-dev will happily defend the current solution with the same energy, no matter what it is.
+
+Contributing thread:
+
+- `a quit that actually quits <http://mail.python.org/pipermail/python-dev/2005-December/059283.html>`__
+
+[SJB]
+
+-------------------------------------------------------
+Reminder: plain text documentation patches are accepted
+-------------------------------------------------------
+
+Want to help out with the Python documentation? Don't know LaTeX? No problem! Plain text or ReST fixes are also welcome. You won't be able to produce a diff file like with a normal patch, but comments that explain how to fix the docs are just as good. A form like "in section XXX right before the paragraph starting with YYY, the documentation should say ZZZ" will make it easy for the doc maintainers to apply your fix.
+
+Contributing thread:
+
+ - `LaTeX and Python doc contributions <http://mail.python.org/pipermail/python-dev/2005-December/059001.html>`__
+
+[SJB]
+
+---------------------------------------------------------------
+PyPy Sprint: Palma de Mallorca (Spain) 23rd - 29th January 2006
+---------------------------------------------------------------
+
+The next PyPy_ sprint is scheduled to take place from the 23rd to the 29th of January 2006 in Palma De Mallorca, Balearic Isles, Spain.  There will be newcomer-friendly introductions and the focus will mainly be on current JIT work, garbage collection, alternative threading models, logic programming and on improving the interface with external functions.
+
+ .. _PyPy: http://codespeak.net/pypy
+
+Contributing thread:
+
+ - `Next PyPy Sprint: Palma de Mallorca (Spain) 23rd - 29th January 2006 <http://mail.python.org/pipermail/python-dev/2005-December/058975.html>`__
+
+[TAM]
+
+--------------------------------------------------
+SHA-224, -256, -384 and -512 support in Python 2.5
+--------------------------------------------------
+
+Ronald L. Rivest asked about the cryptographic hash function support in Python, now that md5 and sha1 are broken in terms of collision-resistance.  The new-in-Python-2.5 hashlib module was pointed out (and somewhat belatedly added to the NEWS file), which includes new implementations for SHA-224, -256, -384 and -512 (these, including tests, are already in SVN).
+
+Gregory P. Smith noted that although the code isn't currently available for earlier versions of Python, he does plan to release a standalone package for Python 2.3 and Python 2.4, when time permits.
+
+Contributing thread:
+
+ - `hashlib - faster md5/sha, adds sha256/512 support <http://mail.python.org/pipermail/python-dev/2005-December/058850.html>`__
+
+[TAM]
+
+=========
+Summaries
+=========
+
+-----------------------------------
+Improving the documentation process
+-----------------------------------
+
+Fredrik Lundh asked about automatically updating the development docs, so that users wouldn't be required to have a latex toolchain installed to get an HTML version of the current docs. This spawned a long discussion about using something other than LaTeX (e.g. microformats_ or ReST_) for markup. Though HTML has the advantage that many Python users are already familiar with it, a number of people voiced concerns about the ease of reading and writing it.  ReST is generally easy to read and write, but some people suggested that for complicated structured text (like Python function and class definitions) it was no better than LaTeX. Fredrik Lundh presented some example code side-by-side_ and argued that using HTML with something like PythonDoc_ could better represent the documentation's intent. He also produced an initial conversion_ of the Python docs to this format.
+
+Fredrik also pointed out that currently the doc patch submission procedure is rather tedious, and listed_ the rather large number of steps required for end-users and developers to get their documentation fixes added to the current Python docs. He claimed that a simple wiki, discussion board, or "user edit" mechanism like that of roundup_, combined with automated updates of the documentation from the Python SVN trunk, could reduce this procedure to two or three simple steps. As a partial effort towards this goal, Trent Mick started posting `daily builds`_ of the Python HTML. This prompted Neal Norwitz to set up the docs server in a similar manner so that it now produces development documentation builds twice daily at http://docs.python.org/dev/.
+
+.. _microformats: http://microformats.org/wiki/microformats
+.. _side-by-side: http://mail.python.org/pipermail/python-dev/2005-December/059022.html
+.. _PythonDoc: http://effbot.org/zone/pythondoc.htm
+.. _conversion: http://effbot.org/zone/pythondoc-lib.htm
+.. _listed: http://mail.python.org/pipermail/python-dev/2005-December/059311.html
+.. _roundup: http://roundup.sourceforge.net
+.. _daily builds: http://trentm.com/python/
+
+Contributing threads:
+
+ - `status of development documentation <http://mail.python.org/pipermail/python-dev/2005-December/058910.html>`__
+ - `documentation comments <http://mail.python.org/pipermail/python-dev/2005-December/058991.html>`__
+ - `[Doc-SIG] status of development documentation <http://mail.python.org/pipermail/python-dev/2005-December/058999.html>`__
+ - `reST limitations? (was Re: status of development documentation) <http://mail.python.org/pipermail/python-dev/2005-December/059016.html>`__
+ - `that library reference, again <http://mail.python.org/pipermail/python-dev/2005-December/059087.html>`__
+ - `[Doc-SIG] that library reference, again <http://mail.python.org/pipermail/python-dev/2005-December/059294.html>`__
+
+[SJB]
+
+--------------------------------------
+Making quit and exit more command-like
+--------------------------------------
+
+Fredrik Lundh kicked off a surprisingly long thread when he proposed that typing "quit" or "exit" in the interactive prompt actually exit (i.e. raises SystemExit) rather than printing a message informing the user how they can exit, to avoid the "if you knew what I wanted, why didn't you just do it?" situation.  His proposal was to install a custom excepthook that looks for the appropriate NameErrors at the top level (in interactive mode only).
+
+Early discussion revolved around the implementation.  Skip Montanaro worried that multiple code sources wanting to change sys.excepthook would step on one another's toes; Fredrik felt that if you add your own excepthook, you take responsibility.  Martin was also concerned about this; although Fredrik believed that the change was so early that no code would try to add a hook prior to this, Martin suggested that the code stand as an example of good practice and pass execution on to any existing excepthook (if the command wasn't "exit" or "quit").
+
+Reinhold Birkenfeld suggested that exit and quit could be instances of a class whose repr() raises SystemExit; however, this would cause an exit to be incorrectly performed whenever the exit or quit objects were examined (e.g. calling vars()).  Reinhold suggested a variation where the SystemExit would only be raised if sys._getframe(1).f_code.co_names was "exit" or "quit").  Having quit and exit be functions (i.e. one would type "exit()" to exit) was also suggested, with a plain "exit" printing a help message (as today).  However, while this shortens the platform-independent method of exiting ("raise SystemExit") to "exit()", it does nothing to address the "why didn't you just do it?" problem.
+
+Ka-Ping Yee was concerned that Fredrik's implementation would cause an exit in surprising situations, such as ::
+
+    print exit                  # seems surprising
+    [3, 4, 5, exit]             # seems surprising
+    'a' in 'xyz' or exit        # desirable or undesirable?
+    del exit                    # actually happened to me
+    x = exit                    # seems surprising
+
+And that Reinhold's modified proposal would do likewise::
+
+    print exit                  # seems surprising
+    [3, 4, 5, exit]             # seems surprising
+    'a' in 'xyz' or exit        # desirable or undesirable?
+    def foo():
+        print exit
+    foo()                       # seems surprising
+
+As such, Fredrik proposed adding a new sys attribute that contains the most recent interpreter line, which could be examined to check that the line entered was simply "exit" or "quit" by itself.  Skip suggested that such an attribute be made clearly private magic (e.g. by naming it sys._last_input).
+
+Michael Hudson suggested that the clever hacks could be avoided by simply having the equivalent of "if input.rstrip() == "exit": raise SystemExit" in the implementation of the interactive interpreter.  Fredrik felt that this would elevate "exit" and "quit" into reserved keywords, in that this could occur::
+
+    >>> def exit():
+    ...      print "bye"
+
+    >>> # what is it?
+    >>> exit
+
+    $ oops!
+
+(However, one could simply type "repr(exit)" rather than "exit" in this case).
+
+Walter Dörwald suggested adding "sys.inputhook" (c.f. sys.displayhook, sys.excepthook), which gets each statement entered and returns True if it processed the line or False if normal handling should be done; Alex Martelli made a similar suggestion.  This would not only allow special handling for "exit", "quit", and "help", but also might make implementing alternative shells easier.  Nick Coghlan added a default handler to this suggestion, which checked a new dictionary, "sys.aliases", for special statements of this type and called an appropriate function if found.  Fredrik's concern with this method was the same as with Michael Hudson's - that typing "exit" as a shortcut for "print repr(exit)" (when the user had assigned a value to "exit") would cause the shell to exit.  As a result, Nick modified his default inputhook to check that the statement didn't exist in __main__'s vars().  Fernando Perez pointed out that this begins to come close to reimplementing ipython_.
+
+Fernando also commented that he felt that the amount of code he thought would be necessary to avoid any side-effects when determining whether "exit" should exit or not would make the standard interpreter too brittle, and that this should be left to third-party interpreters.  He gave a lengthy explanation of the process that ipython went through, including linking to `the _prefilter method` that performs the appropriate magic in ipython.  His opinion was that interpreters should have a separate command mode, entered by a particular character (e.g. the '%' used in ipython); while this would simply code, '%exit' would be even harder for people to guess, however.
+
+Some people were concerned that "quit" and "exit" would be treated specially (i.e. the standard way to do something is to "call a function" and a special case for exiting the interpreter is inappropriate); others pointed out that this would be there especially for people who don't know how to program in Python, and might not know that typing an EOF would exit the shell (or what the EOF character was for their platform).
+
+Fredrik's proposal gained a lot of early support, but later posters were not so keen.  Stephen J. Turnbull suggested that the problem was simply that the current "help"/"exit" messages are impolite, and changing the language would solve the problem.  Similarly, Aahz suggested that adding an explanation of how to quit to the startup message would suffice, although others disagreed that users would notice this, particularly when it was needed.
+
+Despite the strong support, however, in the end, Guido stepped in and stated that, in his opinion, nothing was wrong wih the status quo (or that if anything were to be changed, the hints provided by typing "exit" or "quit" should be removed).  This pretty much ended the discussion.
+
+.. _ipython: http://ipython.scipy.org
+.. _`the _prefilter method`: http://projects.scipy.org/ipython/ipython/file/ipython/trunk/IPython/iplib.py
+
+Contributing threads:
+
+ - `a quit that actually quits <http://mail.python.org/pipermail/python-dev/2005-December/059094.html>`__
+
+---------------------------------------
+Exposing the Subversion revision number
+---------------------------------------
+
+Barry Warsaw proposed `a fairly simple patch`_ to expose the Subversion revision number to Python, both in the Py_GetBuildInfo() text, in a new Py_GetBuildNumber() C API function, and via a new sys.build_number attribute.
+
+A lengthy discussion took place about the correct method of determining the "revision number" that should be used.  There are many possibilities, from the originally proposed revision number in which the directory was last modified, to the latest revision number within the tree, to using subversion itself.  Each method requires a different amount of processing in order to determine the correct value.  Barry indicated a preference for the original, simple, method, because he wished to keep the patch as simple as possible, didn't want to depend on Python already being built, and felt that generally developers will just 'svn up' at the top of the source tree then rebuild, rather than 'svn up' a buried sub-tree, change back to the top directory, and rebuild from there.
+
+Phillip J. Eby's concern with this was that this would not indicate if a change has been made locally and committed, unless the developer also did a 'svn up'.  He also pointed out that the "Revision" from 'svn info' can change when the code doesn't change (because it will change when code in branches, the sandbox, PEPs, and so forth change).
+
+In the end, using the svnversion command was agreed on as a suitable method.  The two main advantages are that this is the officially sanctioned (by Subversion) method, and that it indicates when local changes have been made.
+
+Armin Rigo voiced a concern that people would use sys.build_number to check for features in their programs, instead of using sys.version_info (or duck-typing methods such as hasattr()) because it seems that comparing a single number is easier than comparing a tuple.  This was of especial concern considering that this value would only be present in CPython.  He suggested that a new build_info attribute could be added to sys instead, which would be a tuple of ("CPython", "<SVN revision number>", "trunk"); that is, it would also include which Python implementation the program is using (for particular use by the test suite).  The name also has advantages in that the number is actually a string (because 'M' will be present if there are local modifications) and it is not tied to a specific version control system.
+
+Michael Hudson pointed out that this value will not be able to be obtained when Python is built from an 'svn export' (where the .svn files do not exist), which is probably the case for many Python distributions.  He wondered whether a subversion trigger could put the revision number into some file in the repository to cover this case, but Martin indicated that this would be difficult (although if the distribution is built from a tag, that the information would not be necessary).  Barry suggested that the number would be the latest revision at which getbuildinfo was changed if a .svn directory isn't found.
+
+As an aside to this patch, Martin suggested that the build number should be dropped, as it stopped working on Windows some time ago and no longer provides any useful information.  There was no opposition to this proposal, and some support.
+
+ .. _a fairly simple patch: http://python.org/sf/1382163
+
+Contributing threads:
+
+ - `Expose Subversion revision number to Python <http://mail.python.org/pipermail/python-dev/2005-December/058832.html>`__
+
+[TAM]
+
+---------------------------------------
+Python's lists, linked lists and deques
+---------------------------------------
+
+Martin Blais asked why Python didn't have native singly-linked or doubly-linked list types.  Generally, it seemed that people couldn't find use cases for them that weren't covered by Python's builtin lists, collections.deque objects, or head-plus-tail-style two-tuples. The proposal was redirected to comp.lang.python until it was more developed.
+
+In a related thread, Christian Tismer asked if Python's list type could do a little usage-tracking and switch between the current array-based implementation and a deque-based implementation if, say, a large number of inserts or deletes began to occur at the beginning of the list. He got a few responses suggesting that it would be more complication that it was worth, but mostly his question got drowned out by the linked-list discussion.
+
+Contributing threads:
+
+ - `Linked lists <http://mail.python.org/pipermail/python-dev/2005-December/058754.html>`__
+ - `deque alternative (was: Linked lists) <http://mail.python.org/pipermail/python-dev/2005-December/059054.html>`__
+ - `deque alternative <http://mail.python.org/pipermail/python-dev/2005-December/059076.html>`__
+ - `(back to): Linked lists -- (was: deque alternative) <http://mail.python.org/pipermail/python-dev/2005-December/059119.html>`__
+
+[SJB]
+
+------------------------
+set() memory consumption
+------------------------
+
+Noam Raphael noted, as others have before, that sets (and dicts) do not release allocated memory after calls to pop(). He suggested that to keep pop() as amortized O(1) per delete, all that was needed was to resize the table to half its current size whenever it dropped to less that one quarter full. People seemed generally to think that the dict implementation (and therefore the set implementation which is based on it) were already highly optimized for real-world performance, and that there were too few use cases where a set would be filled and then emptied, but not filled up again.
+
+Raymond Hettinger is hesitant about getting too explicit in the documentation, because some of the choices are an implementation accident that might be different in, say, Jython. There are some `proposed changes`_ to the dictnotes.txt file in the source distribution; there may well be room for additional improvements.
+
+ .. _proposed changes: http://python.org/sf/1397848
+
+Contributing thread:
+
+ - `When do sets shrink? <http://mail.python.org/pipermail/python-dev/2005-December/059228.html>`__
+
+[SJB, with additions from Jim Jewett]
+
+---------------------------------------------------------
+Changing the naming conventions of builtins in Python 3.0
+---------------------------------------------------------
+
+Ka-Ping Yee provocatively suggested that, to be consistent with the recommended style guide, in Python 3.0 built-in constants (None, True, False) should be in all caps (NONE, TRUE, FALSE), and built-in classes (object, int, float, str, unicode, set, list, tuple, dict) should be in CapWords (Object, Int, Float, Str, Unicode, Set, List, Tuple, Dict).  However, Michael Chermside noted that there is a common convention that the fundamental built-in types (not standard library types; e.g. set, not sets.Set) are all in lowercase.
+
+Almost no-one liked this idea, and many people were vehemently opposed.  Guido quickly pronounced this dead for built-in types (cleaning up and making the more consistent the standard library classes is another matter).
+
+Contributing thread:
+
+ - `Naming conventions in Py3K <http://mail.python.org/pipermail/python-dev/2005-December/059304.html>`__
+
+[TAM]
+
+-------------------
+Default comparisons
+-------------------
+
+Today, you can compare anything, unless someone has gone out of their way to prevent it.  Unfortunately, this comparison can eventually fallback to comparing id(), which is not stable across database save-and-restore.  Not falling back to id(), which is suggested in `PEP 3000`_, would mean that comparison results are more permanent (and less arbitrary), but it would come at the cost of extra raised exceptions that make it harder to get a canonical ordering.
+
+An alternative solution would be to promote a standard way to say "just get me a canonical ordering of some sort".  "Comparison" would raise a TypeError if the pair of objects were not comparable; "Ordering" would continue on to "something consistent", just like sorts do today.
+
+Josiah Carlson suggested that this could be achieved by new superclasses for all built-in types (except string and unicode, which already subclass from basestring).  int, float, and complex would subclass from basenumber; tuple and list would subclass from basesequence; dict and set would subclass from basemapping.  Each of these base classes define a group in which items are comparable; if you end up in a situation in which the base classes of the compared object differ, you compare their base class name.  If a user-defined classes wanted to be compared against (e.g.) ints, floats, or complex, the user would subclass from basenumber; if the user only wanted their objects to compare against objects of its own type, they define their own __cmp__.  However, Marc-Andre Lemburg pointed out that Python already uses this 'trick' based on the type name (falling back to id(), which is the problem), and that inheriting from (e.g.) basenumber could result in unexpected side-effects.
+
+.. _PEP 3000: http://www.python.org/dev/peps/pep-3000
+
+Contributing thread:
+
+ - `Keep default comparisons - or add a second set? <http://mail.python.org/pipermail/python-dev/2005-December/058899.html>`__
+
+[TAM]
+
+---------------------------------------
+Converting open() to a factory function
+---------------------------------------
+
+Guido had previously_ indicated that while file() will always stay the name of the file object, open() may be changed in the future to a factory function (instead of just being an alias for file). Noting that ``help(open)`` now just displays the file object documentation, Aahz suggested that open() become a factory function now. Fredrik Lundh chimed in to suggest that a textopen() function should also be introduced, which would call codecs.open() or file() depending on whether or not an encoding was supplied. There was mild support for both proposals, but no patches were available at the time of this writing.
+
+.. _previously: http://mail.python.org/pipermail/python-dev/2004-July/045921.html
+
+Contributing thread:
+
+ - `file() vs open(), round 7 <http://mail.python.org/pipermail/python-dev/2005-December/059073.html>`__
+
+[SJB]
+
+-----------------------------
+NotImplemented and __iadd__()
+-----------------------------
+
+Facundo Batista presented a bug_ where using += on Decimal objects returned NotImplemented instead of raising an exception. Armin Rigo was able to supply a patch after adding the following conditions to the documentation:
+
+* PySequence_Concat(a, b) and operator.concat(a, b) mean "a + b", with the difference that we check that both arguments appear to be sequences (as checked with operator.isSequenceType()).
+* PySequence_Repeat(a, b) and operator.repeat(a, b) mean "a * b", where "a" is checked to be a sequence and "b" is an integer. Some bounds can be enforced on "b" -- for CPython, it means that it must fit in a C int.
+
+.. _bug: http://www.python.org/sf/1355842
+
+Contributing thread:
+
+ - `NotImplemented reaching top-level <http://mail.python.org/pipermail/python-dev/2005-December/059046.html>`__
+
+[SJB]
+
+---------------------------------------------------
+Using buildbot to automate testing of Python builds
+---------------------------------------------------
+
+Contributing thread:
+
+ - `Automated Python testing (was Re: status of development documentation) <http://mail.python.org/pipermail/python-dev/2005-December/059060.html>`__
+
+-----------------------------------------------------
+Importing C++ extensions compiled with Visual C++ 8.0
+-----------------------------------------------------
+
+Ralf W. Grosse-Kunstleve indicated that while they could compile their C++ extensions with Visual C++ 8.0, importing any such extensions resulted in an error::
+
+    This application has failed to start because MSVCP80.dll was not found.
+    Re-installing the application may fix this problem.
+
+Though the combination of compiling Python with VS.NET2003 and an extension with VS2005 is not supported, Ralf was able to get things to work by adding ``/manifest`` to the linker options and invoking ``mt.exe`` to embed the manifest.
+
+Contributing thread:
+
+ - `Python + Visual C++ 8.0? <http://mail.python.org/pipermail/python-dev/2005-December/059085.html>`__
+
+[SJB]
+
+-------------------------------
+Using ssize_t as the index type
+-------------------------------
+
+Martin v. Löwis presented `PEP 353`_, which proposes using ssize_t as the index type in the CPython implementation. In Python 2.4, indices of sequences are restricted to the C type int. On 64-bit machines, sequences therefore cannot use the full address space, and are restricted to 2**31 elements. The PEP proposes to change this, introducing a platform-specific index type Py_ssize_t. An implementation of the proposed change is in `an SVN branch`_; the Py_ssize_t will have the same size as the compiler's size_t type, but is signed (it will be a typedef for ssize_t where available). 
+
+Although at the moment one needs 16GiB to just hold the pointers of a 2GiElement list, these changes also allow strings and mmap objects longer than 2GiB (and also improve the scipy_core (neé Numarray and Numerical) objects, which are already 64-bit clean).  Since the proposed change will cause incompatibilities on 64-bit machines, the reasoning is that this change should be done as early as possible (i.e. while such machines are not in wide use).
+
+Guido approved the PEP, indicating he believed it was long overdue.  Several other people also indicated support for the PEP.
+
+Note that people felt that Martin's PEP was of a particularly high standard; people considering writing their own PEP should consider reading this (once it has a number and is available online!) to gain an understanding of how a good PEP is both extremely readable (even when including arcane C programming points!) and well-organised.
+
+ .. _an SVN branch: http://svn.python.org/projects/python/branches/ssize_t
+ .. _PEP 353: http://www.python.org/dev/peps/pep-0353
+
+Contributing threads:
+
+ - `New PEP: Using ssize_t as the index type <http://mail.python.org/pipermail/python-dev/2005-December/059266.html>`__
+ - `Test branch for ssize_t changes <http://mail.python.org/pipermail/python-dev/2005-December/058863.html>`__
+
+[TAM]
+
+-----------------------------------------------------------------------------
+Garbage collection based on object memory consumption instead of object count
+-----------------------------------------------------------------------------
+
+Andrea Arcangeli suggested that Python's garbage collection could be improved by invoking a gc.collect() at least once every time the amount of anonymous memory allocated by the interpreter increases by a tunable factor (defaulting to 2, meaning the memory doubles, and with a factor of 1 mimicking the current state, where collection is done if 1000 new objects are allocated).  Aahz and Martin v. Löwis indicated that it was extremely unlikely that anything would be done about this unless Andrea submitted a patch (with doc patches and tests).
+
+Contributing thread:
+
+ - `suggestion for smarter garbage collection in function of size (gc.set_collect_mem_growth(2)) <http://mail.python.org/pipermail/python-dev/2005-December/059184.html>`__
+
+[TAM]
+
+----------------------------------
+Adding zlib module to python25.dll
+----------------------------------
+
+Thomas Heller and Martin v. Löwis had been discussing whether the zlib module should become builtin, at least on Windows (i.e. part of python25.dll). This would simplify both the build process and py2exe, the latter could then bootstrap extraction from the compressed file just with pythonxy.dll, but this is currently not done, because the pythoncore.vcproj would then not be buildable anymore unless you also have the right version of zlib on disk.  To solve this problem, Thomas proposed that the Python release could incorporate a copy of zlib, primarily for use on Windows (with the project files appropriately adjusted).  This change was later made.
+
+Contributing thread:
+
+ - `Incorporation of zlib sources into Python subversion <http://mail.python.org/pipermail/python-dev/2005-December/058873.html>`__
+
+[TAM]
+
+----------------------------------------
+Procedure for fixing bugs in ElementTree
+----------------------------------------
+
+Neal Norwitz found a few bugs in ElementTree and asked what the procedure was, since the ElementTree module is maintained externally by Fredrik Lundh. The answer was to post the bug to sourceforge as usual, and and assign it to Fredrik Lundh. The ElementTree in the Python SVN trunk should only have critical patches committed - all other patches would be applied by Fredrik to his externally distributed ElementTree package, and imported to the Python SVN trunk after the next release of ElementTree.
+
+Contributing thread:
+
+ - `ref leak in element tree/pyexpat <http://mail.python.org/pipermail/python-dev/2005-December/058872.html>`__
+
+[SJB]
+
+---------------------------------------
+Starting enumerate with non-zero values
+---------------------------------------
+
+Can enumerate start somewhere other than zero?  Answer: it complicates the API too much; if you want an arbitrary slice, then make it explicitly a slice.
+
+Contributing thread:
+
+ - `synchronized enumerate <http://mail.python.org/pipermail/python-dev/2005-December/058896.html>`__
+
+[Jim Jewett]
+
+------------------
+Are sets mappings?
+------------------
+
+This spun out of the default comparisons discussion; when deciding what
+could be "sensibly" compared, (or even how best to teach python) there
+was a discussion of more abstract types.  It wasn't clear where to put sets.
+
+Contributing thread:
+
+ - `Sets are mappings? <http://mail.python.org/pipermail/python-dev/2005-December/058923.html>`__
+
+[Jim Jewett]
+
+---------------------
+Local socket timeouts
+---------------------
+
+If you want your network client to eventually give up on failed connections, you need to set a timeout - but you have to do that at the socket level, instead of in the library that you're actually using.  (There are other problems with the current method too, such as being too global, or not quite acting as expected.)
+
+It was agreed that people should be able to handle timeout settings from the networking library that they actually use, but I don't think there are patches yet.
+
+Contributing thread:
+
+ - `timeout options in high-level networking modules <http://mail.python.org/pipermail/python-dev/2005-December/058996.html>`__
+
+[Jim Jewett]
+
+================
+Deferred Threads
+================
+
+ - `Build failure and problem on Windows <http://mail.python.org/pipermail/python-dev/2005-December/058918.html>`__
+
+
+===============
+Skipped Threads
+===============
+ - `PEP 8 updates/clarifications, function/method style <http://mail.python.org/pipermail/python-dev/2005-December/058835.html>`__
+ - `DRAFT: python-dev summary for 2005-11-16 to 2005-11-31 <http://mail.python.org/pipermail/python-dev/2005-December/058869.html>`__
+ - `[Python-checkins] commit of r41497 -python/trunk/Lib/test <http://mail.python.org/pipermail/python-dev/2005-December/058871.html>`__
+ - `fresh checkout won't build <http://mail.python.org/pipermail/python-dev/2005-December/058876.html>`__
+ - `fixing log messages <http://mail.python.org/pipermail/python-dev/2005-December/058883.html>`__
+ - `(no subject) <http://mail.python.org/pipermail/python-dev/2005-December/058916.html>`__
+ - `os.startfile with optional second parameter <http://mail.python.org/pipermail/python-dev/2005-December/058919.html>`__
+ - `[OT] Fwd: a new python port: iPod <http://mail.python.org/pipermail/python-dev/2005-December/058920.html>`__
+ - `Patch to make unittest.TestCase easier to subclass <http://mail.python.org/pipermail/python-dev/2005-December/058995.html>`__
+ - `Patch reviews &amp; request for patch review <http://mail.python.org/pipermail/python-dev/2005-December/059027.html>`__
+ - `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-December/059031.html>`__
+ - `A few questions about setobject <http://mail.python.org/pipermail/python-dev/2005-December/059091.html>`__
+ - `Small any/all enhancement <http://mail.python.org/pipermail/python-dev/2005-December/059127.html>`__
+ - `floating point literals don't work in non-US locale in 2.5 <http://mail.python.org/pipermail/python-dev/2005-December/059176.html>`__
+ - `JOB OPENING: Implementor for Python and Search <http://mail.python.org/pipermail/python-dev/2005-December/059183.html>`__
+ - `PyCon TX 2006: Early-bird registration ends Dec. 31! <http://mail.python.org/pipermail/python-dev/2005-December/059195.html>`__
+ - `set.copy documentation string <http://mail.python.org/pipermail/python-dev/2005-December/059222.html>`__
+ - `Bug in Py_InitModule4 <http://mail.python.org/pipermail/python-dev/2005-December/059272.html>`__
+ - `floating point literals don't work in non-USlocale in 2.5 <http://mail.python.org/pipermail/python-dev/2005-December/059290.html>`__
+ - `slight inconsistency in svn checkin email subject lines <http://mail.python.org/pipermail/python-dev/2005-December/059335.html>`__
+ - `Gaming on Sunday (Jan 1) <http://mail.python.org/pipermail/python-dev/2005-December/059339.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+December 16, 2005 through December 31, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the 10th summary written by the python-dev summary duopoly of
+Steve Bethard and Tony Meyer (back to back!).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo :); you can safely
+ignore it.  We do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow us to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-11-16_2005-11-30.html
+.. _original text file: http://www.python.org/dev/summary/2005-12-16_2005-12-31.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

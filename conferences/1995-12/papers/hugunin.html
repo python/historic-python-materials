@@ -1,0 +1,186 @@
+<HEAD>
+<TITLE>The Python Matrix Object: Extending Python for Numerical  
+Computation</TITLE>
+</HEAD>
+
+<BODY>
+<h1>Extending Python for Numerical Computation</h1>
+
+<strong>Submitted for the December 1995 Python Workshop by <a  
+href="mailto:hugunin@mit.edu">Jim Hugunin</a></strong>
+<p>
+<em>This work is based on Jim Fulton's original implementation of a matrix  
+object as a container class.</em>
+
+<h2>Yet Another Numeric Language?</h2>
+<p>
+There are a huge collection of existing numeric programming languages, both  
+commercial (<a href="http://www.mathworks.com/matlab.html">Matlab</a>,  
+S-PLUS, <a  
+href="http://sslab.colorado.edu:2222/projects/IDL/idl_ssl_home.html">  
+IDL</a>) and free (<a href="http://bevo.che.wisc.edu/octave.html">  
+Octave</a>, <a href="http://www.eskimo.com/~ians/rlab.html"> RLaB</a>, <a  
+href="ftp://ftp-icf.llnl.gov/pub/Yorick/html/yorick_toc.html"> Yorick </a>,  
+<a href="http://www-phys.llnl.gov/X_Div/htdocs/basis.html"> BASIS </a>, <a  
+href="http://nis-www.lanl.gov/~rosalia/gnudl-doc/gnudl_toc.html"> Gnudl  
+</a>, ...).  Why on earth would I want to go out and create a new one?
+
+<p>
+I've used almost all of the available numerical languages at one time or  
+another over the past 8 years.  One thing I've noticed is that over time,  
+the designers of these languages are steadily adding more of the features  
+that one would expect to find in a general-purpose programming language.
+
+<p>
+<em>"Octave has a real mechanism for handling functions that take an  
+unspecified number of arguments, so it is no longer necessary to place
+an upper bound on the number of optional arguments that a function can
+accept." </em> <a  
+href="http://www.che.wisc.edu/cgi-bin/info2www?(octave-faq)Variable-length%20argument%20lists">  
+Octave FAQ </a>
+<p>
+<em>"However, the most significant improvement is RLaB's list class. A list  
+is a heterogeneous associative array that can contain any data type,  
+including other lists. The list gives RLaB users the opportunity to  
+structure their data as necessary." </em> <a  
+href="http://www.eskimo.com/~ians/rlab-why/node2.html"> Why Use RLaB?</a>
+<p>
+<em> "The eval function now provides an optional mechanism for detecting  
+and trapping error conditions that occur during the evaluation of the  
+argument expression." </em> <a  
+href="http://www.mathworks.com/matlab.html">Matlab 4.1 Release Notes</a>
+<p>
+<em> "S-PLUS now supports a number of features from the object-oriented  
+programming paradigm, including classes, inheritance, and methods." </em>  
+S-Plus 3.0 Release Notes
+<p>
+By starting with the <a href="http://www.python.org/"> Python </a>  
+programming language as a base, I already have functions with optional  
+arguments (and keyword arguments), heterogeneous lists (and dictionaries), a  
+powerful exception system for evals (and everywhere else), and a strong  
+object system that was built into the language from the start; all in a  
+robust, well-designed and portable implementation (thanks Guido!).  Rather  
+than trying to retrofit an existing numerical language to support the wealth  
+of features found in a powerful, modern, general-purpose programming  
+language, it makes much more sense to attack the problem from the other  
+direction and add the features of a powerful numerical programming language  
+to <a href="http://www.python.org/"> Python</a>.
+
+<p>
+These issues are important even if the only use for this language is to be  
+a numeric lab.  However, they become overwhelming if you want to build  
+applications that contain a blend of numeric and more traditional  
+computational needs.  I've been implementing a speech recognition system  
+completely within my matrix extended version of python.  This task would be  
+nearly impossible in any other numerical language.  I'm making extensive use  
+of the sophisticated object and module system of python, as well as its  
+ability to handle sockets, audio i/o, general purpose UI's, etc.
+
+<h2>Design Goals</h2>
+
+<h3>Easily Extensible with FORTRAN and C libraries</h3>
+
+This object is based on an original implementation by <a  
+href="http://www.python.org/workshops/1995-05/extModulesNotes.html"> Jim  
+Fulton</a>.  His basic design already interfaced nicely with existing  
+libraries, and I just had to be careful not to break anything.
+
+<h3>Close to the Speed of Optimized C for Vector Operations</h3>
+
+Testing the system on a Sparc-10 by multiplying a 10000 length vector by  
+itself 1000 times, I found that the python implementation was 20% slower  
+than fully optimized (-O4) hand-coded C.  When compared to existing  
+numerical languages, I found the python system to be 30% faster than matlab  
+(70% faster if I only need "float" precision), and 1000% faster than octave.
+
+<h3>All Array Operators Supported</h3>
+
+All of the basic numeric operators are supported element-wise for matrices.  
+ In addition, the basic array comparison and logical operators are provided  
+as methods (because these operators can't be overloaded within python).   
+The jury is still out as to how best to implement matrix multiplication.   
+The two likeliest possibilities are as a method (ie. a.matrixMultiply(b)) or  
+by replacing the modulo operator (ie. a % b).
+
+<h3>Arbitrarily High-Dimensional Arrays</h3>
+
+Many existing numerical languages only support two-dimensional arrays.   
+This sort of arbitrary restriction is ridiculous in the current era of  
+modern programming languages and practice.  The matrix object was designed  
+from the ground up to support arrays of arbitrary dimensions.
+
+<h3>Powerful Generalized Product Form Indexing</h3>
+
+Mapping semantics are used to support multi-dimensional product form  
+indexing for matrix objects.  Multi-dimensional indices are a sequence of  
+python objects, where the first object corresponds to the first dimension of  
+the matrix, and so on.  If there are fewer objects in the sequence than  
+dimensions in the matrix, each remaining dimension is selected in it's  
+entirety.  The following objects are possible for each dimension:
+
+<ul>
+<li>A single integer, indicating one element from that dimension and a  
+reduction in the number of dimensions in the returned matrix.
+<li>A sequence of integers, not necessarily unique, selecting an arbitrary  
+collection of elements along that dimension
+<li>A slice object which selects a range of elements along the dimension  
+with optional start index, stop index and step size.
+</ul>
+
+<h3>Function Objects for Flexibility</h3>
+
+Every arithmetic operator is implemented as a special ofunc object within  
+python.  These functions can be called with matrix or scalar arguments to  
+return the normal result.  In addition, these functions can be subscripted  
+to indicate that they should be applied at a specific rank, and they can be  
+modified to indicate that instead of a direct product, they should be  
+applied as a generalized outer, or inner product, or as a reduction or  
+accumulation.
+
+<h3>Full Range of Primitive Data Types</h3>
+
+The matrix object supports arrays of chars, bytes, shorts, ints, longs,  
+floats, doubles, complex floats, complex doubles, and raw python objects.   
+This is essential to allow interfacing with the full range of existing  
+numerical libraries.  I know of no other numerical language that supports  
+such a complete collection of data types.
+
+<h3> No Changes to the Python Core Required </h3>
+
+I was shocked at how much of this system could be elegantly implemented by  
+designing two new object types (one for matrices, and one for functions on  
+matrices) and a module.  Nevertheless, this effort did suggest two  
+relatively small patches to the python core to make numeric operations more  
+convenient, and these have been implemented by Konrad Hinsen.  These include  
+a**b <--> pow(a,b) and a[2,3,4] <--> a[(2,3,4)].  Both of these additions  
+have already received Guido's preliminary sanction.
+
+<h2> Current Status </h2>
+
+All of the original design goals have been met.  The matrix object is  
+currently in its second alpha release, and there have been minimal reported  
+bugs.
+
+Current work includes:
+
+<ul>
+<li>Implementing linear-algebra style multiplication properly
+<li>Supporting sparse matrices
+<li>Cleaning up printing and string representations of matrices
+<li>Extending PyArgs_ParseTuple to handle matrices
+<li>Experimenting with Yorick style indexing
+<li>General cleanup and bug squashing
+</ul>
+
+<h2> Acknowledgements </h2>
+
+The initial structure of the matrix object was created by Jim Fulton.  Many  
+of the ideas in this object are stolen from the members of the python  
+matrix-sig.  In particular, Konrad Hinsen, Paul Dubois, Chris Chase, Thomas  
+Schwaller, Tser-Yuan Ya, David Ascher, Dong Gweon Oh, and of course, Guido  
+van Rossum (I'm sure that I'm missing people here) have been filled with  
+good ideas.  I still would have made this object without any of them, but it  
+wouldn't be nearly so well designed.
+
+<P><A HREF="mailto:hugunin@mit.edu">Jim Hugunin</A> <BR>November 13,  
+1995</P></BODY>

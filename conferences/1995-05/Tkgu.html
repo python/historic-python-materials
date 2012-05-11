@@ -1,0 +1,383 @@
+<html>
+<head>
+<title>The Python GUI work being done at Veritas.</title>
+<h2>Position paper: The Python GUI work being done at Veritas.</h2>
+<br>
+<h2>Abstract</h2>
+
+We have developed a C interface to Tk that is unencumbered by Tcl, and
+have also written a Python interface to it.  This paper talks about how
+we arrived at this, looking at some of the alternatives along the way.
+
+
+<h2>History</h2>
+
+After the Usenix VHLL conference, we started looking at both Python and
+Tk as serious alternatives to more proprietary technologies for building
+applications.  We also were interested in Tcl, but it 
+didn't meet our scalability, modularity, and extensibility requirements.
+<br>
+<br>
+Our target applications are a set of distributed graphical system
+administration tools.  Veritas sells storage management products into
+the Unix market.
+<br>
+<br>
+We started out with Python's Tkinter module.  This seemed initially
+workable, but we felt it had a number of flaws:
+<DIR>
+<LI>	Lack of documentation
+<LI>	Tcl is embedded
+<LI>	Class structure is oddly organized
+<LI>	Dictionaries as arguments made code ugly, or unnecessarily verbose
+</DIR>
+For us, the lack of documentation made us look elsewhere.  (Yes, we
+were aware of the Life Preserver.)  We had never used Tk before, so we
+backed off and wound up using the online help in extended wish and
+toying around to discover how things worked.  As a result, the simple
+syntax of Tcl/Tk was contrasted against the somewhat stranger Tkinter
+syntax.
+<br>
+<br>
+With a growing understanding of Tcl/Tk and Python, we set out to write
+our own Python-Tk interface that matched more closely the functional
+simplicity of Tk.  We called this module Tkgu.  A key goal in
+Tkgu was more direct Tcl/Tk access: everything passed in was a string or could
+easily be converted by the module to a string then passed on to Tcl.
+Python functions or methods would be converted to a unique string and
+used as an identifier to Tcl.  (Of course, the string is the single
+datatype understood by Tcl.)  In effect, Tcl and Python could be
+intermixed relatively easily.
+<br>
+<br>
+To give you a flavor of this module, here is the traditional Hello World
+example:
+<PRE>
+	import Tkgu
+	def printit():
+		print 'Howdy!'
+
+	# Create a Tkgu object
+	top = Tkgu.Tkgu()
+
+	# Create a frame widget.
+	frame1 = top.frame('.',  '-relief raised -bd 2')
+
+	# Create a button widget inside the frame widget.
+	# Configure it seperately for sake of example.
+	button1 = top.button(frame1)
+	top.tcl(button1, 'configure', '-command', printit, '-text "Hello World"')
+
+	# Tell it to resize
+	top.pack(frame1, button1, '-expand yes -fill both')
+	top.mainloop()
+</PRE>
+
+
+In this example, <em>frame1</em> and <em>button1</em> are string objects, automatically
+generated and used as identifiers to Tcl.  The functions <em>top.frame()</em> and
+<em>top.button()</em> append a unique identifier to the end of their parent's
+name (e.g. the first argument, a string), concatenate the remaining
+arguments, tack <em>"frame"</em> or <em>"button"</em> on the front, then pass it on to
+Tcl.  And of course, for function arguments, a Tcl command is created
+that will invoke an associated Python function later.
+<br>
+<br>
+As a refresher for comparison, here is the sample Hello World code from the
+Tkinter Life Preserver:
+<PRE>
+	from Tkinter import *
+
+	class Test(Frame):
+	    def printit(self):
+		print "hi"
+
+	    def createWidgets(self):
+		self.QUIT = Button(self, {'text': 'QUIT', 
+				  'fg': 'red', 
+				  'command': self.quit})
+	
+		self.QUIT.pack({'side': 'left', 'fill': 'both'})
+
+		# a hello button
+		self.hi_there = Button(self, {'text': 'Hello', 
+				      'command' : self.printit})
+		self.hi_there.pack({'side': 'left'})
+
+
+	def __init__(self, master=None):
+		Frame.__init__(self, master)
+			Pack.config(self)
+			self.createWidgets()
+
+		test = Test()
+		test.mainloop()
+</PRE>
+
+As you can see the Tkinter code is a little more complex because it
+uses Python classes to encapsulate Tk widgets.  Tkgu uses a functional
+interface.  (This is not to say that Tkgu could not be used with
+Python classes.)  It is debatable which is better, but it is clear that
+Tkgu has a more direct interface to Tcl. 
+<br>
+<br>
+The Tkgu programming interface worked fairly effectively.  We wrote a
+significant application to prove the concept.  This application allowed
+perusal and manipulation of a computer's disk drives with a Macintosh
+like interface.  To further prove this concept, we ported the entire
+application to Windows NT (It took about a week, thanks to tknt).
+<br>
+<br>
+Some of the key outcomes of this investigation were:
+<DIR>
+<LI>	It was really easy to port existing scripts from Tcl to Python and Tkgu.
+<LI>	Tcl is still embedded.
+<LI>	Tcl was used as little as possible, eventhough intermixing
+	the two language was really easy.  Python proved better
+	for building abstractions.  In fact, the most practical approach was to
+	only use Tcl when we had to get to Tk.  In this light, Tcl was just
+	extra baggage.
+<LI>	There were some obvious performance problems, including slow
+	startup time, and some slow interactive behavior.
+<LI>	Tkgu is a simplier than Tkinter,  mostly because it uses a lot less code in all aspects: the C module,
+	the Python module, and application code are shorter.
+<LI>	The callback interface was not completely transparent, it required
+	the application to clean up.  This was typically implemented as
+	a destruction function in a Python class.
+</DIR>
+One of the implications of using Tcl is that Python callbacks must be
+referenced from some global lookup table.  Tkgu hides this problem to a
+large degree.  Additionally, Tk widget identifiers (strings) are also
+mapped into a global table.  In terms of scalability, these are
+problems.
+
+<h2>Alternatives</h2>
+
+One of the talks at the VHLL conference was by Malcolm Beattie about
+his implementation of Tk for Perl that did not have Tcl bindings.
+There was quite alot of interest in Tk bindings for other languages,
+particularily for the gnu extension language (Guile) and Python.  There are a
+number of other languages that encapsulate Tcl/Tk and presumably could
+do without Tcl.
+<br>
+<br>
+At one of the VHLL BOF sessions, the Guile proponents were indicating
+that they might implement a Tcl-less Tk interface.  At the time the
+TkPerl interface was still dependent on Perl.  Guile has been recently
+released and embeds Tcl/Tk in a similar fashion to Tkinter.  It is
+unclear what the future direction is.
+<br>
+<br>
+Malcolm Beattie is no longer working on TkPerl, but Nick Ing-Simmons
+has picked up the efforts with his own attempt at a language
+independent version with initial bindings for Perl.  A version based on
+tk4.0b3 has been released.  I'm not aware of any work being done to
+implement other language bindings with this software.
+<br>
+<br>
+The Perl Tk is a modified version of Tk, a supplementary set of C
+functions to round out the Tk API, and Tcl code translated to Perl.
+Architecturally, Perl Tk is exactly the same as Tcl/Tk, with all
+the Tcl C library interfaces replaced with similar C interfaces,
+and all the Tcl code replaced with Perl code.
+<br>
+<br>
+There are a few issues with this approach that made it unpalatable to
+our thinking: for each new language 4000 or more lines of Tcl code
+would have to be ported; strings are still used as identifiers (for
+widgets); the changes to Tk were extensive.
+<br>
+<br>
+In addition, it was relatively difficult to understand what the steps
+were to create a new language binding.  The source has a certain lack
+of organization and documentation.  One annoying example is that Perl
+bindings are in the same source file as the supplimentary C Tk
+interfaces.
+
+<h2>Introducing Rivet</h2>
+
+So with that background in mind, we set out to implement an interface
+to Tk that had the following properties:
+<DIR>
+<LI>	Required minimum changes to Tk source code.
+<LI>	Used C pointers as identifiers.
+<LI>	Used no Tcl evaluation, commands, or identifiers.
+<LI>	Implemented a C language interface that could be leveraged for
+	a language binding (especially Python).
+<LI>	Was implemented only in C.
+</DIR>
+We were not concerned about the following issues:
+<DIR>
+<LI>	Beauty of interface for C programmers.  Argc/argv lists may
+	have to be created by hand, and attention must be paid to
+	storage management.
+<LI>	String conversions done inside Tk widget methods.
+<LI>	Removing all of vestigial Tcl (Tcl hash routines, for example).
+</DIR>
+We call this interface <em>Rivet</em>.  The bulk of Rivet is a C
+implementation of the Tcl code that is typically found in
+/usr/local/lib/tcl/tk.  The remaining changes are to the Tk source
+directly, which is mostly the same as Tk with ifdefs where the Tcl was
+assumed.  (Currently there are about 200 ifdefs).  These are typically
+areas where <em>Tcl_Eval</em> is
+involved.  Additionally, all references to the global Tcl variable
+table and the global Tcl command table have been removed.
+<br>
+<br>
+Constructing most of Rivet took about two months, the Python
+interface about two weeks.  The Python interface to Rivet
+looks somewhat similar to Tkgu, as described above, but of course is
+implemented quite differently.  Rivet is based on tk4.0b3.  One of the
+reasons for minimizing the number of changes to Tk is simplify the
+upgrade to the final Tk 4.0 release.  In fact, the upgrade from tk4.0b2
+to tk4.0b3 took an afternoon.
+<br>
+<br>
+The following is an example of the Hello World example in the Python
+binding to Rivet:
+<PRE>
+	import rivet
+
+	def printit():
+		# If this were a bound member function, self would be
+		# passed in as the first argument.
+		print "Howdy!"
+
+	top = rivet.init()
+
+	frame1 = top.frame('-bd', 4, '-relief', 'raised')
+
+	button1 = frame1.button()
+	button1.configure('-text', 'Hello World', '-command', printit)
+
+	rivet.pack(frame1, button1, '-expand', 'yes', '-fill', 'both')
+
+	rivet.mainloop()
+</PRE>
+The Rivet C module implements classes for each of the Tk widget classes.
+In the above example, <em>frame1</em> and <em>button1</em> are Python objects.  Each of
+them has a number of methods associated with their class that typically map
+directly onto the Tk widget method.  <em>button1.configure()</em> and
+<em>frame1.button()</em> are examples of these methods.
+<br>
+<br>
+Because the Rivet binding is implemented in C, it is not
+possible to subclass the Rivet widget objects with Python.
+It would be nice if this restriction were removed from Python.
+<br>
+<br>
+<B>Behind the Python interface</B>
+<br>
+<br>
+Rivet C code to implement Hello World looks like the following:
+<PRE>
+    #include "rivet.h"
+    
+    int
+    printit(Rivetobj button, ClientData closure)
+    {
+    	printf("Howdy!");
+    	return TCL_CONTINUE;
+    }
+    
+    
+    int
+    main(argc, argv)
+    	int             argc;
+    	char          **argv;
+    {
+    	Rivetobj	top;
+    	Rivetobj	frame1;
+    	Rivetobj	button1;
+    
+    	top = rivet_init(argc, argv);
+    
+    	/* Create a frame widget, passing initialization options
+	 * along in a vararg list.
+	 */
+    	frame1 = rivet_create(FrameClass, top, 
+			"-relief", "raised",
+			"-bd", "2",
+			0);
+    	if (!frame1)
+    		exit(1); /* error message is in top->interp->result. */
+    
+    	/* Create a button widget inside the frame widget. */
+    	button1 = rivet_create(ButtonClass, frame1, 0, 0);
+    	if (!button1)
+    		exit(1);
+    
+	/* configure button1 seperately for the sake of the example.
+    	 * rivet_va_cmd builds an argc/argv list from a null terminated
+    	 * argument list of C strings.  And passes it to the Tk function
+    	 * associated with object (in this case button1).
+    	 */
+    	rivet_va_cmd(button1, "configure", "-text", "Hello World", 0);
+    
+    	/*
+    	 * Now register the button's callback function, this is equivalent
+    	 * to setting the button's "-command" script.  But callbacks can't
+    	 * go through the normal Tk argument processing routines because
+    	 * they aren't strings.
+    	 */
+    	rivet_button_set_command(button1, printit, 0);
+    
+    	/* Pack the widgets.  rivet_va_func builds an argc/argv list from
+    	 * it's null terminated arguments, then calls a Tcl command function.
+    	 */
+    	rivet_va_func(top, Tk_PackCmd,
+    		rivet_path(frame1), rivet_path(button1), 
+    		"-expand", "yes", "-fill", "both", 0);
+    
+    	Tk_MainLoop();
+    }
+</PRE>
+In the C example, you can see the widgets (<em>Rivetobj frame1 and
+button1</em>) are created using a class handle (<em>ButtonClass and
+FrameClass</em>).  This class handle is a Rivet data structure and has all
+the necessary function pointers for creating, calling, and destroying a
+Rivet object.  The Rivet object created by these functions is in fact a
+pointer to the C structure created by Tk to represent the widget.  By
+convention, these various Tk structures all have the same first three
+fields in common, and in fact we use this alignment to build the
+generic <em>rivet_create()</em> and <em>rivet_va_cmd()</em> functions.
+<br>
+<br>
+Tk functionality involves more than just widgets, so Rivet
+provides additional interfaces.  These interfaces are much more adhoc
+in nature.  Some functions, such as pack, can be handled generically
+with the <em>rivet_va_func()</em> function.  One function which
+required considerable changes is the bind interface, which makes a
+large number of assumptions about executing callbacks.  In these
+cases, replacement functions have been written.
+<br>
+<br>
+Currently, Rivet is not quite ready for release outside Veritas.
+During the next few months we hope to work though some remaining issues
+and concentrate on building a serious application with it.  At present,
+it needs some work to complete the Python interface, documentation
+needs to be written, and a number of minor issues with the C interface
+(such as handling images and menu entries) need to be cleaned up.  At the appropriate
+time we hope to release it as freely as possible.
+<br>
+<br>
+We do not hold much hope in getting John Ousterhout to buy back any
+changes that we have made to Tk.  (It is a common request on
+comp.lang.tcl for a C interface to Tk.)  Ousterhout's position is that he
+will incorporate volunteered work of this nature, assuming it does not
+violate any other principles of Tcl/Tk.  It is not clear if our
+work fits his requirements.
+<br>
+<br>
+<br>
+Comments on this paper can be sent to
+Brian Warkentine,
+ <em><a href=mailto:brianw@veritas.com>brianw@veritas.com</a>.
+</em><br>
+<br>
+<br>
+<em>Sometimes you're the windshield, and sometimes you're the bug.<br>
+--Dire Straits
+</em>
+</html>
+

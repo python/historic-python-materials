@@ -1,0 +1,369 @@
+Title: python-dev Summary for 2005-07-01 through 2005-07-15
+Content-type: text/x-rst
+
+python-dev Summary for 2005-07-01 through 2005-07-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-07-01_2005-07-15.html]
+
+=============
+Announcements
+=============
+
+------------------------------
+QOTF (Quotes of the Fortnight)
+------------------------------
+
+Marc-Andre Lemburg provides perhaps the best summary to date of `how strings and Unicode should be used`_ in Python:
+
+   To untie this Gordian Knot, we should use strings and Unicode like they are supposed to be used (in the context of text data):
+
+   * strings are fine for text data that is encoded using the default encoding
+   * Unicode should be used for all text data that is not or cannot be encoded in the default encoding
+
+   Later on in Py3k, all text data should be stored in Unicode and all binary data in some new binary type.
+
+On a more entertaining note, Anthony Baxter describes the general outlook outlook on handling `threads vs signals`_:
+
+    threads vs signals is a platform-dependant trail of misery, despair, horror and madness
+
+.. _how strings and Unicode should be used: http://mail.python.org/pipermail/python-dev/2005-July/054854.html
+
+.. _threads vs signals: http://mail.python.org/pipermail/python-dev/2005-July/054832.html
+
+
+=========
+Summaries
+=========
+
+---------------------------------------
+PEP 343 Documentation: Context Managers
+---------------------------------------
+
+Raymond Hettinger started a thread discussing how objects with __enter__ and __exit__ methods should be referred to in the official Python documentation. A few terms were thrown around, with "resource manager" being one of the early favorites. However, because the __enter__/__exit__ protocol handles a much more general construct that just the acquisition and release of a resource, this term steadily lost ground. Things like "locking objects are resource managed" and "decimal.Context() is a resource manager" sounded awkward and hard to explain.
+
+Phillip J. Eby suggested that objects with __enter__ and __exit__ methods could be called "context managers", and people seemed generally happy with this term. Nick Coghlan took this term, and some example use cases for "context managers", and put together a `draft documentation`_ for the section in the Python Library Reference. People liked Nick's wording, and after a few minor revisions (mainly to add more examples), it looked pretty complete.  Nick promised to add a bit to the Python tutorial after he got a chance to play with the PEP 342_/343_ implementations.
+
+There was also a brief followup thread that discussed which objects in the stdlib should gain __enter__ and __exit__ methods in Python 2.5. It looks like decimal.Context objects will almost certainly become context managers, and there is some chance that a sys.redirected_stdout context manager might appear.
+
+.. _draft documentation: http://www.python.org/sf/1234057
+.. _342: http://www.python.org/sf/1223381
+.. _343: http://python.org/sf/1235943
+
+Contributing threads:
+
+- `Terminology for PEP 343 <http://mail.python.org/pipermail/python-dev/2005-June/054525.html>`__
+- `Terminology for PEP 343 <http://mail.python.org/pipermail/python-dev/2005-July/054530.html>`__
+- `'With' context documentation draft (was Re: Terminology for PEP 343 <http://mail.python.org/pipermail/python-dev/2005-July/054658.html>`__
+- `PEP 343 documentation on Sourceforge Patch tracker <http://mail.python.org/pipermail/python-dev/2005-July/054688.html>`__
+- `Possible context managers in stdlib <http://mail.python.org/pipermail/python-dev/2005-July/054762.html>`__
+
+[SJB]
+
+
+-----------------------
+GCC/G++ Issues on Linux
+-----------------------
+
+While in the past Python and Python extension modules could be compiled on Linux with different GCC versions as long as the 'C' ABIs were compatible, David Abrahams reported that Python extensions on Linux now crash if they are not compiled with exactly the same version of GCC as the Python they're loaded into. This is apparently due to the fact that on these systems Python is being linked with CXX when it should be linked with CC. The solution turned out to be to pass --without-cxx to configure; if it is not specified, configure runs a linking test that (improperly) determines that linking with CXX is necessary. When the --without-cxx flag is specified, configure does not perform this linking test, so Python is linked with CC.
+
+In the same discussion, Christoph Ludwig pointed out another problem in the above linking test.  The current test compiles a single translation unit program using CXX and sees if linking it using CC fails. For GCC 3.x, it does, but because GCC 4.0 does a better job of eliminating unreachable code, with GCC 4.0 it does not. Thus make fails using GCC 4.0. Christoph showed that compiling a program with two tranlation units, one of which calls an 'extern "C"' function in the other, restores the original behavior. He provided the corresponding patch_ to configure.in.
+
+While Christoph's patch stops make from failing on Linux with ELF shared binaries and GCC 4.x, it did not address David Abrahams original concern -- that on Linux with ELF shared binaries and GCC 3.x or 4.x, configure should determine that Python can be compiled *without* CXX. Christoph promised to work on a more comprehensive patch to address this problem for Python 2.5.
+
+.. _patch: http://www.python.org/sf/1239112
+
+Contributing threads:
+
+- `GCC version compatibility <http://mail.python.org/pipermail/python-dev/2005-July/054686.html>`__
+- `Linux Python linking with G++? <http://mail.python.org/pipermail/python-dev/2005-July/054693.html>`__
+- `[C++-sig] GCC version compatibility <http://mail.python.org/pipermail/python-dev/2005-July/054794.html>`__
+
+[SJB]
+
+
+--------------------------------------------------------
+Behavior of Sourceforge when replying to python-checkins
+--------------------------------------------------------
+
+At the moment, replying to a message in the check-ins list defaults to directing the reply to python-dev.  After this lead to some confusion, Guido questioned whether this was a good idea or not; the two main problems are that it is more difficult than necessary to send notes to the committer, and difficult to follow such threads (the past is in the check-in message, and future messages might be on python-dev or the check-ins list).  Only one person replied to Guido's suggestion (agreeing) - nothing appears to have changed so far, so it seems that perhaps the status quo rules.
+
+Contributing thread:
+
+- `floatobject.c 2.136 <http://mail.python.org/pipermail/python-dev/2005-July/054617.html>`__
+
+[TAM]
+
+
+----------------------------------------
+Removing else clauses from while and for
+----------------------------------------
+
+Thomas Lotze suggested that an 'eltry' keyword be introduced, to be the counterpart of 'elif' for try statements; this idea was quickly shot down by Guido (the use case is rare, using both "else" and "try" is fine, a loop solution often works well).
+
+As a result, however, Guido wondered whether else clauses on for/while were a good idea, even though he dislikes flag variables.  He was joined by various people, some of whom did not know (or had forgotten) that the clauses even existed - some people wondered whether they made the language harder to learn.  These people were outnumbered, though, but people who felt that these loop else clauses were an elegant part of the language and should definitely stay.
+
+Interestingly, Guido noted that he wonders whether "elif" was a mistake, and should have been "else if" (although there was no indication that he felt that this should be changed in Python 3000).  
+
+Contributing thread:
+
+- `Chaining try statements: eltry? <http://mail.python.org/pipermail/python-dev/2005-July/054667.html>`__
+
+[TAM]
+
+
+---------------------------------------------------------
+Adding Syntactic Support for Instance Variable Assignment
+---------------------------------------------------------
+
+Ralf W. Grosse-Kunstleve asked for syntactic support for the common idiom::
+
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+
+using the syntax::
+
+    def __init__(self, .x, .y, .z):
+        pass
+
+People pointed out that with a properly-defined initialize() function you could use existing Python syntax and only need a single function call in __init__::
+
+    def __init__(self, x, y, z):
+        initialize(self, locals())
+
+The thread_ was moved to comp.lang.python before it had a chance to turn into a decorator-syntax-like discussion. ;)
+
+.. _thread: http://mail.python.org/pipermail/python-list/2005-July/288292.html
+
+Contributing thread:
+
+- `reducing self.x=x; self.y=y; self.z=z boilerplate code <http://mail.python.org/pipermail/python-dev/2005-July/054568.html>`__
+
+[SJB]
+
+
+-------------------------------------
+Changing Triple-quoted String Parsing
+-------------------------------------
+
+Andrew Durdin suggested a change in the way that triple-quoted strings are parsed. Strings like::
+
+    myverylongvariablename = """\
+            This line is indented,
+        But this line is not.
+        Note the trailing newline:
+        """
+
+would have the initial indents on all lines but the first ignored when they were parsed. People seemed generally to dislike the proposal, for a number of reasons:
+
+- "It smells too much of DWIM, which is very unpythonic" -- Guido
+- it is backwards incompatible in a number of ways
+- textwrap.dedent covers pretty much all of the use cases
+
+Andrew Durdin said he would write the PEP anyway so that at least if the idea was rejected, there would be some official documentation of the rejection.
+
+Contributing thread:
+
+- `Triple-quoted strings and indentation <http://mail.python.org/pipermail/python-dev/2005-July/054649.html>`__
+
+[SJB]
+
+
+-----------------------
+path module and Unicode
+-----------------------
+
+Continuing last month's discussion on including the path module in the standard library, Neil Hodgson pointed out that path makes it easier to handle Unicode directory paths on Windows-based platforms; currently, this requires user code. Further replies pointed out similar Unicode handling problems in sys.argv and os.listdir, leading Guido to comment, "Face it. Unicode stinks (from the programmer's POV). But we'll have to live with it."
+
+Neil boiled this down to four high-level strategies for dealing with attributes that can Unicode: always returning Unicode, returning Unicode only when a value can't be represented in ASCII, returning Unicode only when a value can't be represented in the current code page, or creating "separate-but-equal" APIs (like sys.argvu and os.environu).  Marc-Andre Lemburg and Guido both expressed strong preferences for the second option, with Marc-Andre formulating the rule as presented in this issue's QotF.
+
+Contributing threads:
+
+- `Adding the 'path' module (was Re: Some RFE for review) <http://mail.python.org/pipermail/python-dev/2005-July/054535.html>`__
+- `Adding the 'path' module (was Re: Some RFE for review) <http://mail.python.org/pipermail/python-dev/2005-July/054796.html>`__
+- `Adding the 'path' module (was Re: Some RFE for review) <http://mail.python.org/pipermail/python-dev/2005-July/054857.html>`__
+
+[TDL]
+
+
+--------------------------------------
+Improving decimal module documentation
+--------------------------------------
+
+Facundo Bastista couldn't find the explanation of the decimal module's
+rounding modes.  Nick Coghlan helped him find it in section for `Context
+objects`_ but noted that the wording for the round-half modes was
+sparse.   Raymond Hettinger then improved the docs by adding a few words
+to the effect that the various round-half modes are rules for breaking
+ties when two integers are equally near.  He also switched the
+presentation from paragraph-form to list-form so to make it easier to
+find and read.
+
+.. _Context objects: http://docs.python.org/lib/decimal-decimal.html
+
+Contributing threads:
+
+- `Decimal rounding doc <http://mail.python.org/pipermail/python-dev/2005-July/054543.html>`__
+- `Missing docs (was Decimal rounding doc) <http://mail.python.org/pipermail/python-dev/2005-July/054553.html>`__
+
+[TAM]
+
+
+----------------
+getch() behavior
+----------------
+
+Darryl Dixon pointed out that the getpass() function in the getpass module does not accept extended characters on Windows, where the msvcrt module is used to capture one character at a time from stdin via the _getch() function defined in conio.h.  Windows supports `capturing extended characters`_ via _getch, but it requires making a second call to getch() if one of the 'magic' returns is encountered in the first call (0x00 or 0xE0).  Darryl asked whether a patch for the msvcrt module that added support for capturing extended characters would be considered.  However, no support was received (although it was suggested that a patch submitted through sourceforge, possibly implemented via a new function, would be considered), as the thinness of the msvcrt wrapper is intentional, and it was not clear that this was a problem (i.e., that two calls could not be made).
+
+.. _capturing extended characters: http://support.microsoft.com/default.aspx?scid=kb;en-us;57888
+
+Contributing threads:
+
+- `getch() in msvcrt does not accept extended characters. <http://mail.python.org/pipermail/python-dev/2005-June/054506.html>`__
+- `getch() in msvcrt does not accept extended characters. <http://mail.python.org/pipermail/python-dev/2005-July/054539.html>`__
+
+[TAM]
+
+
+-------------------
+Threads and signals
+-------------------
+
+Florent Pillet noticed that when using Python 2.3 on Max OS X, calling tmpfile() from a C extension had the side-effect of disabling Control-C keyboard interruption (SIGINT).  Further digging revealed that on both Darwin and FreeBSD platforms, tmpfile() does play with the signal handling, but appears to change it back.  Michael Hudson noted that Florent's code also involved threads, and that mixing threads and signal handling involved "enormously subtle" issues.  Anthony Baxter also replied that Python 2.4 should be less subject to harmful effects from these bugs, but as a rule, mixing threads and signals is a recipe for "misery, despair, horror, and madness."
+
+Contributing threads:
+
+- `C bindings calling tmpfile() blocks interrupt signal <http://mail.python.org/pipermail/python-dev/2005-July/054690.html>`__
+
+[TDL]
+
+
+--------
+List API
+--------
+
+Nicolas Fleury proposed adding copy() and clear() functions to lists, to be more consistent with dict and set.  It was pointed out that the copy module (copy.copy()) can be used for generic copying, or a copy constructor and that clearing can be done with slicing (seq[:] = []) or the del keyword (del seq[:]).  The advocate of the clear method argued that a clear() method would be easy to find in documentation, and wouldn't require understanding slicing to use it, but none of the developers would agree to expand the API just to add a third-way to do it, so it seems unlikely that anything more will come of this at this time. Raymond Hettinger also noted that slicing is one of the first concepts presented in the tutorial -- it is so basic to the language that it would be a mistake steer people away from learning it.
+
+Contributing threads:
+
+- `List copy and clear (was Re: Inconsistent API for sets.Set and build-in set) <http://mail.python.org/pipermail/python-dev/2005-June/054522.html>`__
+- `List copy and clear (was Re: Inconsistent API for sets.Set and build-in set) <http://mail.python.org/pipermail/python-dev/2005-July/054527.html>`__
+
+[TAM]
+
+
+------------
+Money Module
+------------
+
+Facundo Batista announced that the `Money module`_ is taking form quickly, a "pre-PEP", and unit tests have been written. Raymond Hettinger and Aahz noted that a "pre-PEP" is really a misnomer: PEPs describe enhancements to the Python core and standard library, while Money is still rather experimental and unlikely to see inclusion anytime soon.  Facundo invited any interested parties to join the discussion in the pymoney-general list on SourceForge.
+
+.. _Money module: http://sourceforge.net/projects/pymoney
+
+Contributing threads:
+
+- `Money module <http://mail.python.org/pipermail/python-dev/2005-July/054558.html>`__
+
+[TDL]
+
+
+------------------------
+Bug-reporting Checklists
+------------------------
+
+Brett Cannon posted a draft of a checklist to help users report bugs. Several minor improvements were suggested, but Raymond Hettinger expressed mild dislike for the idea, describing it as "administrivia" that might actually prevent people from filing bugs. Terry Reedy suggested, along with the checklists, some minor changes to the structure of the python.org site (to define bugs, help determine whether a bug has already been reported, etc.) would help even more.
+
+Contributing threads:
+
+- `checklist for filing a bug <http://mail.python.org/pipermail/python-dev/2005-July/054737.html>`__
+
+[TDL]
+
+
+===============
+Skipped Threads
+===============
+- `how to create single exe dos file <http://mail.python.org/pipermail/python-dev/2005-July/054536.html>`__
+- `cephes module missing <http://mail.python.org/pipermail/python-dev/2005-July/054537.html>`__
+- `Inconsistent API for sets.Set and build-in set <http://mail.python.org/pipermail/python-dev/2005-July/054560.html>`__
+- `python-dev Summary for 2005-06-16 through 2005-06-30 [draft] <http://mail.python.org/pipermail/python-dev/2005-July/054624.html>`__
+- `using pyhon from the MSYS shell <http://mail.python.org/pipermail/python-dev/2005-July/054636.html>`__
+- `Possible C API problem? <http://mail.python.org/pipermail/python-dev/2005-July/054638.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-July/054648.html>`__
+- `Expanding max chunk size to 4GB. <http://mail.python.org/pipermail/python-dev/2005-July/054671.html>`__
+- `Request to add developer <http://mail.python.org/pipermail/python-dev/2005-July/054674.html>`__
+- `C bindings calling tmpfileblocks interrupt signal <http://mail.python.org/pipermail/python-dev/2005-July/054690.html>`__
+- `Another SoC student for CVS access <http://mail.python.org/pipermail/python-dev/2005-July/054718.html>`__
+- `__autoinit__ <http://mail.python.org/pipermail/python-dev/2005-July/054788.html>`__
+- `SF patch #1214889 - file.encoding support <http://mail.python.org/pipermail/python-dev/2005-July/054870.html>`__
+- `e-mail addresses <http://mail.python.org/pipermail/python-dev/2005-July/054874.html>`__
+- `[Python-checkins] python/dist/src/Miscdevelopers.txt, 1.15, 1.16 <http://mail.python.org/pipermail/python-dev/2005-July/054876.html>`__
+- `Is PEP 237 final -- Unifying Long Integers and Integers <http://mail.python.org/pipermail/python-dev/2005-July/054879.html>`__
+- `Python on PyPI <http://mail.python.org/pipermail/python-dev/2005-July/054880.html>`__
+
+
+========
+Epilogue
+========
+
+------------
+Introduction
+------------
+
+This is a summary of traffic on the `python-dev mailing list`_ from July 01, 2005 through July 15, 2005.
+
+It is intended to inform the wider Python community of on-going developments on the list on a semi-monthly basis.  An archive_ of previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.  You can also watch comp.lang.python or comp.lang.python.announce for new summaries (or through their email gateways of python-list or python-announce, respectively, as found at http://mail.python.org).
+
+This is the seventh summary written by the python-dev summary cabal of Steve Bethard, Tim Lesher, and Tony Meyer.
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tim Lesher (tlesher at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to advance the development and use of Python.  If you find the python-dev Summary helpful please consider making a donation.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation with a credit card, check, or by PayPal helps.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list at python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing.  All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be found at http://www.python.org/dev/doc/devel/ and should be used when looking up any documentation for new code; otherwise use the current documentation as found at http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ . To view files in the Python Subversion repository online, go to http://svn.python.org/projects/python/trunk/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+Please note that this summary is written using reStructuredText_.  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it.  I do suggest learning reST, though; it's simple and is accepted for `PEP markup`_ and can be turned into many different formats like HTML and LaTeX.  Unfortunately, even though reST is standardized, the wonders of programs that like to reformat text do not allow me to guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/
+.. _original text file: http://www.python.org/dev/summary/2005-07-01_2005-07-15.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf

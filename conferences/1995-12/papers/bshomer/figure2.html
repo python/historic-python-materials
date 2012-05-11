@@ -1,0 +1,55 @@
+<TITLE>A Generic data collection system through WWW forms</TITLE>
+<BODY>
+<HR>
+<A HREF = "abstract.html">[Abstract]</A>
+<A HREF = "introduction.html">[Introduction]</A>
+<A HREF = "methods.html">[Methods]</A>
+<A HREF = "discussion.html">[Discussion]</A>
+<A HREF = "references.html">[References]</A>
+<HR>
+<STRONG>Figure 2.</STRONG><BR>
+<CITE>
+The class "valids" - an example of the use of some of it's methods. <BR>
+<STRONG>1.</STRONG> The class instance is invoked.  
+<STRONG>2.</STRONG> Ensuring that there is no attempt to invoke a shell. 
+<STRONG>3.</STRONG> Checking an item contains only ASCII128 characters.  
+<STRONG>4.</STRONG> Checking an item is numeric.
+<STRONG>5.</STRONG> Checking an email address. The return value implies
+	that the syntax is allright but the country domain does not exist.
+<STRONG>6.</STRONG> Checking a nucleic acid (DNA) sequence.The return 
+	value implies the sequence contains an ambigous character wich is
+	permitted in sequences only in special cases.
+
+</CITE>
+
+<HR>
+<ADDRESS>Written by <A HREF = "http://www.ebi.ac.uk/ebi_docs/staff/benny.html">Benny shomer</A>, The EBI. <P>
+      <A HREF = "http://www.ebi.ac.uk/ebi_docs/staff/bennymail.html">bshomer@ebi.ac.uk</A>
+</ADDRESS>
+<HR>
+
+<Plaintext>
+1.
+>>> from validations import valids
+>>> v = valids()
+
+2.
+>>> v.safe('!#rm *')
+'#rm *'
+
+3.
+>>> v.is_text('This is a text')
+1
+
+4.
+>>> v.is_numeric('number 69')
+0
+
+5.
+>>> v.is_email('bshomer@ebi.ac.zz')
+2
+
+6.
+>>> v.is_na_sequence('actaacggatacnnacagt')
+2
+

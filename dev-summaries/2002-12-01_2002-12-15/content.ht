@@ -1,0 +1,159 @@
+Title: python-dev Summary for 2002-12-01 through 2002-12-15
+Sitemap-ignore: yes
+
+<div class="document" id="python-dev-summary-for-2002-12-01-through-2002-12-15">
+<h1 class="title">python-dev Summary for 2002-12-01 through 2002-12-15</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> between December 1, 2002 and December 15, 2002 (inclusive).  It is intended to inform the wider Python community of on-going developments on the list that might interest the wider Python community.  To comment on anything mentioned here, just post to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> or comp.lang.python in the usual way; give your posting a meaningful subject line, and if it's about a PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep iteration). All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join python-dev!</p>
+<p>This is the seventh summary written by Brett Cannon (and thus my seventh attempt to get into amk's <a class="reference" href="http://www.amk.ca/quotations/python-quotes/">Python Quotations</a>).</p>
+<p>All summaries are now archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a>; you can safely ignore it (although I suggest learning reST; its simple and is accepted for PEP markup).  Also, because of the wonders of programs that like to reformat, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is.  If you want to do that, get an original copy of the text file.</p>
+<div class="section" id="summary-announcements">
+<h1><a name="summary-announcements">Summary Announcements</a></h1>
+<p>Aahz  suggested that I try writing the summary from a third-person perspective so as to remove ambiguity if anyone ever quotes something from a summary which was written in first-person.  I am giving it a go in this summary although there is not much here that is affected.</p>
+<p>I am also trying to use extended characters for people's names.  Hopefully it will show up correctly when I send it out and in the HTML version of this.</p>
+<p>There was an error in the last summary where I gave Guido's position on something incorrectly (summary of dict evaluation order).  It has been fixed.  I am going to fix errors like that in old summaries with an errata note in the text version.  It won't show up in the HTML version, though.</p>
+<p>And go to <a class="reference" href="http://www.python.org/pycon/">PyCon</a>.  =)</p>
+</div>
+<div class="section" id="new-universal-import-mechanism">
+<h1><a name="new-universal-import-mechanism"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030602.html">New universal import mechanism</a></a></h1>
+<dl>
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030638.html">New and Improved Import Hooks</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030708.html">Re: New and Improved Import Hooks</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030776.html">Re[2]: [Python-Dev] New and Improved Import Hooks</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030755.html">New Import Hook &amp; New Zip Importer</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030812.html">(no subject)</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030828.html">Another approach for the import mechanism</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030985.html">Re: Another approach for the import mechanism</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030755.html">New Import Hook &amp; New Zip Importer</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030868.html">Import: where's the PEP?</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030886.html">zipimport &amp; import hooks</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030952.html">VFS</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030953.html">Zip imports, PEP 273, and the .zip extension</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030956.html">Import compromise</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030968.html">zipimport, round 3 (or would that be 37?)</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/031000.html">Complexity of import.c</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/031009.html">zipimport, round 4</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030755.html">new import hooks &amp; zip import</a></li>
+</ul>
+</dd>
+</dl>
+<p>In case you can't figure it out from the title of all of the splnter threads, there was an immense discussion about <a class="reference" href="http://www.python.org/dev/peps/pep-0273">PEP 273</a> and getting an import mechanism for zipped modules.  To give a little back-story, PEP 273 proposes allowing modules to be put into a zip file for easy distribution.  You could then just add the zip file to <tt class="literal"><span class="pre">`sys.path`_</span></tt> , <a class="reference" href="http://www.python.org/doc/current/tut/node8.html">PYTHONPATH</a> , etc. and importing from the zip file would be handled properly.  It was scheduled to be included in Python 2.3 thanks to Paul Moore keeping James Ahlstrom's patch synced with CVS.  All was right with the world, more or less.</p>
+<p>But Just van Rossum didn't like the added complexity to <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Python/compile.c">import.c</a>.  This led to Just to write a new import mechanism.  Basically Just was unhappy with how much fiddling the PEP 273 patch was doing to import.c.  So, just like any self-respecting programmer would do, he came up with his own solution. =)  Most of the discussion revolved around a few central points.</p>
+<p>One was whether this was even worth the effort.  Since the PEP 273 patch worked, why should Just bother reinventing the wheel?  The whole reason Just decided to come up with another implementation was a major point.  The other was that he felt he could come up with a more general way of allowing custom importers <em>and</em> have zip imports a part of the core.  There was also a discussion of whether Gordon McMillan's <a class="reference" href="http://www.mcmillan-inc.com/iu.html">iu.py</a> wasn't a good solution; it was already well-tested and coded.  Just decided to still write his.</p>
+<p>Just wanted to be able to put arbitrary objects in <tt class="literal"><span class="pre">sys.path</span></tt> like iu.py.  This would allow the object to be called to figure out whether it had the module being requested or not.  Taking the zip importer as an example, there would be a zipimporter instance in <tt class="literal"><span class="pre">sys.path</span></tt> for each zip file in the path (once it was discovered it was a zip file; bootstrapping has been carefully handled).  The issue of backward-compatibility was instantly brought up.  It has been assumed that everything in <tt class="literal"><span class="pre">sys.path</span></tt> was a string and starting to include zipimporter objects would break that.  The idea of making zipimporters (and any subsequent importers in the stdlib) subclasses of strings was brought up and basically accepted, although Guido viewed it as an ugly hack.</p>
+<p>But in the end, Just's version acts like iu.py.  The basic algorithm for handling zip files is:</p>
+<pre class="literal-block">
+def find_module(name, path):
+    if isbuiltin(name):
+        return builtin_filedescr
+    if isfrozen(name):
+        return frozen_filedescr
+    if path is None:
+        path = sys.path
+    for p in sys.path:  # I think Just meant to say ``path`` here
+        try:
+            v = zipimporter(p)
+        except ZipImportError:
+            pass
+        else:
+            w = v.find_module(name)
+            if w is not None:
+                return w
+        ...handle builtin file system import...
+</pre>
+<p>It is easily generalized to work for any registered importers.  There is also the idea of adding something called a &quot;meta path&quot; that iu.py has.  It would allow one to override any import by catching it before trying <tt class="literal"><span class="pre">sys.path</span></tt>.  This is part of what has allowed <tt class="literal"><span class="pre">sys.path</span></tt> to have only strings even with zip file support.  The meta path can be set up for a zip importer that overrides <tt class="literal"><span class="pre">sys.path</span></tt> for a zip file.</p>
+<p>One other discussion was over this was going to need a PEP.  Just has written up an explanation, but as to whether a PEP is required has not been decided.</p>
+<p>Just's implementation is now a patch at <a class="reference" href="http://www.python.org/sf/652586">http://www.python.org/sf/652586</a> .</p>
+</div>
+<div class="section" id="mac-osx-issues">
+<h1><a name="mac-osx-issues"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030604.html">Mac OSX issues</a></a></h1>
+<p>Continuation of <a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-November/030525.html">http://mail.python.org/pipermail/python-dev/2002-November/030525.html</a></p>
+<p>Guido got a hold of a OS X box and ran the test suite on it and found four tests that didn't pass.  One was for <tt class="literal"><span class="pre">locale</span></tt> (which Guido didn't care about), another was the <tt class="literal"><span class="pre">test_largefile</span></tt> test, another was for <tt class="literal"><span class="pre">re</span></tt>, and the last one was for <tt class="literal"><span class="pre">socket</span></tt>.</p>
+<p>The <tt class="literal"><span class="pre">test_largefile</span></tt> suite seeks on a new file to a huge position.  On OS X and Windows 2000 this actually adds to the file up to the seek point so as to make it a complete file.  Windows 9x, on the other hand, just writes to that offset regardless of whether it is within the bounds of the file.  Because it creates such a huge file it takes forever to complete and thus has been made an optional test on OS X.</p>
+<p>The <tt class="literal"><span class="pre">re</span></tt> tests were failing for a lack of space on the stack.  to allow the tests to pass you need to execute the statement <tt class="literal"><span class="pre">ulimit</span> <span class="pre">-s</span> <span class="pre">2000</span></tt> which ups the stack size to approximately 2 Mb.  This has sense been added to the regression testing framework to be done for you if needed.</p>
+<p><tt class="literal"><span class="pre">socket</span></tt> was failing on <tt class="literal"><span class="pre">.getsockbyaddr()</span></tt> when trying it for the machine's own name.  Barry Warsaw discovered that the test passed if you set hostnames by using NetInfo.</p>
+</div>
+<div class="section" id="re-how-to-kill-process-on-windows-started-with-os-spawn">
+<h1><a name="re-how-to-kill-process-on-windows-started-with-os-spawn"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030595.html">RE: how to kill process on Windows started with os.spawn?</a></a></h1>
+<p>Skip Montanaro wanted to be able to kill a Windows process externally.  He suggested implemented a <tt class="literal"><span class="pre">os.kill()</span></tt> function that would kill a process in a platform-independent way.  Problem is that Windows wants the process hook which is different from what POSIX wants.  Another issue is that the Windows docs say that you should not kill processes externally.  It seems the idea has been dropped.</p>
+</div>
+<div class="section" id="extension-module-o-files-wind-up-in-the-wrong-place">
+<h1><a name="extension-module-o-files-wind-up-in-the-wrong-place"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030644.html">extension module .o files wind up in the wrong place</a></a></h1>
+<p>Skip Montanaro discovered that if you built Python in a subdirectory of the source directory (e.g., source in <tt class="literal"><span class="pre">source/</span></tt> and you are building in <tt class="literal"><span class="pre">source/build/</span></tt>) the .o files are put in the wrong place (they use <tt class="literal"><span class="pre">source/</span></tt> as the root directory to place things instead of <tt class="literal"><span class="pre">source/build/</span></tt>).  Someone resolved this issue for themselves by doing a <tt class="literal"><span class="pre">make</span> <span class="pre">distclean</span></tt> and then running <tt class="literal"><span class="pre">../configure</span></tt>.  Skip is still trying to figure out of a bug report needs to be filed.</p>
+</div>
+<div class="section" id="make-universal-newlines-non-optional">
+<h1><a name="make-universal-newlines-non-optional"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030692.html">Make universal newlines non-optional</a></a></h1>
+<p>Martin v. Lwis asked if anyone mind not making universal newline support a compile option.  He volunteered to remove the <tt class="literal"><span class="pre">#ifdef</span></tt> statements and such to get this done.  Jack Jansen (who wrote the universal newline code) pointed out that if it was required there could be issues on certain platforms.  Martin had no issue with this since this would force the platform maintainers to fix the code for it to work.  In the end Martin suggested leaving it an option in 2.3 and removing it as an option and requiring it in 2.4.</p>
+</div>
+<div class="section" id="re-patches-patch-for-xmlrpc-encoding">
+<h1><a name="re-patches-patch-for-xmlrpc-encoding"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030984.html">Re: [Patches] Patch for xmlrpc encoding</a></a></h1>
+<p>A discussion over a patch for <tt class="literal"><span class="pre">xmlrpclib</span></tt> ended up on python-dev.  The relevancy of it was that the statement <tt class="literal"><span class="pre">sys.{get,set}defaultencoding</span></tt> is only useful for coercion of Unicode to byte strings.  It was also stated that ASCII should always be assumed to be the default encoding.  Also, never put any non-ASCII text in a string; that is what Unicode objects are for.</p>
+</div>
+<div class="section" id="pep-242-numeric-kinds">
+<h1><a name="pep-242-numeric-kinds"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030859.html">PEP 242 Numeric kinds</a></a></h1>
+<p>Paul DuBois emailed the list mentioning how a group of people were supposed to get together to decide the fate of <a class="reference" href="http://www.python.org/dev/peps/pep-0242">PEP 242</a> in June 2002; that didn't happen.  So Paul suggested making the suggested &quot;making it a separate deliverable on the <a class="reference" href="http://www.pfdubois.com/numpy/">Numeric</a> site and withdrawing the PEP&quot;.  Everyone who responded pretty much said  to add the proposed module.  A final outcome has not been decided as to whether Paul will rescind the PEP or push it forward.  If you have an opinion on the matter, let it be known.</p>
+</div>
+<div class="section" id="we-got-leaks">
+<h1><a name="we-got-leaks"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030933.html">We got leaks!</a></a></h1>
+<p>Tim Peters discovered that the new <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/nondist/sandbox/datetime/">datetime</a> type was leaking memory.  The C version was slowly leaking about 10 references per loop through the testing suite.  But the Python version was leaking 37 reference per loop through.  Tim did his reference checking using this chunk of code:</p>
+<pre class="literal-block">
+def test_main():
+   import gc
+   r = unittest.TextTestRunner(stream=sys.stdout, verbosity=2)
+   s = test_suite()
+   while True:
+       r.run(s)
+       gc.collect()
+       print gc.garbage  # this is always an empty list
+       print '*' * 10, 'total refs:', sys.gettotalrefcount()
+</pre>
+<p>This substituted for the <tt class="literal"><span class="pre">test_main()</span></tt> for the testing suite printed out the reference numbers rather nicely.</p>
+<p>Well, it didn't take the weekend to solve.  Kevin Jacobs stepped up to help.  The first thing he found was that it was not occurring in a debug build (which is why when you are testing new code you should <strong>always</strong> run it in a debug build).  Then Kevin discovered the issue came up when executing a <tt class="literal"><span class="pre">__hash__()</span></tt> call on anything.  Tim then realized a missing decrement in <tt class="literal"><span class="pre">slot_tp_hash()</span></tt> was the culprit.  Then Kevin found another culprit in <tt class="literal"><span class="pre">cPickle_</span></tt>.  That was also patched (and everything has been flagged to be backported to the 2.2 branch).</p>
+<p>The reason this thread is being mentioned is because it 1) was all solved in 5 hours and 40 minutes which is pretty cool and 2) using the  chunk of code that Tim provided to stare at the reference count is a good way to look for memory leaks in your code.</p>
+</div>
+<div class="section" id="os-path-commonprefix">
+<h1><a name="os-path-commonprefix"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030947.html">os.path.commonprefix</a></a></h1>
+<p>Armin Rigo noticed how <tt class="literal"><span class="pre">os.path.commonprefix()</span></tt> works character-by-character and not by path separators as one might expect (although the  documentation does warn about its char-by-char nature).  Skip Montanaro suggested <tt class="literal"><span class="pre">os.path.commonpathprefix()</span></tt> be added.  He mentioned that <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Tools/scripts/trace.py">Tools/scripts/trace.py</a> had such functionality.  As of this writing no one has taken the initiative to add the function.</p>
+</div>
+<div class="section" id="getstate-not-inherited-when-slots-present">
+<h1><a name="getstate-not-inherited-when-slots-present"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/030980.html">__getstate__() not inherited when __slots__ present</a></a></h1>
+<p>Greg Ward noticed that &quot;If a class and its superclass both define __slots__, it appears that __getstate__() is not inherited from the superclass.&quot;  He wasn't sure if this was a bug or a feature.  Well, it's a feature; since there  is no guarantee that the superclass's <tt class="literal"><span class="pre">__getstate__()</span></tt> will know about the subclass's <tt class="literal"><span class="pre">__slots__</span></tt>, it is not automatically inherited.</p>
+<p>Kevin Jacobs provided the following snippet of code to deal with this &quot;feature&quot;:</p>
+<pre class="literal-block">
+def __getstate__(self):
+  state = getattr(self, '__dict__', {}).copy()
+  for obj in type(self).mro():
+    for name in getattr(obj,'__slots__',()):
+      if hasattr(self, name):
+        state[name] = getattr(self, name)
+  return state
+
+def __setstate__(self, state):
+  for key,value in state.items():
+    setattr(self, key, value)
+</pre>
+</div>
+<div class="section" id="tarfile-support">
+<h1><a name="tarfile-support"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/031086.html">Tarfile support</a></a></h1>
+<p>Gustavo Niemeyer asked for some help in reviewing the patch ( <a class="reference" href="http://www.python.org/sf/651082">http://www.python.org/sf/651082</a> ) that adds Lars Gustabel's tarfile module to the stdlib.  The question of the license came up.  Lars said he would be willing to change the license over to the <a class="reference" href="http://www.python.org/psf/">Python Software Foundation</a> .  An initial license hand-off agreement is available at <a class="reference" href="http://www.python.org/psf/psf-contributor-agreement.html">http://www.python.org/psf/psf-contributor-agreement.html</a> .</p>
+</div>
+<div class="section" id="tcl-tkinter-and-threads">
+<h1><a name="tcl-tkinter-and-threads"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/031107.html">Tcl, Tkinter, and threads</a></a></h1>
+<p>Martin v. Lwis has now modified <tt class="literal"><span class="pre">`_tkinter`_</span></tt> as so to be able to be used when Tcl has been compiled with thread support.  Special thanks goes out to Martin for taking over maintenance of the module.</p>
+</div>
+<div class="section" id="pep-298">
+<h1><a name="pep-298"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/031109.html">PEP 298</a></a></h1>
+<p>Splinter threads:</p>
+<blockquote>
+<ul class="simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/031163.html">PEP-298: buffer interface widening too much?</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/031184.html">PEP-298: buffer interface widening too much?</a></li>
+</ul>
+</blockquote>
+<p>Thomas Heller wanted to resolve whether to move forward with an implementation for <a class="reference" href="http://www.python.org/dev/peps/pep-0298">PEP 298</a> .  This led to a discussion over the specifics of the PEP.  Martin v. Lwis wnated some more specific wording from the PEP.</p>
+<p>Todd Miller then stepped in to say he didn't like how much of an interface was being tacked on.  Martin commented that his <a class="reference" href="http://www.python.org/dev/peps/pep-0286">PEP 286</a> would help in this whole situation, which Todd ended up agreeing with.</p>
+</div>
+</div>
+

@@ -1,0 +1,167 @@
+<!-- Published by Quadralay WebWorks HTML Lite 1.5.1 -->
+<html>
+<head>
+<title>Using Python in a Distributed Object System</title>
+</head>
+
+<body>
+<a name="473591">
+<center><h1> Using Python in a Distributed Object System</h1></center>
+</a>
+<hr><p><a name="741242">
+<center>Daniel Larsson</center><br>
+<center>ABB Industrial Systems AB, Sweden</center><br>
+<center>dlarsson@sw.seisy.abb.se</center><p>
+</a>
+<a name="741243">
+<h1>1.0   ABSTRACT</h1>
+</a>
+<a name="741244">
+This paper describes experiences using Python during the development of a distributed object system. Python has been used in various areas, such as testing, tool building, and prototyping. ...<p>
+</a>
+<a name="741245">
+<h1>2.0   INTRODUCTION</h1>
+</a>
+<a name="741246">
+The ABB Object Management Facility (OMF) is a distributed object system specifically designed for the process control industry. The object model is similar to other distributed object systems, such as OMG's CORBA and Xerox's ILU. What makes OMF different from these is its interaction model. While the common interaction model is <p>
+</a>
+<ul>
+<a name="741277">
+<li>		find the object,
+</a>
+<a name="741279">
+<li>call method or get/set attribute,
+</a>
+</ul>
+<a name="741280">
+in OMF it is<p>
+</a>
+<ul>
+<a name="741281">
+<li>find a set of objects,
+</a>
+<a name="741282">
+<li>for each object select what methods to call and what attributes to get/set, also choose when to perform the operation (at request, at event, periodically),
+</a>
+<a name="741283">
+<li>send single request for all objects.
+</a>
+</ul>
+<a name="741289">
+Figure.<p>
+</a>
+<a name="741257">
+OMF is implemented in C++, with APIs also for C, Smalltalk, Python and Java (real soon now :-). The primary reason for the Python API was originally for writing test programs, but has since been used to write various tools to aid in application development and run-time management.<p>
+</a>
+<a name="741645">
+More...<p>
+</a>
+<a name="741258">
+<h1>3.0   OMF API</h1>
+</a>
+<a name="741259">
+The OMF API for Python is implemented in two layers: The lower layer is written using a slightly modified version of Jack Jensen's modulator tool, while the higher layer is completely written in Python.<p>
+</a>
+<a name="741264">
+On top of this API we wrote a few utility classes such as the OMFagent, where we got a glimpse of the power of Python. The agent lets the user treat OMF objects as local Python objects with attributes and methods.<p>
+</a>
+<pre>
+from OMFagent import Agent
+# Connect to an object in the network
+ai = Agent(`AI1.1')
+# Get the Analog Input's value
+# This will actually result in an RPC
+value = ai.VALUE
+</pre>
+The Agent code is surprisingly small, but results in a drastically higher abstraction layer than the bare OMF API. The main reason why this is a rather simple class is Python's dynamic typing. <p>
+<a name="741582">
+<h1>4.0   TOOLS</h1>
+</a>
+<a name="741412">
+The tools we have written in Python can roughly be divided into<p>
+</a>
+<ul>
+<a name="741413">
+<li>testing tools,
+</a>
+<a name="741417">
+<li>development tools, and
+</a>
+<a name="741418">
+<li>maintenance tools.
+</a>
+</ul>
+<a name="741473">
+The rest of this paper will focus on two important issues we have encountered, and how we have solved them. The first is on integrating different functions/widgets to build a tool (this we didn't have to solve ourselves), and the second is to handle distribution of the GUI and the tool implementation (for this we wrote the RemoteCall package).<p>
+</a>
+<a name="741478">
+<h2>4.1   Integrating the parts of a tool</h2>
+</a>
+<a name="741569">
+This is nothing new. Skip?<p>
+</a>
+<a name="741479">
+The vpApp framework contains a set of classes called Datum. Datum instances can be linked together so that updates at one end are propagated to the other(s). There are Datum classes that perform operations on inputs before propagating them as well.<p>
+</a>
+<a name="741525">
+<pre>
+   -------
+3-&gt;|Datum|----
+   -------   |    -------
+             |----| Add | -&gt; 8
+   -------   |    -------
+5-&gt;|Datum|----
+   -------
+</pre>
+</a>
+<a name="741552">
+The figure illustrates the use of two datum instances connected with an Add datum. The Add value is automatically recomputed as soon as one of its input datums gets a new value.<p>
+</a>
+<a name="741556">
+One of the tools we have is a type browser, with which you can browse all available object types (=interfaces) in OMF. The browser is composed by an object type list, a list of subtypes, and a list of attributes/operations/events. All these parts communicate via Datums, which means each of these can also be used in some other context. The tool basically just connects the parts' datums to each other in the appropriate way to make them interact. A powerful and simple solution for writing reusable pieces of code.<p>
+</a>
+<a name="741565">
+<h2>4.2   Distributing an application</h2>
+</a>
+<a name="741566">
+We have developed a few maintenance tools for OMF. They answer questions like ``Which nodes are up?'', ``Which objects are running where?'', ``Which types are defined in the type directory?'', etc.<p>
+</a>
+<a name="741299">
+OMF is currently used in many installations, such as oil rigs and passenger ships (better word?) cruising the Caribbean. To make it convenient to run these tools from our office in the cold north of Sweden instead of having to spend two weeks  in the warmth of the Caribbean Sea, we are thinking of making the Python tools runnable remotely via the Grail browser.<p>
+</a>
+<a name="741460">
+When the tools run on the target node, they use the OMF API to perform their tasks. When run remotely in Grail, the OMF API is not available, so instead we use the  RemoteCall package (RPC in Python) to gain access to the OMF API. RemoteCall will, once set up, let the tools use the OMF API more or less in a transparent way.<p>
+</a>
+<a name="741343">
+Describe RemoteCall in more detail?<p>
+</a>
+<a name="741405">
+<h1>5.0   THE BRIGHT SIDE OF PYTHON (da-da, da-da, ...)</h1>
+</a>
+<a name="741590">
+Thanks to docstrings and metainformation available at runtime in Python, we have managed to generate the major part of our reference manual automatically (except for some annoying bugs I haven't had time to track down...). The metainformation being available is also crucial for the RemoteCall package mentioned in this paper. The Agent class (part of RemoteCall), which is the client side representative of a server object, sets up the correct set of methods by asking the server object's class (and base classes) what methods are available. The traditional approach (OSF DCE, JAVA, ...) requires generation of stubs from a specification file. In certain situations (such as running interactively) automated agents are a blessing.<p>
+</a>
+<a name="741631">
+<h1>6.0   THE DARK SIDE OF PYTHON</h1>
+</a>
+<a name="741632">
+Well, as they say ``Always look on the bright side...'', so I'll keep this short...<p>
+</a>
+<a name="741583">
+<h1>7.0   SUMMARY</h1>
+</a>
+<a name="741639">
+...<p>
+</a>
+<a name="741446">
+Python has proved to be a simple language to learn, with a useful set of builtin types (lists, dictionaries), and easy to extend with new types. The metainformation and hooks available makes it fairly easy to build debuggers, profilers, RPC packages, etc, comletely in Python (great!). And a lot of people produce useful extensions. Thanks!<p>
+</a>
+<a name="741621">
+<p>
+</a>
+
+<p><hr>
+
+<h5>Last Modified: 03:28pm METDST, April 19, 1996</h5>
+</body>
+</html>

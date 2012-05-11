@@ -1,0 +1,327 @@
+Title: python-dev Summary for 2005-11-16 through 2005-11-30
+Content-type: text/x-rst
+Encoding: latin1
+
+python-dev Summary for 2005-11-16 through 2005-11-30
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-11-16_2005-11-30.html]
+
+
+
+=====================
+Summary Announcements
+=====================
+
+--------------------------------------
+Reminder: Python is now on Subversion!
+--------------------------------------
+
+Don't forget that the Python source code is now hosted on svn.python.org as a Subversion (rather than CVS) repository.
+
+Note that because of the way the subversion conversion was done, by-date revision specifications for dates prior to the switchover won't work.  To work around this, you must find a revision number using svn log or svn blame, and then supply that revision number to the appropriate command (e.g. svn diff or svn up).
+
+Removing the CVS repository from sourceforge isn't possible without hacks (as a result of their "open source never goes away" policy).  However, it's no longer available from the project page, and the repository is now filled with files pointing people to the new repository.
+
+Contributing threads:
+
+- `Is some magic required to check out new files from svn? <http://mail.python.org/pipermail/python-dev/2005-November/058168.html>`__
+- `svn diff -r {2001-01-01} <http://mail.python.org/pipermail/python-dev/2005-November/058269.html>`__
+- `CVS repository mostly closed now <http://mail.python.org/pipermail/python-dev/2005-November/058348.html>`__
+
+[TAM]
+
+=========
+Summaries
+=========
+
+----------------------------
+Memory management in the AST
+----------------------------
+
+Thomas Lee's attempt to implement `PEP 341`_ brought up some issues about working with the new AST code. Because the AST code used its own custom objects instead of PyObjects, it also introduced its own set of allocation/deallocation functions instead of the existing Py_INCREF and Py_DECREF. There was some discussion about how best to simplify the scheme, with the two main suggestions being:
+
+(1) Convert all AST objects into PyObjects so Py_INCREF and Py_DECREF work
+(2) Create an arena API, where objects are added to the arena and then can be freed in one shot when the arena is freed
+
+Neal Norwitz presented an example from the current AST code using the various asdl_*_free functions, and he, Greg Ewing and Martin v. Löwis compared how the code would look with the various API suggestions.  While using ref-counting had the benefit of being consistent with the rest of Python, there were still some who felt that the arena API would simplify things enough to make the extra learning curve worthwhile.  It seemed likely that branches or patches for the various APIs would appear shortly.
+
+While the C API is still undergoing these changes, and thus the Python API is still a ways off, a few implementations for the Python API were suggested.  If the AST code ends up using PyObjects, these could be passed directly to Python code, though they would probably have to be immutable.  Brett Cannon suggested that another route would be a simple PyString marshalling like the current parser module, so that Python code and C code would never share the same objects.
+
+.. _PEP 341: http://www.python.org/dev/peps/pep-0341
+
+Contributing threads:
+
+- `Memory management in the AST parser &amp; compiler <http://mail.python.org/pipermail/python-dev/2005-November/058156.html>`__
+- `ast status, memory leaks, etc <http://mail.python.org/pipermail/python-dev/2005-November/058220.html>`__
+- `a Python interface for the AST (WAS: DRAFT: python-dev...) <http://mail.python.org/pipermail/python-dev/2005-November/058294.html>`__
+
+[SJB]
+
+-----------------------
+Profilers in the stdlib
+-----------------------
+
+Armin Rigo summarised the current Python profiler situation, which includes profile.Profile (ages-old, slow, pure Python profiler with limited support for profiling C calls), hotshot (Python 2.2+, faster than profile.py, but very slow to convert the log file to the pstats.Stats format, possibly inaccurate, doesn't know about C calls), and `lsprof`_ (Brett Rosen, Ted Czotter, Michael Hudson, Armin Rigo; doesn't support C calls, incompatible interface with profile.py/hotshot, can record detailed stats about children).  He suggested that lsprof be added to the standard library, keeping profile.py as a pure Python implementation and replacing hotshot with lsprof.
+
+There was concern about maintenence of the library; however, since Armin and Michael are core developers, this seems covered.  Martin suggested that lsprof be distributed separately for some time, and then included when it is more mature.  Many people were concerned about having so many profilers included (with the preference for a single profiler that would suit beginners, since advanced users can easily install third-party modules, which could be referenced in the documentation).
+
+Tim Peters explained that the aim of hotshot wasn't to reduce total time overhead, but to be less disruptive (than profile.py) to the code being profiled, while that code is running, via tiny little C functions that avoid memory allocation/deallocation.  Hotshot can do much more than the minimalistic documentation says (e.g. it could be used as the basis of a tracing tool to debug software, to measure test coverage); you won't find them discussed in the documentation, which makes user experience mostly negative, but you do find them in Tim's e-mails.
+
+Discussion centered around whether lsprof should be added to the standard distribution, and whether hotshot and/or profile.py should be removed.  Armin indicated that he favours removing hotshot, adding lsprof, which would be added as "cProfile" (c.f cPickle/Pickle, cStringIO/StringIO), and possibly rewriting profile.py as a pure Python version of lsprof.
+
+Floris Bruynooghe (for Google's Summer of Code) wrote a `replacement for profile.py`_ that uses hotshot directory.  This replacement didn't fix the problems with hotshot, but did result in pstats loading hotshot data 30% faster, and would mean that profile.py could be removed.
+
+There was a little debate about whether any profiler should even be included in the standard library, but there were several people who opined that it was an important 'battery'.  A few people also liked the idea of adding a statistical profiler to the standard library at some point (e.g. http://wingolog.org/archives/2005/10/28/profiling).
+
+Aahz suggested that Armin write a PEP for this, which seems the likely way that this will progress.
+
+Contributing thread:
+
+- `s/hotshot/lsprof <http://mail.python.org/pipermail/python-dev/2005-November/058212.html>`__
+
+ .. _lsprof: http://codespeak.net/svn/user/arigo/hack/misc/lsprof
+ .. _replacement for profile.py:  http://savannah.nongnu.org/projects/pyprof/
+
+[TAM]
+
+----------------------------------------------
+The tp_free slot and multiple inheritance in C
+----------------------------------------------
+
+Travis Oliphant started a thread discussing a memory problem in some new scipy core code where a huge number of objects were not being freed.  Making the allocation code use malloc and free instead of PyObject_New and PyObject_Del made these problems go away.  After an intense discussion, Armin Rigo figured out that the problem arose in a type that inherited both from int and from another scipy type.  The tp_free slot of this type was being inherited from its second parent (int) instead of its first parent (the scipy type), and thus "deallocated" objects were put on the CPython free list of integers instead of being freed.  It was unclear as to whether the code in typeobject.c which made this decision could be "fixed", so Armin suggested forcing the appropriate tp_alloc/tp_free functions in the static types instead.
+
+Contributing threads:
+
+- `Problems with the Python Memory Manager <http://mail.python.org/pipermail/python-dev/2005-November/058155.html>`__
+- `Problems with mro for dual inheritance in C [Was: Problems with the Python Memory Manager] <http://mail.python.org/pipermail/python-dev/2005-November/058323.html>`__
+
+[SJB]
+
+--------------------------------------
+Patches for porting Python to a new OS
+--------------------------------------
+
+Ben Decker asked for some feedback on patches porting Python to DOS/DJGPP.  This lead to a discussion of what the requirements for accepting a porting patch were.  Guido made it clear that he wanted porting patches included in Python whenever reasonable so that the various obscure ports would be able to upgrade to new versions of Python when they were released.  The basic conditions were that the submission came from a reputable platform maintainer, and that if the patches caused problems in future Python versions, the maintainer would either need to update the patch appropriately, or have it removed from Python.
+
+Contributing thread:
+
+- `Patch Req. # 1351020 &amp; 1351036: PythonD modifications <http://mail.python.org/pipermail/python-dev/2005-November/058177.html>`__
+
+[SJB]
+
+---------------------------------------
+Making StringIO behave more like a file
+---------------------------------------
+
+Walter Dörwald identified a number of situations where StringIO (but not cStringIO) does not behave like a normal file:
+
+- next() after close() raises StopIteration instead of ValueError
+- isatty() after close() returns False instead of raising ValueError
+- truncate() with a negative argument doesn't raise an IOError
+
+These were determined to be bugs in StringIO and will likely be fixed in an upcoming Python release.
+
+Contributing threads:
+
+- `Iterating a closed StringIO <http://mail.python.org/pipermail/python-dev/2005-November/058187.html>`__
+- `isatty() on closed StringIO (was: Iterating a closed StringIO) <http://mail.python.org/pipermail/python-dev/2005-November/058198.html>`__
+- `Another StringIO/cStringIO discrepancy <http://mail.python.org/pipermail/python-dev/2005-November/058199.html>`__
+- `isatty() on closed StringIO <http://mail.python.org/pipermail/python-dev/2005-November/058207.html>`__
+
+[SJB]
+
+-----------------------------------
+User-defined data for logging calls
+-----------------------------------
+
+Vinay Sajip explained that on numerous occasions, requests have been made for the ability to easily add user-defined data to logging events. For example, a multi-threaded server application may want to output specific information to a particular server thread (e.g. the identity of the client, specific protocol options for the client connection).
+
+While this is currently possible, you have to subclass the Logger class and override its makeRecord method to put custom attributes in the LogRecord; the approach is usable but requires more work than necessary.
+
+Vinay proposed a simpler way of achieving the same result, which requires use of an additional optional keyword argument ("extra") in logging calls.  The "extra" argument will be passed to Logger.makeRecord, which extend the logRecord's __dict__ with this argument; however, if any of the keys are already present (values calculated by the logging package), then a KeyError will be raised.
+
+Contributing thread:
+
+- `Proposed additional keyword argument in logging calls <http://mail.python.org/pipermail/python-dev/2005-November/058286.html>`__
+
+[TAM]
+
+-------------------------------------
+Updating urlparse to support RFC 3986
+-------------------------------------
+
+Paul Jimenez complained that urlparse uses a table of url schemes to determine whether a protocol (e.g. http or ftp) supports specifying a username and password in the url (e.g. https://user:pass@host:port).  He suggested that all protocols should be capable of using this format.
+
+Guido pointed out that the main purpose of urlparse is to be RFC-compliant.  Paul explained that the current code is valid according to `RFC 1808`_ (1995-1998), but that this was superceded by `RFC 2396`_ (1998-2004) and `RFC 3986`_ (2005-).  Guido was convinced, and asked for a new API (for backwards compatibility) and a patch to be submitted via sourceforge.
+
+Contributing thread:
+
+- `urlparse brokenness <http://mail.python.org/pipermail/python-dev/2005-November/058301.html>`__
+
+ .. _RFC 1808: http://www.ietf.org/rfc/rfc1808.txt
+ .. _RFC 2396: http://www.ietf.org/rfc/rfc2396.txt
+ .. _RFC 3986: http://www.ietf.org/rfc/rfc3986.txt
+
+[TAM]
+
+---------------------------------------------
+Magic methods on the instance and on the type
+---------------------------------------------
+
+Nick Coghlan pointed out that the current semantics of `PEP 343`_ look up methods on the instance instead of on the type, and noted that slots are generally invoked as ``type(obj).__slot__(obj)`` instead.  Guido explained that in general, using ``__xxxx__`` methods in an undocumented way (e.g. relying on them being looked up in the instance) was not supported, and code relying on that could be expected to break if the ``__xxxx__`` method was ever upgraded to a slot.  So, it was okay that the `PEP 343`_ support looked up methods on the instance, but anyone depending on this behavior was asking for trouble.
+
+.. _PEP 343: http://www.python.org/dev/peps/pep-0343
+
+Contributing thread:
+
+- `Metaclass problem in the &quot;with&quot; statement semantics in PEP 343 <http://mail.python.org/pipermail/python-dev/2005-November/058360.html>`__
+
+[SJB]
+
+----------------------------------
+Releasing the GIL in the re module
+----------------------------------
+
+Duncan Grisby has a multi-threaded program that does a lot of complex regular expression searching, and has trouble with threads blocking because the GIL is not released while the re engine is running.  He wanted to know whether there was any fundamental reason why the re engine could not release the interpreter lock.
+
+Fredrik Lundh pointed out that SRE can operate on anything that implements the buffer interface.  This means that the objects that the engine is accessing might be mutable, which could cause problems.
+
+Several people suggested that a better solution would be using more efficient regular expressions; Duncan explained that the expressions are user-entered, which makes this difficult.
+
+Eric Noyau put together a `patch to release the GIL` when the engine performs a low level search, if (and only if) the object searched is a [unicode] string.
+
+ .. _patch to release the GIL: http://python.org/sf/1366311
+
+Contributing threads:
+
+- `(no subject) <http://mail.python.org/pipermail/python-dev/2005-November/058316.html>`__
+- `Re: Regular expressions <http://mail.python.org/pipermail/python-dev/2005-November/058318.html>`__
+- `SRE should release the GIL (was: no subject) <http://mail.python.org/pipermail/python-dev/2005-November/058329.html>`__
+- `Regular expressions <http://mail.python.org/pipermail/python-dev/2005-November/058333.html>`__
+
+[TAM]
+
+===============
+Skipped Threads
+===============
+
+- `str.dedent <http://mail.python.org/pipermail/python-dev/2005-November/058148.html>`__
+- `Behavoir question. <http://mail.python.org/pipermail/python-dev/2005-November/058149.html>`__
+- `Conclusion: Event loops, PyOS_InputHook, and Tkinter <http://mail.python.org/pipermail/python-dev/2005-November/058150.html>`__
+- `DRAFT: python-dev Summary for 2005-09-16 to 2005-09-30 <http://mail.python.org/pipermail/python-dev/2005-November/058178.html>`__
+- `DRAFT: python-dev Summary for 2005-10-01 to 2005-10-15 <http://mail.python.org/pipermail/python-dev/2005-November/058179.html>`__
+- `DRAFT: python-dev Summary for 2005-10-16 to 2005-10-31 <http://mail.python.org/pipermail/python-dev/2005-November/058180.html>`__
+- `Coroutines (PEP 342) <http://mail.python.org/pipermail/python-dev/2005-November/058192.html>`__
+- `Enjoy a week without me <http://mail.python.org/pipermail/python-dev/2005-November/058209.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-November/058210.html>`__
+- `How to stay almost backwards compatible with all these new cool features <http://mail.python.org/pipermail/python-dev/2005-November/058211.html>`__
+- `test_cmd_line on Windows <http://mail.python.org/pipermail/python-dev/2005-November/058271.html>`__
+- `Fwd: [Python-checkins] commit of r41497 - python/trunk/Lib/test <http://mail.python.org/pipermail/python-dev/2005-November/058272.html>`__
+- `[Python-checkins] commit of r41497 -python/trunk/Lib/test <http://mail.python.org/pipermail/python-dev/2005-November/058275.html>`__
+- `DRAFT: python-dev Summary for 2005-11-01 through 2005-11-15 <http://mail.python.org/pipermail/python-dev/2005-November/058281.html>`__
+- `something is wrong with test___all__ <http://mail.python.org/pipermail/python-dev/2005-November/058292.html>`__
+- `PEP 302, PEP 338 and imp.getloader (was Re: a Python interface for the AST (WAS: DRAFT: python-dev...) <http://mail.python.org/pipermail/python-dev/2005-November/058300.html>`__
+- `registering unicode codecs <http://mail.python.org/pipermail/python-dev/2005-November/058324.html>`__
+- `reference leaks <http://mail.python.org/pipermail/python-dev/2005-November/058330.html>`__
+- `Bug bz2.BZ2File(...).seek(0,2) + patch <http://mail.python.org/pipermail/python-dev/2005-November/058334.html>`__
+- `Python 3 <http://mail.python.org/pipermail/python-dev/2005-November/058346.html>`__
+- `For Python 3k, drop default/implicit hash, and comparison <http://mail.python.org/pipermail/python-dev/2005-November/058349.html>`__
+- `Bug day this Sunday? <http://mail.python.org/pipermail/python-dev/2005-November/058367.html>`__
+- `Short-circuiting iterators <http://mail.python.org/pipermail/python-dev/2005-November/058423.html>`__
+- `Standalone email package in the sandbox <http://mail.python.org/pipermail/python-dev/2005-November/058431.html>`__
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+November 16, 2005 through November 30, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the 8th summary written by the python-dev summary contingent of
+Steve Bethard and Tony Meyer (happy holidays!).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo :); you can safely
+ignore it.  We do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow us to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-11-01_2005-11-15.html
+.. _original text file: http://www.python.org/dev/summary/2005-11-16_2005-11-30.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

@@ -1,0 +1,266 @@
+python-dev Summary for 2003-07-01 through 2003-07-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from July 1, 2003 through July 31, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have some impact or hold interest to the wider Python community.  To comment on anything mentioned here, just post to python-list@python.org or `comp.lang.python`_ with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the twenty-first/twenty-second summary written by Brett Cannon (who is still learning how to count; gave the wrong summary count last month).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; its simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+The in-development version of the documentation for Python can be found at http://www.python.org/dev/doc/devel/ and should be used when looking up any documentation on something mentioned here.  Python PEPs (Python Enhancement Proposals) are located at http://www.python.org/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+.. contents::
+
+
+.. _last summary: http://www.python.org/dev/summary/2003-06-01_2003-06-30.html
+
+
+=====================
+Summary Announcements
+=====================
+It's experimentation time again!  In preparation for having to cut down on the breadth of the summary thanks to my return to school I am starting this summary off as the inaugural release of the new format.  Pretty much everything is going to change somewhat.
+
+First, though, I think I should explain my new viewpoint towards the summaries that I am taking.  In order to continue to provide a certain level of quality and coverage while retaining my personal sanity and to not feel like the Summaries are a job instead of something I do for fun and to help others, I am going to start viewing the Summaries more from a journalistic perspective than a historical one.  Before I felt more like a historian that was summarizing *everything* that happened on python-dev.  Now, though, I am be more like a journalist, covering only the pertinent ideas.  This also allows me to inject more of my personality into my writing.
+
+But what ramifications does this new perspective cause?  Well, it will dictate what I do and do not summarize.  I plan on several types of discussions to be covered in the Summaries.  One is new features of the language.  This is so people can know about them ASAP and thus comment on them.  Since practically any feature mentioned here is experimental there is a chance to remove it if a community movement mounts.  I will also cover any major thinking on the future of Python.  I have always wished there was an easy way to see what pie-in-the-sky ideas python-dev was thinking of in the back of our collective mind; the summaries might as well fill this desire.  And of course any random discussion that is large, important, and/or complex will continue to be covered.
+
+In terms of formatting and layout, that will also change along with the new viewpoint.  I am planning to follow something more along the lines of the Perl's `This Week... <http://dev.perl.org/perl6/list-summaries/>`__; yes, I am taking a cue from Perl but AM Kuchling and Michael Hudson originally used this format as well.  This means titles of summary sections will more reflect the topic being summarized rather than the specific thread(s).  I will continue to list all of the threads that contributed to the summary, though, for reference purposes.  I feel this will be beneficial since I know I have personally looked back into the Summary archives and had a hard time finding something specific since the subject of a thread does not always match the topic of discussion; if I can't find something and I know about what month it happened I can only imagine what everyone else has had to go through to find something!
+
+I am removing the Quickies section from the Summaries.  This section was nice to have, but it just ate away at my time.  This also goes along with the new viewpoint.
+
+I am sure not everyone will be happy with this change, that's fine.  But if someone out there *truly* hates the direction I am going then they can step forward and take the reigns from me.  But as I have stated before, the fine print on me giving up this post is that the person who takes over must be as thorough as I *used* to be; I can do the summaries in a half-assed fashion as well as anyone else.
+
+Enough of that topic.  One thing I would like to mention is that the `Python Software Foundation`_ can now accept donations through PayPal.  Specifics can be found at http://www.python.org/psf/donations.html .  It would be great if people could donate since the PSF is more than just a non-profit to hold the Python intellectual property.  One of the goals of the group is to get enough money to do something like the Perl Foundation does and sponsor someone to hack on Python for a living for a set amount of time.  Right now we are a ways off from having that kind of revenue, but there is no reason why we can't.  Heck, if we can just get enough to sponsor one person to do full-time Python hacking for a week it would be beneficial.  Or better yet, the PSF could sponsor one of their own members to write a summary of the python-dev mailing list for the betterment of the community.  =)
+
+.. _PSF:
+.. _Python Software Foundation: http://www.python.org/psf/
+.. _PayPal: http://www.paypal.com/
+
+
+=========
+Summaries
+=========
+--------------------------
+Python 2.3 final released!
+--------------------------
+In case for some odd reason you didn't know, Python 2.3 final has gone out the door.  The team managed to meet the goal of getting it out by the end of the month so that Apple_ can use a final release instead of a release candidate in OS X 10.3 (a.k.a. Panther).  
+
+The goal of this release was to continue to improve Python without adding any new keywords.  This was met while speeding things up, fixing bugs, adding to the standard library, and adding some new built-ins.  To find out what is new or has changed look at the changelog at http://www.python.org/2.3/highlights.html or `What's New in Python 2.3`_.
+
+As with all software, there are bound to be bugs.  What bugs that are known are listed at http://www.python.org/2.3/bugs.html .  If you find bugs not listed there, please report them on the SourceForge bug tracker at http://sourceforge.net/tracker/?group_id=5470&atid=105470 .  Running the regression test suite (details on how to do this is covered in the documentation for the 'test' package as found at http://www.python.org/doc/current/lib/module-test.html) is always appreciated.
+
+Contributing threads:
+    - `Problem with 2.3b2 tarfile?`__
+    - `MacPython 2.3b2 binary installer for MacOSX`__
+    - `Running tests on freebsd5`__
+    - `Python 2.3 release schedule update`__
+    - `Vacation and possibly a new bug`__
+    - `Doc/ tree closes at noon, US/Eastern`__
+    - `I've tagged the tree`__
+    - `cygwin errors`__
+    - `test_strptime; test_logging; test_time failure`__
+    - `2.3rc1 delayed`__
+    - `Python 2.3 release candidate 1`__
+    - `post-release festivities`__
+    - `New branch for r23c2 work`__
+    - `Serious CallTip Bug in IDLE`__
+    - `MacPython-OS9 test failures`__
+    - `Doc/ tree on trunk closed`__
+    - `Cutting the 2.3c2 tonight 8pm EDT`__
+    - `Re: [Python-checkins] python/dist/src/Misc NEWS,1.826,1.827`__
+    - `RELEASED Python 2.3c2`__
+    - `2.3rc2 IDLE problems on a Win2000sp3 box`__
+    - `Draft: 2.3 download page`__
+    - `Last priority >= 7 bug for Python 2.3`__
+    - `CVS Freeze`__
+    - `RELEASED Python 2.3 (final)`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-July/036669.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036732.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036762.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036783.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036845.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036892.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036899.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036900.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/037117.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036921.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036940.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036941.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/037024.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/037134.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/037144.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/037193.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/037200.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/037207.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/037208.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/037237.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/037284.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/037311.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/037315.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/037319.html
+
+.. _Apple: http://www.apple.com/
+.. _What's New in Python 2.3: http://www.python.org/doc/2.3/whatsnew/
+
+
+-------------------------------------------
+String Exceptions Going Extinct, Eventually
+-------------------------------------------
+It has been brought up several times before, but things are now moving along to eventually deprecate string exceptions (e.g., ``raise "this string exception"``).  they have now been removed from the tutorial to prevent people new to the language from picking up habits that will eventually be impossible to perform.
+
+As for when the impending deprecation will occur only Guido knows.  The chances of it coming before Python 3, though, is most likely small.
+
+Contributing threads:
+    - `String exceptions in the Tutorial`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-July/036665.html
+
+
+--------------------------------------------------------
+Someday, My CVS updates Will Succeed on the First Try...
+--------------------------------------------------------
+We all know that SourceForge_ does not have the snappiest or most reliable CVS_ servers in the world; Python 2.3 final's release was targeted a few days earlier than needed for Apple_ in case SF's CVS went down.  Solutions to how to deal with this problem have come up.
+
+One specific problem that people are trying to solve is the poor anonymous pserver access.  SF has their CVS servers set up so that authorized CVS commands take priority over anonymous ones and thus  when there is heavy traffic anonymous CVS basically shuts down.  Martin v. Löwis put up a link to a nightly tarball at http://www.dcl.hpi.uni-potsdam.de/home/loewis/python.tgz of the CVS HEAD.  perl.org has provided a nightly tarball as well at http://cvs.perl.org/snapshots/python/ for quite some time now.  The suggestion of having a read-only version of the CVS tree on python.org was came up, but how to properly do it and who would set it up was not settled.
+
+And of course there is always the option of moving CVS off of SF entirely.  There is one offer on the table with the caveat that we need to know what kind of bandwidth demands we would have.  Another offer sprung up this month from Michal Wallace to host our CVS at http://www.versionhost.com/ with the hitch that it requires an external Python script for secure connections (as specified at http://www.sabren.net/code/cvssh/ ).
+
+Contributing threads:
+    - `alternate pserver access for python CVS?`__
+    - `[fwd] SourceForge status`__
+    - `Volunteering to help with pserver cvs on python.org`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-July/036699.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036708.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036860.html
+
+.. _SourceForge: http://www.sf.net/
+.. _CVS: http://www.cvshome.org/
+
+
+---------------------
+Which License to Use?
+---------------------
+Domenico Andreoli wanted to donate `python-crack`_ to the PSF_ and wondered what steps would be necessary to do so.  He was first told that the module would not be included in Python since it is too specific.  Secondly, it was suggested he not choose the PSF license.  Instead, he was told that he should use the BSD or MIT license (both of which can be found at http://www.opensource.org/licenses/index.php); clean, simple licenses that are not viral like the GPL but are GPL-compatible.  This is so that it can be included in any software that uses Python.
+
+Contributing threads:
+    - `donating python-crack module`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-July/036712.html
+
+.. _python-crack: http://savannah.nongnu.org/projects/python-crack
+
+
+----------------
+Not Quite ANSI C
+----------------
+Every so often someone runs Python against a C code checker and notices failures that get reported to us.  Often, though, we have to tell the person that we already know of the failures and that there is nothing to worry about.  This time it was failures under Purify.  We have also received reports of failures under Valgrind_ which are spurious.  The language isn't even fully ANSI C compliant, but as Tim Peters said, "it's not possible to write a useful and portable memory allocator in 100% standard ANSI C" among other reasons why strict ANSI C conformity is broken.  The only major violations in the code are casting a pointer to a unsigned integer type and assuming "that whatever memory protection gimmicks an OS implements are at page granularity" which is a minor sin at best.  There is also some cases of accessing memory without proper casting.
+
+Contributing threads:
+    - `Invalid memory read in PyObject_Free`__
+    - `strict aliasing and Python`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-July/036717.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036898.html
+
+.. _Valgrind: http://developer.kde.org/~sewardj/
+
+
+---------------------------------------
+Shadowing Built-ins is Becoming a No-No
+---------------------------------------
+Before the code was removed, Python 2.3 raised a DeprectionWarning when you overshadowed a built-in in a module from outside the module's actual code.  What this means is that doing something like::
+
+    import mod
+    mod.reload = 42
+
+would raise the warning.  Now doing ``reload = 42`` in the module itself would still be allowed.  The idea was (and still is) that the compiler can know when a built-in is shadowed in a module when it compiles the module's code.  But allowing someone to overwrite a built-in externally means that the compiler cannot make any assumptions that built-ins will forever reference the actual built-in code.  This is unfortunate since if shadowing externally was made illegal the compiler can reference the built-in code directly and skip some steps for a nice speed-up.
+
+This is why there was code to warn against this initially.  But it didn't work well enough to be left in Python 2.3 so it has been removed.  But this restriction will most likely be enforced at some point so it is something to keep in mind.
+
+Contributing threads:
+    - `Deprecation warning 'assignment shadows builtin'`__...
+    - `DeprecationWarning: assignment shadows builtin`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-July/036767.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036879.html
+
+
+------------------------
+Must...Start...Faster...
+------------------------
+While Python 2.3 sees up to a 30% speed increase over 2.2, it still starts up slower.  Originally it was believed that it was because of the importation of the re module.  Marc-André Lemburg applied a patch that tried to minimize its possible importation at startup but it was still slow.
+
+Jeremy Hylton pointed out that 2.2.3 imported re so that probably was not the problem.  One thing that is different, though, is the automatic inclusion of warnings, codecs, and the ability to do zip imports.  These three things pull more modules and all of this leads to a longer startup time.  There is also the importation of distutils thanks to the site.py module, but that only occurs if you execute in a build directory.
+
+Including zip imports also got attacked for  the number of failed checks for files it can incur.  But it is believed this is not as bad as all of the extra imports being done now and Just van Rossum said he would try to cut down the unneeded checks in the future.
+
+Contributing threads:
+    - `2.3 startup speed?`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-July/036815.html
+
+
+---------------------
+The World and Numbers
+---------------------
+People might not be aware of it, but locale.setlocale never changes the LC_NUMERIC locale value.  This is so that 'str' and 'float' can return and receive numbers in a consistent way in source code.  This causes a problem, though, for people in locales that do not use a period for a decimal point.  If you had your locale set to Brazilian and tried to pass the string "3,14" to 'float' it would fail even though that is a legitimate number representation for your locale.
+
+The suggestion became to have a locale-agnostic version of 'str' and 'float' in the locale module for people to use when they needed such functionality.  It has now reached the stage of a rough draft PEP as found at http://mail.python.org/pipermail/python-dev/2003-July/036996.html .
+
+Contributing threads:
+    - `LC_NUMERIC and C libraries`__
+    - `Be Honest about LC_NUMERIC`__
+    - `RE: [Spambayes] Question (or possibly a bug report)`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-July/036869.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/036996.html
+__ http://mail.python.org/pipermail/python-dev/2003-July/037178.html
+
+
+---------------
+Zippin' Nothin'
+---------------
+The built-in 'zip' function in Python 2.3 raises TypeError when given no arguments.  This causes problem when you do ``zip(*args)`` and args is empty.  So for Python 2.4 'zip' with no arguments will return an empty list.
+
+Contributing threads:
+    - `zip() in Py2.4`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-July/037332.html
+
+
+--------------------------------
+A Syntax For Function Attributes
+--------------------------------
+An old debate (or at least old in terms of it having popped up multiple times during the tenure of your author) has been ways of enhancing function definitions.  Previously it has been over ways to make defining classmethod and its ilk in a cleaner fashion along with properties (past summaries on this can be found at http://www.python.org/dev/summary/2003-01-16_2003-01-31.html#extended-function-syntax and http://www.python.org/dev/summary/2003-02-01_2003-02-15.html#extended-function-syntax ).
+
+What made the discussion slightly different this time, though, was the focus was on function attributes specifically.  One idea was to tweak Michael Hudson's bracket syntax for method annnotations to allow for function attributes; ``def foo() [bar=42]: pass``.  Another suggestion was to take the dictionary-like connection even farther; ``def foo() {bar=42}: pass``.  There was no clear winner in either case partially because this discussion flared up towards the end of the month.
+
+It was also pointed out that using Michael Hudson's method descriptors you could come up with a wrapping function that handled the situation::
+
+    def attrs(**kw):
+        def _(func):
+            for k in kw:
+                setattr(func, k, kw[k])
+            return func
+        return _
+
+    def foo() [attrs(bar=42)]: pass
+
+Perk of this is it does not lead to any special syntax just for function attributes.  One drawback, though, as pointed out by Paul Moore is that this makes the method annotation idea a little to liberal and open to hackish solutions like this that will lead to abuse.  This was not a huge worry, though, since almost anything can be abused and this is all already doable now, just without a nice, clean syntax.
+
+Contributing threads:
+    - `A syntax for function attributes?`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-July/037338.html

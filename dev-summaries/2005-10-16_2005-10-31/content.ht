@@ -1,0 +1,452 @@
+Title: python-dev Summary for 2005-10-16 through 2005-10-31
+Content-type: text/x-rst
+Encoding: latin1
+
+python-dev Summary for 2005-10-16 through 2005-10-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-10-16_2005-10-31.html]
+
+
+
+=============
+Announcements
+=============
+
+--------------
+AST for Python
+--------------
+
+As of October 21st, Python's compiler now uses a real Abstract Syntax Tree (AST)!  This should make experimenting with new syntax much easier, as well as allowing some optimizations that were difficult with the previous Concrete Syntax Tree (CST).  While there is no Python interface to the AST yet, one is intended for the not-so-distant future.
+
+Thanks again to all who contributed, most notably: Armin Rigo, Brett Cannon, Grant Edwards, John Ehresman, Kurt Kaiser, Neal Norwitz, Neil Schemenauer, Nick Coghlan and Tim Peters.
+
+Contributing threads:
+
+- `AST branch merge status <http://mail.python.org/pipermail/python-dev/2005-October/057347.html>`__
+- `AST branch update <http://mail.python.org/pipermail/python-dev/2005-October/057387.html>`__
+- `AST branch is in? <http://mail.python.org/pipermail/python-dev/2005-October/057483.html>`__
+- `Questionable AST wibbles <http://mail.python.org/pipermail/python-dev/2005-October/057489.html>`__
+- `[Jython-dev] Re: AST branch is in? <http://mail.python.org/pipermail/python-dev/2005-October/057642.html>`__
+
+[SJB]
+
+--------------------
+Python on Subversion
+--------------------
+
+As of October 27th, Python is now on Subversion!  The new repository is http://svn.python.org/projects/.  Check the `Developers FAQ`_ for information on how to get yourself setup with Subversion.  Thanks again to Martin v. Löwis for making this possible!
+
+.. _Developers FAQ: http://www.python.org/dev/devfaq.html#subversion-svn
+
+Contributing threads:
+
+- `Migrating to subversion <http://mail.python.org/pipermail/python-dev/2005-October/057424.html>`__
+- `Freezing the CVS on Oct 26 for SVN switchover <http://mail.python.org/pipermail/python-dev/2005-October/057537.html>`__
+- `CVS is read-only <http://mail.python.org/pipermail/python-dev/2005-October/057679.html>`__
+- `Conversion to Subversion is complete <http://mail.python.org/pipermail/python-dev/2005-October/057690.html>`__
+
+[SJB]
+
+---------------
+Faster decoding
+---------------
+
+M.-A. Lemburg checked in Walter Dörwald's patches that improve decoding speeds by using a character map.  These should make decoding into mac-roman or iso8859-1 nearly as fast as decoding into utf-8.  Thanks again guys!
+
+Contributing threads:
+
+- `Unicode charmap decoders slow <http://mail.python.org/pipermail/python-dev/2005-October/057341.html>`__
+- `New codecs checked in <http://mail.python.org/pipermail/python-dev/2005-October/057505.html>`__
+- `KOI8_U (New codecs checked in) <http://mail.python.org/pipermail/python-dev/2005-October/057576.html>`__
+
+[SJB]
+
+
+=========
+Summaries
+=========
+
+---------------------
+Strings in Python 3.0
+---------------------
+
+Guido proposed that in Python 3.0, all character strings would be unicode, possibly with multiple internal representations.  Some of the issues:
+
+- Multiple implementations could make the C API difficult.  If utf-8, utf-16 and utf-32 are all possible, what types should the C API pass around?
+
+- Windows expects utf-16, so using any other encoding will mean that calls to Windows will have to convert to and from utf-16.  However, even in current Python, all strings passed to Windows system calls have to undergo 8 bit to utf-16 conversion.
+
+- Surrogates (two code units encoding one code point) can slow indexing down because the number of bytes per character isn't constant.  Note that even though utf-32 doesn't need surrogates, they may still be used (and must be interpreted correctly) in utf-32 data.  Also, in utf-32, "graphemes" (which correspond better to the traditional concept of a "character" than code points do) may still be composed of multiple code points, e.g. "é" (e with a accent) can be written as "e" + "'".
+
+This last issue was particularly vexing -- Guido thinks "it's a bad idea to offer an indexing operation that isn't O(1)".  A number of proposals were put forward, including:
+
+- Adding a flag to strings to indicate whether or not they have any surrogates in them.  This makes indexing O(1) when no surrogates are in a string, but O(N) otherwise.
+
+- Using a B-tree instead of an array for storage.  This would make all indexing O(log N).
+
+- Discouraging using the indexing operations by providing an alternate API for strings.  This would require creating iterator-like objects that keep track of position in the unicode object.  Coming up with an API that's as usable as the slicing API seemed difficult though.
+
+Contributing thread:
+
+- `Divorcing str and unicode (no more implicit conversions). <http://mail.python.org/pipermail/python-dev/2005-October/057362.html>`__
+
+[SJB]
+
+-------------------
+Unicode identifiers
+-------------------
+
+Martin v. Löwis suggested lifting the restriction that identifiers be ASCII.  There was some concern about confusability, with the contention that confusions like "O" (uppercase O) for "0" (zero) and "1" (one) for "l" (lowercase L) would only multiply if larger character sets were allowed.  Guido seemed less concerned about this problem than about about how easy it would be to share code across languages.  Neil Hodgson pointed out that even though a transliteration into English exists for Japanese, the coders he knew preferred to use relatively meaningless names, and Oren Tirosh indicated that Israeli programmers often preferred transliterations for local business terminology.  In either case, with or without unicode identifiers the code would already be hard to share.  In the end, people seemed mostly in favor of the idea, though there was some suggestion that it should wait until Python 3.0.
+
+Contributing threads:
+
+- `Divorcing str and unicode (no more implicit conversions). <http://mail.python.org/pipermail/python-dev/2005-October/057362.html>`__
+- `i18n identifiers (was: Divorcing str and unicode (no more implicit conversions). <http://mail.python.org/pipermail/python-dev/2005-October/057812.html>`__
+- `i18n identifiers <http://mail.python.org/pipermail/python-dev/2005-October/057813.html>`__
+
+[SJB]
+
+-----------------
+Property variants
+-----------------
+
+People still seem not quite pleased with properties, both in the syntax, and in how they interact with inheritance.  Guido proposed changing the property() builtin to accept strings for fget, fset and fdel in addition to functions (as it currently does).  If strings were passed, the property() object would have late-binding behavior, that is, the function to call wouldn't be looked-up until the attribute was accessed.  Properties whose fget, fset and fdel functions can be overridden in subclasses might then look like::
+
+    class C(object):
+        foo = property('getFoo', 'setFoo', None, 'the foo property')
+        def getFoo(self):
+            return self._foo
+        def setFoo(self, foo):
+            self._foo = foo
+
+There were mixed reactions to this proposal.  People liked getting the expected behavior in subclasses, but it does violate DRY (Don't Repeat Yourself).  I posted an `alternative solution`_ using metaclasses that would allow you to write properties like::
+
+    class C(object):
+        class foo(Property):
+            """The foo property"""
+            def get(self):
+                return self._foo
+            def set(self, foo):
+                self._foo = foo
+
+which operates correctly with subclasses and follows DRY, but introduces a confusion about the referrent of "self".  There were also a few suggestions of introducing a new syntax for properties (see `Generalizing the class declaration syntax`_) which would have produced things like::
+
+    class C(object):
+        Property foo():
+            """The foo property"""
+            def get(self):
+                return self._foo
+            def set(self, foo):
+                self._foo = foo
+
+At the moment at least, it looks like we'll be sticking with the status quo.
+
+.. _alternative solution: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/442418
+
+Contributing threads:
+
+- `Definining properties - a use case for class decorators? <http://mail.python.org/pipermail/python-dev/2005-October/057350.html>`__
+- `Defining properties - a use case for class decorators? <http://mail.python.org/pipermail/python-dev/2005-October/057407.html>`__
+- `properties and block statement <http://mail.python.org/pipermail/python-dev/2005-October/057419.html>`__
+- `Property syntax for Py3k (properties and block statement) <http://mail.python.org/pipermail/python-dev/2005-October/057427.html>`__
+
+[SJB]
+
+-------------------
+PEP 343 resolutions
+-------------------
+
+After Guido accepted the idea of adding a __with__() method to the context protocol, `PEP 343`_ was reverted to "Proposed" until the remaining details could be ironed out.  The end results were:
+
+    - The slot name "__context__" will be used instead of "__with__".
+    - The builtin name "context" is currently offlimits due to its ambiguity.
+    - Generator-iterators do NOT have a native context.
+    - The builtin function "contextmanager" will convert a generator-function into a context manager.
+    - The "__context__" slot will NOT be special cased.  If it defines a generator, the __context__() function should be decorated with @contextmanager.
+    - When the result of a __context__() call returns an object that lacks an __enter__() or __exit__() method, an AttributeError will be raised.
+    - Only locks, files and decimal.Context objects will gain __context__() methods in Python 2.5.
+
+Guido seemed to agree with all of these, but has not yet pronounced on the revised `PEP 343`_.
+
+.. _PEP 343: http://www.python.org/dev/peps/pep-0343
+
+Contributing threads:
+
+- `PEP 343 updated <http://mail.python.org/pipermail/python-dev/2005-October/057349.html>`__
+- `Proposed resolutions for open PEP 343 issues <http://mail.python.org/pipermail/python-dev/2005-October/057516.html>`__
+- `PEP 343 - multiple context managers in one statement <http://mail.python.org/pipermail/python-dev/2005-October/057637.html>`__
+- `PEP 343 updated with outcome of recent discussions <http://mail.python.org/pipermail/python-dev/2005-October/057769.html>`__
+
+[SJB]
+
+---------------
+Freeze protocol
+---------------
+
+Barry Warsaw propsed `PEP 351`_, which suggests a freeze() builtin which would call the __freeze__() method on an object if that object was not hashable.  This would allow dicts to automatically make frozen copies of mutable objects when they were used as dict keys.  It could reduce the need for "x" and "frozenx" builtin pairs, since the frozen versions could be automatically derived when needed.  Raymond Hettinger indicated some problems with the proposal:
+
+- sets.Set supported something similar, but found that it was not really helpful in practice.
+- Freezing a list into a tuple is not appropriate since they do not have all the same methods.
+- Errors can arise when the mutable object gets out of sync with its frozen copy.
+- Manually freezing things when necessary is relatively simple.
+
+Noam Raphael proposed a copy-on-change mechanism which would essentially give frozen copies of an object a reference to that object.  When the object is about to be modified, a copy would be made, and all frozen copies would be pointed at this.  Thus an object that was mutable but never changed could have lightweight frozen copies, while an object that did change would have to pay the usual copying costs.  Noam and Josiah Carlson then had a rather heated debate about how feasible such a copy-on-change mechanism would be for Python.
+
+.. _PEP 351: http://www.python.org/dev/peps/pep-0351
+
+Contributing thread:
+
+- `PEP 351, the freeze protocol <http://mail.python.org/pipermail/python-dev/2005-October/057543.html>`__
+
+[SJB]
+
+----------------------------------
+Required superclass for Exceptions
+----------------------------------
+
+Guido and Brett Cannon introduced `PEP 352`_ which proposes that all Exceptions be required to derive from a new exception class, BaseException.  The chidren of BaseException would be KeyboardInterrupt, SystemExit and Exception (which would contain the remainder of the current hierarchy).  The goal here is to make the following code do the right thing::
+
+    try:
+        ...
+    except Exception:
+        ...
+
+Currently, this code fails to catch string exceptions and other exceptions that do not derive from Exception, and it (probably) inappropriately catches KeyboardInterrupt and SystemExit which are supposed to indicate that Python is shutting down.  The current plan is to introduce BaseException and have KeyboardInterrupt and SystemExit multiply inherit from Exception and BaseException.  The PEP lists the roadplan for deprecating the various other types of exceptions.
+
+The PEP also attempts to standardize on the arguments to Exception objects, so that by Python 3.0, all Exceptions will support a single argument which will be stored as their "message" attribute.
+
+Guido was ready to accept it on October 31st, but it has not been marked as Accepted yet.
+
+.. _PEP 352: http://www.python.org/dev/peps/pep-0352
+
+Contributing threads:
+
+- `PEP 352: Required Superclass for Exceptions <http://mail.python.org/pipermail/python-dev/2005-October/057736.html>`__
+- `PEP 352 Transition Plan <http://mail.python.org/pipermail/python-dev/2005-October/057750.html>`__
+
+[SJB]
+
+-----------------------------------------
+Generalizing the class declaration syntax
+-----------------------------------------
+
+Michele Simionato suggested a generalization of the class declaration syntax, so that::
+
+    <callable> <name> <tuple>:
+        <definitions>
+
+would be translated into::
+
+    <name> = <callable>("<name>", <tuple>, <dict-of-definitions>)
+
+Where <dict-of-definitions> is simply the namespace that results from executing <definitions>. This would actually remove the need for the class keyword, as classes could be declared as::
+
+    type <classname> <bases>:
+        <definitions>
+
+There were a few requests for a PEP, but nothing has been made available yet.
+
+Contributing thread:
+
+- `Definining properties - a use case for class decorators? <http://mail.python.org/pipermail/python-dev/2005-October/057435.html>`__
+
+[SJB]
+
+--------------------
+Task-local variables
+--------------------
+
+Phillip J. Eby introduced a pre-PEP proposing a mechanism similar to thread-local variables, to help co-routine schedulers to swap state between tasks.  Essentially, the scheduler would be required to take a snapshot of a coroutine's variables before a swap, and restore that snapshot when the coroutine is swapped back.  Guido asked people to hold off on more PEP 343-related proposals until with-blocks have been out in the wild for at least a release or two.
+
+Contributing thread:
+
+- `Pre-PEP: Task-local variables <http://mail.python.org/pipermail/python-dev/2005-October/057464.html>`__
+
+[SJB]
+
+-----------------------------------------
+Attribute-style access for all namespaces
+-----------------------------------------
+
+Eyal Lotem proposed replacing the globals() and locals() dicts with "module" and "frame" objects that would have attribute-style access instead of __getitem__-style access.  Josiah Carlson noted that the first is already available by doing ``module = __import__(__name__)``, and suggested that monkeying around with function locals is never a good idea, so adding additional support for doing so is not useful.
+
+Contributing threads:
+
+- `Early PEP draft (For Python 3000?) <http://mail.python.org/pipermail/python-dev/2005-October/057251.html>`__
+
+[SJB]
+
+---------------------------------
+Yielding all items of an iterator
+---------------------------------
+
+Gustavo J. A. M. Carneiro was looking for a nicer way of indicating that all items of an iterable should be yielded.  Currently, you probably want to use a for-loop to express this, e.g.::
+
+    for step in animate(win, xrange(10)): # slide down
+        yield step
+
+Andrew Koenig suggested that the syntax::
+
+    yield from <x>
+    
+be equivalent to::
+
+    for i in x:
+        yield i
+
+People seemed uncertain as to whether or not there were enough use cases to merit the additional syntax.
+
+Contributing thread:
+
+- `Coroutines, generators, function calling <http://mail.python.org/pipermail/python-dev/2005-October/057405.html>`__
+
+[SJB]
+
+-----------------------------------------
+Getting an AST without the Python runtime
+-----------------------------------------
+
+Thanks to the merging of the AST branch, Evan Jones was able to fully divorce the Python parse from the Python runtime so that you can get AST objects without having to have Python running.  He made the divorced AST parser available on `his site`_.
+
+.. _his site: http://evanjones.ca/software/pyparser.html
+
+Contributing thread:
+
+- `Parser and Runtime: Divorced! <http://mail.python.org/pipermail/python-dev/2005-October/057684.html>`__
+
+[SJB]
+
+===============
+Skipped Threads
+===============
+
+- `Pythonic concurrency - offtopic <http://mail.python.org/pipermail/python-dev/2005-October/057294.html>`__
+- `Sourceforge CVS access <http://mail.python.org/pipermail/python-dev/2005-October/057342.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-October/057343.html>`__
+- `Guido v. Python, Round 1 <http://mail.python.org/pipermail/python-dev/2005-October/057366.html>`__
+- `Autoloading? (Making Queue.Queue easier to use) <http://mail.python.org/pipermail/python-dev/2005-October/057368.html>`__
+- `problem with genexp <http://mail.python.org/pipermail/python-dev/2005-October/057370.html>`__
+- `PEP 3000 and exec <http://mail.python.org/pipermail/python-dev/2005-October/057380.html>`__
+- `Pythonic concurrency - offtopic <http://mail.python.org/pipermail/python-dev/2005-October/057442.html>`__
+- `enumerate with a start index <http://mail.python.org/pipermail/python-dev/2005-October/057459.html>`__
+- `list splicing <http://mail.python.org/pipermail/python-dev/2005-October/057479.html>`__
+- `bool(iter([])) changed between 2.3 and 2.4 <http://mail.python.org/pipermail/python-dev/2005-October/057481.html>`__
+- `A solution to the evils of static typing and interfaces? <http://mail.python.org/pipermail/python-dev/2005-October/057485.html>`__
+- `PEP 267 -- is the semantics change OK? <http://mail.python.org/pipermail/python-dev/2005-October/057506.html>`__
+- `DRAFT: python-dev Summary for 2005-09-01 through 2005-09-16 <http://mail.python.org/pipermail/python-dev/2005-October/057508.html>`__
+- `int(string) (was: DRAFT: python-dev Summary for 2005-09-01 through 2005-09-16) <http://mail.python.org/pipermail/python-dev/2005-October/057510.html>`__
+- `LXR site for Python Subversion repository <http://mail.python.org/pipermail/python-dev/2005-October/057511.html>`__
+- `int(string) <http://mail.python.org/pipermail/python-dev/2005-October/057512.html>`__
+- `Comparing date+time w/ just time <http://mail.python.org/pipermail/python-dev/2005-October/057514.html>`__
+- `AST reverts PEP 342 implementation and IDLE starts working again <http://mail.python.org/pipermail/python-dev/2005-October/057528.html>`__
+- `cross compiling python for embedded systems <http://mail.python.org/pipermail/python-dev/2005-October/057534.html>`__
+- `Inconsistent Use of Buffer Interface in stringobject.c <http://mail.python.org/pipermail/python-dev/2005-October/057589.html>`__
+- `Reminder: PyCon 2006 submissions due in a week <http://mail.python.org/pipermail/python-dev/2005-October/057618.html>`__
+- `MinGW and libpython24.a <http://mail.python.org/pipermail/python-dev/2005-October/057624.html>`__
+- `make testall hanging on HEAD? <http://mail.python.org/pipermail/python-dev/2005-October/057662.html>`__
+- `&quot;? operator in python&quot; <http://mail.python.org/pipermail/python-dev/2005-October/057673.html>`__
+- `[Docs] MinGW and libpython24.a <http://mail.python.org/pipermail/python-dev/2005-October/057693.html>`__
+- `Help with inotify <http://mail.python.org/pipermail/python-dev/2005-October/057705.html>`__
+- `[Python-checkins] commit of r41352 - in python/trunk: . Lib Lib/distutils Lib/distutils/command Lib/encodings <http://mail.python.org/pipermail/python-dev/2005-October/057780.html>`__
+- `svn:ignore <http://mail.python.org/pipermail/python-dev/2005-October/057783.html>`__
+- `svn checksum error <http://mail.python.org/pipermail/python-dev/2005-October/057790.html>`__
+- `svn:ignore (Was: [Python-checkins] commit of r41352 - in python/trunk: . Lib Lib/distutils Lib/distutils/command Lib/encodings) <http://mail.python.org/pipermail/python-dev/2005-October/057793.html>`__
+- `StreamHandler eating exceptions <http://mail.python.org/pipermail/python-dev/2005-October/057798.html>`__
+- `a different kind of reduce... <http://mail.python.org/pipermail/python-dev/2005-October/057814.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+October 16, 2005 through October 31, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the 6th summary written by the python-dev summary dyad of
+Steve Bethard and Tony Meyer (more thanks!).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/trunk/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  We do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow us to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-09-16_2005-09-30.html
+.. _original text file: http://www.python.org/dev/summary/2005-10-16_2005-10-31.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

@@ -1,0 +1,154 @@
+Title: Python-dev summary: 2001-01-01 to 2001-01-15
+
+<pre>
+Heading for 2.1alpha1
+=====================
+
+The pace of checkins has been steadily increasing in preparation for
+the release of the first alpha of Python 2.1, still scheduled for
+Friday, January 19 (but don't be surprised if it's a few days late).
+
+The following PEPs had their implementations committed: PEP 208,
+"Reworking the Coercion Model"; PEP 230, "Warning Framework"; PEP 232,
+"Function Attributes".  PEP 222, "Web Library Enhancements", has been
+abandoned, or at least deferred to some future Python release.
+
+
+Speeding up file.readline()
+===========================
+
+Improving the speed of line-by-line file access generated the most
+discussion during this period.  
+
+New users wanting to compare Python and Perl often try the benchmark
+of writing simple loops in both languages to read all the lines in the
+file.  Python 2.0 comes out slower in this test, but no one had ever
+looked into the cause.  As a datapoint, Tim Peters measured a "while
+1: line = file.readline()" loop at 30 seconds on Windows, while a Perl
+loop took 6 seconds, for a factor of 7 difference; the numbers are
+somewhat better on most Unix machines, but Python is still
+consistently slower.
+
+This benchmark came up for discussion in comp.lang.python.  The
+python-dev discussion started with a patch submitted by Jeff Epler
+that added an xreadlines() function, analogous to xrange(), so you
+could write "for line in file.xreadlines(): ...".  "The desire is to
+iterate over file contents in a way that satisfies the following
+criteria: * Uses the 'for' syntax, because this clearly captures the
+underlying operation. (files can be viewed as sequences of lines when
+appropriate) * Consumes small amounts of memory even when the file
+contents are large.  * Has the lowest overhead that can reasonably be
+attained."
+<a href="http://mail.python.org/pipermail/python-dev/2001-January/011265.html">http://mail.python.org/pipermail/python-dev/2001-January/011265.html</a>
+
+Many false paths were followed in the resulting lengthy threads.  I
+don't propose to summarize every single red herring, but will instead
+jump right to the conclusions.
+
+The loop inside Python's readline() function is a straightforward 
+while loop using getc().  In multithreaded environments, getc() has to
+lock the file object, and this adds additional overhead.  On Windows
+the overhead is startling: "It looks like we're paying (on Win98SE)
+approximately:
+
+   17 seconds for compiling with _MT (threadsafe libc)
+    6 seconds to do the work &lt;wink&gt;
+    5 seconds for "other stuff", best guess mostly a poor
+          platform malloc/realloc
+    2 seconds for not optimizing the loop
+   --
+   30 total"
+<a href="http://mail.python.org/pipermail/python-dev/2001-January/011339.html">http://mail.python.org/pipermail/python-dev/2001-January/011339.html</a>
+
+Perl is fast because it accesses the internals of C's FILE objects,
+accessing the stream's buffers directly.  The problem is that this is
+nonportable and, as Tim Peters discovered, complicated: "20 years ago
+I may have thought this was fun.  I thought debugging large systems of
+m4 macros was fun then, and I'm not sure this is either better or
+worse than that -- well, it's worse, because I understood m4's
+implementation."
+<a href="http://mail.python.org/pipermail/python-dev/2001-January/011317.html">http://mail.python.org/pipermail/python-dev/2001-January/011317.html</a>
+
+Windows has very high locking overhead for some reason, but this
+overhead is still present on Unix platforms.  The Single Unix
+Specification includes a getc_unlocked() function that does no locking
+and saves this overhead; the flockfile() and funlockfile() functions
+can be used to lock the stream outside of an inner loop.  Most Unix
+platforms seem to gain an improvement of a factor of 4 or so, but Mark
+Favas reported an extreme value: Tru64, the simple while loop went
+from 322 seconds to 10 seconds, a factor of 32.
+
+Windows doesn't have a getc_unlocked(), so a different solution needs
+to be used there.  Tim came up with a scheme using fgets(); fgets on
+its own isn't suitable for reading lines, because there's no way to
+detect embedded nulls, but you can fill a buffer with non-null bytes,
+read a line into the buffer, and then search from the left for a
+newline.  "Surprise?  Despite all the memsets, memchrs (looking for a
+newline), and one-at-a-time backward searches (looking for a null
+byte), it's a huge win on Windows."  The simple while loop went from
+30 seconds to 13 seconds.
+<a href="http://mail.python.org/pipermail/python-dev/2001-January/011379.html">http://mail.python.org/pipermail/python-dev/2001-January/011379.html</a>
+
+Some improvements were also made to the fileinput module, and Jeff
+Epler's xreadlines module was added, with the right glue to add an
+.xreadlines() method to file objects that automatically imports the
+module.  'for line in file.xreadlines()' usually takes about half the
+time of the simple while loop.
+
+Therefore, Python 2.1 will have significantly faster file I/O for the
+common task of processing a file line-by-line.
+
+
+pydoc
+=====
+
+Ka-Ping Yee announced pydoc, a tool for browsing the python
+documentation: "At the shell prompt, 'pydoc &lt;name&gt;' displays
+documentation on &lt;name&gt;, very much like 'man'."  ?!ng posted a sample
+transcript of pydoc in action:
+<a href="http://mail.python.org/pipermail/python-dev/2001-January/011538.html">http://mail.python.org/pipermail/python-dev/2001-January/011538.html</a>
+
+It's been checked into the sandbox area of the CVS tree:
+<a href="http://cvs.sourceforge.net/cgi-bin/cvsweb.cgi/python/nondist/sandbox/help/?cvsroot=python">http://cvs.sourceforge.net/cgi-bin/cvsweb.cgi/python/nondist/sandbox/help/?cvsroot=python</a>
+
+Try it out!  The more favorable reaction to pydoc and the more testing
+it gets, the better the chance of it slipping into 2.1.
+
+
+Exporting names from a module
+=============================
+
+Patch #102808 adds a mechanism to export names from a module.  GvR's
+description: "... if there's a variable __exports__ in the module, it
+is a list of identifiers, and any access from outside the module to
+names not in the list is disallowed.  This affects access using the
+getattr and setattr protocols (which raise AttributeError for
+disallowed names), as well as "from M import v" (which raises
+ImportError)."
+<a href="http://sourceforge.net/patch/?func=detailpatch&amp;patch_id=102808&amp;group_id=5470">http://sourceforge.net/patch/?func=detailpatch&amp;patch_id=102808&amp;group_id=5470</a>
+
+Reactions were mixed.  Some people liked the idea, and thought it
+would make some additional optimizations possible.  To quote Neil
+Schemenauer, "It should allow some attribute access inside of modules
+to become faster (like LOAD_FAST for locals).  I think that
+optimization could be implemented without too much difficulty."  Other
+people thought that applying it only to modules would cause people to
+assume that it would also work for classes, but the patch didn't
+implement that.
+
+The final decision was to reject the patch.  However, one part of the
+patch was added; 'from Module import *' will now look for a variable
+named __all__ containing a list of strings, and will only import the
+symbols listed in __all__.  
+
+
+Other things
+============
+
+Christian Tismer released a set of Stackless Python patches for 2.0.
+Note that a bugfix release was made on January 15th.
+<a href="http://www.stackless.com/">http://www.stackless.com/</a>
+
+Michel Pelletier has written a draft PEP for adding interfaces to
+Python.  No PEP number has been allocated yet.
+<a href="http://www.zope.org/Members/michel/InterfacesPEP/PEP.txt">http://www.zope.org/Members/michel/InterfacesPEP/PEP.txt</a>

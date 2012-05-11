@@ -1,0 +1,175 @@
+Title: Python-dev summary: 2000-10-01 to 2000-10-16
+
+<pre>
+Released at last!
+=================
+
+Python 2.0final was released on October 16, doubtless as
+a late birthday gift for me:
+	<a href="ftp://ftp.python.org/pub/python/src/python-2.0.tar.gz">ftp://ftp.python.org/pub/python/src/python-2.0.tar.gz</a>  
+
+
+Python 2.1
+==========
+
+The python-dev traffic in the two weeks leading up to that
+announcement continued to be primarily focused on particular small
+bugs and how to fix them.  Now that 2.0 is out, though, the CVS tree 
+will be reopened for larger changes:
+     	<a href="http://www.python.org/pipermail/python-dev/2000-October/016694.html">http://www.python.org/pipermail/python-dev/2000-October/016694.html</a>
+
+It's important to note that this doesn't mean people can check in any
+changes they like.  Large changes must still be first written up as a
+PEP and get approved by the community.  Jeremy Hylton is responsible
+for PEP 226, which will track the release schedule for Python 2.1
+Currently the schedule calls for a beta in February 2001 and a final
+release in March, but this is certain to change.
+  	<a href="http://python.sourceforge.net/peps/pep-0226.html">http://python.sourceforge.net/peps/pep-0226.html</a>
+
+
+Python and floating point
+=========================
+
+The largest thread that arose in this time span was about Python's
+support for floating point, and the discussion spread out across 3
+different mailing lists before it was over.  It all started with a
+seemingly minor bug report, when Huaiyu Zhu pointed out that
+math.exp(-746) returns 0.0 in Python 1.5.2, but raises an
+OverflowError in 2.0b2:
+	<a href="http://www.python.org/pipermail/python-list/2000-October/120732.html">http://www.python.org/pipermail/python-list/2000-October/120732.html</a>
+
+This is surprising, because e^(-746) would really be an underflow, not
+an overflow.  The change turned out to be caused by the Python binary
+no longer linking with -lieee on Linux, and a patch was committed
+before 2.0final to change the behaviour for this one case, but this
+is just a small manifestation of a much wider problem, namely that
+Python lacks IEEE 754 floating point semantics.  IEEE 754 is a
+specification that carefully nails down a set of behaviours for binary
+floating point operations.
+	
+Python lacks IEEE 754 semantics because nothing in the C89 or POSIX
+standards provides a portable way to request them.  Tim Peters:
+"There's no bug here, in the strong sense that no documented (or even
+intended!)  behavior has changed.  What happened is that one platform
+accident got changed to a different platform accident.  You certainly
+get sympathy for that, but not enough to buy radical last-minute
+changes."
+	<a href="http://www.python.org/pipermail/python-dev/2000-October/016566.html">http://www.python.org/pipermail/python-dev/2000-October/016566.html</a>
+
+The discussion then continued for a long while, with the bulk of the
+argument between Huaiyu and Tim.  Huaiyu said that Python 2.0's
+behaviour should be changed in a few ways, and Tim argued that any fix
+would merely change the current unpredictable and nonportable
+behaviour to some other unpredictable and nonportable behaviour, and
+that making changes a few days before the final release of 2.0 was a
+bad idea in any event.  It was pleasing to see that, though Huaiyu and
+Tim occasionally got quite short with each other, the tone remained
+that of a contentious technical discussion and not a flamewar.
+
+IEEE 754 lets the programmer specify different modes for handling
+errors and for rounding.  For example, the programmer can select
+whether division by zero triggers a IEEE 754 exception, returns NaN
+(Not a Number) or Inf (infinity), or returns some other arbitrary
+value (0, pi, 187.42).  
+
+Different programs will want different behaviours.  For example,
+Steven D. Majewski usually wants the calculation to continue despite
+an error: "I do a lot of vectorized operations on what are often
+independent samples.  If some of the numbers overflow or underflow,
+that just represents an outlier or bad sample. I don't want it to blow
+off the whole pipeline of operations on the other data points --
+they are independent of the bad points."
+	<a href="http://www.python.org/pipermail/python-dev/2000-October/016597.html">http://www.python.org/pipermail/python-dev/2000-October/016597.html</a>
+
+On the other hand, Paul Dubois wrote: "Some people use Inf but most
+people want the code to STOP so they can find out where the INFS
+started. Otherwise, two hours later you have big arrays of Infs and no
+idea how it happened. Likewise sqrt(-1.) needs to stop, not put a zero
+and keep going."
+	<a href="http://www.python.org/pipermail/python-dev/2000-October/016593.html">http://www.python.org/pipermail/python-dev/2000-October/016593.html</a>
+
+Clearly, flexibility on this point is required.  
+
+Huaiyu even wrote Prof. William Kahan, the strongest advocate for IEEE
+754 and one of the authors of the standard.  Kahan's response is
+packed with information from an expert, and is well worth reading.
+"The programmer is the only one competent to decide which exceptions
+his program can ignore, which to allow to pass on to detection later,
+which to trap if they must. ...  'Interim steps' have a tendency to
+become permanent in our industry, where 'Compatibility' is the way the
+sins of the fathers are inflicted upon the third and fourth
+generations."
+	<a href="http://www.python.org/pipermail/python-list/2000-October/143284.html">http://www.python.org/pipermail/python-list/2000-October/143284.html</a>
+	<a href="http://www.cs.berkeley.edu/~wkahan/ieee754status/754story.html">http://www.cs.berkeley.edu/~wkahan/ieee754status/754story.html</a>
+	<a href="http://babbage.cs.qc.edu/courses/cs341/IEEE-754references.html">http://babbage.cs.qc.edu/courses/cs341/IEEE-754references.html</a>
+
+C89 and POSIX say nothing about IEEE 754.  The more recent C99
+standard *does* specify ways to set IEEE 754 behaviour, which means
+that as gcc+glibc and platform compilers move to support C99, Python
+can finally implement it portably.  However, C99 is no magic bullet,
+and there will still be tricky problems to solve.  For example, how
+will 754 interact with threads?  Can one thread set Infs as the return
+value for errors while another thread runs a trap handler in the event
+of an error?
+
+So, while the particular error reported was fixed for 2.0, but the
+question of IEEE 754 support for Python remains open; it's not
+something you can implement in a week.  It seems likely that someone,
+perhaps Kevin Jacobs, will write a PEP for 2.1 suggesting a way to add
+754 support:
+	<a href="http://www.python.org/pipermail/python-list/2000-October/143294.html">http://www.python.org/pipermail/python-list/2000-October/143294.html</a>
+
+
+Buffer objects
+==============
+
+Mark Hammond pointed out an apparent oddity in the behaviour of buffer
+objects and the + operator: "Adding 2 buffer objects together yields
+a string.  Fair enough.  Adding a buffer and a string yields a type
+error!  Eeek."
+	<a href="http://www.python.org/pipermail/python-dev/2000-October/016675.html">http://www.python.org/pipermail/python-dev/2000-October/016675.html</a>
+
+Greg Stein, who originally suggested and implemented the buffer
+object, pointed out that this was unavoidable: "It is caused by the
+non-commutative aspect of Python types. You end up with a string, and
+that type doesn't know how to add a buffer to itself."
+	<a href="http://www.python.org/pipermail/python-dev/2000-October/016682.html">http://www.python.org/pipermail/python-dev/2000-October/016682.html</a>
+
+Guido expressed his misgivings about the buffer interface: "The buffer
+interface is one of the most misunderstood parts of Python.  I believe
+that if it were PEPped today, it would have a hard time getting
+accepted in its current form."
+	<a href="http://www.python.org/pipermail/python-dev/2000-October/016685.html">http://www.python.org/pipermail/python-dev/2000-October/016685.html</a>
+
+Greg Stein responded, saying the problems are fixable: "Many of the
+issues with the buffer object can be solved with simple changes."
+	<a href="http://www.python.org/pipermail/python-dev/2000-October/016699.html">http://www.python.org/pipermail/python-dev/2000-October/016699.html</a>
+
+Jeff Collins also pointed out that buffer objects are very useful for
+conserving memory for the PalmOS port: "Directly referencing the data
+of objects like bytecodes and strings would greatly reduce the dynamic
+heap (current limit of 256K on PalmOS 3.5 on devices with 4M RAM or
+greater) requirements."
+	<a href="http://www.python.org/pipermail/python-dev/2000-October/016691.html">http://www.python.org/pipermail/python-dev/2000-October/016691.html</a>
+
+
+Other matters
+=============
+
+Greg Ward announced that the Distutils have reached version 1.0:
+	<a href="http://www.python.org/pipermail/python-dev/2000-October/016445.html">http://www.python.org/pipermail/python-dev/2000-October/016445.html</a>
+
+Jeremy Hylton discovered that one portion of the Distutils, the actual
+binary used for generating Windows installers, didn't have its source
+available in the Python CVS tree, only in the Distutils CVS tree.
+Thomas Heller explained: "bdist_wininst creates a self-extracting
+zipfile from two components: a stub program (wininst.exe) plus a
+zip-file containing the code to be distributed. Because I did not
+liked wininst.exe as binary file checked into CVS, the actual bytes of
+this exe are included base64-encoded in the bdist_wininst.py module as
+string. I'm not sure whether this is a wise design or not, but that is
+a different topic."
+	<a href="http://www.python.org/pipermail/python-dev/2000-October/016540.html">http://www.python.org/pipermail/python-dev/2000-October/016540.html</a>
+</pre>
+
+

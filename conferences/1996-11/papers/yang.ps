@@ -1,0 +1,3601 @@
+%!PS-Adobe-3.0
+%%BoundingBox: (atend)
+%%Pages: (atend)
+%%PageOrder: (atend)
+%%DocumentFonts: (atend)
+%%Creator: Frame 4.0
+%%DocumentData: Clean7Bit
+%%EndComments
+%%BeginProlog
+%
+% Frame ps_prolog 5.0, for use with Frame 5.0 products
+% This ps_prolog file is Copyright (c) 1986-1995 Frame Technology
+% Corporation.  All rights reserved.  This ps_prolog file may be
+% freely copied and distributed in conjunction with documents created
+% using FrameMaker, FrameMaker/SGML and FrameViewer as long as this 
+% copyright notice is preserved.
+%
+% FrameMaker users specify the proper paper size for each print job in the
+% "Print" dialog's "Printer Paper Size" "Width" and "Height~ fields.  If the
+% printer that the PS file is sent to does not support the requested paper
+% size, or if there is no paper tray of the proper size currently installed, 
+% then the job will not be printed.  The following flag, if set to true, will
+% cause the job to print on the default paper in such cases.
+/FMAllowPaperSizeMismatch            false def
+%
+% Frame products normally print colors as their true color on a color printer
+% or as shades of gray, based on luminance, on a black-and white printer. The
+% following flag, if set to true, forces all non-white colors to print as pure
+% black. This has no effect on bitmap images.
+/FMPrintAllColorsAsBlack             false def
+%
+% Frame products can either set their own line screens or use a printer's 
+% default settings. Three flags below control this separately for no 
+% separations, spot separations and process separations. If a flag
+% is true, then the default printer settings will not be changed. If it is
+% false, Frame products will use their own settings from a table based on
+% the printer's resolution.
+/FMUseDefaultNoSeparationScreen      true  def
+/FMUseDefaultSpotSeparationScreen    true  def
+/FMUseDefaultProcessSeparationScreen false def
+%
+% For any given PostScript printer resolution, Frame products have two sets of 
+% screen angles and frequencies for printing process separations, which are 
+% recomended by Adobe. The following variable chooses the higher frequencies
+% when set to true or the lower frequencies when set to false. This is only
+% effective if the appropriate FMUseDefault...SeparationScreen flag is false.
+/FMUseHighFrequencyScreens true def
+%
+% The following is a set of predefined optimal frequencies and angles for various
+% common dpi settings. This is taken from "Advances in Color Separation Using
+% PostScript Software Technology," from Adobe Systems (3/13/89 P.N. LPS 0043)
+% and corrolated with information which is in various PPD (4.0) files.
+%
+% The "dpiranges" figure is the minimum dots per inch device resolution which
+% can support this setting. The "low" and "high" values are controlled by the
+% setting of the FMUseHighFrequencyScreens flag above. The "TDot" flags control
+% the use of the "Yellow Triple Dot" feature whereby the frequency id divided by
+% three, but the dot function is "trippled" giving a block of 3x3 dots per cell.
+%
+% PatFreq is a compromise pattern frequency for ps Level 2 printers which is close
+% to the ideal WYSIWYG pattern frequency of 9 repetitions/inch but does not beat
+% (too badly) against the screen frequencies of any separations for that DPI.
+/dpiranges   [  2540    2400    1693     1270    1200     635      600      0      ] def
+/CMLowFreqs  [ 100.402  94.8683 89.2289 100.402  94.8683  66.9349  63.2456 47.4342 ] def
+/YLowFreqs   [  95.25   90.0    84.65    95.25   90.0     70.5556  66.6667 50.0    ] def
+/KLowFreqs   [  89.8026 84.8528 79.8088  89.8026 84.8528  74.8355  70.7107 53.033  ] def
+/CLowAngles  [  71.5651 71.5651 71.5651 71.5651  71.5651  71.5651  71.5651 71.5651 ] def
+/MLowAngles  [  18.4349 18.4349 18.4349 18.4349  18.4349  18.4349  18.4349 18.4349 ] def
+/YLowTDot    [  true    true    false    true    true     false    false   false   ] def
+/CMHighFreqs [ 133.87  126.491 133.843  108.503 102.523  100.402   94.8683 63.2456 ] def
+/YHighFreqs  [ 127.0   120.0   126.975  115.455 109.091   95.25    90.0    60.0    ] def
+/KHighFreqs  [ 119.737 113.137 119.713  128.289 121.218   89.8026  84.8528 63.6395 ] def
+/CHighAngles [  71.5651 71.5651 71.5651  70.0169 70.0169  71.5651  71.5651 71.5651 ] def
+/MHighAngles [  18.4349 18.4349 18.4349  19.9831 19.9831  18.4349  18.4349 18.4349 ] def
+/YHighTDot   [  false   false   true     false   false    true     true    false   ] def
+/PatFreq     [	10.5833 10.0     9.4055  10.5833 10.0	  10.5833  10.0	   9.375   ] def
+%
+% PostScript Level 2 printers contain an "Accurate Screens" feature which can
+% improve process separation rendering at the expense of compute time. This 
+% flag is ignored by PostScript Level 1 printers.
+/FMUseAcccurateScreens true def
+%
+% The following PostScript procedure defines the spot function that Frame
+% products will use for process separations. You may un-comment-out one of
+% the alternative functions below, or use your own.
+%
+% Dot function
+/FMSpotFunction {abs exch abs 2 copy add 1 gt 
+		{1 sub dup mul exch 1 sub dup mul add 1 sub }
+		{dup mul exch dup mul add 1 exch sub }ifelse } def
+%
+% Line function
+% /FMSpotFunction { pop } def
+%
+% Elipse function
+% /FMSpotFunction { dup 5 mul 8 div mul exch dup mul exch add 
+%		sqrt 1 exch sub } def
+%
+%
+/FMversion (5.0) def 
+/fMLevel1 /languagelevel where {pop languagelevel} {1} ifelse 2 lt def
+/FMPColor
+	fMLevel1 {
+		false
+		/colorimage where {pop pop true} if
+	} {
+		true
+	} ifelse
+def
+/FrameDict 400 dict def 
+systemdict /errordict known not {/errordict 10 dict def
+		errordict /rangecheck {stop} put} if
+% The readline in PS 23.0 doesn't recognize cr's as nl's on AppleTalk
+FrameDict /tmprangecheck errordict /rangecheck get put 
+errordict /rangecheck {FrameDict /bug true put} put 
+FrameDict /bug false put 
+mark 
+% Some PS machines read past the CR, so keep the following 3 lines together!
+currentfile 5 string readline
+00
+0000000000
+cleartomark 
+errordict /rangecheck FrameDict /tmprangecheck get put 
+FrameDict /bug get { 
+	/readline {
+		/gstring exch def
+		/gfile exch def
+		/gindex 0 def
+		{
+			gfile read pop 
+			dup 10 eq {exit} if 
+			dup 13 eq {exit} if 
+			gstring exch gindex exch put 
+			/gindex gindex 1 add def 
+		} loop
+		pop 
+		gstring 0 gindex getinterval true 
+		} bind def
+	} if
+/FMshowpage /showpage load def
+/FMquit /quit load def
+/FMFAILURE { 
+	dup = flush 
+	FMshowpage 
+	/Helvetica findfont 12 scalefont setfont
+	72 200 moveto show
+	72 220 moveto show
+	FMshowpage 
+	FMquit 
+	} def 
+/FMVERSION {
+	FMversion ne {
+		(Frame product version does not match ps_prolog!  Check installation;)
+		(also check ~/fminit and ./fminit for old versions) FMFAILURE
+		} if
+	} def 
+/FMBADEPSF { 
+	(Adobe's PostScript Language Reference Manual, 2nd Edition, section H.2.4)
+	(says your EPS file is not valid, as it calls X              )
+	dup dup (X) search pop exch pop exch pop length 
+	5 -1 roll 
+	putinterval 
+	FMFAILURE
+	} def
+/fmConcatProcs
+	{
+	/proc2 exch cvlit def/proc1 exch cvlit def/newproc proc1 length proc2 length add array def
+	newproc 0 proc1 putinterval newproc proc1 length proc2 putinterval newproc cvx
+}def
+FrameDict begin [
+	/ALDsave
+	/FMdicttop
+	/FMoptop
+	/FMpointsize
+	/FMsaveobject
+	/b
+	/bitmapsave
+	/blut
+	/bpside
+	/bs
+	/bstring
+	/bwidth
+	/c
+	/cf
+	/cs
+	/cynu
+	/depth
+	/edown
+	/fh
+	/fillvals
+	/fw
+	/fx
+	/fy
+	/g
+	/gfile
+	/gindex
+	/grnt
+	/gryt
+	/gstring
+	/height
+	/hh
+	/i
+	/im
+	/indx
+	/is
+	/k
+	/kk
+	/landscape
+	/lb
+	/len
+	/llx
+	/lly
+	/m
+	/magu
+	/manualfeed
+	/n
+	/offbits
+	/onbits
+	/organgle
+	/orgbangle
+	/orgbfreq
+	/orgbproc
+	/orgbxfer
+	/orgfreq
+	/orggangle
+	/orggfreq
+	/orggproc
+	/orggxfer
+	/orgmatrix
+	/orgproc
+	/orgrangle
+	/orgrfreq
+	/orgrproc
+	/orgrxfer
+	/orgxfer
+	/pagesave
+	/paperheight
+	/papersizedict
+	/paperwidth
+	/pos
+	/pwid
+	/r
+	/rad
+	/redt
+	/sl
+	/str
+	/tran
+	/u
+	/urx
+	/ury
+	/val
+	/width
+	/width
+	/ws
+	/ww
+	/x
+	/x1
+	/x2
+	/xindex
+	/xpoint
+	/xscale
+	/xx
+	/y
+	/y1
+	/y2
+	/yelu
+	/yindex
+	/ypoint
+	/yscale
+	/yy
+] { 0 def } forall
+/FmBD {bind def} bind def
+systemdict /pdfmark known {
+	
+	/fMAcrobat false def
+	/FmPD /cleartomark load def
+	/FmPD2 /cleartomark load def
+	/FmPT /pop load def
+	/FmPA {pop pop pop}FmBD
+}
+/FmDC {
+	transform fMDefaultMatrix itransform cvi exch cvi exch
+}FmBD
+/FmBx {
+	dup 3 index lt {3 1 roll exch} if 
+	1 index 4 index lt {4 -1 roll 3 1 roll exch 4 1 roll} if
+}FmBD
+/FMnone 0 def
+/FMcyan 1 def
+/FMmagenta 2 def
+/FMyellow 3 def
+/FMblack 4 def
+/FMcustom 5 def
+/fMNegative false def 
+/FrameSepIs FMnone def 
+/FrameSepBlack 0 def
+/FrameSepYellow 0 def
+/FrameSepMagenta 0 def
+/FrameSepCyan 0 def
+/FrameSepRed 1 def
+/FrameSepGreen 1 def
+/FrameSepBlue 1 def
+/FrameCurGray 1 def
+/FrameCurPat null def
+/FrameCurColors [ 0 0 0 1 0 0 0 ] def 
+/FrameColorEpsilon .001 def	
+/eqepsilon {		
+	sub dup 0 lt {neg} if
+	FrameColorEpsilon le
+} bind def
+/FrameCmpColorsCMYK { 
+	2 copy 0 get exch 0 get eqepsilon {
+		2 copy 1 get exch 1 get eqepsilon {
+			2 copy 2 get exch 2 get eqepsilon {
+				3 get exch 3 get eqepsilon
+			} {pop pop false} ifelse
+		}{pop pop false} ifelse
+	} {pop pop false} ifelse
+} bind def
+/FrameCmpColorsRGB { 
+	2 copy 4 get exch 0 get eqepsilon {
+		2 copy 5 get exch 1 get eqepsilon {
+			6 get exch 2 get eqepsilon
+		}{pop pop false} ifelse
+	} {pop pop false} ifelse
+} bind def
+/RGBtoCMYK { 
+	1 exch sub 
+	3 1 roll 
+	1 exch sub 
+	3 1 roll 
+	1 exch sub 
+	3 1 roll 
+	3 copy 
+	2 copy 
+	le { pop } { exch pop } ifelse 
+	2 copy 
+	le { pop } { exch pop } ifelse 
+	dup dup dup 
+	6 1 roll 
+	4 1 roll 
+	7 1 roll 
+	sub 
+	6 1 roll 
+	sub 
+	5 1 roll 
+	sub 
+	4 1 roll 
+} bind def
+/CMYKtoRGB { 
+	dup dup 4 -1 roll add 						  
+	5 1 roll 3 -1 roll add 						  
+	4 1 roll add 								  
+	1 exch sub dup 0 lt {pop 0} if 3 1 roll 	  
+	1 exch sub dup 0 lt {pop 0} if exch 	      
+	1 exch sub dup 0 lt {pop 0} if exch	  		  
+} bind def
+/FrameSepInit {
+	1.0 RealSetgray
+} bind def
+/FrameSetSepColor { 
+	/FrameSepBlue exch def
+	/FrameSepGreen exch def
+	/FrameSepRed exch def
+	/FrameSepBlack exch def
+	/FrameSepYellow exch def
+	/FrameSepMagenta exch def
+	/FrameSepCyan exch def
+	/FrameSepIs FMcustom def
+	setCurrentScreen	
+} bind def
+/FrameSetCyan {
+	/FrameSepBlue 1.0 def
+	/FrameSepGreen 1.0 def
+	/FrameSepRed 0.0 def
+	/FrameSepBlack 0.0 def
+	/FrameSepYellow 0.0 def
+	/FrameSepMagenta 0.0 def
+	/FrameSepCyan 1.0 def
+	/FrameSepIs FMcyan def
+	setCurrentScreen	
+} bind def
+ 
+/FrameSetMagenta {
+	/FrameSepBlue 1.0 def
+	/FrameSepGreen 0.0 def
+	/FrameSepRed 1.0 def
+	/FrameSepBlack 0.0 def
+	/FrameSepYellow 0.0 def
+	/FrameSepMagenta 1.0 def
+	/FrameSepCyan 0.0 def
+	/FrameSepIs FMmagenta def
+	setCurrentScreen
+} bind def
+ 
+/FrameSetYellow {
+	/FrameSepBlue 0.0 def
+	/FrameSepGreen 1.0 def
+	/FrameSepRed 1.0 def
+	/FrameSepBlack 0.0 def
+	/FrameSepYellow 1.0 def
+	/FrameSepMagenta 0.0 def
+	/FrameSepCyan 0.0 def
+	/FrameSepIs FMyellow def
+	setCurrentScreen
+} bind def
+ 
+/FrameSetBlack {
+	/FrameSepBlue 0.0 def
+	/FrameSepGreen 0.0 def
+	/FrameSepRed 0.0 def
+	/FrameSepBlack 1.0 def
+	/FrameSepYellow 0.0 def
+	/FrameSepMagenta 0.0 def
+	/FrameSepCyan 0.0 def
+	/FrameSepIs FMblack def
+	setCurrentScreen
+} bind def
+ 
+/FrameNoSep { 
+	/FrameSepIs FMnone def
+	setCurrentScreen
+} bind def
+/FrameSetSepColors { 
+	FrameDict begin
+	[ exch 1 add 1 roll ]
+	/FrameSepColors  
+	exch def end
+	} bind def
+/FrameColorInSepListCMYK { 
+	FrameSepColors {  
+       		exch dup 3 -1 roll 
+       		FrameCmpColorsCMYK 
+       		{ pop true exit } if
+    	} forall 
+	dup true ne {pop false} if
+	} bind def
+/FrameColorInSepListRGB { 
+	FrameSepColors {  
+       		exch dup 3 -1 roll 
+       		FrameCmpColorsRGB 
+       		{ pop true exit } if
+    	} forall 
+	dup true ne {pop false} if
+	} bind def
+/RealSetgray /setgray load def
+/RealSetrgbcolor /setrgbcolor load def
+/RealSethsbcolor /sethsbcolor load def
+end 
+/setgray { 
+	FrameDict begin
+	FrameSepIs FMnone eq
+		{ RealSetgray } 
+		{ 
+		FrameSepIs FMblack eq 
+			{ RealSetgray } 
+			{ FrameSepIs FMcustom eq 
+			  FrameSepRed 0 eq and
+			  FrameSepGreen 0 eq and
+			  FrameSepBlue 0 eq and {
+			  	RealSetgray
+			  } {
+				1 RealSetgray pop 
+			  } ifelse
+			} ifelse
+		} ifelse
+	end
+} bind def
+/setrgbcolor { 
+	FrameDict begin
+	FrameSepIs FMnone eq
+	{  RealSetrgbcolor }
+	{
+		3 copy [ 4 1 roll ] 
+		FrameColorInSepListRGB
+		{
+				FrameSepBlue eq exch 
+			 	FrameSepGreen eq and exch 
+			 	FrameSepRed eq and
+			 	{ 0 } { 1 } ifelse
+		}
+		{
+			FMPColor {
+				RealSetrgbcolor
+				currentcmykcolor
+			} {
+				RGBtoCMYK
+			} ifelse
+			FrameSepIs FMblack eq
+			{1.0 exch sub 4 1 roll pop pop pop} {
+			FrameSepIs FMyellow eq
+			{pop 1.0 exch sub 3 1 roll pop pop} {
+			FrameSepIs FMmagenta eq
+			{pop pop 1.0 exch sub exch pop } {
+			FrameSepIs FMcyan eq
+			{pop pop pop 1.0 exch sub } 
+			{pop pop pop pop 1} ifelse } ifelse } ifelse } ifelse 
+		} ifelse
+		RealSetgray
+	} 
+	ifelse
+	end
+} bind def
+/sethsbcolor {
+	FrameDict begin
+	FrameSepIs FMnone eq 
+	{ RealSethsbcolor } 
+	{
+		RealSethsbcolor 
+		currentrgbcolor  
+		setrgbcolor 
+	} 
+	ifelse
+	end
+} bind def
+FrameDict begin
+/setcmykcolor where {
+	pop /RealSetcmykcolor /setcmykcolor load def
+} {
+	/RealSetcmykcolor {
+		4 1 roll
+		3 { 3 index add 0 max 1 min 1 exch sub 3 1 roll} repeat 
+		RealSetrgbcolor pop
+	} bind def
+} ifelse
+userdict /setcmykcolor { 
+		FrameDict begin
+		FrameSepIs FMnone eq
+		{ RealSetcmykcolor } 
+		{
+			4 copy [ 5 1 roll ]
+			FrameColorInSepListCMYK
+			{
+				FrameSepBlack eq exch 
+				FrameSepYellow eq and exch 
+				FrameSepMagenta eq and exch 
+				FrameSepCyan eq and 
+				{ 0 } { 1 } ifelse
+			}
+			{
+				FrameSepIs FMblack eq
+				{1.0 exch sub 4 1 roll pop pop pop} {
+				FrameSepIs FMyellow eq
+				{pop 1.0 exch sub 3 1 roll pop pop} {
+				FrameSepIs FMmagenta eq
+				{pop pop 1.0 exch sub exch pop } {
+				FrameSepIs FMcyan eq
+				{pop pop pop 1.0 exch sub } 
+				{pop pop pop pop 1} ifelse } ifelse } ifelse } ifelse 
+			} ifelse
+			RealSetgray
+		}
+		ifelse
+		end
+	} bind put
+fMLevel1 { 
+	
+	
+	
+	/patScreenDict 7 dict dup begin
+		<0f1e3c78f0e1c387> [ 45  { pop } {exch pop} 		.5   2 sqrt] FmBD
+		<0f87c3e1f0783c1e> [ 135 { pop } {exch pop}			.5   2 sqrt] FmBD
+		<cccccccccccccccc> [ 0   { pop } dup				.5   2	   ] FmBD
+		<ffff0000ffff0000> [ 90  { pop } dup				.5   2	   ] FmBD
+		<8142241818244281> [ 45  { 2 copy lt {exch} if pop}	dup .75  2 sqrt] FmBD
+		<03060c183060c081> [ 45  { pop } {exch pop}			.875 2 sqrt] FmBD
+		<8040201008040201> [ 135 { pop } {exch pop}			.875 2 sqrt] FmBD
+	end def
+} { 
+	
+	/patProcDict 5 dict dup begin
+		<0f1e3c78f0e1c387> { 3 setlinewidth -1 -1 moveto 9 9 lineto stroke 
+											4 -4 moveto 12 4 lineto stroke
+											-4 4 moveto 4 12 lineto stroke} bind def
+		<0f87c3e1f0783c1e> { 3 setlinewidth -1 9 moveto 9 -1 lineto stroke 
+											-4 4 moveto 4 -4 lineto stroke
+											4 12 moveto 12 4 lineto stroke} bind def
+		<8142241818244281> { 1 setlinewidth -1 9 moveto 9 -1 lineto stroke
+											-1 -1 moveto 9 9 lineto stroke } bind def
+		<03060c183060c081> { 1 setlinewidth -1 -1 moveto 9 9 lineto stroke 
+											4 -4 moveto 12 4 lineto stroke
+											-4 4 moveto 4 12 lineto stroke} bind def
+		<8040201008040201> { 1 setlinewidth -1 9 moveto 9 -1 lineto stroke 
+											-4 4 moveto 4 -4 lineto stroke
+											4 12 moveto 12 4 lineto stroke} bind def
+	end def
+	/patDict 15 dict dup begin
+		/PatternType 1 def		
+		/PaintType 2 def		
+		/TilingType 3 def		
+		/BBox [ 0 0 8 8 ] def 	
+		/XStep 8 def			
+		/YStep 8 def			
+		/PaintProc {
+			begin
+			patProcDict bstring known {
+				patProcDict bstring get exec
+			} {
+				8 8 true [1 0 0 -1 0 8] bstring imagemask
+			} ifelse
+			end
+		} bind def
+	end def
+} ifelse
+/combineColor {
+    FrameSepIs FMnone eq
+	{
+		graymode fMLevel1 or not {
+			
+			[/Pattern [/DeviceCMYK]] setcolorspace
+			FrameCurColors 0 4 getinterval aload pop FrameCurPat setcolor
+		} {
+			FrameCurColors 3 get 1.0 ge {
+				FrameCurGray RealSetgray
+			} {
+				fMAcrobat not FMPColor graymode and and {
+					0 1 3 { 
+						FrameCurColors exch get
+						1 FrameCurGray sub mul
+					} for
+					RealSetcmykcolor
+				} {
+					4 1 6 {
+						FrameCurColors exch get
+						graymode {
+							1 exch sub 1 FrameCurGray sub mul 1 exch sub
+						} {
+							1.0 lt {FrameCurGray} {1} ifelse
+						} ifelse
+					} for
+					RealSetrgbcolor
+				} ifelse
+			} ifelse
+		} ifelse
+	} { 
+		FrameCurColors 0 4 getinterval aload
+		FrameColorInSepListCMYK {
+			FrameSepBlack eq exch 
+			FrameSepYellow eq and exch 
+			FrameSepMagenta eq and exch 
+			FrameSepCyan eq and
+			FrameSepIs FMcustom eq and
+			{ FrameCurGray } { 1 } ifelse
+		} {
+			FrameSepIs FMblack eq
+			{FrameCurGray 1.0 exch sub mul 1.0 exch sub 4 1 roll pop pop pop} {
+			FrameSepIs FMyellow eq
+			{pop FrameCurGray 1.0 exch sub mul 1.0 exch sub 3 1 roll pop pop} {
+			FrameSepIs FMmagenta eq
+			{pop pop FrameCurGray 1.0 exch sub mul 1.0 exch sub exch pop } {
+			FrameSepIs FMcyan eq
+			{pop pop pop FrameCurGray 1.0 exch sub mul 1.0 exch sub } 
+			{pop pop pop pop 1} ifelse } ifelse } ifelse } ifelse 
+		} ifelse
+		graymode fMLevel1 or not {
+			
+			[/Pattern [/DeviceGray]] setcolorspace
+			FrameCurPat setcolor
+		} { 
+			graymode not fMLevel1 and {
+				
+				dup 1 lt {pop FrameCurGray} if
+			} if
+			RealSetgray
+		} ifelse
+	} ifelse
+} bind def
+/savematrix {
+	orgmatrix currentmatrix pop
+	} bind def
+/restorematrix {
+	orgmatrix setmatrix
+	} bind def
+/fMDefaultMatrix matrix defaultmatrix def
+/fMatrix2 matrix def
+/dpi    72 0 fMDefaultMatrix dtransform
+    dup mul exch   dup mul add   sqrt def
+	
+/freq dpi dup 72 div round dup 0 eq {pop 1} if 8 mul div def
+/sangle 1 0 fMDefaultMatrix dtransform exch atan def
+	sangle fMatrix2 rotate 
+	fMDefaultMatrix fMatrix2 concatmatrix 
+	dup 0 get /sflipx exch def
+	    3 get /sflipy exch def
+/screenIndex {
+	0 1 dpiranges length 1 sub { dup dpiranges exch get 1 sub dpi le {exit} {pop} ifelse } for
+} bind def
+/getCyanScreen {
+	FMUseHighFrequencyScreens { CHighAngles CMHighFreqs} {CLowAngles CMLowFreqs} ifelse
+		screenIndex dup 3 1 roll get 3 1 roll get /FMSpotFunction load
+} bind def
+/getMagentaScreen {
+	FMUseHighFrequencyScreens { MHighAngles CMHighFreqs } {MLowAngles CMLowFreqs} ifelse
+		screenIndex dup 3 1 roll get 3 1 roll get /FMSpotFunction load
+} bind def
+/getYellowScreen {
+	FMUseHighFrequencyScreens { YHighTDot YHighFreqs} { YLowTDot YLowFreqs } ifelse
+		screenIndex dup 3 1 roll get 3 1 roll get { 3 div
+			{2 { 1 add 2 div 3 mul dup floor sub 2 mul 1 sub exch} repeat
+			FMSpotFunction } } {/FMSpotFunction load } ifelse
+			0.0 exch
+} bind def
+/getBlackScreen  {
+	FMUseHighFrequencyScreens { KHighFreqs } { KLowFreqs } ifelse
+		screenIndex get 45.0 /FMSpotFunction load 
+} bind def
+/getSpotScreen {
+	getBlackScreen
+} bind def
+/getCompositeScreen {
+	getBlackScreen
+} bind def
+/FMSetScreen 
+	fMLevel1 { /setscreen load 
+	}{ {
+		8 dict begin
+		/HalftoneType 1 def
+		/SpotFunction exch def
+		/Angle exch def
+		/Frequency exch def
+		/AccurateScreens FMUseAcccurateScreens def
+		currentdict end sethalftone
+	} bind } ifelse
+def
+/setDefaultScreen {
+	FMPColor {
+		orgrxfer cvx orggxfer cvx orgbxfer cvx orgxfer cvx setcolortransfer
+	}
+	{
+		orgxfer cvx settransfer
+	} ifelse
+	orgfreq organgle orgproc cvx setscreen
+} bind def
+/setCurrentScreen {
+	FrameSepIs FMnone eq {
+		FMUseDefaultNoSeparationScreen {
+			setDefaultScreen
+		} {
+			getCompositeScreen FMSetScreen
+		} ifelse
+	} {
+		FrameSepIs FMcustom eq {
+			FMUseDefaultSpotSeparationScreen {
+				setDefaultScreen
+			} {
+				getSpotScreen FMSetScreen
+			} ifelse
+		} {
+			FMUseDefaultProcessSeparationScreen {
+				setDefaultScreen
+			} {
+				FrameSepIs FMcyan eq {
+					getCyanScreen FMSetScreen
+				} {
+					FrameSepIs FMmagenta eq {
+						getMagentaScreen FMSetScreen
+					} {
+						FrameSepIs FMyellow eq {
+							getYellowScreen FMSetScreen
+						} {
+							getBlackScreen FMSetScreen
+						} ifelse
+					} ifelse
+				} ifelse
+			} ifelse
+		} ifelse
+	} ifelse 
+} bind def
+end
+	
+/FMDOCUMENT { 
+	array /FMfonts exch def 
+	/#copies exch def
+	FrameDict begin
+	0 ne /manualfeed exch def
+	/paperheight exch def
+	/paperwidth exch def
+	0 ne /fMNegative exch def 
+	0 ne /edown exch def 
+	/yscale exch def
+	/xscale exch def
+	fMLevel1 {
+		manualfeed {setmanualfeed} if
+		/FMdicttop countdictstack 1 add def 
+		/FMoptop count def 
+		setpapername 
+		manualfeed {true} {papersize} ifelse 
+		{manualpapersize} {false} ifelse 
+		{desperatepapersize} {false} ifelse 
+		{papersizefailure} if
+		count -1 FMoptop {pop pop} for
+		countdictstack -1 FMdicttop {pop end} for 
+		}
+		{2 dict
+		 dup /PageSize [paperwidth paperheight] put
+		 manualfeed {dup /ManualFeed manualfeed put} if
+		 {setpagedevice} stopped {papersizefailure} if
+		}
+	ifelse 
+	
+	FMPColor {
+		currentcolorscreen
+			cvlit /orgproc exch def
+				  /organgle exch def 
+				  /orgfreq exch def
+			cvlit /orgbproc exch def
+				  /orgbangle exch def 
+				  /orgbfreq exch def
+			cvlit /orggproc exch def
+				  /orggangle exch def 
+				  /orggfreq exch def
+			cvlit /orgrproc exch def
+				  /orgrangle exch def 
+				  /orgrfreq exch def
+			currentcolortransfer 
+			fMNegative {
+				1 1 4 { 
+					pop { 1 exch sub } fmConcatProcs 4 1 roll
+				} for
+				4 copy
+				setcolortransfer
+			} if
+			cvlit /orgxfer exch def
+			cvlit /orgbxfer exch def
+			cvlit /orggxfer exch def
+			cvlit /orgrxfer exch def
+	} {
+		currentscreen 
+			cvlit /orgproc exch def
+				  /organgle exch def 
+				  /orgfreq exch def
+				  
+		currenttransfer 
+		fMNegative {
+			{ 1 exch sub } fmConcatProcs
+			dup settransfer
+		} if 
+		cvlit /orgxfer exch def
+	} ifelse
+	end 
+} def 
+/FMBEGINPAGE { 
+	FrameDict begin 
+	/pagesave save def
+	3.86 setmiterlimit
+	/landscape exch 0 ne def
+	landscape { 
+		90 rotate 0 exch dup /pwid exch def neg translate pop 
+	}{
+		pop /pwid exch def
+	} ifelse
+	edown { [-1 0 0 1 pwid 0] concat } if
+	0 0 moveto paperwidth 0 lineto paperwidth paperheight lineto 
+	0 paperheight lineto 0 0 lineto 1 setgray fill
+	xscale yscale scale
+	/orgmatrix matrix def
+	gsave 
+} def 
+/FMENDPAGE {
+	grestore 
+	pagesave restore
+	end 
+	showpage
+	} def 
+/FMFONTDEFINE { 
+	FrameDict begin
+	findfont 
+	ReEncode 
+	1 index exch 
+	definefont 
+	FMfonts 3 1 roll 
+	put
+	end 
+	} def 
+/FMFILLS {
+	FrameDict begin dup
+	array /fillvals exch def
+	dict /patCache exch def
+	end 
+	} def 
+/FMFILL {
+	FrameDict begin
+	 fillvals 3 1 roll put
+	end 
+	} def 
+/FMNORMALIZEGRAPHICS { 
+	newpath
+	1 setlinewidth
+	0 setlinecap
+	0 0 0 sethsbcolor
+	0 setgray 
+	} bind def
+/FMBEGINEPSF { 
+	end 
+	/FMEPSF save def 
+	/showpage {} def 
+% See Adobe's "PostScript Language Reference Manual, 2nd Edition", page 714.
+% "...the following operators MUST NOT be used in an EPS file:" (emphasis ours)
+	/banddevice {(banddevice) FMBADEPSF} def
+	/clear {(clear) FMBADEPSF} def
+	/cleardictstack {(cleardictstack) FMBADEPSF} def 
+	/copypage {(copypage) FMBADEPSF} def
+	/erasepage {(erasepage) FMBADEPSF} def
+	/exitserver {(exitserver) FMBADEPSF} def
+	/framedevice {(framedevice) FMBADEPSF} def
+	/grestoreall {(grestoreall) FMBADEPSF} def
+	/initclip {(initclip) FMBADEPSF} def
+	/initgraphics {(initgraphics) FMBADEPSF} def
+	/quit {(quit) FMBADEPSF} def
+	/renderbands {(renderbands) FMBADEPSF} def
+	/setglobal {(setglobal) FMBADEPSF} def
+	/setpagedevice {(setpagedevice) FMBADEPSF} def
+	/setshared {(setshared) FMBADEPSF} def
+	/startjob {(startjob) FMBADEPSF} def
+	/lettertray {(lettertray) FMBADEPSF} def
+	/letter {(letter) FMBADEPSF} def
+	/lettersmall {(lettersmall) FMBADEPSF} def
+	/11x17tray {(11x17tray) FMBADEPSF} def
+	/11x17 {(11x17) FMBADEPSF} def
+	/ledgertray {(ledgertray) FMBADEPSF} def
+	/ledger {(ledger) FMBADEPSF} def
+	/legaltray {(legaltray) FMBADEPSF} def
+	/legal {(legal) FMBADEPSF} def
+	/statementtray {(statementtray) FMBADEPSF} def
+	/statement {(statement) FMBADEPSF} def
+	/executivetray {(executivetray) FMBADEPSF} def
+	/executive {(executive) FMBADEPSF} def
+	/a3tray {(a3tray) FMBADEPSF} def
+	/a3 {(a3) FMBADEPSF} def
+	/a4tray {(a4tray) FMBADEPSF} def
+	/a4 {(a4) FMBADEPSF} def
+	/a4small {(a4small) FMBADEPSF} def
+	/b4tray {(b4tray) FMBADEPSF} def
+	/b4 {(b4) FMBADEPSF} def
+	/b5tray {(b5tray) FMBADEPSF} def
+	/b5 {(b5) FMBADEPSF} def
+	FMNORMALIZEGRAPHICS 
+	[/fy /fx /fh /fw /ury /urx /lly /llx] {exch def} forall 
+	fx fw 2 div add fy fh 2 div add  translate
+	rotate
+	fw 2 div neg fh 2 div neg translate
+	fw urx llx sub div fh ury lly sub div scale 
+	llx neg lly neg translate 
+	/FMdicttop countdictstack 1 add def 
+	/FMoptop count def 
+	} bind def
+/FMENDEPSF {
+	count -1 FMoptop {pop pop} for 
+	countdictstack -1 FMdicttop {pop end} for 
+	FMEPSF restore
+	FrameDict begin 
+	} bind def
+FrameDict begin 
+/setmanualfeed {
+%%BeginFeature *ManualFeed True
+	 statusdict /manualfeed true put
+%%EndFeature
+	} bind def
+/max {2 copy lt {exch} if pop} bind def
+/min {2 copy gt {exch} if pop} bind def
+/inch {72 mul} def
+/pagedimen { 
+	paperheight sub abs 16 lt exch 
+	paperwidth sub abs 16 lt and
+	{/papername exch def} {pop} ifelse
+	} bind def
+/setpapername { 
+	/papersizedict 14 dict def 
+	papersizedict begin
+	/papername /unknown def 
+		/Letter 8.5 inch 11.0 inch pagedimen
+		/LetterSmall 7.68 inch 10.16 inch pagedimen
+		/Tabloid 11.0 inch 17.0 inch pagedimen
+		/Ledger 17.0 inch 11.0 inch pagedimen
+		/Legal 8.5 inch 14.0 inch pagedimen
+		/Statement 5.5 inch 8.5 inch pagedimen
+		/Executive 7.5 inch 10.0 inch pagedimen
+		/A3 11.69 inch 16.5 inch pagedimen
+		/A4 8.26 inch 11.69 inch pagedimen
+		/A4Small 7.47 inch 10.85 inch pagedimen
+		/B4 10.125 inch 14.33 inch pagedimen
+		/B5 7.16 inch 10.125 inch pagedimen
+	end
+	} bind def
+/papersize {
+	papersizedict begin
+		/Letter {lettertray letter} def
+		/LetterSmall {lettertray lettersmall} def
+		/Tabloid {11x17tray 11x17} def
+		/Ledger {ledgertray ledger} def
+		/Legal {legaltray legal} def
+		/Statement {statementtray statement} def
+		/Executive {executivetray executive} def
+		/A3 {a3tray a3} def
+		/A4 {a4tray a4} def
+		/A4Small {a4tray a4small} def
+		/B4 {b4tray b4} def
+		/B5 {b5tray b5} def
+		/unknown {unknown} def
+	papersizedict dup papername known {papername} {/unknown} ifelse get
+	end
+	statusdict begin stopped end 
+	} bind def
+/manualpapersize {
+	papersizedict begin
+		/Letter {letter} def
+		/LetterSmall {lettersmall} def
+		/Tabloid {11x17} def
+		/Ledger {ledger} def
+		/Legal {legal} def
+		/Statement {statement} def
+		/Executive {executive} def
+		/A3 {a3} def
+		/A4 {a4} def
+		/A4Small {a4small} def
+		/B4 {b4} def
+		/B5 {b5} def
+		/unknown {unknown} def
+	papersizedict dup papername known {papername} {/unknown} ifelse get
+	end
+	stopped 
+	} bind def
+/desperatepapersize {
+	statusdict /setpageparams known
+		{
+		paperwidth paperheight 0 1 
+		statusdict begin
+		{setpageparams} stopped 
+		end
+		} {true} ifelse 
+	} bind def
+/papersizefailure {
+	FMAllowPaperSizeMismatch not
+		{
+(The requested paper size is not available in any currently-installed tray)
+(Edit the PS file to "FMAllowPaperSizeMismatch true" to use default tray)
+		 FMFAILURE } if
+	} def
+/DiacriticEncoding [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /space /exclam /quotedbl
+/numbersign /dollar /percent /ampersand /quotesingle /parenleft
+/parenright /asterisk /plus /comma /hyphen /period /slash /zero /one
+/two /three /four /five /six /seven /eight /nine /colon /semicolon
+/less /equal /greater /question /at /A /B /C /D /E /F /G /H /I /J /K
+/L /M /N /O /P /Q /R /S /T /U /V /W /X /Y /Z /bracketleft /backslash
+/bracketright /asciicircum /underscore /grave /a /b /c /d /e /f /g /h
+/i /j /k /l /m /n /o /p /q /r /s /t /u /v /w /x /y /z /braceleft /bar
+/braceright /asciitilde /.notdef /Adieresis /Aring /Ccedilla /Eacute
+/Ntilde /Odieresis /Udieresis /aacute /agrave /acircumflex /adieresis
+/atilde /aring /ccedilla /eacute /egrave /ecircumflex /edieresis
+/iacute /igrave /icircumflex /idieresis /ntilde /oacute /ograve
+/ocircumflex /odieresis /otilde /uacute /ugrave /ucircumflex
+/udieresis /dagger /.notdef /cent /sterling /section /bullet
+/paragraph /germandbls /registered /copyright /trademark /acute
+/dieresis /.notdef /AE /Oslash /.notdef /.notdef /.notdef /.notdef
+/yen /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/ordfeminine /ordmasculine /.notdef /ae /oslash /questiondown
+/exclamdown /logicalnot /.notdef /florin /.notdef /.notdef
+/guillemotleft /guillemotright /ellipsis /.notdef /Agrave /Atilde
+/Otilde /OE /oe /endash /emdash /quotedblleft /quotedblright
+/quoteleft /quoteright /.notdef /.notdef /ydieresis /Ydieresis
+/fraction /currency /guilsinglleft /guilsinglright /fi /fl /daggerdbl
+/periodcentered /quotesinglbase /quotedblbase /perthousand
+/Acircumflex /Ecircumflex /Aacute /Edieresis /Egrave /Iacute
+/Icircumflex /Idieresis /Igrave /Oacute /Ocircumflex /.notdef /Ograve
+/Uacute /Ucircumflex /Ugrave /dotlessi /circumflex /tilde /macron
+/breve /dotaccent /ring /cedilla /hungarumlaut /ogonek /caron
+] def
+/ReEncode { 
+	dup 
+	length 
+	dict begin 
+	{
+	1 index /FID ne 
+		{def} 
+		{pop pop} ifelse 
+	} forall 
+	0 eq {/Encoding DiacriticEncoding def} if 
+	currentdict 
+	end 
+	} bind def
+FMPColor 
+	
+	{
+	/BEGINBITMAPCOLOR { 
+		BITMAPCOLOR} def
+	/BEGINBITMAPCOLORc { 
+		BITMAPCOLORc} def
+	/BEGINBITMAPTRUECOLOR { 
+		BITMAPTRUECOLOR } def
+	/BEGINBITMAPTRUECOLORc { 
+		BITMAPTRUECOLORc } def
+	/BEGINBITMAPCMYK { 
+		BITMAPCMYK } def
+	/BEGINBITMAPCMYKc { 
+		BITMAPCMYKc } def
+	}
+	
+	{
+	/BEGINBITMAPCOLOR { 
+		BITMAPGRAY} def
+	/BEGINBITMAPCOLORc { 
+		BITMAPGRAYc} def
+	/BEGINBITMAPTRUECOLOR { 
+		BITMAPTRUEGRAY } def
+	/BEGINBITMAPTRUECOLORc { 
+		BITMAPTRUEGRAYc } def
+	/BEGINBITMAPCMYK { 
+		BITMAPCMYKGRAY } def
+	/BEGINBITMAPCMYKc { 
+		BITMAPCMYKGRAYc } def
+	}
+ifelse
+/K { 
+	FMPrintAllColorsAsBlack {
+		dup 1 eq 2 index 1 eq and 3 index 1 eq and not
+			{7 {pop} repeat 0 0 0 1 0 0 0} if
+	} if 
+	FrameCurColors astore 
+	pop combineColor
+} bind def
+/graymode true def
+fMLevel1 {
+	/fmGetFlip {
+		fMatrix2 exch get mul 0 lt { -1 } { 1 } ifelse
+	} FmBD
+} if
+/setPatternMode {
+	fMLevel1 {
+		2 index patScreenDict exch known {
+			pop pop
+			patScreenDict exch get aload pop 
+			freq 								
+			mul									
+			5 2 roll							
+			fMatrix2 currentmatrix 1 get 0 ne {
+				3 -1 roll 90 add 3 1 roll 		
+				sflipx 1 fmGetFlip sflipy 2 fmGetFlip neg mul
+			} {  								
+				sflipx 0 fmGetFlip sflipy 3 fmGetFlip mul 
+			} ifelse
+			0 lt {exch pop} {pop} ifelse 		
+			fMNegative { 
+				{neg} fmConcatProcs 			
+			} if
+			bind
+			
+			
+			
+			systemdict /setscreen get exec		
+			/FrameCurGray exch def
+		} {
+			/bwidth  exch def
+			/bpside  exch def
+			/bstring exch def
+			/onbits 0 def  /offbits 0 def
+			freq sangle landscape {90 add} if 
+				{/ypoint exch def
+				 /xpoint exch def
+				 /xindex xpoint 1 add 2 div bpside mul cvi def
+				 /yindex ypoint 1 add 2 div bpside mul cvi def
+				 bstring yindex bwidth mul xindex 8 idiv add get
+				 1 7 xindex 8 mod sub bitshift and 0 ne fMNegative {not} if
+				 {/onbits  onbits  1 add def 1}
+				 {/offbits offbits 1 add def 0}
+				 ifelse
+				}
+				setscreen
+			offbits offbits onbits add div fMNegative {1.0 exch sub} if
+			/FrameCurGray exch def
+		} ifelse
+	} { 
+		pop pop
+		dup patCache exch known {
+			patCache exch get
+		} { 
+			dup
+			patDict /bstring 3 -1 roll put
+			patDict 
+			9 PatFreq screenIndex get div dup matrix scale
+			makepattern
+			dup 
+			patCache 4 -1 roll 3 -1 roll put
+		} ifelse
+		/FrameCurGray 0 def
+		/FrameCurPat exch def
+	} ifelse
+	/graymode false def
+	combineColor
+} bind def
+/setGrayScaleMode {
+	graymode not {
+		/graymode true def
+		fMLevel1 {
+			setCurrentScreen
+		} if
+	} if
+	/FrameCurGray exch def
+	combineColor
+} bind def
+/normalize {
+	transform round exch round exch itransform
+	} bind def
+/dnormalize {
+	dtransform round exch round exch idtransform
+	} bind def
+/lnormalize { 
+	0 dtransform exch cvi 2 idiv 2 mul 1 add exch idtransform pop
+	} bind def
+/H { 
+	lnormalize setlinewidth
+	} bind def
+/Z {
+	setlinecap
+	} bind def
+	
+/PFill {
+	graymode fMLevel1 or not {
+		gsave 1 setgray eofill grestore
+	} if
+} bind def
+/PStroke {
+	graymode fMLevel1 or not {
+		gsave 1 setgray stroke grestore
+	} if
+	stroke
+} bind def
+/X { 
+	fillvals exch get
+	dup type /stringtype eq
+	{8 1 setPatternMode} 
+	{setGrayScaleMode}
+	ifelse
+	} bind def
+/V { 
+	PFill gsave eofill grestore
+	} bind def
+/Vclip {
+	clip
+	} bind def
+/Vstrk {
+	currentlinewidth exch setlinewidth PStroke setlinewidth
+	} bind def
+/N { 
+	PStroke
+	} bind def
+/Nclip {
+	strokepath clip newpath
+	} bind def
+/Nstrk {
+	currentlinewidth exch setlinewidth PStroke setlinewidth
+	} bind def
+/M {newpath moveto} bind def
+/E {lineto} bind def
+/D {curveto} bind def
+/O {closepath} bind def
+/L { 
+ 	/n exch def
+	newpath
+	normalize
+	moveto 
+	2 1 n {pop normalize lineto} for
+	} bind def
+/Y { 
+	L 
+	closepath
+	} bind def
+/R { 
+	/y2 exch def
+	/x2 exch def
+	/y1 exch def
+	/x1 exch def
+	x1 y1
+	x2 y1
+	x2 y2
+	x1 y2
+	4 Y 
+	} bind def
+/rarc 
+	{rad 
+	 arcto
+	} bind def
+/RR { 
+	/rad exch def
+	normalize
+	/y2 exch def
+	/x2 exch def
+	normalize
+	/y1 exch def
+	/x1 exch def
+	mark
+	newpath
+	{
+	x1 y1 rad add moveto
+	x1 y2 x2 y2 rarc
+	x2 y2 x2 y1 rarc
+	x2 y1 x1 y1 rarc
+	x1 y1 x1 y2 rarc
+	closepath
+	} stopped {x1 y1 x2 y2 R} if 
+	cleartomark
+	} bind def
+/RRR { 
+	/rad exch def
+	normalize /y4 exch def /x4 exch def
+	normalize /y3 exch def /x3 exch def
+	normalize /y2 exch def /x2 exch def
+	normalize /y1 exch def /x1 exch def
+	newpath
+	normalize moveto 
+	mark
+	{
+	x2 y2 x3 y3 rarc
+	x3 y3 x4 y4 rarc
+	x4 y4 x1 y1 rarc
+	x1 y1 x2 y2 rarc
+	closepath
+	} stopped
+	 {x1 y1 x2 y2 x3 y3 x4 y4 newpath moveto lineto lineto lineto closepath} if
+	cleartomark
+	} bind def
+/C { 
+	grestore
+	gsave
+	R 
+	clip
+	setCurrentScreen
+} bind def
+/CP { 
+	grestore
+	gsave
+	Y 
+	clip
+	setCurrentScreen
+} bind def
+/F { 
+	FMfonts exch get
+	FMpointsize scalefont
+	setfont
+	} bind def
+/Q { 
+	/FMpointsize exch def
+	F 
+	} bind def
+/T { 
+	moveto show
+	} bind def
+/RF { 
+	rotate
+	0 ne {-1 1 scale} if
+	} bind def
+/TF { 
+	gsave
+	moveto 
+	RF
+	show
+	grestore
+	} bind def
+/P { 
+	moveto
+	0 32 3 2 roll widthshow
+	} bind def
+/PF { 
+	gsave
+	moveto 
+	RF
+	0 32 3 2 roll widthshow
+	grestore
+	} bind def
+/S { 
+	moveto
+	0 exch ashow
+	} bind def
+/SF { 
+	gsave
+	moveto
+	RF
+	0 exch ashow
+	grestore
+	} bind def
+/B { 
+	moveto
+	0 32 4 2 roll 0 exch awidthshow
+	} bind def
+/BF { 
+	gsave
+	moveto
+	RF
+	0 32 4 2 roll 0 exch awidthshow
+	grestore
+	} bind def
+/G { 
+	gsave
+	newpath
+	normalize translate 0.0 0.0 moveto 
+	dnormalize scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	closepath 
+	PFill fill
+	grestore
+	} bind def
+/Gstrk {
+	savematrix
+    newpath
+    2 index 2 div add exch 3 index 2 div sub exch 
+    normalize 2 index 2 div sub exch 3 index 2 div add exch 
+    translate
+    scale 
+    0.0 0.0 1.0 5 3 roll arc 
+    restorematrix
+    currentlinewidth exch setlinewidth PStroke setlinewidth
+    } bind def
+/Gclip { 
+	newpath
+	savematrix
+	normalize translate 0.0 0.0 moveto 
+	dnormalize scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	closepath 
+	clip newpath
+	restorematrix
+	} bind def
+/GG { 
+	gsave
+	newpath
+	normalize translate 0.0 0.0 moveto 
+	rotate 
+	dnormalize scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	closepath
+	PFill
+	fill
+	grestore
+	} bind def
+/GGclip { 
+	savematrix
+	newpath
+    normalize translate 0.0 0.0 moveto 
+    rotate 
+    dnormalize scale 
+    0.0 0.0 1.0 5 3 roll arc 
+    closepath
+	clip newpath
+	restorematrix
+	} bind def
+/GGstrk { 
+	savematrix
+    newpath
+    normalize translate 0.0 0.0 moveto 
+    rotate 
+    dnormalize scale 
+    0.0 0.0 1.0 5 3 roll arc 
+    closepath 
+	restorematrix
+    currentlinewidth exch setlinewidth PStroke setlinewidth
+	} bind def
+/A { 
+	gsave
+	savematrix
+	newpath
+	2 index 2 div add exch 3 index 2 div sub exch 
+	normalize 2 index 2 div sub exch 3 index 2 div add exch 
+	translate 
+	scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	restorematrix
+	PStroke
+	grestore
+	} bind def
+/Aclip {
+	newpath
+	savematrix
+	normalize translate 0.0 0.0 moveto 
+	dnormalize scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	closepath 
+	strokepath clip newpath
+	restorematrix
+} bind def
+/Astrk {
+	Gstrk
+} bind def
+/AA { 
+	gsave
+	savematrix
+	newpath
+	
+	3 index 2 div add exch 4 index 2 div sub exch 
+	
+	normalize 3 index 2 div sub exch 4 index 2 div add exch
+	translate 
+	rotate 
+	scale 
+	0.0 0.0 1.0 5 3 roll arc 
+	restorematrix
+	PStroke
+	grestore
+	} bind def
+/AAclip {
+	savematrix
+	newpath
+    normalize translate 0.0 0.0 moveto 
+    rotate 
+    dnormalize scale 
+    0.0 0.0 1.0 5 3 roll arc 
+    closepath
+	strokepath clip newpath
+	restorematrix
+} bind def
+/AAstrk {
+	GGstrk
+} bind def
+/BEGINPRINTCODE { 
+	/FMdicttop countdictstack 1 add def 
+	/FMoptop count 7 sub def 
+	/FMsaveobject save def
+	userdict begin 
+	/showpage {} def 
+	FMNORMALIZEGRAPHICS 
+	3 index neg 3 index neg translate
+	} bind def
+/ENDPRINTCODE {
+	count -1 FMoptop {pop pop} for 
+	countdictstack -1 FMdicttop {pop end} for 
+	FMsaveobject restore 
+	} bind def
+/gn { 
+	0 
+	{	46 mul 
+		cf read pop 
+		32 sub 
+		dup 46 lt {exit} if 
+		46 sub add 
+		} loop
+	add 
+	} bind def
+/cfs { 
+	/str sl string def 
+	0 1 sl 1 sub {str exch val put} for 
+	str def 
+	} bind def
+/ic [ 
+	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0223
+	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0223
+	0
+	{0 hx} {1 hx} {2 hx} {3 hx} {4 hx} {5 hx} {6 hx} {7 hx} {8 hx} {9 hx}
+	{10 hx} {11 hx} {12 hx} {13 hx} {14 hx} {15 hx} {16 hx} {17 hx} {18 hx}
+	{19 hx} {gn hx} {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12}
+	{13} {14} {15} {16} {17} {18} {19} {gn} {0 wh} {1 wh} {2 wh} {3 wh}
+	{4 wh} {5 wh} {6 wh} {7 wh} {8 wh} {9 wh} {10 wh} {11 wh} {12 wh}
+	{13 wh} {14 wh} {gn wh} {0 bl} {1 bl} {2 bl} {3 bl} {4 bl} {5 bl} {6 bl}
+	{7 bl} {8 bl} {9 bl} {10 bl} {11 bl} {12 bl} {13 bl} {14 bl} {gn bl}
+	{0 fl} {1 fl} {2 fl} {3 fl} {4 fl} {5 fl} {6 fl} {7 fl} {8 fl} {9 fl}
+	{10 fl} {11 fl} {12 fl} {13 fl} {14 fl} {gn fl}
+	] def
+/ms { 
+	/sl exch def 
+	/val 255 def 
+	/ws cfs 
+	/im cfs 
+	/val 0 def 
+	/bs cfs 
+	/cs cfs 
+	} bind def
+400 ms 
+/ip { 
+	is 
+	0 
+	cf cs readline pop 
+	{	ic exch get exec 
+		add 
+		} forall 
+	pop 
+	
+	} bind def
+/rip { 
+	   
+	  
+	  bis ris copy pop 
+      is
+      0
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop 
+	  ris gis copy pop 
+	  dup is exch 
+	  
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop
+	  gis bis copy pop 
+	  dup add is exch 
+	  
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+      pop 
+      
+      } bind def
+/rip4 { 
+	   
+	  
+	  kis cis copy pop 
+      is
+      0
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop 
+	  cis mis copy pop 
+	  dup is exch 
+	  
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop
+	  mis yis copy pop 
+	  dup dup add is exch 
+	  
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop
+	  yis kis copy pop 
+	  3 mul is exch 
+	  
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+      pop 
+      
+      } bind def
+/wh { 
+	/len exch def 
+	/pos exch def 
+	ws 0 len getinterval im pos len getinterval copy pop
+	pos len 
+	} bind def
+/bl { 
+	/len exch def 
+	/pos exch def 
+	bs 0 len getinterval im pos len getinterval copy pop
+	pos len 
+	} bind def
+/s1 1 string def
+/fl { 
+	/len exch def 
+	/pos exch def 
+	/val cf s1 readhexstring pop 0 get def
+	pos 1 pos len add 1 sub {im exch val put} for
+	pos len 
+	} bind def
+/hx { 
+	3 copy getinterval 
+	cf exch readhexstring pop pop 
+	} bind def
+/wbytes { 
+      dup dup
+      8 gt { pop 8 idiv mul }
+      { 8 eq {pop} {1 eq {7 add 8 idiv} {3 add 4 idiv} ifelse} ifelse } ifelse
+	} bind def
+/BEGINBITMAPBWc { 
+	1 {} COMMONBITMAPc
+	} bind def
+/BEGINBITMAPGRAYc { 
+	8 {} COMMONBITMAPc
+	} bind def
+/BEGINBITMAP2BITc { 
+	2 {} COMMONBITMAPc
+	} bind def
+/COMMONBITMAPc { 
+		 
+	/cvtProc exch def
+	/depth exch def
+	gsave
+	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/lb width depth wbytes def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+	cvtProc                
+	/is im 0 lb getinterval def 
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	width height depth [width 0 0 height neg 0 height] 
+	{ip} image 
+	bitmapsave restore 
+	grestore
+	} bind def
+/BEGINBITMAPBW { 
+	1 {} COMMONBITMAP
+	} bind def
+/BEGINBITMAPGRAY { 
+	8 {} COMMONBITMAP
+	} bind def
+/BEGINBITMAP2BIT { 
+	2 {} COMMONBITMAP
+	} bind def
+/COMMONBITMAP { 
+	/cvtProc exch def
+	/depth exch def
+	gsave
+	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/bitmapsave save def 
+	cvtProc              
+	/is width depth wbytes string def
+	/cf currentfile def 
+	width height depth [width 0 0 height neg 0 height] 
+	{cf is readhexstring pop} image
+	bitmapsave restore 
+	grestore
+	} bind def
+/ngrayt 256 array def
+/nredt 256 array def
+/nbluet 256 array def
+/ngreent 256 array def
+fMLevel1 {
+/colorsetup {
+	currentcolortransfer
+	/gryt exch def
+	/blut exch def
+	/grnt exch def
+	/redt exch def
+	0 1 255 {
+		/indx exch def
+		/cynu 1 red indx get 255 div sub def
+		/magu 1 green indx get 255 div sub def
+		/yelu 1 blue indx get 255 div sub def
+		/kk cynu magu min yelu min def
+		/u kk currentundercolorremoval exec def
+%		/u 0 def
+		nredt indx 1 0 cynu u sub max sub redt exec put
+		ngreent indx 1 0 magu u sub max sub grnt exec put
+		nbluet indx 1 0 yelu u sub max sub blut exec put
+		ngrayt indx 1 kk currentblackgeneration exec sub gryt exec put
+	} for
+	{255 mul cvi nredt exch get}
+	{255 mul cvi ngreent exch get}
+	{255 mul cvi nbluet exch get}
+	{255 mul cvi ngrayt exch get}
+	setcolortransfer
+	{pop 0} setundercolorremoval
+	{} setblackgeneration
+	} bind def
+}
+{
+/colorSetup2 {
+	[ /Indexed /DeviceRGB 255 
+		{dup red exch get 255 div 
+		 exch dup green exch get 255 div 
+		 exch blue exch get 255 div}
+	] setcolorspace
+} bind def
+} ifelse
+/fakecolorsetup {
+	/tran 256 string def
+	0 1 255 {/indx exch def 
+		tran indx
+		red indx get 77 mul
+		green indx get 151 mul
+		blue indx get 28 mul
+		add add 256 idiv put} for
+	currenttransfer
+	{255 mul cvi tran exch get 255.0 div}
+	exch fmConcatProcs settransfer
+} bind def
+/BITMAPCOLOR { 
+	/depth 8 def
+	gsave
+	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/bitmapsave save def
+	fMLevel1 {	
+		colorsetup
+		/is width depth wbytes string def
+		/cf currentfile def 
+		width height depth [width 0 0 height neg 0 height] 
+		{cf is readhexstring pop} {is} {is} true 3 colorimage 
+	} {
+		colorSetup2
+		/is width depth wbytes string def
+		/cf currentfile def 
+		7 dict dup begin
+			/ImageType 1 def
+			/Width width def
+			/Height height def
+			/ImageMatrix [width 0 0 height neg 0 height] def
+			/DataSource {cf is readhexstring pop} bind def
+			/BitsPerComponent depth def
+			/Decode [0 255] def
+		end image	
+	} ifelse
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPCOLORc { 
+	/depth 8 def
+	gsave
+	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/lb width depth wbytes def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+	fMLevel1 {	
+		colorsetup
+		/is im 0 lb getinterval def 
+		ws 0 lb getinterval is copy pop 
+		/cf currentfile def 
+		width height depth [width 0 0 height neg 0 height] 
+		{ip} {is} {is} true 3 colorimage
+	} {
+		colorSetup2
+		/is im 0 lb getinterval def 
+		ws 0 lb getinterval is copy pop 
+		/cf currentfile def 
+		7 dict dup begin
+			/ImageType 1 def
+			/Width width def
+			/Height height def
+			/ImageMatrix [width 0 0 height neg 0 height] def
+			/DataSource {ip} bind def
+			/BitsPerComponent depth def
+			/Decode [0 255] def
+		end image	
+	} ifelse
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPTRUECOLORc { 
+	/depth 24 def
+        gsave
+ 	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/lb width depth wbytes def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+        
+	/is im 0 lb getinterval def	
+	/ris im 0 width getinterval def	
+	/gis im width width getinterval def	
+	/bis im width 2 mul width getinterval def 
+        
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	width height 8 [width 0 0 height neg 0 height] 
+	{width rip pop ris} {gis} {bis} true 3 colorimage
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPCMYKc { 
+	/depth 32 def
+        gsave
+ 	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/lb width depth wbytes def 
+	sl lb lt {lb ms} if 
+	/bitmapsave save def 
+        
+	/is im 0 lb getinterval def	
+	/cis im 0 width getinterval def	
+	/mis im width width getinterval def	
+	/yis im width 2 mul width getinterval def 
+	/kis im width 3 mul width getinterval def 
+        
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	width height 8 [width 0 0 height neg 0 height] 
+	{width rip4 pop cis} {mis} {yis} {kis} true 4 colorimage
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPTRUECOLOR { 
+        gsave
+		
+		3 index 2 div add exch	
+		4 index 2 div add exch	
+		translate		
+		rotate			
+		1 index 2 div neg	
+		1 index 2 div neg	
+		translate		
+		scale			
+		/height exch def /width exch def
+        /bitmapsave save def 
+        /is width string def
+        /gis width string def
+        /bis width string def
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        { cf is readhexstring pop } 
+        { cf gis readhexstring pop } 
+        { cf bis readhexstring pop } 
+        true 3 colorimage 
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPCMYK { 
+        gsave
+		
+		3 index 2 div add exch	
+		4 index 2 div add exch	
+		translate		
+		rotate			
+		1 index 2 div neg	
+		1 index 2 div neg	
+		translate		
+		scale			
+		/height exch def /width exch def
+        /bitmapsave save def 
+        /is width string def
+        /mis width string def
+        /yis width string def
+        /kis width string def
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        { cf is readhexstring pop } 
+        { cf mis readhexstring pop } 
+        { cf yis readhexstring pop } 
+        { cf kis readhexstring pop } 
+        true 4 colorimage 
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPTRUEGRAYc { 
+	/depth 24 def
+        gsave
+	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/lb width depth wbytes def 
+	sl lb lt {lb ms} if 
+        /bitmapsave save def 
+        
+	/is im 0 lb getinterval def	
+	/ris im 0 width getinterval def	
+	/gis im width width getinterval def	
+	/bis im width 2 mul width getinterval def 
+        ws 0 lb getinterval is copy pop 
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        {width rip pop ris gis bis width gray} image
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPCMYKGRAYc { 
+	/depth 32 def
+        gsave
+	
+	3 index 2 div add exch	
+	4 index 2 div add exch	
+	translate		
+	rotate			
+	1 index 2 div neg	
+	1 index 2 div neg	
+	translate		
+	scale			
+	/height exch def /width exch def
+	/lb width depth wbytes def 
+	sl lb lt {lb ms} if 
+        /bitmapsave save def 
+        
+	/is im 0 lb getinterval def	
+	/cis im 0 width getinterval def	
+	/mis im width width getinterval def	
+	/yis im width 2 mul width getinterval def 
+	/kis im width 3 mul width getinterval def 
+        ws 0 lb getinterval is copy pop 
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        {width rip pop cis mis yis kis width cgray} image
+        bitmapsave restore 
+        grestore
+        } bind def
+/cgray { 
+        /ww exch def
+        /k exch def
+        /y exch def
+        /m exch def
+        /c exch def
+        0 1 ww 1 sub { /i exch def c i get m i get y i get k i get CMYKtoRGB
+				.144 mul 3 1 roll .587 mul 3 1 roll .299 mul add add
+				c i 3 -1 roll floor cvi put } for
+        c
+ 		} bind def
+/gray { 
+        /ww exch def
+        /b exch def
+        /g exch def
+        /r exch def
+        0 1 ww 1 sub { /i exch def r i get .299 mul g i get .587 mul
+			b i get .114 mul add add r i 3 -1 roll floor cvi put } for
+        r
+        } bind def
+/BITMAPTRUEGRAY { 
+        gsave
+		
+		3 index 2 div add exch	
+		4 index 2 div add exch	
+		translate		
+		rotate			
+		1 index 2 div neg	
+		1 index 2 div neg	
+		translate		
+		scale			
+		/height exch def /width exch def
+        /bitmapsave save def 
+        /is width string def
+        /gis width string def
+        /bis width string def
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        { cf is readhexstring pop 
+          cf gis readhexstring pop 
+          cf bis readhexstring pop width gray}  image
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPCMYKGRAY { 
+        gsave
+		
+		3 index 2 div add exch	
+		4 index 2 div add exch	
+		translate		
+		rotate			
+		1 index 2 div neg	
+		1 index 2 div neg	
+		translate		
+		scale			
+		/height exch def /width exch def
+        /bitmapsave save def 
+        /is width string def
+        /yis width string def
+        /mis width string def
+        /kis width string def
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        { cf is readhexstring pop 
+          cf mis readhexstring pop 
+          cf yis readhexstring pop 
+          cf kis readhexstring pop width cgray}  image
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPGRAY { 
+	8 {fakecolorsetup} COMMONBITMAP
+	} bind def
+/BITMAPGRAYc { 
+	8 {fakecolorsetup} COMMONBITMAPc
+	} bind def
+/ENDBITMAP {
+	} bind def
+end 
+	/ALDmatrix matrix def ALDmatrix currentmatrix pop
+/StartALD {
+	/ALDsave save def
+	 savematrix
+	 ALDmatrix setmatrix
+	} bind def
+/InALD {
+	 restorematrix
+	} bind def
+/DoneALD {
+	 ALDsave restore
+	} bind def
+/I { setdash } bind def
+/J { [] 0 setdash } bind def
+%%EndProlog
+%%BeginSetup
+(5.0) FMVERSION
+1 1 0 0 612 792 0 1 12 FMDOCUMENT
+0 0 /Times-Roman FMFONTDEFINE
+1 0 /Times-Bold FMFONTDEFINE
+2 0 /Courier FMFONTDEFINE
+3 0 /Times-Italic FMFONTDEFINE
+4 0 /Courier-Bold FMFONTDEFINE
+32 FMFILLS
+0 0 FMFILL
+1 0.1 FMFILL
+2 0.3 FMFILL
+3 0.5 FMFILL
+4 0.7 FMFILL
+5 0.9 FMFILL
+6 0.97 FMFILL
+7 1 FMFILL
+8 <0f1e3c78f0e1c387> FMFILL
+9 <0f87c3e1f0783c1e> FMFILL
+10 <cccccccccccccccc> FMFILL
+11 <ffff0000ffff0000> FMFILL
+12 <8142241818244281> FMFILL
+13 <03060c183060c081> FMFILL
+14 <8040201008040201> FMFILL
+16 1 FMFILL
+17 0.9 FMFILL
+18 0.7 FMFILL
+19 0.5 FMFILL
+20 0.3 FMFILL
+21 0.1 FMFILL
+22 0.03 FMFILL
+23 0 FMFILL
+24 <f0e1c3870f1e3c78> FMFILL
+25 <f0783c1e0f87c3e1> FMFILL
+26 <3333333333333333> FMFILL
+27 <0000ffff0000ffff> FMFILL
+28 <7ebddbe7e7dbbd7e> FMFILL
+29 <fcf9f3e7cf9f3f7e> FMFILL
+30 <7fbfdfeff7fbfdfe> FMFILL
+%%EndSetup
+%%Page: "11" 1
+%%BeginPaperSize: Letter
+%%EndPaperSize
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 7 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+J
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+108 54 540 54 2 L
+0.25 H
+2 Z
+0 X
+0 0 0 1 0 0 0 K
+N
+0 8 Q
+(October 31, 1996) 296.12 42.62 T
+(11) 532 42.62 T
+0 12 Q
+(shells. In summary) 108 712 T
+(, the merits of Python ha) 198.22 712 T
+(v) 315.97 712 T
+(e been appreciated by more and more people) 321.79 712 T
+(in the scienti\336c computation community) 108 698 T
+(.) 301.22 698 T
+1 14 Q
+(Ackno) 108 668.67 T
+(wledgments) 146.75 668.67 T
+0 12 Q
+-0 (W) 108 641 P
+-0 (e are grateful for v) 118.37 641 P
+-0 (aluable discussions with Charlie Fly) 207.35 641 P
+-0 (, Robin Friedric, and Gre) 380.55 641 P
+-0 (g Boes.) 501.01 641 P
+(The research described here w) 108 627 T
+(as performed under the auspices of the U.S. Department of) 253.81 627 T
+(Ener) 108 613 T
+(gy by the La) 130.44 613 T
+(wrence Li) 190.58 613 T
+(v) 238.6 613 T
+(ermore National Laboratory under contract No. W) 244.42 613 T
+(-7405-) 485.23 613 T
+(ENG-48.) 108 599 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "11" 1
+%%Page: "10" 2
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 7 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+108 54 540 54 2 L
+0.25 H
+2 Z
+0 X
+0 0 0 1 0 0 0 K
+N
+0 8 Q
+(October 31, 1996) 296.12 42.62 T
+(10) 532 42.62 T
+2 12 Q
+(import physics) 108 712 T
+(class Application\050Frame\051:) 108 686 T
+(    def __init__\050 self, master=None \051:) 108 660 T
+(         Frame.__init__\050 self, master \051) 108 634 T
+(self.createWidgets\050\051) 172.8 608 T
+(         self.pack\050\051) 108 582 T
+(    def createWidgets\050 self \051:) 108 556 T
+(         self.Interpreter = Button\050 self, \134) 108 530 T
+(            { \322text\323 : \322Interpreter\323, \134) 108 504 T
+(            \322command\323 : self.interpreter_back } \051) 108 478 T
+(         self.Interpreter.pack\050\051) 108 452 T
+(         ...) 108 426 T
+(   def interpreter_back\050self\051:) 108 400 T
+(         print physics.interpreter\050\051) 108 374 T
+0 F
+(W) 108 348 T
+(e once considered PTUI \050Python/Tkinter User Interf) 118.37 348 T
+(ace, http://www) 368.86 348 T
+(.lems.bro) 444.73 348 T
+(wn.edu/) 489.1 348 T
+(~zack/ptui.html\051 as a tool for the abo) 108 334 T
+(v) 285.29 334 T
+(e purpose b) 291.11 334 T
+(ut could not \336nd an easy w) 346.19 334 T
+(ay to g) 475.39 334 T
+(ain) 508 334 T
+(access to the dictionary of the __main__ module. PTUI is a good de) 108 320 T
+(v) 433.99 320 T
+(elopment tool for) 439.81 320 T
+-0.05 (applications written in Python. It allo) 108 306 P
+-0.05 (ws multiple b) 286.09 306 P
+-0.05 (uf) 351.08 306 P
+-0.05 (fers with indi) 360.78 306 P
+-0.05 (vidual namespaces. F) 424.36 306 P
+-0.05 (or) 527.06 306 P
+-0.31 (the abo) 108 292 P
+-0.31 (v) 142.51 292 P
+-0.31 (e purpose, ho) 148.32 292 P
+-0.31 (we) 211.73 292 P
+-0.31 (v) 225.42 292 P
+-0.31 (er) 231.24 292 P
+-0.31 (, we w) 240.09 292 P
+-0.31 (ould lik) 271.01 292 P
+-0.31 (e the interpreter to ha) 307.59 292 P
+-0.31 (v) 408.76 292 P
+-0.31 (e the same namespaces as) 414.58 292 P
+(the Tk interf) 108 278 T
+(ace.) 167.87 278 T
+1 16 Q
+(6.0  Summary) 108 237.33 T
+0 12 Q
+-0.05 (W) 108 210 P
+-0.05 (e ha) 118.37 210 P
+-0.05 (v) 137.73 210 P
+-0.05 (e described our current approaches and future plans for steering C++ applications,) 143.55 210 P
+(running Python on parallel platforms, and combining the Tk interf) 108 196 T
+(ace and the Python) 425.86 196 T
+(interpreter in steering computations. In addition, there has been signi\336cant enhancement) 108 182 T
+(in the Gist module \050to be presented by Zane Motteler\051. Tk me) 108 168 T
+(g) 403.78 168 T
+(a widgets has been imple-) 409.72 168 T
+-0.01 (mented for a fe) 108 154 P
+-0.01 (w of our ph) 180.64 154 P
+-0.01 (ysics applications \050to be presented by Geof) 236.2 154 P
+-0.01 (f Furnish\051. W) 442.45 154 P
+-0.01 (e ha) 506.46 154 P
+-0.01 (v) 525.86 154 P
+-0.01 (e) 531.68 154 P
+(also written a Python interf) 108 140 T
+(ace to SILO, a data storage package used as an interf) 238.54 140 T
+(ace to a) 492 140 T
+(visualization system named MeshTV) 108 126 T
+(, de) 284.77 126 T
+(v) 301.8 126 T
+(eloped by another di) 307.62 126 T
+(vision at LLNL. Python is) 405.64 126 T
+(being used to control lar) 108 112 T
+(ge-scale simulations \050molecular dynamics in particular\051 running) 224.44 112 T
+(on the CM-5 and T3D at Los Alamos National Laboratory as well. A fe) 108 98 T
+(w other code) 451.64 98 T
+(de) 108 84 T
+(v) 119.03 84 T
+(elopment projects at LLNL are either using or considering Python as their steering) 124.85 84 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "10" 2
+%%Page: "9" 3
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 7 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+108 54 540 54 2 L
+0.25 H
+2 Z
+0 X
+0 0 0 1 0 0 0 K
+N
+0 8 Q
+(October 31, 1996) 296.12 42.62 T
+(9) 536 42.62 T
+0 12 Q
+-0.22 (out the service described in the Python script and return to their usual b) 108 712 P
+-0.22 (usiness after \336nish-) 447.12 712 P
+(ing the service.) 108 698 T
+(In its preliminary form, the Python script requesting service and the requested data are) 108 672 T
+(stored in \336les and mo) 108 658 T
+(v) 211.15 658 T
+(ed between the front-end host and PEs. W) 216.97 658 T
+(e plan to e) 417.97 658 T
+(xplore the pos-) 467.45 658 T
+(sibility of using the Inter) 108 644 T
+(-Language Uni\336cation \050ILU\051 system as the v) 226.43 644 T
+(ehicle for the) 441.54 644 T
+(e) 108 630 T
+(xchange of information between the front-end host and the PEs.) 113.15 630 T
+1 16 Q
+(5.0  Tk Interfaces with Scripting) 108 589.33 T
+0 12 Q
+-0.2 (A Tk interf) 108 562 P
+-0.2 (ace w) 161.46 562 P
+-0.2 (as b) 188.79 562 P
+-0.2 (uilt for one of our applications using the Tkinter module. At the click) 207.34 562 P
+(of a b) 108 548 T
+(utton, our application can be initialized or run a fe) 135.08 548 T
+(w steps. V) 375.41 548 T
+(ariables can be plotted) 424.4 548 T
+(v) 108 534 T
+(ersus one another by simply clicking a b) 113.82 534 T
+(utton. The Tk interf) 307.22 534 T
+(ace, ho) 401.76 534 T
+(we) 435.44 534 T
+(v) 449.14 534 T
+(er) 454.96 534 T
+(, has the disad-) 463.8 534 T
+-0.42 (v) 108 520 P
+-0.42 (antage of being not as programmable as the interpreter) 113.7 520 P
+-0.42 (. At times, our user may w) 371.6 520 P
+-0.42 (ant to do) 496.27 520 P
+-0.06 (some data processing that w) 108 506 P
+-0.06 (as not anticipated when the Tk interf) 242.95 506 P
+-0.06 (ace w) 418.42 506 P
+-0.06 (as b) 445.89 506 P
+-0.06 (uilt. In order to) 464.59 506 P
+(tak) 108 492 T
+(e adv) 122.54 492 T
+(antage of both mechanisms, we added an \324Interpreter\325 b) 147.9 492 T
+(utton to the Tk interf) 415.25 492 T
+(ace.) 515.12 492 T
+(At the click of the \324Interpreter\325 b) 108 478 T
+(utton, the windo) 265.04 478 T
+(w where the application is e) 343.08 478 T
+(v) 477.08 478 T
+(ok) 482.84 478 T
+(ed) 494.72 478 T
+(becomes the windo) 108 464 T
+(w for the Python interpreter which has the full control of the applica-) 200.35 464 T
+(tion as if the Tk interf) 108 450 T
+(ace did not e) 212.87 450 T
+(xist. When the user types ^D at the interpreter prompt,) 273.67 450 T
+-0.28 (the control is returned to the Tk interf) 108 436 P
+-0.28 (ace. T) 286.86 436 P
+-0.28 (o implement the \324interpreter\325 b) 314.94 436 P
+-0.28 (utton, we added) 461.53 436 P
+(the follo) 108 422 T
+(wing method to) 148.03 422 T
+3 F
+(physicsmodule) 226.37 422 T
+(.cc) 296.84 422 T
+0 F
+( which is one of the C++ e) 310.5 422 T
+(xtension modules.) 437.51 422 T
+2 F
+(static PyObject *physics_interpreter\050PyObject *self, PyOb-) 108 396 T
+(ject *args\051) 108 382 T
+({) 108 356 T
+(    if \050!PyArg_ParseTuple\050args, \322\322\051\051) 108 330 T
+(        return NULL;) 108 304 T
+(if \050PyRun_AnyFile\050stdin, \322<stdin>\323\051 == 0\051) 136.8 278 T
+(        return Py_BuildValue\050\322s\323, \322interpreter ends\323\051;) 108 252 T
+(    else) 108 226 T
+(        return Py_BuildValue\050\322s\323,) 108 200 T
+(             \322interpreter ends with an error\323\051;) 108 174 T
+(}) 108 148 T
+0 F
+(The Python module where the widgets are implemented contains the follo) 108 122 T
+(wing lines of) 462.32 122 T
+(code:) 108 108 T
+2 F
+(from Tkinter import *) 108 82 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "9" 3
+%%Page: "8" 4
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 7 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+108 54 540 54 2 L
+0.25 H
+2 Z
+0 X
+0 0 0 1 0 0 0 K
+N
+0 8 Q
+(October 31, 1996) 296.12 42.62 T
+(8) 536 42.62 T
+4 12 Q
+(\245) 108 712 T
+1 F
+-0.07 (BR) 121.75 712 P
+-0.07 (O) 138.05 712 P
+-0.07 (ADCAST) 146.91 712 P
+-0.07 (.) 195.16 712 P
+0 F
+-0.07 (In this mode, processor 0 reads data and broadcast it to all of the other) 201.09 712 P
+-0.38 (nodes. When writing, output is assumed to come from only one processor) 121.75 698 P
+-0.38 (. This mode is) 470.52 698 P
+(primarily used for handling interacti) 121.75 684 T
+(v) 295.42 684 T
+(e I/O using) 301.24 684 T
+1 F
+(stdin) 357.57 684 T
+0 F
+( and) 382.91 684 T
+1 F
+(stdout) 406.24 684 T
+0 F
+(.) 438.24 684 T
+4 F
+(\245) 108 664 T
+1 F
+(BR) 121.75 664 T
+(O) 138.05 664 T
+(ADCAST_WRITE.) 146.91 664 T
+0 F
+(This) 249.58 664 T
+(mode allo) 273.92 664 T
+(ws all processors to read data independently) 321.28 664 T
+(,) 532.46 664 T
+(b) 121.75 650 T
+(ut only one processor can write data. This mode is used for most \336le operations in) 127.5 650 T
+(Python.) 121.75 636 T
+(Currently) 108 610 T
+(, Beazle) 153.22 610 T
+(y has implemented the wrapper under CMMD on the CM-5, the shared) 191.69 610 T
+-0.14 (memory library on the T3D, and MPI. He is also using Python to control lar) 108 596 P
+-0.14 (ge-scale simu-) 470.49 596 P
+(lations \050molecular dynamics in particular\051 running on the CM-5 and T3D at Los Alamos) 108 582 T
+(National Laboratory) 108 568 T
+(.) 204.86 568 T
+(W) 108 542 T
+(e ha) 118.37 542 T
+(v) 137.78 542 T
+(e tried this parallel I/O scheme on LLNL T3D and found Beazle) 143.6 542 T
+(y\325) 451.69 542 T
+(s scheme v) 461.03 542 T
+(ery) 513.5 542 T
+(suitable for our applications. The LLNL T3D has 256 processing elements \050PEs\051, front-) 108 528 T
+(ended by a host system, a three processor Cray Y) 108 514 T
+(-MP) 343.28 514 T
+(. In our computational model, light-) 363.29 514 T
+(weight Python interpreters, with b) 108 500 T
+(uilt-in ph) 271.42 500 T
+(ysics modules, run on the PEs and communi-) 315.7 500 T
+(cate among themselv) 108 486 T
+(es using routines pro) 209.14 486 T
+(vided by the message-passing library) 308.62 486 T
+(. A full-) 485.81 486 T
+(blo) 108 472 T
+(wn Python interpreter) 123.04 472 T
+(, running on the front end host, serv) 227.21 472 T
+(es as the user interf) 398.68 472 T
+(ace. Our) 491.2 472 T
+-0.06 (users can perform interacti) 108 458 P
+-0.06 (v) 235.82 458 P
+-0.06 (e data processing as well as the computation steering on MPP) 241.65 458 P
+-0.28 (systems utilizing the data processing capability of the front-end Python interpreter and the) 108 444 P
+(script parsing capability of the Python enhanced code running on the PEs.) 108 430 T
+-0.1 (T) 108 404 P
+-0.1 (o further elucidate our model, we will use the follo) 114.37 404 P
+-0.1 (wing scenario as an e) 357.15 404 P
+-0.1 (xample. A three-) 459.22 404 P
+(dimensional \0503-D\051 h) 108 390 T
+(ydrodynamics simulation is being carried out using a domain-decom-) 205.26 390 T
+(position algorithm. Each PE has only detailed information about the domain belonging to) 108 376 T
+(the PE b) 108 362 T
+(ut lacks global information about the simulation. The front-end Python inter-) 148.43 362 T
+(preter) 108 348 T
+(, on the other hand, has a global vie) 135.5 348 T
+(w of the problem b) 305.84 348 T
+(ut lacks the most up-to-date) 396.92 348 T
+(detailed information of the simulation. Let\325) 108 334 T
+(s suppose that a user w) 315.32 334 T
+(ants to vie) 425.52 334 T
+(w data on a) 474.55 334 T
+(slice of surf) 108 320 T
+(ace of the 3-D simulation. The front-end host may not ha) 164.53 320 T
+(v) 437.92 320 T
+(e enough memory) 443.74 320 T
+(and disk space to store the information of the 3-D data. Besides, it is a w) 108 306 T
+(aste of time and) 456.17 306 T
+(space to mo) 108 292 T
+(v) 165.14 292 T
+(e all the 3-D data to the front end when the user only w) 170.96 292 T
+(ants to vie) 435.79 292 T
+(w a 2-D) 484.82 292 T
+-0.06 (slice of the simulation. An ef) 108 278 P
+-0.06 (\336cient w) 246.7 278 P
+-0.06 (ay to carry out the user\325) 288.18 278 P
+-0.06 (s request is to ha) 401.5 278 P
+-0.06 (v) 480.99 278 P
+-0.06 (e the front-) 486.81 278 P
+(end Python interpreter process use its global information to con) 108 264 T
+(v) 412.49 264 T
+(ert the user request into) 418.31 264 T
+-0.29 (an algorithm described by a Python script \050or one Python script for each PE\051 which is then) 108 250 P
+-0.25 (mo) 108 236 P
+-0.25 (v) 123.16 236 P
+-0.25 (ed to the PEs. The Python process on each PE parses this script and determines which) 128.98 236 P
+(data on its domain should be transmitted to the front-end host. After recei) 108 222 T
+(ving the data) 460.66 222 T
+(transmitted by the PEs the front-end Python interpreter can then render the image) 108 208 T
+(requested by the user) 108 194 T
+(.) 208.98 194 T
+(One thing w) 108 168 T
+(orth mentioning is that LLNL T3D is not a time-sharing system, and it is) 167.21 168 T
+(undesirable to lea) 108 154 T
+(v) 192.41 154 T
+(e PEs idle while the user is doing interacti) 198.23 154 T
+(v) 399.91 154 T
+(e data processing. In the) 405.73 154 T
+-0.37 (abo) 108 140 P
+-0.37 (v) 125.15 140 P
+-0.37 (e scenario, con) 130.97 140 P
+-0.37 (v) 201.39 140 P
+-0.37 (ersion of the user request to the Python script is done by the front-end) 207.21 140 P
+(process, which may run on the Cray front-end host or a remote w) 108 126 T
+(ork station. Ev) 420.82 126 T
+(ery so) 490.97 126 T
+(often, while the PEs carry out synchronization among themselv) 108 112 T
+(es, the) 412.12 112 T
+(y also look for) 442.6 112 T
+(Python scripts created by the front-end interpreter) 108 98 T
+(. If there is no Python script requesting) 346.62 98 T
+-0.38 (an) 108 84 P
+-0.38 (y service, the PEs will continue their re) 119.15 84 P
+-0.38 (gular computation. Otherwise, the PEs will carry) 304.99 84 P
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "8" 4
+%%Page: "7" 5
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 7 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+108 54 540 54 2 L
+0.25 H
+2 Z
+0 X
+0 0 0 1 0 0 0 K
+N
+0 8 Q
+(October 31, 1996) 296.12 42.62 T
+(7) 536 42.62 T
+2 12 Q
+(        if name == \322type\323 :) 108 712 T
+(            return shadow.Particle_type_get\050self.this\051) 108 686 T
+(        return self.__dict__[name]) 108 660 T
+0 F
+(In this case,) 108 634 T
+3 F
+(shadow) 167.99 634 T
+0 F
+( is a module containing a collection of C functions to access v) 204.66 634 T
+(arious) 501.66 634 T
+(parameters from our data structures. These functions could ha) 108 620 T
+(v) 404.69 620 T
+(e been created by SWIG,) 410.51 620 T
+(GRAD, or some other automatic wrapper generator) 108 606 T
+(. These C functions ha) 354.28 606 T
+(v) 461.69 606 T
+(e then been) 467.51 606 T
+-0.31 (encapsulated in a Python class that mirrors the underlying data structures. A pair of getattr) 108 592 P
+-0.1 (and setattr functions pro) 108 578 P
+-0.1 (vide access to indi) 223.84 578 P
+-0.1 (vidual members.   T) 311.56 578 P
+-0.1 (o construct the objects, one) 406.52 578 P
+(can call a C++ constructor as sho) 108 564 T
+(wn in the P) 267.2 564 T
+(article class or simply create an object from) 321.36 564 T
+(an already e) 108 550 T
+(xisting pointer as sho) 165.79 550 T
+(wn for the V) 267.83 550 T
+(ector class.) 327.48 550 T
+(When used from Python, these shado) 108 524 T
+(w classes allo) 286.34 524 T
+(w us to do the follo) 352.03 524 T
+(wing:) 444.73 524 T
+2 F
+(>>> p = Particle\050\051) 108 498 T
+(>>> p.r.x = 0.0) 108 472 T
+(>>> p.r.y = 2.0) 108 446 T
+(>>> p.r.z = 2.5) 108 420 T
+(>>> p.v.x, p.v.y, p.v.z  = \0500.0, 0.0, 0.0\051) 108 394 T
+(>>> p.f = p.v) 108 368 T
+(>>> p.type = 2) 108 342 T
+(>>> ... etc ...) 108 316 T
+0 F
+(While this is only a simple e) 108 290 T
+(xample, shado) 244.49 290 T
+(w classing can be successfully used in lar) 313.51 290 T
+(ger) 512.26 290 T
+(systems, e.g., it has been used e) 108 276 T
+(xtensi) 259.8 276 T
+(v) 288.17 276 T
+(ely in Python-controlled lar) 293.99 276 T
+(ge-scale molecular) 426.1 276 T
+(dynamics simulations at Los Alamos National Laboratory) 108 262 T
+(.) 385.2 262 T
+1 16 Q
+(4.0  Python on Massi) 108 221.33 T
+(v) 249.63 221.33 T
+(ely P) 257.47 221.33 T
+(arallel Pr) 290.64 221.33 T
+(ocessing \050MPP\051 Systems) 354.78 221.33 T
+0 12 Q
+(Python uses the C) 108 194 T
+1 F
+(stdio) 197.34 194 T
+0 F
+(library for man) 225.01 194 T
+(y operations, including reading scripts from \336les,) 297.48 194 T
+(importing modules, getting input from the user) 108 180 T
+(, and writing byte-compiled v) 332.52 180 T
+(ersions of) 474.66 180 T
+(modules back to disk. On massi) 108 166 T
+(v) 260.36 166 T
+(ely parallel processor \050MPP\051 systems, these operations) 266.18 166 T
+-0.11 (pose a serious problem. Da) 108 152 P
+-0.11 (vid Beazle) 237.61 152 P
+-0.11 (y ha) 288.31 152 P
+-0.11 (v) 308.28 152 P
+-0.11 (e de) 314.1 152 P
+-0.11 (v) 333.34 152 P
+-0.11 (eloped an I/O scheme for running Python) 339.16 152 P
+(on MPP systems. His scheme consists of a special header \336le) 108 138 T
+1 F
+(pstdio.h) 404.64 138 T
+0 F
+( to remap the I/O) 445.66 138 T
+(operations, and I/O wrapper functions implemented using a combination of the C) 108 124 T
+1 F
+(stdio) 500.95 124 T
+0 F
+(library and message passing operations. The header \336le) 108 110 T
+1 F
+(pstdio.h) 376.94 110 T
+0 F
+( is included into the) 417.96 110 T
+-0.26 (Python header \336le prior to the inclusion of the C) 108 96 P
+1 F
+-0.26 (stdio.h) 340.75 96 P
+0 F
+-0.26 ( header \336le. This remaps all of the) 375.09 96 P
+1 F
+-0.19 (stdio) 108 82 P
+0 F
+-0.19 ( operations to the I/O wrapper functions. T) 132.67 82 P
+-0.19 (w) 335.65 82 P
+-0.19 (o dif) 344.19 82 P
+-0.19 (ferent I/O modes are allo) 366.03 82 P
+-0.19 (wed in this) 484.92 82 P
+(scheme:) 108 68 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "7" 5
+%%Page: "6" 6
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 7 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+108 54 540 54 2 L
+0.25 H
+2 Z
+0 X
+0 0 0 1 0 0 0 K
+N
+0 8 Q
+(October 31, 1996) 296.12 42.62 T
+(6) 536 42.62 T
+2 12 Q
+(            shadow.Vector_x_set\050self.this, value\051) 108 712 T
+(            return) 108 686 T
+(...) 108 660 T
+(        self.__dict__[name] = value) 108 634 T
+(    def __getattr__\050self, name\051:) 108 608 T
+(        if name == \322x\323 :) 108 582 T
+(            return shadow.Vector_x_get\050self.this\051) 108 556 T
+(...) 108 530 T
+(        return self.__dict__[name]) 108 504 T
+(class Particle :) 108 478 T
+(    def __init__\050self\051:) 108 452 T
+(        self.this = shadow.new_Particle\050\051) 108 426 T
+(    def __setattr__\050self,name,value\051:) 108 400 T
+(        if name == \322r\323 :) 108 374 T
+(            shadow.Particle_r_set\050self.this, value.this\051) 108 348 T
+(            return) 108 322 T
+(...) 108 296 T
+(        if name == \322type\323 :) 108 270 T
+(            shadow.Particle_type_set\050self.this,value\051) 108 244 T
+(            return) 108 218 T
+(        self.__dict__[name] = value) 108 192 T
+(    def __getattr__\050self,name\051:) 108 166 T
+(        if name == \322r\323 :) 108 140 T
+(            return Vector\050shadow.Particle_r_get\050self.this\051\051) 108 114 T
+(...) 108 88 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "6" 6
+%%Page: "5" 7
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 7 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+108 54 540 54 2 L
+0.25 H
+2 Z
+0 X
+0 0 0 1 0 0 0 K
+N
+0 8 Q
+(October 31, 1996) 296.12 42.62 T
+(5) 536 42.62 T
+1 16 Q
+(3.0  Another W) 108 709.33 T
+(ay to Shado) 211.84 709.33 T
+(w C++ Objects: Python Shado) 291.7 709.33 T
+(w) 498.22 709.33 T
+(Class) 108 691.33 T
+0 12 Q
+-0.04 (A Python shado) 108 664 P
+-0.04 (w class is essentially a Python class that is wrapped around an underlying) 184.28 664 P
+(C or C++ class. In doing this, the goal is to produce a Python object that beha) 108 650 T
+(v) 479.94 650 T
+(es lik) 485.76 650 T
+(e a) 511.31 650 T
+-0.14 (normal Python object b) 108 636 P
+-0.14 (ut also feels a lot lik) 219.67 636 P
+-0.14 (e a C/C++ object. F) 315.84 636 P
+-0.14 (or Ph) 409.63 636 P
+-0.14 (ysics codes, this map-) 435.1 636 P
+-0.17 (ping is especially important since a ph) 108 622 P
+-0.17 (ysicist may be w) 290.92 622 P
+-0.17 (orking with v) 370.63 622 P
+-0.17 (arious objects in both) 434.67 622 P
+(Python and C/C++ and it is useful for the objects to appear in a similar w) 108 608 T
+(ay in both lan-) 459.06 608 T
+(guages.) 108 594 T
+(As an e) 108 568 T
+(xample, a Ph) 143.81 568 T
+(ysics code might ha) 206.08 568 T
+(v) 300.83 568 T
+(e the follo) 306.65 568 T
+(wing data structures) 355.01 568 T
+2 F
+(struct Vector {) 108 542 T
+(        double x,y,z;) 108 516 T
+(};) 108 490 T
+(struct Particle {) 108 464 T
+(        Particle\050\051;) 108 438 T
+(        ~Particle\050\051;) 108 412 T
+(        Vector  r;         // Position) 108 386 T
+(        Vector  v;         // Velocity) 108 360 T
+(        Vector  f;         // Force) 108 334 T
+(        int     type;      // type) 108 308 T
+(};) 108 282 T
+0 F
+(A fe) 108 256 T
+(w v) 128.69 256 T
+(ery simple Python shado) 146.17 256 T
+(w classes for these structures might look something lik) 264.2 256 T
+(e) 527.4 256 T
+(the follo) 108 242 T
+(wing:) 148.03 242 T
+2 F
+(import shadow) 108 216 T
+(class Vector:) 108 190 T
+(    def __init__\050self, this\051:) 108 164 T
+(        self.this = this) 108 138 T
+(    def __setattr__\050self,name, value\051:) 108 112 T
+(        if name == \322x\323 :) 108 86 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "5" 7
+%%Page: "4" 8
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 7 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+108 54 540 54 2 L
+0.25 H
+2 Z
+0 X
+0 0 0 1 0 0 0 K
+N
+0 8 Q
+(October 31, 1996) 296.12 42.62 T
+(4) 536 42.62 T
+2 12 Q
+(                print \322timestep = \323 , i, \322 t = \323, t) 108 712 T
+(        hydro.advance \050dt\051) 108 686 T
+(        t = t + dt) 108 660 T
+0 F
+(W) 108 634 T
+(e are also learning the interf) 118.37 634 T
+(ace generating tools SWIG \050Simpli\336ed Wrapper and Inter-) 252.54 634 T
+-0.19 (f) 108 620 P
+-0.19 (ace Generator\051 and GRAD \050Grammar) 111.88 620 P
+-0.19 (-based Rapid Application De) 292.13 620 P
+-0.19 (v) 430.9 620 P
+-0.19 (elopment\051. The w) 436.72 620 P
+-0.19 (ays) 521.2 620 P
+(that SWIG and GRAD shado) 108 606 T
+(w C++ objects are v) 247.68 606 T
+(ery similar to each other) 344.35 606 T
+(. F) 460.33 606 T
+(or each C++) 472.82 606 T
+(class, a shado) 108 592 T
+(w class, which is a Python class object, is created. A C++ instance of the) 173.35 592 T
+(class is then shado) 108 578 T
+(wed by a Python instance object of the Python shado) 196.69 578 T
+(w class. More) 450.04 578 T
+(detailed description of the Python shado) 108 564 T
+(w classes is gi) 300.68 564 T
+(v) 368.71 564 T
+(en in the ne) 374.53 564 T
+(xt section. In contrast,) 430.01 564 T
+(the) 108 550 T
+3 F
+(cplus_shadow) 125.66 550 T
+0 F
+( type object in our application is more lik) 193.67 550 T
+(e the Python instance object) 391.54 550 T
+(with the corresponding class object hidden from the Python interpreter) 108 536 T
+(. Although it has) 446.29 536 T
+(not yet been implemented, the) 108 522 T
+3 F
+(g) 255.98 522 T
+(etattr) 261.86 522 T
+0 F
+( and) 287.87 522 T
+3 F
+(setattr) 311.2 522 T
+0 F
+( functions of) 341.87 522 T
+3 F
+(cplus_shadow) 405.53 522 T
+0 F
+( type can be) 473.53 522 T
+-0.43 (e) 108 508 P
+-0.43 (xtended to allo) 113.15 508 P
+-0.43 (w the addition of attrib) 183.31 508 P
+-0.43 (utes and methods to the object after its creation, just) 291.34 508 P
+(lik) 108 494 T
+(e the Python instance object. Ho) 120.55 494 T
+(we) 275.57 494 T
+(v) 289.26 494 T
+(er we shado) 295.08 494 T
+(w the C++ object, the setattr function) 352.09 494 T
+(\050or __setattr__ for the Python class\051 should a) 108 480 T
+(v) 323.4 480 T
+(oid o) 329.16 480 T
+(v) 353.32 480 T
+(erriding a method corresponding to a) 359.14 480 T
+(C++ public member function, since such an o) 108 466 T
+(v) 326.66 466 T
+(erride results in inconsistent implementa-) 332.48 466 T
+(tions of the class between the points of vie) 108 452 T
+(w of the C++ code and the Python code. This) 311.68 452 T
+(concern is also the reason for our ongoing debate on the merits of ha) 108 438 T
+(ving shado) 436.69 438 T
+(w classes) 488.72 438 T
+(which are Python class objects. On the one hand, such shado) 108 424 T
+(w classes allo) 398.99 424 T
+(ws inheritance) 464.68 424 T
+-0.43 (and addition of ne) 108 410 P
+-0.43 (w attrib) 193.41 410 P
+-0.43 (utes and methods from the Python interpreter) 229.74 410 P
+-0.43 (. On the other hand,) 443.82 410 P
+(e) 108 396 T
+(xistence of the shado) 113.15 396 T
+(w class objects also allo) 213.83 396 T
+(ws o) 328.85 396 T
+(v) 351 396 T
+(erriding e) 356.82 396 T
+(xisting methods for all the) 402.96 396 T
+(instance objects created before or after the o) 108 382 T
+(v) 320.08 382 T
+(erride, an undesirable side ef) 325.9 382 T
+(fect for imple-) 463.88 382 T
+(mentation consistenc) 108 368 T
+(y) 208.81 368 T
+(.) 214.03 368 T
+-0.01 (W) 108 342 P
+-0.01 (e ha) 118.37 342 P
+-0.01 (v) 137.77 342 P
+-0.01 (e also gi) 143.59 342 P
+-0.01 (v) 183.27 342 P
+-0.01 (en considerable thought to the interf) 189.09 342 P
+-0.01 (ace for pointers to C++ fundamental) 362.56 342 P
+(types. Such pointers are frequently used to point to the addresses for arrays whose shapes) 108 328 T
+-0.08 (are not kno) 108 314 P
+-0.08 (wn during compilation and linking. Although we don\325) 161.53 314 P
+-0.08 (t consider this practice a) 420.75 314 P
+-0.16 (good programming style, we w) 108 300 P
+-0.16 (ant to be prepared. SWIG and GRAD currently turn a C++) 256.91 300 P
+(pointer into a b) 108 286 T
+(uilt-in Python type object \050string for SWIG and long inte) 180.76 286 T
+(ger for GRAD\051.) 453.56 286 T
+(Since it tak) 108 272 T
+(es more than the address of the data to specify a multi-dimensional array) 161.88 272 T
+(, we) 509.7 272 T
+(think this is the best we can do as f) 108 258 T
+(ar as the interf) 275.53 258 T
+(ace to the compiled code is concerned.) 344.39 258 T
+(Ho) 108 244 T
+(we) 122.36 244 T
+(v) 136.06 244 T
+(er) 141.88 244 T
+(, we plan to write a function which will allo) 150.72 244 T
+(w users to create a) 360.4 244 T
+3 F
+(PyArr) 452.03 244 T
+(ay) 481.18 244 T
+0 F
+( type) 492.5 244 T
+-0.11 (object if the users also kno) 108 230 P
+-0.11 (w the v) 235.46 230 P
+-0.11 (ariables specifying the shape of the array \050) 270.26 230 P
+3 F
+-0.11 (PyArr) 473.08 230 P
+-0.11 (ay) 502.23 230 P
+0 F
+-0.11 ( type) 513.56 230 P
+(has been implemented by Jim Hugunin in the Numeric module\051. The C API) 108 216 T
+3 F
+-0.13 (PyArr) 108 202 P
+-0.13 (ay_F) 137.15 202 P
+-0.13 (r) 161.15 202 P
+-0.13 (omDimsAndData) 165.28 202 P
+0 F
+-0.13 (in the module can be used to shado) 251.47 202 P
+-0.13 (w o) 418.55 202 P
+-0.13 (v) 435.9 202 P
+-0.13 (er a data area which) 441.72 202 P
+-0.26 (is allocated in the compiled code. It will also be useful to implement a function that serv) 108 188 P
+-0.26 (es) 527.26 188 P
+(the re) 108 174 T
+(v) 134.69 174 T
+(erse purpose, i.e., to turn a) 140.51 174 T
+3 F
+(PyArr) 270.48 174 T
+(ay) 299.63 174 T
+0 F
+( type object into a tuple containing the Python) 310.96 174 T
+-0.42 (objects corresponding to the pointers for the data and the shape, respecti) 108 160 P
+-0.42 (v) 449.67 160 P
+-0.42 (ely) 455.49 160 P
+-0.42 (, which can be) 469.37 160 P
+(passed as ar) 108 146 T
+(guments to functions e) 165.1 146 T
+(xpecting pointer ar) 273.91 146 T
+(guments.) 364.34 146 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "4" 8
+%%Page: "3" 9
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 7 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+108 54 540 54 2 L
+0.25 H
+2 Z
+0 X
+0 0 0 1 0 0 0 K
+N
+0 8 Q
+(October 31, 1996) 296.12 42.62 T
+(3) 536 42.62 T
+2 12 Q
+(   try:) 108 712 T
+-0.65 (      ret = getattr\050hydro,\323new_Noh_1d_of_\323 + template\051 \050mesh\051) 108 686 P
+(   except AttributeError:) 108 660 T
+(      raise Error, \134) 108 634 T
+(        \322template not instantiated for Noh_1d<\322+template+\323>\323) 108 608 T
+(   for kw in keywords.keys\050\051:) 108 582 T
+(      try:) 108 556 T
+(         setattr\050ret, kw, keywords[kw] \051) 108 530 T
+(      except AttributeError:) 108 504 T
+(         raise Error, kw + \324 is not an acceptable keyword\325) 108 478 T
+(   return ret) 108 452 T
+0 F
+(The module) 108 426 T
+3 F
+(hydr) 168.66 426 T
+(o) 190.12 426 T
+0 F
+(is a C++ e) 199.12 426 T
+(xtension module. One of the attrib) 248.14 426 T
+(utes of the module object) 412.55 426 T
+3 F
+(hydr) 108 412 T
+(o) 129.46 412 T
+0 F
+( is the method) 135.46 412 T
+3 F
+(ne) 206.12 412 T
+(w_Noh_1d_of_K_Mesh) 217.27 412 T
+0 F
+(which creates a ne) 333.61 412 T
+(w instance of the C++) 421.61 412 T
+-0 (class) 108 398 P
+3 F
+-0 (Noh_1d<K_Mesh>) 134.32 398 P
+0 F
+-0 ( as well as the instance\325) 228.52 398 P
+-0 (s shado) 341.49 398 P
+-0 (w) 376.85 398 P
+-0 (. If another instance of the class) 384.73 398 P
+(template) 108 384 T
+3 F
+(,) 149.21 384 T
+0 F
+(say) 155.21 384 T
+3 F
+( Noh_1d<L_Mesh>,) 171.2 384 T
+0 F
+(does not ha) 273.07 384 T
+(v) 327.49 384 T
+(e a corresponding creation method as an) 333.31 384 T
+(attrib) 108 370 T
+(ute of the module object) 133.09 370 T
+3 F
+(hydr) 252.74 370 T
+(o) 274.2 370 T
+0 F
+(. The follo) 280.2 370 T
+(wing statement:) 330.23 370 T
+2 F
+(>>> hydro = Hydro.create_Noh_1d\050\322L_Mesh\323, mesh, \134) 108 344 T
+(>>>         Noh_delta=1, gamma=1.6666667 \051) 108 318 T
+0 F
+-0.17 (will result in an error with the message \324template not instantiated for Noh_1d<L_Mesh>\325.) 108 292 P
+(The function) 108 278 T
+3 F
+(cr) 172.66 278 T
+(eate_Noh_1d) 182.21 278 T
+0 F
+(also tak) 249.2 278 T
+(es k) 286.08 278 T
+(e) 304.96 278 T
+(yw) 310.1 278 T
+(ord ar) 324.65 278 T
+(guments to o) 352.75 278 T
+(v) 414.58 278 T
+(erride def) 420.4 278 T
+(ault v) 466.58 278 T
+(alues of) 493.28 278 T
+(the data members of the class) 108 264 T
+3 F
+(Noh_1d.) 252.64 264 T
+0 F
+(If a k) 296.64 264 T
+(e) 321.84 264 T
+(yw) 326.99 264 T
+(ord, say) 341.53 264 T
+3 F
+(abc) 382.52 264 T
+0 F
+(, which does not correspond) 399.85 264 T
+(to a public data member of) 108 250 T
+3 F
+(Noh_1d) 239.98 250 T
+0 F
+(is gi) 280.98 250 T
+(v) 301.02 250 T
+(en as an ar) 306.84 250 T
+(gument) 357.6 250 T
+3 F
+(,) 393.6 250 T
+0 F
+(an error will be raised with) 399.6 250 T
+(the message \324abc is not an acceptable k) 108 236 T
+(e) 296.16 236 T
+(yw) 301.31 236 T
+(ord\325.) 315.85 236 T
+(After the tw) 108 210 T
+(o C++ objects with their shado) 165.86 210 T
+(ws named mesh and h) 313.43 210 T
+(ydro ha) 419.35 210 T
+(v) 455.44 210 T
+(e been created,) 461.26 210 T
+(the follo) 108 196 T
+(wing p) 148.03 196 T
+(ython script will run the application for 500 steps.) 180.91 196 T
+2 F
+(t = 0) 108 170 T
+(dt = 0.0000001) 108 144 T
+(for i in range\050500\051:) 108 118 T
+(        if i%10 == 0:) 108 92 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "3" 9
+%%Page: "2" 10
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 7 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+108 54 540 54 2 L
+0.25 H
+2 Z
+0 X
+0 0 0 1 0 0 0 K
+N
+0 8 Q
+(October 31, 1996) 296.12 42.62 T
+(2) 536 42.62 T
+0 12 Q
+(the other hand, if \324x\325 is declared to be an instance of a C++ class, or a pointer to such an) 108 712 T
+(instance, the interf) 108 698 T
+(ace function uses the type information stored in the shado) 196.86 698 T
+(w object to) 473.52 698 T
+(assure that the type of <ne) 108 684 T
+(w v) 234.11 684 T
+(alue> conforms to the type of \324x\325, i.e. the C++ object shad-) 251.47 684 T
+-0.1 (o) 108 670 P
+-0.1 (wed by <ne) 113.7 670 P
+-0.1 (w v) 169.29 670 P
+-0.1 (alue> is of the same type as \324x\325, or is of a type directly or indirectly inher-) 186.55 670 P
+(its from that of \324x\325 through public inheritance. The) 108 656 T
+3 F
+(g) 353.96 656 T
+(etattr) 359.84 656 T
+0 F
+( function of the) 385.85 656 T
+3 F
+(cplus_shadow) 462.5 656 T
+0 F
+(type is also implemented such that the shado) 108 642 T
+(w object feels and looks lik) 322.02 642 T
+(e the shado) 453.55 642 T
+(wed) 507.24 642 T
+-0.44 (C++ object. T) 108 628 P
+-0.44 (ype checking similar to that for public member assignment is also performed) 173.35 628 P
+(for the ar) 108 614 T
+(guments of C++ public member functions.) 151.76 614 T
+-0.15 (Our C++ application also hea) 108 588 P
+-0.15 (vily uses templates. Since template classes need to be instan-) 248.69 588 P
+(tiated during compilation and linking, our current treatment is to write for each template) 108 574 T
+(class a separate set of interf) 108 560 T
+(ace functions including the creation function.) 240.17 560 T
+(F) 108 534 T
+(or e) 114.49 534 T
+(xample, if a class template is declared as:) 132.64 534 T
+2 F
+(template<class T> class Foo {) 108 508 T
+(...) 108 482 T
+(}) 108 456 T
+0 F
+(and we wish to create instances and the corresponding shado) 108 430 T
+(w objects for the classes) 399.3 430 T
+3 F
+(F) 108 416 T
+(oo<A>) 114.07 416 T
+0 F
+( and) 149.6 416 T
+3 F
+(F) 172.93 416 T
+(oo<B>) 179 416 T
+0 F
+(, tw) 214.54 416 T
+(o separate creation functions) 232.42 416 T
+3 F
+(hydr) 373.04 416 T
+(o_ne) 394.5 416 T
+(w_F) 417.65 416 T
+(oo_of_A) 437.72 416 T
+0 F
+( and) 478.39 416 T
+3 F
+(hydr) 108 402 T
+(o_ne) 129.46 402 T
+(w_F) 152.6 402 T
+(oo_of_B) 172.68 402 T
+0 F
+( are written, where) 213.35 402 T
+3 F
+(hydr) 306.31 402 T
+(o) 327.77 402 T
+0 F
+( is the name of the module. Since the) 333.77 402 T
+(implementations of) 108 388 T
+3 F
+(hydr) 204 388 T
+(o_ne) 225.46 388 T
+(w_F) 248.6 388 T
+(oo_of_A) 268.68 388 T
+0 F
+(and) 312.35 388 T
+3 F
+(hydr) 332.68 388 T
+(o_ne) 354.13 388 T
+(w_F) 377.28 388 T
+(oo_of_B) 397.36 388 T
+0 F
+(in) 441.02 388 T
+(v) 449.88 388 T
+(olv) 455.64 388 T
+(e creation of) 470.8 388 T
+(instances of) 108 374 T
+3 F
+(F) 167.99 374 T
+(oo<A>) 174.06 374 T
+0 F
+(and) 212.59 374 T
+3 F
+( F) 229.92 374 T
+(oo<B>,) 238.99 374 T
+0 F
+(these tw) 280.52 374 T
+(o classes are instantiated during compilation) 320.06 374 T
+(and linking) 108 360 T
+3 F
+(.) 162.16 360 T
+0 F
+(The follo) 108 334 T
+(wing is an e) 152.03 334 T
+(xample sho) 209.51 334 T
+(wing ho) 264.2 334 T
+(w a C++ application can be steered from Python:) 302.9 334 T
+2 F
+(>>> import Geom, Hydro) 108 308 T
+(>>> mesh = Geom.create_K_Mesh\050ncx1=100\051) 108 282 T
+(>>> hydro = Hydro.create_Noh_1d\050\322K_Mesh\323, mesh, \134) 108 256 T
+(>>>         Noh_delta=1, gamma=1.6666667 \051) 108 230 T
+0 F
+(T) 108 204 T
+(w) 114.37 204 T
+(o C++ objects and their shado) 122.92 204 T
+(ws are created from Python as a result of the abo) 266.47 204 T
+(v) 500.23 204 T
+(e) 506.05 204 T
+(Python statements. The objects are instances of the C++ classes) 108 190 T
+3 F
+(K_Mesh) 416.5 190 T
+0 F
+( and) 456.49 190 T
+3 F
+(Noh_1d<K_Mesh>) 108 176 T
+0 F
+(, respecti) 202.2 176 T
+(v) 245.22 176 T
+(ely) 251.04 176 T
+(. The shado) 264.92 176 T
+(ws of these tw) 320.28 176 T
+(o objects are named \324mesh\325 and) 389.15 176 T
+(\324h) 108 162 T
+(ydro\325. The \336le) 117.94 162 T
+3 F
+(Hydr) 189.92 162 T
+(o.py) 214.04 162 T
+0 F
+(, for e) 233.59 162 T
+(xample, contains the follo) 261.73 162 T
+(wing Python code:) 386.09 162 T
+2 F
+(import hydro) 108 136 T
+(Error = \324Hydro error\325) 108 110 T
+(def create_Noh_1d\050template, mesh, **keywords\051:) 108 84 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "2" 10
+%%Page: "1" 11
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 7 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+108 54 540 54 2 L
+0.25 H
+2 Z
+0 X
+0 0 0 1 0 0 0 K
+N
+0 8 Q
+(October 31, 1996) 296.12 42.62 T
+(1) 536 42.62 T
+1 16 Q
+(1.0  Intr) 108 515.33 T
+(oduction) 163.26 515.33 T
+0 12 Q
+(Progress has been made in our ef) 108 488 T
+(fort to create a \324) 266.33 488 T
+(\324plug and play\325) 342.07 488 T
+(\325 programmable interf) 414.5 488 T
+(ace) 520.36 488 T
+(for our applications using Numeric Python \050Hang) 108 474 T
+3 F
+(et. al.) 348.97 474 T
+0 F
+(, June 1996 Python Conference) 375.97 474 T
+(Proceedings http://www) 108 460 T
+(.p) 223.55 460 T
+(ython.or) 232.43 460 T
+(g/w) 272.54 460 T
+(orkshops/1996-06/papers/\051. In this progress report) 290.42 460 T
+(we describe our current approach to steering C++ computations with a Python shell. Our) 108 446 T
+(e) 108 432 T
+(xperiments ha) 113.15 432 T
+(v) 180.56 432 T
+(e included shado) 186.38 432 T
+(wing C++ objects, combining Tk interf) 266.74 432 T
+(aces with script-) 454.81 432 T
+(ing, running Python on parallel processors, and using interf) 108 418 T
+(ace generators. W) 392.52 418 T
+(e also) 477.85 418 T
+(include a brief summary of the status of v) 108 404 T
+(arious Python e) 307.67 404 T
+(xtensions under w) 382.15 404 T
+(ork at LLNL) 469.36 404 T
+(and LANL \050Los Alamos National Laboratory\051.) 108 390 T
+1 16 Q
+(2.0  Shado) 108 349.33 T
+(wing C++ Objects and Interface Generation) 178.53 349.33 T
+0 12 Q
+-0.44 (One of our projects is to de) 108 322 P
+-0.44 (v) 235.7 322 P
+-0.44 (elop a ph) 241.52 322 P
+-0.44 (ysics application in C++ with a Python interf) 284.57 322 P
+-0.44 (ace. The) 497.24 322 P
+(application consists of C++ classes grouped into a fe) 108 308 T
+(w modules. The instances of the) 360.54 308 T
+(classes interact with one another to simulate ph) 108 294 T
+(ysics processes. The creation and the cho-) 334.91 294 T
+(reograph) 108 280 T
+(y of these instances \050C++ objects\051 are performed from the Python interpreter) 150.59 280 T
+(. In) 517.72 280 T
+-0.28 (other w) 108 266 P
+-0.28 (ords, users can steer the simulations using Python. In order to achie) 143.92 266 P
+-0.28 (v) 464.11 266 P
+-0.28 (e the steerabil-) 469.93 266 P
+(ity) 108 252 T
+(, these C++ objects must each ha) 119.89 252 T
+(v) 277.5 252 T
+(e a handle \050or shado) 283.32 252 T
+(w\051 at the Python le) 379.66 252 T
+(v) 470.02 252 T
+(el. W) 475.84 252 T
+(e ha) 500.87 252 T
+(v) 520.28 252 T
+(e) 526.1 252 T
+(implemented an e) 108 238 T
+(xtension type in C named) 193.14 238 T
+3 F
+(cplus_shadow) 318.8 238 T
+0 F
+( type. F) 386.81 238 T
+(or each C++ class of) 422.96 238 T
+(which we wish to create instances from Python, there is a method whose function is to) 108 224 T
+(instantiate the class as well as to create a Python shado) 108 210 T
+(w for the instance. This creation) 370.99 210 T
+(method is an attrib) 108 196 T
+(ute of the module object to which the class belongs.) 197.42 196 T
+(The present design mak) 108 170 T
+(es the shado) 222.19 170 T
+(w object feel and look lik) 280.55 170 T
+(e the shado) 402.74 170 T
+(wed C++ object) 456.43 170 T
+-0.03 (as much as possible. If \324x\325 is a public data member of a class and \324foo\325 is a shado) 108 156 P
+-0.03 (w object) 496.07 156 P
+(for the class, typing \324foo.x = <ne) 108 142 T
+(w v) 265.21 142 T
+(alue>\325 at the Python interpreter changes the v) 282.58 142 T
+(alue of) 500.66 142 T
+(the data member \324x\325 of the shado) 108 128 T
+(wed C++ object. This is done by the appropriate imple-) 266.33 128 T
+(mentation of the) 108 114 T
+3 F
+(cplus_shadow) 189.66 114 T
+0 F
+( type\325) 257.66 114 T
+(s) 284.66 114 T
+3 F
+(setattr) 292.33 114 T
+0 F
+( function, which calls the interf) 323 114 T
+(ace function) 472.86 114 T
+(corresponding to \324x\325. If \324x\325 is of a C++ fundamental type, the interf) 108 100 T
+(ace function uses the) 430.02 100 T
+-0.13 (proper Python C API \050e.g.,) 108 86 P
+3 F
+-0.13 (PyInt_AsLong) 239.34 86 P
+0 F
+-0.13 ( if \324x\325 is of type \324int\325\051 to con) 308 86 P
+-0.13 (v) 441.79 86 P
+-0.13 (ert <ne) 447.61 86 P
+-0.13 (w v) 480.93 86 P
+-0.13 (alue> to) 498.17 86 P
+(the appropriate type. The type con) 108 72 T
+(v) 272.15 72 T
+(ersion also serv) 277.97 72 T
+(es as the Run-time type checking. On) 352.44 72 T
+1 18 Q
+(Steering object-oriented computations with Python) 126 660.69 T
+0 11.2 Q
+(1) 198 599.04 T
+0 14 Q
+(La) 203.6 593.44 T
+(wrence Li) 218.16 593.44 T
+(v) 274.17 593.44 T
+(ermore National Laboratory) 280.96 593.44 T
+1 F
+(T) 137.33 625.83 T
+(.-Y) 145.4 625.83 T
+(. B. Y) 162.39 625.83 T
+(ang) 194.64 625.83 T
+1 11.2 Q
+(1) 216.43 631.43 T
+1 14 Q
+(, D) 222.03 625.83 T
+(. M. Beazley) 238.85 625.83 T
+1 11.2 Q
+(2) 311.95 631.43 T
+1 14 Q
+(, P) 317.55 625.83 T
+(. F) 331.56 625.83 T
+(. Dubois) 345.58 625.83 T
+1 11.2 Q
+(1) 394.59 631.43 T
+1 14 Q
+(, and G. Fur) 400.19 625.83 T
+(nish) 473.49 625.83 T
+1 11.2 Q
+(1) 498.4 631.43 T
+0 F
+(2) 171 568.35 T
+0 14 Q
+(Department of Computer Science, Uni) 176.6 562.75 T
+(v) 392.05 562.75 T
+(ersity of Utah) 398.84 562.75 T
+FMENDPAGE
+%%EndPage: "1" 11
+%%Trailer
+%%BoundingBox: 0 0 612 792
+%%PageOrder: Descend
+%%Pages: 11
+%%DocumentFonts: Times-Roman
+%%+ Times-Bold
+%%+ Courier
+%%+ Times-Italic
+%%+ Courier-Bold
+%%EOF
+

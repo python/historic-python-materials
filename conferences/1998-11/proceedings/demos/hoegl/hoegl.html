@@ -1,0 +1,195 @@
+<html>
+ 
+<head>
+<BASE HREF="http://www.foretec.com/python/workshops/1998-11/proceedings/demos/hoegl/hoegl.html">
+
+<title>GPC - A Job Scheduler (not only) for Radar Image Processing</title>
+ 
+<!--
+   $Log$
+   $Id$
+-->
+ 
+</head>
+ 
+<body bgcolor="#ffffff" text="#000000" link="#000066"  vlink="#808080" alink="#8
+08080">
+ 
+<h1 align="center">GPC - A Job Scheduler (not only) for Radar Image
+Processing</h1>
+ 
+<p align="center">
+ 
+Hubert H&ouml;gl,
+<em><a href="mailto:Hubert.Hoegl@dlr.de">Hubert.Hoegl@dlr.de</a></em>
+ 
+</p>
+ 
+<p align="center">
+German Aerospace Center / Remote Sensing Data Center (DFD)<br>
+Oberpfaffenhofen<br>
+D-82234 We&szlig;ling<br>
+<em><a target="_top" href="http://www.dlr.de">http://www.dlr.de</a></em>
+</p>
+<hr>
+ 
+ 
+ 
+<h2>Abstract</h2>
+ 
+<p>
+
+The Generic Processor Control (GPC) is a portable and lightweight Job
+Scheduler to coordinate the execution of hundreds of UNIX processes on
+a single workstation constrained by a set of configurable activation
+rules. Although originally designed for RADAR image processing in the
+SRTM project <a href="#DFD">[1]</a><a href="#SRTM">[2]</a>, the
+implemented features are fairly generic so that a broad range of
+applications requiring an extensible Job Scheduler can benefit from
+GPC. The current prototype is completely implemented using the Python
+<a href="#PYTHON">[3]</a> programming language.
+
+<p>
+
+<h2>Architecture</h2>
+
+
+GPC is a hierarchical and state-based scheduler with a fixed core
+implementation plus embedded extensions for configuration.  The
+basic units of execution are called <i>S</i>cheduled <i>Ob</i>jects
+(SOB), which are classified into <i>Blocks</i> and <i>Steps</i>. Both
+are arranged in a tree datastructure, with the leaves of the tree
+being exclusively Steps and all other nodes being Blocks.
+
+<p>
+
+Steps are equivalent to ordinary UNIX processes while Blocks
+encapsulate an arbitrary number of Steps and other Blocks. Each Block
+contains local knowledge how to sequence it's child SOBs.  The dynamic
+behaviour of Steps and Blocks is defined by a state-machine with five
+states (Init, Run, Sus, Idle, Term) and six states (Init, Run,
+Wait-for-Stop, Stop, Sus, Term) respectively.
+
+<p>
+
+The root Block is called a <i>Task</i>.  Tasks (including the full SOB
+tree) are created when a <i>Processing Request</i> (PR) enters GPC.
+After a Task is created it is pushed into a Task Queue where it waits
+to be automatically or manually selected for execution.  After a Task
+enters the terminated state, it is automatically removed from the Task
+queue.
+ 
+
+<p>
+
+
+For our application a single Task comprises between ten and 800
+process executions. These processes operate within a Task working
+directory tree (workspace). Handling the Task workspace (setup,
+cleanup, error checks) is also part of GPC's configuration.
+
+<p>
+
+PRs contain the parameters for product generation in structured
+textual form (XML format). GPC extracts a PR's contents, reformats it
+and places it at predefines places in the Task working directory.
+Optionally PR information is used to parametrize the structure of the
+SOB tree.
+
+<p>
+
+Configuring GPC means to specify the (a) SOB tree structure, (b) local
+activation rules of each Block describing how to sequence it's childs,
+(c) PR readers, (d) Task setup and cleanup procedures, and (e) Task
+Queue selection policy.
+
+<p>
+
+A combination of the following rules can be specified to activate a
+Block/Step: (a) state of arbitrary number of predecessor SOBs, (b)
+arrival of arbitrary files, (c) activation time-window and (d)
+availability of logical resources. 
+
+
+<p>
+
+
+<h2>Prototyping with Python</h2>
+
+
+GPC has grown to an 18000 line program within the last eight months
+(equivalent to four to eight times more code when written in typical
+system programming languages).  Using Python proved to be fast and
+resulted in code readability and quality impressively higher compared
+to languages like C or Java.  Numerous powerful packages exist (e.g.
+Tk, XML, CORBA) which boost productivity. Many projects, especially
+those suffering from permanently tight time pressure and creeping
+requirement changes, such as our's, can benefit by using Python.
+
+
+
+<ol>
+
+  <li> <!--  1  -->
+       <a name="DFD"></a>
+       <a href="http://www.dfd.dlr.de">German Remote Sensing Data
+       Center (DFD)</a>
+       (http://http://www.dfd.dlr.de).
+  
+  <li> <!--  2  -->
+       <a name="SRTM"></a>
+       <a href="http://www-radar.jpl.nasa.gov/srtm/mission.html">Shuttle Radar
+       Topography Mission</a>
+       (http://www-radar.jpl.nasa.gov/srtm/mission.html).
+ 
+  <li> <!--  3  -->
+       <a name="PYTHON"></a>
+       <a href="http://www.python.org">Python Homepage</a>
+       (http://www.python.org).
+</ol>
+ 
+ 
+<p>
+
+<br>
+      <img src="dlr400.gif" alt="dlr-logo" align=right
+                            width=52 height=42 border=0>
+<br>
+ 
+<hr size=1 noshade>
+
+
+<!-- hhmts start -->
+Last modified: Fri Sep 11 15:52:59 1998
+<!-- hhmts end -->
+
+
+<SCRIPT language="Javascript">
+<!--
+
+// FILE ARCHIVED ON 20030529083903 AND RETRIEVED FROM THE
+// INTERNET ARCHIVE ON 20060506060310.
+// JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+// ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+// SECTION 108(a)(3)).
+
+   var sWayBackCGI = "http://web.archive.org/web/20030529083903/";
+
+   function xLateUrl(aCollection, sProp) {
+      var i = 0;
+      for(i = 0; i < aCollection.length; i++)
+         if (aCollection[i][sProp].indexOf("mailto:") == -1 &&
+             aCollection[i][sProp].indexOf("javascript:") == -1)
+            aCollection[i][sProp] = sWayBackCGI + aCollection[i][sProp];
+   }
+
+   if (document.links)  xLateUrl(document.links, "href");
+   if (document.images) xLateUrl(document.images, "src");
+   if (document.embeds) xLateUrl(document.embeds, "src");
+
+   if (document.body && document.body.background)
+      document.body.background = sWayBackCGI + document.body.background;
+
+//-->
+
+</SCRIPT>

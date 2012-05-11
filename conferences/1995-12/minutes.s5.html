@@ -1,0 +1,172 @@
+<html>
+<head>
+<title> Work In Progress Reports </title>
+</head>
+<body>
+<h1> Work In Progress Reports </h1>
+<i> Session Chair: Robin Friedrich </i>
+<br>
+<a name="matrix">
+<h3> The Python Matrix Object (Jim Hugunin) </h3>
+<ul>
+   <li> Extending Python for numerical calculations
+   <li> based on Jim Fulton's original implementation of a
+        matrix object as a container type
+   <li> Why yet another numeric language?
+   <ul>
+      <li> all the numeric languages are trying to become real programming
+           languages
+   </ul>
+   <li> Death to little languages
+   <ul>
+      <li> Learning curve goes away - instead of 5 or 6 little languages,
+           just learn python
+      <li> Power 
+      <li> Flexibility - my numerical language can run a web browser!
+   </ul>
+   <li> What is a numeric language
+   <ul>
+      <li> multi-dimentional arrays of numbers
+      <ul>
+         <li> arbitrary number of dimentions
+         <li> all basic C types plus complex floats and doubles
+         <li> arrays of python objects as well
+         <li> easily extensible with new types
+      </ul>
+      <li> efficient simple numeric operations
+      <ul>
+         <li> All basic operators
+         <li> trigonometric  functions
+         <li> basic operations on large arrays are fast
+         <li> squaring a 1000 element array... 
+	 <pre>
+  LANGUAGE			MFLOPS w/ doubles
+python w/ for loop			0.01
+python w/ matrix of PyObjects		0.1
+Octave 1.2				0.2
+gcc 2.7.0 w/ -g				1.0
+MAtlab (tm) 4.2				1.5
+python w/ matrix of raw numbers		1.5
+python w/ raw matrix and tricks		2.6
+gcc 2.6 w/ -O4				2.6
+gcc 2.7 w/ -O4				6.8
+         </pre>
+      </ul>
+      <li> more complicated array operations
+      <ul>
+         <li> general purpose <i> reduce </i>
+         <li> <i> accumulate </i> as well
+         <li> yorick style pseudo indices
+      </ul>
+      <li> powerful indexing
+      <ul>
+         <li> can get at any subarray of a matrix
+         <li> indexing returns a new array by reference
+         <li> strides are used to represent abritrary transposes
+         <li> take method will select a aribitrary set of indices
+      </ul>
+      <li> large numeric libraries
+      <ul>
+         <li> basic structure is equivalent to both C and FORTRAN style arrays
+         <li> can interface to existing numerical libraries
+      </ul>
+      <li> visualization tools
+      <ul>
+         <li> Tom Schwaller's pimodule - interface to plplot library 
+         <li> Tom's also working on an OpenGL module
+      </ul>
+   </ul>
+   <li> Why Python?
+   <ul>
+      <li> New Python object types in C!
+      <li> Python is a great language!!
+      <li> Wouldn't it be nice to write a fluid dynamics package
+           entirely in python that can calulate the windspeed velocity of a
+	   european swallow? :-)
+   </ul>
+   <li> Major open questions
+   <ul>
+      <li> Matrix multiplication
+      <li> Numeric exceptions/overflows
+      <li> Boolian operations - why can I implement an <i> __add__ </i>
+           method, but not a <i> __lessThan__ </i>  method?
+      <li> Guido: Notion does not extend to:
+           <i> A __lessThan__ B __lessThan__ C </i>? 
+      <li> By reference vs. By Copy - To protect newbe programmers?
+   </ul>
+   <li> Matrix SIG accoplishments
+   <ul>
+      <li> created working matrix object
+      <li> Konrad Hinsen's complex numbers
+      <li> two modules based on prototype matrix object available
+      <li> several small patches to the python grammer being tested...
+           (and seeking blessings from Guido)
+      <pre>
+  a**b == pow(a,b)             # guido's blessed
+  a[1,2,3] == a[(1,2,3)]       # guido's blessed
+  1+2j == complex(1,2)	       # not blessed yet
+  a[1:3, :4,6] == a[slice(1,3), slice(None, 4), 6] # not blessed yet
+  a[1:3, 2:4]  # multidimentional slices in general
+  a[.., 3]     # variable number of slices before comma
+  a[3, .., 4]  # variable number of slices inbetween 0: and :-1
+      </pre>
+   </ul>
+   <li> Python is great!
+</ul>
+<br>
+<a name="free">
+<h3> Python Free-for-all </h3>
+<ul>
+   <li> Q: Are we worryed about too much success?
+   <li> A: No, roughly half of the audience would be ready to
+        sell their services as python consultants
+   <li> To many users to fast is a great danger because it forces
+        you to make quick decisions that might not be the best ones
+   <li> We're not prepared to support the people without a clue
+   <li> Would be nice to make the locator service for consultants a
+        reality
+   <li> Q: Is there going to be a CD with python and examples included in
+        Mark Lutz's python book?
+   <li> A: Maybe, The word is O'Reily has not decided yet
+   <li> The list of <i> python.org </i> URL's should appear in Mark
+        Lutz's book
+   <li> Q: How about a phone number for the PSA?
+   <li> A: Who's going to answer it?
+   <li> Guido: If the questions come in too fast or get asked over and over
+        then I look for a technical solution (e.g. a better install program)
+        This is why I want to grow, but not too fast
+   <li> A <i> a killer app </i> helps the growth of the language since
+        people would then download python to run the killer app, and then
+        they would maybe experiment with it later because they already have it
+   <li> example killer apps: <i> make, MajorDomo, HyperMail </i>
+   <li> Q: Do we need a <i> registry </i> Grail app that would allow folks
+        to volunteer and track Grail enhancements and bug fixes
+   <li> A: we don't have a problem managing too many people volunteering
+        We need to people *to* volunteer
+   <li> Problem: all the database interfaces are slightly different
+   <li> Q: Do we need a SIG for generalizing database access (e.g. to persue
+        a Stanford/Scott Hassan InfoBus model)?
+   <li> A: Yes!
+   <li> The NeXT Enterprise Object Framework model is a nice product to
+        maybe emulate
+   <li> Roger: I like the Modeler classes part of EOF but not some of 
+        the restrictions of how EOF really works best with SQL databases
+	with non-duplicate keys.  We need a more generalized mechanism
+        (like InfoBus which abstracts away from the relational model more)
+   <li> Q: Is it reasonable to charge for it since you have to pay for
+        database s/w anyway most of the time?
+   <li> A: Don't charge for the top level framework (e.g. InfoBus)
+        but do charge for certain <i> adaptors </i> (e.g. for sybase)
+   <li> Paul Everitt will champion the database SIG
+        (or at least find a champion? John Viega?),
+        not for generlized persistance, rather generized database
+        access across platforms
+   <li> Guido: I can think of many ways to make pickle faster, but so far
+        no-one has pushed me on speeding it up
+   <li> Are <i> packages </i> a way of speeding up downloads of large 
+        collections of modules (e.g. Scott Hassans chat room applet)
+   <li> Yes, maybe, most of the slowdown is http requests and parsing
+</ul>
+
+</body>
+</html>

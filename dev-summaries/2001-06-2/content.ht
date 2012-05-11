@@ -1,0 +1,134 @@
+Title: Python-dev summary: 2001-06-07 to 2001-06-21
+
+<pre>
+ This is a summary of traffic on the python-dev mailing list between
+ June 7 and June 21 (inclusive) 2001.  It is intended to inform the
+ wider Python community of ongoing developments.  To comment, just
+ post to python-list@python.org or comp.lang.python in the usual
+ way. Give your posting a meaningful subject line, and if it's about a
+ PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep
+ iteration) All python-dev members are interested in seeing ideas
+ discussed by the community, so don't hesitate to take a stance on a
+ PEP if you have an opinion.
+
+ This is the tenth summary written by Michael Hudson.
+ Summaries are archived at:
+
+  <a href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a>
+
+   Posting distribution (with apologies to mbm)
+
+   Number of articles in summary: 192
+
+       |                     [|]
+       |                     [|]
+    30 |                     [|]
+       |                     [|]
+       |                     [|]
+       |                     [|]
+       |                     [|]
+       |                     [|] [|]
+    20 |                     [|] [|]
+       |                     [|] [|]                     [|]
+       |                     [|] [|]                     [|] [|]
+       | [|]                 [|] [|]                     [|] [|]
+       | [|]                 [|] [|]                     [|] [|]
+       | [|] [|]         [|] [|] [|]                     [|] [|]
+    10 | [|] [|]         [|] [|] [|] [|]                 [|] [|]
+       | [|] [|]         [|] [|] [|] [|]                 [|] [|]
+       | [|] [|]         [|] [|] [|] [|] [|]             [|] [|]
+       | [|] [|]         [|] [|] [|] [|] [|]             [|] [|]
+       | [|] [|]         [|] [|] [|] [|] [|] [|]     [|] [|] [|]
+       | [|] [|]     [|] [|] [|] [|] [|] [|] [|]     [|] [|] [|]
+     0 +-019-014-001-003-014-039-026-013-009-004-001-005-023-021
+        Thu 07| Sat 09| Mon 11| Wed 13| Fri 15| Sun 17| Tue 19|
+            Fri 08  Sun 10  Tue 12  Thu 14  Sat 16  Mon 18  Wed 20
+
+ Quiet fortnight.
+
+
+    * Adding .decode() method to Unicode *
+
+ Marc-Andre Lemburg asked for opinions on adding a .decode method to
+ unicode objects:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-June/015346.html">http://mail.python.org/pipermail/python-dev/2001-June/015346.html</a>&gt;
+
+ He certainly got them; the responses ranged from neutral to negative,
+ and there was a surprising amount of hostility in the air.
+
+ The problem (as ever in these matters) seems to be that Python
+ currently uses the same type for 8-bit strings and gobs of arbitrary
+ data.
+
+ Guido came to the rescue and calmed everyone down:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-June/015404.html">http://mail.python.org/pipermail/python-dev/2001-June/015404.html</a>&gt;
+
+ since when discussion has vanished again.
+
+
+    * Adding Asian codecs to the core *
+
+ Marc-Andre Lemburg announced that Tamito KAJIYAMA has decided to
+ relicense his Japanese codecs with a BSD-style license, enabling them
+ to be included in the core:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-June/015347.html">http://mail.python.org/pipermail/python-dev/2001-June/015347.html</a>&gt;
+
+ This is clearly a good thing; the only quibble is that the encodings
+ are by their nature rather large, so they will probably go into a
+ separate directory in CVS (probably python/dist/encodings/) and not
+ go into the source tarball released on python.org.
+
+
+    * Omit printing newline after newline *
+
+ As readers of comp.lang.python will have noticed, Guido posted:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-June/015350.html">http://mail.python.org/pipermail/python-dev/2001-June/015350.html</a>&gt;
+
+ and retracted:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-June/015411.html">http://mail.python.org/pipermail/python-dev/2001-June/015411.html</a>&gt;
+
+ PEP 259, a proposal for changing the behaviour of the print
+ statement.
+
+
+    * sre "improvements" *
+
+ Gustavo Niemeyer asked if anyone planned to add the "(?(1)blah)" re
+ operators to Python:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-June/015408.html">http://mail.python.org/pipermail/python-dev/2001-June/015408.html</a>&gt;
+
+ but Python is not perl and there wasn't much support for making
+ regular expressions more baffling than they already are.
+
+
+    * Generators *
+
+ In a discussion that slobbered across comp.lang.python, python-dev
+ and the python-iterators list at sf (and belongs on the latter!)
+ there was much talk of PEP 255, Simple Generators.  Most was
+ positive; the main dissent was from people that thought it was too
+ hard to tell a generator from a regular function (at the source
+ level).
+
+ However Guido listened to Tim's repeated claims that this is
+ insignificant once you've actually used generators once or twice and
+ Pronounced "'def' it is":
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-June/015500.html">http://mail.python.org/pipermail/python-dev/2001-June/015500.html</a>&gt;
+
+ and noticed that there are still some issues wrt try/finally blocks.
+ However, clever people seem to be thinking about it, so I'm sure the
+ problem's days are numbered :-)
+
+ I should also note that the gen-branch has been checked into the
+ trunk of CVS.  Woohoo!
+
+Cheers,
+M.
+</pre>

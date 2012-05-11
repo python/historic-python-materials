@@ -1,0 +1,403 @@
+Title: IPC6 Developers' Day
+Author: ipc6@python.org
+
+<h1>IPC6 Developers' Day</h1>
+
+    <p>Friday October 17 1997, the final day of the Sixth
+    International Python Conference, is Developers' Day, where the
+    Python community will have the opportunity to discuss the future
+    of Python with its creator Guido van Rossum.  This provides the
+    Python community with the exciting opportunity to be involved in
+    charting the future course of the Python language and
+    implementation.
+
+<p><img src="../../pics/NewHi.gif" ALT="[New!]" WIDTH=66 HEIGHT=36>
+   <h2>Developer's Day Topics</h2>
+
+    <p>Developer's Day is going to be less formal than the other days
+    of the Python Conference.  We have a number of topics, listed
+    below, that are being <em>championed</em> by volunteers.  These
+    champions are responsible for presenting brief position statements 
+    or proposals, soliciting comments from the audience, and getting
+    the discussions going.  While it is very difficult to tell ahead
+    of time which topics will generate the most heat (or light), and
+    which will be non-controversial, we don't intend to let any
+    particular topic go longer than about 45 minutes.  By that time,
+    most participants will be burned out anyway.
+
+    <p>The day will be roughly divided into six 45 minute sessions,
+    although both the allotment of time per topic, and scheduling of
+    topic per session has not yet been determined.  There will be a
+    morning break from 10:30 to 11:00 am, a lunch break from 12:30 to
+    2:00, and an afternoon break from 3:30 to 4:00 pm.  A free-for-all
+    is planned from 4:00 onwards, for those who want to stay late.
+
+    <p>Be prepared for impromptu discussions cropping up at any time
+    of the day or night, over lunch, dinner, beers, or even the Monday
+    Night football game where the Redskins will be beating the
+    Cowboys.  :-)
+
+    <p>Here is the current list of topics, along with their
+    champions.  Where possible, a short position statement is given if 
+    provided by the champion.  Stay tuned to the newsgroup/mailing
+    list for more details.  We apologize in advance for any
+    short-changing of times that might occur.  There's lots to
+    discuss, and I'm sure more interesting topics will crop up as the
+    conference progresses.  If past conferences are any indication,
+    this should be one of the livelier days!  :-)
+
+    <p><ul>
+	<li><b>Robin Friedrich</b>:
+	<a href="#rf">StringSIG Update</a>
+
+	<li><b>Martin Loewis</b>: <a href="#mvl">Unicode/I18N</a>
+
+	<li><b>Jim Hugunin</b>: Java and Python
+
+	<li><b>Guido van Rossum</b>: The Future of Tkinter
+
+	<li><b>Jim Fulton</b>: <a href="#jf1">Object Interfaces</a>
+
+	<li><b>Jim Fulton</b>: <a href="#jf2">Combinding Python Type
+	    and Class Semantics</a>
+
+	<li><b>Jim Hugunin</b>: Static Typing
+
+	<li><b>Mark Hammond</b>: Python on Windows
+
+	<li><b>Jody Winston</b>: <a href="#jw">Python and ILU</a>
+
+	<li><b>David Beazley</b>: <a href="#db">Python Extension Tools</a>
+
+    </ul>
+
+<p>For questions and comments, please email 
+<a href="mailto:ipc6@python.org">Barry Warsaw,
+Developers' Day Chair, IPC6</a>
+
+
+<hr><h2>Position Statements</h2>
+
+<a name="jf1">Object Interfaces</a>
+<br>Champion: Jim Fulton
+
+<pre>
+Sixth International Python Conference
+Developer's Day Session on Language Features or Idioms to
+Support Object Interfaces
+
+  The 6th Internationl Python Workshop will feature a
+  developers day that provides a place to discuss and debate
+  Python language issues "face-to-face".  The subject of one
+  of these sessions will be language features or idioms to
+  support object interfaces.
+
+  Problem
+
+    Two of the Fundemental ideas in object oriented development are
+
+    - separation of object interfaces from object
+      implementation, and
+
+    - ability to use objects with the same interface but
+      different implementations interchangably.
+
+    When used properly, these two features provide many
+    benefits, such as safety, stability, flexibility, reuse,
+    and so on.
+
+    Unfortunately, most computer languages provide very
+    little support for reasoning about or testing
+    interfaces.  Worse, many languages provide incomplete or
+    missleading interface information.  Compounding the
+    problem is that commonly used jargon has many and often
+    conflicting interpretations.  For example, the terms
+    "class" and "type" may alternately mean interface or
+    implementation.  Even the term "interface" can have
+    different meanings.  For some, "interface" refers to
+    method signatures, while for others, the term connotes
+    identical behavior.
+
+    For the sake of this discussion, I will use the term
+    interface in the stronger sense.  Two objects have the
+    same interface if they have the same abstract behavior
+    and are are substitutable wrt the interface. 
+
+    For some time, Python programmers have wanted simple and
+    efficient means to be able to test object interfaces.
+    Foe example, a function may be willing to accept an
+    argument that is either a "number" or a "sequence" and
+    must be able to test whether the argument is one or the
+    other to decide how it is used.
+
+    As Python is used for larger projects and in a larger
+    number of domains, reliability of Python programs is an
+    increasing concern.  People would like language support
+    to help assure program correctness.  Python 1.5 adds the
+    ability to include assertions in programs and recent
+    advances in the ability to extend class semantics
+    provides the ability to experiment with argument
+    interface checking and Meyer's "development by contract"
+    
+    It has been suggested that this session might be
+    combined with a session on use of static typing to
+    support optimization.  I assert that this sort of
+    typing is really about implementation, not interfaces.
+    I beleave strongly that reasoning about interfaces and
+    reasoning about implentation should be kept distinct.
+    Some disagree with me on this point.
+
+  Objective
+
+    The objective of this session is to explore possible
+    language features or idioms to support interfaces.
+
+  Format
+
+    I would like to follow the following format for this session:
+
+    - Brief overview of the problem,
+
+    - Position statements
+
+    - Discussion
+
+    Participants and non-participants are invited to submit
+    *concise* position statements to me (at least 24 hours)
+    prior to the session.  Position statements should
+    address one or more of the following topics:
+
+    - Needs and requirements for interfaces,
+
+    - Proposals for langauage features or idionms to support
+      interface,
+
+    - Aguments for or against separation of abstract
+      interfaces from static typing.
+
+    Time permitting and authors present and willing willing,
+    position statements may be presented during the session.
+    Note that the entire session is only 45 minutes in
+    length, and I want to reserve a significant amount of
+    time for discussion.  Position statements must be
+    concise.  No more than 5 minutes will be allowed per
+    presentations.  If there is not enough time for
+    positions to be presented individually, I will do my
+    best to summarize.  Concise position statements will be
+    included in the proceedings.
+
+I apologize for the lateness of this post.
+</pre>
+
+<hr><a name="jf2">Combining Python Type and Class Semantics</a>
+<br>Champion: Jim Fulton
+
+<pre>
+International Python Conference VI
+Developer's Day Session on Combining Python Type and Class
+Semantics
+
+  The 6th Internationl Python Conference will feature a
+  developers day that provides a place to discuss and debate
+  Python language issues "face-to-face".  The subject of one
+  of these sessions will be integration of python types and
+  classes.
+
+  Problem
+
+    Currently, Python provides two ways of defining new
+    kinds of objects:
+
+    - Python classes (written in Python)
+
+    - Extension types (written in C or C++)
+
+    Each approach has it's strengths.  Extension types
+    provide much greater control to the programmer and,
+    generally, better performance.  Because extension types
+    are written in C, the programmer has greater access to
+    external resources. (Note that Python's use of the term
+    type has little to do with the notion of type as a
+    formal specification.)
+
+    Classes provide a higher level of abstraction and are
+    generally much easier to develop.  Classes provide full
+    inheritance support, while support for inheritance when
+    developing extension types is very limited. Classes
+    provide run-time meta-data, such as method documentation
+    strings, that are useful for documentation and
+    discovery.  Classes act as factories for creating
+    instances, while separate functions must be provided to
+    create instances of types.
+
+    Python programmers are often confused by the differences
+    between extension type instances and class instances.
+
+    - A type instance has a meaningful type, but no
+      __class__.  A class instance has a meaningful
+      __class__, but a meaningless type.
+
+    - To discover a type instance's interface, __methods__
+      and __members__ attributes must be inspected.  To
+      discover a class instance's interface, it's, __dict__,
+      and __class__ attributes must be inspected.
+
+    - A class provides access to method meta-data, a type
+      does not.
+
+    - A class instance is created in a standard way, by
+      calling it's class. There is no standard way to create
+      a type instance.
+
+    - A class can be subclassed but a type can not (usually).
+
+    - class instance methods have discoverable method
+      signatures, but type instance methods do not.
+
+  Objective
+
+    The objective of this session is to to take a
+    step toward integrating classes and types.
+
+  Format
+
+    I would like to follow the following format for this
+    session:
+
+    - Brief overview of the problem,
+
+    - Position statements
+
+    - Discussion
+
+    Participants are invited to submit position statements
+    to me (at least 24 hours) prior to the session.
+    Position statements should address one or both of:
+
+    - Requirements for or desirability of class/type
+      integration,
+
+    - Proposals or approaches for class/type integration
+
+    Time permitting and author's willing, position
+    statements may be presented during the session.
+</pre>
+
+<hr><a name="mvl">Unicode/I18N</a>
+<br>Champion: Martin v. Loewis
+
+<pre>
+Problem
+  Python's text processing today is based on the built-in string type,
+  which allows to represent byte sequences. Most character processing
+  modules assume one byte per character.
+  In order to support more than one language, or to support languages
+  with more than 256 characters, some sort of wide string or multi
+  byte character string processing is required.
+  One approach is to support Unicode, the other is to allow for
+  arbitrary character sets (the approaches are not necessarily
+  exclusive).
+  Tightly related to the character sets is the user interface: The
+  user needs to enter information in her native language, and wants to
+  get results displayed using that language.
+  When it comes to introducing new interfaces in Python, a top
+  requirement is to make the modules uniform across
+  platforms. Unfortunately, there is no straight-forward solution, as
+  nationalization issues are handled differently among platforms.
+
+Objective
+  The objective of this session is to communicate the needs of both
+  end users and application programmers for internationalization
+  support in Python.
+
+  Participants are invited to contribute to the following issues:
+  - reports about I18N projects in general, or I18N projects involving
+    Python in particular
+  - application programmer requirements for I18N in the core language
+    and the standard libraries
+  - approaches to harmonizing new interfaces among platforms
+</pre>
+
+<hr><a name="db">Python-C/C++ Integration Tools</a>
+<br>Champion: David M. Beazley
+
+<pre>
+Problem:
+
+Python is being used increasingly as an extension language for C and
+C++ systems.  A number of tools such as SWIG, Modulator, GRAD,
+etc... have also been developed to ease the process of C/C++ extension
+writing.  However, there are also a number of concerns including (but
+not limited to) the following :
+
+    -  Are automated tools effective at building Python extensions?
+
+    -  Can Python be used effectively with existing C/C++
+       applications?  What are the limitations?
+
+    -  Separation of C/C++ implementation and the Python interface.
+       (i.e. should C/C++ programs know that Python is involved?)
+
+    -  How do you effectively manage C/C++ objects in Python?
+
+    -  How do you use advanced C++ features such as templates, 
+       exceptions, namespaces, etc...
+
+    -  Integration with other Python extensions (Numeric Python,
+       extension classes, etc...).
+
+Objective:
+
+The purpose of this session is to discuss the state of Python-C/C++
+integration tools and techniques. Participants are invited to
+contribute to any number of the following topics (or any other closely
+related topic) :
+
+    -   Successful use of Python extension tools.
+
+    -   Failures and shortcomings of existing approaches.
+
+    -   Alternative and novel Python extension writing techniques.
+</pre>
+
+<hr><a name="rf">StringSIG</a>
+<br>Champions: Robin Friedrich
+
+<pre>
+So far the String-SIG's only deliverable item has been an enhanced
+regular expression module.  Since beta versions of this module are now
+available for testing, should the SIG be shut down, or are there new
+tasks to be considered?  Some suggestions for a new objective have
+been: a Unicode string type; internationalization issues; code for
+implementing and generating parsers.
+</pre>
+
+<hr><a name="jw">Inter-Language Unification (ILU) and Python</a>
+<br>Champion: Jody Winston
+
+<pre>
+My goal for this session is to moderate and to initiate the discussion
+between application developers that use Python and ILU. 
+
+Objectives: 
+
+This session will discuss the design and development of applications
+that use ILU and Python.
+
+Format:
+	Applications using ILU and Python
+		
+	Sample Discussion Topics
+		New CORBA bindings for Python
+		ISL vs IDL
+		Integration with other languages
+		Performance
+		Platforms
+
+	Problems
+		Debugging applications
+
+	State of the Distributed Object SIG
+
+I apologize for the lateness of this post.
+</pre>

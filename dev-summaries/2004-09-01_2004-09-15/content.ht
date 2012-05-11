@@ -1,0 +1,162 @@
+Title: python-dev Summary for 2004-09-01 through 2004-09-15
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2004-09-01 through 2004-09-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from September 01, 2004 through September 15, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the forty-eighth summary written by Brett Cannon (hopefully school won't drown my this quarter).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-08-16_2004-08-31.html
+.. _original text file: http://www.python.org/dev/summary/2004-09-01_2004-09-15.ht
+
+
+
+=====================
+Summary Announcements
+=====================
+Python 2.4a3 has been released.  Go to http://www.python.org/2.4/ and give it twirl.
+
+Sorry for this summary being so short, but school has started back up again so I am in the middle of suddenly having to switch back into homework mode after spending the summer just having a 9:00-17:00 job.
+
+And since it is a new school year I am going to abuse this space and say that anyone in San Luis Obispo, including students, should join the `SLO Meetup`_ coming up on October 14.
+
+.. _SLO Meetup: http://python.meetup.com/95/
+
+=========
+Summaries
+=========
+--------------------
+Movement in PEP Land
+--------------------
+`PEP 334`_ (Simple Coroutines via SuspendIteration) came into existence.
+
+`PEP 328`_ (Relative Imports) got some discussion on postponing making imports absolute instead of the relative/absolute semantics they have now.  As it stands it looks like the changeover might get pushed off.
+
+`PEP 292`_ (Simpler String Substitutions) seems to finally be done and locked down.
+
+`PEP 335`_ (Overloadable Boolean Operators) came into existence.
+
+.. _PEP 334: http://www.python.org/dev/peps/pep-0334
+.. _PEP 328: http://www.python.org/dev/peps/pep-0328
+.. _PEP 292: http://www.python.org/dev/peps/pep-0292
+.. _PEP 335: http://www.python.org/dev/peps/pep-0335
+
+Contributing threads:
+  - `PEP 334 - Simple Coroutines via SuspendIteration <http://mail.python.org/pipermail/python-dev/2004-September/048679.html>`__
+  - `PEP 328 - Relative Imports <http://mail.python.org/pipermail/python-dev/2004-September/048691.html>`__
+  - `Re: Alternative Implementation for PEP 292:Simple String Substitutions <http://mail.python.org/pipermail/python-dev/2004-September/048577.html>`__
+  - `ANN: PEP 335: Overloadable Boolean Operators <http://mail.python.org/pipermail/python-dev/2004-September/048791.html>`__
+
+------------------------------------------------------
+__str__, __unicode__, and how to have them play nicely
+------------------------------------------------------
+Did you know that __str__ methods are allowed to return Unicode objects?  Well, it turns out they can, but that str() (which calls PyObject_Str()) automatically tries to convert the value returned by __str__ into ASCII.  Basically __str__ shouldn't return Unicode if you can help it and you should use __unicode__ instead and reserve __str__ to return str objects only.
+
+Contributing threads:
+  - unicode and __str__ (couldn't find in archives)
+
+----------------------
+Backporting C APIs bad
+----------------------
+Somebody (*cough* Guido *cough*) asked if the datetime C API could be backported to 2.3 .  The argument was that the only person who would probably use it is the person who asked for it, the author of cx_Oracle.
+
+Well, pretty much everyone spoke up against this.  The argument went that adding an API would just be bad since there would suddenly be a point in the 2.3 releases where backwards compatibility was broken.  People brought up the point of 2.2 where in 2.2.1 booleans were added and how that has caused compatibility headaches for some people.
+
+In the end the API was not backported.
+
+Contributing threads:
+  - `Re: [Python-checkins] python/dist/src/Modules threadmodule.c, 2.56, 2.56.8.1 <http://mail.python.org/pipermail/python-dev/2004-September/048534.html>`__
+
+----------------------------------------------------------------------
+Got to love race conditions thanks to the filesystem and external apps
+----------------------------------------------------------------------
+Tim Peters found a race condition one can have on Windows if you have an app that uses the low-level hooks into the filesystem.  If you create a file, delete it, and then try to delete the directory the directory deletion will fail since the file is not deleted yet.  What can happen is an indexing program can still be indexing the file before the filesystem is allowed to delete it and thus the directory is not truly empty when the directory deletion is executed.  Fun stuff.
+
+Contributing threads:
+  - `Coernic Desktop Search versus shutil.rmtree <http://mail.python.org/pipermail/python-dev/2004-September/048535.html>`__
+
+-------------------------------
+Python 2.4a3 is out the door!!!
+-------------------------------
+Go to http://www.python.org/2.4/ , download it (using the bz2 version if possible so as to save on bandwidth), and run it against your code, run the test suite, put it on your head and sell yourself to an art gallery, etc.
+
+Contributing threads:
+  - `RELEASED Python 2.4, alpha 3 <http://mail.python.org/pipermail/python-dev/2004-September/048573.html>`__
+
+
+----------------------------
+Cleaning the Exception House
+----------------------------
+The idea of reorganizing the exceptions hierarchy came up again (see http://www.python.org/dev/summary/2004-08-01_2004-08-15.html#an-exception-is-an-exception-unless-it-doesn-t-inherit-from-exception for a previous discussion on this).  This time, the idea of separating the hierarchy into exceptions one would like to catch with a bare 'except' and those that you wouldn't was brought up.
+
+The idea is that some exceptions, such as MemoryError, one does not want to catch in a blanket statement usually.  Chances of recovering from that kind of exception is low and should only be caught if you know what you are doing.  So tweaking the exception hierarchy so that exceptions that were not near-catastrophic could inherit from an exception class that people could catch so as to allow the proper exceptions to propagate to the top-level without issue.
+
+Tim Peters even went as far as to suggest deprecating bare 'except' statements.  This would force people to be explicit about what they want to catch, whether it be all "safe" exceptions or *all* exceptions.
+
+As it stands now no officially decision has been made for Python 3000 since that is about the only place this could happen.
+
+Contributing threads:
+  - `Dangerous exceptions <http://mail.python.org/pipermail/python-dev/2004-September/048609.html>`__
+
+---------------------------------------------------------------
+Making decorators not look like decorators to the outside world
+---------------------------------------------------------------
+Raymond Hettinger pointed out that a decorator does not, by default, look like the function that it is fiddling with (if that is the intent).  Since most decorators will most likely be a wrapper function some things need to be set in the wrapper in order not to mask things in the wrapped function (doc string, argument parameters, etc.).
+
+So Raymond pointed out some things one can do.  This also led to the suggestion of having a common name used to store a reference back to the wrapped function.  There was also the mention that a decorator-oriented module in the stdlib will probably materialize in Python 2.5 .  For now, though, stick recipes either in the Python Cookbook or in the Python wiki at http://www.python.org/cgi-bin/moinmoin/PythonDecoratorLibrary .
+
+Contributing threads:
+  - `decorator support <http://mail.python.org/pipermail/python-dev/2004-September/048610.html>`__
+
+===============
+Skipped Threads
+===============
+- random.py still broken wrt. urandom
+- random.py fixage
+- Re: [Python-checkins] python/dist/src/Lib/test test_compiler.py, 1.5, 1.6 test_decimal.py, 1.13, 1.14
+- assert failure on obmalloc
+- Re: [Python-checkins] python/dist/src/Modules socketmodule.c, 1.304, 1.305
+- Install-on-first-use vs. optional extensions
+- Console vs. GUI applications
+- Adding status code constants to httplib
+- PEP 292: method names
+- PEP 265 - Sorting dicts by value
+- httplib is not v6 compatible, is this going to be fixed?
+- OT: Unicode history
+- --with-tsc compile fails
+- tempfile.TemporaryFile on Windows NT
+- PyExc_UnicodeDecodeError
+- urllib.urlopen() vs IDNs, percent-encoded hosts, ':'
+- tabs in httplib.py and test_httplib.py
+      There is now a vimrc file in the Misc directory that sets things up to follow PEPs 7 & 8
+- strawman decision: @decorator won't change
+- unicode inconsistency?

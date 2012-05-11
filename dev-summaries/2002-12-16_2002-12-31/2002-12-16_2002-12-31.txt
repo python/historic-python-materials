@@ -1,0 +1,132 @@
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+python-dev Summary for 2002-12-15 through 2002-12-31
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+This is a summary of traffic on the `python-dev mailing list`_ between December 16, 2002 and December 31, 2002 (inclusive).  It is intended to inform the wider Python community of on-going developments on the list that might interest the wider Python community.  To comment on anything mentioned here, just post to python-list@python.org or comp.lang.python in the usual way; give your posting a meaningful subject line, and if it's about a PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep iteration). All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join python-dev!
+
+This is the eighth summary written by Brett Cannon (last one covering 2002!).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_; you can safely ignore it (although I suggest learning reST; its simple and is accepted for PEP markup).  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original itself.
+
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+
+.. contents::
+
+======================
+Summary Announcements
+======================
+
+`Python 2.3a1`_ has been released!  Please download it and try it out.  The testing of the code helps python-dev a lot.  So at the very least download it and run the test suite to see if any errors or failures come up.
+
+I did skip a thread on some proposed changes to ``ConfigParser``.  If you care about that module you can read the thread at http://mail.python.org/pipermail/python-dev/2002-December/031505.html .
+
+This summary is a bit on the thin side.  I decided to enjoy my winter holiday and so this summary was pushed off to the last minute (and beyond; that is why this is late).  Shouldn't happen again for a while.  =)
+
+Those of you viewing this on the web or by running it through Docutils will have noticed the table of contents preceding this section.  I am giving this a try to see if I like it.  If you have an opinion, let me know.
+
+Go to PyCon_ (and yes, I am going to say this every summary until PyCon is upon us)!
+
+.. _Python 2.3a1: http://www.python.org/2.3/
+.. _PyCon: http://www.python.org/pycon/
+
+======================================================
+`Adding decimal (aka FixedPoint) numbers to Python`__
+======================================================
+__ http://mail.python.org/pipermail/python-dev/2002-December/031171.html
+
+Michael McLay brought to the attention of the list `patch #653938I`_ which not only adds the FixedPoint_ module (originally by Tim Peters) to the library but the ``d`` suffix for numeric constants to be used for numbers to be of the FixedPoint type.
+
+For those of you unfamiliar with fixed-point math, it is basically decimal math where the issue of rounding and representation are eliminated except for division.  It  would allow 0.3 + 0.3 to actually equal 0.6 and not 0.59999999999, which is what you get now with binary floating-point math.
+
+Consensus was quickly reached that Michael should first work on getting the module accepted into the language.  This is done so that python-dev can gauge the usefulness of the module to the rest of the world and thus see if integrating it into the language is called for.  It was also said that a PEP should be written (which Michael's first email practically is).  Oren Tirosh, though, stated that programs that require fixed-point math don't encode the numbers as literals in their code anyway, and thus adding a prefix would be uncalled for.
+
+There was a discussion of what a constructor method should be named that finally came down to Guido saying fixedpoint, fixed, or fixpoint all are acceptable.
+
+If you want to get into the nitty-gritty of this discussion read Michael's and Tim's emails from the threads.  You can also look at http://www2.hursley.ibm.com/decimal/ for another way to do fixed-point; Aahz has been working on an implementation since the dawn of man but he has been busy with other things and thus has yet to finish it.
+
+.. _patch #653938I: http://www.python.org/sf/653938I
+.. _FixedPoint: http://fixedpoint.sf.net/
+
+=========================================
+`New Import Hooks PEP, a first draft`__
+=========================================
+__ http://mail.python.org/pipermail/python-dev/2002-December/031322.html
+
+Related threads:
+
+	- `Zip Import and sys.path manipulation <http://mail.python.org/pipermail/python-dev/2002-December/031197.html>`__
+	- `Zipping Zope3 <http://mail.python.org/pipermail/python-dev/2002-December/031319.html>`__
+	- `Write All New Import Hooks (PEP 302) in Python, Not C <http://mail.python.org/pipermail/python-dev/2002-December/031382.html>`__
+	- `Packages and __path__ <http://mail.python.org/pipermail/python-dev/2002-December/031369.html>`__
+	- `PEP 203 and __path__ <http://mail.python.org/pipermail/python-dev/2002-December/031380.html>`__
+
+So the thread that I am supposedly summarizing here is not the first thread in terms of chronology, but it has the best title, so I am using that as the thread to be summarized.
+
+Once again, the new import hooks mechanism was a big topic of discussion.  For the latter half of this month most of the discussions were around `PEP 302`_ and its rough draft.  It was accepted and was merged into the CVS tree in time for `Python 2.3a1`_.  Since the implementation has already been accepted I will not summarize it here nor its objections since the PEP does an admirable job of covering all the bases.
+
+The other big discussion that was brought up was whether ``__path__`` should be removed or at least discourage the modification of it.  Just van Rossum pushed for the removal since it would simplify the import hooks and he didn't see the use.  But Guido said  that Zope used it and that it can be useful, so it is staying.  This discussion is what caused the creation of the pkgutil_ module.
+
+.. _PEP 302: http://www.python.org/peps/pep-0302.html
+.. _pkgutil: http://www.python.org/doc/2.3a1/lib/module-pkgutil.html
+
+========================================
+`known obvious thing or bug (rexec)?`__
+========================================
+__ http://mail.python.org/pipermail/python-dev/2002-December/031160.html
+
+A question about something in ``rexec_`` ended up leading to a discussion over the value of rexec since it is not close to being truly secure.  The module is still in the library but I would not expect it to be in there forever; Py3k will most likely be its undoing unless someone gets the jump now and rewrites the module to actually make it do its job well.
+
+.. _rexec: http://www.python.org/doc/current/lib/module-rexec.html
+
+=====================
+`deprecating APIs`__
+=====================
+__ http://mail.python.org/pipermail/python-dev/2002-December/031255.html
+
+Neal Norwitz came up with a way to deprecate APIs by having them emit warnings during compile-time (at least for gcc).  It can be found in `pyport.h`_ and the macro is called ``Py_DEPRECATED()``.
+
+.. _pyport.h: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Include/pyport.h
+
+===============================
+`Mersenne Twister copyright`__
+===============================
+__ http://mail.python.org/pipermail/python-dev/2002-December/031403.html
+
+Splinter Threads:
+	- `Mesenne Twister copyright notice <http://mail.python.org/pipermail/python-dev/2002-December/031402.html>`__
+	- `Third-Party Licenses <http://mail.python.org/pipermail/python-dev/2002-December/031485.html>`__
+
+Raymond Hettinger asked how he should handle the copyright requirement for the Mersenne Twister (now a part of the random_ module) that the authors be given credit  in the documentation.  Various ideas were thrown around from adding a ``__copyright__`` value to any module requiring it and having that contain the required notice to having a text file for  each file that needed it.  The last thing on this thread was Raymond suggesting a license directory that contained the required notices (this has not been done yet, though).
+
+.. _random: http://www.python.org/dev/doc/devel/lib/module-random.html
+
+==============================================
+`Extension modules, Threading, and the GIL`__
+==============================================
+__ http://mail.python.org/pipermail/python-dev/2002-December/031424.html
+
+David Abrahams brought up a question about extension modules calling a Python interpreter but not knowing it is Python and thus not knowing about the GIL  (the "summary" David gives to explain what he is asking about is four paragraphs, so if this sounds interesting to you then read the original email).  This whole thread has still yet to be worked out, but if threading in extension modules interests you, have a read (time restraints prevent me from doing a thorough summary of this thread since it is so complicated).
+
+================
+`GC at exit?`__
+================
+__ http://mail.python.org/pipermail/python-dev/2002-December/031429.html
+
+Aahz pointed out that a cycle of objects will not have their respective ``__del__()`` methods called unless you break the cycle or call ``gc.collect()``.  But as Martin v. Löwis said, "If you need to guarantee that __del__ is called at the end for all objects, you have probably much bigger problems".  So just watch out for those cycles.
+
+===================================================
+`PEP 303: Extend divmod() for Multiple Divisors`__
+===================================================
+__ http://mail.python.org/pipermail/python-dev/2002-December/031511.html
+
+`PEP 303`_ by Thomas Bellman proposes changing ``divmod()`` so as to allow it to take an arbitrary number of arguments to chain together a bunch of ``divmod()`` calls.  Guido has says that he does not like the change because it causes the function to act in a way that is not necessary and since it is a built-in that goes against keeping the the language simple.
+
+This thread has started a big discussion on what built-ins are needed, but that started after January 1 and thus will be covered in the next summary.
+
+.. _PEP 303: http://www.python.org/peps/pep-0303.html

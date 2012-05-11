@@ -1,0 +1,702 @@
+<!-- Published by Quadralay WebWorks HTML Lite 1.5.1 -->
+<html>
+<head>
+<title></title>
+</head>
+
+<BODY BACKGROUND="../../../pics/BlueLong.gif"
+      BGCOLOR="#FFFFFF"
+      TEXT="#000000"
+      LINK="#0000FF"
+      VLINK="#7070B0">
+
+<UL>
+
+<a href="index.html">Proceedings of the 6th International Python Conference</A>
+<HR SIZE="1" NOSHADE>
+
+<H1 align=center>
+<a name="742990">
+A Distributed  Infrastructure <br> for Mobile Computing<p>
+</a>
+</H1>
+
+<H4 align=center>
+<a name="741253">
+A.Rakotonirainy, M.Chilvers<br>{andry,martin}@dstc.edu.au<br>DSTC <br>University of Queensland <br>Brisbane 4072 - Australia<p>
+</a>
+</h4>
+<i>
+<h3> Abstract </h3>
+<a name="741261">
+The restrictions arising from the use of mobile components requires the design of a mobile infrastructure able to react to changes in the environment. We define an application aware adaptation architecture to cope with mobile computing constraints, where interacting objects use adaptation rules to sense and react to environment variations. This mechanism, provided by a mobile service, is built within an Open Distributed Environment (Hector) written in Python. <p>
+</i>
+</a>
+<a name="741254">
+<h1>1.0   Introduction</h1>
+</a>
+<a name="741278">
+The obvious characteristic of a mobile environment when compared to its stationary counterpart, is that it has dynamic constraints such as change of resources, removal of pieces of hardware, bandwidth fluctuations, limited memory storage, processing time, new environment configurations (a mobile object is migrated and wakes up in a totally different heterogeneous environment) and network disconnection/re-connection.<p>
+</a>
+<a name="743195">
+This work begins from the assumption that it is not possible to build abstractions or services that hide this underlying reality, if only because those constraints are physical. The management of mobile objects under these constraints implies that a set of events must be watched, managed or created; others might disappear and won't need further attention. Best effort is provided to react to and exploit fully the current environment to the benefit of interacting mobile and stationary objects. <p>
+</a>
+<a name="743528">
+The main contributions of this work are the design of an architecture that provides the following functionality:<p>
+</a>
+<ul>
+<a name="743621">
+<li>An open distributed framework for mobile interactions based on the Hector<a href="mob_exp_2c.doc.html#742900">[2]</a> platform. It includes binding, Quality of Service negotiation and design of adaptation rules that react to variations in the environment.
+</a>
+<a name="741304">
+<li>A migration service: suspend, pickle, unpickle and resume any object from one name space to another and track active migrating objects.
+</a>
+</ul>
+<a name="742449">
+Section 2 presents the Hector architecture. Section 3 shows how an interaction is processed in Hector, it describes binding, QoS negotiation and mobile adaptability rules. After that, section 4 defines the mobile service that implements the migration functionality. Section 5 is our conclusion.<p>
+</a>
+<a name="741385">
+<h1>2.0   Architecture</h1>
+</a>
+<a name="741534">
+Our design is influenced by RM-ODP <a href="mob_exp_2c.doc.html#741354">[5]</a> and CORBA<a href="mob_exp_2c.doc.html#741321">[6]</a> to tackle openness, and it is built within the Hector<a href="mob_exp_2c.doc.html#742900">[2]</a> platform. Hector is an object based distributed system platform. It is structured as four layered components representing decreasing levels of abstraction. These layers are the Object Layer, Language Layer, Encapsulation (or Kernel) Layer, and Communications Layer, as shown in <a href="mob_exp_2c.doc.html#741839">Figure 1</a>.<p>
+</a>
+<a name="744043">
+During execution, the three lower layers combine to form a single entity, called the ``Capsule,'' that provides a support environment for distributed object execution. It encapsulates and insulates objects from the underlying machine and operating system architecture. A capsule defines interfaces to a set of fundamental services available to the objects that live ``within''. Object belonging to a capsule share the same address space (i.e. a capsule is a single process), with each object being allocated at least one thread. <p>
+</a>
+<a name="741839">
+Fig 1: Hector Architecture <p>
+<img alt="Hector Architecture" src="rako-fig1.gif">
+</a>
+<a name="741567">
+<h2>2.1   Language Layer</h2>
+</a>
+<a name="741880">
+The Hector kernel is designed to support objects written in different languages. A module that implements the mapping between the Capsule Kernel Layer (written in Python) and objects written in a particular language is called a ``language mapping.'' The set of language mappings loaded into a Capsule forms the Language Layer.<p>
+</a>
+<a name="741885">
+Each language mapping performs two basic functions:<p>
+</a>
+<ul>
+<a name="741887">
+<li>Encapsulates the Kernel Layer classes, making them accessible from the object implementation language. 
+</a>
+<a name="741888">
+<li>Provides object factory functionality which consists of enabling 1) instantiation of objects using language-specific templates (2) execution of the instantiated objects.
+</a>
+</ul>
+<a name="743095">
+The Language layer uses the notion of ``binding'' to allow interactions between distributed object's interfaces, and the RM-ODP <a href="mob_exp_2c.doc.html#741354">[5]</a> binding concept is central to our architecture. Binding templates define the interactions between interacting objects. Object interfaces take part in the binding by fulfilling a role. A binding's role is a placeholder for interfaces within a binding. It describes the required behaviour and others expectations of interfaces filling that role such as QoS. The notion of fulfilment is a subtype relation between role and interface. <p>
+</a>
+<a name="744052">
+A binding can require that a role be optional and have cardinality constraints. Roles have a relationship such as ``a client role needs a mobile agent role'' between them. This concept is very important when describing mobile behaviour.<p>
+</a>
+<a name="743799">
+A binding also contains a description of the interactions between its roles. In Hector, interfaces, roles and interactions are all described as input/output messages associated with a finite state machine describing the behaviour of those messages.<p>
+</a>
+<a name="743096">
+Bindings are described as types and are stored in a repository server (type service). A binding does not make any assumptions about communication protocols nor the location of interfaces. Thus it uses different available services to provide transparencies (naming ...).<p>
+</a>
+<a name="741568">
+<h2>2.2   Encapsulation Layer</h2>
+</a>
+<a name="742182">
+Encapsulation furnishes different types of services known as transparencies. We will describe only those services related to mobile computing management such as trading, naming, notification, and type management services.<p>
+</a>
+<ul>
+<a name="741579">
+<li>Event notification service: which allows an object to be aware asynchronously of the occurrence of a set of events from its environment by subscription. A callback function is triggered when the event is occurs. We assume that heterogeneous events of interest can be named and quantified in a domain. Our event notification service can be federated.
+</a>
+<a name="741580">
+<li>Location service: trading and naming services are used to locate distributed objects. The database of these services are updated when the reference of an object changes.
+</a>
+<a name="742856">
+<li>Type service: stores descriptions of types in a language independent way. Types can express behaviour descriptions. Such descriptions are used to instantiate objects in the language layer. 
+</a>
+<a name="741717">
+<li>Mobile service: this service exploits the above services and (1) drives adaptation rules (2) migrates objects (3) keeps track of moving objects.
+</a>
+</ul>
+<a name="741569">
+<h2>2.3   Communication Layer</h2>
+</a>
+<a name="741859">
+The communication layer provides transport-protocol transparency. The kernel is able to interact through multiple protocols while knowing nothing about the implementation of the transport protocol such as HTTP, IIOP or TCP. It also provides a chaining mechanism to keep track of moving objects using chain_in and chain_out functions on top of the transport protocol, as described in <a href="mob_exp_2c.doc.html#744160">Section 4.1.3, ``References of mobile objects,'' on page 10</a>.<p>
+</a>
+<a name="742273">
+By using a communication layer, a capsule can interact with other capsules. All types of faults occurring at this level are reported to the encapsulation layer using the event notification service. The encapsulation layer can directly access this layer, opening and closing connections via an abstract API. <p>
+</a>
+<a name="743108">
+<h1>3.0   How objects interact </h1>
+</a>
+<a name="743569">
+In this section, we discuss the language layer abstractions that arise from the desire to have an application-aware adaptability mechanism that can copes with mobile constraints in an heterogeneous environment. <p>
+</a>
+<a name="743841">
+A binding negotiation precedes any object interactions. This allows participants (objects) in the binding to negotiate QOS requirements, the type of the interaction, underlying protocols needed to implement the desired binding type. All these aspect are known as the binding type.<p>
+</a>
+<a name="743239">
+<h2>3.1   Binding negotiation</h2>
+</a>
+<a name="743109">
+<h3>3.1.1   Binding type negotiation</h3>
+</a>
+<a name="743325">
+A binding is a context for object interactions. A binding type, stored in a Type Service, describes how interactions between objects must occur. It also offers a domain which allows each interacting object to reach a common understanding of the semantics of all concepts used during interactions such as Integer, Names, QoS.... <p>
+</a>
+<a name="743332">
+The initiator of the binding proposes a set of binding templates (with a set of interface references), of which one is eventually chosen once all mandatory roles are fulfilled by object interfaces. <p>
+</a>
+<a name="743389">
+Apart from the pattern of interaction, the following aspects of computing must be also negotiated:<p>
+</a>
+<ul>
+<a name="743394">
+<li>ability to re-negotiate: which objects can initiate a re-negotiation, when and what is re-negotiable. What is the scope of a re-negotiation.
+</a>
+<a name="743395">
+<li>ability to change adaptation (re-configuration) policy in terms of changing actions, conditions and events of interest. Those entities that have this ability must also be decided. 
+</a>
+<a name="743396">
+<li>cost of communication: this parameter is essential for mobile users
+</a>
+<a name="743397">
+<li>security: security is crucial for mobile computers, the security requirement may depend on the location of the mobile host.
+</a>
+</ul>
+<a name="743326">
+<h3>3.1.2   QoS negotiation</h3>
+</a>
+<a name="743330">
+A binding template asserts that it performs properly if its interacting objects do. In order to guarantee that a binding will perform properly, binding roles must describe their QoS requirements, and interfaces must exhibit their capabilities as a promise to provide a level of QoS. QoS are specified as an attribute, behaviour or function. QoS is a part of the interface signature and can express multimedia attributes <a href="mob_exp_2c.doc.html#742464">[3]</a>. <p>
+</a>
+<a name="743350">
+Mobile components cannot guarantee QoS as stationary networks do. Nevertheless a mobile host can provide information about the environment in which it runs. An object runs in a specific type of environment that we call CoE (Class of Environment)<a href="mob_exp_2c.doc.html#741315">[8]</a>. The environment of a mobile object changes dynamically and corresponds to the quantified schema of configuration of local entities that it needs to process an interaction. <p>
+</a>
+<a name="743449">
+In order to tackle openness without losing flexibility, we classify objects in categories that reflect somewhat its CoE. The semantics of the classification are subject to negotiation and is defined within the binding domain. Entities in the classification range from battery power to screen definition through location of distributed objects. Concretely, CoE is created from a classification of the environment into tuples. Example: one object can characterise and evaluate its environment along three axes:<p>
+</a>
+<ul>
+<a name="743419">
+<li>Memory/CPU/Graphics: This axis represents the Memory/CPU capability of a host. It is associated with the ability to support graphics because this depends on the memory/CPU capacity.
+</a>
+<a name="743420">
+<li>Bandwidth: Available communication bandwidth between interacting objects
+</a>
+<a name="743421">
+<li>Disconnection: The rate of deliberate and accidental disconnection per period.
+</a>
+</ul>
+<a name="743603">
+An interface with a CoE attribute can fulfil a role associated with a QoS if the mapping between the two concepts matches. The mapping is provided by the binding. It is therefore not recommended for an interface with a CoE characterised by high rate of disconnection to fulfil a role that participates in a multi party vote. Note that the binding might simply consider CoE as a QoS.<p>
+</a>
+<a name="743232">
+<h2>3.2   Interactions</h2>
+</a>
+<a name="743250">
+Once the binding template is agreed, the binding and the object interfaces are instantiated. The binding will regulate interactions between fulfilled roles. Binding guarantees that interactions will eventually respect the behaviour described in the binding template.<p>
+</a>
+<a name="743511">
+<h3>3.2.1   Support for mobile constraints:adaptability</h3>
+</a>
+<a name="743111">
+Interfaces may exhibit behaviour which allow them to adapt to mobility constraints. Our architecture supports the definition of adaptability rules at two levels:<p>
+</a>
+<ul>
+<a name="743175">
+<li>Directly by each interacting object: this complicates the design for object user-programmer. The infrastructure does not have to provide any mobile adaptation facilities
+</a>
+<a name="743176">
+<li>Indirectly by the use of well known adaptation rules: This approach simplifies the task of the object user. The infrastructure provides facilities to manage mobile constraints.
+</a>
+</ul>
+<a name="743602">
+These two approaches are semantically and syntactically similar. <p>
+</a>
+<a name="743056">
+<h3>3.2.2   Adaptation rules</h3>
+</a>
+<a name="743516">
+Adaptation rules describe the policy used to react to changes in the environment. These rules range from a simple emission of a notification to complex actions such as re-negotiation or re-configuration of the system upon the occurrence of a critical event. It's a way to coordinate all actions necessary to cope with mobile computing. <p>
+</a>
+<a name="743060">
+<pre>Example: if bandwidth &lt; 9 Kbps do_something. 
+</pre>
+</a>
+<a name="743405">
+Adaptation rules are mainly specified by the application user using an ECA (Event Condition Action) structure. The Event Notification service is responsible for notifying the occurrence of events that an object has subscribed to. <p>
+</a>
+<a name="743406">
+The types of event/conditions can be: crossing a threshold, changes of configuration such as the migration of objects (instance), availability of memory, network disconnection, any types of fault. The types of actions are known as callbacks and can do nothing but notify the application object (exception), defer communications, keep track of instance of moving object, call appropriate functions, changing dynamically actions locally or remotely.<p>
+</a>
+<a name="743407">
+Event/conditions of an adaptation rule are expressed in a constraint language which provides a set of operators which allow arbitrarily complex expressions involving properties and values<a href="mob_exp_2c.doc.html#741987">[9]</a>. This description can be computationaly complete with respect to the observable properties of the local system if the programmer knows all observable events. <p>
+</a>
+<a name="743411">
+An action is fired when the condition expression is true<a href="mob_exp_2c.doc.html#741987">[9]</a>. The following example contains four adaptation rules: <p>
+</a>
+<a name="743412">
+<pre>adaptation_rules = {<br>
+``bandwidth &gt; 20'':increase_traffic_cb, <br>
+``exists(tcp_errors)'': use_udp, <br>
+``cpu_load &gt; 10'': migrate_object_cb, <br>
+``disconnected'': re_negotiate_cb<br>
+}
+</pre>
+</a>
+<a name="743413">
+Our adaptability rules syntax are generic enough so that we can express complicated policies such as priority of degradation for multimedia applications. For example, it allows us to specify which aspect of the multi-media stream we want to be degraded by priority when a range of events happen such as dropping the sound first then the number of frames per second).<p>
+</a>
+<a name="743606">
+<h1>4.0   Mobility Service</h1>
+</a>
+<a name="743607">
+We have showed how our architecture copes with mobile constraints through the use of binding, QoS negotiation and adaptability rules. These are language level abstractions concepts. Engineering aspects require the collaboration of different services defined in the encapsulation layer. Coordination is provided by the mobile service<p>
+</a>
+<a name="743612">
+The support for mobility is build around the Event Notification Service <a href="mob_exp_2c.doc.html#741987">[9]</a>(elvin) that make sure that the event condition part of adaptability rules are correctly checked and appropriate actions are triggered. The action part of adaptability rules might be provided by any available service such as the migration service, or directly provided by an interacting object. <p>
+</a>
+<a name="741595">
+<h2>4.1   Object migration</h2>
+</a>
+<a name="743267">
+Migration is one type of action (amongst others) that can be specified in an adaptability rule. A migrating object can be either passive or active. A passive object is a class definition or a function (e.g.: a filter). An active object is an instance of the Hector object class. Both types of objects need to be accessed, tracked and instantiated from any capsule.The migration of an object is decided either by the mobility service or by the application object.<p>
+</a>
+<a name="742649">
+<h3>4.1.1   Moving an active objects</h3>
+</a>
+<a name="741997">
+An active object migrates from a capsule to another capsule. Each capsule has a unique ID. The following migration class is inherited by all migratable objects.<p>
+</a>
+<a name="744573">
+<br><p>
+</a>
+<a name="742968">
+<pre>import elvin			# Notification service
+</pre>
+</a>
+<a name="742930">
+<pre>class Migration:<br>
+	``````Initialise an event notification and watch <br>
+	migrating events''''''<br>
+	def __init__ (self):<br>
+		self.lv = elvin.elvin()<br>
+		self.lv.subscribe(``exists(migrated)'':chain_update)<br>
+<br>
+	def move (self, obj, here, there):<br>
+		``````suspend and copy the object''''''<br>
+		p_obj= obj.suspend()	<br>
+		send (p_obj, here, there)
+</pre>
+</a>
+<a name="742965">
+<pre>	def suspend(self):<br>
+		``````suspend and pickle an object with contexts''''''<br>
+		T_id = get_reftype(obj)<br>
+		bind_contex = get_bind_context(obj)<br>
+		p_obj = pickle (obj, T_id, bind_context)<br>
+		notify(``migrating'', obj.__name__, there)
+</pre>
+</a>
+<a name="742952">
+<pre>	def resume(self, p_obj):<br>
+		``````retrieve instance of object''''''<br>
+		obj, T_id, bind_contex = unpickle(p_obj)<br>
+		factory (Tid, obj, bind_context)<br>
+		notify(``migrated'', obj.__name__, there)
+</pre>
+</a>
+<a name="742966">
+<pre>	def chain_update (self,d_not):<br>
+		``````update reference''''''<br>
+		if in_current_capsule(obj): <br>
+			-- if there is a chain_in pointer to this <br>
+			-- object in the capsule<br>
+			create_chain_out(obj, there)<br>
+		update (trader, name_service, obj,there)
+</pre>
+</a>
+<a name="742967">
+<pre>
+</pre>
+</a>
+<a name="742089">
+Upon a decision to migrate an active object, the migration service does:<p>
+</a>
+<a name="742384">
+Suspend the execution of a running object. Get its type reference (Tid) description template from the type service so that the factory mechanism can have a description of this object at the other end. Pickle the object with information about the current context and the Tid. The context contains information about the current binding, the capsule, connections, and the current state. Notify the new location of the object to the event notification service so that those who are subscribed to migration events can be aware of.<p>
+</a>
+<a name="742094">
+creates a chaining mechanism ``chain_update'' to forward requests to the new location (chain_in, chain_out). Sends the object.<p>
+</a>
+<a name="742013">
+All capsules are notified about the migration of an object and their respective naming and trading services will update all relevant information about references of migrated object. This event flushes the service cache entries.<p>
+</a>
+<a name="742042">
+The receiving capsule will <p>
+</a>
+<a name="742105">
+Resume the object to retrieve ref_type and obj_state. The type service is used to retrieve the template with the ref_type. obj_state, ref_type and context that are used to run it in a specific environment.<p>
+</a>
+<a name="742075">
+When a migrated object finishes its execution or when the binding ends then all forwarded infrastructure is garbage collected.<p>
+</a>
+<a name="742657">
+<h3>4.1.2   Moving a passive object</h3>
+</a>
+<a name="742660">
+The migration of a passive object is far simpler. Passive objects are either a class definition or a function. In Python, class definitions include the implementation of their methods. The type service does most of the work to achieve a class migration. Indeed, our type service is federated and stores a class definition so that a class can be instantiated from anywhere.<p>
+</a>
+<a name="742661">
+A function can be directly moved without informing the type service. A function will be evaluated by the receiving object. Such functionality allows us to the redefinition dynamic of the contents of a method or function within a targeted object. Such functionality is very useful in the following scenario: a video consumer with a poor CPU and screen capacity wants to receive a video from a producer. The consumer cannot exploit all of the data provided by the producer and wants to filter the stream. Thus, the consumer sends a filter (function) to the video producer based on its video definition support. The producer will send a filtered (reduced) amount of data thus sparing the bandwidth instead of having the consumer filtering incoming data and degrading its already poor CPU capacity.<p>
+</a>
+<a name="744157">
+In the Python world, before functions and classes can be migrated, they first have to be pickled. In standard Python, functions cannot be pickled at all (their code objects can be marshalled, but this does not provide sufficient information to allow a function to be re-created at a remote host), and pickled classes merely provide a reference to the module that they were imported from (meaning that source and target sites must either share a file system or at least mirror the same structure for module import purposes). To overcome these problems we create Python classes to represent fully-picklable functions and classes - FlatFunction and FlatClass (the implementation of FlatFunction is shown below). The real work of these modules is provided by an extension module `internals' that provides access to the Python C API (e.g. Py_FunctionNew). Now, given these modules we can pickle a class and its methods, and re-create that class at the target host even if the target host previously had no knowledge of the class (obviously, this raises some security concerns which are outside the scope of this paper). <p>
+</a>
+<a name="744321">
+	      FlatFunction.py<p>
+</a>
+<a name="744241">
+<pre>`````` A class to represent fully `picklable' functions. ``````
+</pre>
+</a>
+<a name="744164">
+<pre># Standard/built-in modules.
+</pre>
+</a>
+<a name="744253">
+<pre>import marshal
+</pre>
+</a>
+<a name="744264">
+<pre>
+</pre>
+</a>
+<a name="744167">
+<pre># Common modules.
+</pre>
+</a>
+<a name="744168">
+<pre>import internals
+</pre>
+</a>
+<a name="744171">
+<pre>
+</pre>
+</a>
+<a name="744265">
+<pre>class FlatFunction:
+</pre>
+</a>
+<a name="744172">
+<pre>`````` A class to represent fully `picklable' functions. ``````
+</pre>
+</a>
+<a name="744174">
+<pre>def __init__(self, fn=None):
+</pre>
+</a>
+<a name="744175">
+<pre>		`````` Create a picklable representation of a function
+</pre>
+</a>
+<a name="744478">
+<pre>
+</pre>
+</a>
+<a name="744268">
+<pre>	We use a default argument here so that the flattened<br>
+	function can be pickled/unpickled without the need for a<br>
+	`__getinitargs__' method. We do this so that the <br>
+	flattened function does not have to store any reference<br>
+	to the function object that it was created from.''''''
+</pre>
+</a>
+<a name="744182">
+<pre>
+</pre>
+</a>
+<a name="744183">
+<pre>	# The only time `None' is a valid argument is when
+</pre>
+</a>
+<a name="744279">
+<pre>	# the constructor is being called by the `pickle' module
+</pre>
+</a>
+<a name="744571">
+<pre>
+</pre>
+</a>
+<a name="744572">
+<pre>
+</pre>
+</a>
+<a name="744185">
+<pre>	if fn != None:
+</pre>
+</a>
+<a name="744186">
+<pre>		self._flatten(fn)
+</pre>
+</a>
+<a name="744187">
+<pre>
+</pre>
+</a>
+<a name="744188">
+<pre>	return
+</pre>
+</a>
+<a name="744189">
+<pre>
+</pre>
+</a>
+<a name="744479">
+<pre>
+</pre>
+</a>
+<a name="744191">
+<pre>def unflatten(self, namespace=None):
+</pre>
+</a>
+<a name="744192">
+<pre>	`````` Create a function object from the flattened
+</pre>
+</a>
+<a name="744290">
+<pre>	function! ``````
+</pre>
+</a>
+<a name="744193">
+<pre>
+</pre>
+</a>
+<a name="744194">
+<pre>	if namespace == None:
+</pre>
+</a>
+<a name="744195">
+<pre>		namespace = globals()
+</pre>
+</a>
+<a name="744196">
+<pre>
+</pre>
+</a>
+<a name="744197">
+<pre>	return self._unflatten(namespace)
+</pre>
+</a>
+<a name="744198">
+<pre>
+</pre>
+</a>
+<a name="744299">
+<pre>
+</pre>
+</a>
+<a name="744300">
+<pre>###########################################################
+</pre>
+</a>
+<a name="744200">
+<pre># Internal methods.
+</pre>
+</a>
+<a name="744201">
+<pre>###########################################################
+</pre>
+</a>
+<a name="744499">
+<pre>def _flatten(self, fn):
+</pre>
+</a>
+<a name="744500">
+<pre>	`````` Create a `picklable' representation of a function.``````
+</pre>
+</a>
+<a name="744501">
+<pre>
+</pre>
+</a>
+<a name="744502">
+<pre>	# Get a list of the function's default parameter <br>
+	# values, its code object, and its documentation.
+</pre>
+</a>
+<a name="744503">
+<pre>
+</pre>
+</a>
+<a name="744504">
+<pre>	self.defaults = fn.func_defaults
+</pre>
+</a>
+<a name="744505">
+<pre>	self.code     = marshal.dumps(fn.func_code)
+</pre>
+</a>
+<a name="744506">
+<pre>	self.doc      = fn.__doc__
+</pre>
+</a>
+<a name="744507">
+<pre>
+</pre>
+</a>
+<a name="744508">
+<pre>	return
+</pre>
+</a>
+<a name="744509">
+<pre>
+</pre>
+</a>
+<a name="744214">
+<pre>
+</pre>
+</a>
+<a name="744215">
+<pre>def _unflatten(self, namespace):
+</pre>
+</a>
+<a name="744216">
+<pre>	`````` Create a function object from the flattened function
+</pre>
+</a>
+<a name="744217">
+<pre>
+</pre>
+</a>
+<a name="744218">
+<pre>	# Unmarshal the code object.
+</pre>
+</a>
+<a name="744219">
+<pre>	code_object = marshal.loads(self.code)
+</pre>
+</a>
+<a name="744220">
+<pre>
+</pre>
+</a>
+<a name="744221">
+<pre>	# Create a function object from the code object.
+</pre>
+</a>
+<a name="744222">
+<pre>	function_object = internals.PyFunction_New \<br>
+		(code_object, namespace)
+</pre>
+</a>
+<a name="744223">
+<pre>
+</pre>
+</a>
+<a name="744224">
+<pre>	# Set the default arguments.
+</pre>
+</a>
+<a name="744225">
+<pre>	if self.defaults != None:
+</pre>
+</a>
+<a name="744226">
+<pre>	    internals.PyFunction_SetDefaults \<br>
+			(function_object, self.defaults)
+</pre>
+</a>
+<a name="744227">
+<pre>
+</pre>
+</a>
+<a name="744228">
+<pre>	# Set the documentation string.
+</pre>
+</a>
+<a name="744229">
+<pre>	if self.doc != None:
+</pre>
+</a>
+<a name="744230">
+<pre>	    internals.PyFunction_SetDoc \<br>
+		 (function_object, self.doc)
+</pre>
+</a>
+<a name="744231">
+<pre>
+</pre>
+</a>
+<a name="744232">
+<pre>	return function_object
+</pre>
+</a>
+<a name="744160">
+<h3>4.1.3   References of mobile objects</h3>
+</a>
+<a name="743016">
+The reference of an object is obtained by export and import to the trading or the naming service. There are two choices when handling references to active migrating objects. Either (1) each object currently interacting with the moving object updates their reference on the fly, or (2) they do not, and the capsule of the moving object has to provide an infrastructure to forward its communication to the new location. The first choice is expensive and might penalize all interacting objects involved in a multi party interaction. We take the second approach because the reference is transparently manipulated at the encapsulation language layer even if objects move during the life of a binding.<p>
+</a>
+<a name="742126">
+Intuitively, each interacting object is encapsulated in its capsule. A capsule has a reference to each interacting objects. These references are not necessarily location independent. The communication layer acts as an agent for the remote communication. It is responsible for stub generation and forwarding mechanisms. The stub contains the physical location of its interacting objects. Two functions, provided by the communication layer, are used to set up the tracking mechanism. These two functions are available to all migrating objects (by inheritance).They are:<p>
+</a>
+<ul>
+<a name="742187">
+<li>Chain_out: This function allows all request arriving on the former location of a migrating object to be forwarded to a new location. 
+</a>
+<a name="742188">
+<li>Chain_in: It allows a receiving capsule to forward a request to another capsule or to an object within this capsule. If the object is not located in the current capsule then chain_in will point to another chain_out functions forming a graph. At this stage we do not provide any mechanism for testing the acyclicity of a graph.
+</a>
+</ul>
+<a name="742131">
+The forwarding mechanism and resources from original capsule are garbage collected when the binding completes. <p>
+</a>
+<a name="743011">
+<h1>5.0   Conclusion</h1>
+</a>
+<a name="742428">
+We have presented an architecture for supporting mobile computing. Adaptability rules brings the awareness properties that allow an object to monitor resources and react to changes in its environment. It also provides the agility to metamorphosise according to the state of its environment. These rules are generic enough to cope with most mobile constraints. Rules can be customized to take appropriate actions when something bad such as disconnection occur. Binding concepts and QoS negotiation facilitate the design of an architecture, concept and algorithm to deal with mobile constraints.<p>
+</a>
+<a name="743643">
+<p>
+</a>
+<a name="741382">
+<h1>6.0   References</h1>
+</a>
+<a name="741353">
+	M. Abadi, L. Lamport - Composing Specification - DEC - TR-66, October 1990.<br>http://gatekeeper.dec.com/pub/DEC/SRC/research-reports/abstracts/src-rr-066.html<p>
+</a>
+<a name="742900">
+D. Arnold, A. Bond, M. Chilvers - Hector - Distributed Object in Python - Dr. Dobb's Sourcebook #273 January 1997. http://www.dstc.edu.au/Hector/<p>
+</a>
+<a name="742464">
+	A. Campbell, G. Coulson, D. Hutchison - A quality of service Architecture - Journal of Computer Communication Review - Vol 24 Number 2 April 1994.<p>
+</a>
+<a name="742121">
+	J. Gray, P. Helland, P. O'Neil, D. Shasha - The Dangers of Replication and a Solution - SIGMOD Record Proc, Quebec - June 1996<p>
+</a>
+<a name="741354">
+	ITU/ISO - Reference Model for Open Distributed Processing - Part 1,2,3 IS 10746-(1,2,3). http://www.iso.ch:8000/RM-ODP/<p>
+</a>
+<a name="741321">
+	Object Management Group - CORBAservices - Life Cycle Services Specification - 1995<br>http://www.omg.org/<p>
+</a>
+
+<a name="741316">
+	J. Hylton, K. Manheimer, F-L Drake Jnr, B. Warsaw, R. Masse, G. van Rossum - Knowbot programming: System support for mobile agents.In Proceedings of the 5th International Workshop on Object Orientation in Operating Systems (IWOOOS '96), pages 8-13, Oct. 1996 <p>
+</a>
+
+<a name="741315">
+	A.Rakotonirainy, A. Bond - Mobile Transparency - Proc ICODP, Toronto, May 1997. http://www.dstc.edu.au/AU/staff/andry/icodp.ps<p>
+</a>
+<a name="741987">
+	B. Segall - Elvin: Event notification service. DSTC Internal Report, 1995.<br>http://www.dstc.edu/Elvin/<p>
+</a>
+
+<p><hr>
+
+<h5>Last Modified: 01:41pm EST, September 19, 1997</h5>
+</UL>
+</body>
+</html>

@@ -1,0 +1,157 @@
+Title: python-dev Summary for 2004-11-01 through 2004-11-15
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2004-11-01 through 2004-11-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from November 01, 2004 through November 15, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the fifty-second summary written by Brett Cannon (Happy Holidays).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-10-16_2004-10-31.html
+.. _original text file: http://www.python.org/dev/summary/2004-11-01_2004-11-15.ht
+
+
+
+=====================
+Summary Announcements
+=====================
+I am hoping to be caught up with my summary backlog by the end of the month.  Here is to hoping.
+
+
+=========
+Summaries
+=========
+------------
+2.4 released
+------------
+`Python 2.4`_ has been released!  Read the `What's New`_ for 2.4 to see what the major changes are since 2.3 .
+
+.. _Python 2.4: http://www.python.org/2.4/
+.. _What's New: http://www.python.org/doc/2.4/whatsnew/whatsnew24.html
+
+Contributed threads:
+  - `TRUNK FROZEN for 2.4b2 release from 0000UTC 3rd November (tomorrrow) <http://mail.python.org/pipermail/python-dev/2004-November/049736.html>`__
+  - `RELEASED Python 2.4, beta 2 <http://mail.python.org/pipermail/python-dev/2004-November/049754.html>`__
+  - `TRUNK UNFROZEN <http://mail.python.org/pipermail/python-dev/2004-November/049762.html>`__
+
+-------------------------------------
+Code coverage of the regression tests
+-------------------------------------
+Walter Dörwald has a code coverage tool that runs once a month on Python's regression test at http://coverage.livinglogic.de/ .  There was some issue with the 'trace' module having partially broken in 2.4 .  The coverage was then run using ``Lib/test/regrtest.py -T`` to get more accurate numbers.
+
+Contributing threads:
+  - `Code coverage tool updated <http://mail.python.org/pipermail/python-dev/2004-November/049727.html>`__
+
+------------------------------------
+Garbage collecting weakref callbacks
+------------------------------------
+Tim Peters discovered that in 2.4 if a weakref's callback is still reachable but the referent and weakref itself are unreachable (Tim's example had an instance that contained a weakref to itself) that the callback is not called during garbage collection.  This seemed inconsistent since if the weakref in Tim's example was replaced with an instance that contained a __del__ method that the method would have been called.
+
+Tim would like to clean this up so as to be able to ditch __del__ methods in Python 3000.  The idea is that one would register a weakref with a callback for an object in itself that would be called when it is garbage collected.  This would also negate the need for gc.garbage .
+
+Contributing threads:
+  - `weakref gc semantics <http://mail.python.org/pipermail/python-dev/2004-November/049744.html>`__
+  - `patch-finalizer vs Zope3 <http://mail.python.org/pipermail/python-dev/2004-November/049774.html>`__
+
+---------
+PEP Watch
+---------
+`PEP 336`_ introduces the idea of having None be a callable object.  The result of calling None would return None itself.
+
+.. _PEP 336: http://www.python.org/dev/peps/pep-0336
+
+Contributing threads:
+  - `PEP 336, "Make None Callable", by Andrew McClelland <http://mail.python.org/pipermail/python-dev/2004-November/049760.html>`__
+
+
+----------------------------------------------
+Discussion of including pysqlite in the stdlib
+----------------------------------------------
+The idea of including pysqlite_ in the stdlib came up once again (note this is the wrapper for SQLite_ and not SQLite itself).  The arguments for including the module were that SQLite is most likely used more than Sleepycat and thus deserved a place in the stdlib if bsddb did.  It also goes along with Python's idea of "batteries included".
+
+Arguments against the proposal started with the idea that sanctioning pysqlite over other SQLite wrappers was improper.  People also thought that including bsddb might not be correct anymore and thus should not be used as a basis for including pysqlite.
+
+This all then led into a discussion about package management and how to simplify extending what can be installed at compile-time.  The idea of pushing PyPI_ came up as well as revising `PEP 206`_.
+
+.. _pysqlite: http://pysqlite.org/
+.. _SQLite: http://www.sqlite.org/
+.. _PyPI: http://www.python.org/pypi
+.. _PEP 206: http://www.python.org/dev/peps/pep-0206
+
+Contributing threads:
+  - `SQLite module for Python 2.5 <http://mail.python.org/pipermail/python-dev/2004-October/049534.html>`__
+
+
+--------------------------------
+2.3 maintenance coming to an end
+--------------------------------
+With Python 2.4 out, maintaining 2.3 is no longer a priority. Anthony Baxter, our beloved release manager, has said that 2.3.5 will be most likely coming out in January.  After that, though, don't count on another 2.3 release since 2.4 will take its place as the version to maintain.
+
+All of this came about by the fact that Facundo Batista asked if closing 2.1 bugs was okay.  As long as they have been fixed in the earliest version being maintained, closing them is fine.  This goes for 2.2 as well.  And as soon as 2.3.5 is released this will most likely apply to 2.3 bugs.
+
+Contributing threads:
+  - `Policy about old Python versions <http://mail.python.org/pipermail/python-dev/2004-November/049769.html>`__
+
+-----------------------------------------------------------------
+Sync/async servers in the stdlib and whether they should be there
+-----------------------------------------------------------------
+There are multiple servers in the core for handling communications in both a synchronous and asynchronous manner.  The idea came up of developing an API that all servers could follow in the core.  While the discussion went back and forth with multiple mentions of PEAK, Twisted, and greenlets_, in the end the trend of the discussion suggested doing this well would be very difficult and not worth the effort.  asyncore and asynchat also seemed to be deemed worth deprecation and thus not worth using.
+
+.. _PEAK: http://peak.telecommunity.com/
+.. _Twisted: http://www.twistedmatrix.com/
+.. _greenlets: http://codespeak.net/svn/user/arigo/greenlet/
+
+Contributing threads:
+  - `Synchronous and Asynchronous servers in the standard library <http://mail.python.org/pipermail/python-dev/2004-November/049815.html>`__
+
+--------------------------------------------------
+Getting the opcode count for rough profile numbers
+--------------------------------------------------
+The idea was proposed of introducing sys.gettickeraccumulation which would contain the number of opcodes executed since the interpreter started.  The idea is that you can get a rough estimate of how much time is being spent in Python code.  The value of this has wavered back and forth with no clear answer.
+
+If it does get included it will not be on by default.
+
+Contributing threads:
+  - `proposal+patch: sys.gettickeraccumulation() <http://mail.python.org/pipermail/python-dev/2004-November/049893.html>`__
+
+
+===============
+Skipped Threads
+===============
+- Deprecate PyRange_New()
+- interlocking dependencies on the path	to a release
+      see the first email to see what steps are needed for a release
+- Overflow in socketmodule.c?
+- Int literals and method calls
+      To get access to methods on an int literal put a space after the number; ``1 .__class__``
+- os.access versus os.exist
+- syntactic shortcut - unpack to variably sized list
+      don't expect syntactic support variable-length sequences ain't happenin'

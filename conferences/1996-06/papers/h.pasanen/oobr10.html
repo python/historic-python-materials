@@ -1,0 +1,69 @@
+<HTML>
+<head><title>Building an environment</title></head>
+
+<BODY BGCOLOR=#FFFFFF TEXT=#0000FF>
+<A NAME="topic9">
+<A HREF="oobr_contents.html"><img align=center src="contents.gif" ALT="Contents"></A> <A HREF="oobr9.html#topic8"><img align=center src="up.gif" ALT="Up"></A> <A HREF="oobr9.html#topic8"><img align=center src="back.gif" ALT="Previous"></A> <A HREF="oobr11.html#topic10"><img align=center src="forward.gif" ALT="Next"></A> <HR><BR>
+
+<H2>Building an environment</H2></A>
+<P>
+OO-Browser stores the browsing results into an environment, which is a
+prebuilt lisp file that can quickly be loaded into memory.  In the
+following steps we will build an environment for browsing Tkintern
+classes.<P>
+Hit C-c C-o to invoke OO-Browser. You will be greeted with a prompt <P>
+<PRE>
+Load/Create OO-Browser Environment: /usr2/src/oobr/
+</PRE>
+/usr2/src/oobr/ is the default path, which is formed by taking the
+path for the current buffer.  The default name for the environment
+file is OOBR, but you can name it to your liking.<P>
+After this you are asked to choose the language:<P>
+<PRE>
+Choose: 1) C++; 2) Python:
+</PRE>
+I have configured my OO-Browser to offer browsing for C++ and Python only.
+When you have selected Python, you will be flashed a message like<P>
+<PRE>
+``/usr2/src/oobr/OOBR'', no such file.
+</PRE>
+and then you are asked to start specifying the environment<P>
+<PRE>
+Please specify the ``OOBR'' Environment (Hit RTN to begin).
+</PRE>
+After hitting the requested <B>Enter</B> key, you will be prompted for
+the source directories.  OO-Browser divides the source directories into
+two categories: <I>System directories </I> and <I>Library directories</I>.  
+For system directories you are supposed to enter those directories
+that contain your still evolving source code.  Library directories are
+meant for stable, reusable sources.  OO-Browser recursively searches
+the subdirectories of all the given directories, so only separate
+directory trees need to be entered.  (It is possible to exclude 
+subdirectories by setting the BR-SKIP-DIR-REGEXPS variable.)<P>
+
+<PRE>
+System search dir #1 (RTN to end): 
+</PRE>
+As we are just looking at the Tkintern classes this time, we leave the
+system search directory empty. For the following prompt of library
+directories we will enter the Tkintern directory.<P>
+<PRE>
+Library search dir #1 (RTN to end): /usr/local/lib/python/tkinter/
+</PRE>
+We just hit <B>Enter</B> for the second library directory.  After that
+the <TT>Loading Environment... </TT> message will flash by, and the
+OO-Browser will greet you with these two prompts:<P>
+<PRE>
+Build Environment from spec in file, ``/usr2/src/oobr/OOBR''? (y or n)
+Build Environment in a background process? (y or n)
+</PRE>
+Just hit 'y' and 'n'.<P>
+Depending on the amount of the source code, it may be useful to create
+the environment in a background process. However, building an
+environment for the full /usr/local/lib/python tree, with 38363 lines
+of source code, only takes about 1.5 minutes on my 486/120MHz, running
+Linux.<P>
+After the build is finished, OO-Browser creates the browse windows and
+display the available Tkintern classes.<P>
+
+</BODY></HTML>

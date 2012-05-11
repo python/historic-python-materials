@@ -1,0 +1,5848 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+
+xmlns:o="urn:schemas-microsoft-com:office:office"
+
+xmlns:w="urn:schemas-microsoft-com:office:word"
+
+xmlns="http://www.w3.org/TR/REC-html40">
+
+
+
+<head>
+
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+
+<meta name=ProgId content=Word.Document>
+
+<meta name=Generator content="Microsoft Word 9">
+
+<meta name=Originator content="Microsoft Word 9">
+
+<link rel=File-List href=".filelist.xml">
+
+<link rel=Edit-Time-Data href="editdata.mso">
+
+<link rel=OLE-Object-Data href=".oledata.mso">
+
+<!--[if !mso]>
+
+<style>
+
+v\:* {behavior:url(#default#VML);}
+
+o\:* {behavior:url(#default#VML);}
+
+w\:* {behavior:url(#default#VML);}
+
+.shape {behavior:url(#default#VML);}
+
+</style>
+
+<![endif]-->
+
+<title>Python Environment for Radar Processing</title>
+
+<!--[if gte mso 9]><xml>
+
+ <o:DocumentProperties>
+
+  <o:Author>Peggy Taylor</o:Author>
+
+  <o:LastAuthor>jennifer delaurant</o:LastAuthor>
+
+  <o:Revision>2</o:Revision>
+
+  <o:TotalTime>0</o:TotalTime>
+
+  <o:LastPrinted>1999-11-22T17:39:00Z</o:LastPrinted>
+
+  <o:Created>1999-11-23T00:27:00Z</o:Created>
+
+  <o:LastSaved>1999-11-23T00:27:00Z</o:LastSaved>
+
+  <o:Pages>8</o:Pages>
+
+  <o:Words>4022</o:Words>
+
+  <o:Characters>22926</o:Characters>
+
+  <o:Company>NCAR</o:Company>
+
+  <o:Bytes>46080</o:Bytes>
+
+  <o:Lines>191</o:Lines>
+
+  <o:Paragraphs>45</o:Paragraphs>
+
+  <o:CharactersWithSpaces>28154</o:CharactersWithSpaces>
+
+  <o:Version>9.2720</o:Version>
+
+ </o:DocumentProperties>
+
+</xml><![endif]--><!--[if gte mso 9]><xml>
+
+ <w:WordDocument>
+
+  <w:DisplayHorizontalDrawingGridEvery>0</w:DisplayHorizontalDrawingGridEvery>
+
+  <w:DisplayVerticalDrawingGridEvery>0</w:DisplayVerticalDrawingGridEvery>
+
+  <w:UseMarginsForDrawingGridOrigin/>
+
+  <w:Compatibility>
+
+   <w:FootnoteLayoutLikeWW8/>
+
+   <w:ShapeLayoutLikeWW8/>
+
+   <w:AlignTablesRowByRow/>
+
+   <w:ForgetLastTabAlignment/>
+
+   <w:LayoutRawTableWidth/>
+
+   <w:LayoutTableRowsApart/>
+
+  </w:Compatibility>
+
+ </w:WordDocument>
+
+</xml><![endif]--><![if !supportAnnotations]>
+
+<style id="dynCom" type="text/css"><!-- --></style>
+
+<script language="JavaScript"><!--
+
+function msoCommentShow(anchor_id, com_id)
+
+{
+
+        if(msoBrowserCheck()) 
+
+                {
+
+                c = document.all(com_id);
+
+                if (null != c)
+
+                        {
+
+                        a = document.all(anchor_id);
+
+                        var cw = c.offsetWidth;
+
+                        var ch = c.offsetHeight;
+
+                        var aw = a.offsetWidth;
+
+                        var ah = a.offsetHeight;
+
+                        var x  = a.offsetLeft;
+
+                        var y  = a.offsetTop;
+
+                        var el = a;
+
+                        while (el.tagName != "BODY") 
+
+                                {
+
+                                el = el.offsetParent;
+
+                                x = x + el.offsetLeft;
+
+                                y = y + el.offsetTop;
+
+                                }
+
+                        var bw = document.body.clientWidth;
+
+                        var bh = document.body.clientHeight;
+
+                        var bsl = document.body.scrollLeft;
+
+                        var bst = document.body.scrollTop;
+
+                        if (x + cw + ah / 2 > bw + bsl && x + aw - ah / 2 - cw >= bsl ) 
+
+                                { c.style.left = x + aw - ah / 2 - cw; }
+
+                        else 
+
+                                { c.style.left = x + ah / 2; }
+
+                        if (y + ch + ah / 2 > bh + bst && y + ah / 2 - ch >= bst ) 
+
+                                { c.style.top = y + ah / 2 - ch; }
+
+                        else 
+
+                                { c.style.top = y + ah / 2; }
+
+                        c.style.visibility = "visible";
+
+}       }       }
+
+function msoCommentHide(com_id) 
+
+{
+
+        if(msoBrowserCheck())
+
+                {
+
+                c = document.all(com_id);
+
+                if (null != c)
+
+                {
+
+                c.style.visibility = "hidden";
+
+                c.style.left = -1000;
+
+                c.style.top = -1000;
+
+                } } 
+
+}
+
+function msoBrowserCheck()
+
+{
+
+        ms = navigator.appVersion.indexOf("MSIE");
+
+        vers = navigator.appVersion.substring(ms + 5, ms + 6);
+
+        ie4 = (ms > 0) && (parseInt(vers) >= 4);
+
+        return ie4;
+
+}
+
+if (msoBrowserCheck())
+
+{
+
+        document.styleSheets.dynCom.addRule(".msocomanchor","background: infobackground");
+
+        document.styleSheets.dynCom.addRule(".msocomoff","display: none");
+
+        document.styleSheets.dynCom.addRule(".msocomtxt","visibility: hidden");
+
+        document.styleSheets.dynCom.addRule(".msocomtxt","position: absolute");
+
+        document.styleSheets.dynCom.addRule(".msocomtxt","top: -1000");
+
+        document.styleSheets.dynCom.addRule(".msocomtxt","left: -1000");
+
+        document.styleSheets.dynCom.addRule(".msocomtxt","width: 33%");
+
+        document.styleSheets.dynCom.addRule(".msocomtxt","background: infobackground");
+
+        document.styleSheets.dynCom.addRule(".msocomtxt","color: infotext");
+
+        document.styleSheets.dynCom.addRule(".msocomtxt","border-top: 1pt solid threedlightshadow");
+
+        document.styleSheets.dynCom.addRule(".msocomtxt","border-right: 2pt solid threedshadow");
+
+        document.styleSheets.dynCom.addRule(".msocomtxt","border-bottom: 2pt solid threedshadow");
+
+        document.styleSheets.dynCom.addRule(".msocomtxt","border-left: 1pt solid threedlightshadow");
+
+        document.styleSheets.dynCom.addRule(".msocomtxt","padding: 3pt 3pt 3pt 3pt");
+
+}
+
+// --></script>
+
+<![endif]>
+
+<style>
+
+<!--
+
+ /* Font Definitions */
+
+@font-face
+
+        {font-family:Tahoma;
+
+        panose-1:2 11 6 4 3 5 4 4 2 4;
+
+        mso-font-charset:0;
+
+        mso-generic-font-family:swiss;
+
+        mso-font-format:other;
+
+        mso-font-pitch:auto;
+
+        mso-font-signature:3 0 0 0 1 0;}
+
+@font-face
+
+        {font-family:"Monotype Sorts";
+
+        panose-1:1 1 6 1 1 1 1 1 1 1;
+
+        mso-font-charset:2;
+
+        mso-generic-font-family:auto;
+
+        mso-font-pitch:variable;
+
+        mso-font-signature:0 268435456 0 0 -2147483648 0;}
+
+ /* Style Definitions */
+
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+
+        {mso-style-parent:"";
+
+        margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+h1
+
+        {mso-style-next:Normal;
+
+        margin-top:12.0pt;
+
+        margin-right:0in;
+
+        margin-bottom:3.0pt;
+
+        margin-left:.3in;
+
+        text-indent:-.3in;
+
+        mso-pagination:widow-orphan;
+
+        page-break-after:avoid;
+
+        mso-outline-level:1;
+
+        mso-list:l13 level1 lfo15;
+
+        tab-stops:.2in list .3in;
+
+        font-size:12.0pt;
+
+        mso-bidi-font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-font-kerning:14.0pt;
+
+        mso-bidi-font-weight:normal;}
+
+h2
+
+        {mso-style-next:Normal;
+
+        margin-top:12.0pt;
+
+        margin-right:0in;
+
+        margin-bottom:3.0pt;
+
+        margin-left:.4in;
+
+        text-indent:-.4in;
+
+        mso-pagination:widow-orphan;
+
+        page-break-after:avoid;
+
+        mso-outline-level:2;
+
+        mso-list:l13 level2 lfo15;
+
+        tab-stops:.25in list .4in;
+
+        font-size:12.0pt;
+
+        mso-bidi-font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        font-weight:normal;
+
+        font-style:italic;
+
+        mso-bidi-font-style:normal;}
+
+h3
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:12.0pt;
+
+        margin-right:0in;
+
+        margin-bottom:3.0pt;
+
+        margin-left:.5in;
+
+        text-indent:-.5in;
+
+        mso-pagination:widow-orphan;
+
+        page-break-after:avoid;
+
+        mso-outline-level:3;
+
+        mso-list:l13 level3 lfo15;
+
+        tab-stops:list .5in;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-bidi-font-weight:normal;}
+
+h4
+
+        {mso-style-next:Normal;
+
+        margin-top:12.0pt;
+
+        margin-right:0in;
+
+        margin-bottom:3.0pt;
+
+        margin-left:.6in;
+
+        text-indent:-.6in;
+
+        mso-pagination:widow-orphan;
+
+        page-break-after:avoid;
+
+        mso-outline-level:4;
+
+        mso-list:l13 level4 lfo15;
+
+        tab-stops:list .6in;
+
+        font-size:12.0pt;
+
+        mso-bidi-font-size:10.0pt;
+
+        font-family:Arial;
+
+        mso-bidi-font-family:"Times New Roman";
+
+        mso-bidi-font-weight:normal;}
+
+h5
+
+        {mso-style-next:Normal;
+
+        margin-top:12.0pt;
+
+        margin-right:0in;
+
+        margin-bottom:3.0pt;
+
+        margin-left:.7in;
+
+        text-indent:-.7in;
+
+        mso-pagination:widow-orphan;
+
+        mso-outline-level:5;
+
+        mso-list:l13 level5 lfo15;
+
+        tab-stops:list .7in;
+
+        font-size:11.0pt;
+
+        mso-bidi-font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        font-weight:normal;}
+
+h6
+
+        {mso-style-next:Normal;
+
+        margin-top:12.0pt;
+
+        margin-right:0in;
+
+        margin-bottom:3.0pt;
+
+        margin-left:.8in;
+
+        text-indent:-.8in;
+
+        mso-pagination:widow-orphan;
+
+        mso-outline-level:6;
+
+        mso-list:l13 level6 lfo15;
+
+        tab-stops:list .8in;
+
+        font-size:11.0pt;
+
+        mso-bidi-font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        font-weight:normal;
+
+        font-style:italic;
+
+        mso-bidi-font-style:normal;}
+
+p.MsoHeading7, li.MsoHeading7, div.MsoHeading7
+
+        {mso-style-next:Normal;
+
+        margin-top:12.0pt;
+
+        margin-right:0in;
+
+        margin-bottom:3.0pt;
+
+        margin-left:.9in;
+
+        text-indent:-.9in;
+
+        mso-pagination:widow-orphan;
+
+        mso-outline-level:7;
+
+        mso-list:l13 level7 lfo15;
+
+        tab-stops:list .9in;
+
+        font-size:10.0pt;
+
+        font-family:Arial;
+
+        mso-fareast-font-family:"Times New Roman";
+
+        mso-bidi-font-family:"Times New Roman";}
+
+p.MsoHeading8, li.MsoHeading8, div.MsoHeading8
+
+        {mso-style-next:Normal;
+
+        margin-top:12.0pt;
+
+        margin-right:0in;
+
+        margin-bottom:3.0pt;
+
+        margin-left:1.0in;
+
+        text-indent:-1.0in;
+
+        mso-pagination:widow-orphan;
+
+        mso-outline-level:8;
+
+        mso-list:l13 level8 lfo15;
+
+        tab-stops:list 1.0in;
+
+        font-size:10.0pt;
+
+        font-family:Arial;
+
+        mso-fareast-font-family:"Times New Roman";
+
+        mso-bidi-font-family:"Times New Roman";
+
+        font-style:italic;
+
+        mso-bidi-font-style:normal;}
+
+p.MsoHeading9, li.MsoHeading9, div.MsoHeading9
+
+        {mso-style-next:Normal;
+
+        margin-top:12.0pt;
+
+        margin-right:0in;
+
+        margin-bottom:3.0pt;
+
+        margin-left:1.1in;
+
+        text-indent:-1.1in;
+
+        mso-pagination:widow-orphan;
+
+        mso-outline-level:9;
+
+        mso-list:l13 level9 lfo15;
+
+        tab-stops:list 1.1in;
+
+        font-size:9.0pt;
+
+        mso-bidi-font-size:10.0pt;
+
+        font-family:Arial;
+
+        mso-fareast-font-family:"Times New Roman";
+
+        mso-bidi-font-family:"Times New Roman";
+
+        font-weight:bold;
+
+        mso-bidi-font-weight:normal;
+
+        font-style:italic;
+
+        mso-bidi-font-style:normal;}
+
+p.MsoIndex1, li.MsoIndex1, div.MsoIndex1
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:10.0pt;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-10.0pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoIndex2, li.MsoIndex2, div.MsoIndex2
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:20.0pt;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-10.0pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoIndex3, li.MsoIndex3, div.MsoIndex3
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:30.0pt;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-10.0pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoIndex4, li.MsoIndex4, div.MsoIndex4
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:40.0pt;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-10.0pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoIndex5, li.MsoIndex5, div.MsoIndex5
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:50.0pt;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-10.0pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoIndex6, li.MsoIndex6, div.MsoIndex6
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:60.0pt;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-10.0pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoIndex7, li.MsoIndex7, div.MsoIndex7
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:70.0pt;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-10.0pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoIndex8, li.MsoIndex8, div.MsoIndex8
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:80.0pt;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-10.0pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoIndex9, li.MsoIndex9, div.MsoIndex9
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:1.25in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-10.0pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoToc1, li.MsoToc1, div.MsoToc1
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoToc2, li.MsoToc2, div.MsoToc2
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:10.0pt;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoToc3, li.MsoToc3, div.MsoToc3
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:20.0pt;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoToc4, li.MsoToc4, div.MsoToc4
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:30.0pt;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoToc5, li.MsoToc5, div.MsoToc5
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:40.0pt;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoToc6, li.MsoToc6, div.MsoToc6
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:50.0pt;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoToc7, li.MsoToc7, div.MsoToc7
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:60.0pt;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoToc8, li.MsoToc8, div.MsoToc8
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:70.0pt;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoToc9, li.MsoToc9, div.MsoToc9
+
+        {mso-style-update:auto;
+
+        mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:80.0pt;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoNormalIndent, li.MsoNormalIndent, div.MsoNormalIndent
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:.5in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoFootnoteText, li.MsoFootnoteText, div.MsoFootnoteText
+
+        {margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoCommentText, li.MsoCommentText, div.MsoCommentText
+
+        {margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoHeader, li.MsoHeader, div.MsoHeader
+
+        {margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        tab-stops:center 3.0in right 6.0in;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoFooter, li.MsoFooter, div.MsoFooter
+
+        {margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        tab-stops:center 3.0in right 6.0in;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoIndexHeading, li.MsoIndexHeading, div.MsoIndexHeading
+
+        {mso-style-next:"Index 1";
+
+        margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:Arial;
+
+        mso-fareast-font-family:"Times New Roman";
+
+        mso-bidi-font-family:"Times New Roman";
+
+        font-weight:bold;
+
+        mso-bidi-font-weight:normal;}
+
+p.MsoCaption, li.MsoCaption, div.MsoCaption
+
+        {mso-style-next:Normal;
+
+        margin-top:6.0pt;
+
+        margin-right:0in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:0in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";
+
+        font-weight:bold;
+
+        mso-bidi-font-weight:normal;}
+
+p.MsoTof, li.MsoTof, div.MsoTof
+
+        {mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:20.0pt;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-20.0pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoEnvelopeAddress, li.MsoEnvelopeAddress, div.MsoEnvelopeAddress
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:2.0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        mso-element:frame;
+
+        mso-element-frame-width:5.5in;
+
+        mso-element-frame-height:99.0pt;
+
+        mso-element-frame-hspace:9.0pt;
+
+        mso-element-wrap:auto;
+
+        mso-element-anchor-horizontal:page;
+
+        mso-element-left:center;
+
+        mso-element-top:bottom;
+
+        mso-height-rule:exactly;
+
+        font-size:12.0pt;
+
+        mso-bidi-font-size:10.0pt;
+
+        font-family:Arial;
+
+        mso-fareast-font-family:"Times New Roman";
+
+        mso-bidi-font-family:"Times New Roman";}
+
+p.MsoEnvelopeReturn, li.MsoEnvelopeReturn, div.MsoEnvelopeReturn
+
+        {margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:Arial;
+
+        mso-fareast-font-family:"Times New Roman";
+
+        mso-bidi-font-family:"Times New Roman";}
+
+span.MsoFootnoteReference
+
+        {vertical-align:super;}
+
+span.MsoCommentReference
+
+        {mso-ansi-font-size:8.0pt;}
+
+span.MsoEndnoteReference
+
+        {vertical-align:super;}
+
+p.MsoEndnoteText, li.MsoEndnoteText, div.MsoEndnoteText
+
+        {margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoToa, li.MsoToa, div.MsoToa
+
+        {mso-style-next:Normal;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:10.0pt;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-10.0pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoMacroText, li.MsoMacroText, div.MsoMacroText
+
+        {mso-style-parent:"";
+
+        margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        tab-stops:24.0pt 48.0pt 1.0in 96.0pt 120.0pt 2.0in 168.0pt 192.0pt 3.0in;
+
+        font-size:10.0pt;
+
+        font-family:"Courier New";
+
+        mso-fareast-font-family:"Times New Roman";
+
+        mso-bidi-font-family:"Times New Roman";}
+
+p.MsoToaHeading, li.MsoToaHeading, div.MsoToaHeading
+
+        {mso-style-next:Normal;
+
+        margin-top:6.0pt;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:12.0pt;
+
+        mso-bidi-font-size:10.0pt;
+
+        font-family:Arial;
+
+        mso-fareast-font-family:"Times New Roman";
+
+        mso-bidi-font-family:"Times New Roman";
+
+        font-weight:bold;
+
+        mso-bidi-font-weight:normal;}
+
+p.MsoList, li.MsoList, div.MsoList
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:.25in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.25in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListBullet, li.MsoListBullet, div.MsoListBullet
+
+        {mso-style-update:auto;
+
+        margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListNumber, li.MsoListNumber, div.MsoListNumber
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:.25in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.25in;
+
+        mso-pagination:widow-orphan;
+
+        mso-list:l8 level1 lfo6;
+
+        tab-stops:list .25in;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoList2, li.MsoList2, div.MsoList2
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:.5in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.25in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoList3, li.MsoList3, div.MsoList3
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:.75in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.25in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoList4, li.MsoList4, div.MsoList4
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:1.0in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.25in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoList5, li.MsoList5, div.MsoList5
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:1.25in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.25in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListBullet2, li.MsoListBullet2, div.MsoListBullet2
+
+        {mso-style-update:auto;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:.5in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.25in;
+
+        mso-pagination:widow-orphan;
+
+        mso-list:l7 level1 lfo2;
+
+        tab-stops:list .5in;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListBullet3, li.MsoListBullet3, div.MsoListBullet3
+
+        {mso-style-update:auto;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:.75in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.25in;
+
+        mso-pagination:widow-orphan;
+
+        mso-list:l6 level1 lfo3;
+
+        tab-stops:list .75in;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListBullet4, li.MsoListBullet4, div.MsoListBullet4
+
+        {mso-style-update:auto;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:1.0in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.25in;
+
+        mso-pagination:widow-orphan;
+
+        mso-list:l5 level1 lfo4;
+
+        tab-stops:list 1.0in;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListBullet5, li.MsoListBullet5, div.MsoListBullet5
+
+        {mso-style-update:auto;
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:1.25in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.25in;
+
+        mso-pagination:widow-orphan;
+
+        mso-list:l4 level1 lfo5;
+
+        tab-stops:list 1.25in;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListNumber2, li.MsoListNumber2, div.MsoListNumber2
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:.5in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.25in;
+
+        mso-pagination:widow-orphan;
+
+        mso-list:l3 level1 lfo7;
+
+        tab-stops:list .5in;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListNumber3, li.MsoListNumber3, div.MsoListNumber3
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:.75in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.25in;
+
+        mso-pagination:widow-orphan;
+
+        mso-list:l2 level1 lfo8;
+
+        tab-stops:list .75in;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListNumber4, li.MsoListNumber4, div.MsoListNumber4
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:1.0in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.25in;
+
+        mso-pagination:widow-orphan;
+
+        mso-list:l1 level1 lfo9;
+
+        tab-stops:list 1.0in;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListNumber5, li.MsoListNumber5, div.MsoListNumber5
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:1.25in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.25in;
+
+        mso-pagination:widow-orphan;
+
+        mso-list:l0 level1 lfo10;
+
+        tab-stops:list 1.25in;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoTitle, li.MsoTitle, div.MsoTitle
+
+        {margin-top:12.0pt;
+
+        margin-right:0in;
+
+        margin-bottom:3.0pt;
+
+        margin-left:0in;
+
+        text-align:center;
+
+        mso-pagination:widow-orphan;
+
+        mso-outline-level:1;
+
+        font-size:16.0pt;
+
+        mso-bidi-font-size:10.0pt;
+
+        font-family:Arial;
+
+        mso-fareast-font-family:"Times New Roman";
+
+        mso-bidi-font-family:"Times New Roman";
+
+        mso-font-kerning:14.0pt;
+
+        font-weight:bold;
+
+        mso-bidi-font-weight:normal;}
+
+p.MsoClosing, li.MsoClosing, div.MsoClosing
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:3.0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoSignature, li.MsoSignature, div.MsoSignature
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:3.0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoBodyText, li.MsoBodyText, div.MsoBodyText
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:0in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoBodyTextIndent, li.MsoBodyTextIndent, div.MsoBodyTextIndent
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:.25in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListContinue, li.MsoListContinue, div.MsoListContinue
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:.25in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListContinue2, li.MsoListContinue2, div.MsoListContinue2
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:.5in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListContinue3, li.MsoListContinue3, div.MsoListContinue3
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:.75in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListContinue4, li.MsoListContinue4, div.MsoListContinue4
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:1.0in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoListContinue5, li.MsoListContinue5, div.MsoListContinue5
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:1.25in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoMessageHeader, li.MsoMessageHeader, div.MsoMessageHeader
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:0in;
+
+        margin-left:.75in;
+
+        margin-bottom:.0001pt;
+
+        text-indent:-.75in;
+
+        mso-pagination:widow-orphan;
+
+        background:#CCCCCC;
+
+        mso-shading:windowtext;
+
+        mso-pattern:gray-20 auto;
+
+        border:none;
+
+        mso-border-alt:solid windowtext .75pt;
+
+        padding:0in;
+
+        mso-padding-alt:1.0pt 1.0pt 1.0pt 1.0pt;
+
+        font-size:12.0pt;
+
+        mso-bidi-font-size:10.0pt;
+
+        font-family:Arial;
+
+        mso-fareast-font-family:"Times New Roman";
+
+        mso-bidi-font-family:"Times New Roman";}
+
+p.MsoSubtitle, li.MsoSubtitle, div.MsoSubtitle
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:3.0pt;
+
+        margin-left:0in;
+
+        text-align:center;
+
+        mso-pagination:widow-orphan;
+
+        mso-outline-level:2;
+
+        font-size:12.0pt;
+
+        mso-bidi-font-size:10.0pt;
+
+        font-family:Arial;
+
+        mso-fareast-font-family:"Times New Roman";
+
+        mso-bidi-font-family:"Times New Roman";}
+
+p.MsoSalutation, li.MsoSalutation, div.MsoSalutation
+
+        {mso-style-next:Normal;
+
+        margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoDate, li.MsoDate, div.MsoDate
+
+        {mso-style-next:Normal;
+
+        margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoBodyTextFirstIndent, li.MsoBodyTextFirstIndent, div.MsoBodyTextFirstIndent
+
+        {mso-style-parent:"Body Text";
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:0in;
+
+        text-indent:10.5pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoBodyTextFirstIndent2, li.MsoBodyTextFirstIndent2, div.MsoBodyTextFirstIndent2
+
+        {mso-style-parent:"Body Text Indent";
+
+        margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:.25in;
+
+        text-indent:10.5pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoNoteHeading, li.MsoNoteHeading, div.MsoNoteHeading
+
+        {mso-style-next:Normal;
+
+        margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoBodyText2, li.MsoBodyText2, div.MsoBodyText2
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:0in;
+
+        line-height:200%;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoBodyText3, li.MsoBodyText3, div.MsoBodyText3
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:0in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:8.0pt;
+
+        mso-bidi-font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoBodyTextIndent2, li.MsoBodyTextIndent2, div.MsoBodyTextIndent2
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:.25in;
+
+        line-height:200%;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoBodyTextIndent3, li.MsoBodyTextIndent3, div.MsoBodyTextIndent3
+
+        {margin-top:0in;
+
+        margin-right:0in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:.25in;
+
+        mso-pagination:widow-orphan;
+
+        font-size:8.0pt;
+
+        mso-bidi-font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+p.MsoBlockText, li.MsoBlockText, div.MsoBlockText
+
+        {margin-top:0in;
+
+        margin-right:.2in;
+
+        margin-bottom:6.0pt;
+
+        margin-left:.2in;
+
+        mso-pagination:widow-orphan;
+
+        tab-stops:.2in;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+a:link, span.MsoHyperlink
+
+        {mso-ansi-font-size:10.0pt;
+
+        mso-ascii-font-family:"Times New Roman";
+
+        mso-hansi-font-family:"Times New Roman";
+
+        color:black;
+
+        text-decoration:none;
+
+        text-underline:none;}
+
+a:visited, span.MsoHyperlinkFollowed
+
+        {color:purple;
+
+        text-decoration:underline;
+
+        text-underline:single;}
+
+em
+
+        {mso-bidi-font-style:normal;}
+
+p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
+
+        {margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        background:navy;
+
+        font-size:10.0pt;
+
+        font-family:Tahoma;
+
+        mso-fareast-font-family:"Times New Roman";
+
+        mso-bidi-font-family:"Times New Roman";}
+
+p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
+
+        {margin:0in;
+
+        margin-bottom:.0001pt;
+
+        mso-pagination:widow-orphan;
+
+        font-size:10.0pt;
+
+        font-family:"Courier New";
+
+        mso-fareast-font-family:"Times New Roman";
+
+        mso-bidi-font-family:"Times New Roman";}
+
+p.compressBlocktext, li.compressBlocktext, div.compressBlocktext
+
+        {mso-style-name:"compress Block text";
+
+        mso-style-parent:"Block Text";
+
+        margin-top:0in;
+
+        margin-right:.2in;
+
+        margin-bottom:3.0pt;
+
+        margin-left:.2in;
+
+        mso-pagination:widow-orphan;
+
+        tab-stops:.2in;
+
+        font-size:10.0pt;
+
+        font-family:"Times New Roman";
+
+        mso-fareast-font-family:"Times New Roman";}
+
+ /* Page Definitions */
+
+@page
+
+        {mso-endnote-separator:url("header.htm") es;
+
+        mso-endnote-numbering-style:arabic;}
+
+@page Section1
+
+        {size:8.5in 11.0in;
+
+        margin:1.0in 1.0in 1.0in 1.0in;
+
+        mso-header-margin:.5in;
+
+        mso-footer-margin:.5in;
+
+        mso-paper-source:0;}
+
+div.Section1
+
+        {page:Section1;}
+
+@page Section2
+
+        {size:8.5in 11.0in;
+
+        margin:1.0in 1.0in 1.0in 1.0in;
+
+        mso-header-margin:.5in;
+
+        mso-footer-margin:.5in;
+
+        mso-columns:2 even .25in;
+
+        mso-paper-source:0;}
+
+div.Section2
+
+        {page:Section2;}
+
+ /* List Definitions */
+
+@list l0
+
+        {mso-list-id:-132;
+
+        mso-list-type:simple;
+
+        mso-list-template-ids:-458095772;}
+
+@list l0:level1
+
+        {mso-level-style-link:"List Number 5";
+
+        mso-level-tab-stop:1.25in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.25in;
+
+        text-indent:-.25in;}
+
+@list l1
+
+        {mso-list-id:-131;
+
+        mso-list-type:simple;
+
+        mso-list-template-ids:1061215016;}
+
+@list l1:level1
+
+        {mso-level-style-link:"List Number 4";
+
+        mso-level-tab-stop:1.0in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.0in;
+
+        text-indent:-.25in;}
+
+@list l2
+
+        {mso-list-id:-130;
+
+        mso-list-type:simple;
+
+        mso-list-template-ids:821467494;}
+
+@list l2:level1
+
+        {mso-level-style-link:"List Number 3";
+
+        mso-level-tab-stop:.75in;
+
+        mso-level-number-position:left;
+
+        margin-left:.75in;
+
+        text-indent:-.25in;}
+
+@list l3
+
+        {mso-list-id:-129;
+
+        mso-list-type:simple;
+
+        mso-list-template-ids:-1094294840;}
+
+@list l3:level1
+
+        {mso-level-style-link:"List Number 2";
+
+        mso-level-tab-stop:.5in;
+
+        mso-level-number-position:left;
+
+        text-indent:-.25in;}
+
+@list l4
+
+        {mso-list-id:-128;
+
+        mso-list-type:simple;
+
+        mso-list-template-ids:-2136851332;}
+
+@list l4:level1
+
+        {mso-level-number-format:bullet;
+
+        mso-level-style-link:"List Bullet 5";
+
+        mso-level-text:\F0B7;
+
+        mso-level-tab-stop:1.25in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.25in;
+
+        text-indent:-.25in;
+
+        font-family:Symbol;}
+
+@list l5
+
+        {mso-list-id:-127;
+
+        mso-list-type:simple;
+
+        mso-list-template-ids:1556908846;}
+
+@list l5:level1
+
+        {mso-level-number-format:bullet;
+
+        mso-level-style-link:"List Bullet 4";
+
+        mso-level-text:\F0B7;
+
+        mso-level-tab-stop:1.0in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.0in;
+
+        text-indent:-.25in;
+
+        font-family:Symbol;}
+
+@list l6
+
+        {mso-list-id:-126;
+
+        mso-list-type:simple;
+
+        mso-list-template-ids:2105466460;}
+
+@list l6:level1
+
+        {mso-level-number-format:bullet;
+
+        mso-level-style-link:"List Bullet 3";
+
+        mso-level-text:\F0B7;
+
+        mso-level-tab-stop:.75in;
+
+        mso-level-number-position:left;
+
+        margin-left:.75in;
+
+        text-indent:-.25in;
+
+        font-family:Symbol;}
+
+@list l7
+
+        {mso-list-id:-125;
+
+        mso-list-type:simple;
+
+        mso-list-template-ids:445434844;}
+
+@list l7:level1
+
+        {mso-level-number-format:bullet;
+
+        mso-level-style-link:"List Bullet 2";
+
+        mso-level-text:\F0B7;
+
+        mso-level-tab-stop:.5in;
+
+        mso-level-number-position:left;
+
+        text-indent:-.25in;
+
+        font-family:Symbol;}
+
+@list l8
+
+        {mso-list-id:-120;
+
+        mso-list-type:simple;
+
+        mso-list-template-ids:-574427144;}
+
+@list l8:level1
+
+        {mso-level-style-link:"List Number";
+
+        mso-level-tab-stop:.25in;
+
+        mso-level-number-position:left;
+
+        margin-left:.25in;
+
+        text-indent:-.25in;}
+
+@list l9
+
+        {mso-list-id:-119;
+
+        mso-list-type:simple;
+
+        mso-list-template-ids:-1070411274;}
+
+@list l9:level1
+
+        {mso-level-number-format:bullet;
+
+        mso-level-text:\F0B7;
+
+        mso-level-tab-stop:.25in;
+
+        mso-level-number-position:left;
+
+        margin-left:.25in;
+
+        text-indent:-.25in;
+
+        font-family:Symbol;}
+
+@list l10
+
+        {mso-list-id:10574675;
+
+        mso-list-template-ids:-2122667276;}
+
+@list l10:level1
+
+        {mso-level-text:%1;
+
+        mso-level-tab-stop:.3in;
+
+        mso-level-number-position:left;
+
+        margin-left:.3in;
+
+        text-indent:-.3in;}
+
+@list l10:level2
+
+        {mso-level-text:"%1\.%2";
+
+        mso-level-tab-stop:.4in;
+
+        mso-level-number-position:left;
+
+        margin-left:.4in;
+
+        text-indent:-.4in;}
+
+@list l10:level3
+
+        {mso-level-text:"%1\.%2\.%3";
+
+        mso-level-tab-stop:.5in;
+
+        mso-level-number-position:left;
+
+        margin-left:.5in;
+
+        text-indent:-.5in;}
+
+@list l10:level4
+
+        {mso-level-text:"%1\.%2\.%3\.%4";
+
+        mso-level-tab-stop:.6in;
+
+        mso-level-number-position:left;
+
+        margin-left:.6in;
+
+        text-indent:-.6in;}
+
+@list l10:level5
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5";
+
+        mso-level-tab-stop:.7in;
+
+        mso-level-number-position:left;
+
+        margin-left:.7in;
+
+        text-indent:-.7in;}
+
+@list l10:level6
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6";
+
+        mso-level-tab-stop:.8in;
+
+        mso-level-number-position:left;
+
+        margin-left:.8in;
+
+        text-indent:-.8in;}
+
+@list l10:level7
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7";
+
+        mso-level-tab-stop:.9in;
+
+        mso-level-number-position:left;
+
+        margin-left:.9in;
+
+        text-indent:-.9in;}
+
+@list l10:level8
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8";
+
+        mso-level-tab-stop:1.0in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.0in;
+
+        text-indent:-1.0in;}
+
+@list l10:level9
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8\.%9";
+
+        mso-level-tab-stop:1.1in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.1in;
+
+        text-indent:-1.1in;}
+
+@list l11
+
+        {mso-list-id:33239146;
+
+        mso-list-type:simple;
+
+        mso-list-template-ids:818699136;}
+
+@list l11:level1
+
+        {mso-level-start-at:2;
+
+        mso-level-text:%1;
+
+        mso-level-tab-stop:.25in;
+
+        mso-level-number-position:left;
+
+        margin-left:.25in;
+
+        text-indent:-.25in;}
+
+@list l12
+
+        {mso-list-id:163476666;
+
+        mso-list-template-ids:-1661061682;}
+
+@list l12:level1
+
+        {mso-level-tab-stop:.5in;
+
+        mso-level-number-position:left;
+
+        margin-left:.25in;
+
+        text-indent:-.25in;}
+
+@list l12:level2
+
+        {mso-level-text:"%1\.%2\.";
+
+        mso-level-tab-stop:1.0in;
+
+        mso-level-number-position:left;
+
+        margin-left:.55in;
+
+        text-indent:-.3in;}
+
+@list l12:level3
+
+        {mso-level-text:"%1\.%2\.%3\.";
+
+        mso-level-tab-stop:1.5in;
+
+        mso-level-number-position:left;
+
+        margin-left:.85in;
+
+        text-indent:-.35in;}
+
+@list l12:level4
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.";
+
+        mso-level-tab-stop:2.0in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.2in;
+
+        text-indent:-.45in;}
+
+@list l12:level5
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.";
+
+        mso-level-tab-stop:2.5in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.55in;
+
+        text-indent:-.55in;}
+
+@list l12:level6
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.";
+
+        mso-level-tab-stop:3.0in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.9in;
+
+        text-indent:-.65in;}
+
+@list l12:level7
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.";
+
+        mso-level-tab-stop:3.5in;
+
+        mso-level-number-position:left;
+
+        margin-left:2.25in;
+
+        text-indent:-.75in;}
+
+@list l12:level8
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8\.";
+
+        mso-level-tab-stop:4.0in;
+
+        mso-level-number-position:left;
+
+        margin-left:2.6in;
+
+        text-indent:-.85in;}
+
+@list l12:level9
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8\.%9\.";
+
+        mso-level-tab-stop:4.5in;
+
+        mso-level-number-position:left;
+
+        margin-left:3.0in;
+
+        text-indent:-1.0in;}
+
+@list l13
+
+        {mso-list-id:403995048;
+
+        mso-list-template-ids:-673309342;}
+
+@list l13:level1
+
+        {mso-level-style-link:"Heading 1";
+
+        mso-level-tab-stop:.3in;
+
+        mso-level-number-position:left;
+
+        margin-left:.3in;
+
+        text-indent:-.3in;}
+
+@list l13:level2
+
+        {mso-level-style-link:"Heading 2";
+
+        mso-level-text:"%1\.%2";
+
+        mso-level-tab-stop:.4in;
+
+        mso-level-number-position:left;
+
+        margin-left:.4in;
+
+        text-indent:-.4in;}
+
+@list l13:level3
+
+        {mso-level-style-link:"Heading 3";
+
+        mso-level-text:"%1\.%2\.%3";
+
+        mso-level-tab-stop:.5in;
+
+        mso-level-number-position:left;
+
+        margin-left:.5in;
+
+        text-indent:-.5in;}
+
+@list l13:level4
+
+        {mso-level-style-link:"Heading 4";
+
+        mso-level-text:"%1\.%2\.%3\.%4";
+
+        mso-level-tab-stop:.6in;
+
+        mso-level-number-position:left;
+
+        margin-left:.6in;
+
+        text-indent:-.6in;}
+
+@list l13:level5
+
+        {mso-level-style-link:"Heading 5";
+
+        mso-level-text:"%1\.%2\.%3\.%4\.%5";
+
+        mso-level-tab-stop:.7in;
+
+        mso-level-number-position:left;
+
+        margin-left:.7in;
+
+        text-indent:-.7in;}
+
+@list l13:level6
+
+        {mso-level-style-link:"Heading 6";
+
+        mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6";
+
+        mso-level-tab-stop:.8in;
+
+        mso-level-number-position:left;
+
+        margin-left:.8in;
+
+        text-indent:-.8in;}
+
+@list l13:level7
+
+        {mso-level-style-link:"Heading 7";
+
+        mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7";
+
+        mso-level-tab-stop:.9in;
+
+        mso-level-number-position:left;
+
+        margin-left:.9in;
+
+        text-indent:-.9in;}
+
+@list l13:level8
+
+        {mso-level-style-link:"Heading 8";
+
+        mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8";
+
+        mso-level-tab-stop:1.0in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.0in;
+
+        text-indent:-1.0in;}
+
+@list l13:level9
+
+        {mso-level-style-link:"Heading 9";
+
+        mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8\.%9";
+
+        mso-level-tab-stop:1.1in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.1in;
+
+        text-indent:-1.1in;}
+
+@list l14
+
+        {mso-list-id:1494293750;
+
+        mso-list-template-ids:582112552;}
+
+@list l14:level1
+
+        {mso-level-text:%1;
+
+        mso-level-tab-stop:.3in;
+
+        mso-level-number-position:left;
+
+        margin-left:.3in;
+
+        text-indent:-.3in;}
+
+@list l14:level2
+
+        {mso-level-text:"%1\.%2";
+
+        mso-level-tab-stop:.4in;
+
+        mso-level-number-position:left;
+
+        margin-left:.4in;
+
+        text-indent:-.4in;}
+
+@list l14:level3
+
+        {mso-level-text:"%1\.%2\.%3";
+
+        mso-level-tab-stop:.5in;
+
+        mso-level-number-position:left;
+
+        margin-left:.5in;
+
+        text-indent:-.5in;}
+
+@list l14:level4
+
+        {mso-level-text:"%1\.%2\.%3\.%4";
+
+        mso-level-tab-stop:.6in;
+
+        mso-level-number-position:left;
+
+        margin-left:.6in;
+
+        text-indent:-.6in;}
+
+@list l14:level5
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5";
+
+        mso-level-tab-stop:.7in;
+
+        mso-level-number-position:left;
+
+        margin-left:.7in;
+
+        text-indent:-.7in;}
+
+@list l14:level6
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6";
+
+        mso-level-tab-stop:.8in;
+
+        mso-level-number-position:left;
+
+        margin-left:.8in;
+
+        text-indent:-.8in;}
+
+@list l14:level7
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7";
+
+        mso-level-tab-stop:.9in;
+
+        mso-level-number-position:left;
+
+        margin-left:.9in;
+
+        text-indent:-.9in;}
+
+@list l14:level8
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8";
+
+        mso-level-tab-stop:1.0in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.0in;
+
+        text-indent:-1.0in;}
+
+@list l14:level9
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8\.%9";
+
+        mso-level-tab-stop:1.1in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.1in;
+
+        text-indent:-1.1in;}
+
+@list l15
+
+        {mso-list-id:1889603957;
+
+        mso-list-template-ids:-887557328;}
+
+@list l15:level1
+
+        {mso-level-text:%1;
+
+        mso-level-tab-stop:.3in;
+
+        mso-level-number-position:left;
+
+        margin-left:.3in;
+
+        text-indent:-.3in;}
+
+@list l15:level2
+
+        {mso-level-text:"%1\.%2";
+
+        mso-level-tab-stop:.4in;
+
+        mso-level-number-position:left;
+
+        margin-left:.4in;
+
+        text-indent:-.4in;}
+
+@list l15:level3
+
+        {mso-level-text:"%1\.%2\.%3";
+
+        mso-level-tab-stop:.5in;
+
+        mso-level-number-position:left;
+
+        margin-left:.5in;
+
+        text-indent:-.5in;}
+
+@list l15:level4
+
+        {mso-level-text:"%1\.%2\.%3\.%4";
+
+        mso-level-tab-stop:.6in;
+
+        mso-level-number-position:left;
+
+        margin-left:.6in;
+
+        text-indent:-.6in;}
+
+@list l15:level5
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5";
+
+        mso-level-tab-stop:.7in;
+
+        mso-level-number-position:left;
+
+        margin-left:.7in;
+
+        text-indent:-.7in;}
+
+@list l15:level6
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6";
+
+        mso-level-tab-stop:.8in;
+
+        mso-level-number-position:left;
+
+        margin-left:.8in;
+
+        text-indent:-.8in;}
+
+@list l15:level7
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7";
+
+        mso-level-tab-stop:.9in;
+
+        mso-level-number-position:left;
+
+        margin-left:.9in;
+
+        text-indent:-.9in;}
+
+@list l15:level8
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8";
+
+        mso-level-tab-stop:1.0in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.0in;
+
+        text-indent:-1.0in;}
+
+@list l15:level9
+
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8\.%9";
+
+        mso-level-tab-stop:1.1in;
+
+        mso-level-number-position:left;
+
+        margin-left:1.1in;
+
+        text-indent:-1.1in;}
+
+ol
+
+        {margin-bottom:0in;}
+
+ul
+
+        {margin-bottom:0in;}
+
+-->
+
+</style>
+
+<!--[if gte mso 9]><xml>
+
+ <o:shapedefaults v:ext="edit" spidmax="2050" fill="f">
+
+  <v:fill on="f"/>
+
+ </o:shapedefaults></xml><![endif]--><!--[if gte mso 9]><xml>
+
+ <o:shapelayout v:ext="edit">
+
+  <o:idmap v:ext="edit" data="1"/>
+
+  <o:regrouptable v:ext="edit">
+
+   <o:entry new="1" old="0"/>
+
+  </o:regrouptable>
+
+ </o:shapelayout></xml><![endif]-->
+
+</head>
+
+
+
+<body lang=EN-US link=black vlink=purple style='tab-interval:.5in'>
+
+
+
+<div class=Section1>
+
+
+
+<p class=MsoNormal align=center style='text-align:center'><b style='mso-bidi-font-weight:
+
+normal'><span style='font-size:14.0pt;mso-bidi-font-size:10.0pt'>Lessons
+
+Learned in Developing PERP<o:p></o:p></span></b></p>
+
+
+
+<p class=MsoNormal align=center style='text-align:center'>(Python Environment
+
+for Radar Processing)</p>
+
+
+
+<p class=MsoNormal align=center style='text-align:center'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal align=center style='text-align:center'><span
+
+style='font-size:14.0pt;mso-bidi-font-size:10.0pt'>Joseph VanAndel<o:p></o:p></span></p>
+
+
+
+<p class=MsoNormal align=center style='text-align:center'><i style='mso-bidi-font-style:
+
+normal'><span style='font-size:12.0pt;mso-bidi-font-size:10.0pt'>National
+
+Center for Atmospheric Research</span></i><a style='mso-footnote-id:ftn1'
+
+href="#_ftn1" name="_ftnref1" title=""><span class=MsoFootnoteReference><i
+
+style='mso-bidi-font-style:normal'><span style='font-size:12.0pt;mso-bidi-font-size:
+
+10.0pt;font-family:"Monotype Sorts";mso-ascii-font-family:"Times New Roman";
+
+mso-hansi-font-family:"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:
+
+"Monotype Sorts"'><span style='mso-char-type:symbol;mso-symbol-font-family:
+
+"Monotype Sorts"'>]</span></span></i></span></a><i style='mso-bidi-font-style:
+
+normal'><span style='font-size:12.0pt;mso-bidi-font-size:10.0pt'><o:p></o:p></span></i></p>
+
+
+
+<p class=MsoNormal align=center style='text-align:center'>P.O. Box 3000,
+
+Boulder, CO, 80307, vanandel@ucar.edu<i style='mso-bidi-font-style:normal'><span
+
+style='font-size:12.0pt;mso-bidi-font-size:10.0pt'><o:p></o:p></span></i></p>
+
+
+
+<p class=MsoNormal><span style='font-size:20.0pt;mso-bidi-font-size:10.0pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
+
+
+
+</div>
+
+
+
+<span style='font-size:10.0pt;font-family:"Times New Roman";mso-fareast-font-family:
+
+"Times New Roman";mso-ansi-language:EN-US;mso-fareast-language:EN-US;
+
+mso-bidi-language:AR-SA'><br clear=all style='page-break-before:auto;
+
+mso-break-type:section-break'>
+
+</span>
+
+
+
+<div class=Section2>
+
+
+
+<p class=MsoSubtitle><b style='mso-bidi-font-weight:normal'>Abstract<o:p></o:p></b></p>
+
+
+
+<p class=MsoNormal>Our work at the National Center for Atmospheric Research
+
+includes processing data from research meteorological radars.<span
+
+style="mso-spacerun: yes">   </span>We evaluate and tune signal-processing
+
+algorithms that process as much as 1500 megabytes of data per hour in
+
+real-time.<span style="mso-spacerun: yes">  </span>In the past year, we have
+
+designed and implemented the Python Environment for Radar Processing<span
+
+style="mso-spacerun: yes">  </span>(PERP) using Numeric Python to aid in our
+
+research.<span style="mso-spacerun: yes">  </span>Because Python is an
+
+interactive, interpreted language that does not require the compile and link
+
+steps needed by compiled languages, Numeric Python is a very productive programming
+
+environment.<span style="mso-spacerun: yes">  </span>We were pleased to find
+
+that Numeric Python was also quite efficient in executing our algorithms.<span
+
+style="mso-spacerun: yes">  </span>We found both SWIG and CXX quite valuable in
+
+writing our Numeric Python extensions.<span style="mso-spacerun: yes"> 
+
+</span>Although we did encounter some challenges in learning Numeric Python and
+
+debugging our extensions, Python allowed us to build a flexible, yet efficient,
+
+system to process our large data-sets and test our algorithms.</p>
+
+
+
+<h1><![if !supportLists]>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;
+
+</span><![endif]>Introduction</h1>
+
+
+
+<p class=MsoNormal>To support our work in developing and testing new signal
+
+processing techniques, we needed a processing environment to perform IIR
+
+filtering and pulse-pair processing.<span style="mso-spacerun: yes">  
+
+</span>In addition, we wanted to implement a fuzzy logic algorithm to
+
+automatically recognize specific types of radar targets.<span
+
+style="mso-spacerun: yes">  </span>We also needed the ability to graph subsets
+
+of radar data for quality control purposes. </p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>Although we could have written a conventional C/C++ program
+
+consisting of compiled subroutines all linked together, we wanted the
+
+flexibility that an interpreted language would provide, without sacrificing
+
+performance.<span style="mso-spacerun: yes">  </span>We wanted to build a set
+
+of modules that could easily be invoked with different sets of data and
+
+parameters. We needed a &quot;production&quot; environment that could easily process
+
+gigabytes of data, yet we wanted the ease of programming that an interpreted
+
+language would provide.<span style="mso-spacerun: yes">  </span>When we
+
+discovered that Numeric Python<a style='mso-endnote-id:edn1' href="#_edn1"
+
+name="_ednref1" title=""><span class=MsoEndnoteReference><span
+
+style='mso-special-character:footnote'><![if !supportFootnotes]>[1]<![endif]></span></span></a>
+
+could meet our requirements, we designed and implemented the Python Environment
+
+for Radar Processing (PERP).<span style="mso-spacerun: yes">  </span>PERP
+
+implements IIR filtering and pulse-pair processing as well as a fuzzy logic
+
+based recognizer.</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>The next sections will explain what is Numeric Python, why
+
+we chose Numeric Python and how we built the Python Environment for Radar
+
+Processing (PERP). We then describe the capabilities of PERP, the challenges we
+
+overcame in using Numeric Python and some additional benefits of Numeric
+
+Python. </p>
+
+
+
+<h1><![if !supportLists]>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;
+
+</span><![endif]>What is Numeric Python?</h1>
+
+
+
+<p class=MsoNormal>Numeric Python (NumPy) was written by Jim Hugunin at MIT,
+
+based on earlier work by Jim Fulton. It is now being maintained by Lawrence
+
+Livermore National Laboratory. NumPy was inspired by the array processing
+
+features of IDL, MATLAB and Mathematica.<span style="mso-spacerun: yes"> 
+
+</span>NumPy adds efficient operations on N-dimensional numeric arrays to the
+
+Python language.<span style="mso-spacerun: yes">  </span>NumPy has its own SIG
+
+(Special Interest Group) on the <a href="http://www.python.org/">www.python.org</a>
+
+web site.</p>
+
+
+
+<h1><![if !supportLists]>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;
+
+</span><![endif]>Why Numeric Python?</h1>
+
+
+
+<p class=MsoNormal>We chose Numeric Python to build our data analysis package
+
+for a variety of reasons, including its free availability, efficiency, open
+
+source, and general purpose features.</p>
+
+
+
+<h2><![if !supportLists]>3.1<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]>Numeric
+
+Python is free</h2>
+
+
+
+<p class=MsoNormal>We wanted to be able to freely share our package with our
+
+collaborators, without forcing our colleagues to buy a particular commercial
+
+package, like MATLAB or IDL.<span style="mso-spacerun: yes">  </span>Since our
+
+algorithms may run as part of a transportable research weather radar, it is
+
+easier to use a free package, rather than having to buy a separate license for
+
+our &quot;field&quot; computer. Python and Numeric Python are freely available, and do
+
+not require any licensing fees or license managers. </p>
+
+
+
+<h2><![if !supportLists]>3.2<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]><span
+
+style="mso-spacerun: yes"> </span>Numeric Python is very efficient</h2>
+
+
+
+<p class=MsoNormal>Our past experience with some commercial packages like
+
+MATLAB or IDL shows that although developing an algorithm in these languages
+
+may be straight-forward, the interpreted implementation may be quite
+
+inefficient when processing large amounts (gigabytes) of data.<span
+
+style="mso-spacerun: yes">  </span>Our experiments with Numeric Python showed
+
+that Numeric Python&#039;s overhead was small compared to the I/O and computations
+
+the application would perform. </p>
+
+
+
+<h2><![if !supportLists]>3.3<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]>Numeric
+
+Python is Open Source</h2>
+
+
+
+<p class=MsoNormal>Since Numeric Python is Open Source, it has significant
+
+advantages over proprietary solutions.<span style="mso-spacerun: yes">  </span>We
+
+saw several advantages in using an Open Source solution:</p>
+
+
+
+<p class=MsoListBullet2><![if !supportLists]><span style='font-family:Symbol'>·<span
+
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+</span></span><![endif]>Debugging is much easier</p>
+
+
+
+<p class=MsoListBullet2><![if !supportLists]><span style='font-family:Symbol'>·<span
+
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+</span></span><![endif]>Performance tuning is easier.</p>
+
+
+
+<p class=MsoListBullet2><![if !supportLists]><span style='font-family:Symbol'>·<span
+
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+</span></span><![endif]>Adding new features is easier.</p>
+
+
+
+<p class=MsoListBullet2><![if !supportLists]><span style='font-family:Symbol'>·<span
+
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+</span></span><![endif]>Support is great!</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>When using a computation environment like Numeric Python,
+
+MATLAB, or IDL to build a complex signal processing or data analysis system, we
+
+must write our own compiled extensions to the environment to efficiently
+
+perform particular computations. All of these computation environments support
+
+user written subroutines in C/C++ to extend their functionality.<span
+
+style="mso-spacerun: yes">  </span>However, we&#039;ve found it can be quite
+
+difficult to debug programs that are linked to vendor provided proprietary
+
+object code.<span style="mso-spacerun: yes">  </span>Our experience indicates
+
+that having the full source code for the data analysis program is extremely
+
+valuable, if not essential.<span style="mso-spacerun: yes">  </span>For
+
+example, to debug certain memory usage problems (dangling pointers or memory
+
+leaks), the <b style='mso-bidi-font-weight:normal'>entire</b> application must
+
+be re-compiled using Insure++<a name="_Ref467639685"></a><a style='mso-endnote-id:
+
+edn2' href="#_edn2" name="_ednref2" title=""><span style='mso-bookmark:_Ref467639685'><span
+
+class=MsoEndnoteReference><span style='mso-special-character:footnote'><![if !supportFootnotes]>[2]<![endif]></span></span></span></a><span
+
+style='mso-bookmark:_Ref467639685'></span>, Purify<a style='mso-endnote-id:
+
+edn3' href="#_edn3" name="_ednref3" title=""><span class=MsoEndnoteReference><span
+
+style='mso-special-character:footnote'><![if !supportFootnotes]>[3]<![endif]></span></span></a>
+
+or some other memory validation tool.<span style="mso-spacerun: yes"> 
+
+</span>Without source code for the entire application, a programmer is
+
+dependent on the vendor to find problems in his/her source code or to help
+
+trace problems in his/her code.<span style="mso-spacerun: yes"> 
+
+</span>Clearly, if the vendor source code is not available, a programmer can
+
+only debug or fix his/her own code, not the vendor&#039;s code.<span
+
+style="mso-spacerun: yes">  </span>But without <b style='mso-bidi-font-weight:
+
+normal'>all</b> the source code, a programmer will find it difficult to trace
+
+problems that originate in his/her own code, particularly if his/her code
+
+triggers a bus error within the vendor provided analysis package. </p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>When developing a data analysis package, it is frequently
+
+necessary to tune the system to improve performance and avoid excessive memory
+
+use. For example, we wrote some signal processing code in MATLAB using MATLAB&#039;s
+
+high-level graphics package. This code required enormous amounts of virtual memory
+
+to display our output (i.e., processing 20 megabytes of data required 700
+
+megabytes of virtual memory.) Without the source code, we have been unable to
+
+determine the reason for this problem.<span style="mso-spacerun: yes"> 
+
+</span>With the source code, it would be possible to determine the reason for
+
+this problem.</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>As has been noted in <i style='mso-bidi-font-style:normal'>The
+
+Cathedral and the Bazaar</i><a style='mso-endnote-id:edn4' href="#_edn4"
+
+name="_ednref4" title=""><span class=MsoEndnoteReference><span
+
+style='mso-special-character:footnote'><![if !supportFootnotes]>[4]<![endif]></span></span></a>,
+
+Open Source software benefits from having many talented programmers
+
+scrutinizing the source, and contributing bug fixes and enhancements.<span
+
+style="mso-spacerun: yes">  </span>Therefore, Open Source data analysis packages
+
+may actually be more reliable than commercial, proprietary solutions.</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>When using an analysis package, we sometimes need to add a
+
+new feature.<span style="mso-spacerun: yes">  </span>For example, when we
+
+needed the Numeric Python &quot;interp()&quot; <span style="mso-spacerun: yes"> 
+
+</span>routine to accept multi-dimensional arrays, we simply modified the
+
+Numeric Python source code.<span style="mso-spacerun: yes">  </span>This source
+
+code simply would not have been available if we were using MATLAB or IDL.<span
+
+style="mso-spacerun: yes">  </span>As a result, either we would have had to
+
+write the routine &quot;from scratch&quot; , or live without it.</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>On occasion, we have needed support to solve problems with
+
+our data analysis package. On the rare occasions we&#039;ve had any problems with
+
+Python or the Numeric extensions, we have gotten very quick support (sometimes
+
+in less than 8 hours time) from the developers or from other users, and of
+
+course we could examine the source code ourselves.<span style="mso-spacerun:
+
+yes">  </span>In contrast, when using commercial software, we have found it
+
+difficult to get a timely response from some of our vendors.</p>
+
+
+
+<h2><![if !supportLists]>3.4<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]>Python
+
+is a general purpose language</h2>
+
+
+
+<p class=MsoNormal>Commercial products like MATLAB and IDL provide powerful
+
+array processing data analysis environments.<span style="mso-spacerun: yes"> 
+
+</span>In fact, they provide a richer set of basic signal processing libraries
+
+than currently available for Numeric Python.<span style="mso-spacerun: yes"> 
+
+</span>However, MATLAB and IDL are <b style='mso-bidi-font-weight:normal'>not</b>
+
+general-purpose programming languages.<span style="mso-spacerun: yes"> 
+
+</span>(For example, we would not write a web-site link consistency checker or
+
+a database interface in MATLAB!) In contrast, in addition to Numeric Python's
+
+very powerful array processing features, Python can be used as a scripting
+
+language and a systems programming language. Python is a full-featured
+
+programming language and provides an extensive set of runtime libraries for
+
+general-purpose program development.<span style="mso-spacerun: yes"> 
+
+</span>Python makes it considerably easier to interface the PERP package to
+
+other software or to build a GUI to control the PERP package.<span
+
+class=MsoCommentReference><span style='font-size:8.0pt;mso-bidi-font-size:10.0pt;
+
+display:none;mso-hide:all'><o:p></o:p></span></span></p>
+
+
+
+<p class=MsoNormal><span class=MsoCommentReference><span style='font-size:8.0pt;
+
+mso-bidi-font-size:10.0pt;display:none;mso-hide:all'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></span></p>
+
+
+
+<p class=MsoNormal><span class=MsoCommentReference><span style='font-size:8.0pt;
+
+mso-bidi-font-size:10.0pt;display:none;mso-hide:all'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></span></p>
+
+
+
+<h1><![if !supportLists]>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;
+
+</span><![endif]>How is PERP built?</h1>
+
+
+
+<p class=MsoNormal>When writing PERP, we wanted to concentrate on our problem
+
+domain, and not on the details of interfacing Python to C++.<span
+
+style="mso-spacerun: yes">  </span>The standard C API for Python is quite low
+
+level, and requires writing lots of &quot;boilerplate&quot; code to access Python data
+
+types (lists, tuples, dictionaries), perform parameter checking, and handle
+
+Python&#039;s reference counting.<span style="mso-spacerun: yes"> 
+
+</span>Fortunately, we could use CXX and SWIG to simplify our extension writing.</p>
+
+
+
+<h2><![if !supportLists]>4.1<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]><span
+
+style='mso-tab-count:1'>    </span>SWIG</h2>
+
+
+
+<p class=MsoNormal>SWIG<a style='mso-endnote-id:edn5' href="#_edn5"
+
+name="_ednref5" title=""><span class=MsoEndnoteReference><span
+
+style='mso-special-character:footnote'><![if !supportFootnotes]>[5]<![endif]></span></span></a>
+
+is the Simplified Wrapper Interface Generator, written by David Beazley.<span
+
+style="mso-spacerun: yes">  </span>SWIG uses an interface description file
+
+derived from an existing C/C++ include file.<span style="mso-spacerun: yes"> 
+
+</span>SWIG processes the interface file and generates C or C++ code that
+
+interfaces Python to C/C++ extensions.<span style="mso-spacerun: yes"> 
+
+</span>Python programs can invoke C/C++ functions or methods, and can reference
+
+elements of C/C++ structures or objects.<span style="mso-spacerun: yes"> 
+
+</span>SWIG has a fairly complete manual, and an active mailing list that can
+
+provide answers to questions about SWIG or problems with using SWIG.<span
+
+style="mso-spacerun: yes">  </span>We found SWIG very helpful in building our
+
+interface functions. However, when writing C++ extension code that manipulates
+
+Python objects, we wanted a higher level interface than is available from
+
+either Python or SWIG.</p>
+
+
+
+<h2><![if !supportLists]>4.2<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]><span
+
+style='mso-tab-count:1'>    </span>CXX</h2>
+
+
+
+<p class=MsoNormal>Paul Dubois wrote a package called CXX<a style='mso-endnote-id:
+
+edn6' href="#_edn6" name="_ednref6" title=""><span class=MsoEndnoteReference><span
+
+style='mso-special-character:footnote'><![if !supportFootnotes]>[6]<![endif]></span></span></a>
+
+that is included with the Livermore Labs Numerical Python distribution.<span
+
+style="mso-spacerun: yes">  </span>CXX is specifically designed to simplify
+
+manipulating Python objects from C++.<span style="mso-spacerun: yes"> 
+
+</span>Since we represent our radar data as arrays, tuples and dictionaries
+
+contained in a dictionary (see section <span style='mso-field-code:"REF _Ref467640480 \\n"'>5.1</span>),
+
+CXX was quite helpful in building and accessing these data structures in our
+
+C++ extensions. The following is an excerpt from one of our C++ extensions that
+
+uses CXX.</p>
+
+
+
+<p class=MsoNormal><span style='mso-tab-count:1'>                </span></p>
+
+
+
+<p class=MsoBlockText>PyObject *array = PyArray_FromDims(2, dims, PyArray_FLOAT);</p>
+
+
+
+<p class=MsoBlockText>// Store all per-variable info in a dictionary</p>
+
+
+
+<p class=MsoBlockText>Dict d;</p>
+
+
+
+<p class=MsoBlockText style='margin-left:0in'><span style='mso-tab-count:1'>      </span>d[&quot;;scale&quot; ;]
+
+= Float(scale);</p>
+
+
+
+<p class=MsoBlockText>d[&quot;;bias&quot; ;] = Float(bias);</p>
+
+
+
+<p class=MsoBlockText>d[&quot;;badValueInt&quot; ;] = Int(badValue);</p>
+
+
+
+<p class=MsoBlockText>d[&quot;;badValueFloat&quot; ;] =
+
+Float((badValue-bias)/scale);</p>
+
+
+
+<p class=MsoBlockText style='margin-left:0in'><span style='mso-tab-count:1'>      </span>d[&quot;;array&quot; ;]
+
+= Object(array);</p>
+
+
+
+<p class=MsoBlockText>// this array is only referenced by this dictionary.</p>
+
+
+
+<p class=MsoBlockText>Py_DECREF(array);</p>
+
+
+
+<p class=MsoNormal style='margin-left:.5in'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>Note the ease with which we created a dictionary, and added
+
+floating point, integer, and array objects to the dictionary.<span
+
+style="mso-spacerun: yes">  </span>However, also note the use of Py_DECREF(),
+
+to maintain the correct reference count on the newly created array. CXX only
+
+supports multi-dimensional NumPy arrays by using the Blitz<a style='mso-endnote-id:
+
+edn7' href="#_edn7" name="_ednref7" title=""><span class=MsoEndnoteReference><span
+
+style='mso-special-character:footnote'><![if !supportFootnotes]>[7]<![endif]></span></span></a>
+
+scientific computation package.<span style="mso-spacerun: yes">  </span>Since
+
+we were not ready to use Blitz (which at that time was only available as an
+
+alpha release), we used the standard C Numeric Python interface, which requires
+
+the programmer to explicitly handle reference counts.</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>Because PERP uses CXX, PERP requires a modern C++ compiler
+
+that has comprehensive template and exception handling support.<span
+
+style="mso-spacerun: yes">  </span>Fortunately, as we were designing PERP, the
+
+EGCS version of the GNU C compiler was just adding these features.<span
+
+style="mso-spacerun: yes">  </span>Now that EGCS is the official GNU C
+
+compiler, Gnu C++ (2.95 or better) provides the necessary C++ features.<span
+
+style="mso-spacerun: yes">  </span>Although some of the CXX template-based C++
+
+routines are noticeably slower to compile than ordinary C++ code, the
+
+compilation speed is quite acceptable on a modern, 400Mhz, Linux PC.<span
+
+style="mso-spacerun: yes">  </span>Although PERP does require a modern C++
+
+compiler, it is portable to other architectures. We&#039;ve also built PERP on Sun/Solaris
+
+using gcc 2.95. Apparently, Kuck &amp; Associates&#039; KAI C++<a style='mso-endnote-id:
+
+edn8' href="#_edn8" name="_ednref8" title=""><span class=MsoEndnoteReference><span
+
+style='mso-special-character:footnote'><![if !supportFootnotes]>[8]<![endif]></span></span></a>
+
+compiler will also compile CXX-based code. </p>
+
+
+
+<h1><![if !supportLists]>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;
+
+</span><![endif]>What capabilities does PERP provide?</h1>
+
+
+
+<h2><a name="_Ref467640480"><![if !supportLists]>5.1<span style='font:7.0pt "Times New Roman"'>&nbsp;
+
+</span><![endif]>Input/Output of data.</a></h2>
+
+
+
+<p class=MsoNormal>Clearly, to be useful, PERP needed to read and write our
+
+radar data.<span style="mso-spacerun: yes">  </span>For time-series data, we
+
+use netCDF<a style='mso-endnote-id:edn9' href="#_edn9" name="_ednref9" title=""><span
+
+class=MsoEndnoteReference><span style='mso-special-character:footnote'><![if !supportFootnotes]>[9]<![endif]></span></span></a>
+
+to store our data. <span style="mso-spacerun: yes"> </span>NetCDF stores binary
+
+data in a machine independent form, such that we can read the same data<span
+
+style="mso-spacerun: yes">  </span>files on either PCs or Sun SPARC machines,
+
+without having to code our I/O routines to swap bytes.<span
+
+style="mso-spacerun: yes">  </span>In addition netCDF data files are
+
+self-describing, so an application can determine the dimensions of all arrays,
+
+and what sort of data is stored in each array.<span style="mso-spacerun: yes"> 
+
+</span>PERP uses the netCDF Python package written by Konrad Hinsen<a
+
+style='mso-endnote-id:edn10' href="#_edn10" name="_ednref10" title=""><span
+
+class=MsoEndnoteReference><span style='mso-special-character:footnote'><![if !supportFootnotes]>[10]<![endif]></span></span></a>
+
+to read and write radar time-series data.<span style="mso-spacerun: yes"> 
+
+</span>We&#039;ve written our own translator programs in C to translate<span
+
+style="mso-spacerun: yes">  </span>&quot;raw&quot; time-series data into netCDF, so that
+
+PERP can process it.</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>Once PERP has processed our time-series data into
+
+reflectivity and velocity fields, we store it in NCAR&#039;s DORADE<a
+
+style='mso-endnote-id:edn11' href="#_edn11" name="_ednref11" title=""><span
+
+class=MsoEndnoteReference><span style='mso-special-character:footnote'><![if !supportFootnotes]>[11]<![endif]></span></span></a>
+
+format, since this format is used by an existing radar display program and by
+
+other analysis programs.<span style="mso-spacerun: yes">  </span>As a result,
+
+we wrote our own input/output routines to translate Numeric Python arrays
+
+to/from the DORADE format.<span style="mso-spacerun: yes">  </span>We used
+
+SWIG&#039;s ability to map C structures to Python to allow our Python scripts to
+
+read and write individual members of DORADE &quot;;C&quot; ; structures that
+
+describe the radar data. </p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>At first, we had some difficulty deciding how to represent
+
+our collection of numeric arrays and their associated attributes in Python<span
+
+style="mso-spacerun: yes">  </span>(Attributes include the integer value used
+
+for a &quot;bad data flag&quot; and the scale factor used when the data is stored in a
+
+file).<span style="mso-spacerun: yes">  </span>We experimented with storing the
+
+array&#039;s attributes in a tuple, but we finally decided to use dictionaries to
+
+organize our data, since the key/value pairs in the dictionary provided
+
+&quot;self-documentation&quot; for our <a style='mso-comment-reference:PT_1'>data</a><![if !supportAnnotations]><a
+
+class=msocomanchor id="_anchor_1"
+
+onmouseover="msoCommentShow('_anchor_1','_com_1')"
+
+onmouseout="msoCommentHide('_com_1')" href="#_msocom_1" language=JavaScript
+
+name="_msoanchor_1">[PT1]</a><![endif]><span class=MsoCommentReference><span
+
+style='font-size:8.0pt;mso-bidi-font-size:10.0pt;display:none;mso-hide:all'><span
+
+style='mso-special-character:comment'>&nbsp;</span></span></span>.<span
+
+style="mso-spacerun: yes">  </span>The entire dataset was stored in a
+
+dictionary that contains dictionaries, as shown below:</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=compressBlocktext>{'DZ': { 'array': array((20, 1040),f),
+
+'scale':100.0, 'bias': 0.0, 'badValueFloat': -327.68 },</p>
+
+
+
+<p class=compressBlocktext><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=compressBlocktext>'VE' : {'array': array((20, 1040),f), 'scale':
+
+100.0, 'bias': 0.0, 'badValueFloat': -327.68} }</p>
+
+
+
+<p class=MsoNormal>Each radar variable&#039;s dictionary can be located by the
+
+variable&#039;s name.<span style="mso-spacerun: yes">  </span>Once the dictionary
+
+for a particular radar variable is located, the attributes and the actual data
+
+can also be located by name.<span style="mso-spacerun: yes">  </span>Using
+
+nested dictionaries in Python provided some of the same functionality that an
+
+array of structures does in C++.</p>
+
+
+
+<h2><![if !supportLists]>5.2<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]>Radar
+
+Signal Processing</h2>
+
+
+
+<p class=MsoNormal>PERP allows the user to filter radar data using a collection
+
+of Infinite Impulse Response (IIR) filters.<span style="mso-spacerun: yes"> 
+
+</span>I converted a colleague&#039;s filter code to C++, and then wrapped the
+
+resulting IIR_Filter class with SWIG.<span style="mso-spacerun: yes"> 
+
+</span>An example of using the IIR_Filter class in Python is shown below:</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=compressBlocktext>coeff = FloatTuple(len(coeff_list), coeff_list))</p>
+
+
+
+<p class=compressBlocktext>f = IIR_Filter(numPoles, const_gain, coeff)</p>
+
+
+
+<p class=compressBlocktext>iFiltered, qFiltered = f.filter(iRaw, qRaw)</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal><!--[if gte vml 1]><o:wrapblock><v:shapetype id="_x0000_t202"
+
+  coordsize="21600,21600" o:spt="202" path="m0,0l0,21600,21600,21600,21600,0xe">
+
+  <v:stroke joinstyle="miter"/>
+
+  <v:path gradientshapeok="t" o:connecttype="rect"/>
+
+ </v:shapetype><v:shape id="_x0000_s1026" type="#_x0000_t202" style='position:absolute;
+
+  margin-left:7.2pt;margin-top:0;width:439.2pt;height:237.6pt;z-index:1;
+
+  mso-position-horizontal-relative:text;mso-position-vertical-relative:margin'
+
+  o:allowincell="f" stroked="f">
+
+  <o:lock v:ext="edit" aspectratio="t"/>
+
+  <v:textbox>
+
+   <![if !mso]>
+
+   <table cellpadding=0 cellspacing=0 width="100%">
+
+    <tr>
+
+     <td><![endif]>
+
+     <div>
+
+     <div style='border:solid windowtext .5pt;padding:1.0pt 4.0pt 1.0pt 4.0pt'>
+
+     <p class=MsoNormal style='page-break-after:avoid;border:none;mso-border-alt:
+
+     solid windowtext .5pt;padding:0in;mso-padding-alt:1.0pt 4.0pt 1.0pt 4.0pt'><v:shapetype
+
+      id="_x0000_t75" coordsize="21600,21600" o:spt="75" o:preferrelative="t"
+
+      path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
+
+      <v:stroke joinstyle="miter"/>
+
+      <v:formulas>
+
+       <v:f eqn="if lineDrawn pixelLineWidth 0"/>
+
+       <v:f eqn="sum @0 1 0"/>
+
+       <v:f eqn="sum 0 0 @1"/>
+
+       <v:f eqn="prod @2 1 2"/>
+
+       <v:f eqn="prod @3 21600 pixelWidth"/>
+
+       <v:f eqn="prod @3 21600 pixelHeight"/>
+
+       <v:f eqn="sum @0 0 1"/>
+
+       <v:f eqn="prod @6 1 2"/>
+
+       <v:f eqn="prod @7 21600 pixelWidth"/>
+
+       <v:f eqn="sum @8 21600 0"/>
+
+       <v:f eqn="prod @7 21600 pixelHeight"/>
+
+       <v:f eqn="sum @10 21600 0"/>
+
+      </v:formulas>
+
+      <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/>
+
+      <o:lock v:ext="edit" aspectratio="t"/>
+
+     </v:shapetype><v:shape id="_x0000_i1025" type="#_x0000_t75" style='width:419.25pt;
+
+      height:186.75pt' o:ole="" fillcolor="window">
+
+      <v:imagedata src="image001.wmz" o:title=""/>
+
+     </v:shape><![if gte mso 9]><o:OLEObject Type="Embed" ProgID="MSDraw.1.01"
+
+      ShapeID="_x0000_i1025" DrawAspect="Content" ObjectID="_1004796820">
+
+     </o:OLEObject>
+
+    <![endif]></p>
+
+     </div>
+
+     <p class=MsoCaption>Figure <span style='mso-field-code:"SEQ Figure \\* ARABIC"'>1</span>
+
+     - Fuzzy Logic Algorithm</p>
+
+     </div>
+
+     <![if !mso]></td>
+
+    </tr>
+
+   </table>
+
+   <![endif]></v:textbox>
+
+  <w:wrap type="topAndBottom"/>
+
+  <w:anchorlock/>
+
+ </v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout'>
+
+ <table cellpadding=0 cellspacing=0>
+
+  <tr>
+
+   <td width=10 height=0></td>
+
+  </tr>
+
+  <tr>
+
+   <td></td>
+
+   <td><img width=587 height=319 src="image002.gif"
+
+   alt="Text Box:  &#13;&#10;Figure 1 - Fuzzy Logic Algorithm&#13;&#10;"
+
+   v:shapes="_x0000_s1026"></td>
+
+  </tr>
+
+ </table>
+
+ </span><![endif]><!--[if gte vml 1]></o:wrapblock><![endif]--><br
+
+style='mso-ignore:vglayout' clear=ALL>
+
+Note that FloatTuple is a simple class that converts a variable length tuple of
+
+floating point values to a C++ object used by IIR_Filter.<span
+
+style="mso-spacerun: yes">  </span>If we had used CXX for the IIR_Filter class,
+
+we would have not needed the FloatTuple class.</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<br style='mso-ignore:vglayout' clear=ALL>
+
+
+
+<p class=MsoNormal>PERP also contains a complex auto-correlation algorithm<span
+
+style="mso-spacerun: yes">  </span>(pulse-pair) algorithm that processes
+
+time-series data into radar reflectivity, velocity and width.<span
+
+style="mso-spacerun: yes">  </span>Again, I converted a colleague&#039;s &quot;C&quot; routine
+
+to C++, and wrapped the PulsePair class with SWIG.<span style="mso-spacerun:
+
+yes">  </span>Below is an example of calling this class from Python:</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=compressBlocktext>p = PulsePair(scale,offset, prt, radarConst,</p>
+
+
+
+<p class=compressBlocktext><span style="mso-spacerun: yes">     
+
+</span>gateSpacing, firstGate)</p>
+
+
+
+<p class=compressBlocktext># I,Q,P,Z,V,W are Numeric arrays</p>
+
+
+
+<p class=compressBlocktext>p.compute(I,Q, P,Z,V,W)</p>
+
+
+
+<h2><![if !supportLists]>5.3<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]>Fuzzy
+
+Logic Implementation</h2>
+
+
+
+<p class=MsoNormal>In addition to our signal processing work, we have been
+
+exploring algorithms that automatically identify radar data that has been
+
+contaminated by &quot;anomalous propagation ground clutter&quot; (AP).<span
+
+style="mso-spacerun: yes">  </span>AP occurs when atmospheric conditions
+
+refract (bend) the radar beam causing it to be reflected from the ground,
+
+rather than continuing to sample the atmosphere.<span style="mso-spacerun:
+
+yes">  </span>This phenomenon is comparable to observing what appears to be
+
+water on the road on a hot, dry day (an optical mirage.) If AP is not properly
+
+identified, meteorologists or automatic algorithms may interpret AP as an
+
+intense storm, which can cause false alarms for flooding, or can cause aircraft
+
+to be routed around a non-existent &quot;storm&quot; .<span style="mso-spacerun: yes"> 
+
+</span></p>
+
+
+
+<p class=MsoNormal><!--[if gte vml 1]><o:wrapblock><v:group id="_x0000_s1036"
+
+  style='position:absolute;margin-left:237.8pt;margin-top:0;width:232.2pt;
+
+  height:266.4pt;z-index:2;mso-wrap-distance-bottom:1in' coordorigin="6336,1296"
+
+  coordsize="4644,5328">
+
+  <o:lock v:ext="edit" aspectratio="t"/>
+
+  <v:shape id="_x0000_s1030" type="#_x0000_t75" style='position:absolute;
+
+   left:6336;top:1296;width:4500;height:4695' o:regroupid="1" fillcolor="window">
+
+   <v:imagedata src="image003.gif" o:title="antenna_pat"/>
+
+  </v:shape><v:shape id="_x0000_s1034" type="#_x0000_t202" style='position:absolute;
+
+   left:6480;top:5904;width:4500;height:720' o:regroupid="1" filled="f"
+
+   stroked="f">
+
+   <o:lock v:ext="edit" aspectratio="t"/>
+
+   <v:textbox>
+
+    <![if !mso]>
+
+    <table cellpadding=0 cellspacing=0 width="100%">
+
+     <tr>
+
+      <td><![endif]>
+
+      <div>
+
+      <p class=MsoCaption>Figure 2 -Contour Plot of Received Power</p>
+
+      </div>
+
+      <![if !mso]></td>
+
+     </tr>
+
+    </table>
+
+    <![endif]></v:textbox>
+
+  </v:shape><w:wrap type="topAndBottom"/>
+
+ </v:group><![endif]--><![if !vml]><span style='mso-ignore:vglayout'>
+
+ <table cellpadding=0 cellspacing=0 align=left>
+
+  <tr>
+
+   <td width=317 height=0></td>
+
+  </tr>
+
+  <tr>
+
+   <td></td>
+
+   <td><img width=312 height=357 src="image004.gif" v:shapes="_x0000_s1036 _x0000_s1030 _x0000_s1034"></td>
+
+  </tr>
+
+ </table>
+
+ </span><![endif]><!--[if gte vml 1]></o:wrapblock><![endif]--><br
+
+style='mso-ignore:vglayout' clear=ALL>
+
+<![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<br style='mso-ignore:vglayout' clear=ALL>
+
+
+
+<p class=MsoNormal>Our previous research had shown that a &quot;Fuzzy Logic&quot; 
+
+algorithm could be used to identify AP. In brief, we compute &quot;features&quot; or
+
+&quot;interest fields&quot; such as mean or standard deviation for each spatial position
+
+in our radar data. A membership function (related to a probability density
+
+function) is then applied to each of these features, yielding a set of values
+
+in the range [0-1].<span style="mso-spacerun: yes">  </span>We then computed a
+
+weighted sum of the membership functions for each spatial position.<span
+
+style="mso-spacerun: yes">  </span>If the weighted sum exceeds a specified
+
+threshold, the fuzzy logic algorithm has identified AP at this location.<span
+
+style="mso-spacerun: yes">  </span>Figure 1 shows a block diagram of a fuzzy
+
+logic computation.</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>We had already implemented a &quot;Fuzzy Logic&quot; algorithm as a
+
+stand-alone C++ program, but wanted to build a more flexible, higher
+
+performance implementation.<span style="mso-spacerun: yes">  </span>We wanted
+
+an environment which would allow us manipulate entire arrays of data, as with
+
+MATLAB or IDL, that would allow us to dynamically choose what calculations were
+
+performed.<span style="mso-spacerun: yes">  </span>To add fuzzy logic
+
+calculations to PERP, we re-implemented the feature computation algorithms from
+
+our previous C++ code and used SWIG to build a dynamically loaded Numeric
+
+Python extension.<span style="mso-spacerun: yes">  </span>The membership
+
+function lookup tables were implemented using the interp() function in
+
+arrayfnmodule.c.<span style="mso-spacerun: yes">  </span>The final weighted sum
+
+calculation is performed directly in Numeric Python. </p>
+
+
+
+<h2><![if !supportLists]>5.4<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]>Graphs
+
+of radar data</h2>
+
+
+
+<p class=MsoNormal>We have found it quite helpful to graph our radar data from
+
+inside Numeric Python.<span style="mso-spacerun: yes">  </span>We ended up
+
+installing &quot;Yorick&quot; <a style='mso-endnote-id:edn12' href="#_edn12"
+
+name="_ednref12" title=""><span class=MsoEndnoteReference><span
+
+style='mso-special-character:footnote'><![if !supportFootnotes]>[12]<![endif]></span></span></a>
+
+and using the &quot;gist&quot; module from the Numeric Python distribution for scientific
+
+plotting. Using &quot;gist&quot; , we&#039;ve displayed scattergrams of our radar data.<span
+
+style="mso-spacerun: yes">  </span>Also, we produced graphs of received power
+
+versus antenna position that helped us verify the performance of our radar
+
+antenna. For example, Figure 2 shows a contour plot of received power versus
+
+antenna position.<span style="mso-spacerun: yes">  </span>Each contour
+
+indicates a given amount of received power.<span style="mso-spacerun: yes"> 
+
+</span>(Ideal antenna performance would be<span style="mso-spacerun: yes"> 
+
+</span>indicated by uniformly circular contours.) To produce this plot, we
+
+wrote a simple Python <i style='mso-bidi-font-style:normal'>Contour</i>
+
+class.<span style="mso-spacerun: yes">  </span>The <i style='mso-bidi-font-style:
+
+normal'>Contour</i> class &quot;;grids&quot; ; values of power for a given azimuth
+
+and elevation into a 2D array and plots the result with the &quot;;gist&quot;;
+
+contour plotting routine. We were very pleased how easily we could plot our
+
+data using Numeric Python.</p>
+
+
+
+<h1><![if !supportLists]>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;
+
+</span><![endif]>Challenges in using Numeric Python</h1>
+
+
+
+<p class=MsoNormal>Although we were strongly motivated to use Numeric Python
+
+for this project, we did have to overcome several significant challenges.</p>
+
+
+
+<h2><![if !supportLists]>6.1<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]>Documentation
+
+needs improvement.</h2>
+
+
+
+<p class=MsoNormal>Until I attended David Ascher&#039;s tutorial - &quot;An Overview of
+
+the Numeric Extensions to Python&quot; at the 7<sup>th</sup> International Python
+
+Conference, it was difficult to learn Numeric Python.<span style="mso-spacerun:
+
+yes">  </span>The available documentation has been improving, but learning
+
+Numeric Python is still not easy.<span style="mso-spacerun: yes">  </span>The
+
+scarcity of Numeric Python documentation has made it harder to train other
+
+potential users.<span style="mso-spacerun: yes">  </span>In particular, there
+
+is very little documentation on writing Numeric Python extensions.<span
+
+style="mso-spacerun: yes">  </span>We had to carefully study existing code to
+
+understand extension programming.<span style="mso-spacerun: yes">  </span>More
+
+Numeric Python &quot;How-To&quot; documents are needed.</p>
+
+
+
+<h2><![if !supportLists]>6.2<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]>Unwanted
+
+type promotion</h2>
+
+
+
+<p class=MsoNormal>The current implementation of Numeric Python has the
+
+undesired side effect of automatically producing double precision arrays when
+
+performing calculations on single precision variables.<span
+
+style="mso-spacerun: yes">  </span>For example:</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoBlockText><span style='mso-tab-count:1'>          </span>&gt;&gt;&gt;
+
+x= ones((10,),&#039;f&#039;)</p>
+
+
+
+<p class=MsoBlockText><span style='mso-tab-count:1'>          </span>&gt;&gt;&gt;
+
+x.typecode(), x.itemsize()</p>
+
+
+
+<p class=MsoBlockText><span style='mso-tab-count:1'>          </span>(&#039;f&#039;,4)</p>
+
+
+
+<p class=MsoBlockText><span style='mso-tab-count:1'>          </span>&gt;&gt;&gt;
+
+y = x * 2</p>
+
+
+
+<p class=MsoBlockText><span style='mso-tab-count:1'>          </span>&gt;&gt;&gt;
+
+y.typecode(), y.itemsize()</p>
+
+
+
+<p class=MsoBlockText><span style='mso-tab-count:1'>          </span>(&#039;d&#039;,8)</p>
+
+
+
+<p class=MsoNormal>Note that &#039;y&#039; is a double precision array, even though &#039;x&#039;
+
+was a single precision array.<span style="mso-spacerun: yes">  </span>Since we
+
+simply could not afford to double the memory usage of our program when
+
+manipulating multiple 20-megabyte data-sets, we had to consistently use the
+
+&quot;SameSizeAs()&quot;procedure recommended by David Ascher.</p>
+
+
+
+<p class=compressBlocktext><span style='mso-tab-count:1'>          </span>def<span
+
+style="mso-spacerun: yes">  </span>SameSizeAs(input, ref):</p>
+
+
+
+<p class=compressBlocktext><span style='mso-tab-count:1'>          </span><span
+
+style="mso-spacerun: yes">       </span>return array(input, ref.typecode())</p>
+
+
+
+<p class=compressBlocktext><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=compressBlocktext><span style='mso-tab-count:1'>          </span>&gt;&gt;&gt;
+
+y = x * SameSizeAs(2,x)</p>
+
+
+
+<p class=MsoBlockText><span style='mso-tab-count:1'>          </span>&gt;&gt;&gt;
+
+y.typecode(), y.itemsize()</p>
+
+
+
+<p class=MsoBlockText><span style='mso-tab-count:1'>          </span>(&#039;f&#039;,4)</p>
+
+
+
+<p class=MsoNormal><span style="mso-spacerun: yes"> </span>Using the
+
+SameSizeAs() routine eliminates the &quot;up-casting&quot; problem.</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal><span style="mso-spacerun: yes"> </span>Numeric Python
+
+programs would be easier to write and understand if each programmer did not
+
+have to use such &quot;helper&quot; functions to avoid unwanted up-casting.<span
+
+style="mso-spacerun: yes">  </span>These helper routines tend to obscure the
+
+algorithm.<span style="mso-spacerun: yes">  </span>Besides using these &quot;helper&quot; 
+
+functions, I wrote my own version of the interp() function in arrayfnmodule.c
+
+that<span style="mso-spacerun: yes">  </span>returns a single-precision array,
+
+rather than the default double precision arrays.</p>
+
+
+
+<h2><![if !supportLists]>6.3<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]>CXX
+
+Parameter Type Checking Can Yield Confusing Diagnostics</h2>
+
+
+
+<p class=MsoNormal>Using CXX allows automatic type checking of parameters using
+
+C++ exceptions to signal the Python runtime that an error has occurred.<span
+
+style="mso-spacerun: yes">  </span>However, if a set of parameters is checked
+
+by a single C++ &quot;exception handler&quot; , this technique can easily produce obscure
+
+runtime error messages.<span style="mso-spacerun: yes">  </span>Since only a
+
+single generic error message is returned, the caller of the extension may not
+
+know which parameter is incorrect.<span style="mso-spacerun: yes">  </span>We
+
+found it difficult to find parameter errors in our own Python code calling our
+
+own CXX extensions, given these vague error messages. The obvious solution is
+
+to use an exception handler for each parameter, even though it does tend to
+
+clutter up the C++ code.<span style="mso-spacerun: yes">  </span>It would be
+
+helpful if the CXX documentation had better examples of such error checking.</p>
+
+
+
+<h2><![if !supportLists]>6.4<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]>Reference
+
+counting can still be tricky.</h2>
+
+
+
+<p class=MsoNormal><span style="mso-spacerun: yes"> </span>Although CXX handles
+
+most of the reference counting details, we still encountered reference count
+
+issues when using the Numerical Array API with CXX<span style="mso-spacerun:
+
+yes">  </span>(see section 4.2).<span style="mso-spacerun: yes">  </span>We
+
+found using the Python function <i style='mso-bidi-font-style:normal'>sys.getrefcount()</i>
+
+invaluable in finding reference count errors.<span style="mso-spacerun: yes"> 
+
+</span>For example, when one of our C++ extension functions returned a
+
+dictionary, we invoked <i style='mso-bidi-font-style:normal'>sys.getrefcount() </i>for
+
+each key in the dictionary, and verified the reference count was correct.<span
+
+style="mso-spacerun: yes">  </span>(Otherwise, each call to an array processing
+
+routine can &quot;leak&quot; memory, causing the application&#039;s memory usage to grow at an
+
+enormous rate!).<span style="mso-spacerun: yes">  </span>When debugging memory
+
+usage in PERP, we have found it helpful to use Insure++<a name="_Hlt467639753"></a><!--[if supportFields]><span
+
+style='mso-bookmark:_Hlt467639753'></span><span style='mso-element:field-begin'></span><span
+
+style='mso-bookmark:_Hlt467639753'><sup> NOTEREF _Ref467639685 \h <span
+
+style="mso-spacerun: yes"> </span>\* MERGEFORMAT <span style='mso-element:field-separator'></span></sup></span><![endif]--><span
+
+style='mso-bookmark:_Hlt467639753'><sup>2<!--[if gte mso 9]><xml>
+
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F005200650066003400360037003600330039003600380035000000</w:data>
+
+</xml><![endif]--></sup></span><!--[if supportFields]><span style='mso-bookmark:
+
+_Hlt467639753'></span><span style='mso-element:field-end'></span><![endif]--><span
+
+style='mso-bookmark:_Hlt467639753'></span>.<span style="mso-spacerun: yes"> 
+
+</span>We also found it valuable to link Python or our &quot;embedded&quot; Python
+
+application with the &quot;<i style='mso-bidi-font-style:normal'>Electric Fence&quot; <a
+
+style='mso-endnote-id:edn13' href="#_edn13" name="_ednref13" title=""><span
+
+class=MsoEndnoteReference><span style='mso-special-character:footnote'><![if !supportFootnotes]>[13]<![endif]></span></span></a></i>
+
+library to verify our use of memory. <i style='mso-bidi-font-style:normal'>Electric
+
+Fence </i>uses the computer&#039;s virtual memory hardware to stop a program at the
+
+moment it references memory outside valid regions. <i style='mso-bidi-font-style:
+
+normal'><o:p></o:p></i></p>
+
+
+
+<h2><![if !supportLists]>6.5<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]>Debugging
+
+an extension can be tricky</h2>
+
+
+
+<p class=MsoNormal>Python supports dynamically loaded extensions. If possible,
+
+extensions should be built as a dynamic extension, so that any application can
+
+use them. However, when debugging a dynamically loaded extension in the
+
+standard Python interpreter, it is necessary to set a breakpoint in the <i
+
+style='mso-bidi-font-style:normal'>PyImport</i>_<i style='mso-bidi-font-style:
+
+normal'>LoadDynamicModule </i>routine and repeatedly stop at this breakpoint
+
+until the extension has been loaded. Once the extension is loaded, breakpoints
+
+can be set. We found it much easier to debug our extensions by building a<span
+
+style="mso-spacerun: yes">  </span>test program that statically links our
+
+extension<span style="mso-spacerun: yes">  </span>with the Python
+
+interpreter.<span style="mso-spacerun: yes">  </span>In this &quot;embedded Python&quot; 
+
+environment, we could immediately set breakpoints in any of our routines.<span
+
+style="mso-spacerun: yes">  </span>Fortunately, SWIG makes it fairly simple to
+
+build both a shared library and a custom application with an embedded Python
+
+interpreter.<span style="mso-spacerun: yes">  </span>(See my website for a
+
+sample makefile<a style='mso-endnote-id:edn14' href="#_edn14" name="_ednref14"
+
+title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[14]<![endif]></span></span></a>).<span
+
+style="mso-spacerun: yes">  </span></p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<h2><![if !supportLists]>6.6<span style='font:7.0pt "Times New Roman"'>&nbsp; </span><![endif]>Packaging
+
+is painful</h2>
+
+
+
+<p class=MsoNormal>One of the strengths of Python and Numeric Python is the
+
+availability of so many optional packages – e.g., for netCDF file access,
+
+plotting, and GUIs.<span style="mso-spacerun: yes">  </span>However, sometimes
+
+the &quot;do-it-yourself&quot; nature of building an application using (Numeric) Python
+
+is frustrating. For example, how is the average programmer supposed to
+
+determine which of the six or more available Numeric Python plotting packages
+
+is best? In contrast, the plotting functions provided by commercial packages
+
+like MATLAB or IDL are highly polished and fully integrated with the product.</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>In addition, when trying to install PERP on another machine,
+
+we&#039;ve found it somewhat painful to gather up the source code for all the
+
+separate packages to build on the new machine.<span style="mso-spacerun: yes"> 
+
+</span>We end up having to manually maintain an (ever-growing) list of packages
+
+needed by PERP.<span style="mso-spacerun: yes">  </span>To illustrate the
+
+problem, here&#039;s the current dependency tree for PERP:</p>
+
+
+
+<p class=MsoPlainText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=compressBlocktext>SWIG </p>
+
+
+
+<p class=compressBlocktext>Python 1.5.2</p>
+
+
+
+<p class=compressBlocktext>Numeric Python</p>
+
+
+
+<p class=compressBlocktext><span style="mso-spacerun: yes">    </span>netCDF
+
+package</p>
+
+
+
+<p class=compressBlocktext><span style='mso-tab-count:1'>          </span><span
+
+style="mso-spacerun: yes">    </span>netCDF library </p>
+
+
+
+<p class=compressBlocktext><span style="mso-spacerun: yes">   
+
+</span>yorick<span style="mso-spacerun: yes">  </span></p>
+
+
+
+<p class=compressBlocktext>wxPython<span style="mso-spacerun: yes">  </span></p>
+
+
+
+<p class=compressBlocktext><span style="mso-spacerun: yes">    </span>wxWindows
+
+</p>
+
+
+
+<p class=compressBlocktext><span style="mso-spacerun: yes">       </span>gtk+</p>
+
+
+
+<p class=compressBlocktext><span style='mso-tab-count:1'>          </span><span
+
+style="mso-spacerun: yes">    </span>glib</p>
+
+
+
+<p class=compressBlocktext><span style="mso-spacerun: yes">      
+
+</span>glcanvas </p>
+
+
+
+<p class=compressBlocktext><span style='mso-tab-count:1'>          </span><span
+
+style="mso-spacerun: yes">    </span>Mesa </p>
+
+
+
+<p class=MsoBodyTextFirstIndent2 style='margin-bottom:0in;margin-bottom:.0001pt'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>In contrast, if we were using a commercial package, we would
+
+simply install the vendor provided CD-ROM or tar archive, and install a tar
+
+file of our scripts and extensions.</p>
+
+
+
+<h1><![if !supportLists]>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;
+
+</span><![endif]>More Benefits of Numeric Python</h1>
+
+
+
+<p class=MsoNormal>Numeric Python and its extensions greatly simplify writing
+
+data analysis algorithms. In fact, some algorithms became trivial – we
+
+implemented the core of the fuzzy logic routines in 80 lines of Python – no C
+
+or C++ was required<a style='mso-endnote-id:edn15' href="#_edn15"
+
+name="_ednref15" title=""><span class=MsoEndnoteReference><span
+
+style='mso-special-character:footnote'><![if !supportFootnotes]>[15]<![endif]></span></span></a>.<span
+
+style="mso-spacerun: yes">  </span>Since Numeric Python encourages
+
+&quot;array-at-a-time&quot; computations, we found our applications are much easier to
+
+read, since the code does not contain the details of indexing arrays in 2 (or
+
+more) dimensions.</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>We also found it easy to synthesize test data using standard
+
+numeric python routines. This simplifies testing of user written routines.<span
+
+style="mso-spacerun: yes">  </span>For example, we tested our pulse-pair radar
+
+processing code by generating a synthetic sinusoidal input.<span
+
+style="mso-spacerun: yes">  </span>Having invoked a user-written extension,
+
+Numeric Python&#039;s ability to interactively access subsets of arrays and
+
+structure members is a great debugging aid.<span style="mso-spacerun: yes"> 
+
+</span>Rather than having to compile in debug print statements in our code, we
+
+simply used Python&#039;s &quot;print&quot; command.<span style="mso-spacerun: yes"> 
+
+</span>At first, when using Python&#039;s print commands, we were frustrated that
+
+Python would always try to print entire arrays, even if the array contained megabytes
+
+of data. However, even this default behavior could be modified, using routines
+
+in NumUtil.py<a style='mso-endnote-id:edn16' href="#_edn16" name="_ednref16"
+
+title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[16]<![endif]></span></span></a>.<span
+
+style="mso-spacerun: yes">  </span>With this utility code, the user can specify
+
+the maximum number of array elements that are printed. Arrays that exceed this
+
+size are printed in the form:</p>
+
+
+
+<p class=compressBlocktext>array((20,1000), f)</p>
+
+
+
+<h1><![if !supportLists]>8.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;
+
+</span><![endif]>Conclusion</h1>
+
+
+
+<p class=MsoNormal>We found both CXX and SWIG extremely valuable in generating
+
+the Python specific portions of our C++ code.<span style="mso-spacerun: yes"> 
+
+</span>After learning these tools, we could concentrate on our extension&#039;s
+
+code, rather than generating our own Python&lt;-&gt;C++ interfaces using
+
+Python&#039;s native C interface.<span style="mso-spacerun: yes">  </span>CXX
+
+greatly simplifies access to Python&#039;s list, tuple, and dictionary data
+
+structures.<span style="mso-spacerun: yes">  </span>SWIG greatly simplifies the
+
+code required to access C++ structures and classes from Python, and allowed us
+
+to easily interface our C++ routines to Python.</p>
+
+
+
+<p class=MsoCommentText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>We were quite pleased with our use of Numeric Python to
+
+build our application.<span style="mso-spacerun: yes">  </span>Even with the
+
+flexibility provided by Numeric Python, our application is quite
+
+efficient.<span style="mso-spacerun: yes">  </span>The time our application
+
+spends in the Python interpreter is small (&lt;10%) compared to the time
+
+required for data I/O and data manipulation in our C/C++ extensions.</p>
+
+
+
+<h1><![if !supportLists]>9.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;
+
+</span><![endif]>Future Plans</h1>
+
+
+
+<p class=MsoNormal>We want to try one of the &quot;packaging&quot; options for Python, so
+
+that we can build a single executable for &quot;production&quot; use.<span
+
+style="mso-spacerun: yes">  </span>Currently, it is fairly tedious to find and install
+
+all the Python packages we need to run the PERP<b style='mso-bidi-font-weight:
+
+normal'> </b>package.<span style="mso-spacerun: yes">   </span>We are
+
+considering using &quot;squeezeTool.py&quot; <a style='mso-endnote-id:edn17' href="#_edn17"
+
+name="_ednref17" title=""><span class=MsoEndnoteReference><span
+
+style='mso-special-character:footnote'><![if !supportFootnotes]>[17]<![endif]></span></span></a>
+
+to package our python scripts.<span style="mso-spacerun: yes">  </span>However,
+
+we may still need to build an RPM file to install all the extension scripts and
+
+shared libraries needed for PERP.</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<p class=MsoNormal>Also, we are starting to write a radar data display package
+
+using wxPython<a style='mso-endnote-id:edn18' href="#_edn18" name="_ednref18"
+
+title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[18]<![endif]></span></span></a> and Mesa<a
+
+style='mso-endnote-id:edn19' href="#_edn19" name="_ednref19" title=""><span
+
+class=MsoEndnoteReference><span style='mso-special-character:footnote'><![if !supportFootnotes]>[19]<![endif]></span></span></a>.<span
+
+style="mso-spacerun: yes">  </span>This will allow us to view radar data from
+
+inside PERP with out having to write out the data to a file, and run a separate
+
+standalone program to view our radar data.</p>
+
+
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+<h1><![if !supportLists]>10.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+
+</span><![endif]>Acknowledgments</h1>
+
+
+
+<p class=MsoNormal>This research is sponsored by the National Oceanic and
+
+Atmospheric Administration/National Weather Service&#039;s Operational Support
+
+Facility (OSF).<span style="mso-spacerun: yes">  </span>Thanks to Guido, all
+
+the Numeric Python Developers, David Beazley for SWIG, and Paul Dubois for CXX.
+
+I particularly want to thank the reviewers of this paper for their helpful
+
+suggestions. </p>
+
+
+
+<h1><![if !supportLists]>11.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+
+</span><![endif]>References</h1>
+
+
+
+<p class=MsoNormal>(All URLs current as of November 1999.)</p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:footnote-list'><![if !supportFootnotes]><br clear=all>
+
+
+
+<hr align=left size=1 width="33%">
+
+
+
+<![endif]>
+
+
+
+<div style='mso-element:footnote' id=ftn1>
+
+
+
+<p class=MsoFootnoteText><a style='mso-footnote-id:ftn1' href="#_ftnref1"
+
+name="_ftn1" title=""><span class=MsoFootnoteReference><span style='font-family:
+
+"Monotype Sorts";mso-ascii-font-family:"Times New Roman";mso-hansi-font-family:
+
+"Times New Roman";mso-char-type:symbol;mso-symbol-font-family:"Monotype Sorts"'><span
+
+style='mso-char-type:symbol;mso-symbol-font-family:"Monotype Sorts"'>]</span></span></span></a>
+
+NCAR is supported by the National Science Foundation.</p>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote-list'><![if !supportEndnotes]><br clear=all>
+
+
+
+<hr align=left size=1 width="33%">
+
+
+
+<![endif]>
+
+
+
+<div style='mso-element:endnote' id=edn1>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn1' href="#_ednref1"
+
+name="_edn1" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[1]<![endif]></span></span></a> Lawrence Livermore
+
+National Laboratory, <i style='mso-bidi-font-style:normal'>Numerical Python</i>,<span
+
+style="mso-spacerun: yes">  </span><a href="http://xfiles.llnl.gov/NumDoc4.html">http://xfiles.llnl.gov/<span
+
+style='mso-bookmark:_Hlt467900183'>N</span>umDoc4.html</a><![if !supportNestedAnchors]><a
+
+name="_Hlt467900183"></a><![endif]></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn2>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn2' href="#_ednref2"
+
+name="_edn2" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[2]<![endif]></span></span></a> Parasoft
+
+Corporation,<span style="mso-spacerun: yes">  </span><i style='mso-bidi-font-style:
+
+normal'>Insure++</i>, <span class=MsoHyperlink><span style='color:black'><a
+
+href="http://www.parasoft.com/">http://www.parasoft.c<span style='mso-bookmark:
+
+_Hlt467900176'>o</span>m/</a><![if !supportNestedAnchors]><a
+
+name="_Hlt467900176"></a><![endif]><o:p></o:p></span></span></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn3>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn3' href="#_ednref3"
+
+name="_edn3" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[3]<![endif]></span></span></a> Rational
+
+Software, <i style='mso-bidi-font-style:normal'>Purify</i>.<span
+
+style="mso-spacerun: yes">  </span><a href="http://www.rational.com/">htt<span
+
+style='mso-bookmark:_Hlt467052143'>p</span>://<span style='mso-bookmark:_Hlt467051908'>w</span><span
+
+style='mso-bookmark:_Hlt467051942'>w</span><span style='mso-bookmark:_Hlt467052149'>w</span>.rational.com/</a><![if !supportNestedAnchors]><a
+
+name="_Hlt467052149"></a><a name="_Hlt467051942"></a><a name="_Hlt467051908"></a><a
+
+name="_Hlt467052143"></a><![endif]></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn4>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn4' href="#_ednref4"
+
+name="_edn4" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[4]<![endif]></span></span></a> Eric S.
+
+Raymond, <i style='mso-bidi-font-style:normal'>The Cathedral and the Bazaar</i>.<span
+
+style="mso-spacerun: yes">  </span><a
+
+href="http://catb.org/~esr/writings/cathedral-bazaar/">http://catb.o<span
+
+style='mso-bookmark:_Hlt467900167'>r</span>g/~esr/writings/cathedral-bazaar</a><![if !supportNestedAnchors]><a
+
+name="_Hlt467900167"></a><![endif]></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn5>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn5' href="#_ednref5"
+
+name="_edn5" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[5]<![endif]></span></span></a> David
+
+Beazley,<span style="mso-spacerun: yes">  </span><i style='mso-bidi-font-style:
+
+normal'>SWIG</i>.<span style="mso-spacerun: yes">   </span><a
+
+href="http://www.swig.org/">http://<span style='mso-bookmark:_Hlt467052145'>w</span><span
+
+style='mso-bookmark:_Hlt467051111'>w</span>w.swig.org<span style='mso-bookmark:
+
+_Hlt467900163'>/</span><span style='mso-bookmark:_Hlt467900163'></span></a><![if !supportNestedAnchors]><a
+
+name="_Hlt467900163"></a><a name="_Hlt467051111"></a><a name="_Hlt467052145"></a><![endif]></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn6>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn6' href="#_ednref6"
+
+name="_edn6" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[6]<![endif]></span></span></a> Paul F.
+
+Dubois.<span style="mso-spacerun: yes">  </span><i style='mso-bidi-font-style:
+
+normal'>A Facility for Creating Python Extensions in C++, </i>Seventh
+
+International Python Conference, p. 61-68. available online from <span
+
+class=MsoHyperlink><span style='color:black'><a
+
+href="http://xfiles.llnl.gov/CXX_Objects/cxx.htm">http://xfiles.llnl.gov/CXX_O<span
+
+style='mso-bookmark:_Hlt467052313'>b</span>jects/cxx.htm</a><![if !supportNestedAnchors]><a
+
+name="_Hlt467052313"></a><![endif]><o:p></o:p></span></span></p>
+
+
+
+<p class=MsoEndnoteText><span class=MsoHyperlink><span style='color:black'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></span></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn7>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn7' href="#_ednref7"
+
+name="_edn7" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[7]<![endif]></span></span></a> Todd
+
+Veldhuizen, <i style='mso-bidi-font-style:normal'>BLITZ</i>,<span
+
+style="mso-spacerun: yes">  </span>http://oonumerics.org/blitz</p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn8>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn8' href="#_ednref8"
+
+name="_edn8" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[8]<![endif]></span></span></a> Kuck and
+
+Associates. <i style='mso-bidi-font-style:normal'>KAI C++</i>.<span
+
+style="mso-spacerun: yes">   </span><span class=MsoHyperlink><span
+
+style='color:black'><a href="http://www.kai.com/">http://www.kai.com</a></span></span></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn9>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn9' href="#_ednref9"
+
+name="_edn9" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[9]<![endif]></span></span></a> Unidata,
+
+Unidata, <i style='mso-bidi-font-style:normal'>netCDF</i>,<span
+
+style="mso-spacerun: yes">  </span><span class=MsoHyperlink><span
+
+style='color:black'><a href="http://www.unidata.ucar.edu/packages/netcdf">http://www.unidata<span
+
+style='mso-bookmark:_Hlt467900108'>.</span>ucar.edu/packages/netcdf</a><![if !supportNestedAnchors]><a
+
+name="_Hlt467900108"></a><![endif]></span></span></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn10>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn10' href="#_ednref10"
+
+name="_edn10" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[10]<![endif]></span></span></a> Konrad
+
+Hinsen, <i style='mso-bidi-font-style:normal'>Scientific Python</i>,</p>
+
+
+
+<p class=MsoEndnoteText><span class=MsoHyperlink><span style='color:black'><a
+
+href="http://starship.python.net/crew/hinsen/scientific.html">http://starship.python.net/crew/hins<span
+
+style='mso-bookmark:_Hlt467900093'>e</span>n/scientific.html</a><![if !supportNestedAnchors]><a
+
+name="_Hlt467900093"></a><![endif]><o:p></o:p></span></span></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn11>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn11' href="#_ednref11"
+
+name="_edn11" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[11]<![endif]></span></span></a> NCAR Atmospheric
+
+Technology Division, <i style='mso-bidi-font-style:normal'>Doppler Radar Data
+
+Exchange Format</i>,</p>
+
+
+
+<p class=MsoEndnoteText><u><a
+
+href="http://www.atd.ucar.edu/rsf/dorade_software/dorade.ps"><u>http://www.atd<span
+
+style='mso-bookmark:_Hlt467900075'>.</span>ucar.edu/rsf/dorade_software/dorade.ps</u></a><![if !supportNestedAnchors]><a
+
+name="_Hlt467900075"></a><![endif]><o:p></o:p></u></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn12>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn12' href="#_ednref12"
+
+name="_edn12" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[12]<![endif]></span></span></a> Lawrence
+
+Livermore National Laboratory, <i style='mso-bidi-font-style:normal'>Yorick</i>,<span
+
+style="mso-spacerun: yes">  </span><span class=MsoHyperlink><u><span
+
+style='color:black'><a href="http://wuarchive.wustl.edu:/pub/languages/yorick"><u>ftp://ftp-icf.llnl<span
+
+style='mso-bookmark:_Hlt467900074'>.</span>go<span style='mso-bookmark:_Hlt467566110'>v</span>:/pub//Yorick</u></a><![if !supportNestedAnchors]><a
+
+name="_Hlt467566110"></a><a name="_Hlt467900074"></a><![endif]></span></u><span
+
+style='color:black'><o:p></o:p></span></span></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn13>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn13' href="#_ednref13"
+
+name="_edn13" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[13]<![endif]></span></span></a> Bruce
+
+Perens.<span style="mso-spacerun: yes">  </span><i style='mso-bidi-font-style:
+
+normal'>Electric Fence</i>,<span style="mso-spacerun: yes">  </span><u><a
+
+href="http://perens.com/FreeSoftware"><u>http://pe<span style='mso-bookmark:
+
+_Hlt467566118'>r</span>ens.com/Fr<span style='mso-bookmark:_Hlt467900058'>e</span>eSoftware</u></a><![if !supportNestedAnchors]><a
+
+name="_Hlt467900058"></a><a name="_Hlt467566118"></a><![endif]></u></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn14>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn14' href="#_ednref14"
+
+name="_edn14" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[14]<![endif]></span></span></a> Joseph
+
+VanAndel. <i style='mso-bidi-font-style:normal'>Sample Makefile using SWIG to
+
+build Python extensions and embedding Python in an application</i>. <u><a
+
+href="http://starship.python.net/crew/vanandel/ipc8/Makefile.txt"><u>http<span
+
+style='mso-bookmark:_Hlt467566920'>:</span>//starship.python.net/crew/vanandel/ipc8/Makefile.txt</u></a><![if !supportNestedAnchors]><a
+
+name="_Hlt467566920"></a><![endif]></u></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn15>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn15' href="#_ednref15"
+
+name="_edn15" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[15]<![endif]></span></span></a> Joseph
+
+VanAndel.<span style="mso-spacerun: yes">  </span><i style='mso-bidi-font-style:
+
+normal'>Fuzzy Logic Implementation in Python</i>.<u> <a name="_Hlt467566904"></a><a
+
+href="http://starship.python.net/crew/vanandel/ipc8/fuzzy.py"><span
+
+style='mso-bookmark:_Hlt467566904'><u>http://starship.python.net/crew/vanandel/ipc8/fuzzy.p<span
+
+style='mso-bookmark:_Hlt467566908'>y</span></u></span><span style='mso-bookmark:
+
+_Hlt467566908'></span><span style='mso-bookmark:_Hlt467566904'></span></a><![if !supportNestedAnchors]><a
+
+name="_Hlt467566908"></a><![endif]></u></span></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn16>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn16' href="#_ednref16"
+
+name="_edn16" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[16]<![endif]></span></span></a> Joseph
+
+VanAndel.<span style="mso-spacerun: yes">  </span><i style='mso-bidi-font-style:
+
+normal'>Numeric Python Utilities</i>. <u><a
+
+href="http://starship.python.net/crew/vanandel/ipc8/NumUtil.py"><u>http://starship.python.net/crew/<span
+
+style='mso-bookmark:_Hlt467900051'>v</span>anandel/ipc8/NumUtil<span
+
+style='mso-bookmark:_Hlt467566882'>.</span>py</u></a><![if !supportNestedAnchors]><a
+
+name="_Hlt467566882"></a><a name="_Hlt467900051"></a><![endif]></u></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn17>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn17' href="#_ednref17"
+
+name="_edn17" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[17]<![endif]></span></span></a> Fredrik
+
+Lundh, <i style='mso-bidi-font-style:normal'>SqueezeTool</i>. <a
+
+name="_Hlt467566872"></a><a href="http://www.pythonware.com/downloads.htm"><span
+
+style='mso-bookmark:_Hlt467566872'><u>http://www.pythonware.com/down<span
+
+style='mso-bookmark:_Hlt467900049'>l</span>oads.htm</u></span><span
+
+style='mso-bookmark:_Hlt467566872'></span></a><![if !supportNestedAnchors]><a
+
+name="_Hlt467900049"></a><![endif]><span style='mso-bookmark:_Hlt467566872'></span></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn18>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn18' href="#_ednref18"
+
+name="_edn18" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[18]<![endif]></span></span></a> Robin Dunn,
+
+<i style='mso-bidi-font-style:normal'>wxPython</i>. <u><a
+
+href="http://alldun.com/wxPython"><u>http://al<span style='mso-bookmark:_Hlt467900042'>l</span>dunn.c<span
+
+style='mso-bookmark:_Hlt467899964'></span>om/wxPython</u></a><![if !supportNestedAnchors]><a
+
+name="_Hlt467899964"></a><a name="_Hlt467900042"></a><![endif]></u></p>
+
+
+
+<p class=MsoEndnoteText><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+
+
+</div>
+
+
+
+<div style='mso-element:endnote' id=edn19>
+
+
+
+<p class=MsoEndnoteText><a style='mso-endnote-id:edn19' href="#_ednref19"
+
+name="_edn19" title=""><span class=MsoEndnoteReference><span style='mso-special-character:
+
+footnote'><![if !supportFootnotes]>[19]<![endif]></span></span></a> Brian Paul
+
+et al., <i style='mso-bidi-font-style:normal'>The Mesa 3D Graphics Library</i>,
+
+<span class=MsoHyperlink><span style='color:black'>http://www.mesa3d.org/</span></span></p>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+<div style='mso-element:comment-list'><![if !supportAnnotations]>
+
+
+
+<hr class=msocomoff align=left size=1 width="33%">
+
+
+
+<![endif]>
+
+
+
+<div style='mso-element:comment'><![if !supportAnnotations]>
+
+
+
+<div id="_com_1" class=msocomtxt language=JavaScript
+
+onmouseover="msoCommentShow('_anchor_1','_com_1')"
+
+onmouseout="msoCommentHide('_com_1')"><![endif]><span style='mso-comment-author:
+
+"Peggy Taylor"'><![if !supportAnnotations]><a name="_msocom_1"></a><![endif]></span>
+
+
+
+<p class=MsoCommentText><!--[if supportFields]><span style='mso-element:field-begin'></span>PAGE
+
+\# &quot;;'Page: '#'<br>
+
+'&quot; ;<span class=MsoCommentReference><span style='font-size:8.0pt;mso-bidi-font-size:
+
+10.0pt'><span style="mso-spacerun: yes">  </span></span></span><![endif]--><!--[if supportFields]><span
+
+style='mso-element:field-end'></span><![endif]--></p>
+
+
+
+<![if !supportAnnotations]></div>
+
+
+
+<![endif]></div>
+
+
+
+</div>
+
+
+
+</body>
+
+
+
+</html>
+

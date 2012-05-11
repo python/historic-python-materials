@@ -1,0 +1,461 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-08-16 through 2006-08-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-08-16_2006-08-31]
+
+
+
+=============
+Announcements
+=============
+
+---------------------------
+Python communnity buildbots
+---------------------------
+
+Want to make sure your package works with the latest and greatest development and release versions of Python? Thanks to Grig Gheorghiu, you can add your test suite to the `Python community buildbots`_ and the results of these tests will show up on the `Python buildbot results page`_.
+
+.. _Python community buildbots: http://www.pybots.org/
+.. _Python buildbot results page: http://www.python.org/dev/buildbot/
+
+Contributing thread:
+
+- `link to community buildbot? <http://mail.python.org/pipermail/python-dev/2006-August/068552.html>`__
+
+
+=========
+Summaries
+=========
+
+---------------------
+Fast subclass testing
+---------------------
+
+Neal Norwitz was playing around with a patch that would make subclass testing for certain builtin types faster by stealing some bits from tp_flags. Georg Brandl thought this could be useful for exception handling in Python 3000 when all exceptions must be subclasses of BaseException. Guido also liked the patch and suggested it be checked into the `Python 3000 branch`_.
+
+.. _Python 3000 branch: http://svn.python.org/view/python/branches/p3yk/
+
+Contributing thread:
+
+- `Type of range object members <http://mail.python.org/pipermail/python-dev/2006-August/068267.html>`__
+
+-----------------------------
+gcc 4.2 and integer overflows
+-----------------------------
+
+Jack Howarth pointed out that intobject.c was using the test ``x < 0 && x == -x`` to determine if the signed integer ``x`` was the most negative integer on the platform. However, the C standard says overflow is undefined, so despite this code actually working on pretty much all known hardware, `gcc 4.2 assumes that overflow won't happen`_ and so optimizes away the entire clause. David Hopwood and Tim Peters provided a patch that casts ``x`` to an unsigned long (the "unnecessary" ``0`` is to make the Microsoft compilers happy)::
+
+    x < 0 && (unsigned long)x == 0-(unsigned long)x
+    
+.. _gcc 4.2 assumes that overflow won't happen: http://bugs.python.org/1545668
+
+Contributing thread:
+
+- `gcc 4.2 exposes signed integer overflows <http://mail.python.org/pipermail/python-dev/2006-August/068481.html>`__
+
+--------------------------
+Python and 64-bit machines
+--------------------------
+
+Thomas Heller explained that the _ctypes extension module was still a fair ways from building on Win64 and had to be removed from the installer for that platform. There was some discussion about in general how "experimental" the Win64 build of Python was, but Martin v. Löwis explained that despite the compiler warnings, Python has been running mostly fine on Win64 since version 2.4. In fact, Python has been running in 64-bit machines since 1993 (when Tim Peters ported it to 64-bit Crays) though of course not with the support that Python 2.5 brought through the Py_ssize_t changes.
+
+Contributing thread:
+
+- `ctypes and win64 <http://mail.python.org/pipermail/python-dev/2006-August/068362.html>`__
+
+------------------------------------------
+Guidelines for submitting bugs and patches
+------------------------------------------
+
+Brett Cannon put together a rewrite of the `bug and patch guidelines`_.  The bug guidelines now includes sections on how to:
+
+* Get a SourceForge account
+* Start a new bug
+* Specify the Python version
+* Specify special settings for your Python interpreter
+* Give sample code to reproduce bug
+* Submit!
+* Respond to requests from developers
+
+And the patch guidelines now includes sections on how to:
+
+* Read the Developer Intro to understand the scope of your proposed change
+* Add the appropriate unit tests
+* Add the proper document changes
+* Make your code follow the style guidelines
+* Generate a patch
+* Create a tracker item on SourceForge
+* Reference the patch in proper bug reports
+* Wait for a developer to contact you
+
+At Chad Whitacre's suggestion, Brett also included a section on the 5-for-1 rule, where some python-devvers have agreed to review your one patch if you post reviews of five others.
+
+The updates had not been posted to python.org at the time of this summary.
+
+.. _bug and patch guidelines: http://www.python.org/dev/patches/
+
+Contributing threads:
+
+- `draft for bug guidelines <http://mail.python.org/pipermail/python-dev/2006-August/068462.html>`__
+- `draft of patch guidelines <http://mail.python.org/pipermail/python-dev/2006-August/068463.html>`__
+
+---------------------------------
+Corner cases for continue/finally
+---------------------------------
+
+Dino Viehland pointed out an odd corner case with ``continue`` in a ``finally`` clause that was causing Python to crash::
+
+    for abc in range(10):
+        try: pass
+        finally:
+            try:
+                continue
+            except:
+                pass
+
+The bug was present at least all the way back to Python 2.3. People tossed a few patches back and forth (and a few tests which broke various versions of the patches) before `Neal Norwitz posted a patch`_ that people seemed to like.
+
+.. _Neal Norwitz posted a patch: http://bugs.python.org/1542451
+
+Contributing thread:
+
+- `2.4 & 2.5 beta 3 crash <http://mail.python.org/pipermail/python-dev/2006-August/068306.html>`__
+
+---------------------------------------
+PEP 343: decimal module context manager
+---------------------------------------
+
+Raymond Hettinger pointed out that the updates to the decimal module to take advantage of the ``with``-statement differed dramatically from `PEP 343`_ and were misdocumented in a number of places. Nick Coghlan explained that the API was a result of the introduction and then later removal of the ``__context__`` method.  After some discussion, Raymond convinced everyone to change the API from::
+
+    with decimal.getcontext().copy().get_manager() as ctx:
+        ...
+
+to the simpler API originally introduced in `PEP 343`_::
+
+    with decimal.localcontext() as ctx:
+        ...
+
+As a result of the changes needed to fix this API, Anthony Baxter decided that another release candidate was necessary before Python 2.5 final could be released.
+
+.. _PEP 343: http://www.python.org/dev/peps/pep-0343/
+
+Contributing thread:
+
+- `Py2.5 issue: decimal context manager misimplemented, misdesigned, and misdocumented <http://mail.python.org/pipermail/python-dev/2006-August/068532.html>`__
+
+----------------------------
+Python 2.6 development goals
+----------------------------
+
+Guido suggested that since Python 3.0 is now being developed in parallel with the 2.X trunk, the major work for Python 2.6 should be in making the transition to Python 3.0 as smooth as possible.  This meant:
+
+* Adding warnings (suppressed by default) for code incompatible with Python 3.0.
+* Making all Python 2.X library code as Python 3.0-compatible as possible.
+* Converting all unittests to unittest or doctest format.
+
+Brett Cannon suggested adding to this list:
+
+* Improving tests and classifying them better
+* Updating and improving the documentation
+
+In general, people seemed to think this was a pretty good approach, particularly as it would address some of the complaints about the speed of addition of new features to Python.  The discussion then moved off to the `python-3000 list`_.
+
+.. _python-3000 list: http://mail.python.org/mailman/listinfo/python-3000
+
+Contributing threads:
+
+- `What should the focus for 2.6 be? <http://mail.python.org/pipermail/python-dev/2006-August/068400.html>`__
+- `[Python-3000] What should the focus for 2.6 be? <http://mail.python.org/pipermail/python-dev/2006-August/068421.html>`__
+
+-----------------------
+Python 2.5, VC8 and PGO
+-----------------------
+
+Muguntharaj Subramanian asked about building Python 2.5 with the VC8 compiler.  Christopher Baus had recently provided a few patches to get the VC8 build working better and Kristján V. Jónsson said that he's working on updating the PCBuild8 directory in the trunk in a number of ways, including better support for profile-guided optimization (PGO) builds. He said once he got everything working right, he'd backport to Python 2.5.
+
+Contributing threads:
+
+- `Failed building 2.5rc1 pythoncore on VC8 <http://mail.python.org/pipermail/python-dev/2006-August/068365.html>`__
+- `patch to add socket module project to vc8 solution <http://mail.python.org/pipermail/python-dev/2006-August/068370.html>`__
+- `Error while building 2.5rc1 pythoncore_pgo on VC8 <http://mail.python.org/pipermail/python-dev/2006-August/068545.html>`__
+
+----------------------------------------------
+PEP 342: using return instead of GeneratorExit
+----------------------------------------------
+
+Igor Bukanov suggested that the GeneratorExit exception introduced by `PEP 342`_ could be eliminated by replacing it with the semantics of the ``return`` statement.  This would allow code like the following, which under the GeneratorExit paradigm would execute the ``except`` clause, to only execute the ``finally`` clause::
+
+    def gen():
+        try:
+            yield 0
+        except Exception:
+            print "Unexpected exception!"
+        finally:
+            print "Finally"
+
+    for i in gen():
+        print i
+        break
+
+Phillip J. Eby and others liked the approach, but suggested that it was much too late in the release process to be making such a major language change. Guido was open to making a change like this, perhaps in Python 3.0, but wanted the new generator enhancements to have some time in the field to see what was really needed here.
+
+.. _PEP 342: http://www.python.org/dev/peps/pep-0342/
+
+Contributing thread:
+
+- `GeneratorExit is unintuitive and uneccessary <http://mail.python.org/pipermail/python-dev/2006-August/068429.html>`__
+
+------------------------------------------
+String formatting, __str__ and __unicode__
+------------------------------------------
+
+John J Lee noticed that in Python 2.5, the ``%s`` format specifier calls ``__unicode__`` on objects if their ``__str__`` method returns a unicode object::
+
+    >>> class a(object):
+    ...     def __str__(self):
+    ...         print '__str__'
+    ...         return u'str'
+    ...     def __unicode__(self):
+    ...         print '__unicode__'
+    ...         return u'unicode'
+    ...
+    >>> '%s%s' % (a(), a())
+    __str__
+    __unicode__
+    __unicode__
+    u'unicodeunicode'
+
+Nick Coghlan explained that string formatting first tries to build and return a str object, but starts over if any of the objects to be formatted by the ``%s`` specifier are unicode. So if a ``__str__`` method is called during string formatting and it returns a unicode object, Python will decide that the string formatting operation needs to return a unicode object, and will therefore start over, calling the ``__unicode__`` methods. Nick promised to look into making the documentation for this a bit clearer.
+
+Contributing thread:
+
+- `String formatting / unicode 2.5 bug? <http://mail.python.org/pipermail/python-dev/2006-August/068393.html>`__
+
+-------------------------
+Optimizing global lookups
+-------------------------
+
+K.S. Sreeram asked about replacing the current LOAD_GLOBAL dict lookup with an array indexing along the lines of what is done for local names. Brett Cannon explained that globals can be altered from the outside, e.g. ``import mod; mod.name = value``, and thus globals aren't necessarily known at compile time. Tim Peters pointed out that a number of PEPs have been written in this area of optimization, with `PEP 280`_ being a good place to start. Most people were not opposed to the idea in general, but without an implementation to benchmark, there wasn't really much to discuss.
+
+.. _PEP 280: http://www.python.org/dev/peps/pep-0280/
+
+Contributing thread:
+
+- `Can LOAD_GLOBAL be optimized to a simple array lookup? <http://mail.python.org/pipermail/python-dev/2006-August/068437.html>`__
+
+---------------------
+ElementTree and PEP 8
+---------------------
+
+Greg Ewing asked about changing the ElementTree names to be more `PEP 8`_ compliant. Being that Python was already in the release candidate stage for Python 2.5, this was not possible. Even had the issue been raised earlier, such a change would have been unlikely, as it would have discouraged people who needed some backward compatibility from using the version in the stdlib.
+
+.. _PEP 8: http://www.python.org/dev/peps/pep-0008/
+
+Contributing thread:
+
+- `Doc suggestion for Elementtree (for 2.5? a bit late, I know...) <http://mail.python.org/pipermail/python-dev/2006-August/068503.html>`__
+
+--------
+rslice()
+--------
+
+Nick Coghlan suggested that since reversing slices could be somewhat complicated, e.g. ``(stop - 1) % abs(step) : start - 1 : -step``, it would be helpful to introduce a ``rslice()`` builtin so that this could be written ``rslice(start, stop, step)``.  Most people felt that this was unnecessary and didn't gain much over using ``reversed()`` on the sliced sequence.
+
+Contributing thread:
+
+- `Adding an rslice() builtin? <http://mail.python.org/pipermail/python-dev/2006-August/068512.html>`__
+
+----------------------------------
+PEP 362: Function Signature Object
+----------------------------------
+
+Brett Cannon spent his time at the Google sprint working on `PEP 362`_, which introduces a signature object for functions to describe what arguments they take. He asked for some feedback on two points:
+
+* Should the signature object be an attribute on all functions or should it be requested through the inspect module?
+* Should the dict returned by ``Signature.bind()`` key by name or by a tuple of names for argument lists like ``def f((a, b)):``?
+
+After some pretty minimal feedback, he posted the `latest version of the patch`_.
+
+.. _PEP 362: http://www.python.org/dev/peps/pep-0362/
+.. _latest version of the patch: http://bugs.python.org/1544909
+
+Contributing threads:
+
+- `[Python-checkins] r51458 - peps/trunk/pep-0000.txt peps/trunk/pep-0362.txt <http://mail.python.org/pipermail/python-dev/2006-August/068422.html>`__
+- `PEP 362 open issues <http://mail.python.org/pipermail/python-dev/2006-August/068443.html>`__
+
+----------------------------------------
+Warn about mixing tabs and spaces in 2.6
+----------------------------------------
+
+Thomas Wouters suggested making the ``-t`` flag the default in Python 2.6.  This would make Python always issue warnings if users mixed tabs and spaces.  People generally seemed in favor of the idea.
+
+Contributing thread:
+
+- `Making 'python -t' the default. <http://mail.python.org/pipermail/python-dev/2006-August/068297.html>`__
+
+---------------------
+xrange() and non-ints
+---------------------
+
+Neal Norwitz was playing around with some patches that would allow ``xrange`` in Python 2.6 to accept longs or objects with an ``__index__`` method instead of just ints as it does now. He looked at two Python implementations, a Python-C hybrid implementation and a C implementation, and found that for his benchmark, the Python-C hybrid was as good as the C implementation. People suggested that the benchmark wasn't testing function call overhead well enough, and the pure C implementation was probably still the way to go.
+
+Contributing thread:
+
+- `xrange accepting non-ints <http://mail.python.org/pipermail/python-dev/2006-August/068455.html>`__
+
+------------------------------------
+Cleanup tasks and the logging module
+------------------------------------
+
+The logging module currently maintains compatibility back to 1.5. Guido suggested (and Vinay approved) modernizing it to at least 2.2.
+
+The SimpleTodo_ wiki lists other useful cleanup tasks.
+
+.. _SimpleTodo: http://wiki.python.org/moin/SimpleTodo
+
+Contributing thread:
+
+- `Removing anachronisms from logging module <http://mail.python.org/pipermail/python-dev/2006-August/068476.html>`__
+
+[Thanks to Jim Jewett for this summary]
+
+---------------------------
+The purpose of test_mutants
+---------------------------
+
+test_mutants started to fail in the Python 3 branch, and Guido wasn't sure what it was *supposed* to do.  Tim Peters said it was supposed to not crash, and is there because of previous refcount bugs. `Guido patched another`_ that it exposed.
+
+.. _Guido patched another: http://bugs.python.org/1546288
+
+Contributing thread:
+
+- `Need help with test_mutants.py <http://mail.python.org/pipermail/python-dev/2006-August/068464.html>`__
+
+[Thanks to Jim Jewett for this summary]
+
+
+================
+Deferred Threads
+================
+- `Interest in a Python 2.3.6? <http://mail.python.org/pipermail/python-dev/2006-August/068520.html>`__
+- `That library reference, yet again <http://mail.python.org/pipermail/python-dev/2006-August/068556.html>`__
+
+==================
+Previous Summaries
+==================
+- `no remaining issues blocking 2.5 release <http://mail.python.org/pipermail/python-dev/2006-August/068269.html>`__
+
+===============
+Skipped Threads
+===============
+- `IDLE patches - bugfix or not? <http://mail.python.org/pipermail/python-dev/2006-August/068283.html>`__
+- `TRUNK FREEZE for 2.5c1, 00:00 UTC, Thursday 17th August <http://mail.python.org/pipermail/python-dev/2006-August/068284.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-August/068296.html>`__
+- `Benchmarking the int allocator (Was: Type of range object members) <http://mail.python.org/pipermail/python-dev/2006-August/068307.html>`__
+- `2.5: recently introduced sgmllib regexp bug hangs Python <http://mail.python.org/pipermail/python-dev/2006-August/068324.html>`__
+- `[wwwsearch-general] 2.5: recently introduced sgmllib regexp bug hangs Python <http://mail.python.org/pipermail/python-dev/2006-August/068325.html>`__
+- `recently introduced sgmllib regexp bughangs Python <http://mail.python.org/pipermail/python-dev/2006-August/068332.html>`__
+- `RELEASED Python 2.5 (release candidate 1) <http://mail.python.org/pipermail/python-dev/2006-August/068335.html>`__
+- `TRUNK IS UNFROZEN, available for 2.6 work if you are so inclined <http://mail.python.org/pipermail/python-dev/2006-August/068336.html>`__
+- `[Python-checkins] TRUNK IS UNFROZEN, available for 2.6 work if you are so inclined <http://mail.python.org/pipermail/python-dev/2006-August/068337.html>`__
+- `Fixing 2.5 windows buildbots <http://mail.python.org/pipermail/python-dev/2006-August/068339.html>`__
+- `uuid tests failing on Windows <http://mail.python.org/pipermail/python-dev/2006-August/068341.html>`__
+- `Sprints next week at Google <http://mail.python.org/pipermail/python-dev/2006-August/068348.html>`__
+- `__del__ unexpectedly being called twice <http://mail.python.org/pipermail/python-dev/2006-August/068358.html>`__
+- `How does this help? Re: [Python-checkins] r51366 - python/trunk/Lib/idlelib/NEWS.txt python/trunk/Lib/idlelib/idlever.py <http://mail.python.org/pipermail/python-dev/2006-August/068366.html>`__
+- `One-line fix for urllib2 regression <http://mail.python.org/pipermail/python-dev/2006-August/068372.html>`__
+- `os.spawnlp() missing on Windows in 2.4? <http://mail.python.org/pipermail/python-dev/2006-August/068373.html>`__
+- `Questions on unittest behaviour <http://mail.python.org/pipermail/python-dev/2006-August/068378.html>`__
+- `[Python-checkins] How does this help? Re: r51366 - python/trunk/Lib/idlelib/NEWS.txt python/trunk/Lib/idlelib/idlever.py <http://mail.python.org/pipermail/python-dev/2006-August/068387.html>`__
+- `SSH Key Added <http://mail.python.org/pipermail/python-dev/2006-August/068394.html>`__
+- `uuid module - byte order issue <http://mail.python.org/pipermail/python-dev/2006-August/068396.html>`__
+- `A cast from Py_ssize_t to long <http://mail.python.org/pipermail/python-dev/2006-August/068407.html>`__
+- `Python + Java Integration <http://mail.python.org/pipermail/python-dev/2006-August/068434.html>`__
+- `[4suite] cDomlette deallocation bug? <http://mail.python.org/pipermail/python-dev/2006-August/068435.html>`__
+- `[Python-checkins] r51525 - in python/trunk: Lib/test/test_float.py Objects/floatobject.c <http://mail.python.org/pipermail/python-dev/2006-August/068445.html>`__
+- `for 2.5 issues <http://mail.python.org/pipermail/python-dev/2006-August/068461.html>`__
+- `Need help with test_mutants.py <http://mail.python.org/pipermail/python-dev/2006-August/068464.html>`__
+- `zip -> izip; is __length_hint__ required? <http://mail.python.org/pipermail/python-dev/2006-August/068473.html>`__
+- `Removing anachronisms from logging module <http://mail.python.org/pipermail/python-dev/2006-August/068476.html>`__
+- `distutils patch <http://mail.python.org/pipermail/python-dev/2006-August/068505.html>`__
+- `32-bit and 64-bit python on Solaris <http://mail.python.org/pipermail/python-dev/2006-August/068528.html>`__
+- `Small Py3k task: fix modulefinder.py <http://mail.python.org/pipermail/python-dev/2006-August/068529.html>`__
+- `Windows build slave downtime <http://mail.python.org/pipermail/python-dev/2006-August/068553.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+August 16, 2006 through August 31, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 11th written by 
+Steve Bethard. 
+
+To contact me, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

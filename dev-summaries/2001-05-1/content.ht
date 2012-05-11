@@ -1,0 +1,135 @@
+Title: Python-dev summary: 2001-04-26 to 2001-05-09
+
+<pre>
+ This is a summary of traffic on the python-dev mailing list between
+ Apr 26 and May 9 (inclusive) 2001.  It is intended to inform the
+ wider Python community of ongoing developments.  To comment, just
+ post to python-list@python.org or comp.lang.python in the usual
+ way. Give your posting a meaningful subject line, and if it's about a
+ PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep
+ iteration) All python-dev members are interested in seeing ideas
+ discussed by the community, so don't hesitate to take a stance on a
+ PEP if you have an opinion.
+
+ This is the seventh summary written by Michael Hudson.
+ Summaries are archived at:
+
+  <a href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a>
+
+   Posting distribution (with apologies to mbm)
+
+   Number of articles in summary: 228
+
+    40 |                         [|]
+       |                         [|]
+       |                         [|]
+       |                         [|]                         [|]
+       |                         [|]                         [|]
+    30 |                         [|]                         [|]
+       |                         [|]                         [|]
+       |                         [|]                         [|]
+       |                         [|]                         [|]
+       |                         [|]                         [|]
+    20 |     [|]                 [|] [|]                     [|]
+       |     [|]                 [|] [|]                     [|]
+       |     [|]                 [|] [|] [|]                 [|]
+       |     [|]                 [|] [|] [|]             [|] [|]
+       |     [|]                 [|] [|] [|]             [|] [|]
+    10 |     [|]                 [|] [|] [|]         [|] [|] [|]
+       |     [|] [|]     [|] [|] [|] [|] [|] [|]     [|] [|] [|]
+       | [|] [|] [|]     [|] [|] [|] [|] [|] [|]     [|] [|] [|]
+       | [|] [|] [|]     [|] [|] [|] [|] [|] [|]     [|] [|] [|]
+       | [|] [|] [|]     [|] [|] [|] [|] [|] [|]     [|] [|] [|]
+     0 +-007-024-010-001-010-010-044-023-019-010-002-012-017-039
+        Thu 26| Sat 28| Mon 30| Wed 02| Fri 04| Sun 06| Tue 08|
+            Fri 27  Sun 29  Tue 01  Thu 03  Sat 05  Mon 07  Wed 09
+
+  A fairly quiet, but interesting fortnight (and I don't mean the
+  sarcastic replies to the Homepage virus).  A few build problems and
+  bugs fixed, and one very involved discussion (cf. most of the rest
+  of this summary).
+
+
+    * type == class? *
+
+ Guido posted a message from Jim Althoff describing the metaclass
+ system used in Smalltalk:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014508.html">http://mail.python.org/pipermail/python-dev/2001-May/014508.html</a>&gt;
+
+ He also mentioned a problem that is bound to bite any attempt to heal
+ the type/class split in Python.  If there are to be no special cases
+ in the type system then classes and types in particular should be
+ instances.  This sounds innocuous, but consider:
+
+    class MyDictType(DictType):
+        def __repr__(self):
+            return "MyDictType(%s)" % DictType.__repr__(self)
+
+ The code is hoping that, as in today's Python, DictType.__repr__ will
+ return an unbound method - the __repr__ method of vanilla
+ dictionaries, so that output of the form
+
+    MyDictType({1:2})
+
+ will be given.  But DictType is now an instance, so there's another
+ interpretation for DictType.__repr__ - the bound DictType's own
+ __repr__ method!  This is a fundamental problem; currently
+ "class.attr" and "instance.attr" have different meanings in Python,
+ and any attempt to conflate the notions of "class" and "instance" is
+ bound to run aground.  Guido proposed some hairy disambiguation rules
+ in the above-linked message, but no-one was particularly enthused
+ about them, possibly because no-one could really get their head round
+ them.
+
+ The long term solution is to change the syntax for getting - or
+ removing entirely - unbound methods.  As far as anyone can make out,
+ all that unbound methods are used for is called superclasses' methods
+ from overriding methods, so if one can find another way of spelling
+ that, then removing unbound methods entirely could be contemplated.
+ So the discussion on that went around for a bit, with no really new
+ compelling ideas surfacing.  There was some support for some kind of
+ souped up super.foo() construct:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014523.html">http://mail.python.org/pipermail/python-dev/2001-May/014523.html</a>&gt;
+
+ To me, the most plausible ideas came from Thomas Heller:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014517.html">http://mail.python.org/pipermail/python-dev/2001-May/014517.html</a>&gt;
+
+ and from Paul Dubois, who suggested nicking the feature renaming
+ feature from Eiffel:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014573.html">http://mail.python.org/pipermail/python-dev/2001-May/014573.html</a>&gt;
+
+ though the best syntax for the latter is far from clear.
+
+ There's also the king-sized issue of backwards compatibility; to a
+ first degree of approximation, *all* Python code that uses
+ inheritance would need to be updated to accommodate changes in the
+ meaning of "class.attribute".  Another __future__ statement, maybe?
+
+
+    * data.decode *
+
+ Marc-Andre Lemburg asked if it might be an idea if string objects
+ sprouted an .decode method:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014547.html">http://mail.python.org/pipermail/python-dev/2001-May/014547.html</a>&gt;
+
+ After some umming and arring and accusations of bloat, this got BDFL
+ approval, and should appear in CVS imminently.
+
+
+    * Moving MacPython to sourceforge *
+
+ Jack Jansen posted notice that he intends to move the MacPython code
+ over to sourceforge:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014611.html">http://mail.python.org/pipermail/python-dev/2001-May/014611.html</a>&gt;
+
+ It will be nice to finally have all the code in the same place!
+
+Cheers,
+M.
+</pre>

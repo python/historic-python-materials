@@ -1,0 +1,156 @@
+Title: python-dev Summary for 2005-01-01 through 2005-01-15
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2005-01-01 through 2005-01-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from January 01, 2005 through January 15, 2005.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the fifty-sixth summary written by Brett Cannon (I don't want to do my
+homework).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-12-16_2004-12-31.html
+.. _original text file: http://www.python.org/dev/summary/2005-01-01_2005-01-15.ht
+
+
+
+=====================
+Summary Announcements
+=====================
+PyCon_ will be upon us come late March!  Still time to plan to go.
+
+A warning on the thoroughness off this summary is in order.  While trying to delete a single thread of email I managed to accidentally delete my entire python-dev mailbox.  I did the best I could to retrieve the emails but it's possible I didn't resuscitate all of my emails, so I may have overlooked something.
+
+.. _PyCon: http://www.pycon.org/
+
+=======
+Summary
+=======
+-------------
+PEP movements
+-------------
+tip:: PEP updates by email are available as a topic from the `Python-checkins`_ mailing list.
+
+`PEP 246`_ was a major topic of discussion during the time period covered by this summary.  This all stemmed from `Guido's blog`_ entries on optional type checking. This led to a huge discussion on many aspects of protocols, interfaces, and adaptation and the broadening of this author's vocabulary to include "Liskov violation".
+
+"Monkey typing" also became a new term to know thanks to Phillip J. Eby's proto-PEP on the topic (found at http://peak.telecommunity.com/DevCenter/MonkeyTyping).  Stemming from the phrase "monkey see, monkey do", it's Phillip version of taking PEP 246 logically farther (I think; the whole thing is more than my currently burned-out-on-school brain can handle right now).
+
+.. _Python-checkins: http://mail.python.org/mailman/listinfo/python-checkins
+.. _PEP 246: http://www.python.org/dev/peps/pep-0246
+.. _Guido's blog: http://www.artima.com/weblogs/index.jsp?blogger=guido
+
+Contributing threads:
+  - `getattr and __mro__ <http://mail.python.org/pipermail/python-dev/2005-January/050907.html>`__
+  - `Son of PEP 246, redux <http://mail.python.org/pipermail/python-dev/2005-January/050972.html>`__
+  - `PEP 246: lossless and stateless <http://mail.python.org/pipermail/python-dev/2005-January/051023.html>`__
+  - `PEP 246: LiskovViolation as a name <http://mail.python.org/pipermail/python-dev/2005-January/050878.html>`__
+  - `"Monkey Typing" pre-PEP, partial draft <http://mail.python.org/pipermail/python-dev/2005-January/051124.html>`__
+
+
+------------------------------------------------------------------------------------
+Optional type checking: how to inadvertently cause a flame war worse than decorators
+------------------------------------------------------------------------------------
+`Guido's blog`_ had comments on the idea of adding optional static type checking to Python.  While just comments in a blog, it caused a massive response from people, mostly negative from what I gathered.  After Guido discussed things some more it culminated in a blog entry found at http://www.artima.com/weblogs/viewpost.jsp?thread=87182 that lays out what his actual plans are.  I highly recommend reading it since it suggests adding optional run-time type checking for function arguments along with some other proposals.
+
+All of this led to `PEP 246`_ getting updated.  For some more details on that see the `PEP movements`_ section of this summary.
+
+And if there is a lesson to be learned from all of this, it's that when Alex Martelli and Phillip J. Eby start a technical discussion it's going to be long, in-depth, complex, and lead to my inbox being brimming in python-dev email.
+
+
+------------------------------
+Let's get the AST branch done!
+------------------------------
+Guido posted an email to the list stating he would like to to make progress towards integrating "things like type inferencing, integrating PyChecker, or optional static type checking" into Python.  In order to make that easier he put out a request that people work on the AST branch and finish it.
+
+For those that don't know about Python's back-end, the compiler as it stands now takes the parse tree from the parser and emits bytecode directly from that.  This is far from optimal since the parse tree is more verbose than needed and it is not the easiest thing to work with.
+
+The AST branch attempts to fix this by taking a more traditional approach to compiling.  This means the parse tree is used to generate an AST (abstract syntax tree; and even more technically could be considered a control flow graph in view of how it is implemented) which in turn is used to emit bytecode.  The AST itself is much easier to work with when compared to the parse tree; better to know you are working with an 'if' guard thanks to it being an 'if' node in the AST than checking if the parse tree statement you are working with starts with 'if' and ends with a ':'.
+
+While all of this sounds great, the issue is the AST branch is not finished yet.  It is not entirely far off, but new features from 2.4 (decorators and generator expressions) need to be added along with more bug fixing and clean up.
+
+This means the AST branch is going to get finished for 2.5 somehow.  But help is needed.  While the usual suspects who have previously contributed to the branch are hoping to finish it, more help is always appreciated.  If you care to get involved, check out the AST branch (tagged as 'ast-branch' in CVS; see the `python-dev FAQ`_ on how to do a tagged branch checkout), read Python/compile.txt and just dive in!  There will also be a sprint on the AST branch at PyCon.
+
+.. _python-dev FAQ: http://www.python.org/dev/devfaq.html
+
+Contributing threads:
+  - `Please help complete the AST branch <http://mail.python.org/pipermail/python-dev/2005-January/050606.html>`__
+  - `Will ASTbranch compile on windows yet? <http://mail.python.org/pipermail/python-dev/2005-January/050633.html>`__
+  - `ast branch pragmatics <http://mail.python.org/pipermail/python-dev/2005-January/050690.html>`__
+  - `Re: [Python-checkins] python/dist/src/Python pythonrun.c, 2.161.2.15, 2.161.2.16 <http://mail.python.org/pipermail/python-dev/2005-January/050786.html>`__
+
+
+--------------------------------
+Ditching unbound methods in Py3k
+--------------------------------
+Guido suggested removing unbound methods from Python since their usefulness of checking their first argument and other slight differences from functions just didn't seem worth keeping around and complicating the language.  So the idea seems sound.
+
+But then people with uses for the extra information kept in unbound methods (im_func and im_self) popped up.  To make the long thread short, enough people stepped up mentioning uses they had for the information for Guido to retract the suggestion in the name of backwards compatibility.
+
+But unbound methods are now on the list of things to go in Python 3000.
+
+Contributing threads:
+  - `Let's get rid of unbound methods <http://mail.python.org/pipermail/python-dev/2005-January/050625.html>`__
+  - `Getting rid of unbound methods: patch available <http://mail.python.org/pipermail/python-dev/2005-January/051128.html>`__
+  - `PEP 246 - concrete assistance to developers of new	adapter classes <http://mail.python.org/pipermail/python-dev/2005-January/051246.html>`__
+
+
+------------------------------------------
+Getting exceptions to be new-style classes
+------------------------------------------
+A patch to allow exceptions to be new-style classes is currently at http://www.python.org/1104669 .  The plan is to get that patch in order, apply it, and as long as a ton of code does not break from exceptions moving from classic to new-style classes it will be made permanent in 2.5 .
+
+This in no way touches on the major changes as touched upon in a `previous summary <http://www.python.org/dev/summary/2004-09-01_2004-09-15.html#cleaning-the-exception-house>`__ which will need a PEP to get the hierarchy cleaned up and discuss any possible changes to bar 'except' statements.
+
+Contributing threads:
+  - `Exceptions *must*? be old-style classes? <http://mail.python.org/pipermail/python-dev/2005-January/051097.html>`__
+
+-----------------------------
+Recent IBM patents and Python
+-----------------------------
+note:: contributed by Jim Jewett
+
+Current python policy is that all submissions must be unemcumbered by intellectual property claims.  See http://www.python.org/psf/psf-contributor-agreement.htmlIBM has recently released several patents for use in Open Source Software, with the restriction that they can revoke the grant if yousue to enforce any Intellectual Property rights against any Open Source project.Is this an acceptable license restriction, or should code covered bythese patents be rejected?  No explicit decision was made.
+
+Contributing threads:
+  - `Recent IBM Patent releases <http://mail.python.org/pipermail/python-dev/2005-January/050919.html>`__
+
+===============
+Skipped Threads
+===============
+- Mac questions
+- 2.3.5 schedule, and something I'd like to get in
+-  csv module TODO list
+- an idea for improving struct.unpack api
+- Minor change to behaviour of csv module
+- PATCH/RFC for AF_NETLINK support
+- logging class submission
+- frame.f_locals is writable
+- redux: fractional seconds in strptime
+- Darwin's realloc(...) implementation never shrinks allocations

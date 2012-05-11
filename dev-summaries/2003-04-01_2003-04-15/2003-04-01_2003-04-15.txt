@@ -1,0 +1,270 @@
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+python-dev Summary for 2003-04-01 through 2003-04-15
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+This is a summary of traffic on the `python-dev mailing list`_ from April 1, 2003 through April 15, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have an archived summary of each thread started on the list.  To comment on anything mentioned here, just post to python-list@python.org or `comp.lang.python`_ with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the fifteenth summary written by Brett Cannon (<voice of Comic Book Guy from "The Simpsons">Most summaries written by a single person, *ever* </voice>).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; its simple and is accepted for `PEP markup`__.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+__ http://www.python.org/peps/pep-0012.html
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+.. contents::
+
+
+.. _last summary: http://www.python.org/dev/summary/2003-03-16_2003-03-31.html
+
+ 
+
+======================
+Summary Announcements
+======================
+So all three people who expressed an opinion about the new Quickies_ format liked the new one, so it stays.
+
+Do you guys actually like the links to the CVS in the Summaries?  The various links I put in to every single file mentioned that does not have direct documentation is time-consuming.  But if you find it useful it can stay.  Please let me know whether you actually use it (this means if you don't tell me!).
+
+
+=========
+`Boom`__
+=========
+__ http://mail.python.org/pipermail/python-dev/2003-April/034370.html
+
+Splinter threads:
+    - `RE: [Python-checkins] python/dist/src/Modules gcmodule.c <http://mail.python.org/pipermail/python-dev/2003-April/034371.html>`__
+
+Related threads:
+    - `Garbage collecting closures <http://mail.python.org/pipermail/python-dev/2003-April/034521.html>`__
+    - `Algorithm for finalizing cycles <http://mail.python.org/pipermail/python-dev/2003-April/034609.html>`__
+
+Do you want to know what dedication is?  Thinking of Python code that will cause Python to crash during dental surgery.  Well, Tim Peters is that dedicated and managed to come up with some code that crashed Python when it attempted to garbage-collect some objects.  This begins the joy that is garbage collection and finalizer functions.
+
+Gather around, children, as we learn about how Python tries to keep you from having to worry about keeping track of your trash.  When Python executes the garbage collector, it looks to see what objects are unreachable based on reference counts; when something has a reference count of 0 nothing is referencing it so it is just floating out in the middle of no where with no one giving a hoot about whether it is their or not (children: "Awww!  Poor, lonely object!").  But some of these lonely objects have what we call a finalizer (children: "What's that?!?"; isn't it cute when children are still inquisitive?  Good for you for still being inquisitive!  Have to be supportive, you know).  A finalizer is either an instance that has a __del__ object or an object that has something in its tp_del slot (children: <nod>).  Does anyone know why we have to take of these lonely objects that are somewhat special? (children: <look around for someone to be brave enough to actually try to answer; no one does>)  Well, since these objects have something that must be called before they are garbage-collected, we have to make sure they don't reference an object that is out there but people think is cared about when it is only an object with a finalizer and we don't care about their opinions; it might want to keep an object's reference count above 0 and thus not be collected (children: "Oh...").  What makes them especially difficult to handle is that some objects that don't look like finalizers lie and end up acting like they are by defining a __getattr__ method that does very rude things (children: "That's not nice!").  And since it is really hard to tell whether they are real finalizers or just act like one, we just let them be out there forever so that they don't make the great Interpreter have to deal with them (some rabble-rouser: "My dad says that there is no great Interpreter and that everything came from the Compiler and Linker when they got together and did something my dad won't tell me about.  Something about the bits and the bees..."; rest of children: "Nu-uh!  The Interpeter is real!  We've seen it!  It's all-powerful and knowing!  Take it back, take it back!").  Luckily, though, it is only an issue with something old-timers call classic classes; things that started to decay away long, long ago(children: "Yay!  No more cruft!")  And thanks to the diligent work of some very important people, it has been dealt with (children: "Yay!  Thank you important people!").  There is a lesson to be learned here children; do not put old things to pasture to early since you can make stubborn old people mad which is bad since they make up the majority of voters in America (children: "Yes, teacher!"; smart-ass in the back of the room: "How old are you, teacher?" <snicker>).
+
+Guido said that Python's cleanup model could be summed up as "things get destroyed when nothing refers to them at some arbitrary time after nothing refers to them."  And the corollary is "always explicitly close your external resources."  In other words, when nothing points to the object will get collected at *some* point, but not necessarily immediately.  The corollary is just good programming practice; close your resources yourself instead of relying on finalizers to do it for you since there is no guarantee when that will happen.
+
+Tim Peters gave several suggestions in regards in how to make sure things get cleaned up; from registering cleanup code with sys.atexit() to keep a weakref in a module with a finalizer to be executed when the module is collected.
+
+
+=========
+Quickies
+=========
+`Distutils documentation amputated in 2.2 docs?`__
+    Splinter threads:
+        - `How do I report a bug? <http://mail.python.org/pipermail/python-dev/2003-April/034328.html>`__
+
+    Greg Ewing that two sections from the Distutils docs disappeared between Python 1.6 and 2.2.  Sections are still missing and will stay so until someone comes up with a patch to add in the missing sections.  There was also a discussion on making it more obvious how to report a bug on SF_.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034314.html
+.. _SF: 
+.. _SourceForge: http://www.sf.net/
+
+`PEP 269 once more.`__
+    Jonathan Riehl got his patch for implementing `PEP 269`_ ("Pgen Module for Python") but then uploaded a newer version that is better.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034317.html
+.. _PEP 269: http://www.python.org/peps/pep-0269.html
+
+`Minor issue with PyErr_NormalizeException`__
+    It was discovered that PyErr_NormalizeException could dump core because it forgot to return on possible errors.  It's been fixed and back-ported.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034325.html
+
+`Capabilities (we already got one)`__
+    Splinter threads:
+        - `Capabilities <http://mail.python.org/pipermail/python-dev/2003-April/034315.html>`__
+        - `Security challenge <http://mail.python.org/pipermail/python-dev/2003-April/034343.html>`__
+
+    The thread that refuses to die continued into this month.  Nothing ground-breaking was said, though.  Ben Laurie, though, did say he is working on a PEP_ so hopefully that will make this whole discussion clear.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034323.html
+.. _PEP: http://www.python.org/peps/
+
+`[PEP] += on return of function call result`__
+    Someone wanted to do ``log.setdefault(r, '') += "test %d\n" % t`` which does not work.  But it was pointed out you can just do ``temp = log.setdefault(r, ''); temp += "test %d\n" % t``.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034339.html
+
+`How to suppress instance __dict__?`__
+    This is only of interest to people who use `Boost.Python`_ (which I don't use so I am not going to summarize it; although if you use C++ you will want to look at Boost.Python).
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034319.html
+.. _Boost.Python: http://www.boost.org/libs/python/doc/
+
+`Super and properties`__
+    Someone got bit by properties not working nicely with super().  Nathan Srebro subsequently posted a `link <http://www.ai.mit.edu/~nati/Python/>`__ to a his own version of super() which handles this problem.
+
+__ 
+
+`fwd: Dan Sugalski on continuations and closures`__
+    Kevin Altis forwarded some posts by Dan Sugalski (the guy heading the Parrot_ project and who Guido will throw a pie at at OSCON 2004  =) about closures and continuations that he found at http://simon.incutio.com/archive/2003/04/03/#closuresAndContinuations .  Very well-written and might clarify things for people if they care to know more about closures, continuations, and why Lisp folks claim they are so damn important.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034368.html
+.. _Parrot: http://www.parrotcode.org/
+
+`LONG_LONG`__
+    Python 2.3 renames the LONG_LONG definition from the C API to PY_LONG_LONG as it should have been renamed.  Yes, this will break things, but it was incorrect to have not renamed it.  If you need to keep compatibility with code before Python 2.3, just use the following code (contributed by Mark Hammond)::
+
+        #if defined(PY_LONG_LONG) && !defined(LONG_LONG)
+        #define LONG_LONG PY_LONG_LONG
+        #endif
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034396.html
+
+`socket question`__
+    Someone asking why something didn't build under Solaris and subsequently being redirected to python-list@python.org .
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034399.html
+
+`PEP305 csv package: from csv import csv?`__
+    Why does one have to do ``from csv import csv``?  Wouldn't it be more reasonable to just do some magic in __init__.py for the csv_ package to do this properly?  Well, Skip Montanaro forwarded the question to cvs development list at csv@mail.mojam.com and said he probably will make the change in the near future.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034409.html
+.. _csv: http://www.python.org/dev/doc/devel/lib/module-csv.html
+
+`SF file uploads work now`__
+    Yes, hell must have frozen over since you can now upload a file when you start a new patch or bug report on SourceForge_.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034416.html
+
+`Unicode`__
+    Splinter threads:
+        - `OT: Signal/noise ratio <http://mail.python.org/pipermail/python-dev/2003-April/034462.html>`__
+
+    Once again another question on python-dev that is not appropriate for the list.  But this one spawned questions of whether the mailing list should be renamed (answer: no, since it is fairly well-known what python-dev is for) or go back to having the list being closed and requiring moderator approval for posts from people off the list (answer: no, because the amount of work was just too much of a pain and the amount of off-topic emails has not equated to the filtering work done previously).
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034453.html
+
+`Placement of os.fdopen functionality`__
+    It was suggested to make the fdopen method of the os_ module a class method of 'file'.  That was determined to be YAGNI and thus won't happen.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034380.html
+.. _os: http://www.python.org/dev/doc/devel/lib/os-newstreams.html
+
+`Adding item in front of a list`__
+    Tim Peters wonders how many people would be made upset if list.insert() supported a negative index argument.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034518.html
+
+`Why is spawn*p* not available on Windows?`__
+    Shane Halloway might add one of the os.spawn*p*() functions to Windows.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034473.html
+
+`tzset`__
+    time.tzset() is no longer on Windows because it is broken (and I will behave and not make a joke about how it would be just as broken as the OS or anything because I am unbiased).
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034480.html
+
+`backporting string changes to 2.2.3`__
+    Neal Norwitz updated docs and back-ported changes to the string_ module to bring it in sync with the actual string object.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034489.html
+.. _string: http://www.python.org/dev/doc/devel/lib/module-string.html
+
+`List wisdom`__
+    http://www.python.org/cgi-bin/moinmoin/PythonDevWisdom is a wiki page created to contain the random nuggets of wisdom that come up on python-dev.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034575.html
+
+`ValueErrors in range()`__
+    Fixed the error where range() returned ValueError when it should return TypeError.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034617.html
+
+`_socket efficiencies ideas`__
+    Marcus Mendenhall wanted to get a patch applied that would allow you to create a socket that could skip a DNS lookup.  He also wanted to add the ability to include a '<numeric>' prefix IP addresses to make sure that DNS lookup was skipped.  Various ways of trying to cut back on time wasted on unneeded DNS lookups was discussed but no solution was found acceptable.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034403.html
+
+`tp_clear return value`__
+    tp_clear could stand to return void, but can't change because of backwards-compatibility.  Will most likely end up documenting to ignore what is returned by what is put into tp_clear.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034433.html
+
+`More socket questions`__
+    Someone suggested fixing something that has been solved in Python 2.3.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034472.html
+
+`Embedded python on Win2K, import failures`__
+    Someone had errors embedding Windows.  No real conclusion came out of it.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034506.html
+
+`More int/long integration issues`__
+    Splintered threads:
+        - `range() as iterator <http://mail.python.org/pipermail/python-dev/2003-April/034530.html>`__
+
+    Before Python 3.0 (when xrange() will disappear), there is a good chance that the idiom ``for x in range(): ...`` will be caught by the compiler and compiled into a lazy generator (probably a generator).
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034516.html
+
+`Changes to gettext.py for Python 2.3`__
+    Barry Warsaw suggested some changes to gettext_ but none of them seemed to catch on.  But Barry has checkin rights and is one of apparently three people in the world who uses the module so they were added anyway.  =)
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034511.html
+.. _gettext: http://www.python.org/dev/doc/devel/lib/module-gettext.html
+
+`Evil setattr hack`__
+    Someone discovered how to set attributes on built-in types.  Guido checked in code to prevent it.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034535.html
+
+`Using temp files and the Internet in regression tests`__
+    I asked if it was okay to use in regression tests temporary files (answer: yes it is and if you only need one use test.test_support.TESTFN) or sockets (answer: yes as long as test.test_support.is_resource_enabled("network") is True).  It led to me being unofficially assigned the task of coming up with documentation for test_support and regrtest for both the library documentation and Lib/test/README.  I also got CVS commit privileges on Python itself!  I became an official Python developer!  Woohoo!
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034538.html
+
+`migration away from SourceForge?`__
+    It was suggested we revisit the idea of moving Python development off of SourceForge_ because of the usual crappy CVS performance and underwhelming tracker performance.  There is also the issue that problems with the setup cannot be fixed on our schedule.  GForge_ and Roundup_ were both suggested as alternatives.  Roundup specifically has gotten a decent amount of support since it is in Python and thus we could get things fixed quickly.  Trouble is that it is not polished enough yet and we would need to furnish our own CVS (but Ben Laurie might be gracious enough to help us out on that front with possible hosting at http://www.thebunker.net/ ).
+
+If you would like to help get Roundup and the install at http://www.python.org:8080/ up and going, please do so.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034540.html
+.. _GForge: http://gforge.org/
+.. _Roundup: http://roundup.sf.net/
+
+`How should time.strptime() handle UTC?`__
+    I asked if anyone thought time.strptime() should recognize UTC and GMT timezones by default for setting whether or not daylight savings was being used.  No one has given their opinion yet (do you have one?).
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034543.html
+
+`Big trouble in CVS Python`__
+    CVS Python was crashing on the regression tests.  It turned out to be from the reuse of a variable in the code that implements range().  Tim Peters said a "Word to the wise:  don't ever try to reuse a variable whose address is passed to PyArg_ParseTuple for anything other than holding what PyArg_ParseTuple does or doesn't store into it".
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034544.html
+
+`GIL vs thread state`__
+    Discovered the docs for PyThreadState_Clear() are incorrect (or at least not very clear).
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034574.html
+
+`test_pwd failing`__
+    test_pwd was failing and now it isn't.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034626.html
+
+`lists v. tuples`__
+    You can tell whether a comparison function does a 3-way or 2-way (using <); but that is not Pythonic and thus won't be done so as to allow someone to pass either a 2 or 3-way comparison function to list.sort() and have the method figure out what type of sort it is.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034646.html
+
+`LynxOS 4 port`__
+    Duane Voth wants to get Python ported to the LynxOS on PPC.
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034647.html
+
+`sre.c and sre_match()`__
+    The C code for the re module is not simple.  =)
+
+__ http://mail.python.org/pipermail/python-dev/2003-April/034653.html

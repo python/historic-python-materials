@@ -1,0 +1,127 @@
+Title: python-dev Summary for 2004-05-01 through 2004-05-31
+Content-type: text/x-rst
+
+python-dev Summary for 2004-05-01 through 2004-05-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from May 01, 2004 through May 31, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the forty-first and forty-second summaries written by Brett Cannon (out
+of school and employed for the summer).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-05-01_2004-05-31.html
+.. _original text file: http://www.python.org/dev/summary/2004-05-01_2004-05-31.ht
+
+
+
+Summary Announcements
+=====================
+The Spring quarter is now finished for me, so hopefully over the summer I can go back to a semi-monthly schedule (work permitting).
+
+2.3.4 was released during the coverage time of this summary.  Everyone should upgrade if possible to this bugfix release.
+
+2.4a should be ready by mid-July.
+
+The email server I use (not under my control) decided to change their IMAP server.  Unfortunately it is not playing nicely with Thunderbird or the mbox format, so I am being forced to use Apple Mail in order to delete emails.  Since I am not used to Mail's threading I may have missed some threads.  If I did, sorry about that and they will be covered in the next summary.
+
+Summaries
+=========
+-----------------------------
+Generator expressions are in!
+-----------------------------
+Generator expressions have been checked in.  They are currently using late bindings (see the `last summary`_ for an explanation of what that means).  If using late binding semantics doesn't work for you, do express your opinion since it can be changed before the beta is released.
+
+Contributing threads:
+  - `PEP 289 - Generator Expressions <http://mail.python.org/pipermail/python-dev/2004-May/044684.html>`__
+  - `PEP 289 - Generator Expressions - Let's Move For ward <http://mail.python.org/pipermail/python-dev/2004-May/044643.html>`__
+
+------------------------------------------
+Following the docs, not the implementation
+------------------------------------------
+What happens if you rely on an implementation when the documentation explicitly states the semantics in another way?  Well, "you will pay for your sin in a special kind of hell set aside for people who take the implementation as the spec" according to Guido.  Some things in CPython go against the spec for performance reasons, but there is nothing stopping from it being changed at another point to more closely follow the spec.
+
+Contributing threads:
+  - `Passing compile(...,'exec') code to 'eval' <http://mail.python.org/pipermail/python-dev/2004-May/044683.html>`__
+
+---------------------------------------------
+What you need to get a module into the stdlib
+---------------------------------------------
+In order to prevent the stdlib from getting bloated with unneeded modules, new ones need to have seen use "in the field", as Guido put it.
+
+Contributing threads:
+  - `New Subscriber <http://mail.python.org/pipermail/python-dev/2004-May/044709.html>`__
+
+---------------------
+2.3.4 is out the door
+---------------------
+Python 2.3.4 has been released.  Being a bugfix there are no new features.  It is recommended that everyone upgrade to this version.
+
+Contributing threads:
+  - `Python 2.3.4 schedule <http://mail.python.org/pipermail/python-dev/2004-May/044661.html>`__
+  - `release23-maint tree closed for 2.3.4rc1 <http://mail.python.org/pipermail/python-dev/2004-May/044771.html>`__
+  - `Python 2.3.4, release candidate 1 - BUG FIX <http://mail.python.org/pipermail/python-dev/2004-May/044854.html>`__
+  - `python 2.3.4 delayed for a week <http://mail.python.org/pipermail/python-dev/2004-May/044921.html>`__
+  - `2.3.4 release this thursday <http://mail.python.org/pipermail/python-dev/2004-May/044954.html>`__
+  - `ELEASED Python 2.3.4 (final) <http://mail.python.org/pipermail/python-dev/2004-May/044984.html>`__
+
+-----------------------
+IPv6 for Windows in 2.4
+-----------------------
+For those of you wanting IPv6 support on Windows in the binary build, you will get it in 2.4 .  The reason it isn't in 2.3.x is that the branch is compiled with VC 6 which can only compile in IPv6 support with a separate SDK.  VC 7, on the other hand, does not have this issue.
+
+Contributing threads:
+  - `IPv6 support in Win binary again <http://mail.python.org/pipermail/python-dev/2004-May/044779.html>`__
+
+-----------------------
+cookielib in the stdlib
+-----------------------
+A module named cookielib was added to the stdlib to allow transparent handling of cookies for modules such as urllib2.
+
+Contributing threads:
+  - `cookielib module in 2.4? <http://mail.python.org/pipermail/python-dev/2004-May/044785.html>`__
+  - `cookielib <http://mail.python.org/pipermail/python-dev/2004-May/045015.html>`__
+
+------------------------
+cmp doesn't call __cmp__
+------------------------
+It was pointed out that calling ``cmp(x,x)``` does not call ``x.__cmp__(x)`` but instead uses PyObject_RichCompareBool().  The issue with this is that PyObject_RichCompareBool() has a short-circuit for when the object being compared is the same, thus skipping a possible call to x.__cmp__ and saving some time.
+
+This can be an issue, though, if you want something other than True or False to be returned.  Basically what came out of this thread was that C functions can short-circuit comparisons so be careful if you want to make sure that __cmp__ is called; use '==' and the other comparison operators instead.
+
+Contributing threads:
+  - `cmp(x,x) <http://mail.python.org/pipermail/python-dev/2004-May/044885.html>`__
+
+----------------------------------
+Posssible improvements to import.c
+----------------------------------
+Tim Peters asked if anyone knew the working details of import.c; no one spoke up.  The question was brought up because Tim would like to see failed imports not lead to mangled modules being in sys.modules and thus being considered properly imported.  The suggestion of also handling circular imports came up as well.
+
+Contributing threads:
+  - `import.c <http://mail.python.org/pipermail/python-dev/2004-May/044998.html>`__
+

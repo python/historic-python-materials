@@ -1,0 +1,397 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-07-16 through 2006-07-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-07-16_2006-07-31]
+
+
+
+=============
+Announcements
+=============
+
+-------------------
+Python 2.5 schedule
+-------------------
+
+After inserting a third beta release to allow some more time for testing the new features, Python continues to make progress towards the final Python 2.5 release. See `PEP 356`_ for more details and the full schedule.
+
+.. _PEP 356: http://www.python.org/dev/peps/pep-0356/
+
+Contributing threads:
+
+- `outstanding bugs to fix for 2.5 <http://mail.python.org/pipermail/python-dev/2006-July/067680.html>`__
+- `Py2.5 release schedule <http://mail.python.org/pipermail/python-dev/2006-July/067768.html>`__
+
+-------------------------------
+How to submit a patch to Python
+-------------------------------
+
+Just a few reminders for all those still new to python-dev. When submitting a new patch to SourceForge, don't assign it to anyone. Most python developers get email notifications for new patches and will assign it to themselves if appropriate. If you feel like the approach the patch takes might need discussion, it's alright to present it to python-dev and ask for some feedback. If you do, be sure to put the patch number and url (e.g. http://bugs.python.org/<sourceforge_id>) near the top of the message, so that developers can easily find it.
+
+And if you don't want to wait for your patch to be looked at (which may take some time as all developers are volunteers), a few of the folks here, including Martin v. Löwis, have offered a five-for-one deal. Simply find five other patches, and check them for things like:
+
+* Does the code look okay?
+* Does Python build with it applied?
+* Do all unit tests pass?
+* Does the patch have tests?
+* Does the patch have documentation?
+
+Then post your notes to the five patch trackers and post a final message to python-dev indicating the patches you reviewed and the patch which you'd like to have someone look at for you.
+
+Contributing threads:
+
+- `new guy <http://mail.python.org/pipermail/python-dev/2006-July/067509.html>`__
+- `first draft of bug guidelines for www.python.org/dev/ <http://mail.python.org/pipermail/python-dev/2006-July/067601.html>`__
+- `Patch submitted, now what? <http://mail.python.org/pipermail/python-dev/2006-July/067858.html>`__
+
+----------------------------------------
+Demos of trackers to replace SourceForge
+----------------------------------------
+
+There are currently three potential trackers that have successfully imported the SourceForge data with demos online: roundup_, jira_ and launchpad_. Try 'em out, and send your discussions and comments to infrastructure@python.org and put your reports and reviews `on the wiki`_.
+
+.. _roundup: http://efod.se/python-tracker/
+.. _jira: http://jira.python.atlassian.com/secure/Dashboard.jspa
+.. _launchpad: https://demo.launchpad.net/products/python/+bugs
+.. _on the wiki: http://wiki.python.org/moin/CallForTrackers
+
+Contributing thread:
+
+- `More tracker demos online <http://mail.python.org/pipermail/python-dev/2006-July/067686.html>`__
+
+
+=========
+Summaries
+=========
+
+------------------------------
+Restricted execution in Python
+------------------------------
+
+Brett Cannon decided this fortnight to go for an all-out capabilities based restricted execution design, and posted a `new design document`_. As part of this work, Brett planned to rewrite most of the import machinery in pure Python code, hopefully cleaning up some of the idiosyncrasies of the current import.c mechanisms, and allowing him to do things like restrict imports to only .py files, not .pyc files. Armin Rigo pointed out that a good place to start would be the `PyPy import implementation`_.
+
+On the restricted execution front, one of the things that is now likely to happen in Brett's sandboxing branch is that ``object.__subclasses__()`` and dangerous constructors like the one for the code object will be completely removed from the Python level. This means a few backwards incompatible changes, but Brett suggested that they should only break pretty advanced and esoteric Python code. Since it's for his Ph.D. dissertation, he didn't want to tie his hands by requiring full backwards compatibility, and he was fine with waiting to merge his branch until Python 3000.
+
+.. _new design document: http://svn.python.org/view/python/branches/bcannon-sandboxing/securing_python.txt
+.. _PyPy import implementation: http://codespeak.net/svn/pypy/dist/pypy/module/__builtin__/importing.py
+
+Contributing threads:
+
+- `Capabilities / Restricted Execution <http://mail.python.org/pipermail/python-dev/2006-July/067481.html>`__
+- `new security doc using object-capabilities <http://mail.python.org/pipermail/python-dev/2006-July/067555.html>`__
+
+--------------------------
+Character case and locales
+--------------------------
+
+Mihai Ibanescu asked about a `bug in the logging module`_ due to the fact that ``'INFO'.lower() != 'info'`` in some locales. Marc-Andre Lemburg and Martin v. Löwis explained that since in Unicode, nearly all case-conversions are only script-dependent, not language-dependent,  ``u'INFO'.lower() == u'info'`` should always be true.
+
+.. _bug in the logging module: http://bugs.python.org/1524081
+
+Contributing thread:
+
+- `logging module broken because of locale <http://mail.python.org/pipermail/python-dev/2006-July/067504.html>`__
+
+-----------------------------------------------
+Progress on the C version of the decimal module
+-----------------------------------------------
+
+After looking at the current progress in converting the decimal module to C, Raymond Hettinger suggested that rather than using the Python implementation as an outline of the C implementation, a separate C implementation should be developed and then later wrapped as necessary to provide the Python APIs. Tim Peters explained their incremental approach: leaving most of the module written in Python, and converting methods to C code one at a time. Raymond had originally supported this approach, but after viewing the current C code, thought that it would result in C code that was too complex and convoluted.
+
+There was some extended discussion on the mechanism in the current decimal module for holding flags, which uses a dict mapping error types to the counts of their occurrences. Raymond in particular wanted the C decimal module to be able to change this API if it was too complex to implement. A number of others agreed that the API had been a bad decision, and it looked like there would at least be a note in the documentation for Python 2.5 suggesting that users should not rely on the counting feature.
+
+Contributing thread:
+
+- `Strategy for converting the decimal module to C <http://mail.python.org/pipermail/python-dev/2006-July/067537.html>`__
+
+---------------------------------------
+PEP 357: Integer clipping and __index__
+---------------------------------------
+
+Armin Rigo pointed out that the current implementation of ``__index__()`` was incorrectly truncating long integers::
+
+    >>> (2**100).__index__()
+    2147483647
+
+As the original ``__index__()`` method was intended only to allow things other than plain Python ints as slice indices, truncating to the maximum value was fine. However, when ``__index__()`` also became the "can you faithfully act like an integer" check, this truncation was no longer acceptable. Nick Coghlan spent some time reworking the `PEP 357`_ C API so that all the use cases of ``__index__()`` were covered. His `patch for fixing __index__`_ changes the nb_index slot to return a PyInt or PyLong instead of a C int, and introduces the C API functions PyNumber_Index, PyNumber_AsSsize_t and PyNumber_AsClippedSsize_t(), all of which have an output variable signifying whether or not the object they received had an ``__index__`` method.
+
+.. _PEP 357: http://www.python.org/dev/peps/pep-0357/
+.. _patch for fixing __index__: http://bugs.python.org/1530738
+
+Contributing thread:
+
+- `Bad interaction of __index__ and sequence repeat <http://mail.python.org/pipermail/python-dev/2006-July/067774.html>`__
+
+--------------------------------------------------------
+PEP 302: Non-importer objects on sys.path_importer_cache
+--------------------------------------------------------
+
+Phillip J. Eby asked about how to best fix the non-PEP-302 compliant changes to the import machinery made by the Need for Speed Sprint. `PEP 302`_ indicates that everything on sys.path_importer_cache should be either None or a valid importer object, but the Need for Speed changes added True and False values to that as well. After getting approval to make the appropriate changes necessary to stay PEP-302-compliant, Phillip added ``imp.NullImporter`` to replace False values, and kept ``None`` to mean that the builtin import machinery should be used.
+
+.. _PEP 302: http://www.python.org/dev/peps/pep-0302/
+
+Contributing threads:
+
+- `Undocumented PEP 302 protocol change by need-for-speed sprint <http://mail.python.org/pipermail/python-dev/2006-July/067587.html>`__
+- `Release manager pronouncement needed: PEP 302 Fix <http://mail.python.org/pipermail/python-dev/2006-July/067713.html>`__
+
+---------------------------------------------------------------
+Running the test suites of user projects when Python is updated
+---------------------------------------------------------------
+
+Grig Gheorghiu volunteered to do some of the work to get community buildbots running, that is, buildbots running the test suites of Python user projects whenever the Python core repository was updated. People were quite enthusiastic and Martin v. Löwis offered to set up a post-commit
+hook on the python repository to trigger a build on Grig's buildbots if necessary.
+
+Contributing threads:
+
+- `Community buildbots <http://mail.python.org/pipermail/python-dev/2006-July/067476.html>`__
+- `Community buildbots (was Re: User's complaints) <http://mail.python.org/pipermail/python-dev/2006-July/067477.html>`__
+- `Community buildbots -- reprise <http://mail.python.org/pipermail/python-dev/2006-July/067688.html>`__
+
+--------------------------------------
+Safe dumper/loader using Python syntax
+--------------------------------------
+
+Sylvain Fourmanoit presented his miniconf_ module which is a safe and cross-version dumper/loader for simple objects using the Python syntax. People generally liked the module, and Phillip J. Eby helped Sylvain clean up the implementation a bit. There was some discussion of including it in the Python 2.6 stdlib and perhaps Bob Ippolito's simplejson_ module alongside it.
+
+.. _miniconf: http://cheeseshop.python.org/pypi?:action=display&name=miniconf
+.. _simplejson: http://undefined.org/python/#simplejson
+
+Contributing threads:
+
+- `New miniconf module <http://mail.python.org/pipermail/python-dev/2006-July/067710.html>`__
+- `JSON implementation in Python 2.6 <http://mail.python.org/pipermail/python-dev/2006-July/067720.html>`__
+
+-------------------------------
+Programmatically sending Ctrl-C
+-------------------------------
+
+In testing his `patch to make sockets and Ctrl-C play nicely`_, Tony Nelson found that he needed a portable way to send a Ctrl-C-like signal. For Unix, he was using ``signal.alarm``, but was wondering if there was a way to get something similar on Windows. Martin v. Löwis pointed out GenerateConsoleCtrlEvent, but also noted that this would send the Ctrl-C to all processes. In the end, Tony decided to punt on Windows, and just stick with the Unix tests. 
+
+.. _patch to make sockets and Ctrl-C play nicely: http://bugs.python.org/1519025
+
+Contributing threads:
+
+- `Socket Timeouts patch 1519025 <http://mail.python.org/pipermail/python-dev/2006-July/067647.html>`__
+- `Testing Socket Timeouts patch 1519025 <http://mail.python.org/pipermail/python-dev/2006-July/067828.html>`__
+
+------------------------------------------
+Documenting performance of container types
+------------------------------------------
+
+Neal Becker asked about documentation the performance of the basic Python container types, e.g. that lookup in a dict is O(1) and deletion from the beginning of a list is O(N). A number of people agreed that having such information would be helpful, but there was some concern that Guido should be the one to decide what performances guarantees were made by the language, and not just the CPython implementation. The discussion trailed off before any final decisions on how to update the documentation were made.
+
+Contributing thread:
+
+- `Document performance requirements? <http://mail.python.org/pipermail/python-dev/2006-July/067609.html>`__
+
+---------------------------
+Running the uuid test suite
+---------------------------
+
+Georg Brandl fixed a bug that was causing the new uuid module's test suite not to run at all. The resulting tests indicated a number of problems in determining a MAC address.  Neal Norwitz patched the uuid module so that it should work at least on Linux, Tru64, Solaris, and HP-UX, and Tim Peters patched it so that test_uuid no longer thinks that the uuid module knows multiple ways of getting a well-defined MAC address (which it doesn't on Windows).
+
+Contributing threads:
+
+- `uuid test suite failing <http://mail.python.org/pipermail/python-dev/2006-July/067744.html>`__
+- `how about adding ping's uuid module to the standard lib ? <http://mail.python.org/pipermail/python-dev/2006-July/067764.html>`__
+- `Another uuid problem <http://mail.python.org/pipermail/python-dev/2006-July/067777.html>`__
+- `test_uuid <http://mail.python.org/pipermail/python-dev/2006-July/067830.html>`__
+
+------------------------------------
+CPython and checking for NULL values
+------------------------------------
+
+Neal Norwitz took a look at some of the issues raised by the automatic analysis of Python's source code offered by Klocwork_. There was a fairly long discussion around a Py_XINCREF of a variable that was required by the documentation to be non-NULL (and thus the "X" is unnecessary). There was some suggestion of trying to check for NULL values anyway, but the rest of Python doesn't do such checks.
+
+.. _Klocwork: http://www.klocwork.com/
+
+Contributing thread:
+
+- `remaining issues from Klocwork static analysis <http://mail.python.org/pipermail/python-dev/2006-July/067681.html>`__
+
+---------------------------------------------
+Excluding certain constructs from Python code
+---------------------------------------------
+
+Boris Borcic suggested that to make changing version of Python easier, style sheets should be introduced such that you could allow or disallow particular constructs that you liked or didn't like.  People thought this was generally a very bad idea as it would essentially introduce a bunch of language variants, and coders might not be able to read each others' source code without first applying the appropriate transformation.
+
+Contributing threads:
+
+- `Python Style Sheets ? Re: User's complaints <http://mail.python.org/pipermail/python-dev/2006-July/067432.html>`__
+- `Python Style Sheets ? Re: User's complaints <http://mail.python.org/pipermail/python-dev/2006-July/067491.html>`__
+
+---------------------------------------------------------
+Making attributes with leading single underscores private
+---------------------------------------------------------
+
+David Hopwood proposed enforcing the `PEP 8`_ convention that attributes with a single underscore are private to that object. His approach revolved around allowing only the first argument of a function to access attributes starting with '_', but Armin Rigo and others felt that this was not likely to be enforceable, giving an example where subclassing allowed access to supposedly private attributes. People generally felt that without an implementation to back up the proposal, there wasn't much to discuss.
+
+.. _PEP 8: http://www.python.org/dev/peps/pep-0008/
+
+Contributing thread:
+
+- `Internal namespace proposal <http://mail.python.org/pipermail/python-dev/2006-July/067727.html>`__
+
+-----------------------------------
+Loading module attributes on demand
+-----------------------------------
+
+In order to reduce the memory consumption of GTK+ applications written in Python, Johan Dahlin was looking into dynamically generating module attributes so that they would only be loaded when the application actually accessed them. He was able to produce this behavior by subclassing ModuleType, overridding __getattribute__, and then putting this object onto sys.path, but he felt like this was kind of a hackish solution. Phillip J. Eby pointed out the importing_ package and said that the __getattribute__ approach was generally okay, though it would cause problems for pydoc and inspect which don't handle subclasses of ModuleType well. Andrew Bennetts pointed out mercurial's demandload_ which allows modules to be imported on demand, but this didn't really solve Johan's problem because all attributes of the modules themselves were still imported at the same time.
+
+.. _importing: http://cheeseshop.python.org/pypi/Importing
+.. _demandload: http://selenic.com/repo/hg?f=cb4715847a81;file=mercurial/demandload.py
+
+Contributing thread:
+
+- `Dynamic module namspaces <http://mail.python.org/pipermail/python-dev/2006-July/067485.html>`__
+
+-------------------------------
+Improving the Python test suite
+-------------------------------
+
+Matt Fleming has put together `a wiki page`_ indicating the tests that are currently missing from Python's test suite, as well as the tests that are incomplete. He plans on working his way through the list when he gets some time, but help for any of the tests is quite welcome.
+
+.. _a wiki page: http://wiki.python.org/moin/ImprovingLibTests
+
+Contributing thread:
+
+- `Improving unit tests for the standard library <http://mail.python.org/pipermail/python-dev/2006-July/067723.html>`__
+
+----------------------------------
+Improving the Python documentation
+----------------------------------
+
+Georg Brandl, referring to `bug 469773`_, suggested that python gain a "Using Python" page containing the man page and how to invoke the interpreter. He also suggested that creating a list of frequently needed documentation sections that are hard to find for newbies could go a long way towards making the Python documentation more user-friendly.
+
+.. _bug 469773: http://bugs.python.org/469773
+
+Contributing thread:
+
+- `Using Python docs <http://mail.python.org/pipermail/python-dev/2006-July/067823.html>`__
+
+
+================
+Deferred Threads
+================
+- `struct module and coercing floats to integers <http://mail.python.org/pipermail/python-dev/2006-July/067798.html>`__
+- `Rounding float to int directly (Re: struct module and coercing floats to integers) <http://mail.python.org/pipermail/python-dev/2006-July/067819.html>`__
+
+
+==================
+Previous Summaries
+==================
+- `Support for PyGetSetDefs in pydoc <http://mail.python.org/pipermail/python-dev/2006-July/067590.html>`__
+
+
+===============
+Skipped Threads
+===============
+- `Problem with super() usage <http://mail.python.org/pipermail/python-dev/2006-July/067480.html>`__
+- `Pronouncement on SF #1520294 sought <http://mail.python.org/pipermail/python-dev/2006-July/067483.html>`__
+- `I have submitted a patch that implement IrDA socket support . <http://mail.python.org/pipermail/python-dev/2006-July/067484.html>`__
+- `User's complaints <http://mail.python.org/pipermail/python-dev/2006-July/067501.html>`__
+- `Pickling objects that return string from reduce <http://mail.python.org/pipermail/python-dev/2006-July/067508.html>`__
+- `[Python-checkins] r50708 - in python/trunk: Lib/test/test_sys.py Misc/NEWS Python/pystate.c <http://mail.python.org/pipermail/python-dev/2006-July/067549.html>`__
+- `Python sprint in NY and CA, Aug. 21-24 <http://mail.python.org/pipermail/python-dev/2006-July/067554.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-July/067563.html>`__
+- `os.utime and os.chmod failures (etc) Python 2.5b2 <http://mail.python.org/pipermail/python-dev/2006-July/067566.html>`__
+- `FW: Bug? Certainly a new *behavior* from subprocess in 2.5 on Win32 <http://mail.python.org/pipermail/python-dev/2006-July/067597.html>`__
+- `Behavior change in subprocess.py <http://mail.python.org/pipermail/python-dev/2006-July/067599.html>`__
+- `segfault when using PyGILState_Ensure/Release in Python2.3.4 <http://mail.python.org/pipermail/python-dev/2006-July/067605.html>`__
+- `Ireland PyPy sprint 21th-27th August 2006 <http://mail.python.org/pipermail/python-dev/2006-July/067610.html>`__
+- `Python 2.4, VS 2005 & Profile Guided Optmization <http://mail.python.org/pipermail/python-dev/2006-July/067646.html>`__
+- `Python sprint in Arlington July 29/30 <http://mail.python.org/pipermail/python-dev/2006-July/067667.html>`__
+- `setup.py and cross-compiling <http://mail.python.org/pipermail/python-dev/2006-July/067669.html>`__
+- `2.5: uses of sys.exc_type, exc_value <http://mail.python.org/pipermail/python-dev/2006-July/067711.html>`__
+- `[Windows, buildbot] kill_python.c mystery <http://mail.python.org/pipermail/python-dev/2006-July/067722.html>`__
+- `patch for mbcs codec (again) <http://mail.python.org/pipermail/python-dev/2006-July/067724.html>`__
+- `Which version of distutils to ship with Python 2.5? <http://mail.python.org/pipermail/python-dev/2006-July/067726.html>`__
+- `Patch for building ctypes on more OpenBSD target platforms <http://mail.python.org/pipermail/python-dev/2006-July/067735.html>`__
+- `Release manager: pdb bugfix incompatibility <http://mail.python.org/pipermail/python-dev/2006-July/067741.html>`__
+- `patching pydoc? <http://mail.python.org/pipermail/python-dev/2006-July/067776.html>`__
+- `Fwd: patching pydoc? <http://mail.python.org/pipermail/python-dev/2006-July/067788.html>`__
+- `Patch Against shutil.copytree Bug <http://mail.python.org/pipermail/python-dev/2006-July/067802.html>`__
+- `httplib and bad response chunking <http://mail.python.org/pipermail/python-dev/2006-July/067803.html>`__
+- `cgi.FieldStorage DOS (sf bug #1112549) <http://mail.python.org/pipermail/python-dev/2006-July/067811.html>`__
+- `Eliminating loops <http://mail.python.org/pipermail/python-dev/2006-July/067813.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+July 16, 2006 through July 31, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 9th written by Steve Bethard. 
+
+To contact me, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

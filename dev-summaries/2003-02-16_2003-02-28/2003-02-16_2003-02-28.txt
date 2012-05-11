@@ -1,0 +1,251 @@
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+python-dev Summary for 2003-02-16 through 2003-02-28
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+This is a summary of traffic on the `python-dev mailing list`_ from February 16, 2003 through February 28, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have an archived summary of each thread started on the list.  To comment on anything mentioned here, just post to python-list@python.org or `comp.lang.python`_ with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join python-dev!
+
+This is the twelfth summary written by Brett Cannon (yes, I am still sane even after seven months of this).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (else it is probably regular expression syntax); you can safely ignore it (although I suggest learning reST; its simple and is accepted for PEP markup).  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _last summary: http://www.python.org/dev/summary/2003-02-01_2003-02-15.html
+
+.. contents::
+
+
+======================
+Summary Announcements
+======================
+
+Nothing specific about the Summary to mention.  I am starting to lean more and more towards starting summaries out in Quickies_ and then making them a full-fledged summary when they end up requiring more than a short paragraph of explanation.  Helps me keep my sanity since I plan on sticking with having some summarization for every thread on python-dev.
+
+But this summary is on the lean side because traffic was lower than normal.  I am sure this is in reaction to what happened last month with the massive amount of emails and various negativity that sprung up around the list.  Made my life easier.  =)
+
+PyCon_ is moving forward!  Early-bird registration is over, but regular registration for $200 is still available.  If you come you can hear me make a fool of myself trying to teach the conference reST_.  =)
+
+T-shirts are also available so even if you don't go to the conference you can buy a shirt at http://www.cafeshops.com/pycon and fool people into thinking your went.  =)
+
+As for the `pre-PyCon sprint`_, that is also shaping up.  There is already a sprint for Zope_, Twisted_, and Webware_.  And now there is a sprint in the works for working on the Python core!  If you have an idea of what should be covered in the core sprint, please post it to the wiki at http://www.python.org/cgi-bin/moinmoin/PyCoreSprint (please no "fix this bug on SF" or other frivolous suggestions).
+
+.. _PyCon: http://www.python.org/pycon/
+.. _pre-PyCon sprint: http://www.python.org/cgi-bin/moinmoin/SprintPlan
+.. _Zope: http://www.zope.org/
+.. _Twisted: http://twistedmatrix.com/
+.. _Webware: http://webware.sourceforge.net/
+
+
+===========================
+`RELEASED: Python 2.3a2`__
+===========================
+__ http://mail.python.org/pipermail/python-dev/2003-February/033537.html
+
+Guido released `Python 2.3a2`_ on Feb. 19.  Please download it, run the regression tests, and then test some of your own code.  The more bugs we can squash before we hit 2.3b1 the better.
+
+.. _Python 2.3a2: http://www.python.org/2.3/
+
+
+===================================
+`new format codes for getargs.c`__
+===================================
+__ http://mail.python.org/pipermail/python-dev/2003-February/033579.html
+
+Thomas Heller implemented a new 'k' format code for `getargs.c`_ that ccepts integers or longs, does no range checking, and returns the lower bits in an unsigned long".  After Tim Peters said that tests should be added to `_testcapimodule.c`_ the conversation was moved over to http://www.python.org/sf/595026 .
+
+.. _getargs.c: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Python/getargs.c
+.. __testcapimodule.c: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/_testcapimodule.c
+
+
+=====================================
+`assymetry in descriptor behavior`__
+=====================================
+__ http://mail.python.org/pipermail/python-dev/2003-February/033583.html
+
+This summary is going to assume you understand descriptor's.  If you don't read `What's New in 2.2`_ for a nice, simple overview or `PEP 252`_ for the technical explanation (the initial email for this thread has simple code showing how descriptor's are used).  If you have ever been interested how property(), classmethod(), and staticmethod() work this will tell you.
+
+David Abrahams wondered why it was possible to invoke a descriptor's __get__() from either the class it is defined in or an instance of that class while __set__() for the same descriptor cannot be called from the class directly without having defined the descriptor a second time in the metaclass; David thought this was a little difficult.  He also asked about the arguments to the descriptor API methods.
+
+Guido responded by saying that it wasn't difficult considering you could do it and that Python was pulling something off with a single notation (by using '.' for class and instance accesses) that C++ uses two notations for ('.' and '::').  As for the arguments to the various methods, they are as follows:
+
+__get__(self, obj, type)
+    'self' gets bound to the descriptor instance.  When called for an class, obj = None while for an instance it is bound to the instance containing the descriptor.  'type' is set to the class that has the descriptor regardless of what context the descriptor is being called.  The duality is so that descriptors can be happy being called either just on an instance or just a class (such as classmethod()).
+
+__set__(self, obj, value)
+    'self' is the descriptor, obj is the instance, and 'value' is what what the assignment is being passed.  As mentioned above, this only works with classes if you create the descriptor *twice*; once in the class and once in the class's metaclass.
+
+__delete__(self, obj)
+    Guess what gets bound to these parameters?  =)  A historical note: Guido said "In an early alpha release it was actually __del__, but that didn't work very well. :-)" for obvious reasons.
+
+David also submitted a doc patch for this so we are now one step closer to having new-style classes documented.  Still, there is work to be done and if you care to help please do so.
+
+.. _What's New in 2.2: http://www.python.org/doc/2.2.1/whatsnew/sect-rellinks.html#SECTION000320000000000000000
+.. _PEP 252: http://www.python.org/peps/pep-0252.html
+
+
+======================
+`Bytecode analysis`__
+======================
+__ http://mail.python.org/pipermail/python-dev/2003-February/033663.html
+
+Splinter threads:
+    - `Bytecode idea <http://mail.python.org/pipermail/python-dev/2003-February/033693.html>`__
+    - `Code Generation Idea <http://mail.python.org/pipermail/python-dev/2003-February/033692.html>`__
+    - `Dynamic bytecode analysis <http://mail.python.org/pipermail/python-dev/2003-February/033752.html>`__
+    - `new bytecode results <http://mail.python.org/pipermail/python-dev/2003-February/033775.html>`__
+
+Damien Morton posted some opcode statistics and tried to get better performance out of `ceval.c`_ by coming up with a way to do a LOAD_FAST_n call (LOAD_FAST pushes a variable on to the stack) and to cut back on the size of .pyc files.  Nothing panned out very much, though (all the benchmarking was done using Pystone_).
+
+Guido said that Christian Tismer's idea of changing some of the rarely-used opcodes to function calls and moving them out of the 'switch' statement might get some performance.
+
+Christian also thought that some work could be done to speed up calls that involve a ``goto fast_next_opcode`` call.
+
+Changing ceval.c to using a jump table instead of a switch also did not pan out.
+
+Jeremy Hylton spoke to let people know that sometimes having an opcode call out to a function is not necessarily slower then having the code in the switch statement.  He said it depended on how much work the opcode had to do and "lots of other hard-to-predict effects" in terms of memory and generated machine code.
+
+Jeremey also reminded people that there is patch out there to use the Pentium's cycle counter to find out how many cycles is spent on each pass through the mainloop.
+
+Guido also said that "If you really want fame and fortune, try designing a more representative benchmark".  AM Kuchling requested to be notified when someone decided to take on this project.
+
+Skip Montanaro pointed out that he has "an XML-RPC server available to which applications can connect and upload their dynamic opcode frequencies" at http://manatee.mojam.com:7304 .  Compile with "DYNAMIC_EXCUTION_PROFILE and DXPAIRS defined" and fetch the info from the sys_ module (it's undocumented, but it looks like you can get execution info from sys.getdxp()).  If you are interested in how to use Skip's server, see http://mail.python.org/pipermail/python-dev/2003-February/033767.html .
+
+Damien Morton made his modified source code available at http://www.bitfurnace.com/python/modified-source.zip and asked people give it a try and report back to him their results.
+
+Dan Sugalski suggested putting opcode that tends to execute in pairs closer together so that they would have a better chance of being in the cache.  It seemed that doing any mass opcode adding made things slower since the switch got larger and thus made cache hits harder to come by.  Various ideas of how to rearrange things so that the switch was not as large were suggested and are most likely still being tested.
+
+.. _ceval.c: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Python/ceval.c
+.. _Pystone: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Lib/test/pystone.py
+.. _sys: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Python/sysmodule.c
+
+
+=========
+Quickies
+=========
+
+`CALL_ATTR, A Method Proposal <http://mail.python.org/pipermail/python-dev/2003-February/033410.html>`__
+    Finn Bock added one last comment to this thread from the `last summary`_ about how the proposed implementation of a CALL_ATTR bytecode was how Jython_ handled attribute calls.
+
+`[Python-checkins] python/dist/src/Misc NEWS,1.660,1.661 <http://mail.python.org/pipermail/python-dev/2003-February/033466.html>`__: `Package Install Manager for Python <http://mail.python.org/pipermail/python-dev/2003-February/033467.html>`__
+   We learn some people take offense to the word pimp (to the point of considering them rapists), while others think it is fine ("a pretty respectable profession [in Amsterdam].  Definitely higher standing than a cab driver, somewhat on par with a coffeeshop owner").
+
+`incorrect regression tests <http://mail.python.org/pipermail/python-dev/2003-February/033469.html>`__
+    Neal Norwitz discovered some regresssion tests that weren't being executed.  We also learn that it is best for regression test modules to define a test_main() function that executes all the tests then having the tests run as a side-effect of importation (prevents the import lock from being held).
+
+`non-binary operators <http://mail.python.org/pipermail/python-dev/2003-February/033470.html>`__
+    Hold-over from the `last summary`_ when discussing whether the ternary operator could be just chained binary operators.
+
+`Import lock knowledge required! <http://mail.python.org/pipermail/python-dev/2003-February/033436.html>`__
+    Another hold-over from the `last summary`_; Eric Jones says he wouldn't mind more fine-grained import locking.
+
+`various unix platform build/test issues <http://mail.python.org/pipermail/python-dev/2003-February/033482.html>`__
+    Neal Norwitz brought to the attention of python-dev some issues that were preventing Python from compiling on some platforms.
+
+`308: the debate is petering out <http://mail.python.org/pipermail/python-dev/2003-February/033484.html>`__
+    Samuele Pedroni posted some new stats on the `PEP 308`_ debate going on at `comp.lang.python`_.
+
+`[rfc] map enhancement <http://mail.python.org/pipermail/python-dev/2003-February/033486.html>`__
+    Ludovic Aubry proposed a change to map(), but his use-case was eliminated quickly when it was pointed out he could just rewrite his map() or use list comprehensions.
+
+`Python 2.3a2 release today? <http://mail.python.org/pipermail/python-dev/2003-February/033489.html>`__
+    Guido asked if anyone objected to releasing Python 2.3a2 on Feb. 18.  Jack Jansen asked if Guido could wait a day and he said yes.
+
+`test_timeout fails on Win98SE <http://mail.python.org/pipermail/python-dev/2003-February/033515.html>`__
+    The title of the thread states what the issue was and it got resolved.
+
+`privacy in log files? <http://mail.python.org/pipermail/python-dev/2003-February/033530.html>`__
+    Guido discovered a comment about not using `PyErr_WarnExplicit()`_ because there was a worry of having code put into a log file.  Discussion seemed to end on the idea that it wasn't so much security but throwing a text editor for a loop because of possible non-ASCII getting put into a log file.
+
+`What happened to fixed point? <http://mail.python.org/pipermail/python-dev/2003-February/033539.html>`__
+    David LeBlanc asked about the status of FixedPoint_ getting into the stdlib.  Raymond Hettinger said he would be getting to it until Tim Peters (who originally wrote FixedPoint) killed the idea.  Tim would rather wait until IBM's proposal has solidified and then come up with an implementation based on that.  IBM's proposal can be found at http://www2.hursley.ibm.com/decimal/ .
+
+`test_posix, test_random failing <http://mail.python.org/pipermail/python-dev/2003-February/033541.html>`__
+    I bet you can figure out what this thread is about.  Timing issues were the cause and have been solved.
+
+`pickling of large arrays <http://mail.python.org/pipermail/python-dev/2003-February/033543.html>`__
+    Ralf Grosse-Kunstle asked if there was a way to minimize the amount of buffering needed to buffer an array object.  It was pointed out that writing a __reduce__() method that used an iterator would prevent the need to do any major buffering.  The idea of having a custom append() method for objects to return was also suggested, but didn't get resolved.
+
+`Cygwin build failing <http://mail.python.org/pipermail/python-dev/2003-February/033555.html>`__
+    A problem with builing under Cygwin was fixed by rebasing the system.
+
+`2.3a2 problem: iconv module raising RuntimeError <http://mail.python.org/pipermail/python-dev/2003-February/033570.html>`__
+    `_iconv_codec.c`_ was raising RuntimeError when it was more proper to raise ImportError.  It's been fixed.
+
+`SCO Open Server 5.0.x thread support <http://mail.python.org/pipermail/python-dev/2003-February/033575.html>`__
+    Someone asked for help compiling on SCO with thread support.  He was redirected to `comp.lang.python`_ to get help.
+
+`call for Windows developers <http://mail.python.org/pipermail/python-dev/2003-February/033582.html>`__
+    Thomas Heller asked for help from some Windows experts with the goal of getting ctypes_ so that one can write ActiveX controls in Python.
+
+`tuning up... <http://mail.python.org/pipermail/python-dev/2003-February/033585.html>`__
+    Andrew MacIntyre sent some performance numbers for OS/2 EMX; about 10% performance improvement from Python 2.2 with -O compared to stock Python 2.3 (-O in 2.3 does not do much since the SET_LINENO opcode was removed entirely from Python).
+
+`Weekly Python Bug/Patch Summary <http://mail.python.org/pipermail/python-dev/2003-February/033586.html>`__
+    Skip Montanaro's weekly reminder that Python is not perfect yet.  =)
+
+`Needed: regexp maintainer <http://mail.python.org/pipermail/python-dev/2003-February/033590.html>`__
+    Guido asked for someone to step forward to take over for the re_ module.
+
+`_iconv_codec <http://mail.python.org/pipermail/python-dev/2003-February/033602.html>`__
+    Guido asking what that `_iconv_codec.c`_ module was for (answer: it's a wrapper for the iconv(3) POSIX module).
+
+`python/dist/src configure,1.279.6.17... <http://mail.python.org/pipermail/python-dev/2003-February/033596.html>`__
+    Neil Schemenauer asked what the whitespace rules were for pre-processor directives (e.g., #include, #define, etc.).  Tim Peters (the residential C standards know-it-all) said that "Spaces and horizontal tabs are fine before '#', and between '#' and the directive name".
+
+`rename bsddbmodule.c to bsddb185.c <http://mail.python.org/pipermail/python-dev/2003-February/033645.html>`__
+    `bsddbmodule.c`_ is now going to compile to the module bsddb185.
+
+`Scheduled downtime for mail.python.org <http://mail.python.org/pipermail/python-dev/2003-February/033651.html>`__
+    mail.python.org was scheduled to go down on 2003-02-26 at 10:00 EST which it did.
+
+`Traceback problem <http://mail.python.org/pipermail/python-dev/2003-February/033607.html>`__
+    Christian Tismer wanted a way to clear the traceback information stored by `sys.exc_info()`_ to be cleared on-demand since it is kept around as long as the frame is alive.  Kevin Jacobs wrote a patch to implement this feature and named is sys.exc_clear().  And a word of warning to anyone who stores the info returned by sys.exc_info(); it creates a cycle with the frame and thus can create a huge chunk of memory to be held so make sure to delete the info when you are done with it.
+
+`module extension search order - can it be changed? <http://mail.python.org/pipermail/python-dev/2003-February/033626.html>`__
+    Skip Montanaro realized that most failed stat() calls occur because the extension search order goes C extension and then Python module; most modules are written in Python and thus the stat() call for a C extension of a module name tends to fail.  Guido said it is this way so that if the build of a C extension fails a same-named Python module can be installed instead.  This also lead to Skip possibly coming up with a build option of creating a zip archive of the stdlib at install time to minimize failed stat() calls.
+
+`Writing a mutable object problem with __setattr__ <http://mail.python.org/pipermail/python-dev/2003-February/033627.html>`__
+    Aleksandor Totic asked about classes and an object-persistence setup he was designing.  You can learn about __setattr__() and how to find out whether an instance is new-style or classic based on whether it has a __class__ attribute (new-style has this).
+
+`Re: some preliminary timings <http://mail.python.org/pipermail/python-dev/2003-February/033634.html>`__
+    Skip Montanaro discovering that importing email_ takes a while.
+
+`GIL Pep commentary <http://mail.python.org/pipermail/python-dev/2003-February/033657.html>`__
+    David Abrahams basically saying he likes `PEP 311`_.
+
+`test_re failing again on Mac OS X <http://mail.python.org/pipermail/python-dev/2003-February/033668.html>`__
+    Someone thought `test_re`_ was failing again on OS X when it turns out it was an isolated incident.
+
+`Slowdown in Python CVS <http://mail.python.org/pipermail/python-dev/2003-February/033756.html>`__
+    Someone thought that Python had slowed down for some reason; turned out to be a false alarm.  If you ever need to check out a CVS copy from a past date, execute ``cvs update -D '24 Feb 2003'`` (with the proper date, of course).
+
+`Some questions about maintenance of the regular expression code. <http://mail.python.org/pipermail/python-dev/2003-February/033699.html>`__: `New regex syntax? <http://mail.python.org/pipermail/python-dev/2003-February/033735.html>`__
+    Gary Herron stepped up to say he was interested in taking over maintenance of the re_ module.  He asked, though, how to handle bug reports about ``(.*)?`` and hitting the recursion limit (a patch materialized that solved the recursion issue for non-greedy quantifiers for the common case).  The suggestion of coming up with a new syntax for regexes came up but was stopped from forming on the list since that would take "over all available bandwidth in python-dev" as Guido pointed out.  Can still be discussed in other forums, though...
+
+`bug? classes whose metclass has __del__ are not collectible <http://mail.python.org/pipermail/python-dev/2003-February/033764.html>`__
+    Answer: no.  Reason: "The GC implementation has a good reason for this; someone else may be able to explain it".
+
+`Introducing Python <http://mail.python.org/pipermail/python-dev/2003-February/033783.html>`__
+    Gustavo Niemeyer sent a link to an mpeg promoting Python at http://www.ibiblio.org/obp/pyBiblio/pythonvideo.php .  If you ever had any desire to see what some of the guys from PythonLabs look and sound like and you are not going to PyCon_ you can now quench your curiosity.  It's a free download and is 24 minutes long.  Come on, you know you want to!
+
+`syntax for funcion attributes <http://mail.python.org/pipermail/python-dev/2003-February/033800.html>`__
+    Someone suggested a new syntax for being to access function attributes but was told that it didn't look like it would fly.
+
+
+.. _Jython: http://www.jython.org/
+.. _PEP 308: http://www.python.org/peps/pep-0308.html
+.. _PyErr_WarnExplicit(): http://www.python.org/dev/doc/devel/api/exceptionHandling.html#l2h-92
+.. _FixedPoint: http://fixedpoint.sf.net/
+.. __iconv_codec.c: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/_iconv_codec.c?sortby=date
+.. _ctypes: http://starship.python.net/crew/theller/ctypes.html
+.. _re: http://www.python.org/dev/doc/devel/lib/module-re.html
+.. _bsddbmodule.c: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/bsddbmodule.c
+.. _sys.exc_info(): http://www.python.org/dev/doc/devel/lib/module-sys.html
+.. _email: http://www.python.org/dev/doc/devel/lib/module-email.html
+.. _PEP 311: http://www.python.org/peps/pep-0311.html
+.. _test_re: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Lib/test/test_re.py

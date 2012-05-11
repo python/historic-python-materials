@@ -1,0 +1,190 @@
+Title: python-dev Summary for 2004-07-16 through 2004-07-31
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2004-07-16 through 2004-07-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from July 16, 2004 through July 31, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the forty-fifth summary written by Brett Cannon (will be going insane
+when doing the next summary thanks to decorators).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-07-16_2004-07-31.html
+.. _original text file: http://www.python.org/dev/summary/2004-07-16_2004-07-31.ht
+
+
+
+=====================
+Summary Announcements
+=====================
+Python 2.4a2 is out the door.  The usual request for people to run the regression test suite stands.
+
+If you have been following the whole decorator syntax bugaboo, realize that I won't summarize it until the next summary (discussion started August 1).  But for those of you not in the know, Guido has tentatively accepted the proposed '@decorator' syntax for decorators.  This has led to an **immense** explosion in discussion python-dev (over 700 emails already for the next summary and there is still another week to go) on the subject.  Basically Guido has said that the community can come up with one other syntax that they like and present that to Guido (already proposed syntaxes are pretty much out of the running for the reasons they were shot down the first time).  *Much* more on this subject in the next summary.
+
+
+========
+Summary
+========
+--------------------------------------------------------------------------------------------------
+Makin' bdist_wininst purty and nicer for them non-English speaking folks
+--------------------------------------------------------------------------------------------------
+Thomas Heller asked if some better images for Distutil's bdist_wininst could be used.  Some existing images were discussed, but no specific resolution was mentioned in the thread.
+
+Walter Dörwald brought up the point that if this was all being worked on he wouldn't mind having Unicode support for things such as author name and such.  Thomas and Walter worked on it and that has gone in.
+
+Contributing threads:
+  - `bdist_wininst <http://mail.python.org/pipermail/python-dev/2004-July/046268.html>`__
+
+
+-------------------------------------------------------------------------
+Assigning to None a no-no, but still okay for booleans
+-------------------------------------------------------------------------
+Assigning to None is now a SyntaxError instead of a SyntaxWarning.  Assignment to True and False, though, is still allowed and probably will not be restricted until Python 3.0 (which will probably have to wait, if Guido's OSCON slides are to be believed, until he retires).  The idea of restricting assignment, though, was brought up by Raymond Hettinger.  Michael Hudson, though, pointed out it would be difficult and possibly require a special opcode to handle it.
+
+Contributing threads:
+  - `Re: [Python-checkins] python/dist/src/Python compile.c, <http://mail.python.org/pipermail/python-dev/2004-July/046271.html>`__
+  - `None as constant. Still SyntaxWarning <http://mail.python.org/pipermail/python-dev/2004-July/046323.html>`__
+
+
+-----------------------------------------------------------------
+'as' does not get to be treated with kiddie gloves
+-----------------------------------------------------------------
+Philip Eby asked if 'as' was going to become a keyword.  Guido said not now, but in Python 3.0 it will be.
+
+Contributing threads:
+  - `"as" to be a keyword? <http://mail.python.org/pipermail/python-dev/2004-July/046304.html>`__
+
+
+-------------------------------------------------------------
+Hopefully you didn't love FCNTL like a child...
+-------------------------------------------------------------
+... since if you did that kid was a lazy punk that did nothing but cause trouble for Windows users.  That's why it got kicked out of the house to never come back.
+
+Contributing threads:
+  - `Kill FCNTL.py <http://mail.python.org/pipermail/python-dev/2004-July/046322.html>`__
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+How to get Python to compile with Microsoft's free compiler that should just come with the OS standard
+------------------------------------------------------------------------------------------------------------------------------------------
+1. Download the free .NET compiler
+2. Download the Windows SDK (at http://www.microsoft.com/msdownload/platformsdk/sdkupdate/ with only IE)
+3. Download Garth's tools to generate a Makefile from the .sln files (at http://mail.python.org/pipermail/python-dev/2004-February/042595.html )
+4. Compile
+5. Realize you should be using an OS that doesn't make you go through this many hoops just to have a compiler for your platform
+
+Contributing threads:
+  - `Non-Visual Studio builds on Windows XP? <http://mail.python.org/pipermail/python-dev/2004-July/046324.html>`__
+
+
+---------------------------------------------------------------------------------------------------------------------------------
+Tim Peters, whitespace Czar, will break your legs if you mess up the pristine whitespace in CVS
+---------------------------------------------------------------------------------------------------------------------------------
+Tim Peters ran Tools/Scripts/reindent.py over the entire CVS tree and fixed it up.  This means you had better not mess up and check in using anything but 4-space indents with no tabs!
+
+Contributing threads:
+  - `Fun with whitespace <http://mail.python.org/pipermail/python-dev/2004-July/046331.html>`__
+
+
+-----------------------------------------------------------
+Thread safety == won't blow up in your face
+-----------------------------------------------------------
+Paul Moore pointed out that the documentation for deques in the collections module stated they were thread-safe.  It was clarified that the statement meant that internal state would not be corrupted if multiple threads accessed the same object; no guarantee that it isn't accessed in some order or anything.  Basically the idea of thread-safety for C code is that it won't lead to the interpreter exploding, nothing more.  And you don't even get that guarantee with Python code.
+
+Contributing threads:
+  - `Thread safety of deques <http://mail.python.org/pipermail/python-dev/2004-July/046343.html>`__
+
+
+------------------------------------------------------------------------
+LC_NUMERIC PEP gets a pristine, new PEP number
+------------------------------------------------------------------------
+Even though the code had already been put into the core, the PEP about LC_NUMERIC and being locale-independent never got a PEP number.  Well, now it has one: `PEP 331`_.
+
+.. _PEP 331: http://www.python.org/dev/peps/pep-0331
+
+Contributing threads:
+  - `PEP 331: Locale-Independent Float/String Conversions <http://mail.python.org/pipermail/python-dev/2004-July/046358.html>`__
+
+
+-----------------------------------------------------------------------
+Edward Loper becomes one of us rowdy developers
+-----------------------------------------------------------------------
+And he has already made his initial contribution by helping to rework doctest.
+
+Contributing threads:
+  - `Would like to add Edward Loper as a Python developer <http://mail.python.org/pipermail/python-dev/2004-July/046395.html>`__
+
+
+------------------------------------------------------------------------------------------------------
+Any misbehaving modules during initialization from import now get the boot
+------------------------------------------------------------------------------------------------------
+Jim Fulton wanted a better way to detect when an import failed thanks to another module being directly imported (e.g., module A imports B which raised TypeError from some initialization code from importing; importing would leave A and B in a shoddy state in sys.modules along with raising TypeError in the import from A instead of raising ImportError).  While the latter still occurs, modules are not left in sys.modules in a broken state from exceptions being raised during initialization thanks to Guido and Tim Peters.
+
+There was a discussion on circular imports and how to handle those for proper rollback.  Two suggestions were taking a snapshot of sys.modules and then restoring with that if something bad happens, and putting in placeholder modules in sys.modules.  But this all gets sticky from side-effects that modules can do outside of themselves before they finish importing everyone else.  If, for instance, module A, as a side-effect of importation, injected a custom version of len into module B that would make the state of B different than from before the failed attempt to import module A.  Now, if module A did this before doing all of its imports it could pull of the len injection but still fail from a bad import.  That is not good.  Basically the best solution is to not do that; there is a reason you should do all of your global imports as the first thing in a module.
+
+Contributing threads:
+  - `Fix import errors to have data <http://mail.python.org/pipermail/python-dev/2004-July/046424.html>`__
+
+
+----------------------------------------------------------------------------------------------------------------------------
+Stuff about Unicode, state, and how to handle when a stream terminated early; all CJK to me
+----------------------------------------------------------------------------------------------------------------------------
+Walter Dörwald noticed that codecs.StreamReader.read() would read a few more bytes when it discovered an error.  That's bad since there might not be more bytes and continuing once an error has been found is just not right.  So he wanted to fix that problem.
+
+Unfortunately he and MA Lemburg started to talk and I just couldn't follow everything about stateful and stateless decoders/encoders and the issues; I'm American so Unicode just doesn't fit in my brain well.  So if you want to know what conclusions they reached you are going to read the thread on your own.
+
+Contributing threads:
+  - `Decoding incomplete unicode <http://mail.python.org/pipermail/python-dev/2004-July/046450.html>`__
+
+
+----------------------------------------------------------------------
+Use the docs to know what the public API is, people
+----------------------------------------------------------------------
+Fernando Perez got bit by having something removed from the 'keyword' module that was not part of the documented API.  Turns out that running 'help' on the module listed the function in question and so he just went ahead an used it.  That's not the right way to go about finding the public API of stdlib code.
+
+Always follow the documentation.  If it is not listed there don't expect it to be there in the next version.  While we try not to yank stuff out needlessly and will tweak things to be nice on occasion, we make no guarantees on stuff not listed in the API.
+
+The next best thing is what is listed in __all__ for a module.  Since that is explicitly listed that usually can be considered part of the API.
+
+And lastly, anything starting with an underscore is off limits in terms of promises of keeping it around.
+
+Luckily Skip Montanaro applied a patch for pydoc to have it only list stuff in modules as specified by __all__, so it's a little safer out there.  But the actual documentation is still king.
+
+Contributing threads:
+  - `Rationale behind removing kwdict from keyword.py? <http://mail.python.org/pipermail/python-dev/2004-July/046465.html>`__
+
+
+-------------------------------------------------------
+Linking against static builds on Windows
+-------------------------------------------------------
+Thomas Heller pointed out that one couldn't dynamically link against a statically built Python interpreter DLL.  He and Martin v. Löwis discussed various ways to try to get this to work, but it doesn't appear they came up with one.
+
+Contributing threads:
+  - `Static builds on Windows <http://mail.python.org/pipermail/python-dev/2004-July/046499.html>`__

@@ -1,0 +1,190 @@
+Title: python-dev Summary for 2003-08-01 through 2003-08-15
+Sitemap-ignore: yes
+
+<div class="document" id="python-dev-summary-for-2003-08-01-through-2003-08-15">
+<h1 class="title">python-dev Summary for 2003-08-01 through 2003-08-15</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> from August 1, 2003 through August 15, 2003.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> or <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join <a class="reference" href="http://www.python.org/dev/">python-dev</a>!</p>
+<p>This is the twenty-third summary written by Brett Cannon (about to move for the umpteenth time).</p>
+<p>All summaries are archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a> (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; its simple and is accepted for <a class="reference" href="http://www.python.org/dev/peps/pep-0012">PEP markup</a> and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is unless it is from the original text file.</p>
+<p>The in-development version of the documentation for Python can be found at <a class="reference" href="http://www.python.org/dev/doc/devel/">http://www.python.org/dev/doc/devel/</a> and should be used when looking up any documentation on something mentioned here.  Python PEPs (Python Enhancement Proposals) are located at <a class="reference" href="http://www.python.org/dev/peps/">http://www.python.org/dev/peps/</a> .  To view files in the Python CVS online, go to <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/">http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/</a> .</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#summary-announcements" id="id1" name="id1">Summary Announcements</a></li>
+<li><a class="reference" href="#summaries" id="id2" name="id2">Summaries</a><ul>
+<li><a class="reference" href="#python-user-helping-parrot-treacherous" id="id3" name="id3">Python user helping Parrot?  Treacherous!</a></li>
+<li><a class="reference" href="#python-mode-gets-its-own-sf-project-vim-users-laugh" id="id4" name="id4">python-mode gets its own SF project; Vim users laugh</a></li>
+<li><a class="reference" href="#caching-tuple-hashes" id="id5" name="id5">Caching tuple hashes</a></li>
+<li><a class="reference" href="#pycon-2004-is-under-development" id="id6" name="id6">PyCon 2004 is under development</a></li>
+<li><a class="reference" href="#let-the-fixing-of-2-3-begin" id="id7" name="id7">Let the fixing of 2.3 begin!</a></li>
+<li><a class="reference" href="#when-a-void-doesn-t-equal-an-integer" id="id8" name="id8">When a void doesn't equal an integer</a></li>
+<li><a class="reference" href="#where-do-i-put-all-of-my-packages" id="id9" name="id9">Where do I put all of my packages?!?</a></li>
+<li><a class="reference" href="#be-careful-with-slots" id="id10" name="id10">Be careful with __slots__</a></li>
+<li><a class="reference" href="#plugging-leaks" id="id11" name="id11">Plugging leaks</a></li>
+<li><a class="reference" href="#making-the-interpreter-its-own-executable" id="id12" name="id12">Making the interpreter its own executable</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="summary-announcements">
+<h1><a class="toc-backref" href="#id1" name="summary-announcements">Summary Announcements</a></h1>
+<p>Well, Michael Chermside responded to my question from the last summary about whether the new format and style of the Summaries was good.  Once again a single person has led to how the summaries will be handled.  You guys need to speak up (although I like the side that won this time  =)!</p>
+<p>I am playing with layout once again.  This time I am changing how the &quot;contributing threads&quot; lists are formatted.  I know some of you hate inlined links in reST markup, but when these lists become huge it becomes really hard to keep track of the URIs when I have to list them away from the actual item on a separate line below the list of thread names.</p>
+<p>With <cite>Python 2.3</cite> out the door bug reports have started to come in.  Work on 2.3.1 has begun.  Please keep running the regression tests (easiest way is to run either <tt class="literal"><span class="pre">make</span> <span class="pre">test</span></tt> or run regrtest.py in the test package; see the docs for the test package for help).</p>
+<p>On a personal note, if anyone knows of any Python users and such in the San Luis Obispo area of California, drop me a line at brett at python.org.</p>
+</div>
+<div class="section" id="summaries">
+<h1><a class="toc-backref" href="#id2" name="summaries">Summaries</a></h1>
+<div class="section" id="python-user-helping-parrot-treacherous">
+<h2><a class="toc-backref" href="#id3" name="python-user-helping-parrot-treacherous">Python user helping Parrot?  Treacherous!</a></h2>
+<p>Michal Wallace decided to get AM Kuchling's <a class="reference" href="http://www.amk.ca/conceit/parrot.html">previous work</a> on getting Python code to run on the <a class="reference" href="http://www.parrotcode.org/">Parrot</a> virtual machine (which is what Perl 6 will use).  Well, the rather nutty fellow managed to get pretty damn far with it as shown at <a class="reference" href="http://pirate.versionhost.com/viewcvs.cgi/pirate/">http://pirate.versionhost.com/viewcvs.cgi/pirate/</a> .  Michal was actually almost done with handling pure Python code and was getting ready to try to figure out how to get Parrot to handle C extension modules with that being the biggest sticking point.</p>
+<p>Since Parrot is not Python it does not have a parser for Python code; problem if your code has an exec statement.  This turned out to not be a worry, though, since there are pure Python parsers out there.</p>
+<p>All of this has direct relevance to python-dev because of the bet between Guido and Dan Sugalski, developer of Parrot.  The rules are outlined at <a class="reference" href="http://www.sidhe.org/~dan/blog/archives/2003_07.html#000219">http://www.sidhe.org/~dan/blog/archives/2003_07.html#000219</a> .  What is going to happen at OSCON 2004 is a benchmark program written in pure Python will be run using a CVS checkout of Python against a Parrot (after converting the bytecode to Parrot's own bytecode) checkout; slowest implementation's author gets a pie in the face, buy the winner's dev team a round of beer, and $10.</p>
+<p>So why have this bet?  This was discussed and basically came down to finding out whether Parrot really can run Python fast.  Parrot wants to be the VM for as many languages as possible, including Python.  This acts as a way to motivate people to see how feasible this is.</p>
+<p>And don't think that the CPython interpreter will disappear if Parrot wins.  Dan pointed out that even if he did win the bet that Guido would probably want to keep CPython around since that is under his control and allows testing out new language features much easier then having to deal with Parrot and an external dev team.  In other words, let other people worry about forcing a Python-shaped peg into a Parrot-sized hole.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037407.html">pirate (python+parrot)</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="python-mode-gets-its-own-sf-project-vim-users-laugh">
+<h2><a class="toc-backref" href="#id4" name="python-mode-gets-its-own-sf-project-vim-users-laugh">python-mode gets its own SF project; Vim users laugh</a></h2>
+<p>Barry Warsaw, citing lack of time to &quot;properly maintain python-mode.el&quot;, has created a SourceForge project for the Emacs mode at <a class="reference" href="http://sf.net/projects/python-mode">http://sf.net/projects/python-mode</a> .  This means all bug reports, patches, etc. should be done at that project.</p>
+<p>Martin v. Löwis suggested removing <a class="reference" href="http://sf.net/projects/python-mode">python-mode.el</a> from Python itself and to get it distributed with <a class="reference" href="http://www.gnu.org/software/emacs/emacs.html">Emacs</a> and <a class="reference" href="http://www.xemacs.org/">XEmacs</a>.  This way there does not have to be any synchronization between the new SF project and the Python CVS tree.  As of right now, though, python-mode.el is still in the Python CVS.</p>
+<p>And to give equal billing to <a class="reference" href="http://www.vim.org/">Vim</a>, my code editor of choice, since it does not get as much coverage on python-dev as XEmacs does, here are some scripts you might want to check out:</p>
+<dl>
+<dt>taglist.vim <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="http://vim.sourceforge.net/scripts/script.php?script_id=273">http://vim.sourceforge.net/scripts/script.php?script_id=273</a></span></dt>
+<dd>&quot;provides an overview of the structure of source code files&quot; by splitting the window.</dd>
+<dt>python_fold.vim <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="http://vim.sourceforge.net/scripts/script.php?script_id=515">http://vim.sourceforge.net/scripts/script.php?script_id=515</a></span></dt>
+<dd>&quot;This script uses the expr fold-method to create folds for python source code.&quot;</dd>
+<dt>vimDebug <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference" href="http://vim.sourceforge.net/scripts/script.php?script_id=663">http://vim.sourceforge.net/scripts/script.php?script_id=663</a></span></dt>
+<dd>&quot; integrates your favorite debugger with vim.&quot;</dd>
+</dl>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037410.html">New python-mode project at SourceForge</a></li>
+<li>New place for python-mode bug reports and patches &lt;<a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037451.html">http://mail.python.org/pipermail/python-dev/2003-August/037451.html</a>&gt;`__</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="caching-tuple-hashes">
+<h2><a class="toc-backref" href="#id5" name="caching-tuple-hashes">Caching tuple hashes</a></h2>
+<p>Raymond Hettinger asked if there was any reason why tuples, being immutable, didn't cache their hash values.  Strings cache their hashes and they are immutable, so it seem to make sense.</p>
+<p>It was pointed out, though, that tuples could contain an object that changed its hash value between hash calls.  Guido said, though, that it was the responsibility of the object and not tuples to worry about keeping a consistent hash value.</p>
+<p>Guido also explained why strings cache their hashes.  It turns out that since strings are used so often for keys in dicts that caching their hashes gave a large performance boost for almost any program, so the effort was felt justified.  But Guido did not see this same justification for tuples.  Thus tuples will not cache their hash values.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037416.html">Caching tuple hashes</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="pycon-2004-is-under-development">
+<h2><a class="toc-backref" href="#id6" name="pycon-2004-is-under-development">PyCon 2004 is under development</a></h2>
+<p>Preparation for <a class="reference" href="http://www.python.org/pycon/dc2004/">PyCon</a> 2004 have now begun.  With us getting the ball rolling much earlier this conference should turn out to be even better than last year (which, in my opinion, was great)!  You can go to <a class="reference" href="http://www.python.org/pycon/dc2004/">http://www.python.org/pycon/dc2004/</a> to find links to lists to get involved in organizing or just to be kept abreast of new developments.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037437.html">PyCon DC 2004 Kickoff!</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="let-the-fixing-of-2-3-begin">
+<h2><a class="toc-backref" href="#id7" name="let-the-fixing-of-2-3-begin">Let the fixing of 2.3 begin!</a></h2>
+<p>The maintenance branch of Python 2.3 (named release23-maint) has been created in CVS.  Several bugs have already been fixed.  For instructions on how to check out a copy of the branch, read <a class="reference" href="http://www.python.org/dev/devfaq.html#c10">http://www.python.org/dev/devfaq.html#c10</a> .</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037440.html">Python 2.3 maintenance branch is now open</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="when-a-void-doesn-t-equal-an-integer">
+<h2><a class="toc-backref" href="#id8" name="when-a-void-doesn-t-equal-an-integer">When a void doesn't equal an integer</a></h2>
+<p>After clearing up the confusing issue of the difference between a Python int and a Python Integer (the former is &lt;type 'int'&gt; while the latter is the union of &lt;type 'int'&gt; and &lt;type 'long'&gt; which is what Python is moving towards so that the distinction practically disappears), the discussion of how to handle a quirk of Win64 commenced.  It turns out that Win64 thinks that <tt class="literal"><span class="pre">sizeof(void</span> <span class="pre">*)</span> <span class="pre">&gt;</span> <span class="pre">sizeof(long)</span></tt> is a reasonable thing to do.  Well, all other platforms now and most likely for the rest of Tim Peter's life (at least according to Tim's guess) don't and won't hold this to be true.</p>
+<p>As of right now Python claims that a void pointer can be held in a Python int, but Win64 breaks that claim.  Do we muck around with Python's internals for this one strange exception that does not make sense, such as making Python ints use long long?  No, of course not.  Code would break, let alone the added complexity.  So the needed changes to the failing tests were dealt with and all seems to be fine with the world again ... well, Win64 is still thinking on crack, but that is someone else's problem.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037465.html">sizeof(long) != sizeof(void*)</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="where-do-i-put-all-of-my-packages">
+<h2><a class="toc-backref" href="#id9" name="where-do-i-put-all-of-my-packages">Where do I put all of my packages?!?</a></h2>
+<p>As it stands now there are four places where packages can reside:</p>
+<ol class="arabic simple">
+<li>standard library</li>
+<li>site-packages</li>
+<li>site-python (on UNIX this is the same directory where your python2.3 directory exists)</li>
+<li>PYTHONPATH environment variable</li>
+</ol>
+<p>It was pointed out that this does not necessarily give one all the options one might want.  The above covers the Python core easily, but there is not clear distinction for vendor packages, network-installed packages, system-wide packages or user-installed packages; they are covered by 2-4 above.  The suggestion was to make more distinct places available for installation and to make distutils aware of them.</p>
+<p>A good way to see how this would be useful is to look at how OS X's Panther will handle Python 2.3 .  It will have the standard library in the standard location of /usr/local/python2.4 .  In that directory, the site-packages directory is a symlink to a more system-aware location.  This is fine but what about a sysadmin who would rather avoid the possibility of breaking OS X by messing with the OS's Python installation?  What about a user on that system who does not have root but wants to have their own place to put their packages?  There is definitely room for adding more standard path locations for package installations.</p>
+<p>A PEP was being mentioned but appears to not have been written yet.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037487.html">Multiple levels of site-packages</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="be-careful-with-slots">
+<h2><a class="toc-backref" href="#id10" name="be-careful-with-slots">Be careful with __slots__</a></h2>
+<p>Raymond Hettinger observed that using __slots__ or overriding __getattribute__ fails silently when mistakenly used with old-style classes.  This has bitten him and others in the bum so he wanted to add warning/error messages.  Guido recommended passing on the warnings because 1) those are &quot;expert use only&quot; tools, 2) PyChecker can already detect the issue, and 3) there are other new-style/classic issues cannot as readily be flagged.</p>
+<p>It should be known that &quot;__slots__ is a terrible hack with nasty, hard-to-fathom side effects that should only be used by programmers at grandmaster and wizard levels&quot;.  So only use __slots__ if you can apply the label of &quot;programmer at grandmaster or wizard level&quot; to yourself without your programming peers laughting their bums off; you have been warned.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037537.html">Make it an error to use __slots__ with classic classes</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="plugging-leaks">
+<h2><a class="toc-backref" href="#id11" name="plugging-leaks">Plugging leaks</a></h2>
+<p>Michael Hudson thought he had discovered a leak somewhere and went off on a little hunt.  It turned out to be a red herring more or less, but there was some discussion on the best way to find leaks through regression tests.</p>
+<p>The basic scheme that everyone seemed to use was to run the regression test once to get any caching out of the way and then run the test a set number of times and see if the reference counts seemed to grow.  Michael Hudson posted a diff to add such a testing feature to test/regrtest.py at <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037617.html">http://mail.python.org/pipermail/python-dev/2003-August/037617.html</a> .  Tim Peters also posted a link to Zope's test driver at <a class="reference" href="http://cvs.zope.org/Zope3/test.py">http://cvs.zope.org/Zope3/test.py</a> which includes a class named TrackRefs which can help keep track of the leaked references as well as leaked objects.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037485.html">CALL_ATTR patch</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037617.html">refleak hunting fun!</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="making-the-interpreter-its-own-executable">
+<h2><a class="toc-backref" href="#id12" name="making-the-interpreter-its-own-executable">Making the interpreter its own executable</a></h2>
+<p>As it stands now the Python interpreter is distributed as a bunch of files mostly made up of the standard library.  But wouldn't it be nice if you could make the interpreter just a single executable that was easy to distribute with your code?  Well, that discussion cropped up on <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> at <a class="reference" href="http://groups.google.com/groups?hl=en&amp;lr=&amp;ie=UTF-8&amp;safe=off&amp;threadm=ptji8wgr.fsf%40python.net">http://groups.google.com/groups?hl=en&amp;lr=&amp;ie=UTF-8&amp;safe=off&amp;threadm=ptji8wgr.fsf%40python.net</a> .  The idea was to somehow introduce a hook into Py_Main() that could harness the new zipimport facility.</p>
+<p>The idea came up of appending the stdlib to the end of the Python interpreter and to have a flag set to signal that the appending had occurred.  The problem is that this could cause unzipping problems.</p>
+<p>But setting the flag is not necessarily simple either.  One suggestion was to literally patch the interpreter to set the flag.  But there was some confusion over the use of the term &quot;patch&quot;; Thomas Heller thought more of &quot;link with an object file defining this global variable&quot;.</p>
+<p>This thread was still going as of this writing and had not yet reached a clear solution.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-August/037528.html">hook for standalone executable</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="2003-08-01_2003-08-15.txt">View document source</a>.
+Generated on: 2003-08-18 21:28 UTC.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>
+

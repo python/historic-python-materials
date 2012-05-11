@@ -1,0 +1,119 @@
+Content-type: text/x-rst
+Title: Python's Development Process
+
+Python's Development Process
+----------------------------
+
+Guido van Rossum is the project's lead developer.  In recognition
+of this role, he's sometimes jokingly called the Benevolent Dictator
+For Life, or BDFL; the acronym is occasionally used in python-dev
+postings, especially in a context such as "making that change will
+require a BDFL pronouncement".  In theory the BDFL makes all the
+decisions about what goes in to Python and what doesn't.  In practice,
+Guido will often defer to someone else's expertise in a specialized
+domain; for example, Tim Peters is the resident master of floating
+point arcana, Jeremy Hylton usually wrestles the Python compiler, and
+so forth.  Modules in the standard library are also often the
+responsibility of a particular individual who's the first choice to
+review patches or fix bugs in it, but anyone can modify any line of
+code at any time, and simple, obviously correct fixes can be applied
+by anyone.
+
+An informal voting process is sometimes followed on python-dev.
+People will sometimes post their votes in response to a suggestion,
+giving them as +1, -1, +0, or -0.  This numbering comes from `the voting scheme used by Apache <http://dev.apache.org/guidelines.html>`_:
+
+  * +1 indicates that the poster is in favor of the suggestion.
+  * -1 indicates they're against it.
+  * +0 indicates "I don't care, but go ahead".
+  * -0 means "I don't care, so why bother?".  
+
+In the Apache project, this
+voting is formalized and is how binding project decisions are made,
+but in
+Python it's just a concise way to express opinions in a straw poll
+and the result isn't binding in any way.  The BDFL will take note of
+the reaction to a proposal, but is free to ignore it.  While the BDFL
+could completely ignore community reaction, I can't think of an instance
+where he's actually done so in the face of united disapproval by the
+community.  The closest case to that might be the ``print >>``
+statement, where everyone turned out to be divided 50/50 between
+liking it and hating it.  Guido exercised his right to decide, and
+the feature was added to the language in Python 2.0.  Some people
+still hate it; some people who first argued against it have now grown
+sneakily fond of it. 
+
+PEPs
+==============
+
+
+Because Python is a programming language and there are a few
+million lines of Python code in the world, the development process has
+to impose some rigidity and provide some resistance against accepting
+changes too easily.  Users have Python code, extension modules written
+in C, and applications that embed Python, so it's important that the
+inconvenience of upgrading to new versions of Python is minimized.
+Language changes might also make the language too difficult for new
+users to learn.
+
+As a way to ensure that changes are carefully considered,
+significant changes *must* be described in a Python Enhancement
+Proposal, or PEP.  PEPs are modelled on the Request For Comments
+documents used by the Internet Engineering Task Force, and describe a
+proposed change by giving fairly complete documentation for it and a
+design rationale.  PEPS also record the community's consensus about a
+feature, because the PEP's author must take note of people's comments
+and incorporate their feedback.  PEPs are especially important if the
+suggested feature gets rejected, because the same ideas often come
+back again and again, resulting in lengthy discussion threads that
+always arrive at the same outcome.  (For example, ideas such as not
+using indentation, adding a *with* statement, or support for
+interfaces often come up again and again.)  Like a FAQ, which tries to
+reduce newsgroup traffic by answering questions before they're asked,
+PEPs try to reduce repeated suggestions.
+
+All the PEPs are available online at `http://www.python.org/dev/peps/ </dev/peps/>`_.
+PEP 1, `PEP Purpose and Guidelines </dev/peps/pep-0001/>`_ explains the purpose of PEPs, their life
+cycle, and the prescribed format for a PEP.  Read it before beginning
+to write a PEP.
+
+Documenting Python
+============================
+
+
+Any significant additions to the Python core must be accompanied by
+supporting patches for the documentation.  Python's documentation is,
+as of version 2.6, written using `docutils`_\' reStructuredText and an
+accompanying builder application that converts the source to
+PDF, HTML, or PostScript.  Georg Brandl, the author of the builder,
+has written the new `"Documenting Python" <http://docs.python.org/dev/documenting/>`_,
+containing a quick introduction to reStructuredText and a guide to
+the Python-specific markup.
+
+You should also write helpful docstrings for modules, because the
+`pydoc <http://docs.python.org/library/pydoc>`_
+module provides online help generated from module docstrings.  Writing
+docstrings is therefore an easy way to make life easier for users.
+
+.. _docutils: http://docutils.sf.net/
+
+
+Recording Change
+==========================
+
+
+The file Misc/NEWS is the traditional place to record all changes to
+the Python code. This file is intended to be a complete record of changes
+between versions, and therefore useful for (among other purposes) finding
+the source of compatibility issues.
+
+Misc/NEWS is also scanned before each release as the source of the
+"What's new in Python X.Y" documents, created from whatsnewXY.tex.
+This document is a fuller description of only the more significant
+changes to the language. Developers are welcome to add descriptions
+of their own changes to whatsnewXY.tex, but not at the expense of
+omitting change descriptions in Misc/NEWS.
+
+If you only have time to do one thing, record your changes in the
+Misc/NEWS file.
+

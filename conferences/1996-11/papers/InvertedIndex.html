@@ -1,0 +1,350 @@
+<HTML>
+  <HEAD>
+    <TITLE>Inverted Index</TITLE>
+  </HEAD>
+
+  <BODY BGCOLOR="#FFFFFF">
+    <h1 align=center>
+      Inverted Index
+    </h1>
+
+    <h3 align=center>
+      <a href="mailto:chris@digicool.com">Chris Heaps</a>,
+      <a href="mailto:cici@digicool.com">Ci-Ci Mills</a>
+    </h3>
+
+    <p align=center>
+      Digital Creations, L.C.<br>
+      910 Princess Anne Street, Suite 300<br>
+      Fredericksburg, VA  22405<br>
+      <i>
+	<a href="http://www.digicool.com/">http://www.digicool.com/</a>
+      </i>
+    </p>
+
+    <HR>
+
+    <p align="center">
+    <b>Abstract</b></p><p>
+
+    <i>
+       Text-search engines provide the ability to quickly search for
+       documents that contain terms in textual data.  Commercial
+       text-search engines provide many capabilities but often have
+       large overhead in process size, application complexity, and
+       licensing cost.  We have developed a Python module,
+       InvertedIndex, that has a simple Python Application Programming
+       Interface and that provides support for incremental indexing
+       and for stopword, synonym, and stemming databases.  
+    </i>
+
+
+    <p align=center>
+  
+
+<!-- --------------------------------------------------------- -->
+
+    <h2>Introduction</h2>
+
+    The problem of document storage and retrieval has always been a major 
+    issue in Computer Science.  One of the most popular techniques of
+    information retrieval has been the use of inverted indices, the method
+    used by most commercial indexing software companies.
+    <p>
+    An inverted index catalogs a collection of objects in their
+    textual representations.  Given a set of documents, keywords and other
+    attributes (possibly including relevance ranking) are assigned
+    to each document.  The inverted index is the list of keywords and
+    links to the corresponding document.  Frequently there are several
+    restrictions which limit the keywords in an index.  Examples include:
+    <ul>
+        <li> A collection of stopwords--keywords that are not considered
+             relevant.  This collection normally contains words considered
+             too common to function as keywords (articles, prepositions,
+             conjunctions, etc.) or words outside the context of the index.
+        <li> A set of rules that define keywords in a document.  This controls
+             the manner in which keywords are found.  For instance, keywords
+             might be defined as character sequences surrounded by white-
+             space.
+        <li> A set of rules that restrict indexable words.  For instance, a
+             rule that causes keywords containing numbers not to be indexed.
+        <li> A collection of "synonyms"--keywords that should be indexed using
+             a different keyword.
+    </ul>
+    <p>
+    The InvertedIndex module provides simple tools for creating and
+    maintaining inverted indices with support for incremental indexing and
+    for stopword, synonym and stemming databases.
+    <p>
+
+    <p>
+    <h2>Features</h2>
+    <dl>
+      <dd><h3>Lexical Analysis for Indexing</h3>
+	  Lexical analysis is the process of converting text input into
+	  a group of words or tokens.  Common issues include handling of
+	  hyphenated words, punctuation, digits and case.  InvertedIndex
+	  provides basic functionality for addressing these issues and
+	  is configurable for special behavior.  By default, InvertedIndex
+	  de-hyphenates all words and treats groups of alphabetic
+	  characters as words, using whitespace and punctuation as a
+	  keyword delimiter.  The words are converted to lowercase as
+	  they are indexed.
+	   
+      <dd><h3>Stopwords</h3>
+          The stopword list is a group of keywords which should not be
+	  indexed. It is comprised of keywords that are considered irrelevant 
+          to the index--keywords considered too common or non-specific 
+          to be useful as search items.  Common stopwords include articles,
+          prepositions and one-letter words.
+	  <p>
+	  At index time, keywords are compared the words in the stopword list;
+	  any keyword found in the stopword list is not indexed.  Stopword
+	  lists can dramatically reduce the size of the index, decreasing
+	  the overall search time.  Since irrelevant words are not included
+	  in the index, search results are likely to be more meaningful in
+	  the context of the user's query.
+
+      <dd><h3>Stemming</h3>
+	  Stemming is a method of providing users with the ability to
+	  execute a search on a word using an alternate grammatical form,
+	  such as tense and person.  Rather than using an automatic stemming
+	  algorithm to create the stems, InvertedIndex uses a table-lookup
+	  method, storing the stems along with the index in a Python
+	  dictionary.  While the table-lookup method is costly in terms of
+	  storage space, it allows for quicker indexing and greater control
+	  over the formation of stems.
+          <p>
+	  The following is an example of a mapping of keywords to their
+	  corresponding stem keywords:<br><br>
+            <dl>
+              <dd>running -> run
+              <dd>runner  -> run
+              <dd>swims   -> swim
+              <dd>swam    -> swim<br><br>
+            </dl>
+          At index time, keywords for which a stem is given will be indexed
+	  as the stem keyword, not as the original keyword.  Stemming is
+	  helpful in reducing the size of the index files.  However, it
+	  can also negatively affect the speed of retrieval if the stemming
+	  database is large.  
+	    
+      <dd><h3>Synonyms</h3>
+	  A synonym database can be constructed to search on words with
+	  equivalent meanings.  Synonyms are implemented exactly as stems,
+	  the only distinction is that keywords are mapped to words with
+	  the same meaning as opposed to different grammatical forms of
+	  the keyword.  
+	  <p>
+	  The following is an example of a mapping of keywords to their
+	  corresponding synonyms:<br><br>
+            <dl>
+              <dd>car        -> vehicle
+              <dd>automobile -> vehicle
+              <dd>plane      -> vehicle<br><br>
+            </dl>
+	    
+          Keywords for which a synonym is given will be indexed as the
+          synonym keyword, not as the original keyword.  As with stemming,
+	  synonyms can reduce the size of the index, but can also slow
+	  the indexing and searching time.
+	    
+      <dd><h3>Persistence</h3>
+          Persistent indices allow for quick retrieval of previously
+          indexed information. Persistence is achieved through use of
+	  the Python pickle module.  This feature allows an index
+	  to be saved to disk and later restored, avoiding having to
+	  reindex data.
+	  <p>
+	  Persistent indices are provided through the
+	  InvertedIndex module's Persistent and Transactional classes.
+	  The Persistent class keeps track of whether the index has
+	  changed, saving the object's data when necessary.  The
+	  Transactional class provides a transactional model for
+	  persistency:  changes to an index are only saved at the
+	  completion of a 'transaction', a single, complete operation on the
+	  index.  The value of the transactional model is that is insures
+	  that no portion of an aborted indexing attempt is saved.
+
+      <dd><h3>Relevance Ranking</h3>
+          Keywords are assigned a relevance ranking, which is the calculation
+          of a keyword's frequency relative to the total number of words in
+	  the document.  InvertedIndex assigns ranking based on the following
+	  formula: <p>
+	             <pre>   O / log(T)</pre>
+	  where O represents the number of occurrences of a single keyword
+	  and T represents the total number of keywords in the document.
+	  <p>
+	  The relevance rank aids the end-user in locating the desired
+	  information by indicating which results (especially in a large
+	  result set) are more likely yield pertinent information.
+
+      <dd><h3>Query Language</h3>
+	  A separate module, InvertedIndexQuery, provides a simple query
+	  language for use with InvertedIndex.  InvertedIndexQuery supports
+	  "and", "or", and "not" operators on search terms as well as the use
+	  of parentheses for association.  The following examples illustrate
+	  several inverted index queries along with explanations with their
+	  functions.
+	  <table>
+	    <th>Query<th>Result
+	    <tr>
+	      <td>"Python"
+	      <td>Documents containing the word "Python"
+	    </tr>
+	    <tr>
+	      <td>"Python or spam"
+	      <td>Documents containing either the word "Python" or the
+	          word "spam"
+	    </tr>
+	    <tr>
+	      <td>"Python and not Perl"
+	      <td>Documents containing the word "Python", but not the word
+	          "Perl"
+	    </tr>
+	    <tr>
+	      <td>"not (Pascal or Perl)"
+	      <td>Documents that contain neither of the words "Pascal" or
+	          "Perl"
+	    </tr>
+	    <tr>
+	      <td nowrap>"not ((Pascal or Perl) and useful)
+	      <td>Documents that do not contain both the words "useful"
+	          and "Pascal" or the words "useful" and "Perl"
+	    </tr>
+	  </table>
+
+	  Since InvertedIndexQuery is a separate module, implementing
+	  an alternate query parser is a simple matter.
+	   
+      <dd><h3>Incremental Indexing</h3>
+          Documents may be added to an existing index without the need
+          to reindex the original data.  This allows indexing to be
+	  split into smaller jobs that require less time.
+    </dl>
+<!-- --------------------------------------------------------- -->
+
+    <h2>Architecture</h2>
+
+    <dl>
+      <dd><h3>Index Object</h3>
+          The Index object provides the basic functionality for indexing 
+          and searching.  Indexing is done using the object's index()
+          method.  The Index object behaves as a dictionary, mapping
+          keywords to their corresponding search results, stopwords to
+	  None, and stems and synonyms to their corresponding keywords.
+	  Compiled regular expressions may be used as keys; the result of
+          a search done with a regular expression is a series of searches
+          performed on each matching keyword, their results joined by
+          an "or" operation.
+
+      <dd><h3>Pickle Dictionary</h3>
+          Persistent indices make use of a "pickle dictionary", which
+          is contained in the Index object.  The pickle dictionary
+          intelligently manages saving and loading of index values, only
+          pickling and unpickling individual index items as is necessary.
+	  The pickle dictionary minimizes memory usage and load time
+	  by using a specialized unpickling scheme[1].
+
+      <dd><h3>Result List Object</h3>
+          The ResultList object is the instance object returned as a result
+          of a successful search.  It contains a list of pairs that consist 
+          of the relevance ranking and id of each document returned by a
+          search.  The ResultList objects behave as sequences returning a
+          document pair corresponding to the index.  ResultList objects 
+          support "and", "or", and "not" not operations as well as sorting 
+          of their document pairs by relevance.  When an "and" operation
+	  is performed on ResultList objects, corresponding relevance
+	  rankings are added.  The following shows how composite relevance
+	  rankings are calculated when the above operators are used.
+	  <table>
+	    <th>Operation<th>Method of Calculation
+	    <tr>
+	      <td> "or"
+	      <td> sum of rankings
+	    </tr>
+	    <tr>
+	      <td> "and"
+	      <td> geometric mean of rankings
+	    </tr>
+	    <tr>
+	      <td> "not"
+	      <td> sum of rankings
+	    </tr>
+	  </table>
+          <p>
+	  ResultList objects can be passed into other search mechanisms to
+	  allow for specialized searching, such as mixed full-text and
+	  fielded searching.
+
+    </dl>
+    <p align=center>
+
+    <h2>Sample Usage</h2>
+    Below is example code which instantiates an Index object,indexes
+    two files, and prints the result of a search on the index.
+    
+    <pre>
+    import InvertedIndex
+    import InvertedIndexQuery
+
+    i = InvertedIndex.Index()
+
+    filename = 'document1.txt'
+    file_to_index = open(filename).read() 
+    document_key = filename
+
+    # index the document, using document_key as the document's
+    # id.
+    i.index(file_to_index, document_key)
+
+    filename = 'document2.txt'
+    file_to_index = open(filename).read()
+    document_key = filename
+
+    i.index(file_to_index, document_key)
+
+    search_results = InvertedIndexQuery.query('Python and spam', i)
+    search_results.sort()
+
+    cnt = 0
+    for document in search_results:
+      cnt = cnt + 1
+      print '%d) %s' % (cnt, document[1])
+    
+    </pre>
+
+    <h2>Current Status</h2>
+
+    InvertedIndex is freely-available. It has been tested on the
+    following platforms:  Solaris 2.4 and Digital UNIX 3.2.<br>
+    It is being used in Digital Creations' new Classified product.
+    
+    
+    <h2>Future</h2>
+    The next release of InvertedIndex will contain support for
+    proximity searching, which is the ability to search for keywords
+    "near" each other in the indexed document.  For instance,
+    a search for the words "Python" and "rules" would return
+    a document containing,<br>
+	   <dl>
+	     <dd><cite>Everybody knows that Python rules!</cite>
+           </dl>
+    but not a document containing,<br>
+	   <dl>
+	     <dd><cite>Python! Everybody knows that rules!</cite>
+	   </dl>	  
+
+
+
+    <h2>References</h2>
+      <ol>
+        <li><em>Providing Persistence for World Wide Web Applications</em><br>
+           <a href="http://www.digicool.com/papers/Persistence.html">
+	     http://www.digicool.com/papers/Persistence.html</a>
+      </ol> 
+
+</BODY>
+</HTML>
+
+<!-- ----------------------------------------------------------- -->

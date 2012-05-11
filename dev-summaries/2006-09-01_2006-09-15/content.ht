@@ -1,0 +1,279 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-09-01 through 2006-09-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-09-01_2006-09-15]
+
+
+
+=============
+Announcements
+=============
+
+----------------------------
+QOTF: Quote of the Fortnight
+----------------------------
+
+Through a cross-posting slip-up, Jean-Paul Calderone managed to provide us with some inspiring thoughts on mailing-list archives:
+
+    One could just as easily ask why no one bothers to read mailing list
+    archives to see if their question has been answered before.
+
+    No one will ever know, it is just one of the mysteries of the universe.
+
+Contributing thread:
+
+- `[Twisted-Python] Newbie question <http://mail.python.org/pipermail/python-dev/2006-September/068682.html>`__
+
+-------------------------
+Monthly Arlington sprints
+-------------------------
+
+Jeffrey Elkner has arranged for monthly Arlington Python sprints. See the `Arlington sprint wiki`_ for more details.
+
+.. _Arlington sprint wiki: http://wiki.python.org/moin/ArlingtonSprint
+
+Contributing thread:
+
+- `Arlington sprints to occur monthly <http://mail.python.org/pipermail/python-dev/2006-September/068688.html>`__
+
+=========
+Summaries
+=========
+
+-----------------------------------------
+Signals, threads and blocking C functions
+-----------------------------------------
+
+Gustavo Carneiro explained a problem that pygtk was running into.  Their main loop function, ``gtk_main()``, blocks forever. If there are threads in the program, they cannot receive signals because Python catches the signal and calls ``Py_AddPendingCall()``, relying on the main thread to call ``Py_MakePendingCalls()``.  Since with pygtk, the main thread is blocked calling a C function, it has no way other than polling to decide when ``Py_MakePendingCalls()`` needs to be called.  Gustavo was hoping for some sort of API so that his blocking thread could get notified when ``Py_AddPendingCall()`` had been called.
+
+There was a long discussion about the feasibility of this and other solutions to his problem. One of the main problems is that almost nothing can safely be done from a signal handler context, so some people felt like having Python invoke arbitrary third-party code was a bad idea. Gustavo was reasonably confident that he could write to a pipe within that context, which was all he needed to do to solve his problem, but Nick Maclaren explained in detail some of the problems, e.g. writing proper synchronization primitives that are signal-handler safe.
+
+Jan Kanis suggested that threads in a pygtk program should occasionally check the signal handler flags and calls PyGTK's callback to wake up the main thread. But Gustavo explained that things like the GnomeVFS library have their own thread pools and know nothing about Python so can't make such a callback.
+
+Adam Olsen suggested that Python could create a single non-blocking pipe for all signals. When a signal was handled, the signal number would be written to that pipe as a single byte. Third-party libraries, like pygtk, could poll the appropriate file descriptor, waking up and handing control back to Python when a signal was received. There were some disadvantages to this approach, e.g. if there is a large burst of signals, some of them would be lost, but folks seemed to think that these kinds of things would not cause many real-world problems. Gustavo and Adam then worked out the code in a little more detail.
+
+The `Py_signal_pipe patch`_ was posted to SourceForge.
+
+.. _Py_signal_pipe patch: http://bugs.python.org/1564547
+
+Contributing thread:
+
+- `Signals, threads, blocking C functions <http://mail.python.org/pipermail/python-dev/2006-September/068569.html>`__
+
+------------------------
+API for str.rpartition()
+------------------------
+
+Raymond Hettinger pointed out that in cases where the separator was not found, ``str.rpartition()`` was putting the remainder of the string in the wrong spot, e.g. ``str.rpartition()`` worked like::
+
+    'axbxc'.rpartition('x') == ('axb', 'x', 'c')
+    'axb'.rpartition('x') == ('a', 'x', 'b')
+    'a'.rpartition('x') == ('a', '', '')  # should be ('', '', 'a')
+
+Thus code that used ``str.rpartition()`` in a loop or recursively would likely never terminate. Raymond checked in a fix for this, spawning an enormous discussion about how the three bits ``str.rpartition()`` returns should be named.  There was widespread disagreement on which side was the "head" and which side was the "tail", and the only unambiguous one seemed to be "left, sep, right". Raymond and others were not as happy with this version because it was no longer suggestive of the use cases, but it looked like this might be the best compromise.
+
+Contributing threads:
+
+- `Problem withthe API for str.rpartition() <http://mail.python.org/pipermail/python-dev/2006-September/068565.html>`__
+- `Fwd: Problem withthe API for str.rpartition() <http://mail.python.org/pipermail/python-dev/2006-September/068615.html>`__
+
+---------------
+Unicode Imports
+---------------
+
+Kristján V. Jónsson submitted a `unicode import patch`_ that would allow unicode paths in sys.path and use the unicode file API on Windows. It got a definite "no" from the Python 2.5 release managers since it was already too late in the release process. Nonetheless there was a long discussion about whether or not it should be considered a bug or a feature. Martin v. Löwis explained that it was definitely a feature because it would break existing introspection tools expecting things like __file__ to be 8-bit strings (not unicode strings as they would be with the patch).
+
+.. _unicode import patch: http://bugs.python.org/1552880
+
+Contributing thread:
+
+- `Unicode Imports <http://mail.python.org/pipermail/python-dev/2006-September/068686.html>`__
+
+-------------------------
+Exception and __unicode__
+-------------------------
+
+Marcin 'Qrczak' Kowalczyk reported a `TypeError from unicode()`_ when applied to an Exception class. Brett Cannon explained the source of this: BaseException defined a ``__unicode__`` descriptor which was complaining when it was handed a class, not an instance. The easiest solution seemed to be the best for Python 2.5: simply rip out the ``__unicode__`` method entirely. M.-A. Lemburg suggested that for Python 2.6 this should be fixed by introducing a tp_unicode slot.
+
+.. _TypeError from unicode(): http://bugs.python.org/1551432
+
+Contributing thread:
+
+- `2.5 status <http://mail.python.org/pipermail/python-dev/2006-September/068607.html>`__
+
+--------------------------
+Slowdown in inspect module
+--------------------------
+
+Fernando Perez reported an enormous slowdown in Python 2.5's inspect module. Nick Coghlan figured out that this was a result of ``inspect.findsource()`` calling ``os.path.abspath()`` and ``os.path.normpath()`` repeatedly on the module's file name. Nick provided a `patch to speed things up`_ by caching the absolute, normalized file names.
+
+.. _patch to speed things up: http://bugs.python.org/1553314
+
+Contributing thread:
+
+- `inspect.py very slow under 2.5 <http://mail.python.org/pipermail/python-dev/2006-September/068656.html>`__
+
+--------------------------------
+Cross-platform float consistency
+--------------------------------
+
+Andreas Raab asked about trying to minimize some of the cross-platform differences in floating-point calcuations, by using something like fdlibm_. Tim Peters pointed him to a `previous thread on this issue`_ and suggested that best route was probably to package a Python wrapper for fdlibm_ and see how much interest there was.
+
+.. _fdlibm: http://www.netlib.org/fdlibm/
+.. _previous thread on this issue: http://mail.python.org/pipermail/python-list/2005-July/290164.html
+
+Contributing thread:
+
+- `Cross-platform math functions? <http://mail.python.org/pipermail/python-dev/2006-September/068599.html>`__
+
+-----------------------------------
+Refcounting and errors in functions
+-----------------------------------
+
+Mihai Ibanescu pointed out that refcount status for functions that can fail is generally poorly documented. Greg Ewing explained that refcounting behavior should be independent of whether the call succeeds or fails, but it was clear that this was not always the case. Mihai promised to file a low-severity bug so that this problem wouldn't be lost.
+
+Contributing thread:
+
+- `Py_BuildValue and decref <http://mail.python.org/pipermail/python-dev/2006-September/068708.html>`__
+
+------------
+Python 2.3.6
+------------
+
+Barry Warsaw offered to push out a Python 2.3.6 if folks were interested in getting some bugfixes out to the platforms which were still running Python 2.3.  After an underwhelming response, he retracted the offer.  (Stay tuned though - more on 2.3.6 in future summaries.)
+
+Contributing threads:
+
+- `Interest in a Python 2.3.6? <http://mail.python.org/pipermail/python-dev/2006-August/068520.html>`__
+- `Interest in a Python 2.3.6? <http://mail.python.org/pipermail/python-dev/2006-September/068731.html>`__
+- `Python 2.4.4 was: Interest in a Python 2.3.6? <http://mail.python.org/pipermail/python-dev/2006-September/068737.html>`__
+
+-----------------------------------
+Effbot Python library documentation
+-----------------------------------
+
+Johann C. Rocholl asked about the status of http://effbot.org/lib/, Fredrik Lundh's alternative format and rendering for the Python library documentation. Fredrik indicated that due to the pushback from some folks on python-dev, they've been working mainly "under the radar" on this. (At least until some inconsiderate soul put them in the summary...) ;-)
+
+Contributing threads:
+
+- `That library reference, yet again <http://mail.python.org/pipermail/python-dev/2006-August/068556.html>`__
+- `That library reference, yet again <http://mail.python.org/pipermail/python-dev/2006-September/068561.html>`__
+
+
+================
+Deferred Threads
+================
+- `IronPython and AST branch <http://mail.python.org/pipermail/python-dev/2006-September/068778.html>`__
+
+
+==================
+Previous Summaries
+==================
+- `Py2.5 issue: decimal context manager misimplemented, misdesigned, and misdocumented <http://mail.python.org/pipermail/python-dev/2006-September/068564.html>`__
+- `Error while building 2.5rc1 pythoncore_pgo on VC8 <http://mail.python.org/pipermail/python-dev/2006-September/068582.html>`__
+- `gcc 4.2 exposes signed integer overflows <http://mail.python.org/pipermail/python-dev/2006-September/068602.html>`__
+- `no remaining issues blocking 2.5 release <http://mail.python.org/pipermail/python-dev/2006-September/068606.html>`__
+- `new security doc using object-capabilities <http://mail.python.org/pipermail/python-dev/2006-September/068673.html>`__
+
+
+===============
+Skipped Threads
+===============
+- `A test suite for unittest <http://mail.python.org/pipermail/python-dev/2006-September/068558.html>`__
+- `Fwd: [Python-checkins] r51674 - python/trunk/Misc/Vim/vimrc <http://mail.python.org/pipermail/python-dev/2006-September/068562.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-September/068567.html>`__
+- `Windows build slave down until Tuesday-ish <http://mail.python.org/pipermail/python-dev/2006-September/068573.html>`__
+- `[Python-checkins] TRUNK IS UNFROZEN, available for 2.6 work if you are so inclined <http://mail.python.org/pipermail/python-dev/2006-September/068605.html>`__
+- `Exception message for invalid with statement usage <http://mail.python.org/pipermail/python-dev/2006-September/068665.html>`__
+- `buildbot breakage <http://mail.python.org/pipermail/python-dev/2006-September/068671.html>`__
+- `Change in file() behavior in 2.5 <http://mail.python.org/pipermail/python-dev/2006-September/068678.html>`__
+- `'with' bites Twisted <http://mail.python.org/pipermail/python-dev/2006-September/068681.html>`__
+- `What windows tool chain do I need for python 2.5 extensions? <http://mail.python.org/pipermail/python-dev/2006-September/068709.html>`__
+- `2.5c2 <http://mail.python.org/pipermail/python-dev/2006-September/068742.html>`__
+- `_PyGILState_NoteThreadState should be static or not? <http://mail.python.org/pipermail/python-dev/2006-September/068743.html>`__
+- `BRANCH FREEZE: release25-maint, 00:00UTC 12 September 2006 <http://mail.python.org/pipermail/python-dev/2006-September/068745.html>`__
+- `datetime's strftime implementation: by design or bug <http://mail.python.org/pipermail/python-dev/2006-September/068747.html>`__
+- `Subversion 1.4 <http://mail.python.org/pipermail/python-dev/2006-September/068761.html>`__
+- `RELEASED Python 2.5 (release candidate 2) <http://mail.python.org/pipermail/python-dev/2006-September/068766.html>`__
+- `Maybe we should have a C++ extension for testing... <http://mail.python.org/pipermail/python-dev/2006-September/068768.html>`__
+- `.pyc file has different result for value "1.79769313486232e+308" than .py file <http://mail.python.org/pipermail/python-dev/2006-September/068769.html>`__
+- `release is done, but release25-maint branch remains near-frozen <http://mail.python.org/pipermail/python-dev/2006-September/068773.html>`__
+- `fun threading problem <http://mail.python.org/pipermail/python-dev/2006-September/068774.html>`__
+- `Thank you all <http://mail.python.org/pipermail/python-dev/2006-September/068779.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+September 01, 2006 through September 15, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 12th written by 
+Steve Bethard. 
+
+To contact me, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

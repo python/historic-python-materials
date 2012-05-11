@@ -1,0 +1,108 @@
+Title: Python-dev summary: 2001-03-29 to 2001-04-11
+
+<pre>
+ This is a summary of traffic on the python-dev mailing list between
+ Mar 29 and Apr 11 (inclusive) 2001.  It is intended to inform the
+ wider Python community of ongoing developments.  To comment, just
+ post to python-list@python.org or comp.lang.python in the usual
+ way. Give your posting a meaningful subject line, and if it's about a
+ PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep
+ iteration) All python-dev members are interested in seeing ideas
+ discussed by the community, so don't hesitate to take a stance on a
+ PEP if you have an opinion.
+
+ This is the fifth summary written by Michael Hudson.
+ Summaries are archived at:
+
+  <a href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a>
+
+   Posting distribution (with apologies to mbm)
+
+   Number of articles in summary: 166
+
+    25 |                                                 [|]    
+       |                                 [|]             [|]    
+       |                                 [|]             [|]    
+       |                                 [|]             [|]    
+    20 |     [|]                         [|]             [|]    
+       |     [|]                         [|]             [|]    
+       |     [|]                         [|]             [|]    
+       |     [|]                         [|]             [|]    
+    15 |     [|]                         [|]         [|] [|]    
+       |     [|]                         [|]         [|] [|]    
+       |     [|]                         [|]         [|] [|]    
+       |     [|]             [|]     [|] [|]         [|] [|]    
+    10 |     [|]             [|]     [|] [|] [|]     [|] [|]    
+       |     [|]             [|]     [|] [|] [|]     [|] [|]    
+       |     [|]             [|]     [|] [|] [|]     [|] [|]    
+       |     [|]             [|] [|] [|] [|] [|]     [|] [|] [|]
+     5 |     [|]     [|]     [|] [|] [|] [|] [|] [|] [|] [|] [|]
+       |     [|]     [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|]
+       | [|] [|]     [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|]
+     0 +-003-022-002-006-005-013-007-013-026-012-006-017-027-007
+        Thu 29| Sat 31| Mon 02| Wed 04| Fri 06| Sun 08| Tue 10|
+            Fri 30  Sun 01  Tue 03  Thu 05  Sat 07  Mon 09  Wed 11
+
+ Not much traffic this fortnight.  As ever, lots of bug-fixing for
+ 2.1.  If all goes to plan, I won't be able to say that in the next
+ summary!
+
+
+    * Assigning to __debug__ *
+
+ About 2 weeks ago, changes were checked in that made assignments to
+ the magic variable __debug__ SyntaxErrors.  Martin von Loewis pointed
+ out that this would probably break code, and thus not be well
+ received:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-March/013995.html">http://mail.python.org/pipermail/python-dev/2001-March/013995.html</a>&gt;
+
+ There was general agreement, and it was decided that the error would
+ be reduced to a warning.  Code to this effect has now been checked
+ in.
+
+
+    * Inverse string interpolation *
+
+ Peter Funk posted a proposal for using the "/" operator on strings as
+ a kind of dual to "%", i.e. be to "%" what "scanf" is to "printf" in
+ C:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-April/014027.html">http://mail.python.org/pipermail/python-dev/2001-April/014027.html</a>&gt;
+
+ There was muted approval for the idea, but less so for the spelling.
+ Of course "scanf" isn't much better unless you've programmed in C...
+ It's possible that this functionality will be somewhere in Python 2.2
+ (though builtin, module, infix operator or string method is still to
+ be decided, and it might be conditional on someone coming up with a
+ good name!).
+
+
+    * Line endings *
+
+ A recurring theme (with a pretty long period) cropped up again: that
+ of line endings in Python source code.  The thread stars here:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-April/014090.html">http://mail.python.org/pipermail/python-dev/2001-April/014090.html</a>&gt;
+
+ At present, one cannot import a file with Unix line endings on the
+ Macintosh.  While it would be relatively straightforward to bodge the
+ compiler into accepting any of \n, \r or \r\n as a line terminator,
+ this would not entirely solve the problem; for instance linecache.py
+ in the standard library would need to be fixed.
+
+ One option would be to implement a wrapper around file objects that
+ would make .readline() work with all line endings.  However, this
+ would be entertainingly difficult to get right on all platforms...
+
+ You author hopes resolution is near, but admits to being slightly
+ confused about the details!
+
+
+    * Release schedule *
+
+ A release candidate for Python 2.1 should be released tomorrow (the
+ 13th), and if all goes well, the final release will be on Monday (the
+ 16th).  Fingers crossed everyone!
+</pre>

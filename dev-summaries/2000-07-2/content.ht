@@ -1,0 +1,181 @@
+Title: Python-dev summary: 2000-07-16 to 2000-07-31
+
+<pre>
+Dawn began to break on the licensing situation; a meeting of the
+Python Consortium was held on July 21, the day after the O'Reilly Open
+Source Conference.  In this posting, Guido reported on a proposed
+license, a new home for python.org at SourceForge, and the release
+plans for Python 1.6 and 2.0:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/007112.html">http://mail.python.org/pipermail/python-dev/2000-July/007112.html</a>
+
+Guido's posting contained the license text in Microsoft Word format
+(lawyers aren't big on plain text).  Tim Peters posted the license
+text as it stood on July 22; it's been changed a bit since then and
+still isn't finished as of this writing, but it'll give you the
+general idea:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/007121.html">http://mail.python.org/pipermail/python-dev/2000-July/007121.html</a>
+
+It is believed that the license meets the Open Source Initiative's
+criteria, though a final decision will have to wait until the license
+text is finalized and the OSI board meets to approve the license.
+
+====================================
+
+Moving on to technical matters...
+
+A lot of Python's syntax comes from C.  One confusing bit of C syntax
+is \x escapes in strings.  A \x escape consumes all the hex digits
+that follow it, but only uses the lowest 8-bits.  For example,
+'\x12fe' is the same as '\xfe', and both produce 1-character strings
+containing ASCII character 254.  This can lead to confusion, if you
+write something like '\x0dEvents', since you wind up with character 22
+followed by 'vents'.  /F wondered about what \x should do in Unicode
+strings, which already support a \uNNNN escape that takes exactly 4
+hex digits:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/006606.html">http://mail.python.org/pipermail/python-dev/2000-July/006606.html</a>
+
+Tim Peters argued "\x is a hack inherited from the last version of C,
+put in back when they knew they had to do *something* to support "big
+characters" but had no real idea what."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/006715.html">http://mail.python.org/pipermail/python-dev/2000-July/006715.html</a>
+
+Fast forwarding a bit, a few days into August Tim suggested
+introducing a minor backward incompatibility and removing this
+behaviour, making \x always take exactly two hex digits:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-August/007825.html">http://mail.python.org/pipermail/python-dev/2000-August/007825.html</a>
+
+Reaction was generally positive -- no one likes this magical behaviour
+of consuming characters and then ignoring them -- but no patch has
+been checked in yet.
+
+====================================
+
+Another thread worried about binary incompatibility between 1.5.2 and
+2.0 on Windows; on Windows, attempting to import a third party
+extension built for Python 1.5.x will usually result in an immediate
+crash due to DLL versioning issues.  Gordon McMillan explained the
+cause of the crash:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/006696.html">http://mail.python.org/pipermail/python-dev/2000-July/006696.html</a>
+
+Barry Scott proposed a scheme to avoid crashing:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/005880.html">http://mail.python.org/pipermail/python-dev/2000-July/005880.html</a>
+
+Reaction to the proposal wasn't favorable, since it requires many
+changes to extension modules in order to fix a problem that only
+occurs on Windows; general opinion seemed to be that the problem isn't
+worth the pain of fixing it.
+
+====================================
+
+Barry Warsaw proposed an extended syntax for the print statement:
+"My proposal is to allow `@' after the print keyword using syntax
+such as: 'print @ sys.stderr, "hello"' "
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/007088.html">http://mail.python.org/pipermail/python-dev/2000-July/.html</a>
+
+This thread went on for a long while, and sparked some meta-discussion
+of the new python-dev environment, and some developers' concern that
+too much language extending is going on, and not enough basic work.
+
+Barry Warsaw: "We propose solutions or enhancements to the language
+that of course, everybody should immediately agree on.  But we never
+get consensus.  Given the size of the developer community, and the
+diversity of applications and experience, we never will on any of
+these features."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/007185.html">http://mail.python.org/pipermail/python-dev/2000-July/007185.html</a>
+
+/F: "yeah, but what concerns me here is that we're talking about a
+release within 4-6 weeks, but we don't even have all the PEPs
+in place..."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/007212.html">http://mail.python.org/pipermail/python-dev/2000-July/007212.html</a>
+
+====================================
+
+A puzzling bug affecting Linux and test_fork1.py has been driving
+people nuts; sometimes, but not always, the test will simply hang.
+The bug is most visible on SMP Linux machines, though it also happens
+on single-processor Linux, and seems to be some interaction between
+fork() and threads.  Trent Mick summarized the symptoms:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/007556.html">http://mail.python.org/pipermail/python-dev/2000-July/007556.html</a>
+
+Neil Schemenauer posted a smaller program that demonstrates a bug.
+It's not clear if this is the same as the test_fork1 bug, or a
+different one:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/007496.html">http://mail.python.org/pipermail/python-dev/2000-July/007496.html</a>
+
+Tim Peters theorized about a possible cause:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/007565.html">http://mail.python.org/pipermail/python-dev/2000-July/007565.html</a>
+
+Any Linux threading gurus care to help?
+
+====================================
+
+Mitchell Morris wrote up a list of reasons to add a unit testing module
+to the standard library:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/007642.html">http://mail.python.org/pipermail/python-dev/2000-July/007642.html</a>
+
+Jeremy Hylton asked for a volunteer to assess the different 
+testing frameworks available:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/006425.html">http://mail.python.org/pipermail/python-dev/2000-July/006425.html</a>
+
+Trent Mick also proposed a C testing framework to test Python's C API:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/007455.html">http://mail.python.org/pipermail/python-dev/2000-July/007455.html</a>
+
+====================================
+
+A discussion of the augmented assignment patch led to consideration of
+the Python virtual machine.  M.A. Lemburg dug out a histogram of
+the frequency of Python VM opcodes:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/007609.html">http://mail.python.org/pipermail/python-dev/2000-July/007609.html</a>
+
+Vladimir Marangozov tried a few optimizations, and got 1 or 2% improvement,
+but subtle caching effects seem to still be involved:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/007669.html">http://mail.python.org/pipermail/python-dev/2000-July/007669.html</a>
+
+====================================
+
+Small bits:
+
+Discussion of PEP 201, the suggestion to add zip() for lockstep
+iteration over a list, continued for a while during this two-week
+period.  It was brought to an end by GvR's ruling that the new
+built-in will be named zip(), after the similarly-named function in
+Haskell.  The slight chance of confusion with the ZIP compression
+format is deemed irrelevant.
+
+Vladimir Marangozov suggested adding the pymalloc object allocator to
+Python; "It's basically a VMM aware, generalized free list
+implementation which handles dynamically small mem blocks (small =
+under 64 bytes for combos with 4-byte pointers). This accounts for &gt;95% 
+of all object structs allocated by Python."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/007060.html">http://mail.python.org/pipermail/python-dev/2000-July/007060.html</a>
+
+Peter Schneider-Kamp has been maintaining the HTML pages for the
+SourceForge Python page, and announced HTML versions of the Python
+Enhancement Proposals, thanks to a pep2html converter from /F (does
+the man ever sleep?).
+        <a href="http://python.sourceforge.net/peps">http://python.sourceforge.net/peps</a>   
+
+/F explained how his patch to compress the Unicode name database works:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/006722.html">http://mail.python.org/pipermail/python-dev/2000-July/006722.html</a>
+
+/F also suggested a pragma for specifying an encoding for Python source code:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-July/006921.html">http://mail.python.org/pipermail/python-dev/2000-July/006921.html</a>
+
+SourceForge's patch manager sends out rather uninformative e-mail
+notifications containing just a title and a URL.  Ka-Ping Yee wrote a
+script to take these e-mails and scrape the URL to produce a better
+e-mail message.  This script is now being used on the
+patches@python.org list.
+
+The bsddb module included in Python only really supports BSDDB 1.85.
+It was suggested to replace it with a version that supports BerkeleyDB
+3.x, but the existing module by Robin Dunn uses SWIG, and SWIG stores
+pointers as strings, a useful but potentially risky kludge (you could
+make Python dump core by creating a bogus pointer string).  Writing a
+new module for 3.x was suggested; no one clearly volunteered to write
+it.
+
+AMK created a SourceForge project for the HOWTOs:
+        <a href="http://py-howto.sourceforge.net">http://py-howto.sourceforge.net</a>
+</pre>
+

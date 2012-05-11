@@ -1,0 +1,278 @@
+<TITLE>Persistent Objects in Python</TITLE>
+
+<H1>Persistent Objects in Python</H1>
+
+I've come to realize that object persistency means different things to
+different people.  In order of ascending complexity of implementation
+we can distinguish:
+
+<DL>
+
+<DT>Serialization:
+
+<DD> Encoding a collection of objects as a stream of bits or bytes so
+the collection can be reconstructed later.  Also called "pickling"
+(e.g. in Modula-3).  The Python "marshal" module is an example of a
+limited serialization module.  Some problems it doesn't handle:
+recursive objects, shared objects (objects occurring in more than one
+place), non-standard objects (like open sockets or instances of
+user-defined classes).  I have several ideas on how to make a more
+powerful serialization module for Python which solves these problems.
+Note that serialization is not limited to saving objects on files: it
+may also be used to pass objects between processes in a distributed
+environment, e.g. as arguments to remote procedure calls (RPCs).
+
+<DT> Persistent heap:
+
+<DD> Making all or some objects "survive" the current process.  This
+is usually done by serializing all or selected objects to a disk file
+at process termination or when the program feels like making a
+checkpoint (it could also be done continuously).  Generally, this
+also involves inventing persistent names for objects, so they can be
+reloaded selectively (you generally don't want to "swap in" the entire
+persistend heap at the next program startup).
+
+<DT> Shared persistent heap:
+
+<DD> Like a persistent heap, but including a locking strategy so
+multiple processes (possibly distributed over the network) can access
+objects in the persistent heap concurrently and consistently.
+Problems are the granularity of sharing (if process A changes a bit in
+an object, when will process B see the change?) and locking protocols
+(are multiple processes allowed to modify the same object
+simultaneously?  can an object being read while another process is
+modifying it?).  Depending on the sharing and locking properties of
+the chosen solution, efficiency may also become a problem.
+
+</DL>
+
+<H2>Serialization</H2>
+
+Quite interesting applications can be written using just a more
+powerful serialization module:
+
+<UL>
+
+<LI> Example: I have a simulation program that can run for almost
+indefinite time.  After each (major) step I dump a checkpoint of the
+simulation to a file.  When the simulation is stopped (by accident or
+on purpose) and later restarted, it reads the current state of the
+simulation from the latest checkpoint file.  Since my state is just a
+collection of objects, a serialization module would have come in real
+handy -- unfortunately I use classes to represent my state so
+"marshal" didn't cut it.  It is also useful to save each checkpoint on
+a separate file, so I can print out detailed status reports about
+particular checkpoint later.
+
+<LI> Another example would be a Python-to-Python RPC protocol.  A
+"proxy" class running in the client could define "stub" methods that
+would be callable just like ordinary methods but which would actually
+pack up (i.e. serialize) their arguments in a marshalling buffer, ship
+the buffer to the server, and wait for the result.  The server would
+unpack the arguments, make the real call, and ship its return value
+back as a serialized object again.  Finally the stub in the client
+would receive this, convert it back into a normal object, and return
+that.  The caller in the client wouldn't notice the different with a
+local call (except for speed and possibly network-related exceptions).
+(One other difference: sharing of objects between arguments and return
+value, or between successive calls, would probably not be possible --
+most RPC protocols have pure value semantics.  It may be possible to
+support sharing in a sufficiently powerful serialization protocol.)
+
+</UL>
+
+One problem with using the marshal module to serialize objects is
+exemplified by the following code fragment:
+
+<PRE>
+&gt;&gt;&gt; a = [1, 2, 3]
+&gt;&gt;&gt; b = [a, a]
+&gt;&gt;&gt; b[0] is b[1]
+1
+&gt;&gt;&gt; import marshal
+&gt;&gt;&gt; serialization = marshal.dumps(b)
+&gt;&gt;&gt; b1 = marshal.loads(serialization)
+&gt;&gt;&gt; b == b1
+1
+&gt;&gt;&gt; b1[0] is b1[1]
+0
+&gt;&gt;&gt; b[0].append(4)
+&gt;&gt;&gt; b1[0].append(4)
+&gt;&gt;&gt; b == b1
+0
+&gt;&gt;&gt; print b
+[[1, 2, 3, 4], [1, 2, 3, 4]]
+&gt;&gt;&gt; print b1
+[[1, 2, 3, 4], [1, 2, 3]]
+&gt;&gt;&gt; 
+</PRE>
+
+-- in other words, before marshalling b its two elements were provably
+the same object, but after unmarshalling we have a list of two
+different objects (whose value is the same).  Not only is this less
+efficient (the value of a is marshalled twice) but also are the
+semantics are different: b[0].append(4) has a different effect on the
+value of b than b1[0].append(4) has on the value of b1.
+
+<P> This problem is easily solved by using a bottom-up serialization
+algorithm which assigns unique (within a particular serialization
+context) identifiers (uids) to each object and allows references to
+objects by their uid.
+
+<P> A harder problem is that of marshalling user-defined class
+instances and certain built-in objects like open files or sockets.
+
+<P> There are two problems with marshalling class instances: (1) how
+to find the class at unmarshal time, and (2) how to create an instance
+of it, given the possibility that it has a constructor method
+(__init__) requiring arguments.
+
+<P> Re (1): marshalling the class itself would be a possibility.  This
+would even seem quite logical if we require marshalling (serializing)
+to follow all pointers out of an object -- the instance contains a
+pointer to the class, after all.  However, there are two reasons why I
+don't like this: first, classes are often quite big (marshalling the
+class would imply marshalling the code for all its methods and base
+classes); second, I want to be able to load the instances back into a
+process that has a modified version of the class (e.g. one with a bug
+fixed).
+
+<P> A simple solution that will work in most (but not all!) cases is
+to indicate the class to which a marshalled instance belongs by a
+(modulename, classname) pair.  The unmarshalling code can then import
+the module (if it hasn't been imported yet) and extract the class from
+it in order to create a new instance.
+
+<P> Since classes may be created dynamically, knowing a class' name
+and even the module in which it was created are not necessarily
+sufficient to be able to uniquely identify it.  However this is
+sufficiently rare that it is probably acceptable to disallow
+marshalling instances of such dynamically created classes.
+
+<P> A minor sub-problem is how to find the module name given only the
+class instance (the class name is found as x.__class__.__name__).  I
+suggest that the class creation code is modified to automatically add
+the module name to the class, so it can be accessed as
+x.__class__.__module__.  In a prototype implemented in Python without
+modifications to the interpreter, we can scan the class dictionary for
+functions (i.e. methods) -- a function object contains a pointer to
+its globals which by definition is the dictionary of the containing
+module (and the key '__name__' in that dictionary gives the module
+name).
+
+<P> Re (2): A pragmatic solution would be to only allow marshalling
+class instances whose constructor accepts an empty argument list.
+This means that the constructor is called by the unmarshalling process
+to create an empty instance, after which the instance variables are
+filled in one by one through normal attribute assignments.  (In a
+prototype implemented in unmodified Python, we have no other choice
+than to do it this way.)
+
+<P> A problem with this approach is that it requires a lot of extra
+work: the constructor probably assigns default values to all instance
+variables, which are then overwritten by the unmarshalled values.  It
+also won't work if the class traps attribute assignments using
+a __setattr__ method (or a class-wide access statement).
+
+<P> This could be solved by adding a low-level class instantiation
+function which does not call the constructor.  The unmarshalling code
+could then extract __dict__ from the "virginal" object and place
+instance variables in it.  In order to allow the class some control
+over unmarshalled objects, it could define a __finalize__ method which
+would be called (if it existed) to finish the initialization.  (This
+may be necessary e.g. when the class wants to keep a list or count of
+its instances, or if the instance needs to be linked up to some
+outside entity such as a UNIX file descriptor or an electric switch.)
+
+<P> Some more things: (3) how to marshal built-in objects like open
+files, sockets, windows; (4) can't we provide a way for user-defined
+classes to override the serialization -- this seems much more powerful
+than only having a hook for __finalize__; (5) how about marshalling
+objects that are internal to the interpreter such as stack frames,
+tracebacks and modules.
+
+<P> Re (3): Such objects usually have some of their relevant "state"
+stored in tables that reside in the operating system kernel.  In
+general it is hopeless to try to restore this -- you may be able to
+save and restore the filename, seek position and read/write mode of a
+disk file, assuming you will be unmarshalling in the same environment,
+but "special files", sockets and windows are usually only meaningful
+after a handshake with some server process.  I propose that these
+object types are marshalled as some kind of placeholder (maybe a
+"closed" object of the appropriate variety) so a __finalize__ method
+can be written that attempts to renegotiate the connection.  (Raising
+an exception at either marshal or unmarshal time would be rather
+antisocial -- in many cases marshalling will be used to save a copy of
+important data before dying, and it should be appropriately robust.)
+
+<P> Re (4): I think not -- this would break robustness.  (Note however
+that we must allow built-in object types to override the marshalling
+code -- this is an interesting problem in itself since built-in types
+may be created by dynamically loaded modules.)
+
+<P> Re (5): "live" stack frames will no longer be alive after
+unmarshalling, but can still be inspected.  Both stack frames and
+tracebacks (which contain stack frames) can point to the globals in a
+module.  Part of me says that these dictionaries should be marshalled
+as if they were ordinary objects (and if the 2nd/3rd arguments to exec
+or eval() are used, they needn't belong to a module at all).  Part of
+me says that this will be too expensive and that it's better to link
+them to the corresponding modules in the unmarshalling process -- if
+only because this is also done for class instances.
+
+<H2>Persistent Heap</H2>
+
+A persistent heap takes away most of the headache of file management
+used in the first example above.  However if all you have is a
+persistent heap mapped to a file (or a directory) in the file system,
+you lose the ability to use this for an elegant general RPC protocol.
+I propose to skip this step and move straight into the design of a
+shared persistent heap.
+
+<P> Anders Lindstrom has written a nice <A
+HREF="http://www.gh.cs.su.oz.au/Users/anders/python/pos.html">
+prototype of a persistent heap </A> (and this without looking at these
+notes :-).
+
+<H2>Shared Persistent Heap</H2>
+
+Some quick notes: 
+
+<UL>
+
+<LI> One would like to be able to have multiple independent shared
+persistent heaps, possibly using different access methods and locking
+protocols.  E.g.
+
+<PRE>
+import SharedMemoryHeap
+import RemoteServerHeap
+heap1 = SharedMemoryHeap('<shmemid1>')
+heap2 = RemoteServerHeap('<hostname1>:<port1>')
+heap3 = RemoteServerHeap('<hostname2>:<port2>')
+foo1 = heap1.create('foo')
+foo2 = heap2.create('foo')
+bar1 = heap1.load('bar', READONLY)
+bar2 = heap2.load('bar', READWRITE)
+...
+foo1.commit()    # commit this particular object
+heap2.commit()   # commit all modified objects on this heap
+</PRE>
+
+<LI> Different locking protocols may affect the performance and
+semantics as well as the correctness of a distributed program
+implemented using a shared heap.  They also affect the interface --
+some locking protocols require explicit lock and unlock or
+commit/rollback calls, while others do things more implicitly
+(e.g. the object could reside in a server which receives RPCs from a
+proxy in the client).  Assigning mutable objects to instance variables
+and then modifying these mutable objects without ever telling the
+server may or may not be a problem.
+
+</UL>
+
+That's all for now...
+
+<PRE>
+<A HREF="http://www.cwi.nl/cwi/people/Guido.van.Rossum.html">--Guido van Rossum, CWI, Amsterdam</A>
+</PRE>

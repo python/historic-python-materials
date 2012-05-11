@@ -1,0 +1,216 @@
+<HEAD>
+<TITLE> Issues in Building Ariel - OpenGL and Python to C</TITLE>
+</HEAD>
+
+<BODY>
+<h1> Building Ariel - OpenGL GUI and Python to C </h1>
+
+<strong>Submitted for the June 1996 Python Workshop by <a href="mailto:hugunin@mit.edu">Jim Hugunin</a></strong>
+
+<h2> Ariel - A Language Based User Interface </h2>
+
+<p> Ariel is a research project to investigate the design of user
+interfaces that go beyond the standard mouse and keyboard input
+modalities.  It aims to take advantage of natural means of
+communication such as speech, gestures, and facial expressions.  The
+challenge is to understand the properties of these new modalities and
+to uncover the appropriate interface elements to use with them.
+
+<p> Under any of the current window systems, a set of standard
+elements are used for building a user interface.  This includes items
+like buttons, menus, scrollbars, and dialog boxes.  These items have
+been stable for many years with a few changes like adding hyper-links
+and image-maps as new basic elements that most user understand.  There
+are also a number of concepts common to these interfaces.  Things like
+"cut and paste" and "drag and drop".
+
+<p> Many people are attempting to take these same elements and implement
+them using spoken language systems.  Ideas like "speakable links"
+where the user can say the words of a hyperlink instead of clicking
+on it, or voice menus where the user can speak the items in a
+traditional menu instead of using the mouse in the typical fashion,
+are the standard approach to this problem.  These interfaces lead to
+praise such as that found in a recent Time Magazine review of IBM's
+latest VoiceType software.
+
+<p> <em> "During our demo the system was impressive, though not yet easier
+than using a mouse." </em> Time, May 13, 1996
+
+<p> I feel that the great lesson to be drawn from all this is that
+speech recognition makes a lousy mouse.  Speech (and the other
+elements of language based interfaces) differs from mice and keyboards
+in at least two fundamental ways.  First, these interfaces are
+inherently noisy.  It is almost never possible to guarantee any
+behavior of such a system with less than a 5% error rate.  Second,
+these systems are extremely expressive.  Humans have been using
+gestures and language to communicate with each other.  These differing
+requirements insist that a new set of basic interface elements be
+discovered.
+
+<p> Ariel is a project to discover these primitives by building a
+prototype system and working with it every day.  The thoroughly
+overused personal information management task was chosen because of
+its reasonable size and complexity, as well as the fact that almost
+everyone uses some version of such a system every day.
+
+<p> The project is currently 4 months old.  It consists of minimal
+e-mail and web browsing capabilities.  The basic user interface
+elements at the moment are the same ones as are found in other similar
+systems.  (Well, you have to start somewhere).
+
+
+<h2> The Quest for a Graphics API </h2>
+
+<p> Building a system for research into user interfaces has given me
+the opportunity to investigate the great variety of graphical modules
+available for python.  I currently have python binaries installed with
+the following GUI's.
+
+<ul>
+<li>TkInter
+<li>Rivet
+<li>WXWindows
+<li>WPY
+<li>PythonWin
+<li>X11/Motif
+<li>OpenGL
+</ul>
+
+<p>Almost all of these systems (with the exception of OpenGL) make it
+fairly easy to create a standard GUI under python.  Many of them can
+even produce code that is portable between different operating
+systems, and some even run with the appropriate native look and feel.
+
+<p>However, I'm not interested in the elements of a standard GUI.  If I
+thought that these were the appropriate elements, then that's what I'd
+be using.  What I wanted in a graphics system is as follows:
+
+<ul>
+<li>System Independent
+<li>Generality
+<li>NOT Native Look and Feel
+<li>Speed
+<li>3D would be nice
+</ul>
+
+<p>The X11 and PythonWin systems are platform specific, so they fail the
+test immediately.  TkInter, Rivet, and WPY are all based on Tk (at
+least under X).  In order to get the sort of generality I desire under
+Tk, you must use the canvas object.  This is unfortunately much to
+slow to do anything useful.  WXWindows was the most promising of the
+candidates that I looked at (other than OpenGL); however, I found that
+its great pains to maintain native look-and-feel (which is a big plus
+to most people) were a big hinderance to my plans.
+
+<h3>What is OpenGL?</h3>
+
+<p><em>"The OpenGL graphics system is a software interface to graphics
+hardware.  It allows you to create interactive programs that produce
+color images of moving three-dimensional (and two-dimensional)
+objects."</em> - OpenGL Programming Guide
+
+
+<p>Open GL is a portable graphics standard, currently supported on all
+major computer platforms.  Because the high-performance implementation
+of OpenGL can be expensive on some platforms, it is reassuring that a
+freely available implementation of the OpenGL standard exists (Mesa).
+This implementation compiles almost everywhere that python does (not
+including DOS) and is an efficient implementation of the API on top of
+the native window system.
+
+<p>OpenGL is fast.  It was designed to produce "color images of moving
+three-dimensional objects."  This is an extremely computationally
+demanding operation.  Speed of the basic drawing primitives was and
+continues to be a primary motivating factor in the system's design.
+With systems that have hardware graphics acceleration, this can
+produce performance that is even faster than raw XLib coding (the
+fastest (and ugliest) of the other systems considered here).
+
+<p>The library's design is clean, easy to understand and natural to work
+with.  It gives you the power to perform the finest grained
+manipulations on the graphical output without requiring the sorts of
+obscure technical details of working with something like Xlib.
+
+
+<h2> Python to C - I feel the need for speed </h2>
+
+<p>The great thing about building this project in python has been the
+phenomenal speed with which I was able to go from nothing to a working
+prototype.  Now that I have something working, there are one or two
+chunks of code that are acting as bottle necks in the program.  The
+standard python approach is to move these speed critical blocks of
+code down into C.  
+
+<p>Having translated a fairly large amount of simple python code to C
+recently, I've noticed that much of the translation is trivial if I
+include static types in the function specification.
+
+<p>To use the most overused example of function definition, here it is
+folks, the venerable factorial function.
+
+<p><pre>
+def factorial(n):
+	if n == 0:
+		return 1
+	else:
+		return n*factorial(n-1)
+</pre>
+
+<p> Now, what does this look like in C?
+
+<p><pre>
+long py2c_Factorial_factorial(long n) {
+	if (n == 0) {
+		return 1;
+	} else {
+		return (n*py2c_Factorial_factorial( (n-1) );
+	}
+}
+</pre>
+
+<p>The reason that some of the names are a little long, and that there
+are a few more parenthesis than you might expect in such a piece of
+code is that this was automatically generated from the python source.
+Of course, the key to making this work was the addition to the python
+source file of the following single line.
+
+<p><pre>
+#DECLARE factorial:(long, long)
+</pre>
+
+<p>This tells the translation program the signature of the factorial
+function.  Without this information, doing anything useful with this
+function is virtually impossible.  Including static types in this
+manner is definately a sacrifice of python's outstanding dynamic
+properties, but it's exactly the sacrifice expected in order to
+translate to efficient C code.
+
+<p>I've just recently discovered the MESS project, and it's
+interesting to note that that framework involves similar static type
+declarations for python classes.  What it has that this work currently
+doesn't is the ability to declare a variable as a generic python
+object.  This of course sacrifices much of the speed gains of
+translating to C, so its not a top priority for me.
+
+<p>The final step in the translation to C is to produce a python
+interface to the newly generated C function so that it can be used as
+before.  This is done fairly trivially with Bgen (since the function's
+signature is known).
+
+<h3>So what exactly can I handle?</h3>
+
+<p>Obviously I haven't just created a general purpose tool for
+translating python code to C.  If I'd done that there'd have been much
+more fanfare, and I anticipate that there'd be much rejoicing
+throughout the land.  Instead, I've gone a long way towards automating
+the process of translating very simple python code to C.
+
+<p>The key idea is that static typing has its uses, and that while all
+of us love the dynamic nature of python, it can be very useful to
+abandon it at particular moments.  I've had many situations
+(particularly with my numeric code) where I've wanted to statically
+type a function, not for speed requirements, but for code reliability.
+I think that there are some interesting gains to be made by continuing
+to work in this direction.
+
+</BODY>

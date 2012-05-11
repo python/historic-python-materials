@@ -1,0 +1,419 @@
+Title: Python-dev Summary for 2005-06-16 through 2005-06-30
+Content-type: text/x-rst
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-06-16_2005-06-30.html]
+
+=====================
+Summary Announcements
+=====================
+
+------------------
+OSCON Registration
+------------------
+
+Though if you haven't yet registered, you've already missed the early registration period (which ended June 20), you should still consider taking a look at the O'Reilly Open Source Convention (OSCON). Guido assures us that "the Python program is really good!"
+
+Contributing Thread:
+
+- `Please spread the word about OSCON early reg deadline <http://mail.python.org/pipermail/python-dev/2005-June/054259.html>`__
+
+=========
+Summaries
+=========
+
+------------
+PEP Clean Up
+------------
+
+Raymond Hettinger decided to go through the `list of PEPs`_ and do some spring cleaning (late for the Northern Hemisphere, but early down south).
+
+* Rejection of `PEP 303`_ ("Extend divmod() for Multiple Divisors") was proposed on the grounds that it has been open for two and half years and hasn't generated discussion or support, is unpersuasive, and unnecessary.  No-one spoke up for it (and some against), so it is now rejected.
+
+* Rejection of `PEP 254`_ ("Making Classes Look More Like Types") was proposed on the grounds that it is only an empty stub and is unlikely to ever get filled-out.  No-one spoke up either way, and it is now rejected.
+
+* Rejection of `PEP 265`_ ("Sorting Dictionaries by Value") was proposed on the grounds that as of Python 2.4 its use case is easily solved with a one-line sorted() solution.  Several people agreed, and no-one disagreed, so the PEP is now rejcted.
+
+* Rejection of `PEP 276`_ ("Simple iterator for ints") was proposed on the grounds that the principal use case was largely met by enumerate() and that the proposed syntax was problematic.  Guido agreed, so the PEP was rejected.
+   
+* Rejection of `PEP 281`_ ("Loop Counter Iteration with range and xrange") was proposed on the grounds that it too was solved by the enumerate() built-in.  Guido agreed again, and this PEP too was rejected.
+
+* Rejection of `PEP 294`_ ("Type Names in the types Module") was proposed on the grounds that a centralized repository of type names was a mistake and that neither the "types" nor "new" modules should be carried forward to Python 3.0.  No-one disagreed, and the PEP was rejected.
+
+* Rejection of `PEP 313`_ ("Adding Roman Numeral Literals to Python" - yes, this is a real PEP!) was proposed, and the PEP was rejected.
+
+* Rejection of `PEP 336`_ ("Make None Callable") was proposed on the grounds that no support has grown beyond the original poster, and that it fails the tests of obviousness, necessity, clarity, and explicitness.  Many people, including Guido, agreed, and the PEP was rejected.
+
+* Raymond suggested updating `PEP 284`_ ("Integer for-loops"), but several people spoke up against it, including Guido, so the PEP was rejected.
+
+* Raymond asked whether `PEP 330`_ ("Python Bytecode Verification") had any known uses.  Guido said that he believes that a verification tool has some value, but if someone wants to add it to Tools/scripts, no PEP is required, so the PEP was rejected.
+
+* A.M. Kuchling volunteered to take over `PEP 206`_ ("Python Advanced Library", or the "Batteries Included" PEP) and rewrite it to describe a set of third-party packages to complement the standard library.  This was approved, and so he's now the maintainer.
+
+* Raymond suggested accepting `PEP 312`_ ("Simple Implicit Lambda"), which resulted in the most discussion of any of the PEP recommendations.  However, Guido hates the unary colon syntax, and it was decided that the PEP needs to go back to the drawing board and find a more Pythonic syntax (perhaps an alternative unary operator).  The PEP is now deferred.
+
+* Raymond asked whether `PEP 237`_ ("Unifying Long Integers and Integers") was now complete and could be marked as final.  Guido noted that it was complete for 2.x, but that phase C will be implemented in Python 3.0, as the PEP states.  He indicated that he would be fine with marking `PEP 237`_ as final and moving this phase to `PEP 3000`_; at the time of writing, this hadn't been done yet.
+
+.. _list of PEPs: http://wwww.python.org/peps    
+.. _PEP 303: http://www.python.org/dev/peps/pep-0303
+.. _PEP 265: http://www.python.org/dev/peps/pep-0265
+.. _PEP 254: http://www.python.org/dev/peps/pep-0254
+.. _PEP 276: http://www.python.org/dev/peps/pep-0276
+.. _PEP 281: http://www.python.org/dev/peps/pep-0281
+.. _PEP 294: http://www.python.org/dev/peps/pep-0294
+.. _PEP 313: http://www.python.org/dev/peps/pep-0313
+.. _PEP 336: http://www.python.org/dev/peps/pep-0336
+.. _PEP 284: http://www.python.org/dev/peps/pep-0284
+.. _PEP 330: http://www.python.org/dev/peps/pep-0330
+.. _PEP 206: http://www.python.org/dev/peps/pep-0206
+.. _PEP 312: http://www.python.org/dev/peps/pep-0312
+.. _PEP 237: http://www.python.org/dev/peps/pep-0237
+.. _PEP 3000: http://www.python.org/dev/peps/pep-3000
+
+Contributing Threads:
+
+- `Propose rejection of PEP 303 -- Extend divmod() for Multiple Divisors <http://mail.python.org/pipermail/python-dev/2005-June/054283.html>`__
+- `Propose to close PEP 254 -- Making Classes Look More Like Types <http://mail.python.org/pipermail/python-dev/2005-June/054357.html>`__
+- `Propose to reject PEP 265 -- Sorting Dictionaries by Value <http://mail.python.org/pipermail/python-dev/2005-June/054262.html>`__
+- `Propose to reject PEP 276 -- Simple iterator for ints <http://mail.python.org/pipermail/python-dev/2005-June/054276.html>`__
+- `Propose to reject PEP 281 -- Loop Counter Iteration with range and xrange <http://mail.python.org/pipermail/python-dev/2005-June/054263.html>`__
+- `Propose to reject PEP 294 -- Type Names in the types Module <http://mail.python.org/pipermail/python-dev/2005-June/054353.html>`__
+- `Propose to reject PEP 313 -- Adding Roman Numeral Literals to Python <http://mail.python.org/pipermail/python-dev/2005-June/054278.html>`__
+- `Propose to reject PEP 336 -- Make None Callable <http://mail.python.org/pipermail/python-dev/2005-June/054280.html>`__
+- `Propose updating PEP 284 -- Integer for-loops <http://mail.python.org/pipermail/python-dev/2005-June/054316.html>`__
+- `Question about PEP 330 -- Python Bytecode Verification <http://mail.python.org/pipermail/python-dev/2005-June/054354.html>`__
+- `Request to rewrite PEP 206 <http://mail.python.org/pipermail/python-dev/2005-June/054287.html>`__
+- `Recommend accepting PEP 312 -- Simple Implicit Lambda <http://mail.python.org/pipermail/python-dev/2005-June/054303.html>`__
+- `Is PEP 237 final -- Unifying Long Integers and Integers <http://mail.python.org/pipermail/python-dev/2005-June/054305.html>`__
+
+[TAM]
+
+
+-------------------------------------------
+PEP 342: Coroutines via Enhanced Generators
+-------------------------------------------
+
+Raymond Hettinger withdrew `PEP 288`_, since the exception-handling part is now covered in `PEP 343`_ and the generator-attributes part was never very popular.  Though he seemed to think `PEP 342`_ could replace the generator-attributes part, he was concerned that `PEP 342`_ was proposing too extensive a set of changes, as it modified the basic for-loop and continue statement semantics, and created a split between new- and old-style iterators. As a result of those comments, Phillip J. Eby took over `PEP 342`_, eliminated the continue expression and modification of the for-loop, added some motivating examples, and provided a `prototype patch`_ implementing the proposal. `PEP 342`_ now retains normal Python for-loop and continue statements, and does not introduce a new iterator protocol. Instead, it modifies the generator-iterator type by adding the methods:
+
+- send(value) which acts like the previously proposed single-argument form of next().  (Introducing a new method instead of overloading next() minimizes overhead for simple next() calls.)  Calling send(value) before the generator has advanced to the first yield-expression raises a TypeError.
+
+- throw() which injects exceptions at the point of the generator's last yield-expression.
+
+- close() which injects a GeneratorExit exception into the generator to make sure that it terminates. PEP 342 also attempts to ensure that this close() method will be called when a generator-iterator is garbage-collected.
+
+Additionally, Phillip's patch addressed some garbage collection issues, having generators set their gi_frame to None when they finish, and modifying gcmodule.c to check for tp_del methods on instance objects (instead of just on heap types) so that the close() methods of generators would be properly invoked.
+
+The revised PEP was accepted by Guido at EuroPython.
+
+.. _PEP 288: http://www.python.org/dev/peps/pep-0288
+.. _PEP 342: http://www.python.org/dev/peps/pep-0342
+.. _PEP 343: http://www.python.org/dev/peps/pep-0343
+.. _prototype patch: http://python.org/sf/1223381
+
+Contributing Threads:
+
+- `Withdrawn PEP 288 and thoughts on PEP 342 <http://mail.python.org/pipermail/python-dev/2005-June/054261.html>`__
+- `Implementing PEP 342 (was Re: Withdrawn PEP 288 and thoughts on PEP 342) <http://mail.python.org/pipermail/python-dev/2005-June/054309.html>`__
+- `gcmodule issue w/adding __del__ to generator objects <http://mail.python.org/pipermail/python-dev/2005-June/054334.html>`__
+- `Generator enhancements patch available <http://mail.python.org/pipermail/python-dev/2005-June/054337.html>`__
+
+[SJB]
+
+
+--------------------------------------------------
+Adding Jason Ordenorff's path module to the stdlib
+--------------------------------------------------
+
+Reinhold Birkenfeld suggested that Jason Ordenorff's `path module`_ should be in the standard library as it has a large user base, frequently c.l.py praises, is a superior interface to OS paths than the existing os.path module, and could more easily be made to properly support unicode paths.  Phillip J. Eby reviewed the module and made a list of suggested changes, primarily changing so that there is only one way to do things and clearing up naming confusion between the module and the existing os.path module, but was generally in favour of inclusion.  The suggestion was to call the object either "path" or "Path" and put it either in the os module or os.path module, although Guido vetoed os.path.path and Tony Meyer begged for more differentiation between the path class and path module than a single character's case.
+
+Early enthusiasm suggested that a PEP wasn't needed to include the module, as there was general agreement about the inclusion and all but minor details.  Guido disagreed, however, asking whether there was a need for a completely different mechanism for doing the same things that os.path already does, and inevitable disgreements about details (e.g. time in seconds, or a datetime object?) reinforced the need for a PEP.  Discussion was still continuing at the end of the summary period; a PEP seems the likely outcome.
+
+.. _path module: http://www.jorendorff.com/articles/python/path/ 
+
+Contributing Thread:
+
+- `Adding the 'path' module (was Re: Some RFE for review) <http://mail.python.org/pipermail/python-dev/2005-June/054439.html>`__
+
+[TAM]
+
+
+-------------------------------
+PEP 304 searches for a champion
+-------------------------------
+
+Skip Montanaro wrote `PEP 304`_ ("Controlling Generation of Bytecode Files") a couple of years ago, and has mostly sat idle other than minor updates.  Skip has no personal use for the PEP, and can't offer championing for it than continuing to respond to people's inputs.  He asked whether anyone would be willing to take up championship of the PEP, or if it could be rejected.  There were a couple of people interested in the idea, but no-one has yet volunteered to take the PEP from Skip.
+
+.. _PEP 304: http://www.python.org/dev/peps/pep-0304 
+
+Contributing Threads:
+
+- `PEP 304 - is anyone really interested? <http://mail.python.org/pipermail/python-dev/2005-June/054419.html>`__
+- `PEP 304 "Controlling Generation of Bytecode Files" - patch updated <http://mail.python.org/pipermail/python-dev/2005-June/054264.html>`__
+
+[TAM]
+
+
+-------------------------
+Merging float and Decimal
+-------------------------
+
+Fredrik Johansson suggested that Python floats and decimal.Decimal objects should be merged together much in the way that Python ints and longs have been. The idea would be that a binary or decimal represenation could be selected at runtime using a context object like decimal.Context. This would allow code like::
+
+    >>> from __future__ import new_float_behaviour
+    >>> 1.1
+    1.1
+    >>> import sys
+    >>> sys.float_context.binary = True
+    >>> 1.1
+    1.1000000000000001
+
+One issue would be the extent to which various context settings could be respected for both binary and decimal floating-point numbers.  Since binary floating-point numbers would be represented using C floats, they would not have direct access to the traps and flags that decimal.Decimal floats do because these signals are not available in C. This issue could possibly be addressed by maintaining platform-dependent code for accessing
+traps and flags.
+
+People seemed generally to agree with the proposal, with Raymond Hettinger suggesting a roadmap: first move decimal.Decimal objects to C code, next introduce decimal literals such as 123.45d, and then perhaps use decimal floating-point numbers as the default in Python 3.0.
+
+Contributing Thread:
+
+- `Decimal floats as default (was: discussion about PEP239 and 240) <http://mail.python.org/pipermail/python-dev/2005-June/054409.html>`__
+
+[SJB]
+
+
+------------------------------------------------
+API differences between builtin set and sets.Set
+------------------------------------------------
+
+Barry Warsaw noted that builtin set objects (unlike sets.Set objects) do not have .union_update() methods as aliases for their .update() methods. He also pointed out that the documentation for builtin set objects does not cover the .update() method, and wrongly indicates that the set methods only accept sequences, not iterables.
+
+Raymond Hettinger pointed-out that dropping union_update() from the API was an intentional design decision that was be discussed prior to release.  At Barry's suggestion, Raymond expanded the docs to include a detailed list of differences between the set builtins and the sets module.  The list is thankfully short.
+
+Contributing Thread:
+
+- `Inconsistent API for sets.Set and build-in set <http://mail.python.org/pipermail/python-dev/2005-June/054518.html>`__
+
+[SJB]
+
+
+----------------------------------
+Using the alternate form of iter()
+----------------------------------
+
+In the dowhile threads, Jp Calderone pointed out a useful case for the alternate form of iter() which takes a no-argument function to call repeatedly, and a sentinel value to look for::
+
+    for chunk in iter(lambda: f1.read(CHUNK_SIZE), ''):
+        f2.write(chunk)
+
+This started a brief discussion on how this very useful idiom could be made easier to read. I suggested that it would be nice if iter() had a signature like unittest.TestCase.assertRaises which accepts ``*args`` and ``**kwargs`` to be passed to the function when it is called. This would have to be a Python 3.0 change because it's backwards incompatible, but would look something like::
+
+    for chunk in iter('', f1.read, CHUNK_SIZE):
+        f2.write(chunk)
+
+Benji York, Michael Hudson and James Y Knight suggested that functional.partial (which will be available in Python 2.5) is a more general solution because it does not require argument reordering and it can also be used in the occasional cases that require multiple callables::
+
+    for chunk in iter(partial(f1.read, CHUNK_SIZE), ''):
+        f2.write(chunk)
+
+Raymond Hettinger suggested a Python 3.0 roadmap: the file API should evolve an iterblocks(size) method, and iteration patterns terminating with '' should all be replaced with modern iterators that terminate by raising StopIteration.
+
+Contributing Thread:
+
+- `iter alternate form and *args and **kwargs <http://mail.python.org/pipermail/python-dev/2005-June/054256.html>`__
+
+[SJB]
+
+
+--------------------------------------
+Adding lightweight cooperative threads
+--------------------------------------
+
+Adam Olsen outlined various problems with the current state of Python threading (they are expensive, unpredictable, uninterupptible, fail silently, and have finely grained atomicity), and proposed adding lightweight cooperative threads to Python (including a new operator for threaded calls, and new statement for creating threads).  The proposal received no support, however, with Adam pointed towards `Stackless Python`_ and greenlets from `the Py lib`_ as similar solutions that do not require modification of the language.  `PEP 342`_ was also touted as a solution - the PEP includes a short (<50 lines) cooperative threading example.
+
+.. _Stackless Python: http://www.stackless.com/ 
+.. _the Py lib: http://codespeak.net/py 
+.. _PEP 342: http://www.python.org/dev/peps/pep-0342
+
+Contributing Thread:
+
+- `Adding Python-Native Threads <http://mail.python.org/pipermail/python-dev/2005-June/054430.html>`__
+
+[TAM]
+
+
+------------------------------
+Syntax for ignoring exceptions
+------------------------------
+
+Dmitry Dvoinikov proposed a shorthand for ignoring exceptions::
+
+    ignore TypeError:
+        do stuff
+    [else:
+        do other stuff]
+
+which would replace::
+
+    try:
+        do stuff
+    except TypeError:
+        pass
+    [else:
+        do other stuff]
+
+Most people seemed to think that generally the except and/or else clauses would be non-trivial, so the savings of two lines were not really worth the complications to the language.
+
+Contributing Thread:
+
+- `Explicitly declaring expected exceptions for a block <http://mail.python.org/pipermail/python-dev/2005-June/054387.html>`__
+
+[SJB]
+
+
+----------------------------------
+Proposed new serialization format.
+----------------------------------
+
+Simon Wittber proposed a pre-PEP for `RFE 46738`_, to provide a safe, documented class for serialization of simple python types; however, many people commented that they felt that there were already sufficient serialization formats.  Simon felt that they were all slow, bloated or unsafe, but wasn't able to convince anyone that there was a need for a new format.
+
+.. _RFE 46738: http://python.org/sf/467384
+
+Contributing Thread:
+
+- `PEP for RFE 46738 (first draft) <http://mail.python.org/pipermail/python-dev/2005-June/054313.html>`__
+
+[TAM]
+
+
+---------------------------------------
+Behavior of subprocess.call(stdin=PIPE)
+---------------------------------------
+
+In a followup to a `sourceforge patch`_, Stuart Bishop asked that subprocess.call() close the input stream if it receives the keyword argument stdin=PIPE. Since subprocess.call() creates a process and waits for it to complete before returning, the stdin pipe is never available to the caller and thus can never be written to while the process is running. Stuart suggested that if subprocess.call() closed the input stream when stdin=PIPE, subprocesses that incorrectly read from stdin would break out with an error immediately instead of hanging.
+
+While people seemed to agree that the current behavior of subprocess.call(stdin=PIPE) was mildly undesirable, there was disagreement as to the solution. Michael Chermside suggested that subprocess.call(stdin=PIPE) should raise an exception, while Peter Åstrand felt that keeping the subprocess.call() wrapper around subprocess.Popen() as simple as possible spoke against complicating it with error checking code.
+
+.. _sourceforge patch: http://www.python.org/sf/1220113
+
+Contributing Thread:
+
+- `subprocess.call() and stdin <http://mail.python.org/pipermail/python-dev/2005-June/054405.html>`__
+
+[SJB]
+
+
+===============
+Skipped Threads
+===============
+
+- `getch() in msvcrt does not accept extended characters. <http://mail.python.org/pipermail/python-dev/2005-June/054506.html>`__
+- `Terminology for PEP 343 <http://mail.python.org/pipermail/python-dev/2005-June/054525.html>`__
+- `List copy and clear (was Re: Inconsistent API for sets.Set and build-in set) <http://mail.python.org/pipermail/python-dev/2005-June/054522.html>`__
+- `Multiple expression eval in compound if statement? <http://mail.python.org/pipermail/python-dev/2005-June/054164.html>`__
+- `refcounting vs PyModule_AddObject <http://mail.python.org/pipermail/python-dev/2005-June/054232.html>`__
+- `Some RFE for review <http://mail.python.org/pipermail/python-dev/2005-June/054438.html>`__
+- `Please spread the word about OSCON early reg deadline <http://mail.python.org/pipermail/python-dev/2005-June/054259.html>`__
+- `New python developer <http://mail.python.org/pipermail/python-dev/2005-June/054509.html>`__
+- `Possible C API problem? <http://mail.python.org/pipermail/python-dev/2005-June/054471.html>`__
+- `PyPI: no space left on device <http://mail.python.org/pipermail/python-dev/2005-June/054331.html>`__
+- `PySWT -- Python binding of SWT using GCJ + SIP <http://mail.python.org/pipermail/python-dev/2005-June/054502.html>`__
+- `Subclassing in 'C' <http://mail.python.org/pipermail/python-dev/2005-June/054434.html>`__
+- `is type a usable feature? <http://mail.python.org/pipermail/python-dev/2005-June/054422.html>`__
+- `misplaced PEP <http://mail.python.org/pipermail/python-dev/2005-June/054377.html>`__
+- `using pyhon from the MSYS shell <http://mail.python.org/pipermail/python-dev/2005-June/054505.html>`__
+- `[Python-checkins] python/dist/src/Lib Cookie.py, 1.17, 1.18 <http://mail.python.org/pipermail/python-dev/2005-June/054447.html>`__
+- `[Python-checkins] python/dist/src/Tools/bgen/bgen bgenGenerator.py, 1.17, 1.18 bgenObjectDefinition.py, 1.29, 1.30 bgenType.py, 1.15, 1.16 bgenVariable.py, 1.6, 1.7 scantools.py, 1.37, 1.38 <http://mail.python.org/pipermail/python-dev/2005-June/054444.html>`__
+- `floatobject.c 2.136 <http://mail.python.org/pipermail/python-dev/2005-June/054513.html>`__
+
+
+========
+Epilogue
+========
+
+------------
+Introduction
+------------
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+June 16, 2005 through June 30, 2005.
+
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.  You can
+also watch comp.lang.python or comp.lang.python.announce for new
+summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the sixth summary written by the python-dev summary cabal of
+Steve Bethard, Tim Lesher, and Tony Meyer.
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tim Lesher (tlesher at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list at python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/trunk/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.  Any
+unfamiliar punctuation is probably markup for reST_ (otherwise it is
+probably regular expression syntax or a typo =); you can safely ignore
+it.  I do suggest learning reST, though; it's simple and is accepted
+for `PEP markup`_ and can be turned into many different formats like
+HTML and LaTeX.  Unfortunately, even though reST is standardized, the
+wonders of programs that like to reformat text do not allow me to
+guarantee you will be able to run the text version of this summary
+through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/
+.. _original text file: http://www.python.org/dev/summary/2005-06-16_2005-06-30.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf

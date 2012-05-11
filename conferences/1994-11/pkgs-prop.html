@@ -1,0 +1,248 @@
+<TITLE>Python module-packaging proposal</TITLE>
+
+Part of the report on the <A HREF="sftwr-mgmt-report.html">NIST Python
+workshop software management session</A><P>
+
+<ADDRESS>ken.manheimer@nist.gov, 301 975-3539</ADDRESS> <P>
+Original 24-Nov-1994, last mod  5-Dec-1994. <P>
+
+<H2>Module Package-Suites</H2>
+
+Python's import statement, together with the modules it produces,
+offers a powerful, well-integrated mechanism for organizing software
+packages.  It enables a degree of code organization that is necessary
+to get beyond systems of a relatively small-scale.  However, the
+current implementation has a few shortcomings, which we propose to
+alleviate. <P>
+
+The python module system currently offers no basis for affiliating
+suites of modules in a coheresive way.  Also, the name space in which
+modules are registered - <KBD>sys.modules</KBD> - has only a single
+layer, so that the name of every module imported within a session must
+be unique.  The former fact inhibits the degree to which modules can
+be organized with respect to one another, while the latter leads to
+untenable module-name conflicts, across name spaces. <P>
+
+The proposal i brought to the workshop extends the import scheme to
+address both these issues.  It does this by using nesting within the
+module registration name space (<KBD>sys.modules</KBD>) to support
+coordinated suites of modules.  We will informally refer to these
+suites of modules as <I>packages</I>. <P>
+
+In particular, the arrangement enabled loading of a suite of modules
+as a unit, as well as loading individual components of the suite,
+alone.  It also enabled modules within the suite to preferentially
+load other modules within the suite. <P>
+
+At the workshop we hashed out the proposal, and recognized some
+problems, as well as some avenues for addressing these problems.  One
+of the primary problems raised was absence of the means to access
+modules outside of a suite that happen to have the same name as
+modules within the suite. <P>
+
+Out of that discussion came another of my big homework assignments -
+to collect and digest what we came up with during the session,
+continue to iron out the wrinkles, and produce a complete proposal.
+After further work, and some hashing-out with guido, i have the
+following proposal to offer. <P>
+
+<H3>Module packages proposal</H3>
+
+The essence of the proposal entails setting up a clean relationship
+between module nesting and directory nesting.  It hinges on having
+<KBD>import</KBD>s of directories (as found on the <KBD>load-path</KBD>)
+amount to an <KBD>import</KBD> of the contents of the directory, into a
+module representing the directory as a whole. <P>
+
+The files within the directory are either module files, or themselves
+directories which constitute module packages.  In either case, they
+are loaded as modules within the package.  (Thus, given a directory
+named <KBD>package</KBD> containing module file <KBD>module</KBD>, import
+of the directory would result in a module named <KBD>package</KBD> and a
+module within it, <KBD>package.module</KBD>.) <P>
+
+When a package directory contains a file with the special name,
+<KBD>__main__</KBD>, then the package load process is controlled by that
+module.  Thus, import of a package need not necessarily load all, or
+even some, of the contents of the directory, and special processing
+can be done to determine what should and shouldn't be loaded.  If
+there is no file named <KBD>__main__</KBD> in the directory, then the
+entire contents of the directory is imported. <P>
+
+Below is a description of each of the components of this scheme,
+followed by some <A HREF="#questions">open questions for dicussion</A>,
+then an <A HREF="#Packages summary">"executive summary"</A> and <A
+HREF="#Package features">features summary</A>.
+
+<H4> Importation of individual package components </H4>
+
+Individual components of a package can be explicitly imported, by
+specifing the composite module reference for the object.  For
+instance, the above mentioned <KBD>package.module</KBD> can be imported
+as a single entity.  Even if the package has not already been
+imported, only the <KBD>package.module</KBD> component will be imported
+- but it will be pulled in as a nested object, not as bare
+<KBD>module</KBD>. <P>
+
+<H4> Extension of the module load path using <KBD>__modpath__</KBD> </H4>
+
+Loadup of the contents of a package directory is done with respect to
+a special extension of the load-path mechanism, designed so that
+<KBD>imports</KBD> from within the package prefer modules that reside
+within the package.  The extension is based on the introduction of a
+new variable, tentatively called <KBD>__modpath__</KBD>.
+<KBD>__modpath__</KBD> would get it's value from a combination of two
+things. <P>
+
+A module's <KBD>__modpath__</KBD> value will be a list of strings,
+inherited from the module doing the import.  In addition, if the
+module is being imported from a package directory (typical when
+<KBD>__modpath__</KBD> has a value), then its <KBD>__modpath__</KBD>
+value would have the path of the directory prepended to it. <P>
+
+Thus, within a package, modules need not specify the package name in
+order to explicitly import other members of the package, and they will
+inherently "prefer" to load other modules from their package, and then
+other modules from packages which contain their package, and so
+on... <P>
+
+<H4> Referring to similarly named modules <I>outside</I> the package </H4>
+
+One pitfall in the original proposal, identified during the workshop
+session, was lack of provision for importing modules from outside the
+package that happened to have the same names as modules within the
+package.  This is a useful and necessary capability.  We have a
+mechanism and syntax which provides an unambiguously distinct and
+clear way for doing this - for invoking absolute imports of modules
+from outside of a package.  <P>
+
+The import command will recognize a special pseudo-module,
+<KBD>__python__</KBD>, as a root for 'absolute' references to modules,
+ignoring any prevailing <KBD>__modpath__</KBD> value.  This means that
+imports of names that are prepended by <KBD>__python__.</KBD> refer
+to top level packages along the system path, ignoring files within the
+package that happen to have that name.  <P>
+
+For example, a package could have within it a module named
+<KBD>sys</KBD>, which can be imported from within the package as a
+wrapper for the standard <KBD>sys</KBD> package.  The packages'
+<KBD>sys</KBD> module would do so by using a <KBD>from __python__.sys
+import *</KBD>.  Modules within the package would get the wrapper
+module by doing an <KBD>import sys</KBD>. <P>
+
+<A NAME="questions"><H3>Some Questions for Discussion</H3></A>
+
+Here are some prominent questions for discussion that come immediately
+to mind:
+
+<OL>
+<LI> Might there be better choices than '__python__' for the
+     pseudo-root module path?  One possibility i've entertained is a
+     null name, so a leading '.' would indicate a "rooted" path (ie,
+     looking for a module name with respect only to the sys.path
+     value).  This approach seems a bit radical, maybe a bit contrary
+     to typical python constructs...
+<LI> I've had a suggestion concerning the way that packages in a
+     module share their extension of the load path.  It was suggested
+     that it would be suitable to have a <KBD>__pkgpath__</KBD>
+     variable within each component module that works the way i've
+     proposed for <KBD>__modpath__</KBD>, except that the structure of
+     the path list would be shared, so structural changes within one
+     of the modules would be reflected within the rest.  I don't see
+     the reason for this, but could certainly implement both the
+     <KBD>__modpath__</KBD> and <KBD>__pkgpath__</KBD>, and make the
+     default behavior use whichever seems more suitable.  Thoughts,
+     anyone?
+<LI> When a component of a package is loaded, eg <KBD>apkg.spam</KBD>,
+     and the rest of the module is not yet loaded, what should
+     <KBD>reload(apkg)</KBD> do?  Should it just do the entire package
+     load, or should it fail, on the basis that the primary module for
+     the package actually hasn't been imported.  I'm inclined towards
+     the latter, but would certainly entertain convincing rationale to
+     the former...
+</OL>
+
+
+<A NAME="Packages summary"
+><H3>Summary of the proposal for Module Packages</H3></A>
+
+To summarize, given an example package directory <KBD>apkg</KBD> which
+resides on <KBD>sys-path</KBD>, and containing a module named
+<KBD>amod</KBD> and <KBD>another</KBD>:
+
+<OL>
+<LI> <KBD>import apkg</KBD> would produce a module object named 'apkg'
+in the current name space, and
+<UL>
+  <LI> apkg would contain two modules: 'amod' and 'another', 
+       initialized with the contents of apkg/amod and apkg/another,
+       respectively
+  <LI> The 'apkg', 'amod', and 'another' modules would all contain the
+       variable <KBD>__modpath__</KBD>, set to a list with one string,
+       the path of the 'apkg' directory
+  <LI> <KBD>sys.modules</KBD> would contain entries for 'apkg', as
+       <KBD>apkg</KBD>, 'amod', as <KBD>apkg.amod</KBD>, and 'another', as
+       <KBD>apkg.another</KBD>.  (The nested representation unequivocally
+       distinguishes the package modules from other, outside modules
+       with the same file name.)
+  <LI> If the package directory contains a module with the special name
+       <KBD>__main__</KBD>, then that module will override the default
+       behavior, taking responsibility for loading (or not loading)
+       the module components.
+</UL>
+<LI> 'amod' could import 'another' using <KBD>import another</KBD>, and
+     vice-versa.
+<LI> Modules outside the package could import, eg, 'amod', using
+     <KBD>import apkg.amod</KBD>.
+<UL>
+  <LI> 'amod' would be initialized if it had not already been
+       imported, but the rest of 'apkg' would not be.
+  <LI> The importing module would get a module named 'apkg',
+       containing the module named 'amod'.  It would contain only
+       'amod' (and <KBD>__modpath__</KBD>) if other components of
+       'apkg' had not previously been imported, and the entire
+       contents of 'apkg' otherwise.
+</UL>
+<LI> Modules within a package can circumvent the <KBD>__modpath__</KBD>
+     import preference for other components of the package by
+     prepending the names in the import statement with
+     <KBD>__python__.</KBD>.  Eg, <KBD>import __python__.rfc822</KBD>
+     will obtain the standard system rfc822 module, even if the
+     current package has a module of its own with the same name.
+     (This will be particularly useful for creating module wrappers.)
+</OL>
+
+<A NAME="Package features"><H3>Features of the proposed changes</H3></A>
+
+<UL>
+<LI> Fully backwards compatable
+<LI> Eliminates module name conflicts via suitable name space structuring, ie
+<LI> Fully recursive nesting of modules as packages, which
+<LI> Enables loading of module packages as a unit, with finer control
+     available when needed
+<LI> Enables package members to load other members with preference
+<LI> Enables modules to load other modules within or outside their
+     packages, regardless of name collisions
+</UL>
+
+<H3>To Implement Packages</H3>
+
+I hope sometime soon to produce a prototype implementation of the
+above behavior, using the <KBD>import</KBD> patches that guido recently
+developed.  The features that should be implementable without changes
+to the python language syntax are __modpath__ and loading of
+directories as package modules. <P>
+
+Once an acceptable prototype has been developed, guido should make the
+parser changes necessary to accomodate extension of the import syntax
+- composite module names - and the prototype should be completed and
+evaluated for incorporation into the language.  (It would probably be
+suitable to reorganize the standard modules at that point, beginning
+to structure their relationships using nesting, and clean up the top
+level modules namespace.) <P>
+
+Hopefully, this and the above mentioned changes will be ironed out and
+fully implemented for incorporation as part of python 1.2, or earlier
+as 1.1.2(?). <P>
+
+ken

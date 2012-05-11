@@ -1,0 +1,1012 @@
+<html><head><title>Extension Classes</title></head><body>
+
+<h2>Extension Classes, Python Extension Types Become Classes</h2>
+<address>Jim Fulton, Digital Creations, L.C., jim@digicool.com</address>
+
+<dl><dt><p><strong>Abstract</strong><p>
+<dd><p>  A lightweight mechanism has been developed for making Python
+  extension types more class-like.  Classes can be developed in an
+  extension language, such as C or C++, and these classes can be
+  treated like other python classes:</p>
+
+<ul><li><p>They can be subclassed in python,</p>
+
+</ul>
+<ul><li><p>They provide access to method documentation strings, and</p>
+
+</ul>
+<ul><li><p>They can be used to directly create new instances.</p>
+
+</ul>
+<p>  Extension classes provide support for extended method binding
+  protocols to support additional method types and additional method
+  call sematics.</p>
+
+<p>  An example class shows how extension classes are implemented and how
+  they differ from extension types.</p>
+
+<p>  Extension classes illustrate how the Python class mechanism can be
+  extended and may provide a basis for improved or specialized class
+  models. </p>
+
+
+</dl>
+<dl><dt><p><strong>Problem</strong><p>
+<dd><p>  Currently, Python provides two ways of defining new kinds of objects:</p>
+
+<ul><li><p>Python classes</p>
+
+</ul>
+<ul><li><p>Extension types</p>
+
+</ul>
+<p>  Each aproach has it's strengths.  Extension types provide much greater
+  control to the programmer and, generally, better performance.  Because
+  extension types are written in C, the programmer has greater access to 
+  external resources. (Note that Python's use of the term type has
+  little to do with the notion of type as a formal specification.)</p>
+
+<p>  Classes provide a higher level of abstraction and are generally much
+  easier to develop.  Classes provide full inheritence support, while
+  support for inheritence when developing extension types is very
+  limited. Classes provide run-time meta-data, such as method doc
+  strings, that are useful for documentation and discovery.  Classes
+  act as factories for creating instances, while separate functions
+  must be provided to create instances of types.</p>
+
+<p>  It would be useful to combine the features of the two approaches.  It 
+  would be useful to be able to have better support for inheritence for
+  types, or to be able to subclass from types in Python.  It would be
+  useful to be able to have class-like meta-data support for types and
+  the ability to construct instances directly from types.</p>
+
+<p>  We have need, in a number of projects, for semantics that are
+  slightly different than the usual class semantics, yet we want to do
+  most of our development in C.  For example, we have developed a
+  persistence mechanism <a href="#1">[1]</a> that redefines <code>__getattr__</code> and
+  <code>__setattr__</code> to take storage-related actions when object state is
+  accessed or modified.  We want to be able to take certain actions on
+  <em>every</em> attribute reference, but for python class instances,
+  <code>__getattr__</code> is only called when attribute lookup fails by normal
+  means.</p>
+
+<p>  As another example, we would like to have greater control over how
+  methods are bound.  Currently, when accessing a class
+  instance attribute, the attribute value is bound together with the
+  instance in a method object if and only if the attribute value is a
+  python function.  For some applications, we might also want to be
+  able to bind extension functions, or other types of callable
+  objects, such as HTML document templates <a href="#2">[2]</a>. Furthermore,
+  we might want to have greater control over how objects are bound.
+  For example, we might want to bind instances and callable objects
+  with special method objects that assure that no more than one thread
+  accesses the object or method at one time.</p>
+
+<p>  We can provide these special sematics in extension types, but we
+  wish to provide them for classes developed in Python.</p>
+
+
+</dl>
+<dl><dt><p><strong>Background</strong><p>
+<dd><p>  At the first Python Conference, Don Beaudry presented work <a href="#3">[3]</a> done
+  at V.I. Corp to integrate Python with C++ frameworks.  This system
+  provided a number of important features, including:</p>
+
+<ul><li><p>Definition of extension types that provide class-like meta-data
+    and that can be called to create instances.</p>
+
+</ul>
+<ul><li><p>Ability to subclass in python from C types.</p>
+
+</ul>
+<ul><li><p>Ability to define classes in python who's data are stored as
+    C structures rather than dictionaries to better interface to
+    C and C++ libraries, and for better performance.</p>
+
+</ul>
+<ul><li><p>Less dynamic data structures.  In particular, the data structure
+    for a class is described declaratively during class definition.</p>
+
+</ul>
+<ul><li><p>Support for enumeration types.</p>
+
+</ul>
+<p>  This work was not released, initially.</p>
+
+<p>  Shortly after the workshop, changes were made to Python to support
+  the subclassing features described in <a href="#3">[3]</a>.  These changes were not
+  documented until recently <a href="#4">[4]</a>.</p>
+
+<p>  At the third Python workshop, I presented some work I had done on
+  generating module documentation for extension types.  Based on the
+  discussion at this workshop, I developed a meta-type proposal <a href="#5">[5]</a>.
+  This meta-type proposal was for an object that simply stored
+  meta-information for a type, for the purpose of generating module
+  documentation.</p>
+
+<p>  In the summer of 1996, Don Beaudry released the system described in
+  <a href="#3">[3]</a> under the name MESS <a href="#6">[6]</a>. MESS addresses a number of needs but
+  has a few drawbacks:</p>
+
+<ul><li><p>Only single inheritence is supported.</p>
+
+</ul>
+<ul><li><p>The mechanisms for defining MESS extension types is very different
+    from and more complicated than the standard Python type creation
+    mechanism.</p>
+
+</ul>
+<ul><li><p>Defining MESS types requires the use of an extensive C
+    applications programming interface.  This presents problems for
+    configuraing dynamically-loaded extension modules unless the MESS
+    library is linked into the Python interpreter.</p>
+
+</ul>
+<ul><li><p>Because the system tries to do a number of different things, it is
+    fairly large, about 15,000 lines.</p>
+
+</ul>
+<ul><li><p>There is very little documentation, especially for the C
+    programming interface.</p>
+
+</ul>
+<ul><li><p>The system is a work in progress, with a number of outstanding
+    bugs.</p>
+
+</ul>
+<p>  As MESS matures, we expect most of these problems to be addressed.</p>
+
+
+</dl>
+<dl><dt><p><strong>Extension Classes</strong><p>
+<dd><p>  To meet short term needs for a C-based persistence mechanism <a href="#1">[1]</a>, an
+  extension class module was developed using the mechanism described
+  in <a href="#4">[4]</a> and building on ideas from MESS <a href="#6">[6]</a>.  The extension class module
+  recasts extension types as "extension classes" by seeking to
+  eliminate, or at least reduce semantic differences between types and
+  classes. The module was designed to meet the following goal:</p>
+
+<ul><li><p>Provide class-like behavior for extension types, including
+    interfaces for meta information and for contructing instances.</p>
+
+</ul>
+<ul><li><p>Support subclassing in Python from extension classes, with support
+    for multiple inheritence.</p>
+
+</ul>
+<ul><li><p>Provide a small hardened implementation that can be used for
+    current products.</p>
+
+</ul>
+<ul><li><p>Provide a mechanism that requires minimal modification to existing
+    extension types.</p>
+
+</ul>
+<ul><li><p>Provide a basis for research on alternative semantics for classes
+    and inheritence.</p>
+
+</ul>
+<dl><dt><p><strong>  Base extension classes and extension subclasses</strong><p>
+<dd><p>    Base extension classes are implemented in C.  Extension subclasses
+    are implemented in python and inherit, directly or indirectly from
+    one or more base extension classes.  An extension subclass may
+    inherit from base extension classes, extension subclasses, and
+    ordinary python classes.  The usual inheritence order rules
+    apply.  Currently, extension subclasses must conform to the
+    following two rules:</p>
+
+<ul><li><p>The first super class listed in the class statement defining an
+      extension subclass must be either a base extension class or an
+      extension subclass.</p>
+
+</ul>
+<ul><li><p>At most one base extension direct or indirect super class may
+      define C data members.  If an extension subclass inherits from
+      multiple base extension classes, then all but one must be mix-in
+      classes that provide extension methods but no data.</p>
+
+</ul>
+
+</dl>
+<dl><dt><p><strong>  Meta Information</strong><p>
+<dd><p>    Like standard python classes, extension classes have the following
+    attributes containing meta-data:</p>
+
+<dl><dt>    <code>__doc__</code>   <dd><p>a documentation string for the class,</p>
+
+</dl>
+<dl><dt>    <code>__name__</code>  <dd><p>the class name,</p>
+
+</dl>
+<dl><dt>    <code>__bases__</code> <dd><p>a sequence of base classes,</p>
+
+</dl>
+<dl><dt>    <code>__dict__</code>  <dd><p>a class dictionary.</p>
+
+</dl>
+<p>    The class dictionary provides access to unbound methods and their
+    documentation strings, including extension methods and special
+    methods, such as methods that implement sequence and numeric
+    protocols.  Unbound methods can be called with instance first
+    arguments.</p>
+
+
+</dl>
+<dl><dt><p><strong>  Subclass instance data</strong><p>
+<dd><p>    Extension subclass instances have instance dictionaries, just
+    like Python class instances do.  When fetching attribute values,
+    extension class instances will first try to obtain data from the
+    base extension class data structure, then from the instance
+    dictionary, then from the class dictionary, and finally from base
+    classes.  When setting attributes, extension classes first attempt
+    to use extension base class attribute setting operations, and if
+    these fail, then data are placed in the instance dictionary.</p>
+
+
+</dl>
+
+</dl>
+<dl><dt><p><strong>Implementing base extension classes</strong><p>
+<dd><p>  A base extension class is implemented in much the same way that an
+  extension type is implemented, except:</p>
+
+<ul><li><p>The include file, <code>ExtensionClass.h</code>, must be included.</p>
+
+</ul>
+<ul><li><p>The type structure is declared to be of type <code>PyExtensionClass</code>, rather 
+    than of type <code>PyTypeObject</code>.</p>
+
+</ul>
+<ul><li><p>The type structure has an additional member that must be defined
+    after the documentation string.  This extra member is a method chain
+     <code>PyMethodChain</code>) containing a linked list of method definition
+     <code>PyMethodDef</code>) lists.  Method chains can be used to implement
+    method inheritence in C.  Most extensions don't use method chains,
+    but simply define method lists, which are null-terminated arrays
+    of method definitions.  A macro, <code>METHOD_CHAIN</code> is defined in
+    <code>ExtensionClass.h</code> that converts a method list to a method chain.
+    (See the example below.)</p>
+
+</ul>
+<ul><li><p>Module functions that create new instances must be replaced by an
+    <code>__init__</code> method that initializes, but does not create storage for 
+    instances.</p>
+
+</ul>
+<ul><li><p>The extension class must be initialized and exported to the module
+    with::</p>
+<p>        PyExtensionClass_Export(d,"name",type);</p>
+
+<p>    where <code>name</code> is the module name and <code>type</code> is the extension class
+    type object.</p>
+
+
+</ul>
+<dl><dt><p><strong>  Attribute lookup</strong><p>
+<dd><p>    Attribute lookup is performed by calling the base extension class
+    <code>getattr</code> operation for the base extension class that includes C
+    data, or for the first base extension class, if none of the base
+    extension classes include C data.  <code>ExtensionClass.h</code> defines a
+    macro <code>Py_FindAttrString</code> that can be used to find an object's
+    attributes that are stored in the object's instance dictionary or
+    in the object's class or base classes:</p>
+<XMP>
+       v = Py_FindAttrString(self,name);
+
+</XMP>
+
+<p>    In addition, a macro is provided that replaces <code>Py_FindMethod</code>
+    calls with logic to perform the same sort of lookup that is
+    provided by <code>Py_FindAttrString</code>.</p>
+
+
+</dl>
+<dl><dt><p><strong>  Linking</strong><p>
+<dd><p>    The extension class mechanism was designed to be useful with
+    dynamically linked extension modules.  Modules that implement
+    extension classes do not have to be linked against an extension
+    class library.  The macro <code>PyExtensionClass_Export</code> imports the
+    <code>ExtensionClass</code> module and uses objects imported from this module
+    to initialize an extension class with necessary behavior.</p>
+
+
+</dl>
+<dl><dt><p><strong>  Example: MultiMapping objects</strong><p>
+<dd><p>    As an example, consider an extension class that implements a
+    "MultiMapping". A multi-mapping is an object that encapsulates 0
+    or more mapping objects.  When an attempt is made to lookup an
+    object, the encapsulated mapping objects are searched until an
+    object is found.</p>
+
+<p>    Consider an implementation of a MultiMapping extension type,
+    without use of the extension class mechanism:</p>
+<XMP>
+      #include "Python.h"
+
+      #define UNLESS(E) if(!(E))
+
+      typedef struct {
+          PyObject_HEAD
+          PyObject *data;
+      } MMobject;
+
+      staticforward PyTypeObject MMtype;
+
+      static PyObject *
+      MM_push(self, args)
+                MMobject *self;
+                PyObject *args;
+      {
+          PyObject *src;
+          UNLESS(PyArg_ParseTuple(args, "O", &src)) return NULL;
+          UNLESS(-1 != PyList_Append(self->data,src)) return NULL;
+          Py_INCREF(Py_None);
+          return Py_None;
+      }
+
+      static PyObject *
+      MM_pop(self, args)
+                MMobject *self;
+                PyObject *args;
+      {
+          long l;
+          PyObject *r;
+          static PyObject *emptyList=0;
+
+          UNLESS(emptyList) UNLESS(emptyList=PyList_New(0)) return NULL;
+          UNLESS(PyArg_ParseTuple(args, "")) return NULL;
+          UNLESS(-1 != (l=PyList_Size(self->data))) return NULL;
+          l--;
+          UNLESS(r=PySequence_GetItem(self->data,l)) return NULL;
+          UNLESS(-1 != PyList_SetSlice(self->data,l,l+1,emptyList)) goto err;
+          return r;
+      err:
+          Py_DECREF(r);
+          return NULL;
+      }
+
+      static struct PyMethodDef MM_methods[] = {
+          {"push", (PyCFunction) MM_push, 1,
+           "push(mapping_object) -- Add a data source"},
+          {"pop",  (PyCFunction) MM_pop,  1,
+           "pop() -- Remove and return the last data source added"}, 
+          {NULL,		NULL}		/* sentinel */
+      };
+
+      static PyObject *
+      newMMobject(ignored, args)
+             PyObject *ignored;
+             PyObject *args;
+      {
+          MMobject *self;
+
+          UNLESS(PyArg_ParseTuple(args, "")) return NULL;
+          UNLESS(self = PyObject_NEW(MMobject, &MMtype)) return NULL;
+          UNLESS(self->data=PyList_New(0)) goto err;
+          return (PyObject *)self;
+      err:
+          Py_DECREF(self);
+          return NULL;
+      }
+
+      static void
+      MM_dealloc(self)
+             MMobject *self;
+      {
+          Py_XDECREF(self->data);
+          PyMem_DEL(self);
+      }
+
+      static PyObject *
+      MM_getattr(self, name)
+                MMobject *self;
+                char *name;
+      {
+          return Py_FindMethod(MM_methods, (PyObject *)self, name);
+      }
+
+      static int
+      MM_length(self)
+                MMobject *self;
+      {
+          long l=0, el, i;
+          PyObject *e=0;
+
+          UNLESS(-1 != (i=PyList_Size(self->data))) return -1;
+          while(--i >= 0)
+            {
+              e=PyList_GetItem(self->data,i);
+              UNLESS(-1 != (el=PyObject_Length(e))) return -1;
+              l+=el;
+            }
+          return l;
+      }
+
+      static PyObject *
+      MM_subscript(self, key)
+                MMobject *self;
+                PyObject *key;
+      {
+          long i;
+          PyObject *e;
+
+          UNLESS(-1 != (i=PyList_Size(self->data))) return NULL;
+          while(--i >= 0)
+            {
+              e=PyList_GetItem(self->data,i);
+              if(e=PyObject_GetItem(e,key)) return e;
+              PyErr_Clear();
+            }
+          PyErr_SetObject(PyExc_KeyError,key);
+          return NULL;
+      }
+
+      static PyMappingMethods MM_as_mapping = {
+                (inquiry)MM_length,		/*mp_length*/
+                (binaryfunc)MM_subscript,      	/*mp_subscript*/
+                (objobjargproc)NULL,		/*mp_ass_subscript*/
+      };
+
+      /* -------------------------------------------------------- */
+
+      static char MMtype__doc__[] = 
+      "MultiMapping -- Combine multiple mapping objects for lookup"
+      ;
+
+      static PyTypeObject MMtype = {
+                PyObject_HEAD_INIT(&PyType_Type)
+                0,				/*ob_size*/
+                "MultMapping",			/*tp_name*/
+                sizeof(MMobject),		/*tp_basicsize*/
+                0,				/*tp_itemsize*/
+                /* methods */
+                (destructor)MM_dealloc,		/*tp_dealloc*/
+                (printfunc)0,			/*tp_print*/
+                (getattrfunc)MM_getattr,	/*tp_getattr*/
+                (setattrfunc)0,			/*tp_setattr*/
+                (cmpfunc)0,			/*tp_compare*/
+                (reprfunc)0,			/*tp_repr*/
+                0,				/*tp_as_number*/
+                0,				/*tp_as_sequence*/
+                &MM_as_mapping,			/*tp_as_mapping*/
+                (hashfunc)0,			/*tp_hash*/
+                (ternaryfunc)0,			/*tp_call*/
+                (reprfunc)0,			/*tp_str*/
+
+                /* Space for future expansion */
+                0L,0L,0L,0L,
+                MMtype__doc__ /* Documentation string */
+      };
+
+      static struct PyMethodDef MultiMapping_methods[] = {
+          {"MultiMapping", (PyCFunction)newMMobject, 1,
+           "MultiMapping() -- Create a new empty multi-mapping"},
+          {NULL,		NULL}		/* sentinel */
+      };
+
+      void
+      initMultiMapping()
+      {
+          PyObject *m;
+
+          m = Py_InitModule4(
+              "MultiMapping", MultiMapping_methods,
+                "MultiMapping -- Wrap multiple mapping objects for lookup",
+                (PyObject*)NULL,PYTHON_API_VERSION);
+
+          if (PyErr_Occurred()) 
+             Py_FatalError("can't initialize module MultiMapping");
+      }
+
+</XMP>
+
+<p>    This module defines an extension type, <code>MultiMapping</code>, and exports a
+    module function, <code>MultiMapping</code>, that creates <code>MultiMapping</code>
+    Instances. The type provides two methods, <code>push</code>, and <code>pop</code>, for
+    adding and removing mapping objects to the multi-mapping.
+    The type provides mapping behavior, implementing mapping length
+    and subscript operators but not mapping a subscript assignment
+    operator.</p>
+
+<p>    Now consider an extension class implememtation of the MultiMapping
+    objects:</p>
+<XMP>
+      #include "Python.h"
+      #include "ExtensionClass.h"
+
+      #define UNLESS(E) if(!(E))
+
+      typedef struct {
+          PyObject_HEAD
+          PyObject *data;
+      } MMobject;
+
+      staticforward PyExtensionClass MMtype;
+
+      static PyObject *
+      MM_push(self, args)
+                MMobject *self;
+                PyObject *args;
+      {
+          PyObject *src;
+          UNLESS(PyArg_ParseTuple(args, "O", &src)) return NULL;
+          UNLESS(-1 != PyList_Append(self->data,src)) return NULL;
+          Py_INCREF(Py_None);
+          return Py_None;
+      }
+
+      static PyObject *
+      MM_pop(self, args)
+                MMobject *self;
+                PyObject *args;
+      {
+          long l;
+          PyObject *r;
+          static PyObject *emptyList=0;
+
+          UNLESS(emptyList) UNLESS(emptyList=PyList_New(0)) return NULL;
+          UNLESS(PyArg_ParseTuple(args, "")) return NULL;
+          UNLESS(-1 != (l=PyList_Size(self->data))) return NULL;
+          l--;
+          UNLESS(r=PySequence_GetItem(self->data,l)) return NULL;
+          UNLESS(-1 != PyList_SetSlice(self->data,l,l+1,emptyList)) goto err;
+          return r;
+      err:
+          Py_DECREF(r);
+          return NULL;
+      }
+
+      static PyObject *
+      MM__init__(self, args)
+             MMobject *self;
+             PyObject *args;
+      {
+          UNLESS(PyArg_ParseTuple(args, "")) return NULL;
+          UNLESS(self->data=PyList_New(0)) goto err;
+          Py_INCREF(Py_None);
+          return Py_None;
+      err:
+          Py_DECREF(self);
+          return NULL;
+      }
+
+      static struct PyMethodDef MM_methods[] = {
+          {"__init__", (PyCFunction)MM__init__, 1,
+           "__init__() -- Create a new empty multi-mapping"},
+          {"push", (PyCFunction) MM_push, 1,
+           "push(mapping_object) -- Add a data source"},
+          {"pop",  (PyCFunction) MM_pop,  1,
+           "pop() -- Remove and return the last data source added"}, 
+          {NULL,		NULL}		/* sentinel */
+      };
+
+      static void
+      MM_dealloc(self)
+             MMobject *self;
+      {
+          Py_XDECREF(self->data);
+          PyMem_DEL(self);
+      }
+
+      static PyObject *
+      MM_getattr(self, name)
+                MMobject *self;
+                char *name;
+      {
+          return Py_FindMethod(MM_methods, (PyObject *)self, name);
+      }
+
+      static int
+      MM_length(self)
+                MMobject *self;
+      {
+          long l=0, el, i;
+          PyObject *e=0;
+
+          UNLESS(-1 != (i=PyList_Size(self->data))) return -1;
+          while(--i >= 0)
+            {
+              e=PyList_GetItem(self->data,i);
+              UNLESS(-1 != (el=PyObject_Length(e))) return -1;
+              l+=el;
+            }
+          return l;
+      }
+
+      static PyObject *
+      MM_subscript(self, key)
+                MMobject *self;
+                PyObject *key;
+      {
+          long i;
+          PyObject *e;
+
+          UNLESS(-1 != (i=PyList_Size(self->data))) return NULL;
+          while(--i >= 0)
+            {
+              e=PyList_GetItem(self->data,i);
+              if(e=PyObject_GetItem(e,key)) return e;
+              PyErr_Clear();
+            }
+          PyErr_SetObject(PyExc_KeyError,key);
+          return NULL;
+      }
+
+      static PyMappingMethods MM_as_mapping = {
+                (inquiry)MM_length,		/*mp_length*/
+                (binaryfunc)MM_subscript,      	/*mp_subscript*/
+                (objobjargproc)NULL,		/*mp_ass_subscript*/
+      };
+
+      /* -------------------------------------------------------- */
+
+      static char MMtype__doc__[] = 
+      "MultiMapping -- Combine multiple mapping objects for lookup"
+      ;
+
+      static PyExtensionClass MMtype = {
+                PyObject_HEAD_INIT(&PyType_Type)
+                0,				/*ob_size*/
+                "MultMapping",			/*tp_name*/
+                sizeof(MMobject),		/*tp_basicsize*/
+                0,				/*tp_itemsize*/
+                /* methods */
+                (destructor)MM_dealloc,		/*tp_dealloc*/
+                (printfunc)0,			/*tp_print*/
+                (getattrfunc)MM_getattr,	/*tp_getattr*/
+                (setattrfunc)0,			/*tp_setattr*/
+                (cmpfunc)0,			/*tp_compare*/
+                (reprfunc)0,			/*tp_repr*/
+                0,				/*tp_as_number*/
+                0,				/*tp_as_sequence*/
+                &MM_as_mapping,			/*tp_as_mapping*/
+                (hashfunc)0,			/*tp_hash*/
+                (ternaryfunc)0,			/*tp_call*/
+                (reprfunc)0,			/*tp_str*/
+
+                /* Space for future expansion */
+                0L,0L,0L,0L,
+                MMtype__doc__, /* Documentation string */
+                METHOD_CHAIN(MM_methods)
+      };
+
+      static struct PyMethodDef MultiMapping_methods[] = {
+          {NULL,		NULL}		/* sentinel */
+      };
+
+      void
+      initMultiMapping()
+      {
+          PyObject *m, *d;
+
+          m = Py_InitModule4(
+              "MultiMapping", MultiMapping_methods,
+              "MultiMapping -- Wrap multiple mapping objects for lookup",
+              (PyObject*)NULL,PYTHON_API_VERSION);
+          d = PyModule_GetDict(m);
+          PyExtensionClass_Export(d,"MultiMapping",MMtype);
+
+          if (PyErr_Occurred()) 
+             Py_FatalError("can't initialize module MultiMapping");
+      }
+
+</XMP>
+
+<p>    This version includes <code>ExtensionClass.h</code>.  The two declarations of
+    <code>MMtype</code> have been changed from <code>PyTypeObject</code> to <code>PyExtensionClass</code>.
+    The <code>METHOD_CHAIN</code> macro has been used to add methods to the end of
+    the definition for <code>MMtype</code>.  The module function, newMMobject has
+    been replaced by the <code>MMtype</code> method, <code>MM__init__</code>.  Note that this
+    method does not create or return a new object.  Finally, the lines:</p>
+<XMP>
+      d = PyModule_GetDict(m);
+      PyExtensionClass_Export(d,"MultiMapping",MMtype);
+
+</XMP>
+
+<p>    Have been added to both initialize the extension class and to export
+    it in the module dictionary.</p>
+
+<p>    To use this module, compile, link, and import it as with any other
+    extension module.  The following python code illustrates the
+    module's use:</p>
+<XMP>
+      from MultiMapping import MultiMapping
+      m=MultiMapping()
+      m.push({'spam':1, 'eggs':2})
+      m.push({'spam':3, 'ham':4})
+
+      m['spam'] # returns 3
+      m['ham']  # returns 4
+      m['foo']  # raises a key error
+
+</XMP>
+
+<p>    Creating the <code>MultiMapping</code> object took three steps, one to create
+    an empty <code>MultiMapping</code>, and two to add mapping objects to it.  We
+    might wish to simplify the process of creating MultiMapping
+    objects by providing a constructor that takes source mapping
+    objects as parameters.  We can do this by subclassing MultiMapping
+    in Python:</p>
+<XMP>
+      from MultiMapping import MultiMapping
+      class ExtendedMultiMapping(MultiMapping):
+          def __init__(self,*data):
+            MultiMapping.__init__(self)
+            for d in data: self.push(d)
+
+      m=ExtendedMultiMapping({'spam':1, 'eggs':2}, {'spam':3, 'ham':4})
+
+      m['spam'] # returns 3
+      m['ham']  # returns 4
+      m['foo']  # raises a key error
+
+</XMP>
+
+
+</dl>
+
+</dl>
+<dl><dt><p><strong>Bindable objects</strong><p>
+<dd><p>  Python classes bind Python function attributes into methods.  When a
+  class has a function attribute that is accessed as an instance
+  attribute, a method object is created and returned that contains
+  references to the original function and instance.  When the method
+  is called, the original function is called with the instance as the
+  first argument followed by any arguments passed to the bethod.</p>
+
+<p>  Extension classes provide a similar mechanism for attributes that
+  are Python functions or inherited extension functions.  In addition,
+  if an extension class attribute is an instance of an extension class
+  that defines <code>__call__</code> and <code>__bind_to_object__</code> methods, then when
+  the attribute is accessed through an instance, it's
+  <code>__bind_to_object__</code> method will be called to create a bound method.</p>
+
+<p>  Consider the following example:</p>
+<XMP>
+    import ExtensionClass
+
+    class foo(ExtensionClass.Base):
+
+      def __call__(self,ob): print 'called', ob
+
+      class meth:
+
+        def __init__(self,m,o): self.meth, self.ob=m,o
+
+        def __call__(self): self.meth(self.ob)
+
+      def __bind_to_object__(self,o): return self.meth(self,o)
+
+    class bar(ExtensionClass.Base):
+      hi=foo() # bar has a foo method named hi
+
+    x=bar()
+    hi=x.hi()
+
+</XMP>
+
+<p>  Note that <code>ExtensionClass.Base</code> is a base extension class that
+  provides no function other than creating extension subclasses.  It
+  is used here to allow extension classes to be defined totally in
+  python to take advantage of the binding mechanism.</p>
+
+<p>  When run, this program outputs: 'called <bar instance at 140046420>'</p>
+
+
+</dl>
+<dl><dt><p><strong>Status</strong><p>
+<dd><p>  The current release of the extension class module is 0.3 <a href="#Download">[Download]</a>. The
+  implementation is about two thousand lines in size, including
+  comments.  This release will work with Python verion 1.3 or 1.4, but
+  does not take advantage of attribute access optimizations available
+  in Python 1.4.  </p>
+
+<dl><dt><p><strong>  Installation</strong><p>
+<dd><dl><dt><p><strong>      Dynamic linking installation</strong><p>
+<dd><p>        Installation is in two steps.  First, run <code>make</code> to build the
+        extension class module, and then run <code>make</code> with a target of
+        <code>install</code> to install the <code>ExtensionClass</code> module and the
+        <code>ExtensionClass.h</code> header file in the standard python
+        directories.  For Python revision 1.4 and higher, use the default
+        make file:</p>
+<XMP>
+           make
+           make install
+
+</XMP>
+
+<p>        for Python 1.3, use the make file, <code>1.3-Makefile</code>:</p>
+<XMP>
+           make -f 1.3-Makefile
+           make -f 1.3-Makefile install
+
+</XMP>
+
+<p>        Note that the make files can also be used to build the sample
+        extension class module, MultiMapping:</p>
+<XMP>
+           make MODULE=MultiMapping
+
+</XMP>
+
+
+</dl>
+<dl><dt><p><strong>      Static linking installation</strong><p>
+<dd><p>        To statically link the extension class module into the Python
+        interpreter:</p>
+<ul><li><p>copy the files: <code>ExtensionClass.c</code> and <code>ExtensionClass.h</code> to
+              the <code>Modules</code> directory in the Python source tree,</p>
+
+</ul>
+<ul><li><p>add the following line to the <code>Setup</code> file in the <code>Modules</code>
+              directory::</p>
+<p>                ExtensionClass ExtensionClass.c</p>
+
+
+</ul>
+<ul><li><p>rebuild python, and</p>
+
+</ul>
+<ul><li><p>copy <code>ExtensionClass.h</code> to the Python run-time include
+              directory,</p>
+
+</ul>
+
+
+</dl>
+
+</dl>
+
+</dl>
+<dl><dt><p><strong>Issues</strong><p>
+<dd><p>  There are a number of issues that came up in the course of this work
+  and that deserve mention.</p>
+
+<ul><li><p>Currently, the class extension mechanism described in <a href="#4">[4]</a> requires
+    that the first superclass in a list of superclasses must be of the
+    extended class type.  This may not be convenient if mix-in
+    behavior is desired.  If a list of base classes starts with a
+    standard python class, but includes an extension class, then an
+    error is raised.  It would be more useful if, when a list of base
+    classes contains one or more objects that are not python classes,
+    the first such object was used to control the extended class
+    definition.  To get around this, the <code>ExtensionClass</code> module exports
+    a base extension class, <code>Base</code>, that can be used as the first base
+    class in a list of base classes to assure that an extension
+    subclass is created.</p>
+
+</ul>
+<ul><li><p>Currently, only one base extension class can define any data in
+    C.  The data layout of subclasse instances is the same as for the
+    base class that defines data in C, except that the data structure
+    is extended to hold an instance dictionary.  The data structure
+    begins with a standard python header, and extension methods expect
+    the C instance data to occur immediately after the object header.  If
+    two or more base classes defined C data, the methods for the
+    different base classes would expect their data to be in the same
+    location. A solution might be to allocate base class instances and
+    store pointers to these instances in the subclass data structure.
+    The method binding mechanism would have to be a more complicated
+    to make sure that methods were bound to the correct base data
+    structure. </p>
+
+</ul>
+<ul><li><p>There is currently no support for subclassing in C, beyond that
+    provided by method chains..  </p>
+
+</ul>
+<ul><li><p>Rules for mixed-type arithmetic are different for python class
+    instances than they are for extension type instances.  Python
+    classes can define right and left versions of numeric binary
+    operators, or they can define a coersion operator for converting
+    binary operator operands to a common type.  For extension types,
+    only the latter, coersion-based, approach is supported.  The
+    coersion-based approach does not work well for many data types for
+    which coersion rules depend on the operator.  Because extension
+    classes are based on extension types, they are currently limited
+    to the coersion-based approach.  It would be straightforward to
+    extend the extension class implementation to allow both types of
+    mixed-type arithmetic control.</p>
+
+</ul>
+<ul><li><p>I considered making extension classes immutable, meaning that
+    class attributes could not be set after class creation.  I also
+    considered making extension subclasses cache inherited
+    attributes.  Both of these are related and attractive for some
+    applications, however, I decided that it would be better to retain
+    standard class instance sematics and provide these features as
+    options at a later time.</p>
+
+</ul>
+<ul><li><p>It would be useful to be able to specify parameters that control
+    class creation, but that would otherwise not appear in the class
+    dictionary.  For example, it would be useful to provide parameters
+    to control mutability of classes (not class instances), or to
+    turn on caching of inherited class attributes.</p>
+
+</ul>
+<ul><li><p>The extension class module defines new method types to bind C and
+    python methods to extension class instances.  It would be useful
+    for these method objects to provide access to function call
+    information, such as the number and names of arguments and the
+    number of defaults, by parsing extension function documentation
+    strings.</p>
+
+</ul>
+
+</dl>
+<dl><dt><p><strong>Applications</strong><p>
+<dd><p>  Aside from test and demonstration applications, the extension class
+  mechanism has been used to provide an extension-based implementation
+  of the persistence mechanism described in <a href="#1">[1]</a>.  We plan to develop
+  this further to provide features such as automatic deactivation of
+  objects not used after some period of time and to provide more
+  efficient peristent-object cache management.</p>
+
+<p>  Future projects include creation of Java-like synchronized objects
+  and impementation of aquisition <a href="#7">[7]</a>, an inheritence-like mechansism
+  that provides attribute sharing between container and component
+  objects. </p>
+
+
+</dl>
+<dl><dt><p><strong>Summary</strong><p>
+<dd><p>  The extension-class mechanism described here provides a way to add
+  class services to extension types.  It allows:</p>
+<ul><li><p>Subclassing extension classes in Python,</p>
+
+</ul>
+<ul><li><p>Construction of extension class instances by calling extension
+      classes,</p>
+
+</ul>
+<ul><li><p>Extension classes to provide meta-data, such as unbound methods
+      and their documentation string.</p>
+
+</ul>
+
+<p>  In addition, the extension class module provides a relatively
+  concise example of the use of mechanisms that were added to Python
+  to support MESS <a href="#6">[6]</a>, and that were described at the fourth Python
+  Workshop <a href="#4">[4]</a>.  It is hoped that this will spur research in improved
+  and specialized models for class implementation in Python.</p>
+
+
+</dl>
+<dl><dt><p><strong>References</strong><p>
+<dd><p>  <a name="1">[1]</a> Fulton, J., Providing Persistence for World-Wide-Web
+       Applications, Proceedings of the 5th Python Workshop.
+       <a href="http://www.digicool.com/papers/Persistence.html">http://www.digicool.com/papers/Persistence.html</a></p>
+
+<p>  <a name="2">[2]</a> Page, R. and Cropper, S., Document Template, Proceedings of the
+       5th Python Workshop.
+       <a href="http://www.digicool.com/papers/DocumentTemplate.html">http://www.digicool.com/papers/DocumentTemplate.html</a></p>
+
+<p>  <a name="3">[3]</a> Beaudry, D., Deriving Built-In Classes in Python, Proceedings of
+       the First International Python Workshop.
+       <a href="http://www.python.org/workshops/1994-11/BuiltInClasses/BuiltInClasses_1.html">http://www.python.org/workshops/1994-11/BuiltInClasses/BuiltInClasses_1.html</a></p>
+
+<p>  <a name="4">[4]</a> Von Rossum, G., Don Beaudry Hack - MESS, presented in the
+       Developer's Future Enhancements session of the 4th Python Workshop.
+       <a href="http://www.python.org/workshops/1996-06/notes/thursday.html">http://www.python.org/workshops/1996-06/notes/thursday.html</a></p>
+
+<p>  <a name="5">[5]</a> Fulton, J., Meta-Type Object.  This is a small proposal, the text
+       of which is contained in a sample implementation source file, 
+       <a href="http://www.digicool.com/jim/MetaType.c.">http://www.digicool.com/jim/MetaType.c.</a></p>
+
+<p>  <a name="6">[6]</a> Beaudry, D., and Ascher, D., The Meta-Extension Set, 
+       <a href="http://maigret.cog.brown.edu/pyutil/">http://maigret.cog.brown.edu/pyutil/</a></p>
+
+<p>  <a name="7">[7]</a> Gil, J., Lorenz, D., Environmental Acquisition--A New
+       Inheritance-Like Abstraction Mechanism, OOPSLA '96 Proceedings,
+       ACM SIG-PLAN, October, 1996
+       <a href="http://www.bell-labs.com/people/cope/oopsla/Oopsla96TechnicalProgramAbstracts.html#GilLorenz">http://www.bell-labs.com/people/cope/oopsla/Oopsla96TechnicalProgramAbstracts.html#GilLorenz</a></p>
+
+<p>  <a name="Download">[Download]</a> <a href="ftp://ftp.digicool.com/pub/releases/ExtensionClass-0.3.tar.gz">ftp://ftp.digicool.com/pub/releases/ExtensionClass-0.3.tar.gz</a>
+</p>
+
+
+</dl>
+
+</body></html>

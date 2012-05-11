@@ -1,0 +1,545 @@
+<HTML><HEAD><STYLE>
+BODY {font-family="Arial"}
+TT {font-family="Courier New"}
+BLOCKQUOTE.CITE {padding-left:0.5em; margin-left:0; margin-right:0; margin-top:0; margin-bottom:0; border-left:"solid 2";}
+SPAN.TABOOHEADER {display=none}
+</STYLE></HEAD>
+<BODY>
+<table cellspacing=0 cellpadding=0 width=100% bgcolor=#E0D098 text=#000000>
+
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="Author" content="Neal Norwitz">
+  <title>PyChecker: Finding Bugs in Other People's Programs</title>
+</head>
+
+<body bgcolor='#FFFFFF'>
+<center>
+<h1 align=center>
+  <a href='http://pychecker.sf.net'>PyChecker:</a> 
+  Finding Bugs in Other People's Programs
+</h1>
+
+<h6 align=center>
+<a href='mailto:neal@metaslash.com'>Neal Norwitz</a>,
+<a href='mailto:ecn@metaslash.com'>Eric C. Newton</a>,
+<a href='mailto:mm@metaslash.com'>Michele Moore</a>
+<p><a href='http://www.metaslash.com'>MetaSlash, Inc.</a>
+</h6>
+</center>
+
+<h3>Abstract</h3>
+
+<p>
+PyChecker is a software development tool used to find programming
+errors in Python code.  Like a compiler, it performs the static analysis
+used by less dynamic languages like C/C++ and Java.  Errors are
+found by examining the structural elements of the code, such as
+modules, functions, classes, and executable statements.  This paper
+describes the motivations, design, and benefits of PyChecker.
+</p>
+<p>
+  <b>Keywords:</b> code inspection, static analysis, debugging tool
+</p>
+<h3>Introduction</h3>
+
+
+<p>
+PyChecker <a href='#1'>[1]</a> began as an experiment to determine the
+feasibility of using static analysis on Python <a href='#2'>[2]</a>
+programs. Python is a highly dynamic language that does not lend
+itself to the static analysis typically performed by compilers.  Some
+people in the computer science community believe the development of
+robust and/or complex software requires compile-time checks for
+software correctness.  Although compilers detect many bugs, they do
+not eliminate all bugs.  Furthermore, a common misconception is that
+scripting languages like Python are less robust than compiled
+languages and should not be used for mission critical systems.
+</p>
+<p>
+In the beginning, PyChecker only found missing doc strings. This
+technique provided the learning necessary to make more advanced
+checks. Missing and unused global checks were later added. Soon, we
+had built up enough internal information about methods and functions
+to check for the proper number of arguments in function calls.
+</p>
+<p>
+We have worked on mission critical, high availability, air traffic
+control software and Python is a great language for many of these
+systems.  However, development with Python can be improved to help
+software developers reduce bugs.  PyChecker was created in an effort
+to find bugs during development prior to testing or delivering our
+systems.
+</p>
+<p>
+The initial release of PyChecker demonstrated it could find bugs by
+static analysis.  The positive feedback from many developers
+proved the value of PyChecker.  With added incentive, we implemented
+more features to find other types of bugs.
+</p>
+<h3>Background</h3>
+
+<h4>Motivation for Developing PyChecker</h4>
+
+<p>
+We find ourselves using Python in a broad range of systems that
+are being extended and maintained for many years.  Python is an 
+excellent language for these applications, because it helps avoid
+such runtime conditions as out-of-bounds errors and memory leaks.
+</p>
+<p>
+Developing large, robust systems requires significant testing; all
+paths through the code must be executed to achieve full test coverage.
+PyChecker supports the development of these systems by automating code
+inspection and checking for errors in ways that testing does not.
+Generally, exceptional conditions and error handling code are tested
+the least because they are rarely, if ever, executed.  Therefore,
+undetected errors are more likely and handling an unexpected event can
+become a catastrophic error.
+</p>
+<p>
+When making changes to complex systems, modifications must be done
+carefully, backed by large investments in testing.  However, it's not
+always possible to test all aspects of a system.  Less dynamic
+languages like C/C++ and Java check for errors during the static
+analysis phase of compilation.  These languages require type
+declarations, for example, to find coding errors related to mistyped
+variables or parameters.  Other types of bugs can be found in this
+first pass of code inspection, like calling a function with the wrong
+number of parameters or forgetting to import a module.  However,
+Python finds these bugs later, during execution of the program,
+because it doesn't perform static analysis.
+</p>
+<h4>Static Analysis</h4>
+
+<p>
+Static analysis is not necessary for a language to be useful or even
+powerful. We love Python -- it is clean, portable, and easy-to-use.
+However, it is also easy to write code in Python and make an
+undetected mistake.  It is even easier to refactor working code and 
+make a mistake.  We encountered many instances where common problems
+could be found through code inspection.  PyChecker was developed to 
+do the inspection automatically, so we could develop more robust 
+systems.
+</p>
+<p>
+Static analysis has been around a long time.  
+<tt>lint</tt> <a href='#3'>[3]</a> has been
+used for decades on C code.  <tt>gcc</tt> <a href='#4'>[4]</a> has
+many options to configure warnings, including <tt>-Wall</tt> to turn
+on all common warnings.  <tt>perl</tt> <a href='#5'>[5]</a> has the
+<tt>use strict;</tt> and <tt>use warnings;</tt> directives 
+as well as <tt>-w</tt>.
+</p>
+<p>
+More recently the Stanford Validity Checker <a href='#6'>[6]</a> 
+has been used to find hundreds of
+semantic bugs in the Linux kernel.  However, Python had no equivalent
+to these tools.  There is a tool to freeze code for a specific
+architecture so that the Python interpreter does not need to be
+installed. This process will not find invalid references, such as
+a call to a function that does not exist.
+While static analysis has been considered for Python <a href='#7'>[7]</a>,
+this work has not yet been used to develop PyChecker.
+</p>
+
+<h3>What PyChecker Does</h3>
+
+<p>
+Currently PyChecker produces four different categories of warnings:
+
+<ul>
+  <li>Likely Bugs
+  <li>Potential Bugs
+  <li>Unused Identifiers
+  <li>Code Complexity/Style
+</ul>
+
+<i>Likely Bug Warnings</i>
+<ul>
+  <li>No global found (e.g., using a module without importing it)
+  <li>Passing the wrong number of parameters to functions/methods/constructors
+  <li>Using format strings that do not match parameters
+  <li>Using class methods and attributes that do not exist
+  <li>Using a variable before setting it
+  <li>self is not the first parameter to a method
+  <li>self is a parameter to a function
+  <li>Returning a value from __init__()
+  <li>Instantiating an object with arguments, but no constructor
+</ul>
+
+<i>Potential Bug Warnings</i>
+<ul>
+  <li>Changing the signature of a method when overriding
+  <li>Redefining a function/class/method in the same scope
+  <li>Using integer division
+</ul>
+
+<i>Unused Identifier Warnings</i>
+<ul>
+  <li>Unused globals and locals (module or variable identifiers)
+  <li>Unused function/method parameters
+</ul>
+
+<i>Code Complexity/Style Warnings</i>
+<ul>
+  <li>Functions/methods with too many lines, returns, branches,
+	parameters, or local variables
+  <li>Importing a module multiple times or using import and from/import
+  <li>No doc strings in modules, classes, functions, or methods
+</ul>
+
+<p>
+Potential security warnings will be implemented in the near future.
+Many other enhancements are also planned, for example:  more type checking, 
+more checking for code that can throw exceptions, path analysis, and 
+unreachable code.
+</p>
+<p>
+To get a better idea of the types of errors PyChecker can detect,
+examine the following code example for errors: 
+<i>(Hint: there are 14!)</i>
+</p>
+<p>
+<blockquote><pre>
+ 1   #! /usr/bin/env python
+ 2
+ 3   'Example errors caught by PyChecker'
+ 4
+ 5   import string
+ 6
+ 7   metaslash = 1
+ 8
+ 9   def printNames():
+10       neal = 'neal'
+11       michelle = 'michele'
+12       eric = 5
+13       print "Local values: %(neal)S %(michele)s %(eric)" % locals()
+14
+15   class Nothing:
+16       def printValue(value):
+17           print value
+18       def set(self, value):
+19           self.value = value
+20
+21   def tryToDoSomething(self, value):
+22       try:
+23           import string
+24           if not value:
+25               raise RuntimeError, "Hey, there's no value"
+26           printNames('a, b, c')
+27       except:
+28           traceback.print_exc()
+29
+30   def setGlobal(value=None):
+31       print 'Old MetaSlash value is:', metaslash
+32       metaslash = value
+33       useless = Nothing(5)
+34       print 'a useless value is:', useless.valeu
+</pre></blockquote>
+
+<p>
+With default options, PyChecker produces:
+</p>
+<p>
+<blockquote><pre>
+example.py:5: Imported module (string) not used
+example.py:11: Local variable (michelle) not used
+example.py:13: Invalid format string, problem starts near: '(eric)'
+example.py:13: Invalid format string, problem starts near: '(neal)S '
+example.py:13: No local variable (michele)
+example.py:16: self is not first method argument
+example.py:21: self is argument in function
+example.py:23: Local variable (string) not used
+example.py:23: Module (string) re-imported
+example.py:26: Invalid arguments to (printNames), got 1, expected 0
+example.py:28: No global (traceback) found
+example.py:31: Variable (metaslash) used before being set
+example.py:33: Instantiating an object with arguments, but no constructor
+example.py:34: Object (useless) has no attribute (valeu)
+</pre></blockquote>
+</p>
+<p>
+Because programmers have different coding styles, PyChecker needs to be 
+adaptable.  Warnings can be enabled or disabled so that only the 
+desired warnings are produced.  For example,
+the "unused variable" warning can be disabled since
+it is not necessarily an error. 
+There are four different ways to customize PyChecker's configuration:
+</p>
+<p>
+<ol>
+<li>Use command line parameters to change the default behavior
+<li>Define configuration values in a .pycheckrc file
+<li>Set the variable __pychecker__ in code
+<li>Define a suppression dictionary (in .pycheckrc file) where the keys are:
+'module', 'module.function', 'module.class', or 'module.class.method' and
+the values use the same format as the __pychecker__ variable.
+</ol>
+</p>
+<p>
+By providing a flexible way to suppress warnings, spurious warnings
+can be minimized.  The code complexity and style warnings can be
+adjusted to match each user's preference.  In addition, a "blacklist" can
+be specified as a list of module names for which warnings should not
+be produced.  Generally, libraries are blacklisted because their code
+doesn't change, therefore, neither do their warnings.
+</p>
+<h3>How PyChecker Works</h3>
+
+<p>
+PyChecker imports all the modules passed on the command line.  As
+it imports each module, PyChecker determines the attributes of the
+module (imported modules, classes, and functions) using <tt>dir()</tt>.  
+It creates
+a data tree of all the modules, functions, global variables, classes,
+and methods using <tt>type()</tt>.  During this pass, information
+about function and method signatures is gathered.  After generating
+the data tree from the code, PyChecker iterates
+through the Python byte code.  Byte codes are the equivalent of 
+machine instructions in the Python interpreter and are generated
+by the interpreter when a module is imported.
+After iterating through all the byte codes, the final set of warnings
+is produced.
+</p>
+<p>
+Byte codes are a convenient format to use for finding errors
+because the data for each operation is readily available.  
+While iterating through the byte code, warnings are generated by:
+</p>
+<p>
+<ul>
+  <li>storing variable references to determine if they are unused
+  <li>checking the existence of class members and methods
+  <li>checking the proper argument counts to function and method calls
+  <li>checking the consistency of parameters to format strings
+  <li>checking the existence of doc strings
+  <li>various other techniques
+</ul>
+</p>
+<p>
+To better understand the Python byte codes, consider the following function
+contained in a file <tt>example1.py</tt>:
+</p>
+<p>
+<blockquote><pre>
+def increment(x): return x + 1
+</pre></blockquote>
+</p>
+<p>
+The following interactive session with the Python interpreter shows
+the function's disassembled byte code (<tt>dis</tt> is part of the standard
+library):
+</p>
+<p>
+<blockquote><pre>
+>>> import example1
+>>> import dis
+>>> dis.dis(example1.increment)
+  0 SET_LINENO               1
+
+  3 SET_LINENO               1
+  6 LOAD_FAST                0 (x)
+  9 LOAD_CONST               1 (1)
+ 12 BINARY_ADD
+ 13 RETURN_VALUE
+ 14 LOAD_CONST               0 (None)
+ 17 RETURN_VALUE
+</pre></blockquote>
+</p>
+<p>
+For each byte code instruction, a function is dispatched based upon
+the op-code. For example, the op-code SET_LINENO is dispatched 
+to a function which
+saves the current line number.  Some of the dispatch functions
+construct objects for later analysis.  One of the primary sources of
+information is the inferred status of the stack.  PyChecker recovers a
+significant part of program flow by analyzing the stack operations.
+Many of the dispatch functions, like LOAD_FAST, build an internal
+representation of what the stack will do at runtime.  From this
+internal representation, PyChecker can determine things like the
+number of arguments passed to a function and the initial type of
+local constants.
+</p>
+<p>
+A C programmer would expect the following
+code to increment the value stored in <tt>x</tt>. Although perfectly
+legal in Python, this function actually has no effect on <tt>x</tt>:
+</p>
+<p>
+<blockquote><pre>
+def bad_increment(x): return ++x
+</pre></blockquote>
+</p>
+<p>
+This code produces the following the byte codes:
+</p>
+<p>
+<blockquote><pre>
+>>> import example2
+>>> import dis
+>>> dis.dis(example2.bad_increment)
+  0 SET_LINENO               1
+
+  3 SET_LINENO               1
+  6 LOAD_FAST                0 (x)
+  9 UNARY_POSITIVE
+ 10 UNARY_POSITIVE
+ 11 RETURN_VALUE
+ 12 LOAD_CONST               0 (None)
+ 15 RETURN_VALUE
+</pre></blockquote>
+</p>
+<p>
+Now it is easier to see why <tt>++x</tt> is a statement with no
+effect.  <tt>++</tt> is not auto-increment, rather it is
+<tt>+(+x)</tt>.  The Python interpreter does not flag this as an error
+because the code is syntactically correct.  The same problem exists
+with <tt>--x</tt> or <tt>~~x</tt>, in that these statements typically
+have no effect.
+</p>
+<p>
+Python byte code is easy to use and manipulate; however,
+there are several drawbacks with the current techniques employed by PyChecker:
+</p><p>
+<ul>
+  <li>Jython cannot be supported since it does not use CPython byte codes
+  <li>Line numbers cannot be reported if the code has been optimized
+  <li>Code block/branch/path analysis and determination of implicit
+      returns are more difficult since the concepts from the original
+      source code must be inferred from the byte code
+  <li>Code must be imported which can be problematic for some code
+      which requires setting up the proper environment
+      (e.g., setting up sys.path, importing modules in specific order, etc.)
+  <li>Comments cannot be used to supply hints, __pychecker__ must be used
+</ul>
+</p>
+<p>
+Future releases of PyChecker are expected to address these issues.
+</p>
+
+<h3>Development Approach</h3>
+
+<p>
+PyChecker was released in April 2001 with the ability to produce 18
+warnings.  Most warnings were fairly simple and only Python 2.0 was
+supported.  Seven months and sixteen releases later, PyChecker is at
+version 0.8.6, reports 63 warnings, and supports all versions of Python
+from 1.5.2 and later.
+</p>
+<p>
+The original warnings produced were fairly simplistic.  PyChecker
+also produced some inappropriate warnings because not all 
+language features were supported.  The releases were generally quick,
+often at two-week intervals.  New features and configuration options 
+were added with each release as well as a few bug fixes.
+As we learned more about Python, more
+checks were implemented which sometimes resulted in bugs, but often
+resulted in more ideas for additional checks to add.  With a highly
+iterative approach (build--test--release), the
+system progressed much faster than many other projects we have worked
+on.  Features were added and bugs were fixed quickly and easily.
+</p>
+<p>
+With all of the development of PyChecker, refactoring was necessary
+from time to time.  PyChecker has been a big help with finding bugs
+in itself!  Refactoring commonly entails moving blocks of code
+between functions, methods, and modules, resulting in missing
+imports or extra imports.  Members and methods that existed in the old
+class no longer exist in the new class.  PyChecker would ferret
+out these problems very quickly.  Rather than require a test run,
+it could quickly inspect the code and report problems.
+</p>
+<p>
+PyChecker is not a substitute for testing; on the contrary, it
+augments testing.  During development and prior to release, PyChecker
+is run on itself to ensure that it doesn't produce false warnings.
+There are over 50 unit tests which are also run.  
+Each bug report generates a test
+case so that errors are not duplicated in the future.  With the
+combination of running PyChecker and unit testing, we have been able
+to decrease the bugs in our systems.
+</p>
+<h3>Summary</h3>
+
+<p>
+Many bugs can be found by static analysis tools.  Such tools
+complement testing and should be used by developers to create more
+robust software.  PyChecker is a real-world example of how beneficial
+static analysis is throughout the development process.
+</p>
+<p>
+PyChecker produced a number of surprising results:
+</p>
+<p>
+<ul>
+<li>a dynamic language like Python benefits from static analysis
+<li>the Python standard library had numerous undetected bugs
+<li>implementing new warning checks are easy
+<li>identifying new constructs to check for is very difficult
+</ul>
+</p>
+<p>
+There is no shortage of bugs PyChecker can find.  In the future,
+PyChecker will provide better static analysis to provide warnings for
+all object access, return values, security holes, unreachable code,
+etc.  If you have any suggestions, contact 
+<a href='mailto:pychecker@metaslash.com'>pychecker@metaslash.com</a>.
+</p>
+<h3>References</h3>
+
+<p>
+<table border=0>
+<tr><td>[1]</td>
+  <td><a name='1'>PyChecker - <a href="http://pychecker.sf.net">
+  				http://pychecker.sf.net</a>
+</td></tr>
+
+<tr><td>[2]</td>
+  <td><a name='2'>Python - <a href="http://python.org">
+  				http://python.org</a>
+</td></tr>
+
+<tr><td>[3]</td>
+  <td><a name='3'>"Lint, a C Program Checker",
+  		Computer Science Technical Report 65,
+		Bell Labs, Murray Hill, NJ. updated version TM 78-1273-8 <br>
+  	man page - 
+	  <a href="http://www.opengroup.org/onlinepubs/7908799/xcu/lint.html">
+	    http://www.opengroup.org/onlinepubs/7908799/xcu/lint.html</a>
+</td></tr>
+
+<tr><td>[4]</td>
+  <td><a name='4'>GCC (GNU Compiler Collection) - 
+  		<a href="http://www.gnu.org/software/gcc/gcc.html">
+			http://www.gnu.org/software/gcc/gcc.html</a>
+</td></tr>
+
+<tr><td>[5]</td>
+  <td><a name='5'>Perl - <a href="http://www.perl.org">
+  				http://www.perl.org</a></td></tr>
+
+<tr><td>[6]</td>
+  <td><a name='6'>"Checking System Rules Using System-Specific,
+			Programmer-Written Compiler Extensions" 
+			(Stanford Validity Checker),
+			Engler, Dawson, et al., 
+		<a href="http://www.stanford.edu/~engler/mc-osdi.ps">
+			http://www.stanford.edu/~engler/mc-osdi.ps</a>
+
+<tr><td>[7]</td>
+  <td><a name='7'>"Aggressive Type Inference", Aycock, John, 
+	<a href="http://www.python.org/workshops/2000-01/proceedings/papers/aycock/aycock.html">
+		http://www.python.org/workshops/2000-01/proceedings/papers/aycock/aycock.html</a>
+
+</td></tr>
+</table>
+
+</body>
+</html>
+
+</body></html>

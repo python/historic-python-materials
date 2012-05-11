@@ -1,0 +1,551 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-02-01 through 2006-02-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-02-01_2006-02-15]
+
+
+
+=============
+Announcements
+=============
+
+-----------------------------
+QOTF: Quotes of the Fortnight
+-----------------------------
+
+We had a plethora (yes, I did just say plethora) of quotable quotes this fortnight.
+
+Martin v. Löwis on the `lambda keyword`_:
+
+    I believe that usage of a keyword with the name of a Greek letter also contributes to people considering something broken.
+
+Raymond Hettinger on the `learnability of Python`_:
+
+    A language suitable for beginners should be easy to learn, but it should not leave them permanently crippled...  To misquote Einstein:  The language should be as simple as possible, but no simpler.
+
+Robert Brewer on `Pythonic syntax`_:
+
+    Community consensus on syntax is a pipe dream.
+
+.. _lambda keyword: http://mail.python.org/pipermail/python-dev/2006-February/060389.html
+.. _learnability of Python: http://mail.python.org/pipermail/python-dev/2006-February/060420.html
+.. _Pythonic syntax: http://mail.python.org/pipermail/python-dev/2006-February/060556.html
+
+[SJB]
+
+--------------------
+Release plan for 2.5
+--------------------
+
+`PEP 356`_ lists the release plan for Python 2.5.  Check it out for the latest feature updates and planned release dates.
+
+.. _PEP 356: http://www.python.org/dev/peps/pep-0356/
+
+Contributing threads:
+
+- `release plan for 2.5 ? <http://mail.python.org/pipermail/python-dev/2006-February/060493.html>`__
+- `2.5 release schedule <http://mail.python.org/pipermail/python-dev/2006-February/060982.html>`__
+- `2.5 PEP <http://mail.python.org/pipermail/python-dev/2006-February/060985.html>`__
+
+[SJB]
+
+----------------------------
+lsprof available as cProfile
+----------------------------
+
+Armin Rigo finished his integration of the lsprof profiler.  It's now available as the cProfile module which exposes the same interface as profile.
+
+Contributing thread:
+
+- `cProfile module <http://mail.python.org/pipermail/python-dev/2006-February/060479.html>`__
+
+[SJB]
+
+---------------------
+ssize_t branch merged
+---------------------
+
+Martin v. Löwis merged in the ssize_t branch (`PEP 353`_). All you folks on 64 bit machines should now be able to index sequences using your full address space.  Enjoy!
+
+.. _PEP 353: http://www.python.org/dev/peps/pep-0353/
+
+Contributing threads:
+
+- `ssize_t status (Was: release plan for 2.5 ?) <http://mail.python.org/pipermail/python-dev/2006-February/060714.html>`__
+- `ssize_t branch (Was: release plan for 2.5 ?) <http://mail.python.org/pipermail/python-dev/2006-February/060810.html>`__
+- `ssize_t branch merged <http://mail.python.org/pipermail/python-dev/2006-February/061073.html>`__
+
+[SJB]
+
+=========
+Summaries
+=========
+
+------------------------------------------------------
+Rumors of lambda's death have been greatly exaggerated
+------------------------------------------------------
+
+Guido's finally given in -- the lambda expression will stay in Python 3.0. Of course, this didn't stave off another massively long thread discussing the issue, but Guido finally killed that by providing a pretty exhaustive list of why we should keep lambda as it is:
+
+* No purely `syntactic change to lambda`_ is clearly a net gain over the current syntax
+* It's perfectly fine that Python's lambda is different from Lisp's
+* Lambda current binding behavior is (correctly) exactly the same as a def statement
+* Allowing a block inside a lambda is never going to work because of the need to indent the block
+
+.. _syntactic change to lambda: http://wiki.python.org/moin/AlternateLambdaSyntax
+
+Contributing threads:
+
+- `any support for a methodcaller HOF? <http://mail.python.org/pipermail/python-dev/2006-February/060341.html>`__
+- `Let's just *keep* lambda <http://mail.python.org/pipermail/python-dev/2006-February/060415.html>`__
+- `Let's send lambda to the shearing shed (Re: Let's just *keep* lambda) <http://mail.python.org/pipermail/python-dev/2006-February/060583.html>`__
+
+[SJB]
+
+--------------
+The bytes type
+--------------
+
+Guido asked for an update to `PEP 332`_, which proposed a ``bytes`` type. This spawned a massive discussion about what the bytes type should look like and how it should interact with strings, especially in Python 3.0 when all strings would be unicode. Pretty much everyone agreed that bytes objects should be mutable sequences of ints in the range(0, 256). Guido and others were also generally against a b'...' literal for bytes, as that would confusingly suggest that bytes objects were text-like, which they wouldn't be.
+
+There was a fair bit of haggling over the signature of the bytes constructor, but it seemed towards the end of the discussion that people were coming to an agreement on ``bytes(initializer [,encoding])``, where ``initializer`` could be a sequence of ints or a str or unicode instance, and where ``encoding`` would be an error for a sequence of ints, ignored for a str instance, and the encoding for a unicode instance. Some people argued that the encoding argument was unnecessary as unicode objects could be encoded using their .encode() method, but Guido was concerned that, at least before Python 3.0 when .encode() would return bytes objects, the multiple copying (one for the encode, one for the bytes object creation) would require too much overhead.
+
+The default encoding for unicode objects was also a contentious point, with people suggesting ASCII, Latin-1, and the system default encoding.  Guido argued that since Python strings don't know the encoding that was used to create them, and since a programmer who typed in Latin-1 would expect Latin-1 as the encoding and a programmer who typed in UTF-8 would expect UTF-8 as the encoding, then the only sensible solution was to encode unicode objects using the system default encoding (which is pretty much always ASCII).
+
+It seemed like an official PEP for the bytes type would be forthcoming.
+
+.. _PEP 332: http://www.python.org/peps/pep-0332.html
+
+Contributing threads:
+
+- `PEP 332 revival in coordination with pep 349? [ Was:Re: release plan for 2.5 ?] <http://mail.python.org/pipermail/python-dev/2006-February/060752.html>`__
+- `bytes type discussion <http://mail.python.org/pipermail/python-dev/2006-February/060930.html>`__
+- `byte literals unnecessary [Was: PEP 332 revival in coordination with pep 349?] <http://mail.python.org/pipermail/python-dev/2006-February/060944.html>`__
+- `bytes type needs a new champion <http://mail.python.org/pipermail/python-dev/2006-February/061058.html>`__
+
+[SJB]
+
+--------------
+Octal literals
+--------------
+
+Mattheww proposed removing octal literals, making 0640 a SyntaxError, and modifying functions like os.chmod to take string arguments instead, e.g. ``os.chmod(path, "0640")``.  This led to a discussion about how necessary octal literals actually are -- the only use case mentioned in the thread was os.chmod() -- and how to improve their syntax.  For octal literals people seemed to prefer an ``0o`` or ``0c`` prefix along the lines of the ``0x`` prefix, possibly introducing an analogous ``0b`` as binary literal syntax at the same time.  People also suggested a number of syntaxes for expressing numeric literals in any base, but these seemed like overkill for the problem at hand.
+
+Contributing threads:
+
+- `Octal literals <http://mail.python.org/pipermail/python-dev/2006-January/060262.html>`__
+- `Octal literals <http://mail.python.org/pipermail/python-dev/2006-February/060277.html>`__
+
+[SJB]
+
+---------------------------------------------------
+PEP 357: Allowing Any Object to be Used for Slicing
+---------------------------------------------------
+
+Travis Oliphant presented `PEP 357`_ to address some issues with the sequence protocol. In Python 2.4 and earlier, if you defined an integer-like type, there was no way of letting Python use instances of your type in sequence indexing.  And Python couldn't just call the ``__int__`` slot because then floats could be inappropriately used as indices, e.g. ``range(10)[5.7]`` would be ``5``.  To solve this problem, `PEP 357`_ proposed adding an ``__index__`` slot that would be called when a sequence was given a non-integer in a slice.  Floats would not define ``__index__`` because they could not be guaranteed to produce an exact integer, but exact integers like those in numpy_ could define this method and then be allowable as sequence indices.
+
+.. _PEP 357: http://www.python.org/peps/pep-0357.html
+.. _numpy: http://www.numpy.org/
+
+Contributing threads:
+
+- `PEP for adding an sq_index slot so that any object, a or b, can be used in X[a:b] notation <http://mail.python.org/pipermail/python-dev/2006-February/060594.html>`__
+- `Please comment on PEP 357 -- adding nb_index slot to PyNumberMethods <http://mail.python.org/pipermail/python-dev/2006-February/060973.html>`__
+
+[SJB]
+
+-----------------------------
+const declarations in CPython
+-----------------------------
+
+To avoid some deprecation warnings generated by C++, Jeremy Hylton had added ``const`` to a few CPython APIs that took ``char*`` but were typically called by passing string literals.  This generated compiler errors when ``char**`` variables were passed to PyArg_ParseTupleAndKeywords.  Initially, people thought this could be solved by changing ``const char **`` declarations to ``const char * const *`` declarations, but while this was fine for C++, it did not solve the problem for C.  The end result was to remove the ``const`` declaration from the ``char **`` variables, but not the ``char *`` variables.
+
+Contributing thread:
+
+- `Baffled by PyArg_ParseTupleAndKeywords modification <http://mail.python.org/pipermail/python-dev/2006-February/060689.html>`__
+
+[SJB]
+
+--------------------
+asynchat and threads
+--------------------
+
+Mark Edgington presented a patch adding "thread safety" to asynchat. Most people seemed to think mixing threads and asynchat was a bad idea, and the thread drifted off to talking about exracting a subset of Twisted to add to the stdlib (as a replacement for asynchat and asyncore).  People seemed generally in favor of this (if the subset was reasonably small) but no one stepped forward to extract that subset.
+
+Contributing thread:
+
+- `threadsafe patch for asynchat <http://mail.python.org/pipermail/python-dev/2006-February/060469.html>`__
+
+[SJB]
+
+---------------------------------------------------
+Approximate equality between floating point numbers
+---------------------------------------------------
+
+To make floating-point math easier for newbies, Alex Martelli proposed math.areclose() which would take two floating point numbers with optional tolerances and indicate whether or not they were "equal".  With a similar motivation, Smith proposed a math.nice() function which would round floating point numbers in the same way that str() does. Raymond Hettinger and others expressed concern over the stated use case and suggested that hiding floating point details would only make learning their intricacies later more difficult. A few people suggested that math.areclose() might also be useful for experienced floating-point users, but it seemed that the proposal probably didn't have enough strength to get into the stdlib.
+
+Contributing threads:
+
+- `math.areclose ...? <http://mail.python.org/pipermail/python-dev/2006-February/060413.html>`__
+- `nice() <http://mail.python.org/pipermail/python-dev/2006-February/060811.html>`__
+- `[Tutor] nice() <http://mail.python.org/pipermail/python-dev/2006-February/060814.html>`__
+
+[SJB]
+
+-----------------------------
+Eliminating compiler warnings
+-----------------------------
+
+Thomas Wouters noticed a few gcc 4.0.x warnings on amd64, and asked if Python developers should strive to remove all warnings even if they're harmless. Tim Peters was definitely in favor of eliminating all warnings whenever possible, and so had Thomas Wouters unnecessarily (for other compilers at least) initialize a variable to silence the warning.
+
+Contributing threads:
+
+- `Compiler warnings <http://mail.python.org/pipermail/python-dev/2006-January/060253.html>`__
+- `Compiler warnings <http://mail.python.org/pipermail/python-dev/2006-February/060280.html>`__
+
+[SJB]
+
+---------------------------------
+Adding syntactic support for sets
+---------------------------------
+
+Greg Wilson asked about providing syntactic support for sets literals and set comprehensions, e.g. ``{1, 2, 3, 4, 5}`` and ``{z for z in x if (z % 2)}``.  The set comprehension suggestion was pretty quickly shot down as it wasn't deemed to be much of an improvement over a generator expression in the set constructor, e.g. ``set(z for z in x if (z % 2))``.  The question of syntactic support for set literals sparked a little more of a discussion.  Some people initially suggested that syntactic support for set literals was unnecessary as the set constructor could be expanded, e.g ``set(1, 2, 3, 4, 5)``.  However this proposal would not be backwards compatible as it would be unclear whether ``set('title')`` should be a set of one element or five.  Others questioned whether the syntactically supported set literal should create a set() or a frozenset().  No one had a good answer for this latter question, and the rest of the thread drifted off into a miscellany of syntax suggestions.
+
+Contributing thread:
+
+- `syntactic support for sets <http://mail.python.org/pipermail/python-dev/2006-February/060307.html>`__
+
+[SJB]
+
+-------------------------------
+FD_SETSIZE in Windows and POSIX
+-------------------------------
+
+Revision 42253 introduced a bug in Windows sockets by assuming that FD_SETSIZE was the maximum number of distinct file descriptors a file descriptor set can hold, and checking for this. FD_SETSIZE is actually the numerical magnitude of a file descriptor (which happens to correspond to the maximum number of distinct file descriptors on POSIX systems where fdsets are just big bit vectors). A #define, Py_DONT_CHECK_FD_SETSIZE, was introduced so that the check could be skipped on windows machines.
+
+Contributing thread:
+
+- `Pervasive socket failures on Windows <http://mail.python.org/pipermail/python-dev/2006-February/060666.html>`__
+
+[SJB]
+
+-----------------------------
+Iterators and __length_hint__
+-----------------------------
+
+In Python 2.4, a number of iterators had grown __len__ methods to allow for some optimizations (like allocating enough space to create a list out of them). Guido had asked for these methods to be removed and hidden instead as an implementation detail.  Originally, Raymond had used the name ``_length_cue``, but he was convinced instead to use the name ``__length_hint__``.
+
+Contributing thread:
+
+- `_length_cue() <http://mail.python.org/pipermail/python-dev/2006-February/060524.html>`__
+
+[SJB]
+
+-----------------------------------------------
+Linking with mscvrt instead of the compiler CRT
+-----------------------------------------------
+
+Martin v. Löwis suggested that on Windows, instead of linking Python with the CRT of the compiler used to compile Python, Python should be linked with mscvrt, the CRT that is part of the operating system.  Martin hoped that this would get rid of problems where extension modules had to be compiled with the same compiler as the Python with which they were to run.  Unfortunately, after further investigation, Martin had to withdraw the proposal as the platform SDK doesn't provide an import library for msvrt.dll and mscvrt is documented as being intended only for "system components".
+
+Contributing thread:
+
+- `Linking with mscvrt <http://mail.python.org/pipermail/python-dev/2006-February/060490.html>`__
+
+[SJB]
+
+-------------------------------------------
+Opening text and binary files in Python 3.0
+-------------------------------------------
+
+Guido indicated that in Python 3.0 there should be two open() functions, one for opening text files and one for opening binary files. The .read*() methods of text files would return unicode objects, while the .read*() methods of binary files would return bytes objects. People then suggested a variety of names for these functions including:
+
+* opentext() and openbytes()
+* text.open() and bytes.open()
+* file.text() and file.bytes()
+
+Guido didn't like the tight coupling of data types and IO libraries present in the latter two.  He also expressed a preference for using open() instead of opentext(), since it was the more common use case.  Of course, modifying open() in this way would be backwards incompatible and would thus have to wait until Python 3.0.
+
+Contributing thread:
+
+- `str object going in Py3K <http://mail.python.org/pipermail/python-dev/2006-February/060896.html>`__
+
+[SJB]
+
+--------------------------------------------
+Adding additional bdist_* installation types
+--------------------------------------------
+
+Phillip Eby suggested adding bdist_deb, bdist_msi, and friends to the standard library in Python 2.5.  People seemed generally in favor of this, though there was some discussion as to whether or not bdist_egg should also be included.  The thread then trailed off into a discussion of the various installation behaviors on different platforms.
+
+Contributing thread:
+
+- `bdist_* to stdlib? <http://mail.python.org/pipermail/python-dev/2006-February/060869.html>`__
+
+[SJB]
+
+-------------------------------------
+URL for the development documentation
+-------------------------------------
+
+Georg Brandl pointed out that while http://docs.python.org/dev/ holds the current development documentation, http://www.python.org/dev/doc/devel was still available. Fred Drake indicated that it was definitely preferable to use the automatically updated docs (http://docs.python.org/dev/) but that having them on docs.python.org seemed wrong -- docs.python.org was established so that queries could be made for the current stable documentation without old docs or development docs showing up.  Fred then proposed that the current stable documentation go up at http://www.python.org/doc/current/ and the current development documentation go up at http://www.python.org/dev/doc/.  Guido thought that http://docs.python.org/ could possibly disappear in the new `python.org redesign`_.
+
+.. _python.org redesign: http://beta.python.org
+
+Contributing threads:
+
+- `http://www.python.org/dev/doc/devel still available <http://mail.python.org/pipermail/python-dev/2006-February/060825.html>`__
+- `moving content around (Re: http://www.python.org/dev/doc/devel still available) <http://mail.python.org/pipermail/python-dev/2006-February/060839.html>`__
+
+[SJB]
+
+------------------------------------------------
+PEP 355: Path - Object oriented filesystem paths
+------------------------------------------------
+
+BJörn Lindqvist updated `PEP 355`_ which proposes adding the path module to replace some of the functions in os, shutil, etc. At Guido's request, the use of ``/`` and ``//`` operators for path concatenation was removed, and a number of redundancies brought up in the last Path PEP discussion were addressed (though some redundancies, e.g. ``.name`` and ``.basename()`` seem to still be present).
+
+.. _PEP 355: http://www.python.org/peps/pep-0355.html
+
+Contributing threads:
+
+- `The path module PEP <http://mail.python.org/pipermail/python-dev/2006-February/060304.html>`__
+- `Path PEP and the division operator <http://mail.python.org/pipermail/python-dev/2006-February/060385.html>`__
+- `Path PEP: some comments <http://mail.python.org/pipermail/python-dev/2006-February/060397.html>`__
+- `Path PEP -- a couple of typos. <http://mail.python.org/pipermail/python-dev/2006-February/060399.html>`__
+
+[SJB]
+
+-----------------------------------------
+Rejection of PEP 351: The freeze protocol
+-----------------------------------------
+
+Raymond Hettinger's strong opposition to `PEP 351`_, the freeze protocol, finally won out, and Guido rejected the PEP.
+
+.. _PEP 351: http://www.python.org/peps/pep-0351.html
+
+Contributing thread:
+
+- `PEP 351 <http://mail.python.org/pipermail/python-dev/2006-February/060789.html>`__
+
+[SJB]
+
+--------------------------------------
+PEP 338 - Executing Modules as Scripts
+--------------------------------------
+
+Nick Coghlan updated `PEP 338`_ to comply with the import system of `PEP 302`_. The updated PEP includes a ``run_module()`` function which will execute the supplied module as if it were a script (e.g. with __name__ == "__main__"). Since it supports the `PEP 302`_ import system, it properly handles modules in both packages and zip files.
+
+.. _PEP 302: http://www.python.org/peps/pep-0302.html
+.. _PEP 338: http://www.python.org/peps/pep-0338.html
+
+Contributing thread:
+
+- `PEP 338 - Executing Modules as Scripts <http://mail.python.org/pipermail/python-dev/2006-February/060760.html>`__
+
+[SJB]
+
+-----------------------------------------------
+Getting sources for a particular Python release
+-----------------------------------------------
+
+David Abrahams wanted to get the Python-2.4.2 sources from SVN but couldn't figure out which tag to check out. The right answer for him was http://svn.python.org/projects/python/tags/r242/ and in general it seemed that the r<major><minor><micro> tags corresponded to the <major>.<minor>.<micro> release.
+
+Contributing thread:
+
+- `How to get the Python-2.4.2 sources from SVN? <http://mail.python.org/pipermail/python-dev/2006-February/060770.html>`__
+
+[SJB]
+
+---------------------------------------
+PEP for \*args and \*\*kwargs unpacking
+---------------------------------------
+
+Thomas Wouters asked if people would be interested in a PEP to generalize the use of \*args and \*\*kwargs to unpacking, e.g.:
+
+* ``['a', 'b', *iterable, 'c']``
+* ``a, b, *rest = range(5)``
+* ``{**defaults, **args, 'fixedopt': 1}``
+* ``spam(*args, 3, **kwargs, spam='extra', eggs='yes')``
+
+People definitely wanted to see a PEP, as these or similar suggestions have been raised a number of times.  The time-table would likely be for Python 2.6 though, so no PEP has yet been made available.
+
+Contributing thread:
+
+- `Generalizing *args and **kwargs <http://mail.python.org/pipermail/python-dev/2006-February/061011.html>`__
+
+[SJB]
+
+----------------------
+Tail call optimization
+----------------------
+
+In CPython, a function call requires a new execution frame, which is
+expensive compared to a loop.  Some langauges (notably scheme)
+automically optimize tail-call recursion, so that in practice, it will
+be just as fast.  This can be done in CPython by using abusing
+internals.
+
+It merged into the decorator module discussion; in the end, Guido did
+not want it in the standard library, in part because it would change
+exception tracebacks, and in part because it would likely be very
+different for other implementations (such as Jython).
+
+Contributing thread:
+
+- `Any interest in tail call optimization as a decorator? <http://mail.python.org/pipermail/python-dev/2006-February/060478.html>`__
+
+[Summary by Jim Jewett]
+
+--------------------------------
+Things to check before a release
+--------------------------------
+
+:
+
+   Hey, we should have changed the copyright dates to include 2006!
+
+   Yeah, and lets write ourselves a note, so that we remember next year!
+
+   Uh, where should put that reminder?
+
+PEP 101 was used, since a new release should be at least one trigger
+for verifying that things like this happened.  And putting it there
+reminded Georg that PEP 101 needs other updates too.  (Example:  It
+still refers to the source code in sourceforge CVS, rather than
+python.org SVN)
+
+Contributing thread:
+
+- `Where to put &quot;post-it notes&quot;? <http://mail.python.org/pipermail/python-dev/2006-February/060777.html>`__
+
+
+================
+Deferred Threads
+================
+- `The decorator(s) module <http://mail.python.org/pipermail/python-dev/2006-February/060759.html>`__
+- `C AST to Python discussion <http://mail.python.org/pipermail/python-dev/2006-February/060994.html>`__
+- `bytes.from_hex() [Was: PEP 332 revival in coordination with pep 349?] <http://mail.python.org/pipermail/python-dev/2006-February/061037.html>`__
+- `how bugfixes are handled? <http://mail.python.org/pipermail/python-dev/2006-February/061067.html>`__
+
+
+==================
+Previous Summaries
+==================
+- `Extension to ConfigParser <http://mail.python.org/pipermail/python-dev/2006-February/060278.html>`__
+- `[PATCH] Fix dictionary subclass semantics whenused as global dictionaries <http://mail.python.org/pipermail/python-dev/2006-February/060438.html>`__
+
+
+===============
+Skipped Threads
+===============
+- `YAML (was Re: Extension to ConfigParser) <http://mail.python.org/pipermail/python-dev/2006-February/060275.html>`__
+- `webmaster at python.org failing sender verification. <http://mail.python.org/pipermail/python-dev/2006-February/060300.html>`__
+- `ctypes patch (was: (libffi) Re: Copyright issue) <http://mail.python.org/pipermail/python-dev/2006-February/060327.html>`__
+- `ctypes patch <http://mail.python.org/pipermail/python-dev/2006-February/060332.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-February/060468.html>`__
+- `Help with Unicode arrays in NumPy <http://mail.python.org/pipermail/python-dev/2006-February/060482.html>`__
+- `small floating point number problem <http://mail.python.org/pipermail/python-dev/2006-February/060507.html>`__
+- `Old Style Classes Goiung in Py3K <http://mail.python.org/pipermail/python-dev/2006-February/060516.html>`__
+- `Make error on solaris 9 x86 - error: parse error before &quot;upad128_t&quot; <http://mail.python.org/pipermail/python-dev/2006-February/060517.html>`__
+- `Python modules should link to libpython <http://mail.python.org/pipermail/python-dev/2006-February/060533.html>`__
+- `Help on choosing a PEP to volunteer on it : 308, 328 or 343 <http://mail.python.org/pipermail/python-dev/2006-February/060564.html>`__
+- `email 3.1 for Python 2.5 using PEP 8 module names <http://mail.python.org/pipermail/python-dev/2006-February/060579.html>`__
+- `[BULK] Python-Dev Digest, Vol 31, Issue 37 <http://mail.python.org/pipermail/python-dev/2006-February/060585.html>`__
+- `py3k and not equal; re names <http://mail.python.org/pipermail/python-dev/2006-February/060595.html>`__
+- `Post-PyCon PyPy Sprint: February 27th - March 2nd 2006 <http://mail.python.org/pipermail/python-dev/2006-February/060688.html>`__
+- `compiler.pyassem <http://mail.python.org/pipermail/python-dev/2006-February/060717.html>`__
+- `To know how to set &quot;pythonpath&quot; <http://mail.python.org/pipermail/python-dev/2006-February/060773.html>`__
+- `file.next() vs. file.readline() <http://mail.python.org/pipermail/python-dev/2006-February/060781.html>`__
+- `Fwd: Ruby/Python Continuations: Turning a block callback into a read()-method ? <http://mail.python.org/pipermail/python-dev/2006-February/060813.html>`__
+- `PEP 343: Context managers a superset of decorators? <http://mail.python.org/pipermail/python-dev/2006-February/060816.html>`__
+- `Missing PyCon 2006 <http://mail.python.org/pipermail/python-dev/2006-February/060873.html>`__
+- `how to upload new MacPython web page? <http://mail.python.org/pipermail/python-dev/2006-February/060983.html>`__
+- `A codecs nit (was Re: bytes.from_hex()) <http://mail.python.org/pipermail/python-dev/2006-February/061070.html>`__
+
+
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+February 01, 2006 through February 15, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 13th written by
+the swat team of Steve Bethard and Tony Meyer (no, we still can't make a deadline).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.  Unfortunately, even though reST is standardized, the
+wonders of programs that like to reformat text do not allow us to
+guarantee you will be able to run the text version of this summary
+through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _original text file: http://www.python.org/dev/summary/2006-02-01_2006-02-15.rst
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

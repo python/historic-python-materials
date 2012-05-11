@@ -1,0 +1,451 @@
+<html>
+<head>
+<title> GUI SIG minutes </title>
+</head>
+
+<body>
+<h1> Graphical User Interface SIG </h1>
+<i> Session Chair: Jim Fulton </i>
+<br>
+<a name="review">
+<h3> Review of the GUI Checklist </h3>
+<li> What are essential characteristics of a python GUI?
+<ul>
+    <li> Barry: Programming model vs. Implementation
+    <li> Portability (Multi platform) vs. Native Look and Feel
+    <li> Barry: Three audiences
+    <ul>
+       <li> Ubiquitous API (Unix, Windows, MAC, etc)
+       <li> People writing products (native L&F important)
+       <li> API that Grail presents
+       <ul>
+          <li> Guido: a tie should go to Tkinter because of Grail
+       </ul>
+    </ul>
+</ul>
+<br>
+<h3> Presentations of GUI Alternative </h3>
+<br>
+<a name="tkinter">
+<h4> Tkinter </h4>
+<i> Guido van Rossum </i>
+<p>
+<ul>
+   <li> What is Tkinter?
+   <ul>
+      <li> A collection of wrapper classes around Tk
+      <ul>
+         <li> No need to know or use TCL to write Tkinter apps
+      </ul>
+      <li> Provides access to nearly all Tk features
+      <li> Fairly strict correspondence to Tk functionality
+      <li> Python provides a nice object oriented model around Tk
+   </ul>
+   <li> TCL Example
+   <pre>
+    button .top.quit -text Quit -command exit
+    pack .top.quit
+   </pre>
+   <li> Python Example
+   <pre>>
+    quit = Button(top, text='Quit', command=sys.exit)
+    quit.pack()
+   </pre>
+   <li> Meta-Advantages of Tk
+   <ul>
+      <li> Tk has hundreds of thousands of users
+      <li> Osterhout is motivated to support it
+      <li> Good long term prospects
+      <li> Large Tkinter user base in the Python community
+      <li> Grail is written using Tkinter
+   </ul>
+   <li> Tk Portablity
+   <ul>
+      <li> Ports to Windows and MAC underway
+      <ul>
+         <li> Currently alpha quality
+         <li> Will acquire native look and feel sometime in 96
+         <li> User community expected to grow to millions
+         <li> Assertion: If OLE is not present on the Windows
+              port, Microsoft apps will be *very* limited
+         <li> Response: Distributed object technologies are
+              still too immature to attempt to standardize
+              Just the GUI will be hard enough
+         <li> Robin: Moving to native L&F wiil be very tough
+      </ul>
+   </ul>
+   <li> Meta-Disadvantages of Tk
+   <ul>
+      <li> Sun "owns" Tcl and Tk - no control over development
+      <li> Portability has yet to be demonstrated - currently
+           some areas are too X11 specific
+   </ul>
+   <li> Technical Advantages of Tk
+   <ul>
+      <li> No redraw necessary - all redrawing handled by Tk!
+      <li> Automatic geometry management
+      <li> Multi-font text widget with embedded images
+      <li> Canvas widget allows drawing objects, text, images
+      <li> Comprehensive widget and option sets
+      <li> Full X11 window manager interface
+      <ul>
+         <li> titles
+         <li> icons
+         <li> grabbing
+         <li> transient windows
+         <li> geometry, etc
+      </ul>
+      <li> Support for async I/O handlers, timers
+   </ul>
+   <li> Technical Disadvantages of Tk
+   <ul>
+      <li> Must link with TCL
+      <li> passing all data though Tcl can be slow (strings only)
+      <li> Sometimes TCL peculiarities show through (scroll bars)
+      <li> Occasional bad choice of interface in Tkinter
+      <ul>
+         <li> <i> from Tkinter import * </i>
+         <li> <i> w.config([text': "Hello World"]) # old
+         <li> w.config(text="Hello World)      # new </i>
+      </ul>
+   </ul>
+   <li> Suggestions for the Future
+   <ul>
+      <li> Continue to support Tkinter interface
+      <li> phase out use of dictionaries (keyword parameters instead)
+      <li> Improve performance using Rivet
+      <ul>
+         <li> avoids passing things via Tcl
+         <li> performance closer to C
+      </ul>
+      <li> Migrate to an improved interface called <i> Tk </i>
+      <ul>
+         <li> <i> import Tk    b = Tk.Button()
+      </ul>
+   </ul>
+   <li> Q: Does Tk have and interface simmilar to NetScape's 
+        <i> plugin </i> ?
+   <li> Guido, Barry: No, but it would be a very easy extension
+        to the <i> TopLevel </i> function
+   <li> Jim: Does Tk provide the right level of abstraction?
+        For example can I actually add and delete things off the
+        end of a *large* scrolling list? (e.g. I don't want it 
+        all in memory?) 
+   <li> Guido: Yes
+   <li> Jim: Are the X11 fonts going to be used on the MAC and
+        Windows ports?  
+   <li> Guido: On the MAC there are a *few* that are the same
+</ul>
+<br>
+<h4> Demo of bake-off app using Tk </h4>
+<ul>
+   <li> Written in Python by fortran programmer
+        at USGS who had not used Tk or python before
+   <li> USGS has alot of specific needs for plotting and 
+        <i> sticking our tick marks everywhere </i> and
+        cross-platform support is very important
+   <li> His general impression was that Tk is very nice
+        and python is very nice and easy to use
+   <li> He used the python 1.2 (non-keyword arguments)
+        and an older version of Tk 
+   <li> program is 854 lines
+</ul>
+<br>
+<a name="wpy">
+<h4> WPY </h4>
+<i> Jim Ahlstrom </i>
+<p>
+<ul>
+   <li> Portability
+   <ul>
+      <li> Linux, NT, 95, Windows 3.1 (sortof - with win32s)
+      <li> NT port funs on Win95, Win3.1, LAF: Native
+      <li> No port (yet) to MAC
+      <li> Strong port to UNIX using Tk
+   </ul>
+   <li> Language
+   <ul>
+      <li> Python class library, high OO design
+      <li> Python on UNIX/Tk, has C++ interface for NT port
+      <li> No port for OS/2, but you can run it on OS/2
+           using a win32s or a new OS/2 LAF windows
+   </ul>
+   <li> Documentation
+   <ul>
+      <li> 2000 lines of UNIX like documentation describes all
+      <li> classes and methods.  Discussion of app creation and drawing
+      <li> Can read wpy.py sources, has all classes and methods
+   </ul>
+   <li> Performance
+   <ul>
+      <li> under UNIX it uses tkinter -> TCL -> Tk
+      <li> under Windows, it passes pretty quickly to C++
+           layer which makes MFC calls
+      <li> Good performance for both
+      <li> Special C++ support for scrolling on NT (native on Tk)
+   </ul>
+   <li> Features
+   <ul>
+      <li> Document/View model class
+      <li> under windows you get templates
+      <li> Dialog classes (modal, modless)
+      <li> Drawing classes, Brush, font, txt, line, circle, others
+      <li> Images: gif, ppm, on all, bmp and dib on NT)
+      <li> Control Classes: Push Button, Check Button, Radio Button
+           (these check themselves on Tk, not MFC), Label, Message
+      <li> Menus: Bar, Popup, cascading, popups
+      <li> Geometry management is very different from Tk (MFC
+           lacks geometry management)
+      <li> WPY Geometry management is most like Tk <i> placer </i>
+      <li> Geometry mangement is more like explicit placement, Controls
+           have a default size, even the the GUI has not yet made the
+           control
+      <li> Footprint
+      <ul>
+         <li> On unix: uses stock build of Python 1.3 with Tk4.0 and
+              tkinter.c Requires wpy.py (2300 lines), wpy_tk.py (1500
+              lines) and wpycon.py (600 lines)
+         <li> On NT requires Python 1.2 (soon 1.3) plus 12 C++ modules
+	      with 6400 lines of C++, plus wpy.py, wpycon.py.
+      </ul>
+      <li> small code exerpts from the demo program (lot's of stuff
+           omitted)
+      <pre>
+# Make some brushes to draw points
+ignoreBrush = wpy.CBrush((127,127,127)).Create()
+mainBrush = wpy.CBrush((127,127,0).Create()
+
+# The View
+class GraphView(wpy.CScrollView):
+	def OnCreate(self, event):
+	def OnSize(self, rect): # Initial size or resize of window
+	def SetSelected(self, new): # Change the selected point
+	def DrawGraph(self, DC): # draw the graph
+	def OnDraw(self, DC): # Draw the view
+
+# Create the app
+app = GraphApp()
+      </pre>
+   </ul>
+</ul>
+<br>
+<h4> Demo of WPY </h4>
+<ul>
+   <li> Written by Jim Ahlstrom 
+   <li> Slicker app than the Tk app (drag and drop annotations)
+   <li> WPY is based on <i> little </i> tkinter.c
+   <li> code is 546 lines
+   <li> Jim F: how would you do table widgets?
+   <li> Jim A: first I'd have to find the table widget in MFC
+        and figure out how it works, then do the same thing for Tk,
+        next figure out the simmilarities and differences, make some
+        design decisions, implement the wpy wrapper
+   <li> Demo'd first under Solaris then under Windows 95
+   <li> slight quirk under 95 where the cross-hairs are not redrawn
+        upon damage from a drag operation of a point object until
+        the drop
+   <li> MFC has a <i> document-view </i> architecture where X11 is
+        a <i> callback </i> architecture
+   <li> WPY uses MFC as a high-level model but mapps it into Tk
+        as a medium level model
+   <li> Guido: How do you handle fonts?
+   <li> Jim A: Fonts are a nightmare, on X you can assign a font attribute
+        (e.g. a font string),
+        on Windows, you can specify three <i> styles </i> (which boil
+	down to helvetica, Coriour, and whatever) then a font style
+        (bold , italic), and MFC makes the best choice.  MFC has the
+        higher level model, so this is what WPY uses
+   <li> Should you need a call that does not exist, you need to write 
+        a C interface
+   <li> If you do something that's not documented under WPY, you run the
+        risk of doing something that's not portable
+</ul>
+<br>
+<a name="pnet">
+<h4> PNET (HTML-based GUI) </h4>
+
+<i> Jim's wpy demo app running inside the PNET browser </i>
+<p>
+<i> By: Tyler Brooks </i>
+<p>
+<ul>
+   <li> Implemented as a <i> plugin </i> module - netscape style
+   <li> applet extension for wpy, except that it's more like grail
+        <i> extensions </i> because there's no safety and downloading
+        capabilities
+   <li> have multiple Microsoft's reusable software model (OCX) based
+        plugin's
+   <li> have a python interpreter plugin
+   <li> I want to extend the model to the GUI using wpy
+   <li> motivation for using python is the cross platform capabilities
+        of wpy... If just windows we're just the intended audience,
+	I would go with straight MFC
+</ul>
+<br>
+<a name="wxwindows">
+<h4> wxWindows </h4>
+<i> By: Robin Friedrick </i>
+<p>
+<ul>
+   <li> Presentation written by Harri Panasen(sp?)
+   <li> a C++ multiplatform GUI toolkit
+   <li> wxPython is a tin vaneer of to make wxPython accessable
+        in python
+   <li> Freely available, object-oriented, mult-platform for
+        Motif, Windows 3.1, XView (OS/2 and NeXT ports in limbo
+        but partially complete)
+   <li> simplicity through abstraction and OOP
+   <li> Power though high functionality
+   <li> vendor independence via access to source (C++)
+   <li> wxWindows is in intended to compete as a commercial product
+   <li> feedback and fixes from user community
+   <li> online and printed manuals
+   <li> 150 classes - GUI and OS operations
+   <li> window clipboard support
+   <li> canvas, postscript, bitmaps, metafiles
+   <li> bindings to CLIPS, python, perl, scheme, prolog
+   <li> contraint layout system (not in python yet)
+   <li> utility for generating help files and manuals
+   <li> DDE/MDI/GDI support under Windows, DDE under UNIX
+   <li> libraries include tree drawing, toolbars, forms, hypertext
+   <li> moving toward MFC and a new imaging model
+   <li> Libraries... 
+   <ul>
+      <li> 3D style controls, bitmap buttons, toolbars, messages and
+           radio buttons
+      <li> Tiny titlebars under Windows
+      <li> Guage Classes
+      <li> XPM pixmap functionality for icons and bitmaps
+      <li> support for retriving GIF, raster, BMP files
+   </ul>
+   <li> Platforms
+   <ul>
+      <li> XView 3.2 Motif 1.2, Most UNIX
+      <li> Windows 3.11, Windows NT, WIN32S
+      <li> VMS
+      <li> Linux,  IRIX, most main UNIX OS's
+   </ul>
+   <li> wxBuilder a GUI builder for wxWindows
+   <ul>
+      <li> Interactively builds GUI code
+      <li> generates C++ and <i> wxResource </i> files
+      <li> Can load bitmaps and canvases
+      <li> Runs under all <i> wxWindows </i> platforms
+   </ul>
+   <li> Other utilities
+   <ul>
+      <li> <i> Tex2RTF </i> for online manuals
+      <li> <i> wxHelp </i> a help view for UNIX
+      <li> Under development: <i> wxMedia </i>
+           (a multimedia container class)
+   </ul>
+   <li> On the horizon
+   <ul>
+      <li> Document/View/Persistant storage architecture
+      <li> Mulitmedia editor widget
+      <li> WinSock and UNIX networking support
+      <li> image manipulation class <i> wxImage </i>
+      <li> Windows 95 and Mofif 2.0 support
+      <li> MAC, OS/2 and NEXTSTEP ports coming on line 
+      <li> Begin OLE 2.0/OpenDoc wrapper
+   </ul>
+</ul>
+<br>
+<h4> Demo of wxWindows </h4>
+<i> Jim Fulton </i>
+<p>
+<li> Windows 95
+<ul>
+   <li> Spent a very little amount time over Thanksgiving
+   <li> wxPython is not complete implementation of wxWindows
+   <li> On windows 95, an open gives you a windows 3.1 dialog!
+   <li> On UNIX you get a motif dialog
+   <li> Jim F. assertion: wxWindows people have made alot of
+        the same design decisions
+        as Jim (WPY) has - MFC (for better or for worse)
+   <li> Jim F. assertion: it's good to have some standard layout
+        conventions MFC supports this heavily  (you get something
+        the user is familiar with)
+   <li> Create a dialog with no geometry management requirment
+        (appears in the middle with default button placement etc.)
+   <li> Documentation is fairly extensive and complete
+   <li> Jim F. assertion: I have some minor complaints about the 
+        implementation, but nothing major
+   <li> 395 lines - without the regression module, so probably 
+        close to Jim A:
+</ul>
+<li> Motif
+<ul>
+   <li> Help menu on the right instead of the left (as it should be)
+   <li> seems to work the same...
+   <li> Motif Look and Feel
+</ul>
+<br>
+<a name="discussion">
+<h3> Where to we go from here? </h3>
+<ul>
+   <li> Reminder, stress the common GUI
+   <li> Robin Assertion: Doesn't think Tkinter is going to be able
+        to fill the gap of the complex things he wants to do
+   <li> Guido: MFC gives you more abstraction than Tk (e.g. Most
+        applications have a menu bar, a scrollbar) which you don't
+        really need in Grail
+   <li> Roger Assertion: I don't completely agree, I can forsee many
+        applications that create there own menus and there own TopLevel
+        windows, etc.
+   <li> Assertion: last workshop we began this debate without the notion
+        of grail or applets
+   <li> A: problem is now applets are here and need to be addressed
+   <li> Jim F: What about the technical developer who's not a computer 
+        scientist?  All these API's are probably fine, but native L&F
+        is probably very import
+   <li> Ken: Two big issues 1) simplicity 2) native L&F
+   <li> Tyler: let me add a third... applets
+   <li> Jim A: Is anyone else worried about TK under windows?
+   <li> Guido: Tk is there, it's tkinter that's not
+   <li> Michael: Simplicity is key
+   <li> Jim A: I don't believe that Osterhout's stuff runs under windows
+   <li> Guido: I belive that <i> timing </i> needs to be added to the list
+        of important things
+   <li> Tyler: As a MFC programmer I found the wpy learning curve to be zero
+        and if the windows audience is one you want, you may want to
+        consider that
+   <li> Assertion (Kurt?): What we need os a standard, powerful, cross-platform,
+        object model for a GUI interface with native look and feel,
+        NeXT OPENSTEP is that model.
+   <li> Roger: I love OPENSTEP, but I also feel the timing is still early
+        for it
+   <li> Kurt: The API *is* the most important thing, choose the most
+        elegant, powerful API
+   <li> Guido:  Mark Lutz's book has a chapter on tkinter
+   <li> Does that mean it's a defacto standard?
+   <li> No, but it helps push it out
+   <li> Jim F: Tk *is* the defacto standard... but not in the windows
+        community
+   <li> Guido: python is more like basic than like C++, so it needs to 
+        be simple
+   <li> Robin: wxwindow and tkinter's API's are very close, wxWindows
+        is just more evolved
+   <li> The concern is that Tk is not going to be ported well enough
+        to Windows... otherwise we would not be here, we would already 
+        have chosen Tk... so the windows crowd want to go with something
+	that's more proven
+   <li> Jim F: We have seen two tools today that can do both
+   <li> Assertion: Power users are the audience (e.g. from NASA and USGS)
+   <li> Jim F: one thing that makes wpy more attractive is the configuration
+        management issue.
+   <li> Guido: the same argument works for tkinter
+   <li> Robin: as a common tool wxWindows is the *heavyest* of the choices
+        but to me that's necessary to get close enough to the native kits
+   <li> Guido: we have different user populations, and depending on whom
+        you focus you come up with a different choice
+   <li> Tyler: In my area, footprint is important (web situation)
+   <li> Jim: It seems like there is a tie between wpy and Tk
+        so let's include wpy and tkinter in the python standard distribution
+   <li> Roger: I like Jim's idea, let's give wpy a chance to compete with
+        tkinter, and in six months we'll have a much better idea that
+        tk is going to be acceptable on Windows and the MAC.  We'll
+   	rediscuss at the next meeting in six months. :-)
+</ul>
+</body>
+</html>

@@ -1,0 +1,1005 @@
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd"><HTML>
+<HEAD>
+   <BASE HREF="http://www.foretec.com/python/workshops/1998-11/proceedings/papers/aycock-little/aycock-little.html">
+</HEAD>
+
+<META NAME="GENERATOR" CONTENT="TtH 1.60">
+                                                     
+<title>Compiling Little Languages in Python</title> 
+<H1 align=center><b>Compiling Little Languages in Python </H1></b>
+
+<p>
+
+<H3 align=center>John Aycock <br>
+<em>Department of Computer Science</em> <br>
+<em>University of Victoria</em> <br>
+<em>Victoria, B.C., Canada</em> <br>
+<em>aycock@csc.uvic.ca</em> </H3>
+
+<p>
+
+<H3 align=center> </H3>
+
+<p>
+ 
+<H2> Abstract</H2>
+``Little languages'' such as configuration files or HTML documents
+are commonplace in computing.  This paper divides the work of
+implementing a little language into four parts, and presents a
+framework which can be used to easily conquer the implementation
+of each.  The pieces of the framework have the unusual property
+that they may be extended through normal object-oriented means, allowing
+features to be added to a little language simply by subclassing
+parts of its compiler.
+<p>
+<p>
+      <H2><A NAME="tth_sEc1">
+1</A>&nbsp;&nbsp;Introduction</H2>
+
+<p>
+Domain-specific languages, or ``little languages,'' are frequently encountered
+when dealing with computers [<a href="#bentley" name=CITEbentley>3</a>].  Configuration
+files, HTML documents, shell
+scripts - all are little structured languages, yet may lack the generality and
+features of full-blown programming languages.  Whether writing an interpreter
+for a little language, or compiling a little language into another language,
+compiler techniques can be used.
+
+<p>
+In many cases, an extremely fast compiler is not needed, especially if the input
+programs tend to be small.  Instead, issues can predominate
+such as compiler development time, maintainability of the compiler, and
+the ability to easily add new language features.  This is Python's
+strong suit.
+
+<p>
+This paper describes some successful techniques I developed while working
+on two compilers for little languages: one for a subset of Java, the other
+an optimizing compiler for Guide, a CGI-programming
+language [<a href="#levy" name=CITElevy>12</a>].  The net
+result is a framework which can be used to implement little languages easily.
+
+<p>
+      <H2><A NAME="tth_sEc2">
+2</A>&nbsp;&nbsp;Model of a Compiler</H2>
+
+<p>
+Like most nontrivial pieces of software, compilers are generally
+broken down into more manageable modules, or phases.  The design
+issues involved and the details of each phase are too numerous
+to discuss here in depth; there are many excellent books on the
+subject, such as [<a href="#dragon" name=CITEdragon>1</a>] and [<a href="#appel" name=CITEappel>2</a>].
+
+<p>
+I began with a simple model of a compiler having only four phases, as shown in
+Figure&nbsp;<A href="#model">1</A>:
+
+<p><A NAME="tth_fIg1">
+</A> 
+<p>
+
+<center><img src="model.gif" alt="model.gif"><br></center> <center>      Figure 1: Compiler model.</center><A NAME="model">
+</A>
+<p>
+<p>
+
+<OL type="1">
+<li> Scanning, or lexical analysis.  Breaks the input stream into a list
+	of tokens.  For example, the expression ``2 + 3 * 5''
+	can be broken up into five tokens: number plus
+	number times number.  The values 2, 3, and 5 are attributes
+	associated with the corresponding number token.
+		
+<p>
+
+<li> Parsing, or syntax analysis.  Ensures that a list of tokens
+	has valid syntax
+	according to a grammar - a set of rules that describes
+	the syntax of the language.
+	For the above example, a typical expression grammar would be:
+	
+<pre>
+		expr ::= expr + term
+		expr ::= term
+		term ::= term * factor
+		term ::= factor
+		factor ::= number
+	</pre>
+	In English, this grammar's rules say that an expression can be
+	an expression plus a term, an expression may be a term by itself,
+	and so on.  Intuitively, the symbol on the
+	left-hand side of ``::='' may be
+	thought of as a variable for which the symbols on the right-hand
+	side may be substituted.  Symbols that don't appear on any
+	left-hand side - like +, *, and number - correspond to
+	the tokens from the scanner.
+
+<p>
+	The result of my parsing is an abstract syntax tree (AST), which
+	represents the input program.  For ``2 + 3 * 5,'' the AST would
+	look like the one in Figure&nbsp;<A href="#ast">2</A>.
+
+<p><A NAME="tth_fIg2">
+</A> 
+<p>
+
+<center><img src="ast.gif" alt="ast.gif"><br></center> <center>      Figure 2: Abstract syntax tree (AST).</center><A NAME="ast">
+</A>
+<p>
+<p>
+		
+<li> Semantic analysis.  Traverses the AST one or more times, collecting
+	information and checking that the input program had no semantic
+	errors.  In a typical programming language, this phase would
+	detect things like type conflicts, redefined identifiers,
+	mismatched function parameters, and numerous other errors.  The
+	information gathered may be stored in a global symbol table,
+	or attached as attributes to the nodes of the AST itself.
+		
+<p>
+
+<li> Code generation.  Again traversing the AST, this phase may directly
+	interpret the program, or output code in C or assembly which
+	would implement the input program.  For expressions as
+	simple as those in the example, they could be evaluated
+	on the fly in this phase.
+</OL>
+<p>
+		Each phase performs a well-defined task, and passes a data structure
+on to the next phase.  Note that information only flows one way, and
+that each phase runs to completion before the next one starts
+<a href="#tthFtNtAAB" name=tthFrefAAB><sup>1</sup></a>.  This is
+in contrast to oft-used techniques which have a symbiosis between scanning
+and parsing, where not only may several phases be working concurrently,
+but a later phase may send some feedback to modify the operation of an earlier
+phase.
+
+<p>
+Certainly all little language compilers won't fit this model, but it is
+extremely clean and elegant for those that do.  The main function of the
+compiler, for instance, distills into three lines which reflect
+the compiler's structure:
+
+<pre>
+	f = open(filename)
+	generate(semantic(parse(scan(f))))
+	f.close()
+</pre>
+
+<p>
+In the remainder of this paper, I will examine each of the above four phases,
+showing how my framework can be used to implement the little
+expression language above.  Following this will be a discussion of some
+of the inner workings of the framework's classes.
+
+<p>
+      <H2><A NAME="tth_sEc3">
+3</A>&nbsp;&nbsp;The Framework</H2>
+
+<p>
+A common theme throughout this framework is that the user should have
+to do as little work as possible.  For each phase, my framework supplies
+a class which performs most of the work.  The user's job is simply to
+create subclasses which customize the framework.
+
+<p>
+      <H3><A NAME="tth_sEc3.1">
+3.1</A>&nbsp;&nbsp;Lexical Analysis</H3>
+
+<p>
+Lexical analyzers, or scanners, are typically implemented one of two ways.  The
+first way is to write the scanner by hand; this may still be the method of choice
+for very small languages, or where use of a tool to generate scanners
+automatically is not possible.  The second method is
+to use a scanner generator tool, like lex [<a href="#levine" name=CITElevine>11</a>],
+which takes a high-level description of the permitted tokens, and produces a
+finite state machine which implements the scanner.
+
+<p>
+Finite state machines are equivalent to regular expressions; in fact, one
+uses regular expressions to specify tokens to scanner generators!  Since Python
+has regular expression support, it is natural to use them to specify tokens.
+(As a case in point, the Python module ``tokenize'' has regular expressions
+to tokenize Python programs.)
+
+<p>
+So GenericScanner, my generic scanner class, requires a user to create
+a subclass of it in which they specify the regular expressions that
+the scanner should look for.  Furthermore, an ``action'' consisting
+of arbitrary Python code can be associated with each regular
+expression - this is typical of scanner generators, and
+allows work to be performed based on the type of token found.
+
+<p>
+Below is a simple scanner to tokenize expressions.  The parameter to the action
+routines is a string containing the part of the input that was matched by the
+regular expression.
+
+<p>
+
+<pre>
+class SimpleScanner(GenericScanner):
+    def __init__(self):
+        GenericScanner.__init__(self)
+    
+    def tokenize(self, input):
+        self.rv = []
+        GenericScanner.tokenize(self, input)
+        return self.rv
+    
+    def t_whitespace(self, s):
+        r' \s+ '
+        pass
+        
+    def t_op(self, s):
+        r' \+ | \* '
+        self.rv.append(Token(type=s))
+        
+    def t_number(self, s):
+        r' \d+ '
+        t = Token(type='number', attr=s)
+        self.rv.append(t)
+</pre>
+
+<p>
+Each method whose name begins with ``t_'' is an action; the regular
+expression for the action is placed in the method's documentation
+string.  (The reason for this unusual design is explained in
+Section&nbsp;<A href="#reflect">4.1</A>.)
+
+<p>
+When the tokenize method is called, a list of Token instances is returned, one
+for each operator and number found.  The code for the Token class is
+omitted; it is a simple container class with a type and an optional
+attribute.  White space is skipped by SimpleScanner, since its action code
+does nothing.  Any unrecognized characters in the input are matched by a default
+pattern, declared in the action GenericScanner.t_default.  This default method
+can of course be overridden in a subclass.  A trace of SimpleScanner
+on the input ``2 + 3 * 5'' is shown in Table&nbsp;<A href="#trace">1</A>.
+
+<p>
+
+<p><A NAME="tth_tAb1">
+</A> 
+<center>
+<table><tr><td>
+<tr><td><u>Input</u> </td><td><u>Method</u> </td><td><u>Token Added</u> 
+<tr><td>2 </td><td>t_number </td><td>number (attribute 2) 
+<tr><td>space </td><td>t_whitespace </td><td>
+<tr><td>+ </td><td>t_op </td><td>+ 
+<tr><td>space </td><td>t_whitespace </td><td>
+<tr><td>3 </td><td>t_number </td><td>number (attribute 3) 
+<tr><td>space </td><td>t_whitespace </td><td>
+<tr><td>* </td><td>t_op </td><td>* 
+<tr><td>space </td><td>t_whitespace </td><td>
+<tr><td>5 </td><td>t_number </td><td>number (attribute 5) </table>
+
+</center>
+<p>
+ <center>      Table 1: Trace of SimpleScanner.</center><A NAME="trace">
+</A>
+<p>
+<p>
+Scanners made with GenericScanner are extensible, meaning that new tokens
+may be recognized simply by subclassing.  To extend SimpleScanner to
+recognize floating-point number tokens is easy:
+
+<p>
+
+<pre>
+class FloatScanner(SimpleScanner):
+    def __init__(self):
+        SimpleScanner.__init__(self)
+        
+    def t_float(self, s):
+        r' \d+ \. \d+ '
+        t = Token(type='float', attr=s)
+        self.rv.append(t)
+</pre>
+			
+<p>
+How are these classes used?  Typically, all that is needed is to read
+in the input program, and pass it to an instance of the scanner:
+
+<p>
+
+<pre>
+def scan(f):
+    input = f.read()
+    scanner = FloatScanner()
+    return scanner.tokenize(input)
+</pre>
+
+<p>
+Once the scanner is done, its result is sent to the parser for syntax analysis.
+
+<p>
+      <H3><A NAME="tth_sEc3.2">
+3.2</A>&nbsp;&nbsp;Syntax Analysis</H3><A NAME="parsing">
+</A>
+
+<p>
+The outward appearance of GenericParser, my generic parser class, is
+similar to that of GenericScanner.
+
+<p>
+A user starts by creating a subclass of
+GenericParser, containing special methods which are named with
+the prefix ``p_''.  These special methods encode grammar rules
+in their documentation strings; the code in the methods are
+actions which get executed when one of the associated grammar
+rules are recognized by GenericParser.
+
+<p>
+The expression parser subclass is shown below.  Here, the actions
+are building the AST for the input program.  AST is also a simple
+container class; each instance of AST corresponds to a node in
+the tree, with a node type and possibly child nodes.
+
+<p>
+
+<pre>
+class ExprParser(GenericParser):
+    def __init__(self, start='expr'):
+        GenericParser.__init__(self, start)
+                
+    def p_expr_1(self, args):
+        ' expr ::= expr + term '
+        return AST(type=args[1],
+                   left=args[0],
+                   right=args[2])
+        
+    def p_expr_2(self, args):
+        ' expr ::= term '
+        return args[0]
+        
+    def p_term_1(self, args):
+        ' term ::= term * factor '
+        return AST(type=args[1],
+                   left=args[0],
+                   right=args[2])
+        
+    def p_term_2(self, args):
+        ' term ::= factor '
+        return args[0]
+        
+    def p_factor_1(self, args):
+        ' factor ::= number '
+        return AST(type=args[0])
+
+    def p_factor_2(self, args):
+        ' factor ::= float '
+        return AST(type=args[0])
+</pre>
+
+<p>
+The grammar's start symbol is passed to the constructor.
+
+<p>
+ExprParser builds the AST from the bottom up.  Figure&nbsp;<A href="#build">3</A> shows
+the AST in Figure&nbsp;<A href="#ast">2</A> being built, and the sequence in which
+ExprParser's methods are invoked.
+
+<p>
+
+<p><A NAME="tth_fIg3">
+</A> 
+<center>
+<table><tr><td>
+<tr><td><u>Method Called</u> </td><td><u>AST After Call</u> 
+<tr><td>
+
+<p>
+p_factor_1 </td><td><br><img src="pic1.gif" alt="Picture 1"><p>
+ 
+<tr><td>
+
+<p>
+p_factor_1 </td><td><br><img src="pic2.gif" alt="Picture 2"><p>
+ 
+<tr><td>
+
+<p>
+p_term_2 </td><td><br><img src="pic3.gif" alt="Picture 3"><p>
+ 
+<tr><td>
+
+<p>
+p_term_1 </td><td><br><img src="pic4.gif" alt="Picture 4"><p>
+ 
+<tr><td>
+
+<p>
+p_factor_1 </td><td><br><img src="pic5.gif" alt="Picture 5"><p>
+ 
+<tr><td>
+
+<p>
+p_term_2 </td><td><br><img src="pic6.gif" alt="Picture 6"><p>
+ 
+<tr><td>
+
+<p>
+p_expr_2 </td><td><br><img src="pic7.gif" alt="Picture 7"><p>
+ 
+<tr><td>
+
+<p>
+p_expr_1 </td><td><br><img src="pic8.gif" alt="Picture 8"><p>
+ 
+<tr><td>
+
+<p>
+</table>
+</center> <center>      Figure 3: AST construction.</center><A NAME="build">
+</A>
+<p>
+<p>
+The ``args'' passed in to the actions are based on a similar idea used by
+yacc [<a href="#levine" name=CITElevine>11</a>], a prevalent parser generator
+tool.  Each symbol on a rule's right-hand
+side has an attribute associated with it.  For token symbols like +, this
+attribute is the token itself.  All other symbols' attributes come from
+the return values of actions which, in the above code, means that they
+are subtrees of the AST.  The index into args comes from the position of
+the symbol in the rule's right-hand side.  In the running example, 
+the call to p_expr_1 has <tt>len(args) == 3</tt>: args[0] is
+expr's attribute, the left subtree of + in the AST; args[1] is +'s
+attribute, the token +; args[2] is term's attribute, the right subtree
+of + in the AST.
+
+<p>
+The routine to use this subclass is straightforward:
+
+<p>
+
+<pre>
+def parse(tokens):
+    parser = ExprParser()
+    return parser.parse(tokens)
+</pre>
+
+<p>
+Although omitted for brevity, ExprParser can be subclassed to add grammar rules
+and actions, the same way the scanner was subclassed.
+
+<p>
+After syntax analysis, the parser has produced an AST, and verified that the
+input program adheres to the grammar rules.  Next, the input's meaning must be
+checked by the semantic analyzer.
+
+<p>
+      <H3><A NAME="tth_sEc3.3">
+3.3</A>&nbsp;&nbsp;Semantic Analysis</H3>
+
+<p>
+Semantic analysis is performed by traversing the AST.  Rather than spread code
+to traverse an AST all over the compiler, I 
+have a single base class, ASTTraversal, which knows
+how to walk the tree.  Subclasses of ASTTraversal
+supply methods which get called
+depending on what type of node is encountered.
+
+<p>
+To determine which method to invoke, ASTTraversal
+will first look for a method with the same name
+as the node type (plus the prefix
+``n_''), then will fall back on an optional default
+method if no more specific method is found.
+
+<p>
+Of course, ASTTraversal can supply many different traversal algorithms.  I have
+found three useful: preorder, postorder, and a pre/postorder combination.  (The
+latter allows methods to be called both on entry to, and exit from, a node.)
+
+<p>
+For example, say that we want to forbid the mixing of floating-point and integer
+numbers in our expressions:
+
+<p>
+
+<pre>
+class TypeCheck(ASTTraversal):
+    def __init__(self, ast):
+        ASTTraversal.__init__(self, ast)
+        self.postorder()
+        
+    def n_number(self, node):
+        node.exprType = 'number'
+    def n_float(self, node):
+        node.exprType = 'float'
+        
+    def default(self, node):
+        # this handles + and * nodes
+        leftType = node.left.exprType
+        rightType = node.right.exprType
+        if leftType != rightType:
+            raise 'Type error.'
+        node.exprType = leftType
+</pre>
+
+<p>
+I found the semantic checking code easier to write and understand by taking the
+(admittedly less efficient) approach of making multiple traversals of the
+AST - each pass performs a single task.
+
+<p>
+TypeCheck is invoked from a small glue routine:
+
+<p>
+
+<pre>
+def semantic(ast):
+    TypeCheck(ast)
+    #
+    #  Any other ASTTraversal classes
+    #  for semantic checking would be
+    #  instantiated here...
+    #
+    return ast
+</pre>
+
+<p>
+After this phase, I have an AST for an input program that is lexically,
+syntactically, and semantically correct - but that does
+nothing.  The final phase, code generation, remedies this.
+
+<p>
+      <H3><A NAME="tth_sEc3.4">
+3.4</A>&nbsp;&nbsp;Code Generation</H3>
+
+<p>
+The term ``code generation'' is somewhat of a misnomer.  As already mentioned,
+this phase will traverse the AST and implement the input program, either
+directly through interpretation, or indirectly by emitting some code.
+
+<p>
+Our expressions, for instance, can be easily interpreted:
+
+<p>
+
+<pre>
+class Interpret(ASTTraversal):
+    def __init__(self, ast):
+        ASTTraversal.__init__(self, ast)
+        self.postorder()
+        print ast.value
+        
+    def n_number(self, node):
+        node.value = int(node.attr)
+    def n_float(self, node):
+        node.value = float(node.attr)
+        
+    def default(self, node):
+        left = node.left.value
+        right = node.right.value
+        
+        if node.type == '+':
+            node.value = left + right
+        else:
+            node.value = left * right
+</pre>
+				
+<p>
+In contrast, my two compilers use an ASTTraversal to output an intermediate
+representation (IR) which is effectively a machine-independent assembly language.
+This IR then gets converted into MIPS assembly code in one compiler, C++ code
+in the other.
+
+<p>
+I am considering ways to incorporate more sophisticated code generation methods
+into this framework, such as tree pattern matching with
+dynamic programming [<a href="#iburg" name=CITEiburg>8</a>].
+
+<p>
+      <H2><A NAME="tth_sEc4">
+4</A>&nbsp;&nbsp;Inner Workings</H2>
+
+<p>
+      <H3><A NAME="tth_sEc4.1">
+4.1</A>&nbsp;&nbsp;Reflection</H3><A NAME="reflect">
+</A>
+
+<p>
+Extensibility presents some interesting design challenges.
+The generic classes in the framework, without any modifications made to them,
+must be able to divine all the information and actions contained in
+their subclasses, subclasses that didn't exist when the generic classes
+were created.
+
+<p>
+Fortunately, an elegant mechanism exists in Python to do just this:
+reflection.  Reflection refers to the ability
+of a Python program to query and modify itself at run time
+(this feature is
+also present in other languages, like Java and Smalltalk).
+
+<p>
+Consider, for example, my generic scanner class.  GenericScanner
+searches itself and its subclasses at run time for methods that begin with the
+prefix ``t_.''  These methods are the scanner's actions.  The regular
+expression
+associated with the actions is specified using a well-known method attribute
+that can be queried at run time - the method's documentation string.
+
+<p>
+This wanton abuse of documentation strings can be rationalized.  Documentation
+strings are a method of associating meta-information - comments - with
+a section of code.  My framework is an extension of that idea.  Instead
+of comments intended for humans, however, I have meta-information
+intended for use by my framework.  As the number of reflective Python
+applications grows, it may be worthwhile to add more formal mechanisms
+to Python to support this task.
+
+<p>
+      <H3><A NAME="tth_sEc4.2">
+4.2</A>&nbsp;&nbsp;GenericScanner</H3>
+
+<p>
+Internally, GenericScanner works by constructing a single regular expression
+which is composed of all the smaller regular expressions it has found in the action
+methods' documentation strings.  Each component regular expression is mapped to
+its action using Python's symbolic group facility.
+
+<p>
+Unfortunately, there is a small snag.  Python follows the Perl semantics for
+regular expressions rather than the POSIX semantics, which means it follows
+the ``first then longest'' rule - the leftmost
+part of a regular expression that
+matches is always taken, rather than using the longest match.  In the above
+example, if GenericScanner were to order the regular expression so that
+``<tt>\d+</tt>'' appeared before ``<tt>\d+\.\d+</tt>'', then
+the input 123.45 would match as the
+number 123, rather than the floating-point number 123.45.  To work around
+this, GenericScanner makes two guarantees:
+
+<p>
+
+<OL type="1">
+<li> A subclass' patterns will be matched before any in its parent classes.
+
+<p>
+
+<li> The default pattern for a subclass, if any, will be matched
+	only after all other patterns in the subclass have been tried.
+</OL>
+<p>
+One obvious change to GenericScanner is to automate the building of
+the list of tokens - each ``t_'' method could return a list
+of tokens which would be appended to the scanner's list of tokens.  The
+reason this is not done is because it would limit potential applications
+of GenericScanner.  For example, in one compiler
+I used a subclass of GenericScanner as
+a preprocessor which returned a string; another scanner class then
+broke that string into a list of tokens.
+
+<p>
+      <H3><A NAME="tth_sEc4.3">
+4.3</A>&nbsp;&nbsp;GenericParser</H3>
+
+<p>
+GenericParser is actually more powerful than was alluded to in
+Section&nbsp;<A href="#parsing">3.2</A>.
+At the cost of greater coupling between methods,
+actions for similar rules may be combined together rather than
+having to duplicate code - my original version of ExprParser is shown
+below.
+
+<p>
+
+<pre>
+class ExprParser(GenericParser):
+    def __init__(self, start='expr'):
+        GenericParser.__init__(self, start)
+                
+    def p_expr_term(self, args):
+        '''
+            expr ::= expr + term
+            term ::= term * factor
+        '''
+        return AST(type=args[1],
+                   left=args[0],
+                   right=args[2])
+        
+    def p_expr_term_2(self, args):
+        '''
+            expr ::= term
+            term ::= factor
+        '''
+        return args[0]
+        
+    def p_factor(self, args):
+        '''
+            factor ::= number
+            factor ::= float
+        '''
+        return AST(type=args[0])
+</pre>
+
+<p>
+Taking this to extremes, if a user is <em>only</em> interested in
+parsing and doesn't require an AST, ExprParser could be written:
+
+<p>
+
+<pre>
+class ExprParser(GenericParser):
+    def __init__(self, start='expr'):
+        GenericParser.__init__(self, start)
+                
+    def p_rules(self, args):
+        '''
+            expr ::= expr + term
+            expr ::= term
+            term ::= term * factor
+            term ::= factor
+            factor ::= number
+            factor ::= float
+        '''
+</pre>
+
+<p>
+In theory, GenericParser could use any parsing algorithm for its engine.
+However, I chose the Earley parsing algorithm [<a href="#earley" name=CITEearley>6</a>] which
+has several nice properties for this application [<a href="#grune" name=CITEgrune>10</a>]:
+
+<p>
+
+<OL type="1">
+<li> It is one of the most general algorithms known; it can parse all
+	context-free grammars whereas the more popular LL and LR techniques
+	cannot.  This is important for easy extensibility; a user should
+	ideally be able to subclass a parser without worrying about
+	properties of the resulting grammar.
+
+<p>
+
+<li> It generates all its information at run-time, rather than having to
+	precompute sets and tables.  Since the grammar rules aren't known
+	until run-time, this is just as well!
+</OL>
+<p>
+		Unlike most other parsing algorithms, Earley's method parses ambiguous
+grammars.  Currently, ambiguity presents a problem since it is not clear
+which actions should be invoked.  Future versions of GenericParser will
+have an ambiguity-resolution scheme to address this.
+
+<p>
+To accommodate a variety of possible
+parsing algorithms (including the one I used),
+GenericParser only makes one guarantee with respect to when the rules' actions
+are executed.  A rule's action is executed only after all the attributes on
+the rule's right-hand side are fully computed.  This condition is sufficient
+to allow the correct construction of ASTs.
+	
+<p>
+      <H3><A NAME="tth_sEc4.4">
+4.4</A>&nbsp;&nbsp;ASTTraversal</H3>
+
+<p>
+ASTTraversal is the least unusual of the generic classes.  It could be
+argued that its use of reflection is superfluous, and the same functionality
+could be achieved by having its subclasses provide a method for every
+type of AST node; these methods could call a default method themselves
+if necessary.
+
+<p>
+The problems with this non-reflective approach are threefold.  First, it
+introduces a maintenance issue: any additional node types added to the
+AST require all ASTTraversal's subclasses to be changed.  Second, it
+forces the user to do more work, as methods for all node types must
+be supplied; my experience, especially for semantic checking, is that
+only a small set of node types will be of interest for a given subclass.
+Third, some node types may not map nicely into Python method names - I
+prefer to use node types that reflect the little language's syntax, like
++, and it isn't possible to have methods named
+``n_+''<a href="#tthFtNtAAC" name=tthFrefAAC><sup>2</sup></a>.  This latter point is
+where it is useful to have ASTTraversal reflectively probe a subclass
+and automatically invoke the default method.
+
+<p>
+      <H3><A NAME="tth_sEc4.5">
+4.5</A>&nbsp;&nbsp;Design Patterns</H3>
+
+<p>
+Although developed independently, the use of reflection in my
+framework is arguably a specialization of the Reflection
+pattern [<a href="#posa" name=CITEposa>4</a>].  I
+speculate that there
+are many other design patterns where reflection can be
+exploited.  To illustrate, ASTTraversal wound up
+somewhere between the Default Visitor [<a href="#nordberg" name=CITEnordberg>13</a>] and Reflection patterns,
+although it was originally inspired by the Visitor pattern [<a href="#GoF" name=CITEGoF>9</a>].
+
+<p>
+Two other design patterns can be applied to my framework too.  First, the entire
+framework could be organized explicitly as a Pipes and Filters
+pattern [<a href="#posa" name=CITEposa>4</a>].
+Second, the generic classes could support interchangeable algorithms
+via the Strategy pattern [<a href="#GoF" name=CITEGoF>9</a>]; parsing algorithms, in particular, vary
+widely in their characteristics, so allowing different algorithms could
+be a boon to an advanced user.
+
+<p>
+      <H2><A NAME="tth_sEc5">
+5</A>&nbsp;&nbsp;Comparison to Other Work</H2>
+
+<p>
+The basis of this paper is the observation that little languages, and
+the need to implement them, are recurring problems.
+Not all authors even agree on this point - Shivers [<a href="#shivers" name=CITEshivers>16</a>]
+presents an alternative to little languages and a Scheme-based
+implementation framework.  Tcl was also developed to address the
+proliferation of little languages [<a href="#tcl" name=CITEtcl>14</a>].
+
+<p>
+Other Python packages exist to automate parts of scanning and
+parsing.  PyLR [<a href="#PyLR" name=CITEPyLR>5</a>]
+uses a parsing engine written in C to accelerate
+parsing; kwParsing [<a href="#kwParsing" name=CITEkwParsing>17</a>]
+automates the implementation of common programming language features
+at the cost of a more complex API.  Both require precomputation of
+scanning and parsing information.  YAPPS [<a href="#YAPPS" name=CITEYAPPS>15</a>] uses the weakest parsing
+algorithm of the surveyed packages, and its author notes `It is not
+fast, powerful, or particularly flexible.'  There are occasional
+references to the PyBison package, which I was unable to locate.
+
+<p>
+For completeness, the mcf.pars package [<a href="#mcf.pars" name=CITEmcf.pars>7</a>] is an interesting
+nontraditional system based on generalized pattern matching, but
+is sufficiently different from my framework to preclude
+any meaningful comparisons.
+
+<p>
+      <H2><A NAME="tth_sEc6">
+6</A>&nbsp;&nbsp;Not-so-Little Languages</H2>
+
+<p>
+This paper has presented a framework I have developed to build compilers in
+Python.  It uses reflection and design patterns to produce compilers
+which can be easily extended using traditional object-oriented methods.
+
+<p>
+At present, this framework has proved its effectiveness in the implementation of
+two ``little languages.''  I plan to further test this framework by using it
+to build a compiler for a larger language - Python.
+
+<p>
+
+<H2>Availability</H2>
+
+<p>
+The source code for the framework and the example used in this
+paper is available at
+<a href="http://www.csc.uvic.ca/~aycock"><tt>http://www.csc.uvic.ca/&#126;aycock</tt></a>.
+
+<p>
+
+<H2>Acknowledgments</H2>
+
+<p>
+I would like to thank Nigel Horspool and Shannon Jaeger for their
+comments on early drafts of this paper.  Mike Zastre made several
+suggestions which improved Figure&nbsp;<A href="#build">3</A>, and the anonymous
+referees supplied valuable feedback.
+
+<p>
+<H2>References</H2>
+<DL compact>
+
+<p>
+<dt>[<a href="#CITEdragon" name=dragon>1</a>]</dt><dd> A. V. Aho, R. Sethi, and J. D. Ullman.  <em>Compilers:
+	Principles, Techniques, and Tools</em>.  Addison-Wesley, 1986.
+
+<p>
+<dt>[<a href="#CITEappel" name=appel>2</a>]</dt><dd> A. W. Appel.  <em>Modern Compiler Implementation
+	in Java</em>.  Cambridge, 1998.
+
+<p>
+<dt>[<a href="#CITEbentley" name=bentley>3</a>]</dt><dd> J. Bentley.  Little Languages.  In <em>More
+	Programming Pearls</em>, pages 83-100.  Addison-Wesley, 1988.
+
+<p>
+<dt>[<a href="#CITEposa" name=posa>4</a>]</dt><dd> F. Buschmann, R. Meunier, H. Rohnert, P. Sommerlad, and
+	M. Stal.  <em>Pattern-Oriented Software Architecture: A System
+	of Patterns</em>.  Wiley, 1996.
+
+<p>
+<dt>[<a href="#CITEPyLR" name=PyLR>5</a>]</dt><dd> S. Cotton.  PyLR.
+		<a href="http://starship.skyport.net/crew/scott/PyLR.html"><tt>http://starship.skyport.net/crew/scott/PyLR.html</tt></a>.
+
+<p>
+<dt>[<a href="#CITEearley" name=earley>6</a>]</dt><dd> J. Earley.  An Efficient Context-Free Parsing Algorithm.
+	<em>Communications of the ACM</em>, 13(2):94-102, 1970.
+
+<p>
+<dt>[<a href="#CITEmcf.pars" name=mcf.pars>7</a>]</dt><dd> M. C. Fletcher.  mcf.pars.
+		<a href="http://www.golden.net/~mcfletch/programming/"><tt>http://www.golden.net/&#126;mcfletch/programming/</tt></a>.
+
+<p>
+<dt>[<a href="#CITEiburg" name=iburg>8</a>]</dt><dd> C. W. Fraser, D. R. Hanson, and T. A. Proebsting.
+	Engineering a Simple, Efficient Code Generator Generator.
+	<em>ACM LOPLAS</em>.  1(3):213-226, 1992.
+
+<p>
+<dt>[<a href="#CITEGoF" name=GoF>9</a>]</dt><dd> E. Gamma, R. Helm, R. Johnson, and J. Vlissides.
+	<em>Design Patterns</em>.  Addison-Wesley, 1995.
+
+<p>
+<dt>[<a href="#CITEgrune" name=grune>10</a>]</dt><dd> D. Grune and C. J. H. Jacobs.  <em>Parsing Techniques:
+	A Practical Guide</em>.  Ellis Horwood, 1990.
+
+<p>
+<dt>[<a href="#CITElevine" name=levine>11</a>]</dt><dd> J. R. Levine, T. Mason, and D. Brown.  <em>lex &amp; yacc</em>.
+	O'Reilly, 1992.
+
+<p>
+<dt>[<a href="#CITElevy" name=levy>12</a>]</dt><dd> M. R. Levy.  Web Programming in Guide.  <em>Software,
+	Practice and Experience</em>.  Accepted for publication July 1998.
+
+<p>
+<dt>[<a href="#CITEnordberg" name=nordberg>13</a>]</dt><dd> M. E. Nordberg III.  Variations on the Visitor Pattern.
+	<em>PLoP '96 Writer's Workshop</em>.
+
+<p>
+<dt>[<a href="#CITEtcl" name=tcl>14</a>]</dt><dd> J. K. Ousterhout.  <em>Tcl and the Tk Toolkit</em>.
+	Addison-Wesley, 1994.
+
+<p>
+<dt>[<a href="#CITEYAPPS" name=YAPPS>15</a>]</dt><dd> A. J. Patel.  YAPPS.
+		<a href="http://theory.stanford.edu/~amitp/Yapps/"><tt>http://theory.stanford.edu/&#126;amitp/Yapps/</tt></a>.
+
+<p>
+<dt>[<a href="#CITEshivers" name=shivers>16</a>]</dt><dd> O. Shivers.  A Universal Scripting Framework.  In
+	<em>Concurrency and Parallelism, Programming, Networking, and
+	Security</em>, pages 254-265.  Springer, 1996.
+
+<p>
+<dt>[<a href="#CITEkwParsing" name=kwParsing>17</a>]</dt><dd> A. Watters.  kwParsing.
+		<a href="http://starship.skyport.net/crew/aaron_watters/kwParsing/"><tt>http://starship.skyport.net/crew/aaron_watters/kwParsing/</tt></a>.
+
+<p>
+<dt>[<a href="#CITEwortman" name=wortman>18</a>]</dt><dd> D. B. Wortman.  Compiling at 1000 MHz and beyond.  In
+	<em>Systems Implementation 2000</em>, pages 194-206.  Chapman &amp;
+	Hall, 1998.
+
+<p>
+</DL><hr><H3>Footnotes:</H3>
+
+<p><a name=tthFtNtAAB></a><a href="#tthFrefAAB"><sup>1</sup></a> There is some anecdotal evidence that
+parts of production compilers may
+be moving towards a similar model [<a href="#wortman" name=CITEwortman>18</a>].
+<p><a name=tthFtNtAAC></a><a href="#tthFrefAAC"><sup>2</sup></a> Not directly, anyway...
+<p><hr><small>File translated from T<sub><font size="-1">E</font></sub>X by <a href="http://hutchinson.belmont.ma.us/tth/">T<sub><font size="-1">T</font></sub>H</a>, version 1.60.</small>
+
+<SCRIPT language="Javascript">
+<!--
+
+// FILE ARCHIVED ON 20010414061914 AND RETRIEVED FROM THE
+// INTERNET ARCHIVE ON 20060504134640.
+// JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+// ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+// SECTION 108(a)(3)).
+
+   var sWayBackCGI = "http://web.archive.org/web/20010414061914/";
+
+   function xLateUrl(aCollection, sProp) {
+      var i = 0;
+      for(i = 0; i < aCollection.length; i++)
+         if (aCollection[i][sProp].indexOf("mailto:") == -1 &&
+             aCollection[i][sProp].indexOf("javascript:") == -1)
+            aCollection[i][sProp] = sWayBackCGI + aCollection[i][sProp];
+   }
+
+   if (document.links)  xLateUrl(document.links, "href");
+   if (document.images) xLateUrl(document.images, "src");
+   if (document.embeds) xLateUrl(document.embeds, "src");
+
+   if (document.body && document.body.background)
+      document.body.background = sWayBackCGI + document.body.background;
+
+//-->
+
+</SCRIPT>
+</HTML>

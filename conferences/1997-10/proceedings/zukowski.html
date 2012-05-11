@@ -1,0 +1,663 @@
+<TITLE>Implementing a Selective Undo Framework in Python</TITLE>
+<BODY BACKGROUND="../../../pics/BlueLong.gif"
+      BGCOLOR="#FFFFFF"
+      TEXT="#000000"
+      LINK="#0000FF"
+      VLINK="#7070B0">
+
+<UL>
+
+<a href="index.html">Proceedings of the 6th International Python Conference</A>
+<HR SIZE="1" NOSHADE>
+
+<!--\usepackage{times}-->
+<!--\usepackage{multicol}-->
+<p>
+<!--set dimensions of columns, gap between columns, and space between paragraphs-->
+<!--\setlength{\textheight}{8.75in}-->
+
+
+
+<!--\setlength{\footheight}{0.0in}-->
+
+
+
+
+
+<!--\setlength{\oddsidemargin}{-.065in}-->
+<!--\setlength{\oddsidemargin}{-.17in}-->
+<!--\setlength{\parindent}{0pc}-->
+<p>
+<!-- started out with art10.sty and modified params to conform to IEEE format-->
+<!-- further mods to conform to Usenix standard-->
+
+
+<!--as Latex considers descenders in its calculation of interline spacing,-->
+<!--to get 12 point spacing for normalsize text, must set it to 10 points-->
+ 
+<p>
+<!--need a 12 pt font size for subsection and abstract headings-->
+
+<p>
+<!--make section titles bold and 12 point, 2 blank lines before, 1 after-->
+
+<p>
+<!--make subsection titles bold and 11 point, 1 blank line before, 1 after-->
+
+
+<p>
+<!--\renewcommand{\thesubsection}{\arabic{subsection}.}-->
+
+
+
+<!--\def\Tt{\sf\small}-->
+
+
+
+<p>
+
+<!--\begin{multicols}{2}-->
+
+
+
+
+<h1><b>Implementing a Selective Undo Framework in Python</b></h1>
+<!--for single author (just remove % characters)-->
+<address>Monty Zukowski <br>
+<em>Zero to One Software Design</em><br>
+<a href="mailto:jamz@cdsnet.net"><em>jamz@cdsnet.net</em></a></address>
+<p>
+<b></b>
+
+<!--title goes here-->
+<!-- You have to do this to suppress page numbers.  Don't ask.-->
+
+<p>
+<h3>Abstract</h3>
+<em>
+I've implemented in Python the undo algorithm found in ``Undoing Actions in Collaborative Work: Framework and Experience'' by Prakash and Knister <b>[cite&nbsp;<a href="#NWcite-PK94">PK94</a>]</b>.  Their approach helps structure the objects that make up a ``document''.  Those same objects are well suited for use in an embedded language like Python: with them you can write scripts that can be undone!  I've implemented standard file operations as a simple concrete example of using the framework.
+</em>
+<p>
+
+
+<h2>Introduction</h2>
+<p>
+I've always wondered how to design the objects which work together to represent a document, the <em>model</em> of the model-view-controller paradigm.  How to design them to be easily scriptable?  Undoable?  Well, when I stumbled onto  ``Undoing Actions in Collaborative Work: Framework and Experience'' by Prakash and Knister <b>[cite&nbsp;<a href="#NWcite-PK94">PK94</a>]</b> I struck a goldmine.  Their paper gives a great overview of undo algorithms and when and why to use them.  The ``selective undo'' algorithm presented by them lets the user undo <em>any</em> previous action, not just the last.  So in a groupware application, she or he can undo her or his last action, not just the last action applied to the document by someone else.
+<p>
+As an adminstrator of hundreds of thousands of multimedia files, I wrote many Python scripts to move them around, rename them and tweak them for our build process to turn them into CD-ROMs.  Every now and then I'd get cocky, run a script without testing it, and rename all the files to the same filename, or do other stupid file tricks.  ``If only I could undo that script!'' I would think.  Well, now I can since I've written undoable copy, move, link and delete operations as a simple application of the selective undo algorithm.
+<p>
+At first I sat down to write a general purpose undo module.  You, the programmer, could just drop it into your application, add some glue, and get undo for free.  I wish!  It turned out that how the undo algorithm works is tightly linked to how the building block objects are designed.  Or rather the other way around:  the building block objects need to be designed to fit into the undo framework.  Since undo is one of those things I would normally want in an application, I was glad to learn how to write objects that behave well with the undo algorithm.
+<p>
+I have written a general purpose <code>History</code> module which implements the selective undo algorithm.  It isn't and cannot be a black box module.  You need to understand how it works in order too use it.  That's why I'm presenting it as a <em>literate program</em> as described by Knuth <b>[cite&nbsp;<a href="#NWcite-Knuth">Knuth</a>]</b> to explain how it works.  Literate programming lets me write my code and documentation in one file and in any order I want, so I can explain what I'm doing in the order I think best, not the order imposed by the programming language.  The same literate program file creates this document as well as the machine readable source code.
+<p>
+<h3>Selective Undo Overview</h3>
+Please do read Prakash and Knister <b>[cite&nbsp;<a href="#NWcite-PK94">PK94</a>]</b> to understand <em>why</em> their algorithm works.  Here's a quick overview of <em>how</em> it works.  Define operations that affect your state (the document).  All such operations must define an inverse operation.  Applying this inverse immediately after the operation nullifies it and returns the document to the state before applying the operation.  At this point you have the Command pattern as described in <em>Design Patterns</em> <b>[cite&nbsp;<a href="#NWcite-GOF">GOF</a>, <i>pages 233-242</i>]</b>.
+<p>
+If you, the programmer, want to undo an operation that was not the last one, you can't always get away with applying the inverse of that operation to the current state.  Say my document is the sentence ``Python rocks!''.  I select ``rocks'' and type in ``rules''.  Call that <em>op1</em>, an <code>InsertText</code> operation which stores the selection which was modified: in this case chars <code>[7:12]</code>, the inserted text ``rules'' and the replaced text ``rocks''.  The <code>InsertText</code> object needs the replaced text so it can create the proper inverse operation, which in this case would be <code>InsertText([7:12], &quot;rocks&quot;)</code>.  Next I type ``really '' in front of ``rules''.  This will be <em>op2</em>, another <code>InsertText</code> operation with selection of <code>[7:7]</code>, inserted text of ``really '', and replaced text ``''.  Now what's required to undo <em>op1</em>?
+<p>
+Just applying the inverse of <em>op1</em> to the current document of ``Python really rules!'' would result in ``Python rocksy rules!'' because ``rules'' moved without <em>op1</em> knowing about it.  The approach in Prakash and Knister <b>[cite&nbsp;<a href="#NWcite-PK94">PK94</a>]</b> is to have a <code>Transpose(a,b)</code> function which modifies <code>a</code> to make it as if <code>a</code> was applied after <code>b</code>, instead of before <code>b</code>.  In the case of <em>op1</em> and <em>op2</em>, transposing would involve recognizing that op2 shifted any character positions &gt;= 7 by 7 characters.  That would mean the range <code>[7:12]</code> of <em>op1</em> would change to <code>[14:19]</code>.  Now the inverse of <em>op1</em> would correctly create ``Python really rocks!''.
+<p>
+In practice the algorithm doesn't actually apply the <code>Transpose()</code> function to the history list directly.  Instead it copies the list and transposes the operation to undo to the end.  Since the history list includes everything done to a document, the end of the history list represents the current state of the document.  Then the algorithm takes the inverse of the transposed operation and applies that to the document.
+<p>
+<a name="NWD2">There are cases where a previous operation can't be undone.  What if after <em>op2</em>, instead of undoing <em>op1</em>, I delete the entire sentence as <em>op3</em>?  After that it wouldn't make much sense to revert ``rules'' to ``rocks'' since ``rules'' no longer exists!  To detect such conflicts, a </a><code>Conflict(a,b)</code> function is defined.  The reason the algorithm needs the <code>Conflict(a,b)</code> function is because not all conflicts will prevent an undo.  Consider applying <em>op4</em> as the inverse of <em>op3</em>.  There is still a conflict between <em>op1</em> and <em>op3</em>, but <em>op4</em> cancels out <em>op3</em>, so it still should be able to undo <em>op1</em>.  A method called <code>removeDoUndoPair</code> handles these situations.
+<p>
+In summary the algorithm to undo any previous operation first copies the history list from the point of the operation to be undone.  Then it transposes that operation to the end of the list copy.  This brings the operation into the current state of the document.  Then it takes the inverse of that transposed operation and applies it to the document to undo the original operation.  
+<p>
+<h2>The History Module</h2>
+The <code>History</code> module defines three objects:  <code>History</code>, the actual history list, <code>HistoryNode</code>, a single element in the history list, and <code>AbstractOperation</code>, which you, the programmer, subclass to create your own document operations.
+<p>
+Literate programs define code in terms of ``chunks''.  The notation below says that the ``History.py'' chunk is defined as the four following chunks.  Chunks can have pieces of code in them as well.   Chunks can also be appended to, as with the <code>HistoryExceptions</code> chunk, which I add on to whenever I need to define a new exception.
+<p>
+<pre><a name="NWund7-HisA-1" href="#NWD2"><dfn>&lt;History.py&gt;=</dfn></a>
+<a name="NWund7-HisA-1-u1" href="#NWD3"><i>&lt;HistoryExceptions&gt;</i></a>
+<a name="NWund7-HisA-1-u2" href="#NWD5"><i>&lt;HistoryNode&gt;</i></a>
+<a name="NWund7-HisA-1-u3" href="#NWund7-AbsH-1"><i>&lt;AbstractOperation&gt;</i></a>
+<a name="NWund7-HisA-1-u4" href="#NWD4"><i>&lt;History&gt;</i></a>
+</pre>
+<a name="NWD3"></a>
+<h3>Abstract Operation</h3>
+<p>
+Now the fun part, <code>AbstractOperation</code>.  It's the base for operations which work on a document.  These operations must define <code>Conflict</code>, <code>Transpose</code>, <code>inverse</code>, and <code>perform</code> methods.  <code>AbstractOperation</code> defines <code>Conflict(A,B)</code> and <code>Transpose(A,B)</code> in a very simplistic way.  Any serious subclass will certainly override these methods to be more efficient.  <code>Conflict</code> checks to see what attributes are affected by each operation and signals a conflict if they overlap.  <code>Transpose</code> just tests for a conflict and if there is none returns the identical objects swapped.  The <code>inverse()</code> and <code>perform()</code> methods are also defined and must be implemented by subclasses to provide the inverse operation and to actually modify the document.
+<p>
+Initially I had hoped to be able to mix various primitive operations together and have them register what they affect in a table which could be used to deduce the <code>Conflict</code> and <code>Transpose</code> functions.  But to implement efficient <code>Conflict</code> and <code>Transpose</code> routines they really have to have detailed knowledge about how all operations are implemented.  These functions violate the encapsulation of operations because they need to know how the operations represent themselves and what they do to a document.  Conceptually, operations are methods of some <code>Document</code> object, even though I implement them here as independent objects.  To implement <code>Conflict</code> and <code>Transpose</code> you need to know everything about all operations.  You can't just add in a new operation without thinking through how it will affect all the other operations.  This may not be as limiting as you might think.  You can easily implement higher-level actions out of the existing operations and be able to undo them since they only affected the document through undoable operations!
+<!--\end{multicols}-->
+<p>
+<pre><a name="NWund7-HisH-1" href="#NWD3"><dfn>&lt;HistoryExceptions&gt;=</dfn></a> <b>(<a href="#NWD2">&lt;-U</a>)</b> <b>[D<a href="#NWD6">-&gt;</a>]</b>
+UnimplementedBySubclass = &quot;This method must be\
+implemented by a subclass&quot;
+
+</pre><pre><a name="NWund7-AbsH-1" href="#NWund7-AbsH-1"><dfn>&lt;AbstractOperation&gt;=</dfn></a> <b>(<a href="#NWD2">&lt;-U</a>)</b>
+class AbstractOperation:
+
+  def perform(self,context=None):
+    return
+
+  def readSet(self):
+    return ()
+
+  def writeSet(self):
+    return ()
+
+  def inverse(self):
+    raise UnimplementedBySubclass
+
+  def copy(self):
+    raise UnimplementedBySubclass
+
+  def Transpose(a, b):
+    return (b, a)
+  
+  def Conflict(a, b):
+    if a is None or b is None:
+      return None
+    bw = b.writeSet()
+    br = b.readSet()
+
+    # b conflicts with a if it reads or writes
+    # anything a writes
+    for w in a.writeSet():
+      if w in bw or w in br:
+        return 1
+
+    #b conflicts with a if it writes anything a reads
+    for w in a.readSet():
+      if w in bw:
+        return 1
+    return None
+
+  def isNullOp(self):
+    return 1
+</pre>
+<!--\begin{multicols}{2}-->
+<h3>History</h3>
+<p>
+Once you have the details of your primitive operations worked out, you can build composite operations from them and know that they will be undoable.  I had originally structured the <code>History</code> class as a tree so that composite operations would have the primitive operations as children nodes.  That way it would be easy to recognize and undo an entire composite operation at once by undoing all of its children.  Having the <code>History</code> as a tree, however, turned the implementation into a mess.  I had defined <code>beginGroup()</code> and <code>endGroup()</code> methods and left it to the programmer to use them properly.  Later I realized that it would be impossible to have a coherent tree structure if in fact multiple people edited a document simultaneously and grouping operations were not atomic between the <code>beginGroup()</code> and <code>endGroup()</code>.  I decided I didn't need that headache and turned <code>History</code> into a list with callbacks that could let programmers keep their own tree and also keep any other tables of <code>HistoryNodes</code> they want.  For instance I could keep a table of file transfers that were for a particular product, or maybe define an experimental mode when the user is playing around and may want to return to a previous state by rejecting the entire experiment.
+<p>
+The <code>History</code> object keeps a list of the operations applied to a document, provides the actual <code>undo</code> routine, a method to call whenever an operation has been applied to a document, and callbacks for notification of do and undo actions.
+The <code>History</code> attributes follow.
+<p>
+<table><!-- alignment is ll--><!-- 2 columns--><tr><td align=left><code>context</code> </td><td align=left>the object that applies an </td></tr>
+<tr><td align=left></td><td align=left>operation to a document </td></tr>
+<tr><td align=left><code>historyList</code> </td><td align=left>the list of HistoryNodes </td></tr>
+<tr><td align=left><code><a name="NWD4">historyNodeClass</a></code> </td><td align=left>the class used for  </td></tr>
+<tr><td align=left></td><td align=left>elements of the list </td></tr>
+<tr><td align=left><code>callbacks</code> </td><td align=left>functions to call </td></tr>
+<tr><td align=left></td><td align=left>whenever a node is added </td></tr>
+</table>
+<p>
+Callback functions must take a <code>History</code> object and <code>HistoryNode</code> object as their first two arguments.
+<!--\end{multicols}-->
+<p>
+<pre><a name="NWund7-His7-1" href="#NWD4"><dfn>&lt;History&gt;=</dfn></a> <b>(<a href="#NWD2">&lt;-U</a>)</b>
+class History:
+  def __init__( self,
+                context,
+                historyList = None,
+                historyNodeClass = HistoryNode,
+                callbacks = None ):
+    self.context = context
+    if historyList is not None:
+      self.historyList = historyList
+    else:
+      self.historyList = []
+    self.historyNodeClass = historyNodeClass
+    if callbacks is not None:
+      self.callbacks = callbacks
+    else:
+      self.callbacks = []
+
+  def addHistoryOp(self, op):
+    historyNode = self.historyNodeClass(op)
+    self.historyList.append(historyNode)
+    for call in self.callbacks:
+      call(self, historyNode)
+
+  def addCallback(self, callback):
+    self.callbacks.append(callback)
+
+  def removeCallback(self, callback):
+    self.callbacks.remove(callback)
+
+  <a name="NWund7-His7-1-u1" href="#NWund7-undD-1"><i>&lt;undo routines&gt;</i></a>
+</pre>
+<h3>HistoryNode</h3>
+The <code>HistoryNode</code> holds some special information for the undo algorithm, the operation that was performed, and any other attributes you want to add in via a callback, such as username or timestamp.  It can also make a copy of the undo related attributes for use in the undo routines.  The undo related attributes follow.
+<p>
+<table><!-- alignment is ll--><!-- 2 columns--><tr><td align=left><code>op</code> </td><td align=left>the operation performed </td></tr>
+<tr><td align=left><code><a name="NWD5">undoBlockMember</a></code> </td><td align=left>whether this is part of</td></tr>
+<tr><td align=left></td><td align=left>a nested do/undo block </td></tr>
+<tr><td align=left><code>undoneBy</code> </td><td align=left>the <code>HistoryNode</code> which<br>
+</td><td>undid this operation </td></tr>
+<tr><td align=left><code>undid</code> </td><td align=left>the <code>HistoryNode</code> which<br>
+</td><td>this operation undid </td></tr>
+</table>
+<!--\end{multicols}-->
+<p>
+<pre><a name="NWund7-HisB-1" href="#NWD5"><dfn>&lt;HistoryNode&gt;=</dfn></a> <b>(<a href="#NWD2">&lt;-U</a>)</b>
+class HistoryNode:
+
+  def __init__ (  self,
+                  op,
+                  undoBlockMember = None,
+                  undoneBy = None,
+                  undid = None) :
+
+    self.op = op
+    self.undoBlockMember = undoBlockMember
+    self.undoneBy = undoneBy
+    self.undid = undid
+
+  def tempCopy(self):
+    return self.__class__(  self.op.copy(),
+              undoBlockMember = self.undoBlockMember,
+              undoneBy = self.undoneBy,
+              undid = self.undid)
+</pre>
+<a name="NWD6"></a>
+<h3>Undo</h3>
+The undo algorithm is actually quite simple.  It makes a copy of all operations starting after the one to undo and ending with the last operation done on the document.  Then it moves the undo operation to the end of the list by transposing elements, checking for conflicts along the way.  Once it is at the end of the list, it takes the inverse and applies it to the document.  Actually there is another detail:  if an operation in the list copy is already undone and conflicts with the operation to undo, there really isn't a conflict since the offending operation was undone already.  In that case it can remove the do-undo pair from the copy of the list.
+<!--\end{multicols}-->
+<pre><a name="NWund7-HisH-2" href="#NWD3"><dfn>&lt;HistoryExceptions&gt;+=</dfn></a> <b>(<a href="#NWD2">&lt;-U</a>)</b> <b>[<a href="#NWD3">&lt;-</a>D<a href="#NWD7">-&gt;</a>]</b>
+UndoConflict = &quot;Undo conflict, incompatible operations&quot;
+
+</pre><pre><a name="NWund7-undD-1" href="#NWund7-undD-1"><dfn>&lt;undo routines&gt;=</dfn></a> <b>(<a href="#NWD4">U-&gt;</a>)</b>
+<a name="NWund7-undD-1-u1" href="#NWD9"><i>&lt;undo&gt;</i></a>
+<a name="NWund7-undD-1-u2" href="#NWD8"><i>&lt;removeDoUndoPair&gt;</i></a>
+<a name="NWund7-undD-1-u3" href="#NWund7-temF-1"><i>&lt;tempListForUndo&gt;</i></a>
+</pre><p>
+<a name="NWD7"></a>
+<h4>tempListForUndo</h4>
+<p>
+The <code>tempListForUndo</code> method constructs a copy of <code>self.historyList</code> starting just after the node to be undone, copying each <code>HistoryNode</code> by calling its <code>tempCopy()</code> method.  I keep a flag in <code>HistoryNode</code> for nested blocks of do-undo's.  ABCDD'C'B'A' is effectively a null operation, where the primes signify undo operations.  As such it can be ignored completely, so I skip over such blocks when making the temporary list.  I also return a dictionary with new <code>HistoryNode</code> copies as keys and old <code>HistoryNodes</code> as values so any exceptions can refer to the original nodes to get all the attributes stored in it which may not be in the copy.
+<!--\end{multicols}-->
+<pre><a name="NWund7-HisH-3" href="#NWD3"><dfn>&lt;HistoryExceptions&gt;+=</dfn></a> <b>(<a href="#NWD2">&lt;-U</a>)</b> <b>[<a href="#NWD6">&lt;-</a>D]</b>
+NoHistNode = &quot;historyNode not found in historyList&quot;
+</pre><pre><a name="NWund7-temF-1" href="#NWund7-temF-1"><dfn>&lt;tempListForUndo&gt;=</dfn></a> <b>(<a href="#NWund7-undD-1">&lt;-U</a>)</b>
+def tempListForUndo(self, historyNode):
+  if historyNode not in self.historyList:
+    raise NoHistNode, (historyNode, self)
+
+  histList = self.historyList[
+               self.historyList.index(historyNode)+1:]
+  copy = []
+
+  newToOldMap = {}
+  oldToNewMap = {}
+
+  skipUntil = None
+  for node in histList:
+    if (not skipUntil and node.undoBlockMember
+        and node.undoneBy):
+      skipUntil = node.undoneBy
+    if skipUntil and node != skipUntil:
+      continue
+    elif node is skipUntil:
+      skipUntil = None
+      continue  # we still want to skip this node
+    newnode = node.tempCopy()
+    copy.append(newnode)
+    newToOldMap[newnode] = node
+    oldToNewMap[node] = newnode
+  for node in copy:
+    if node.undoneBy:
+      node.undoneBy = oldToNewMap[node.undoneBy]
+    if node.undid and oldToNewMap.has_key(node.undid):
+      node.undid = oldToNewMap[node.undid]
+  return copy, newToOldMap
+</pre><p>
+<a name="NWD8"></a>
+<h4>removeDoUndoPair</h4>
+<p>
+The <code>removeDoUndoPair</code> method modifies nodes in the list passed in to cancel out a <em>do-undo</em> pair by transposing the <em>do</em> until it is next to the <em>undo</em>.  Whey they are together they nullify, which it signals by setting the <code>op</code> attribute to <code>None</code> for both of them.   It does know for sure though that there are no real conflicts between the <em>do</em> and <em>undo</em>, otherwise the <em>do</em> could not have been undone in the first place!  So if any conflicts are found it knows that the offending operation has already been undone and calls <code>removeDoUndoPair()</code> recursively to eliminate it.
+<!--\end{multicols}-->
+<pre><a name="NWund7-remG-1" href="#NWD8"><dfn>&lt;removeDoUndoPair&gt;=</dfn></a> <b>(<a href="#NWund7-undD-1">&lt;-U</a>)</b>
+def removeDoUndoPair(self, tempList):
+  doNode = tempList[0]
+  for index in range(1, len(tempList)):
+    node = tempList[index]
+    if node is doNode.undoneBy:
+      break
+    if node.op is None:
+      continue
+    if doNode.op.Conflict(node.op):
+      self.removeDoUndoPair(tempList[index:])
+    else:
+      node.op, doNode.op = doNode.op.Transpose(node.op)
+  doNode.op = node.op = None  
+</pre><p>
+<a name="NWD9"></a>
+<h4>undo</h4>
+<p>
+With all the support for the undo algorithm in place, it practially writes itself!  It gets a copy of the history list to work with, shifts the operation to undo to the end of the list, then performs its inverse and keeps track of who undid who.
+<!--\end{multicols}{2}-->
+<pre><a name="NWund7-und4-1" href="#NWD9"><dfn>&lt;undo&gt;=</dfn></a> <b>(<a href="#NWund7-undD-1">&lt;-U</a>)</b>
+def undo(self, historyNode):
+
+  tempList, newToOldMap = self.tempListForUndo(
+                                   historyNode)
+  shiftOp = historyNode.op.copy()
+
+  index = 0
+
+  #move shiftOp to end of history list
+  for node in tempList:
+    if node.op is None or node.op.isNullOp():
+      continue
+    if shiftOp.Conflict(node.op):
+      if node.undoneBy:
+        self.removeDoUndoPair(tempList[index:])
+      else:
+        raise UndoConflict,(historyNode,newToOldMap[node])
+    else:
+      unused, shiftOp = shiftOp.Transpose(node.op)
+    index = index + 1
+
+  #perform the inverse,
+  #context will call us back to add it to History
+  self.context.performOp(shiftOp.inverse())
+  endNode = self.historyList[-1]
+  historyNode.undoneBy = endNode
+  endNode.undid = historyNode
+  if not tempList:  #means all ops between historyNode and
+                        #end cancelled out
+    endNode.undoBlockMember = 1
+    historyNode.undoBlockMember = 1
+</pre><p>
+<!--\begin{multicols}{2}-->
+<h2>Conclusion: Guidelines for building document objects and possible uses</h2>
+So what have I learned about structuring document objects for undo?  One thing is that it is not easy to structure the undo objects into a separate module.  They need to be tied directly to the implementation of the operations that modify documents because the document data and the operations that work on it need to know about each other to be able to define <code>Conflict</code> and <code>Transpose</code> properly.
+<p>
+So now the guidelines.  First, come up with your state or document representation and what operations you want to change that state with.  Keep in mind that to be undoable you must provide an inverse for each operation.  Usually this means squirrelling away whatever that operation destroys so the inverse can recreate it.  You will also need to define <code>Conflict</code> and <code>Transpose</code> functions that work over all operations.  With these features designed in at the start you'll have everything the selective undo algorithm needs to work.  Prakash and Knister <b>[cite&nbsp;<a href="#NWcite-PK94">PK94</a>]</b> gives some excellent examples of implementations of this framework.
+<p>
+The prototypical modules I've presented do work.  I've tested them but have not used them extensively, so they are not mature by any means.  In a real application I would improve them by customizing or subclassing <code>AbstractOperation</code>.  The <code>readSet</code> and <code>writeSet</code> approach may not be the correct way to determine conflicts for the document representation.  At the very least I would change them to use real <code>Set</code> objects.  The context and callback mechanisms for actually performing the operations and notification of additions to the history list may need improvements for performance reasons.  And, with the <code>History</code> module working to satisfaction now, it could be moved into C or Java for performance reasons.
+<p>
+Note that once you have all your operations behaving as described above you've nearly got a domain specific language!  You or your users can write functions using these operations and get undo for free.  With a little extra bookeeping you could record which function invocation caused which operations in the history list and use that information to undo the entire thing at once.  Your operations and document object represent a clean interface to your documents and should allow for clear separation between your UI and document object.  In addition to making it easy to embed a language like Python in your application for macros, it should also be easy for programs, even remote programs, to manipulate documents from outside the application.
+<p>
+For groupware applications, the objects would be written the same way, but the <code>context</code> object would have to synchronize with a central server.  The <code>Conflict</code> function would help identify problems when users simultaneously do things that aren't compatible.  Prakash and Knister <b>[cite&nbsp;<a href="#NWcite-PK94">PK94</a>]</b> goes into detail about these issues.
+<p>
+``Extending programming by demosnstration with hierarchical event histories'' by Kosbie and Myers <b>[cite&nbsp;<a href="#NWcite-KosbieDavi94a">KosbieDavi94a</a>]</b> discusses techniques for analyzing user's histories in order to facilitate ``programming by demonstration''.  They recommend keeping histories as a tree to help the analysis.  This could be done fairly easily using a <code>callback</code> and keeping the tree structure external to the <code>History</code> object.  You could then use their techniques to try to ``learn'' what the user is doing.  Or you could just have that information browsable to help the user write macros based on what they have been doing.
+<p>
+Ever since I started programming graphical user interfaces I've been curious about how to implement undo and macro languages.  Those topics have been the holy grail which I've quested after.  When I learned about Python a few years ago, I found the embeddable language I was looking for.  With Prakash and Knister's paper <b>[cite&nbsp;<a href="#NWcite-PK94">PK94</a>]</b> I've finally discovered and implemented a serious undo framework.  Their approach is like defining your own algebra for manipulating documents because it lets you switch around events in the history so you can undo anything, not just the last action.  Now I'm ready to do a really killer app!  Any ideas?
+<p>
+<h2>Availability</h2>
+The source code for <code>History.py</code> and <code>UndoableFileOperations.py</code> will be available by the time this paper is published.  Check either on the Python home page, <a href = "http://www.python.org/">http://www.python.org/</a> or look for my quarters on the Python starship, <a href = "http://starship.skyport.net/crew.html">http://starship.skyport.net/crew.html</a>.
+<p>
+<!--\begin{multicols}{2}-->
+<h2 name="NWDA">References</h2>
+<p>
+<a name ="NWcite-GOF">EG94</a>
+Erich Gamma, et al.
+<em>Design Patterns:  Elements of Reusable Object-Oriented Software.</em>
+Addison-Wesley, 94
+
+<a name="NWcite-KosbieDavi94a">KM94</a> 
+David&nbsp;S. Kosbie and Brad&nbsp;A. Myers.
+Extending programming by .demonstration with hierarchical event
+histories.
+<a href="ftp://reports.adm.cs.cmu.edu/usr/anon/1994/CMU-CS-94-156.ps">Technical Report CMU-HCII-94-102</a>, Carnegie Mellon University, The
+Human Computer Interaction Institute, May 94.
+<p>
+<a name="NWcite-Knuth">Knu92</a> 
+D.E. Knuth.
+<em>Literate Programming</em>.
+Stanford University, 92.
+<p>
+<a name="NWcite-PK94">PK94</a> 
+Atul Prakash and Michael&nbsp;J. Knister.
+Undoing actions in collaborative work: Framework and experience.
+<a href="ftp://ftp.eecs.umich.edu/techreports/cse/1994/CSE-TR-196-94.ps.Z">Technical Report CSE-TR-196-94</a>, University of Michigan, March 94.
+<p>
+
+<p>
+
+<!--\end{multicols}-->
+
+<h2>Appendix: Undoable File Operations</h2>
+As a final example I've implemented some simple undoable file operations.  They all move files that would be deleted into a trash folder and remember that they did so, so they can be undone later if need be.  They demonstrate how to use the <code>readSet</code> and <code>writeSet</code> routines for conflicts.  A simple test routine creates some files, deletes them all, then undoes the first delete.
+<!--\end{multicols}-->
+<pre><a name="NWund7-UndI-1" href="#NWDA"><dfn>&lt;UndoableFileOps.py&gt;=</dfn></a>
+import os, History
+
+class UndoableBinaryFileOp(History.AbstractOperation):
+  def __init__(self, frm, to, trashDir = None, trashed = None):
+    self.frm = frm
+    self.to = to
+    self.op = None
+    self.trashDir = trashDir
+    self.trashed = trashed
+  def perform(self):
+    if os.path.isfile(self.to) and self.trashDir is not None:
+      self.trashed = getUniqueName(self.to, self.trashDir)
+      os.rename(self.to, self.trashed)
+    else:
+      self.trashed = None
+    apply(self.op, (self.frm, self.to))
+  
+  def readSet(self):
+    return (self.frm, )
+  def writeSet(self):
+    if self.trashed:
+      ret = (self.frm, self.to, self.trashed)
+    else:
+      ret = (self.frm, self.to)
+    return ret
+  def inverse(self):
+    return None
+  def isNullOp(self):
+    return 0
+
+class UndoableMove(UndoableBinaryFileOp):
+  def __init__(self, frm, to, trashDir = None, trashed = None):
+    UndoableBinaryFileOp.__init__(self, frm, to,
+                                  trashDir, trashed)
+    self.op = os.rename
+  def inverse(self):
+    if self.trashed:
+      ret = AtomicOpsTuple((UndoableMove(self.to, self.frm),
+            UndoableMove(self.trashed, self.to, self.trashDir)))
+    else:
+      ret = UndoableMove(self.to, self.frm)
+    return ret
+  def readSet(self):
+    return (self.frm, self.to)
+  def copy(self):
+    return UndoableMove(self.frm, self.to,
+                        self.trashDir, self.trashed)
+
+class UndoableCopy(UndoableBinaryFileOp):
+  def __init__(self, frm, to, trashDir = None, trashed = None):
+    UndoableBinaryFileOp.__init__(self, frm, to,
+                                  trashDir, trashed)
+    self.op = os.copy
+  def inverse(self):
+    if (self.trashed):
+      return UndoableMove(self.trashed,
+                          self.to, self.trashDir)
+    else:
+      return UndoableDelete(self.to,self.trashDir)
+  def copy(self):
+    return UndoableCopy(self.frm, self.to,
+                        self.trashDir, self.trashed)
+
+class UndoableSymlink(UndoableBinaryFileOp):
+  def __init__(self, frm, to, trashDir = None, trashed = None):
+    UndoableBinaryFileOp.__init__(self, frm, to,
+                                  trashDir, trashed)
+    self.op = os.symlink
+
+  def inverse(self):
+    if (self.trashed):
+      return UndoableMove(self.trashed,
+                          self.to, self.trashDir)
+    else:
+      return UndoableDelete(self.to,self.trashDir)
+
+  def copy(self):
+    return UndoableSymlink(self.frm, self.to,
+                           self.trashDir, self.trashed)
+
+class UndoableHardlink(UndoableBinaryFileOp):
+  def __init__(self, frm, to, trashDir = None, trashed = None):
+    UndoableBinaryFileOp.__init__(self, frm, to,
+                                  trashDir, trashed)
+    self.op = os.link
+
+  def inverse(self):
+    if (self.trashed):
+      return UndoableMove(self.trashed,
+                          self.to, self.trashDir)
+    else:
+      return UndoableDelete(self.to,self.trashDir)
+
+  def copy(self):
+    return UndoableHardlink(self.frm, self.to,
+                            self.trashDir, self.trashed)
+
+class UndoableDelete(History.AbstractOperation):
+  def __init__(self, filename, trashDir = None, trashed = None):
+    self.filename = filename
+    self.trashDir = trashDir
+    self.trashed = trashed
+
+  def copy(self):
+    return UndoableDelete(self.filename,
+                          self.trashDir, self.trashed)
+
+  def perform(self):
+    if (os.path.isfile(self.filename)
+       and self.trashDir is not None):
+      self.trashed = getUniqueName(self.filename,
+                                   self.trashDir)
+    else:
+      self.trashed = None
+    if self.trashed:
+      os.rename(self.filename, self.trashed)
+    else:
+      os.unlink(self.filename)
+  
+  def readSet(self):
+    return (self.filename,)
+
+  def writeSet(self):
+    if self.trashed:
+      ret = (self.filename, self.trashed)
+    else:
+      ret = (self.filename)
+    return ret
+
+  def inverse(self):
+    return UndoableMove(self.trashed,
+                        self.filename, self.trashDir)
+
+  def isNullOp(self):
+    return 0
+
+class AtomicOpsTuple(History.AbstractOperation):
+  def __init__(self, operationsTuple):
+    self.operationsTuple = operationsTuple
+
+  def copy(self):
+    return AtomicOpsTuple(self.operationsTuple)
+
+  def perform(self):
+    for op in self.operationsTuple:
+      op.perform()
+  
+  def readSet(self):
+    ret = ()
+    for op in self.operationsTuple:
+      ret = ret + op.readSet()
+    return ret
+
+  def writeSet(self):
+    ret = ()
+    for op in self.operationsTuple:
+      ret = ret + op.writeSet()
+    return ret
+
+  def isNullOp(self):
+    return 0
+def getUniqueName(fn, trashDir):
+  base = os.path.basename(fn)
+  count = 1
+  result = os.path.join(trashDir, base + '%.3d' % count)
+  while os.path.isfile(result):
+    count = count + 1  
+    result = os.path.join(trashDir, base + '%.3d' % count)
+  return result
+
+if __name__=='__main__':
+  limit = 12
+
+  #a helper function to see what's going on
+  def listem():
+    print
+    for dir in [&quot;/tmp/tests&quot;, &quot;/tmp/tests/trash&quot;]:
+      l = os.listdir(dir)
+      for f in l:
+        fn = dir+'/' + f
+        if not os.path.isfile(fn):
+          print '\t' + fn
+        else:
+          fi = open(fn)
+          s = fi.read()
+          fi.close()
+          print '\t' + fn, s
+
+  #create Context and History objects
+  class Context:
+    def performOp(self, op):
+      op.perform()
+      self.history.addHistoryOp(op)
+  c = Context()
+  h = History.History(c)
+  c.history = h
+
+  #create some directories and files to play with
+  try:
+    os.mkdir(&quot;/tmp/tests&quot;,0777)
+  except:
+    pass
+
+  try:
+    os.mkdir(&quot;/tmp/tests/trash&quot;, 0777)
+  except:
+    pass
+
+  for x in range(limit):
+    f = open('/tmp/tests/hey'+str(x), 'w')
+    f.write(str(x))
+    f.close()
+
+  listem()
+
+  #delete everything
+  for x in range(limit):
+    u = UndoableDelete('/tmp/tests/hey'+str(x),
+                       '/tmp/tests/trash')
+    c.performOp(u)
+
+  listem()
+
+  #undo only the first delete
+  h.undo(h.historyList[0])
+
+  listem()
+</pre>
+<p>
+<ul>
+<li><a href="#NWund7-AbsH-1"><i>&lt;AbstractOperation&gt;</i></a>: <a href="#NWD2">U1</a>, <a href="#NWund7-AbsH-1">D2</a>
+<li><a href="#NWD4"><i>&lt;History&gt;</i></a>: <a href="#NWD2">U1</a>, <a href="#NWD4">D2</a>
+<li><a href="#NWD3"><i>&lt;HistoryExceptions&gt;</i></a>: <a href="#NWD2">U1</a>, <a href="#NWD3">D2</a>, <a href="#NWD6">D3</a>, <a href="#NWD7">D4</a>
+<li><a href="#NWD5"><i>&lt;HistoryNode&gt;</i></a>: <a href="#NWD2">U1</a>, <a href="#NWD5">D2</a>
+<li><a href="#NWD2"><i>&lt;History.py&gt;</i></a>: <a href="#NWD2">D1</a>
+<li><a href="#NWD8"><i>&lt;removeDoUndoPair&gt;</i></a>: <a href="#NWund7-undD-1">U1</a>, <a href="#NWD8">D2</a>
+<li><a href="#NWund7-temF-1"><i>&lt;tempListForUndo&gt;</i></a>: <a href="#NWund7-undD-1">U1</a>, <a href="#NWund7-temF-1">D2</a>
+<li><a href="#NWD9"><i>&lt;undo&gt;</i></a>: <a href="#NWund7-undD-1">U1</a>, <a href="#NWD9">D2</a>
+<li><a href="#NWund7-undD-1"><i>&lt;undo routines&gt;</i></a>: <a href="#NWD4">U1</a>, <a href="#NWund7-undD-1">D2</a>
+<li><a href="#NWDA"><i>&lt;UndoableFileOps.py&gt;</i></a>: <a href="#NWDA">D1</a>
+</ul>
+
+<a name="NWDB"></a>
+</UL>
+</BODY>

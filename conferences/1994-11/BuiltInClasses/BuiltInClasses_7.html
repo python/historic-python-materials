@@ -1,0 +1,29 @@
+<!-- Generated with CERN WebMaker 1.4 -->
+<HTML>
+<HEAD>
+<TITLE>2.4.  Deriving Built-in Classes</TITLE>
+</HEAD>
+<BODY>
+<A NAME=HEADING6></A>
+<A HREF="BuiltInClasses_8.html">[Next] </A><A HREF="BuiltInClasses_6.html">[Previous] </A><A HREF="BuiltInClasses_3.html">[Up] </A><A HREF="BuiltInClasses_1.html">[Top] </A><P>
+2.  Object System Enhancements<P>
+<H3>2.4.  Deriving Built-in Classes</H3>
+ At this time it is useful to define the term `class' as used in Python. A class is an object that can be used as a base from which other classes can be derived from within Python. Try not to be bothered by the circular nature of the definition. As you will see later, this issue resolves itself quite nicely and will be replaced by a much more perplexing circular definition. The point here is to make a distinction between a type and a class. Unlike a class, a type cannot be used as the base from which classes are derived.<P>
+ In a very limited sense, it could be said that the current Python implementation already supports deriving classes from built-in classes. The limitation is rather severe though because there is only one built-in class from which all Python classes must be derived. The goal then is to devise a method for creating additional built-in classes that implement their methods in C but are capable of having those methods overridden in Python. This will allow us to have the best of both world: a fast C implementation in the simple case, but also the ability to specialize the behavior in Python. A second but equally important goal is that a class defined in Python should be virtually indistinguishable from a functionally equivalent class defined in C. Meeting these goals implies the ability to dynamically create new instances of built-in classes. Each of theses newly created class objects has the potential for behaving differently from other class objects like it. This then implies the need for a meta-class object, a class object capable of describing the behavior and attributes of another class object.<P>
+ To make all of this happen the techniques described above were used to derive a class object from the CType object. A single built-in instance of this object was then created to act as the class of all meta-class objects. This object was called MetaClass. Given the existence of this single MetaClass class object, built-in instances of it can now be instantiated much like the current Python implementation supports the instantiation of built-in type objects. From these ideas, the following statements can be made:<P>
+<UL>
+<LI>All class objects are instances of a meta-class.
+<LI>All meta-class objects are instances of a class called MetaClass.
+<LI>Meta-class objects have methods for creating class objects.
+<LI>Class objects have methods for creating instance objects.
+<LI>MetaClass is a class object that is an instance of itself.
+</UL>
+ The implementation of a built-in class requires that an instance of MetaClass be created to describe and instantiate new instances of itself. Since meta-classes describe the behavior of class objects, many classes can share the same meta-class as long as the behavior of the class objects are to be the same. All class objects created through the Python `class' statement that share the same base class will also be instances of the same meta-class.<P>
+ Currently meta-classes are always built-in. There are no provision for dynamically creating meta-classes nor is it necessary to do so if all that is desired is to duplicate the current level of functionality available in Python. This extension would be straightforward but imply that syntax changes be made to Python in order to fully support the idea.<P>
+
+<HR>
+<ADDRESS>Deriving Built-In Classes in Python - 22 DEC 94</ADDRESS>
+<A HREF="BuiltInClasses_8.html">[Next] </A><A HREF="BuiltInClasses_6.html">[Previous] </A><A HREF="BuiltInClasses_3.html">[Up] </A><A HREF="BuiltInClasses_1.html">[Top] </A><P>
+Generated with <A HREF="AboutWebMaker.html">CERN WebMaker</A>
+</BODY>
+</HTML>

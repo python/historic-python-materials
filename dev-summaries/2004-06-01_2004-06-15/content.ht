@@ -1,0 +1,202 @@
+Title: python-dev Summary for 2004-06-01 through 2004-06-15
+Content-type: text/x-rst
+
+python-dev Summary for 2004-06-01 through 2004-06-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from June 01, 2004 through June 15, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the forty-third summary written by Brett Cannon (wonder if that summary
+count is correct?).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-06-01_2004-06-15.html
+.. _original text file: http://www.python.org/dev/summary/2004-06-01_2004-06-15.ht
+
+
+
+Summary Announcements
+=====================
+Wow, two summaries written in a single week.  Hell has not frozen over, don't worry; work has just not started yet.  =)
+
+Summaries
+=========
+--------------------------------
+New PEP on bytecode verification
+--------------------------------
+As it stands now, unless you are running a debug build of Python, there are no checks that the bytecode being executed by the interpreter is valid.  It is not terribly difficult to crash the interpreter with blatently invalid bytecode.
+
+In an attempt to resolve this, `PEP 330`_ has been written in hopes of coming up with a Python module in the stdlib that can have bytecode passed to it and attempt to perform some basic verification on it.
+
+.. _PEP 330: http://python.org/dev/peps/pep-0330
+
+Contributing threads:
+  - `PEP 330 Python bytecode verification <http://mail.python.org/pipermail/python-dev/2004-June/045082.html>`__
+
+--------------------
+2.4a1 coming up soon
+--------------------
+Python 2.4a1 should be coming out early July.  If you have some bugs or patches you want to see in 2.4 then read Anthony's announcement for general guidelines on how to go about this.
+
+Jeremy Hylton pointed out that since the AST branch did not make it in before this announcement it would not be included in 2.4 (thus guaranteeing a sprint topic for PyCON 2005).  Generator expressions *are* in this alpha with late bindings.  If late bindings work out for you, or if you have an explicit use case in working code for early bindings, please speak up.
+
+Contributing threads:
+  - `pre-announce: Python 2.4a1 is about a month away <http://mail.python.org/pipermail/python-dev/2004-May/045028.html>`__
+
+--------------------------------------------------
+The shaky courtship of 2.4 and function decorators
+--------------------------------------------------
+With 2.4a1 ominously approaching on the horizon, Guido asked what people thought of holding off on including function decorators for 2.5.  Some people said to put it in and if that meant using Guido's then so be it.  Others said to wait and let Guido have more time since he wanted to consider Java 1.5's syntax.
+
+Guido said he would ask at EuroPython_ for more opinions.
+
+.. _EuroPython: http://www.europython.org/
+
+Contributing threads:
+  - `functions decorators in 2.4? <http://mail.python.org/pipermail/python-dev/2004-June/045124.html>`__
+  - `Dropping decorator syntax for 2.4? <http://mail.python.org/pipermail/python-dev/2004-June/045125.html>`__
+
+-----------------------------------------------------------
+Why Stackless is not about to be incorporated into the core
+-----------------------------------------------------------
+Someone asked why Stackless_ is still not part of the Python core.  After a bunch of talking, Guido spelled out a couple of reasons.  One was a lack of a clear spec; if it is not obvious how it will behave it can't go in.  Another was whether it could reasonably work on Jython; Python the language needs to be portable enough to be coded in C or Java.  A third point was not wanting to rely on platform hacks in order for something to work; Stackless doesn't use the C stack and that can complicate things (and Guido put longjmp() from ISO C in this category so don't ever think of using it in a patch).
+
+In other words Stackless is not going to be integrated into the core at this time.
+
+.. _Stackless: http://www.stackless.com/
+
+Contributing threads:
+  - `Stackless Python <http://mail.python.org/pipermail/python-dev/2004-June/045074.html>`__
+  - `Re: Stackless Python <http://mail.python.org/pipermail/python-dev/2004-June/045098.html>`__
+
+------------------------------------------------------
+Remember, some stdlib modules are maintained elsewhere
+------------------------------------------------------
+Greg Ward reminded python-dev that optparse is maintained as Optik_ and as a separate project.  Some other modules are also maintained like this, so it is something to keep an eye out for if you are writing patches or reporting a bug.
+
+.. _Optik: http://optik.sf.net/
+
+Contributing threads:
+  - `Reminder: optparse.py is auto-generated <http://mail.python.org/pipermail/python-dev/2004-June/045176.html>`__
+
+--------------
+Python Bug Day
+--------------
+The First Python Bug Day took place on June 5th, led by AM Kuchling.  The end results are listed at http://wiki.python.org/moin/PythonBugDayStatus and look very good.
+
+Since SF troubles cropped up during the day (both frustration with people not being able to add files to bugs and patches created by other people and SF CVS going down), discussion of getting off of SF came up (this was also mentioned in several other minor threads).  The desire to host off-site were brought up, but the issue of having enough volunteers to handle the load of managing a CVS or Subbversion repository was brought up.  Also moving over to Roundup or GForge on a server under our control was also brought up.  Nothing looks like it is going to happen any time soon, though (at least not until 2.4 is out the door).
+
+The next Bug Day has been tentatively scheduled for July 10.
+
+Contributing threads:
+  - `Python bug day? <http://mail.python.org/pipermail/python-dev/2004-June/045090.html>`__
+  - `Bug day outcome <http://mail.python.org/pipermail/python-dev/2004-June/045235.html>`__
+
+----------------------------------------------------------
+What it takes to have something to support weak references
+----------------------------------------------------------
+(should have been in last summary)
+Why don't strings and such support weak references?  Turns out that variable-sized objects (i.e., tp_itemsize specified) cannot support them without direct support hard-coded in the struct.  Since it would require more space and extra code for deallocation (and thus incur a performance penalty) for such common types as strings and tuples, it was decided that for such an infrequently used ability (at least in this case) it would not be worth the cost of adding support.
+
+Contributing threads:
+  - `Why aren't more things weak referencable <http://mail.python.org/pipermail/python-dev/2004-May/045006.html>`__
+
+-------------------------
+Heterogeneous comparisons
+-------------------------
+The list was reminded that in the future at some point, comparisons between heterogeneous types will raise TypeError except for '==' and '!='.  This brought up the discussion of comparing floats to longs.  Guido said he is going to make sure that they can still be compared without issue (part of the reason true division was introduced).  People talked about the best way to go about it, but it was mostly just talk since this is not about to go into the core.
+
+Contributing threads:
+  - `Comparing heterogeneous types <http://mail.python.org/pipermail/python-dev/2004-June/045111.html>`__
+
+-----------------------
+Finalizing Decimal type
+-----------------------
+Facundo Batista posted an email summing up the last nagging features for the Decimal type and `PEP 327`_.  He said he would post an updated PEP (which he has done) and get input from Tim Peters.  Looks like this is almost in!
+
+.. _PEP 327: http://python.org/dev/peps/pep-0327
+
+Contributing threads:
+  - `Decimal issues - Conclusion <http://mail.python.org/pipermail/python-dev/2004-June/045209.html>`__
+
+---------------
+Free Icon books
+---------------
+Tim Peters posted links to links to PDFs of three significant books on Icon_ (see the email for the links).
+
+Why would Python programmers care about the Icon programming language?  Well, Python got the idea of generators from Icon.  Plus it never hurts to know more languages, if anything just for new ideas for Python or to be able to emphatically state Python is better.  =)
+
+Also, the book, 'The Icon Programming Language', is essentially the *only* book describing how a scripting language that is non-trivial is implemented.
+
+.. _Icon: http://www.cs.arizona.edu/icon/
+
+Contributing threads:
+  - `Free Icon books <http://mail.python.org/pipermail/python-dev/2004-June/045231.html>`__
+
+----------------------------------------
+Documenting undocumented C API functions
+----------------------------------------
+Thomas Heller updated Doc/tools/undoc_symbols.py (which finds out what C API code is undocumented) and ran it.  The list of undocumented C code is listed at http://starship.python.net/crew/theller/moin.cgi/Documenting_25CorePythonApiFunctions .  If you would like to help with documenting, helping with documenting what is listed at the wiki would be great.
+
+Contributing threads:
+  - `undocumented api functions <http://mail.python.org/pipermail/python-dev/2004-June/045308.html>`__
+
+---------------------------------------------
+Tool for side-by-side diffs outputted in HTML
+---------------------------------------------
+http://www.python.org/sf/914575 has a patch that adds the necessary code and a tool script for side-by-side diffs using difflib that output in a nice HTML format.  While the code has not been accepted yet, I personally know how useful this functionality can be so I thought I would just let people know about the code.
+
+And if you find this code helpful, then doing a code review and adding a comment on the patch would be helpful in getting the code accepted, especially after the author gets his next patch uploaded.
+
+Contributing threads:
+  - `Side by Side Differencing Patch <http://mail.python.org/pipermail/python-dev/2004-June/045304.html>`__
+  - `HTML side by side diff patch 914575 <http://mail.python.org/pipermail/python-dev/2004-June/045361.html>`__
+
+-----------------------------------
+Removing CLRFs in PCbuild directory
+-----------------------------------
+Martin v. Lowis fixed the vcproj files in the PCbuild directory to have the proper line endings.  Problem is that you must run ``cvs update -A`` on your PCbuild directory to add the -kb tag on the files since it is a sticky tag.
+
+Contributing threads:
+  - `Changing PCBuild/*.vcproj to text mode <http://mail.python.org/pipermail/python-dev/2004-June/045401.html>`__
+
+--------------------------------------------------------
+Bounding free list creation for ints and such ain't easy
+--------------------------------------------------------
+Bounding the size of the memory used by ints and other built-ins that have a custom allocator was brought up.  The suggestion of moving them to pymalloc was suggested, but it was pointed out it would make it slower and waste more space on some platforms.  And the ideas on how to deal with this all seemed difficult.  No code was committed in the end.
+
+Contributing threads:
+  - `Object free lists <http://mail.python.org/pipermail/python-dev/2004-June/045403.html>`__
+
+-------------------------------------
+How to search the python-dev archives
+-------------------------------------
+One idea is to use gmane.org to do your searches since they index the mailing list.  The one that I (and apparently Tim Peters) use is to do a Google search with ``site:mail.python.org python-dev`` at the beginning.  I actually search the python-dev archives using the same technique; ``site:www.python.org "python-dev Summary"``.
+
+Contributing threads:
+  - `python-dev archive searching ? <http://mail.python.org/pipermail/python-dev/2004-June/045325.html>`__

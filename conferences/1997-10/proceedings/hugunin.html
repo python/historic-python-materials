@@ -1,0 +1,740 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Jim Hugunin">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.02 [en] (WinNT; I) [Netscape]">
+   <TITLE>JPython</TITLE>
+</HEAD>
+<BODY BACKGROUND="../../../pics/BlueLong.gif"
+      BGCOLOR="#FFFFFF"
+      TEXT="#000000"
+      LINK="#0000FF"
+      VLINK="#7070B0">
+
+<UL>
+
+<a href="index.html">Proceedings of the 6th International Python Conference</A>
+<HR SIZE="1" NOSHADE>
+<CENTER>
+<H1>
+Python and Java: The Best of Both Worlds</H1></CENTER>
+
+<CENTER>
+<ADDRESS>
+Jim Hugunin</ADDRESS></CENTER>
+
+<CENTER>
+<ADDRESS>
+Corporation for National Research Initiatives</ADDRESS></CENTER>
+
+<CENTER>
+<ADDRESS>
+hugunin@cnri.reston.va.us</ADDRESS></CENTER>
+
+<H2>
+Abstract</H2>
+This paper describes a new working implementation of the Python language;
+built on top of the Java language and run-time environment.&nbsp; This
+is in contrast to the existing implementation of Python, which has been
+built on top of the C language and run-time environment.&nbsp; Implementing
+Python in Java has a number of limitations when compared to the current
+implementation of Python in C.&nbsp; These include about 1.7X slower performance,
+portability limited by Java VM availability, and lack of compatibility
+with existing C extension modules.&nbsp; The advantages of Java over C
+as an implementation language include portability of binary executables,
+object-orientation in the implementation language to match object-orientation
+in Python, true garbage collection, run-time exceptions instead of segmentation
+faults, and the ability to automatically generate wrapper code for arbitrary
+Java libraries.
+<H2>
+1. Why Java?</H2>
+The current implementation of Python in C is a fairly large and complicated
+software system. Does Java provide enough advantages when compared to the
+current implementation in C for it to be worth this significant reimplementation
+effort?&nbsp; The simplest answer to this question is that the tidal wave
+of popularity Java has been enjoying recently is a good enough reason to
+be interested in building a Python system that is 100% pure Java and can
+capitalize on Java's rise to fame.&nbsp; In addition, Java has a number
+of significant technical advantages over C, Python's current implementation
+language.&nbsp; These include portability, object-orientation, robustness,
+and scripting language friendliness.
+<H3>
+1.1. Portable</H3>
+Java programs compile down to portable executable bytecodes that can run
+on any computer that supports a Java virtual machine.&nbsp; Unlike ANSI
+C, which achieves portability across platforms through recompilation of
+source files, Java's portability is available at the level of binary executables.&nbsp;
+This means that Java programs can be distributed as binary files that will
+run on any platform.&nbsp; While code written purely in Python currently
+enjoys this advantage and will run on any machine with a Python interpreter
+installed; the wealth of C-based Python extension modules, as well as the
+central Python interpreter itself, are only portable to multiple platforms
+after a (sometimes painful) recompilation of the C source.
+
+<P>Another important aspect of Java's portability is the rich set of portable
+APIs that SUN is defining for the language. They provide standard interfaces
+for everything from database access to 3d graphics; and work uniformly
+on any platform that supports Java.&nbsp; More detailed information on
+these current and planned APIs can be found at JavaSoft's web pages [1].
+<H3>
+1.2. Object-Oriented</H3>
+Java is an object-oriented language with the basic features of encapsulation,
+polymorphism, and inheritance.&nbsp; This makes it a much better fit to
+Python's object oriented nature than C.&nbsp; The existing implementations
+of Python's built-in types in C all show the contortions required to represent
+classes in a non-object oriented language.&nbsp; Built-in types can be
+much more cleanly represented in Java by taking advantages of the language's
+own object oriented features.
+
+<P>One of the standard advantages cited for object-oriented languages is
+the ability to easily achieve code reuse.&nbsp; I take advantage of this
+in my implementation by having all Python objects inherit from a single
+PyObject base class.&nbsp; Furthermore, all of the sequence types (list,
+tuple, string) inherit from a single PySequence base class.
+
+<P>The current implementation of Python in C has an unfortunate asymmetry
+between built-in types and Python-defined classes.&nbsp; One aspect of
+this asymmetry is that users cannot write classes that inherit from built-in
+types such as lists and dictionaries.&nbsp; Another aspect of the current
+asymmetry is that instances of built-in types don't have __dict__'s that
+can be inspected to determine their attributes and methods.&nbsp; A large
+part of the reason for this asymmetry comes from the implementation difficulties
+of creating "real" classes in a non-object-oriented language like C.&nbsp;
+In my implementation of Python in Java, it is relatively easy to make this
+asymmetry go away by taking advantages of the object-oriented design of
+Java for implementing the built-in types.
+<H3>
+1.3. Robust</H3>
+No Java program will ever segmentation fault.&nbsp; Instead it will throw
+a catchable runtime exception.&nbsp; This is a significant improvement
+over C where uncatchable, destructive errors occur all too frequently at
+runtime.&nbsp; It needs to be said that bugs in the Java VM can still lead
+to segmentation faults, but it's a lot easier to debug a single VM than
+all of the libraries and applications you'll want to run on top of it.&nbsp;
+Python programmers are used to this level of robustness in their Python
+code.&nbsp; However, the frequent inclusion of C-based extension modules
+in Python leads to these runtime segmentation faults appearing nonetheless.
+
+<P>A key part of Java's robustness is its use of true garbage collection.&nbsp;
+My Python implementation on top of Java is able to take advantage of this
+capability in the underlying language and eliminates the need to maintain
+reference counts on Python objects.&nbsp; This makes writing extension
+modules significantly easier as there is no longer a need to keep track
+of the reference counts on Python objects.&nbsp; It also provides true
+garbage collection to Python code so that circular references no longer
+lead to memory leaks.
+<H3>
+1.4. Glue Language Friendly</H3>
+One of Python's primary uses is as a glue language to work with existing
+libraries written in C.&nbsp; The ease with which users can generate Python
+wrappers around these existing C-based libraries is a frequently cited
+strength of Python.&nbsp; Nonetheless, these wrappers require a significant
+amount of hand-coding to make the C libraries available to Python.
+
+<P>Java's design is friendlier to glue languages than C.&nbsp; Both Java's
+type safety and the existence of a reflection API make it reasonably easy
+to automatically generate wrappers that allow Python programmers to access
+Java packages.&nbsp; The ability to do this without any hand-coding of
+wrapper modules (as is currently the case in C) makes it trivial for Python
+programmers to use any Java package.
+<BR>As an example of how Java's type safety makes it possible to automatically
+generate wrappers for a given function call, consider the following C function
+declaration:
+<CENTER><PRE>void foo(int *a, int n);</PRE></CENTER>
+This function signature has at least three interpretations, each of which
+is expressed uniquely in Java.&nbsp; The lack of pointers in Java, and
+the fact that all arrays have their length implicitly included are what
+make the Java specification of these signatures unique.
+<UL>
+<LI>
+A function of a single array of length n (the length is encoded in the
+array in Java).</LI>
+
+<UL>
+<PRE>void foo(int a[]);</PRE>
+</UL>
+
+<LI>
+A function of a single int ‘n' returning a new int ‘a'.</LI>
+
+<UL>
+<PRE>int foo(int n);</PRE>
+</UL>
+
+<LI>
+A function of two ints ‘n' and ‘a', returning a new int in ‘a'.</LI>
+
+<UL>
+<PRE>int foo(int a, int n);</PRE>
+</UL>
+</UL>
+Beyond this clear model of what any Java type represents, Java also provides
+a reflection API to allow glue languages to discover all of the methods
+and fields implemented by a given class and to dynamically access them
+at runtime.
+<H2>
+2. Implementing Python in/on Java</H2>
+My implementation of Python in Java consists of three key components.&nbsp;
+The first is a parser and lexer for the Python grammar.&nbsp; These are
+pure Java code generated by the JavaCC parser generator [2] freely available
+from Sun.&nbsp; They are similar to Python's C-code parser and lexer.&nbsp;
+When run on a Python source file the parser generates a collection of Java
+objects representing the parser tree.
+
+<P>The second component of the system is a compiler written entirely in
+Python that traverses this parse tree to output actual Java bytecodes.&nbsp;
+(Notice that I'm already taking advantage of the power of this system here
+as I use a compiler written in Python to traverse a parse tree consisting
+of Java objects produced by a Java-based parser).&nbsp; This is different
+from the current Python implementation, which outputs its own private bytecode
+format.&nbsp; By producing Java bytecodes, I'm coming closer to what in
+the C-world would be accomplished by directly generating machine code.&nbsp;
+But this is a portable machine code that will run on any Java platform.
+
+<P>The third component of my implementation of Python in Java is a collection
+of Java-based support classes.&nbsp; These classes provide the implementations
+for the basic Python objects (lists, integers, instances, classes, …) as
+well as implementations of handy functions like "print" and "import".&nbsp;
+The functionality of Python's current virtual machine is split between
+these support classes and Java's own virtual machine.
+<H3>
+2.1. Compiling Python to Java Bytecodes</H3>
+Both the Python and Java languages compile to a portable bytecode format.&nbsp;
+The virtual machines for both of these languages are stack-based.&nbsp;
+Stack-based architectures seem to be the norm for virtual machines, while
+most native microprocessors are instead register-based machines.&nbsp;
+Unlike the Python virtual machine which was designed purely for running
+Python code, the Java VM was built to be able to run code from a wide variety
+of languages.&nbsp; I am aware of compiler projects (in various stages
+of completion) for Scheme, TCL, BASIC, Rexx, Python (described in this
+paper), ADA and C that target the Java VM.
+
+<P>Let's take a look at how a very simple expression is currently compiled
+to Python bytecodes by the Python compiler.&nbsp; To keep things as simple
+as possible, we'll consider the expression "2+2".
+<UL><B>Python Bytecodes for 2+2</B>
+<BR><TT>0 LOAD_CONST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0 (2)</TT>
+<BR><TT>3 LOAD_CONST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0 (2)</TT>
+<BR><TT>6 BINARY_ADD</TT></UL>
+This simple expression generates three Python bytecodes.&nbsp; The first
+two load the Python integer object "2" on to the operand stack.&nbsp; The
+final opcode adds the top two elements on the stack together.&nbsp; It
+does this using Python's conventions for dynamic method invocation.
+
+<P>The Java bytecodes for this same operation look surprisingly similar:
+<UL><B>Java Bytecodes for 2+2</B>
+<BR><TT>0 iconst_2</TT>
+<BR><TT>1 iconst_2</TT>
+<BR><TT>2 iadd</TT></UL>
+The first two opcodes push the integer "2" on to the operand stack, and
+the third opcode adds the top two operands together.
+
+<P>Despite the apparent similarities between these two bits of assembly
+code, the underlying mechanics are in fact quite different.&nbsp; The Java
+machine is working on literal integer values.&nbsp; It actually pushes
+the 32-bit binary value 0x00000002 on to the stack to represent the integer
+2.&nbsp; The Python code, on the other hand, is manipulating Python integer
+objects.&nbsp; What it pushes on to the stack is not a raw integer literal,
+but a pointer to a corresponding integer object.
+
+<P>Furthermore, Python's BINARY_ADD opcode is very different from Java's
+iadd.&nbsp; The Python opcode dynamically invokes the appropriate code
+to add the top two objects on the stack together based on their run-time
+types.&nbsp; The Java opcode on the other hand requires that its two operands
+are literal 32-bit integers.&nbsp; This difference captures much of the
+inherent differences between Python's highly interactive/dynamic nature,
+and Java's static but high-performance design.
+
+<P>Despite these deep underlying differences, the Java VM has facilities
+to implement Python's dynamic model with minimal overhead.&nbsp; While
+Java's integers are inappropriate for representing Python's integers, Java
+objects can readily represent Python integers (and all other Python objects).&nbsp;
+And while Java's built-in add methods can not implement Python's dynamic
+method lookup, Java method invocation can be used to achieve the same effects.&nbsp;
+Making these changes, we see how the Python semantics for "2+2" can be
+compiled to Java bytecodes.
+<UL><B>Java Bytecodes for 2+2 with Python's Semantics</B>
+<BR>0 getstatic #1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// static field _i2
+<BR>3 getstatic #1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// static field _i2
+<BR>5 invokevirtual #2&nbsp;&nbsp;&nbsp; // PyObject.add(LPyObject;)LPyObject;</UL>
+This implementation will push a Java object corresponding to the Python
+integer "2" on to the top of the stack, and then do that again.&nbsp; The
+third opcode will invoke the add method on the top object on the stack,
+and it's the responsibility of this method to implement Python's "add"
+semantics.
+<H3>
+2.2. Java Class Hierarchy for Python Types</H3>
+In order to make the above bytecodes work, all of the built-in Python types
+must be implemented as Java classes.&nbsp; The Java class hierarchy to
+implement the core Python types is shown below.
+<UL>
+<LI>
+java.lang.Object</LI>
+
+<UL>
+<LI>
+PyObject</LI>
+
+<LI>
+PyInteger</LI>
+
+<LI>
+...</LI>
+
+<LI>
+PyDictionary</LI>
+
+<LI>
+PySequence</LI>
+
+<UL>
+<LI>
+PyString</LI>
+
+<LI>
+PyList</LI>
+
+<LI>
+PyTuple</LI>
+</UL>
+
+<LI>
+PyClass</LI>
+
+<LI>
+PyInstance</LI>
+
+<LI>
+PyFrame</LI>
+</UL>
+</UL>
+The names of the classes should be familiar to anybody who has worked with
+Python's existing internals.&nbsp; It's unfortunate that these names use
+the "Py" prefix that's so necessary in Python's C implementation.&nbsp;
+Java has very nice namespace management (similar to the package namespaces
+provided in Python 1.5).&nbsp; Unfortunately, every Java program automatically
+imports the "java.lang" namespace.&nbsp; This means that the names "Object",
+"Class", and "Integer" are already taken in any Java program.
+
+<P>The PyObject class implements all of the basic functionality of Python's
+dynamic method invocations.&nbsp; This is very similar to Python's existing
+semantics, though it is simplified because of increased similarities between
+built-in types and Python defined classes.
+<H3>
+2.3. A More Complicated Example</H3>
+The actual implementation of my Python to Java bytecode translator performs
+a direct translation from Python to Java bytecodes.&nbsp; Nonetheless,
+almost all of what it does can be viewed conceptually as a translation
+of Python to Java.&nbsp; Since it tends to be easier to read Java source
+code than Java VM assembly code, I'll present the next few examples that
+way.&nbsp; The translation from Java source code to Java bytecodes is generally
+fairly straightforward.&nbsp; Remember that the following examples of Java
+source code are for illustrative purposes only.&nbsp; My Python in Java
+system never generates Java source files, but only executable Java bytecodes.
+
+<P>I'm going to show how a very simple Python module is conceptually translated
+to a Java module.&nbsp; Table 1 shows both the code for the Python module
+and the Java source that corresponds to the Java bytecodes my compiler
+actually generates.
+<BR>
+<HR WIDTH="100%">
+<BR><B>Table 1. Translation of a simple Python module to Java</B>
+
+<P>Python code for module: "foo.py"
+
+<P><TT>x = 2</TT>
+<BR><TT>print x+2</TT><TT></TT>
+
+<P><TT>import spam</TT>
+<BR><TT>spam.eggs = 2</TT>
+<BR><TT>print spam.eggs</TT>
+<BR><TT></TT>&nbsp;<TT></TT>
+
+<P>Java source corresponding to Java bytecodes which my compiler actually
+generates: "foo.java"<TT></TT>
+
+<P><TT>1 public class foo implements PyRunnable {</TT>
+<BR><TT>2&nbsp;&nbsp; //Declare fields for constants</TT>
+<BR><TT>3&nbsp;&nbsp; static PyInteger _i2 = new PyInteger(2);</TT>
+<BR><TT>4&nbsp;&nbsp; static PyString _sx = new PyString("x");</TT>
+<BR><TT>5&nbsp;&nbsp; static PyString _sspam = new PyString("spam");</TT>
+<BR><TT>6&nbsp;&nbsp; static PyString _seggs = new PyString("eggs");</TT><TT></TT>
+
+<P><TT>7&nbsp;&nbsp; public void run(PyFrame frame) {</TT>
+<BR><TT>8&nbsp;&nbsp;&nbsp; //x = 2</TT>
+<BR><TT>9&nbsp;&nbsp;&nbsp; frame.setlocal(_sx, _i2);</TT><TT></TT>
+
+<P><TT>10&nbsp;&nbsp;&nbsp; //print x+2</TT>
+<BR><TT>11&nbsp;&nbsp;&nbsp; Py.print(frame.getlocal(_sx).add(_i2), true);</TT><TT></TT>
+
+<P><TT>12&nbsp;&nbsp;&nbsp; //import spam</TT>
+<BR><TT>13&nbsp;&nbsp;&nbsp; frame.setlocal(_sspam, Py.importModule(_sspam));</TT><TT></TT>
+
+<P><TT>14&nbsp;&nbsp;&nbsp; //spam.eggs = 2</TT>
+<BR><TT>15&nbsp;&nbsp;&nbsp; frame.getlocal(_sspam).__setattr__(_seggs,
+_i2);</TT><TT></TT>
+
+<P><TT>16&nbsp;&nbsp;&nbsp; //print spam.eggs</TT>
+<BR><TT>17&nbsp;&nbsp;&nbsp; Py.print(frame.getlocal(_sspam).__getattr__(_seggs));</TT>
+<BR><TT>18&nbsp;&nbsp; }</TT>
+<BR><TT>19 }</TT>
+
+<P>
+<HR WIDTH="100%">
+<BR>Line 1 declares a new Java class.&nbsp; Every Python module is implemented
+as exactly one Java class.&nbsp; Each Python module must also implement
+the interface PyRunnable which allows the module to be initialized (and
+requires the module to implement the "run" method as shown here).
+
+<P>Lines 3-6 define the constant pool for this Python module as static
+fields on the Java class.&nbsp; Each of these static fields holds a Java
+object which corresponds to some primitive Python constant.
+
+<P>Lines 7-18 define the single method of this Java class.&nbsp; This is
+the method that is invoked when the module "foo" is imported under Python.&nbsp;
+This method receives a PyFrame object corresponding to the Python stack
+frame in which the module should execute.&nbsp; This object is used to
+hold all Python local and global variables (no effort has been made to
+take advantage of Java's local variables as they have sufficiently different
+semantics than Python's dynamic counterparts as to make this difficult).
+
+<P>Line 9 shows how this frame object is used to execute simple variable
+assignment.&nbsp; The local variable whose name corresponds to the python
+string "x" is assigned to the Python integer constant 2.
+
+<P>Line 11 shows a slightly more interesting example.&nbsp; Here, the lookup
+of the local variable x should be obvious.&nbsp; It is added to the Python
+constant integer 2 using its add method.&nbsp; This "add" method is implemented
+in PyObject and handles Python's dynamic method invocation semantics.&nbsp;
+Notice also that the Java VM's execution stack is being used to keep track
+of the operands in this add operation; and furthermore, the Java VM's garbage
+collection is being held responsible for handling memory management so
+that no reference count management is needed.
+
+<P>Line 13 is a simple import statement.&nbsp; All of the interesting work
+is hidden here in the implementation of Py.importModule().&nbsp; I don't
+want to go into the details of this here, I am just using it as a convenient
+device to get an object into my name space for which I can get and set
+attributes.
+
+<P>Line 15 is an example of setting an attribute on an object.&nbsp; Those
+familiar with Python's "__" special methods should recognize the "__setattr__"
+method immediately.&nbsp; This method works just like the Python version
+except that it operates on Java objects (some of which might represent
+PyInstance objects).
+
+<P>Finally, line 17 prints out the attribute that has just been set.&nbsp;
+Once again, "__getattr__" works just like the corresponding Python special
+method.
+<H3>
+2.4. An Example With Function Definition</H3>
+As one final example, I will show how a simple Python module that defines
+a new Python function can be converted to Java.&nbsp; This example is somewhat
+complicated because I have tried to make it complete.&nbsp; If you're not
+really interested in the low level details of how Python in Java is implemented,
+I'd highly recommend skiping this example.&nbsp; The original Python source
+for this module, as well as its theoretical translation to Java source
+are shown in Table 2.
+<BR>
+<HR WIDTH="100%">
+<BR><B>Table 2. Translation of a Python module containing a function definition
+to Java</B>
+
+<P>Python code for module: "doubleit.py"
+
+<P><TT>def double(x):</TT>
+<BR><TT>&nbsp;return x*2</TT><TT></TT>
+
+<P><TT>print double(2)</TT>
+<BR>&nbsp;
+
+<P>Java source corresponding to Java bytecodes which compiler actually
+generates: "doubleit.java"
+
+<P><TT>1 public class doubleit implements PyRunnable, PyFunctionTable {</TT>
+<BR><TT>2&nbsp;&nbsp; //Declare fields for constants</TT>
+<BR><TT>3&nbsp;&nbsp; static PyInteger _i2 = new PyInteger(2);</TT>
+<BR><TT>4&nbsp;&nbsp; static PyString filename = new PyString("doubleit.py");</TT>
+<BR><TT>5&nbsp;&nbsp; static PyString _sx = new PyString("x");</TT>
+<BR><TT>6&nbsp;&nbsp; static PyString _sdouble = new PyString("double");</TT><TT></TT>
+
+<P><TT>7&nbsp;&nbsp; static PyFunctionTable table = new doubleit();</TT>
+<BR><TT>8&nbsp;&nbsp; static PyCode xdouble = new PyTableCode(1, new PyString[]
+{_x},</TT>
+<BR><TT>9&nbsp;&nbsp; false, false,</TT>
+<BR><TT>10&nbsp;&nbsp; filename, _sdouble,</TT>
+<BR><TT>11&nbsp;&nbsp; table, 0);</TT>
+<BR><TT></TT>&nbsp;<TT></TT>
+
+<P><TT>12&nbsp;&nbsp; public PyObject _fdouble(PyFrame frame) {</TT>
+<BR><TT>13&nbsp;&nbsp;&nbsp; // return x*2</TT>
+<BR><TT>14&nbsp;&nbsp;&nbsp; return frame.getlocal(0).multiply(_i2);</TT>
+<BR><TT>15&nbsp;&nbsp; }</TT><TT></TT>
+
+<P><TT>16&nbsp;&nbsp; public PyObject call_function(int index, PyFrame
+frame) {</TT>
+<BR><TT>17&nbsp;&nbsp;&nbsp; switch (index) {</TT>
+<BR><TT>18&nbsp;&nbsp;&nbsp; case 0:</TT>
+<BR><TT>19&nbsp;&nbsp;&nbsp;&nbsp; return _fdouble(frame);</TT>
+<BR><TT>20&nbsp;&nbsp;&nbsp; default:</TT>
+<BR><TT>21&nbsp;&nbsp;&nbsp;&nbsp; throw new PyInternalError("Illegal function
+referenced");</TT>
+<BR><TT>22&nbsp;&nbsp;&nbsp; }</TT>
+<BR><TT>23&nbsp;&nbsp; }</TT><TT></TT>
+
+<P><TT>24&nbsp;&nbsp; public void run(PyFrame frame) {</TT>
+<BR><TT>25&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //def double(x):</TT>
+<BR><TT>26&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; frame.setlocal(_sdouble,
+new PyFunction(frame.f_globals,</TT>
+<BR><TT>27&nbsp;&nbsp; Py.EmptyObjects,</TT>
+<BR><TT>28&nbsp;&nbsp; _xdouble));</TT><TT></TT>
+
+<P><TT>29&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //print double(2)</TT>
+<BR><TT>30&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Py.print(frame.getlocal(_sdouble).__call__(new
+PyObject[]{_i2}));</TT>
+<BR><TT>31&nbsp;&nbsp; }</TT>
+<BR><TT>32 }</TT>
+
+<P>
+<HR WIDTH="100%">
+<BR>Line 1 declares the "doubleit" Java class corresponding to the Python
+module just as in the previous example.&nbsp; In addition to the PyRunnable
+interface which was described previously, this class also supports the
+PyFunctionTable interface which is used to support Python defined functions.&nbsp;
+More details on how this is accomplished are described below.
+
+<P>Lines 3-6 define the constant pool for this module just as in the previous
+example.
+
+<P>Lines 7-11 are used to add a Python code object to the constant pool.&nbsp;
+The arguments passed to this new code object are (in order): number of
+arguments, an array of variable names (including arguments), the filename
+of the module which defines this code, the name of the code, whether the
+code supports *args, whether it supports **keywords, an object that can
+be used to lookup the actual code to be invoked, and an integer index to
+be passed to that object to indicate which function to actually call.&nbsp;
+The details of these last two parameters will be explained later.
+
+<P>Lines 12-15 define the actual Java code to be invoked for the "double"
+Python function.&nbsp; This function will be called when the _xdouble code
+object is called.&nbsp; Line 14 shows a small optimization in this code
+that is equivalent to Python's FAST_LOCALS optimization.&nbsp; The local
+variable "x" in this function is looked up by a numeric index into the
+frame variable table rather than by name.&nbsp; This optimization offers
+a significant speedup for local variable references in both Python in C
+and my own Python in Java.
+
+<P>Lines 16-23 define the required method for the PyFunctionTable interface.&nbsp;
+The goal of this method (and this interface) is to fake the effects that
+are typically realized in C using pointers to functions.&nbsp; The PyRunnable
+interface is the simplest solution to the problem that Java does not allow
+references to function to be passed around.&nbsp; Any class that implements
+this interface can be passed around and used as a function pointer to the
+"run" method contained by that class.
+
+<P>Instead of using the PyFunctionTable interface, I could instead generate
+a new Java class file for every function pointer that I wanted, but this
+is very wasteful of space.&nbsp; Using the PyFunctionTable interface, each
+module contains methods for every code object that it contains.&nbsp; It
+also contains this "call_function" method that will lookup the appropriate
+function to call based on an integer index.&nbsp; This allows a single
+Java class to support as many Python code objects as desired.
+
+<P>Finally, lines 24-31 define the run method that is used to invoke the
+top-level code in this module.&nbsp; This is equivalent to the same method
+as in the previous example.
+
+<P>Line 26 creates a new Python function object which is initialized with
+the current globals dictionary, no default arguments, and the appropriate
+Python code object from the constant pool.
+
+<P>Finally, line 30 prints out the result of calling this new function
+object with the single Python integer 2.&nbsp; The arguments to the function
+call are passed as a Java array of PyObjects.&nbsp; This allows the function
+to be called with an arbitrary number of arguments despite the fact that
+Java doesn't support anything like Python's "*args".
+<H2>
+3. Integration of Python and Java</H2>
+Compiling Python to Java bytecodes is only a part of the picture for making
+Python and Java work together.&nbsp; What is also needed are seamless mechanisms
+to allow Python code to use Java libraries (see related work by Kevin Butler
+[5] and Douglas Cunningham [4]) and to allow Python code to be called from
+Java (I think this is going to be really hard to achieve with any generality
+in the other two approaches to embedding Java in Python).
+
+<P>Applets provide a good example of where this sort of seamless bi-directional
+integration is required.&nbsp; In Table 3 I show the Python source code
+for a simple wokring "Hello World" applet. It will run in any web browser
+that supports JDK1.1.&nbsp; At the moment this includes SUN's HotJava browser,
+and patched versions of Internet Explorer 3.1 and Netscape Navigator 4.0.&nbsp;
+Before the end of 1997 all major web browsers should support JDK 1.1 without
+patches.
+
+<P>This example shows how Python classes can create instances of Java classes,
+and invoke methods on these instances.&nbsp; It also shows how a Python
+class can subclass from a Java class and override specific methods.
+<BR>
+<HR WIDTH="100%">
+<BR><B>Table 3. A simple "Java" applet implemented in Python</B>
+
+<P><TT>1 import java</TT><TT></TT>
+
+<P><TT>2 class HelloApplet(java.applet.Applet):</TT>
+<BR><TT>3&nbsp;&nbsp; def paint(self, g):</TT>
+<BR><TT>4&nbsp;&nbsp;&nbsp; g.setColor(java.awt.Color.black)</TT>
+<BR><TT>5&nbsp;&nbsp;&nbsp; g.fill3DRect(5,5,590,100,0)</TT>
+<BR><TT>6&nbsp;&nbsp;&nbsp; g.setFont(java.awt.Font("Arial", 0, 80))</TT>
+<BR><TT>7&nbsp;&nbsp;&nbsp; g.setColor(java.awt.Color.magenta)</TT>
+<BR><TT>8&nbsp;&nbsp;&nbsp; g.drawString("Hello World", 90, 80)</TT>
+<BR>
+<HR WIDTH="100%">
+<BR>Line 1 imports the "java" package.&nbsp; This package is the root of
+the standard Java class hierarchy.&nbsp; If I didn't want to use fully
+qualified names, I could have written things like "from java.applet import
+Applet" instead.&nbsp; The new support for packages in Python 1.5 makes
+it so that this syntax and semantics for importing Java packages is virtually
+equivalent to that used for Python packages.
+
+<P>Line 2 creates a new Python class "HelloApplet" which subclasses the
+Java class, "java.applet.Applet".&nbsp; The ability of Python classes to
+subclass Java classes is a key part of the seamless integration of the
+two languages.&nbsp; This also means that Python in Java code can subclass
+from any built-in class including Python lists and dictionaries (no more
+UserList.py).
+
+<P>Line 3 implements the "paint" method for this applet object.&nbsp; This
+overrides the standard implementation of this method in the Java superclass.&nbsp;
+It accepts a single argument (other than itself) which is a Java graphics
+object.
+
+<P>Lines 4-8 invoke various methods on this graphic object in order to
+draw a huge garish magenta on black "Hello World" within the browser where
+it is running.&nbsp; All of the methods called here are Java methods, implemented
+in the java.awt package.&nbsp; In line 5, one is called with a Java object
+corresponding to the color black.&nbsp; In line 6, the "fill3DRect" method
+is called with five Python integers.&nbsp;&nbsp; These Python Objects are
+coerced to the appropriate Java primitive integers when making the call.
+
+<P>Line 6 shows the creation of a new instance of the java.awt.Font class.&nbsp;
+The syntax for instance creation is exactly like that used when creating
+a new instance of a Python class.&nbsp; The Python objects which are the
+arguments are appropriately coerced to Java objects or primitives when
+the class is actually instantiated.
+<H2>
+4. Separation of Python and Java VM's</H2>
+By choosing to implement Python in Java by running Java bytecodes directly
+on top of the Java virtual machine, I am able to utilize the machinery
+of the Java VM to handle many tasks that the current Python VM in C must
+deal with itself.
+
+<P>The Java VM takes care of memory management using a true garbage collection
+scheme.&nbsp; This means that there is no need to deal with reference counting
+at run-time for code that is implemented in Python or Java.
+
+<P>The Java VM handles the immediate operation stack.&nbsp; This means
+that I don't need to worry about managing a stack of intermediate results.&nbsp;
+It also handles multi-threading.
+
+<P>Finally, the Java VM deals with much of the problem of exception handling.&nbsp;
+Every try/except clause in Python is implemented as a try/catch clause
+at the level of the Java VM.&nbsp; The one great limitation is that the
+Java machinery must trap all exceptions and then subsequent support code
+is used to determine the actual type of the Python exception thrown and
+invoke the appropriate except clause, or reraise the exception to the next
+stack frame.
+
+<P>There are a number of additional function performed by the standard
+Python VM that do not map nicely onto the Java VM.&nbsp; These functions
+are implemented by Java support code that is a key part of my Python in
+Java system.
+
+<P>As mentioned above, part of this support code is needed for handling
+specific Python exceptions.&nbsp; It also includes support code for dynamic
+method invocation.
+
+<P>Finally, this support code must manage a separate Python call frame
+stack.&nbsp; A key part of managing the call frame stack is handling local
+and global variable access.&nbsp; This is also done in the support code.&nbsp;
+It is unfortunate that the Java VM's ability to manipulate local variables
+can't be used here instead.&nbsp; There seem to be a small number of unresolved
+issues related to the very dynamic nature of namespaces in Python that
+make it much easier to just implement my own local variables.
+<H2>
+5. Current Status of Implementation</H2>
+I can compile reasonably complicated Python modules directly to Java bytecodes.&nbsp;
+The resulting code runs about half as fast as under the standard Python
+1.4 in C distribution.&nbsp; In addition, the Java ".class" file is about
+twice as large as the corresponding Python ".pyc" file.&nbsp; On the pystone
+benchmark found in the standard Python distribution, I found that my Python
+in Java implementation obtains 941 PyStones running on a 200MHz PentiumPro
+under Windows NT 4.0.&nbsp; The standard Python 1.4 implementation in C
+obtains 1595 PyStones running on the same machine under the same operating
+system.&nbsp; The Python in Java implementation is about 1.7 times slower
+than the standard Python in C.&nbsp; I timed the Java implementation running
+under Microsoft's second beta release of their JDK1.1 compliant virtual
+machine with JIT compilation enabled.&nbsp; This is the fastest Java VM
+that I could find at the time of writing this paper.
+<H2>
+6. Conclusions</H2>
+
+<H3>
+6.1. Python in Java's Disadvantages</H3>
+My new implementation of Python in Java has a number of disadvantages when
+compared to the existing Python in C system.&nbsp; Some of these are the
+frequently cited disadvantages of Java vs. C.&nbsp; It is not compatible
+with existing Python modules that have been written in C.&nbsp; Java's
+portability is great, but there are still a number of platforms where it
+is either not supported at all, or only supported poorly.&nbsp; Finally,
+this system is slower than the current C-based implementation (by a factor
+of 1.7).
+
+<P>The portability and speed problems are likely to go away as people continue
+to work on improving the Java runtime systems.&nbsp; As anecdotal evidence,
+the first Java VM that I used for my experiments in April 1997 is about
+2.5 times slower than the Java VM I'm using today (September 1997).&nbsp;
+As far as portability is concerned, the Kaffe project [5] provides a free
+portable implementation of the Java VM that is relatively easy to get running
+on a wide variety of platforms.
+
+<P>The problem of backwards compatibility is more difficult to address.&nbsp;
+Personally, I feel that Python in Java has enough advantages for module
+writers (garbage collection, true exceptions, object-orientation, portable
+binaries, …) that they will be happy to reimplement their systems.&nbsp;
+Whether this is true or not remains to be seen.
+<H3>
+6.2. Python in Java's Advantages</H3>
+Using Java as the underlying systems language for Python has a number of
+advantages over the current implementation of Python in C.&nbsp; First
+and foremost of these in my mind is the opportunity to ride the Java popularity
+wave and let Python code run everywhere there's a Java VM.&nbsp; It also
+makes the rich set of portable Java API's available from within Python.
+
+<P>There is also a nice collection of technical reasons why Java is a superior
+implementation language for Python than C.&nbsp; These include Java's binary
+portability, thread-safety, object-orientation, true exceptions, garbage
+collection, and friendliness to glue languages. More questions need to
+be answered before I can make a convincing argument that Python 2.0 should
+be implemented in Java rather than C.&nbsp; Nonetheless, I think that Java
+offers many advantages for Python as both an implementation language and
+a widely available run-time platform.
+<H2>
+7. References</H2>
+[1] Java API Overview and Schedule; JavaSoft; http://www.javasoft.com/products/api-overview.
+<BR>[2] Java Compiler Compiler (JavaCC); Sriram Sankar, Sreenivasa Viswanadha,
+Rob Duncan; http://www.suntest.com/JavaCC/.
+<BR>[3] PyJava: Java Embedded in Python; Kevin Butler; http://students.cs.byu.edu/~butler/jni/PyJava.html.
+<BR>[4] Java Python Interface (JPI); Douglas Cunningham; http://www.ndim.edrc.cmu.edu/dougc/jpi/.
+<BR>[5] Kaffe: A free virtual machine to run Java code; Tim Wilkinson;
+http://www.kaffe.org.
+<BR>&nbsp;
+<BR>&nbsp;
+<BR>&nbsp;
+<BR>&nbsp;
+</UL>
+</BODY>
+</HTML>

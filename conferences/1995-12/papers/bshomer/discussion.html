@@ -1,0 +1,115 @@
+<TITLE>A Generic data collection system through WWW forms</TITLE>
+<BODY>
+
+<H1>A Generic data collection system through WWW forms, based on a
+Python OOD program. </H1>
+<HR>
+<A HREF = "abstract.html">[Abstract]</A>
+<A HREF = "introduction.html">[Introduction]</A>
+<A HREF = "methods.html">[Methods]</A>
+<A HREF = "discussion.html">[Discussion]</A>
+<A HREF = "references.html">[References]</A>
+<HR>
+<H2>Discussion.</H2>
+
+In a modern world where information is produced and accumulated in very
+high rates, it is important to device data collection mechanisms that will
+be friendly and efficient, device independent, yet capable of filtering
+out as many errors as possible and sort information according to
+specifications before a human interpretation step is required. WWW clients
+that support forms are a very powerful interface for collecting
+information from users through the network. The advantages of the forms
+system are many. The WWW browser provides an easy way of enjoying a
+graphic user interface, while being absolutely machine independent, since
+WWW browsers exist for all the common platforms. <P>
+
+This article described an information submission system that operates
+based on an httpd server and is written entirely in the Python programming
+language. Python was found to be extremely suitable for the development of
+WWW service programs. Python's unique combination of capabilities to perform as an
+interactive interpreter, as a powerful scripting language and a high level object
+oriented design tool provides a fast development tool for WWW associated
+programs.<P>
+
+The system was developed in the spirit of an object oriented program which follows
+the event handling loop scheme. This was easily obtained by using Python's ability
+to store pointers to objects in a dynamically linked list. Thus, each form
+object holds a list of item objects which it uses to iterate while calling each
+object's methods. In the same way, the session object holds a list of form objects,
+itterated in the same fahsion.  Dictionaries that map data and that can be passed as
+arguments for a method provide the ability to initialize the form objects with
+default values that were provided by the user. <P>
+
+A major limitation exists when developing
+for WWW environments. The fact that the server's process is killed once an
+information page is dismissed to the client breaks the continuous flow of the
+program. Therefore, solutions must be deviced to resume the process after breaking. 
+In the EBI information submission system, each form object dumps it's data
+dictionary as a temporary file. This temporary file is to be used later to restore
+the form object's data dictionary, resuming it's status to what it was when the
+process was terminated.<P>
+
+During the time of developing and running the system, several limitations of WWW
+forms were characterized. Some of these limitations create severe problems when WWW
+browsers are being used for performing more complicated and demanding tasks of
+interfacing and exchange of information. One such typical problem occured while
+constructing an options list for selecting of information regarding the species to
+which the information relates. Since the possible list is very long and there is a
+limitation of displaying a maximum of 28-30 options in a list. This is very limiting
+since only the most popular species can be included in the options list. The rest
+must be typed into an input field. This may lead to many errors. Species can be
+grouped according to families, orders etc. This enables creating a nested options
+list, that reduces the length of each list and even more, introduces a logical
+structure into the array, reducing the risks of typing or other errors. Currently,
+the HTML standard does not support the concept of nested options lists. Another
+drawback is that transferring such a large nested list through the network requires
+much net traffic, which reduces the system's efficiency. One possible solution to
+this combined problem would be to write a special applet for the Grail browser. The
+applet code will be capable of transferring a compressed list, possibly saving it on
+the local disk for further uses (like the browser's caching for graphics) and to
+present the nested list, implanting the selected value into the message. <P>
+The data validation process is crucial. When the data submission process is
+complicated and involves many steps, the submission of a form which contains an
+error may be a frustrating step, especially when network load is high. If the
+browser could check the entry for some logical delimiters (e.g. not-empty, numeric
+contents and range etc.) much of the error filtering would be done even before the
+information leaves the submitter's browser. This too, can be done by implanting
+applets in a Grail client.<P>
+
+Another common problem occurs when submitters have fairly large sequences to submit.
+This creates a technical problem of cutting and pasting the sequence, which is prone
+to errors. Also, there is a technical limit for most browsers to transfer more than
+23Kb of information from a single window. A very efficient solution to both of these
+problems would be the ability to attach a file with the submission. This is not
+implanted yet in the browsers and it is probably another application that can be
+implanted in the Grail system.<P>
+
+The future developments will obviousely depend on the success in exporting binaries
+of Grail for all the commonly available platforms and especially personal computers.
+There is no doubt that the popularity the WWW browsers have gained was primarily due
+to their availability for PC and Macintosh platforms.<P>
+
+Python's usefullenes as a robust development tool for Internet applications is
+undoubtful. It's flexibility in providing interactive programming and scripting
+environment as well as a high level interface to object oriented design will
+probably place it in the near future in a distinguished position among the most
+popular Internet development tools.
+
+
+
+<HR>
+<CITE>Written by <A HREF = "http://www.ebi.ac.uk/ebi_docs/staff/benny.html">Benny shomer</A>, The EBI. <P>
+      <A HREF = "http://www.ebi.ac.uk/ebi_docs/staff/bennymail.html">bshomer@ebi.ac.uk</A>
+</CITE>
+<HR>
+</BODY>
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,128 @@
+Title: Python-dev summary: 2001-07-05 to 2001-07-15
+
+<pre>
+Michael Hudson is taking a break from writing the python-dev
+summaries, so I'll be writing them for the summer.  This summary for
+July 4-15 is quite late, having been delayed first by my week-long
+vacation in Quebec and then by the file getting accidentally deleted
+from my laptop -- remember, kids, don't leave important text files
+sitting in /tmp/.  Anyway, after unpacking my luggage and running
+'strings' on my root partition, here it is.
+
+--am"crawling from the wreckage"k
+           
+
+XML-RPC added to standard library
+=================================
+
+Eric S. Raymond forwarded a suggestion from Dave Winer to add XML-RPC
+support to Python's standard library.
+
+        Dave suggests that the open-source community can turn up the
+        heat on Microsoft by visibly supporting and promoting open RPC
+        standards that compete with .NET, such as XML-RPC and SOAP
+        1.1.  He thinks that the implementors of scripting languages
+        like Perl and Python are in a particularly good position to
+        make this happen, by making XML-RPC and/or SOAP 1.1 fully
+        documented parts of their standard libraries.
+
+XML-RPC is a simple protocol for making remote procedure calls;
+function parameters are converted into an XML format and sent using
+HTTP.  Implementations exist for many different languages, and there
+are two Python implementations, /F's xmlrpclib.py and Eric Kidd's C
+library.  Kidd posted to suggest using /F's code:
+
+        My library, although nice, is intended for C programmers, and
+        needlessly duplicates a lot of Python functionality.  It has its
+        own data model (based on Python's), UTF-8 processing (based on
+        Python's), structure builder (based on Python's), and so
+        on. You get the picture.
+
+One objections raised was that XML-RPC is ostensibly ASCII-only,
+though almost everyone seems to ignore this and supports Unicode
+anyway, as Eric Kidd pointed out:
+    
+        Fredrik's library supports Unicode.  My library supports Unicode.
+        The Java libraries all support Unicode.  And furthermore, we all
+        appear to have interop.
+
+I was +0, as while XML-RPC works pretty well, what it does isn't
+very much:
+
+        My misgiving is that XML-RPC is pretty limited, the lack of
+        support for None being particularly painful to a Python
+        programmer.  Perhaps, if we can only have one, SOAP would be
+        better, but I haven't used SOAP seriously for anything yet.
+
+/F was +1 on adding xmlrpclib.py, -0 on SOAP support:
+
+        -0 on soap support in 2.2 (it's still a moving target; a new spec
+        draft was released this weekend).  if we want something now, it
+        should be cayce ullman's SOAP.py, not my soaplib.py.  but I don't
+        think we need SOAP in the standard library for another year or
+        two.
+
+        (fwiw, my current thinking is that SOAP is a flawed idea, and that
+         the need for SOAP will go away when people get better XML/Schema
+         tools, but that's another story.  and don't get me started on SOAP
+         BDG...)
+        
+So he checked in the code, and ESR contributed documentation for the
+module.  There's no sign that SOAP is going into 2.2, as everyone
+seemed rather lukewarm about it.
+
+GvR also wondered if Python 2.2 should support DAV ("That's another
+open protocol that Python could easily support out of the box.") and
+/F agreed, but Greg Stein, the DAV expert and champion on python-dev,
+remained silent.
+
+
+site-packages on Windows
+========================
+
+On Windows, third-party Python packages get installed into the root of
+the Python installation, C:\PYTHON2.1.  Pete Shinners complained about
+this:
+
+        for the love of all things good, can we please make a
+        recommendation in our PEP that the windows installation location
+        be something other than "C:\PYTHON21"? something like
+        "C:\PYTHON21\SITE-PACKAGES" would be a big improvement. i thought
+        i heard that macpython recently made this "fix", why is the
+        windows version lagging on this?
+
+PEP 250, by Paul Moore, discusses fixing this.
+<a href="http://python.sourceforge.net/peps/pep-0250.html">http://python.sourceforge.net/peps/pep-0250.html</a>
+
+        
+Encodings for Unicode literals
+==============================
+
+Another lengthy thread centred around PEP 263, "Defining Unicode
+Literal Encodings", by M.-A. Lemburg, which suggests using the
+directive statement proposed by PEP 244 to define a default encoding
+for Unicode literals.  Right now a Unicode literal always uses the
+'unicode-escape' encoding, so a literal such as u"\u1234\u4720" is
+turned into a 2-character Unicode string consisting of U+1234, U+4720.
+PEP 263 suggests that you could define the encoding to be something
+else, so you could put, say, Cyrillic characters into a Unicode
+literal and have them be automatically converted.
+
+Most of the problems people have aren't with the idea of indicating
+the encoding, but rather with how it should be done.  PEP 263
+suggests something like this:
+    directive unicodeencoding = "UTF-8"
+
+But that syntax isn't actually allowed by PEP 244.  There's also a
+circular problem with module docstrings; many tools expect the module
+docstring to be the very first thing in the file, preceded only by
+comments and blank lines, so putting a directive first will break such
+tools.  But the encoding should apply to the docstring if it's a
+Unicode literal, so the directive has to come first.
+
+Discussion was inconclusive.  Some people liked the idea; others think
+a comment would be better and easier for non-Python tools such as
+editors to deal with; yet others don't approve of having a 'directive'
+statement at all.  There seems agreement that the issue of source file
+encoding is worth clearing up, but no obvious solution is at hand.
+</pre>

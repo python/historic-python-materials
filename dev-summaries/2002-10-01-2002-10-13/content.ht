@@ -1,0 +1,161 @@
+Title: python-dev Summary for 2003-10-01 through 2003-10-13
+Sitemap-ignore: yes
+
+<div class="document">
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> between October 1, 2002 and October 13, 2002 (inclusive).  It is intended to inform the wider Python community of on-going developments on the list that might interest the wider Python community.  To comment on anything mentioned here, just post to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> or comp.lang.python in the usual way; give your posting a meaningful subject line, and if it's about a PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep iteration). All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on a PEP (or anything else for that matter) if you have an opinion.  And if all of this really interests you then get involved and join Python-dev!</p>
+<p>This is the fourth summary written by Brett Cannon (with a partially fried brain thanks to the GRE).</p>
+<p>All summaries are now archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a>.</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sourceforge.net/rst.html">http://docutils.sourceforge.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/">reST</a>; you can safely ignore it (although I suggest learning reST; its nice and is accepted for PEP markup).  Also, because of the wonders of reformatting thanks to whatever program you are using to read this, I cannot guarantee you will be able to run this text through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is.  If you want to do that, get the original text version.</p>
+<div class="section" id="summary-announcements">
+<h1><a name="summary-announcements">Summary Announcements</a></h1>
+<p>This is a new section to the summary that I have decided to introduce.  It is mainly going to serve to make any general announcements or comments on this summary and this summary alone.  All universal comments will stay at the top of the summaries.</p>
+<p>Just to let everyone know, I am taking off for two weeks on vacation starting 2002-10-14 and I will not return until 2002-10-30.  Now, before you all start sobbing over the loss of one of my great summaries, you should know that Raymond Hettinger has graciously taken up the job of temp summarizer for me and will do the summary while I am gone.</p>
+<p>Michael Hudson has made the suggestion that I inject more of my personality into the summary so as to liven it up a little.  I am personally quite happy to do this.  But the real question is do you, fine reader, mind the idea?  If I don't hear from throngs of people going &quot;your sarcastic tone takes away from the wonderfully drawl summaries and that is a bad thing&quot;, then I will just go ahead and write with personality.  Just don't complain later.  =)</p>
+<p>2.2.2b1 has been occupying Python-dev during this summary period, and so this summary is shorter than usual.  I left out a bunch of threads that were discussing bugfixes that I either didn't find interesting or didn't think the rest of the world would care about.</p>
+<p>A.M. Kuchling has put all Python-dev summaries up at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .  So now the archive is centralized instead of spread out among three web sites.  I am sure the original archive sites will stay (I will keep mine up), but all future references will go to that page.</p>
+<p>Now it's time for my personal favor of the month.  I am going to start applying to grad school for computer (science | programming) when I get back from vacation.  If anyone knows of Python-friendly schools out there, let me know.  Heck, I am even willing to leave America to go to school as long as the classes are in English.  So if you know of any, please let me know!</p>
+<p>And now on to the summary.</p>
+</div>
+<div class="section" id="python-2-2-2-beta-release-on-monday">
+<h1><a name="python-2-2-2-beta-release-on-monday"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029204.html">Python 2.2.2 beta release on Monday!</a></a></h1>
+<dl>
+<dt>splinter thread:</dt>
+<dd><ul class="simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029337.html">RELEASED: Python 2.2.2b1</a></li>
+</ul>
+</dd>
+</dl>
+<p>Python 2.2.2.b1 was released on Monday, October 7.  This is the reason (or perhaps excuse is a better description) for the lighter summary this week.  A good amount of the traffic on Python-dev was about bugfixing 2.2.2.b1.  Most of this probably would not interest the average Python user, and thus I didn't summarize a bunch of threads.  Taking the GRE also didn't help with my free time and thus has caused me to cut down on the summary since I am having to go through a huge backlog to get this out the door.</p>
+</div>
+<div class="section" id="dropping-support-for-tcl-8-0-and-8-1">
+<h1><a name="dropping-support-for-tcl-8-0-and-8-1"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029024.html">Dropping support for Tcl 8.0 and 8.1</a></a></h1>
+<p>Martin v. Loewis asked if it would be okay to drop support for <a class="reference" href="http://www.tcl.tk/">Tcl</a> 8.0 and 8.1 since <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/_tkinter.c">_tkinter.c</a> has special code in there just for those outdated versions.  Guido ok'ed it, so if you are using those still using a version of Tk from way back when, it's time to upgrade.</p>
+</div>
+<div class="section" id="very-revised-proposal-for-interfaces">
+<h1><a name="very-revised-proposal-for-interfaces"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029042.html">*very* revised proposal for interfaces</a></a></h1>
+<p>Previously John Williams came up with a proprosal for implementing the stuff from <a class="reference" href="http://www.python.org/dev/peps/pep-0245">PEP 245</a> (Python Interface Syntax) and <a class="reference" href="http://www.python.org/dev/peps/pep-0246">PEP 246</a> (Object Adaptation).  From my understanding of what John has done, it appears he has written an interface system in pure Python.  If you want backstory to this long and involved discussion to get an interface system into Python read the Python-dev Summaries for 2002-08-16 to 2002-09-01 and 2002-09-01 to 2002-09-15 .</p>
+<p>Gerald Williams, Michael Chermside, and Esteban Castro all commented on the implementation and made various suggestions.</p>
+<p>John said that he was not done yet implementing this.  But if you were interested in the whole previous discussion on interfaces you could consider looking at what John has done.  As for it going into the language, I suspect that will have to wait until John is done and has convinced the PEP writers and Python-dev that his implementation fits the bill.  Stay tuned.</p>
+<p>If you want some more background info on interfaces, read the previously mentioned summaries.  As for object adaptation, read on c.l.py and on Python-dev anything by Alex Martelli on the subject.  He has become the main proponent of object adaptation and has written several very extensive essays on the subject.</p>
+</div>
+<div class="section" id="perplexed-by-mro">
+<h1><a name="perplexed-by-mro"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029035.html">perplexed by mro</a></a></h1>
+<dl>
+<dt>Splinter threads:</dt>
+<dd><ul class="simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029167.html">Re: my proposals about mros (was: perplexed by mro)</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029230.html">C3 implementation</a></li>
+</ul>
+</dd>
+</dl>
+<p>Samuele Pedroni said he was &quot;trying to wrap [his] head around the mro computation in 2.2&quot;.  Apparently there is the algorithm mentioned at <a class="reference" href="http://www.python.org/2.2.1/descrintro.html">http://www.python.org/2.2.1/descrintro.html</a> (dubbed the naive algorithm) and then the one implemented in <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Objects/typeobject.c">typeobject.c</a> (called the 2.2 algorithm).  Samuele discovered some inconsistencies with the implemented algorithm that he desired some explanation about.</p>
+<p>Guido responded, thankful that someone was giving this a look because his &quot;intuition about the equivalence between algorithms turned out to be wrong&quot;.  Guido stated that he thought that he wrote the algorithm from the book &quot;Putting Metaclasses To Work&quot; correctly sans raising an error when major conflicts occur in the ordering.  In a later email Guido explained that the naive algorithm came about by his attempt to simplify the explanation of the 2.2 algorithm.  Guido pretty much wrote the algorithm from the aforementioned book.  Now the algorithm is not simple, so Guido did his best to simplify the explanation.  Unknowningly, though, he came up with a variant on the algorithm in his explanation.</p>
+<p>Greg Ewing pointed out that he thought the naive algorithm was nicer since it seemed to work more intuitively and was easier to explain (and remember kids, these are basic tenants in Python programming).  Guido ended up stating that &quot;If Samuele agrees that the naive algorithm works better, [Guido will] try to make it so in 2.3&quot;.  Well, Samuele said that the &quot;2.2 mro is the worst of our options&quot;.</p>
+<p>There was a problem, though, with the naive algorithm; it is not monotonic as pointed out by Samuele.  This led him to put out two options:</p>
+<ol class="arabic simple">
+<li>Use the naive algorithm, which had the drawback of not being monotonic.  Samuele also believed that it didn't produce &quot;the most natural results&quot;.</li>
+<li>Adopt <a class="reference" href="http://www.webcom.com/haahr/dylan/linearization-oopsla96.html">C3</a> as described at <a class="reference" href="http://www.webcom.com/haahr/dylan/linearization-oopsla96.html">http://www.webcom.com/haahr/dylan/linearization-oopsla96.html</a> and apparently used by <a class="reference" href="http://www.ai.mit.edu/~jrb/goo/manual.43/goomanual_55.html">Goo</a> .  This algorithm is monotonic and Samuele says is more intuitive in its results.</li>
+</ol>
+<p>Guido got around to reading the <a class="reference" href="http://www.webcom.com/haahr/dylan/linearization-oopsla96.html">C3</a> paper and agreed that &quot;we should adopt C3&quot;.  He thought that the 2.2 algorithm was like the L*[LOOPS] algorithm mentioned in the paper, but he is not positive.  Samuele then wrote a C implementation of the algorithm.  Guido said he would get to the patch after 2.2.2b1 got out the door.</p>
+</div>
+<div class="section" id="psyco-requests-and-patches">
+<h1><a name="psyco-requests-and-patches"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029038.html">Psyco requests and patches</a></a></h1>
+<p>Armin Rigo of <a class="reference" href="http://psyco.sf.net/">psyco</a> an email to Python-dev with some thoughts on psyco and some requests.  After mentioning how he wished more people realized psyco is meant to be used by anyone and not speed-hungry coders (it is a cool app and if you have any interest in compilers you should take a look) and that psyco could get some more advertising he mentioned three patches that he wrote (patches <a class="reference" href="http://www.python.org/sf/617309">617309</a> , <a class="reference" href="http://www.python.org/sf/617311">617311</a> , and <a class="reference" href="http://www.python.org/sf/617312">617312</a> ) against 2.2.2 that he would like to see be accepted so as to ease maintenance of psyco.</p>
+<p>Armin also mentioned how he would like to move psyco forward.  He pointed out he would like to eventually write it all in Python.  This would require tracking changes in the interpreter that psyco dealt with.  He would like to keep this in mind when Python 3 discussions kick up (and don't ask when that will happen; not for a VERY long time).</p>
+<p>In regards to Armin's patches, Martin v. Loewis thought they broke binary compatibility (big no-no between micro releases), but Armin claimed it didn't.</p>
+<p>After glancing over the patches it seems they have all been applied against 2.2.2 and are being actively worked on by Armin for application to 2.3.</p>
+</div>
+<div class="section" id="pep239-rational-numbers-reference-implementation-and-new-issues">
+<h1><a name="pep239-rational-numbers-reference-implementation-and-new-issues"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029065.html">PEP239 (Rational Numbers) Reference Implementation and new issues</a></a></h1>
+<dl>
+<dt>splinter threads:</dt>
+<dd><ul class="simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029068.html">Re: PEP239 (Rational Numbers) Reference Implementation and new issues</a></li>
+</ul>
+</dd>
+</dl>
+<p>Christopher Craig uploaded <a class="reference" href="http://www.python.org/sf/617779">patch 617779</a> that implemented <a class="reference" href="http://www.python.org/dev/peps/pep-0239">PEP 239</a> (Rational Numbers).  He had some questions for Python-dev, though, regarding a couple points.  These few points have become the bane of my summarizing existence; this thread is huge.</p>
+<p>One was whether division should return rationals instead of floats.  Since rationals keep precision in division they are the most accurate way to perform division.  THey also make the most output sense (e.g. 1/3).  Problem with this is that rational math is slow and this would cause issue with any code that expected a float.</p>
+<p>The next issue was about comparison.  Should a rational compare only when it is exactly equal to a float or when the float is really close?</p>
+<p>Lastly, Christopher wondered if rationals should hash the same as floats.  The answer to the second issue would influence the answer to this issue.</p>
+<p>Issue 1. Eric Raymond was for returning a rational.  Francois was kind of on the fence.  Christian was +1 for returning rationals.  Guido said ABC did this and that numeric processes thus ended up being slow.</p>
+<p>Issue 2. Christian said &quot;Let it grow!  Let the user feel what precision he's carrying around, and how much they throw away when they reduce down to a float.&quot;</p>
+<p>Issue 3.  Eric Raymond suggested a global &quot;fuzz&quot; variable that defines a &quot;close-enough-for-equality range&quot;; this idea was used by APL.  Andrew Koenig was against this because you don't always want a fuzzy comparison and it destroys substitutability: &quot;If a==b, it is not always true that f(a)==f(b)&quot;.  Andrew said he preferred Scheme's numeric model.  To this, Guido said that &quot;'It works in Scheme' doesn't give me a warm fuzzy feeling that it's been tried in real life&quot;; Tim later laid the smack down on Scheme's numeric model and ended it with &quot;There's a reason the NumPy folks never bug you for Scheme features &lt;wink&gt;&quot;.  Christian pointed out that keeping it as a rat would prevent overflows from ever occuring from long division.  Tim was staunchly against a fuzz variable.  Raymond suggested a fuzz comparison function that took in a fuzz value.  Christopher said that the way it stands now in the implementation is that rationals are coerced to floats and then compared.  Oren Tirosh suggested a thired boolean, 'Undetermined', that would be raised when the &quot;difference between A and B is below the error margin&quot;.  David Abrahams said that Boost discussed this and said that the cost of adding ternary logic was not worth it.</p>
+<p>Andrew asked how rats could be optimized.  He suggested ditching trailing zeros.  Tim wondered how much of a save you would get from this.  Raymond Hettinger suggested having a builtin variable that would specify the &quot;maximum denominator magnitude&quot;.  Christian liked this idea.  Greg didn't think this would be a good solution because people using rats are going to want them specifically because they are exact.  So Raymond suggest the default be unrestricted denominator.</p>
+<p>Guido brought up the question of how rats should be represented when printed.</p>
+<p>The syntax for rats came up.  Greg Ewing got the ball rolling by suggesting the syntax for rat division as <tt class="literal"><span class="pre">\\\</span></tt>.  M.A. Lemburg suggested just having a constructor like <tt class="literal"><span class="pre">rat(2,3)</span></tt>.  The discussion then had a gamut of suggested syntax: <tt class="literal"><span class="pre">2:3</span></tt>, <tt class="literal"><span class="pre">2r3</span></tt>, <tt class="literal"><span class="pre">{2/3}</span></tt> (Guido shot this down because he wants to leave the option open for possible set notation), <tt class="literal"><span class="pre">&lt;2/3&gt;</span></tt>,``2r/3``, something by Barry using an extended character that Pine wouldn't display (it was a joke), and finally <tt class="literal"><span class="pre">2/3r</span></tt> by Guido.  People agreed that this last one suggested by Guido was the best one.  Tim also pointed out that Scheme has notation to specify whether a number is exact or not and using the 'r' notation would basically provide the same functionality.</p>
+<p>But regardless of what syntax people preferred, it was overwhelmingly agreed that choosing the syntax should wait until rationals have been in the language for a while and it is known how they are used.</p>
+<p>If you only read one thing, read Tim's emails since he explains all of this really well and is the resident math whiz on Python-dev.</p>
+</div>
+<div class="section" id="non-ascii-characters-in-test-pep277-py-in-2-3">
+<h1><a name="non-ascii-characters-in-test-pep277-py-in-2-3"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029247.html">Non-ASCII characters in test_pep277.py in 2.3</a></a></h1>
+<p>Guido pointed out that <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Lib/test/test_pep277.py">test_pep277.py</a> uses an encoding cookie which was not being recognized by his toolchain.  At some point he stated that he is &quot;still not 100% comfortable with using arbitrary coding cookies in the Python distribution&quot;.</p>
+<p>The reason I mention this thread (beyond for the quote above) is that info on how to get XEmacs to recognize the cookie came out.  Sjoerd Mullender sent out the link <a class="reference" href="http://www.xemacs.org/Documentation/packages/html/mule-ucs_2.html">http://www.xemacs.org/Documentation/packages/html/mule-ucs_2.html</a> which helped some people.  As for Linux distro-specific problems, M.A. Lemburg noticed that SuSE puts Mule support in a package named 'mule-ucs-xemacs' and once he got the package loaded XEmacs worked.</p>
+</div>
+<div class="section" id="unclear-on-the-way-forward-with-unsigned-integers">
+<h1><a name="unclear-on-the-way-forward-with-unsigned-integers"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029249.html">Unclear on the way forward with unsigned integers</a></a></h1>
+<dl>
+<dt>Splinter threads:</dt>
+<dd><ul class="simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029289.html">PEP 263 in the works</a></li>
+</ul>
+</dd>
+</dl>
+<p>Mark Hammond was &quot;a little confused by the new world order for working with integers in extension modules&quot;.  Mark wanted know how to create objects that were more like a collection of bits than an integer.  Tim suggested creating a Python long; that would act more like an unsigned int in terms of its bits.</p>
+<p>The FutureWarning for hexadecimal constants was brought up and it was pointed out that to deal with those just stick an 'L' at the end.  Remember folks, that in Python 2.3 <tt class="literal"><span class="pre">0x80000000L</span> <span class="pre">==</span> <span class="pre">2147483648</span></tt>.</p>
+<p>The usefulness of __future__ statements also came up.  Tim wondered how useful they were.  Thomas Wouters, though, came to __future__'s defense and explained how it helped him migrate people to newer versions of Python without being yelled at for breaking their code.</p>
+</div>
+<div class="section" id="segmentation-fault-with-python2-3a0-from-cvs">
+<h1><a name="segmentation-fault-with-python2-3a0-from-cvs"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029286.html">segmentation fault with python2.3a0 from cvs</a></a></h1>
+<p>Gersen Kurz was having problems importing a huge file.  The bug was attributed to cygwin's malloc implementation, so people might want to watch out for that.</p>
+<p>It was also pointed out that a loop with a bunch of items in a dict created a huge number of references.  It turns out that dicts use dummy references in its implementation for when something is deleted.  So don't be alarmed by huge references even after you deleting an immense dict.</p>
+</div>
+<div class="section" id="snapshot-win32all-builds-of-interest">
+<h1><a name="snapshot-win32all-builds-of-interest"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029352.html">Snapshot win32all builds of interest?</a></a></h1>
+<p>As mentioned in the last summary, Mark Hammond wondered if anyone would care to have access to compiled snapshots of CVS for Windows.  He got enough of a response to give access at <a class="reference" href="http://starship.python.net/crew/mhammond">http://starship.python.net/crew/mhammond</a> .  This is not like the standard Windows installer, though; &quot;This version installs no shortcuts, does not compile .pyc files etc - you are pretty much on your own.  Pythonwinstart_pythonwin.pyw is installed to start Pythonwin, but you must do so manually&quot;.  Mark would like to know if you end up using this.</p>
+</div>
+<div class="section" id="set-next-statement-in-python-debuggers">
+<h1><a name="set-next-statement-in-python-debuggers"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029377.html">Set-next-statement in Python debuggers</a></a></h1>
+<p>Richie Hindle wants to write a pure Python debugger; the problem is that it would be difficult without certain C-level stuff exposed to Python.  Specifically, he wants frame.f_lasti (to be found in <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Objects/frameobject.c">frameobject.c</a> ) to be writable by Python so he &quot;could implement Set-Next-Statement&quot;.</p>
+<p>Michael Hudson is the first email I have of someone chiming against this.  He thought it would be better to make it a descriptor so as that &quot;you can do some sanity checking on the values&quot;.  Guido then chimed in saying that if it was writable that would open up a hole for crashing a program.  Guido eventually said making it read-only would be fine.</p>
+<p>This led to Armin Rigo pointing out that you can crash the interpreter already with the new module &quot;or by writing crappy .pyc files&quot;.  Guido acknowledged this, but said he didn't want to add anymore if it could be helped.  He pointed out that he wants to stick with the idea that a segfault is Python's fault unless proven otherwise.</p>
+</div>
+<div class="section" id="multibyte-repr">
+<h1><a name="multibyte-repr"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029442.html">Multibyte repr()</a></a></h1>
+<p>A patch was applied that allowed repr() to return characters with the high bit set; repr() used the &quot;multibyte C library for printing string if available&quot;.  This had caused a bug and made Guido wonder if this was a good thing to do.  For an example:</p>
+<pre class="literal-block">&gt;&gt;&gt; u = u'\u1f40'  # Python 2.2
+&gt;&gt;&gt; s = u.encode('utf8')
+&gt;&gt;&gt; s
+'\xe1\xbd\x80'
+&gt;&gt;&gt;
+
+&gt;&gt;&gt; u = u'\u1f40'
+&gt;&gt;&gt; s = u.encode('utf8')
+&gt;&gt;&gt; s
+'1Ã2\x80'  # Notice the extended character
+&gt;&gt;&gt;</pre>
+<p>&quot;The latter output is not helpful, because the encoding of s is not the locale's encoding&quot;.</p>
+<p>Martin v. Loewis said that he thought author of the patch's intention was &quot;to get 'proper' output in interactive mode for strings&quot;.  Part of the issue with all of this is the GNU readline calls setlocale() automatically.  A patch came about to reset it in the extension module back to its original state.</p>
+<p>The issue of whether pickling would break because of this.  Guido tried it and had no issue.  Atsuo Ishimoto (who brought up the possible problem) said it broke when using the ShiftJIS locale.</p>
+<p>But the worry of having repr() be locale-specific still lingered.  Martin said he was &quot;convinced that having repr locale-specific is unacceptable&quot;.  He said, though, that having the tp_print slot use a locale-aware print function was fine and to have it differ from tp_repr was fine.  But this was shot down by Guido; &quot;tp_print only gets invoked when sys.stdout is a real file; otherwise str() or repr() get invoked&quot;.  Apparently tp_print is a performance optimization and thus should be fully transparent and not be different in any way to the user.</p>
+<p>Guido said that the multibyte-string patch should be backed out.  With the pickle issue and different semantics for sys.stdout because of tp_print, Guido said the patch had to be backed out.</p>
+<p>As Tamito Kajiyama said, &quot;one of the virtues of Python is that Python has no language feature that is (automagically) affected by locale settings&quot;.</p>
+</div>
+<div class="section" id="tp-dictoffset-calculation-in-2-2-2">
+<h1><a name="tp-dictoffset-calculation-in-2-2-2"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029502.html">tp_dictoffset calculation in 2.2.2</a></a></h1>
+<p>Guido asked David Abrahams and Kevin Jacobs if a change in how tp_dictoffset (found in <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Objects/typeobject.c">typeobject.c</a> ) was calculated would affect them.  To give some background, tp_dictoffset &quot;tells us where the instance dict pointer is in the instance object layout&quot;.  This was a three step process (all Guido's words):</p>
+<ol class="arabic simple">
+<li>(Line 1113) For dynamically created types (i.e. created by class statements), if the new type has no __slots__, the dominant base class has a zero tp_dictoffset, and the dominant base doesn't have a custom tp_getattro, a __dict__ will be added to the instance layout, and its tp_dictoffset is calculated by taking the end of the base class instance struct (or in a more complicated way if tp_itemsize is nonzero).</li>
+<li>(Line 1941) If the dominant base has a nonzero tp_dictoffset, copy the tp_dictoffset from the dominant base.</li>
+<li>(Line 2090) The tp_dictoffset of the first non-dominant base class that has a nonzero tp_dictoffset is copied.</li>
+</ol>
+<p>That last rule had caused Guido and Jeremey Hylton some problems with some code they were bugfixing.  Guido wanted to just get rid of that rule since he though &quot;it is <em>always</em> wrong&quot;.  Both David and Kevin said that nothing broke for them, so that is now all straightened out.</p>
+</div>
+<div class="section" id="memory-size-overflows">
+<h1><a name="memory-size-overflows"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-October/029535.html">Memory size overflows</a></a></h1>
+<p>Armin Rigo pointed out some potential overflow errors &quot;with objects of very large sizes&quot;.  The issue was when the amount of memory needed to allocate was calculated there was the chance that it would overflow.  Armin suggested adding macros to deal with various issues.</p>
+<p>Arrive Tim Peters, creator of pymalloc.  He admitted that he &quot;always ignore[s] these [errors] until one pops up in real life&quot; since &quot;Checking slows the code, and that causes [Tim] pain &lt;0.5 wink&gt;&quot;.  He pointed out another possible overflow calculation problem.  But it was a basically a hopeless battle since malloc() has its own cross-platform issues.</p>
+<p>But Tim did say that if it was decided to go down the macro route, then he wanted something like what Zope does: <tt class="literal"><span class="pre">DO_SOMETHING_OR(RESULT_LVALUE,</span> <span class="pre">INPUT1,</span> <span class="pre">...,</span> <span class="pre">ON_ERROR_BLOCK);</span></tt>.  The result goes into RESULT_LVALUE unless there is a problem, in which case ON_ERROR_BLOCK is run.</p>
+<p>Christian Tismer chimed in and said that he thought we should just move completely over to 64 bit math.  Ruby had done it successfully so it wasn't like we were taking a blind leap.  It would also save us the hassle from doing it down the road when 64 bit processors become the norm instead of the exception.</p>
+</div>
+</div>

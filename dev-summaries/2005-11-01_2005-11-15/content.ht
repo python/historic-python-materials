@@ -1,0 +1,450 @@
+Title: python-dev Summary for 2005-11-01 through 2005-11-15
+Content-type: text/x-rst
+Encoding: latin1
+
+python-dev Summary for 2005-11-01 through 2005-11-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-11-01_2005-11-15.html]
+
+
+
+=============
+Announcements
+=============
+
+----------------------------------------
+PyPy 0.8.0 and Gothenburg PyPy Sprint II
+----------------------------------------
+
+`PyPy 0.8.0`_ has been released.  This third release of PyPy includes a translatable parser and AST compiler, some speed enhancements (transated PyPy is now about 10 times faster than 0.7, but still 10-20 times slower than CPython), increased language compliancy, and some experimental features are now translatable.  This release also includes snapshots of interesting, but not yet completed, subprojects including the OOtyper (a RTyper variation for higher-level backends), a JavaScript backend, a limited (PPC) assembler backend, and some bits for a socket module.
+
+The next PyPy Sprint is also coming up soon.  The Gothenborg PyPy Sprint II is on the 7th to 11th of December 2005 in Gothenborg, Sweden.  Its focus is heading towards phase 2, which means JIT work, alternate threading modules, and logic programming.  Newcomer-friendly introductions will also be given.  The main topics that are currently scheduled are the L3 interpreter (a small fast interpreter for "assembler-level" flow graphs), Stackless (e.g. Tasklets or Greenlets), porting C modules from CPython, optimization/debugging work, and logic programming in Python.
+
+.. _PyPy 0.8.0:  http://codespeak.net/pypy/dist/pypy/doc/release-0.8.0.html 
+
+Contributing threads:
+
+ - `PyPy 0.8.0 is released! <http://mail.python.org/pipermail/python-dev/2005-November/057878.html>`__
+ - `Gothenburg PyPy Sprint II: 7th - 11th December 2005 <http://mail.python.org/pipermail/python-dev/2005-November/058143.html>`__
+
+[TAM]
+
+------------------------
+PyCon Sprint suggestions
+------------------------
+
+Every PyCon has featured a python-dev `sprint`_.  For the past few years, hacking on the AST branch has been a tradition, but since the AST branch has now been merged into the trunk, other options are worth considering this year.  Several PEP implementations were suggested, including `PEP 343`_ ('with:'), `PEP 308`_ ('x if y else z'), `PEP 328`_ ('absolute/relative import'), and `PEP 341`_ ('unifying try/except and try/finally').
+
+Suggestions to continue the AST theme were also made, including one of the "global variable speedup" PEPs, `Guido's instance variable speedup idea`_, using the new AST code to improve/extend/rewrite the optimization steps the compiler performs, or rewriting PyChecker to operate from the AST representation.
+
+Phillip J. Eby also suggested working on the oft-mentioned bytes type.  All of these suggestions, as well as any others that are made, are being recorded on the `PythonCore sprint wiki`_.
+
+ .. _sprint: http://wiki.python.org/moin/PyCon2006/Sprints
+ .. _PEP 343: http://www.python.org/dev/peps/pep-0343
+ .. _PEP 308: http://www.python.org/dev/peps/pep-0308
+ .. _PEP 328: http://www.python.org/dev/peps/pep-0328
+ .. _PEP 341: http://www.python.org/dev/peps/pep-0341
+ .. _Guido's instance variable speedup idea: http://mail.python.org/pipermail/python-dev/2002-February/019854.html
+ .. _PythonCore sprint wiki: http://wiki.python.org/moin/PyCon2006/Sprints/PythonCore
+
+Contributing threads:
+
+ - `python-dev sprint at PyCon <http://mail.python.org/pipermail/python-dev/2005-November/057830.html>`__
+ - `PEP 328 - absolute imports (python-dev sprint at PyCon) <http://mail.python.org/pipermail/python-dev/2005-November/057853.html>`__
+
+[TAM]
+
+--------------------------------------
+Reminder: Python is now on Subversion!
+--------------------------------------
+
+Just a reminder to everyone that the Python source repository_ is now hosted on Subversion.  A few minor bugs were fixed, so you can make SVK mirrors of the repository successfully now.  Be sure to check out the newly revised Python Developers FAQ_ if you haven't already.
+
+.. _repository: http://svn.python.org/projects/
+.. _FAQ: http://www.python.org/dev/devfaq.html
+
+Contributing threads:
+
+ - `Freezing the CVS on Oct 26 for SVN switchover <http://mail.python.org/pipermail/python-dev/2005-November/057823.html>`__
+ - `svn checksum error <http://mail.python.org/pipermail/python-dev/2005-November/057843.html>`__
+ - `Problems with revision 4077 of new SVN repository <http://mail.python.org/pipermail/python-dev/2005-November/057867.html>`__
+ - `No more problems with new SVN repository <http://mail.python.org/pipermail/python-dev/2005-November/057888.html>`__
+ - `dev FAQ updated with day-to-day svn questions <http://mail.python.org/pipermail/python-dev/2005-November/057999.html>`__
+ - `Mapping cvs version numbers to svn revisions? <http://mail.python.org/pipermail/python-dev/2005-November/058051.html>`__
+ - `Checking working copy consistency <http://mail.python.org/pipermail/python-dev/2005-November/058056.html>`__
+ - `Is some magic required to check out new files from svn? <http://mail.python.org/pipermail/python-dev/2005-November/058065.html>`__
+
+[SJB]
+
+---------------------------
+Updating the Python-Dev FAQ
+---------------------------
+
+Brett Cannon has generously volunteered to clean up some of the developers' documentation and wants to know if people would rather the bug/patch guidelines to be in a classic paragraph-style layout or a more FAQ-style layout.  If you have an opinion on the topic, please let him know!
+
+Contributing threads:
+
+ - `dev FAQ updated with day-to-day svn questions <http://mail.python.org/pipermail/python-dev/2005-November/058025.html>`__
+ - `Revamping the bug/patch guidelines (was Re: Implementation of PEP 341) <http://mail.python.org/pipermail/python-dev/2005-November/058108.html>`__
+
+[SJB]
+
+=========
+Summaries
+=========
+
+-----------
+Event loops
+-----------
+
+This thread initiated in discussion on sourceforge about patches 1049855_ and 1252236_; Martin v. Löwis and Michiel de Hoon agreed that the fixes were fragile, and that a larger change should be discussed on python-dev.  Michiel writes visualization software; he (and others, such as the writers of matplotlib) has trouble creating a good event loop, because the GUI toolkit (especially Tkinter) wants its own event loop to be in charge.  Michiel doesn't actually need Tkinter for his own project, but he has to play nice with it because his users expect to be able to use other tools -- particularly IDLE -- while running his software.
+
+Note that this isn't the first time this sort of problem has come up; usually it is phrased in terms of a problem with Tix, or not being able to run turtle while in IDLE. Event loops by their very nature are infinite loops; once they start, everything else is out of luck unless it gets triggered by an event or is already started.
+
+Donovan Baarda suggested looking at Twisted for state of the art in event loop integration.  Unfortunately, as Phillip Eby notes, it works by not using the Tkinter event loop.  It decides for itself when to call dooneevent (do-one-event).  It is possible to run Tkinter's dooneevent version as part of your own event loop (as Twisted does), but you can't really listen for its events, so you end up with a busy loop polling, and stepping into lots of "I have nothing to do" functions for every client eventloop.  You can use Tkinter's loop, but once it goes to sleep waiting for input, everything sort of stalls out for a while, and even non-Tkinter events get queued instead of processed.
+
+Mark Hammond suggests that it might be easier to replace the interactive portions of python based on the "code" module.   matplotlib suggests using ipython instead of standard python for similar reasons.  Another option might be to always start Tk in a new thread, rather than letting it take over the main thread.  There was some concern (see patch 1049855) that Tkinter doesn't - and shouldn't - require threading.
+
+[Jim Jewett posted a summary of this very repetitive and confusing (to the participants, not just summarizers!) thread towards its end, which this summary is very heavily based on.  Many thanks Jim!]
+
+Contributing threads:
+
+ - `Event loops, PyOS_InputHook, and Tkinter <http://mail.python.org/pipermail/python-dev/2005-November/057954.html>`__
+ - `Event loops, PyOS_InputHook, and Tkinter - Summary attempt <http://mail.python.org/pipermail/python-dev/2005-November/058034.html>`__
+
+.. _1049855: http://www.python.org/sf/1049855
+.. _1252236: http://www.python.org/sf/1252236
+
+[TAM]
+
+-----------------------------
+Importing .pyc and .pyo files
+-----------------------------
+
+Osvaldo Santana Neto pointed out that if a .pyo file exists, but a .pyc
+doesn't, then a regularly run python will not import it (unless run with -O),
+but if the .pyo is in a zip file (which is on the PYTHONPATH) then it will
+import it.  He felt that the inconsistency should be addressed and that the
+zipimport behaviour was preferable.  However, Guido said that his intention was
+always that, without -O, \*.pyo files are entirely ignored (and, with -O, \*.pyc files are entirely ignored).  In other words, it is the zipimport behaviour that is incorrect. 
+
+Guido suggested that perhaps .pyo should be deprecated altogether and instead we could have a post-load optimizer optimize .pyc files according to the current optimization settings.  The two use cases presented for including .pyo files but not .py files were in situations where disk space is at a premium, and where a proprietary "canned" application is distributed to end users who have no intention or need to ever add to the code.
+
+A suggestion was that a new bytecode could be introduced for assertions that would turn into a jump if assertions were disabled (with -O).  Guido thought that the idea had potential, but pointed out that it would take someone thinking really hard about all the use cases, edge cases, implementation details, and so on, in order to write a PEP.  He suggested that Brett and Phillip might be suitable volunteers for this.
+
+Contributing thread:
+
+ - `Inconsistent behaviour in import/zipimport hooks <http://mail.python.org/pipermail/python-dev/2005-November/057959.html>`__
+
+[TAM]
+
+---------------------------------------
+Default __hash__() and __eq__() methods
+---------------------------------------
+
+Noam Raphael suggested that having the default __hash__() and __eq__() methods based off of the object's id() might have been a mistake.  He proposed that the default __hash__() method be removed, and the default __eq__() method compare the two objects' __dict__ and slot members.  Jim Fulton offered a counter-proposal that both the default __hash__() and __eq__() methods should be dropped for Python 3.0, but Guido convinced him that removing __eq__() is probably a bad idea; it would mean an object wouldn't compare equal to itself.
+
+In the end, Guido decided that having a default __hash__() method based on id() isn't really a bad decision; without it, you couldn't have sets of "identity objects" (objects which don't have a usefully defined value-based comparison).  He suggested that the right decision was to make the hash() function smarter, and have it raise an exception if a class redefined __eq__() without redefining __hash__().  (In fact, this is what it used to do, but it was lost when object.__hash__() was introduced.)
+
+Contributing threads:
+
+ - `Why should the default hash(x) == id(x)? <http://mail.python.org/pipermail/python-dev/2005-November/057859.html>`__
+ - `Should the default equality operator compare values instead of identities? <http://mail.python.org/pipermail/python-dev/2005-November/057868.html>`__
+ - `For Python 3k, drop default/implicit hash, and comparison <http://mail.python.org/pipermail/python-dev/2005-November/057924.html>`__
+
+[SJB]
+
+---------------------------
+Indented multi-line strings 
+---------------------------
+
+Avi Kivity reintroduced the oft-requested means of writing a multi-line string without getting the spaces from the code indentation.  The usual options were presented::
+
+    def f(...):
+        ...
+        msg = ('From: %s\n'
+               'To: %s\n'
+               'Subject: Host failure report for %s\n')
+        ...
+        msg = '''\
+    From: %s
+    To: %s
+    Subject: Host failure report for %s'''
+        ...    
+        msg = textwrap.dedent('''\
+        From: %s
+        To: %s
+        Subject: Host failure report for %s''')
+
+Noam Raphael suggested that to simplify the latter option, textwrap.dedent() should become a string method, str.dedent().  There were also a few suggestions that this sort of dedenting should have syntactic support (e.g. with an appropriate string prefix).  In general, the discussion harkened back to `PEP 295`_, a similar proposal that was previously rejected.  People tossed the ideas around for a bit, but it didn't look like any changes were likely to be made.
+
+.. _PEP 295: http://www.python.org/dev/peps/pep-0295
+
+Contributing threads:
+
+ - `indented longstrings? <http://mail.python.org/pipermail/python-dev/2005-November/058042.html>`__
+ - `str.dedent <http://mail.python.org/pipermail/python-dev/2005-November/058058.html>`__
+ - `OT pet peeve (was: Re: str.dedent) <http://mail.python.org/pipermail/python-dev/2005-November/058072.html>`__
+
+[SJB]
+
+------------------
+Continued AST work
+------------------
+
+Neal Norwitz has been chasing down memory leaks; he believes that the current
+AST is now as good as before the AST branch was merged in.  Nick explained that
+he is particularly concerned about the returns hidden inside in macros in the
+AST compiler's symbol table generation and bytecode generation steps.  Niko
+Matsakis suggested that an arena is the way to go for memory management; the
+goal is to be able to free memory en-masse whatever happens and not have to
+track individual pointers.  Jeremy Hylton noted that the AST phase has a
+mixture of malloc/free and Python object allocation; he felt that it should be
+straightforward to change the malloc/free to use an arena API, but that a
+separate mechanism would be needed to associate a set of ``PyObject*`` with the arena.  The arena concept gained general approval, and there was some discussion about how best to implement it.
+
+In other AST news Rune Holm submitted two_ patches_ for the AST compiler that add better dead code elimination and constant folding and Thomas Lee is attempting to implement `PEP 341`_ (unification of try/except and try/finally), and asked for some help (Nick Coghlan gave some suggestions).
+
+ .. _two: http://www.python.org/sf/1346214 
+ .. _patches: http://www.python.org/sf/1346238 
+
+Contributing threads:
+
+ - `Optimizations on the AST representation <http://mail.python.org/pipermail/python-dev/2005-November/057865.html>`__
+ - `Implementation of PEP 341 <http://mail.python.org/pipermail/python-dev/2005-November/058075.html>`__
+ - `ast status, memory leaks, etc <http://mail.python.org/pipermail/python-dev/2005-November/058089.html>`__
+ - `Memory management in the AST parser &amp; compiler <http://mail.python.org/pipermail/python-dev/2005-November/058138.html>`__
+ - `PEP 341 patch &amp; memory management (was: Memory management in the AST parser &amp; compiler) <http://mail.python.org/pipermail/python-dev/2005-November/058142.html>`__
+
+[TAM]
+
+---------------------------------------------------------------------
+Adding functional methods (reduce, partial, etc.) to function objects
+---------------------------------------------------------------------
+
+Raymond Hettinger suggested that some of the functionals, like map or partial, might be appropriate as attributes of function objects.  This would allow code like::
+
+   results = f.map(data)
+   newf = f.partial(somearg)
+
+A number of people liked the idea, but it was pointed out that map() and partial() are intended to work with any callable, and turning these into attributes of function objects would make it hard to use them with classes that define __call__().  Guido emphasized this point, saying that complicating the callable interface was a bad idea.
+
+Contributing thread:
+
+ - `a different kind of reduce... <http://mail.python.org/pipermail/python-dev/2005-November/057828.html>`__
+
+[SJB]
+
+--------------------------------------------------
+Distributing debug build binaries (python2x_d.dll)
+--------------------------------------------------
+
+David Abrahams asked whether it would be possible for python.org to make a debug build of the Python DLL more accessible.  Thomas Heller pointed out that the Microsoft debug runtime DLLs are not distributable (which is why the Windows installer does not include the debug version of the Python DLL), and that the ActiveState distribution contains Python debug DLLs.
+
+Tim Peters explained that when he used to collect up the debug-build bits at the time the official installer was built, they weren't included in the main installer, because they bloated its size for something that most users don't want.  He explained that he stopped collecting the bits because no two users wanted the same set of stuff, and so it grew so large that people complained that it was too big.
+
+Tim suggested that the best thing to do would be to define precisely what an acceptable distribution format is and what exactly it should contain.  Martin indicated that he would accept a patch that picked up the files and packages them, and he would include them in the official distribution.
+
+Contributing thread:
+
+ - `Plea to distribute debugging lib <http://mail.python.org/pipermail/python-dev/2005-November/057896.html>`__
+
+[TAM]
+
+-----------------------------------
+Creating a python-dev-announce list
+-----------------------------------
+
+Jack Jansen suggested that a low-volume, moderated, python-dev-announce mailing list be created for time-critical announcements for people developing Python.  The main benefit would be the ability to keep up with important announcements such as new releases, the switch to svn, and so on, even when developers don't have time to keep up with all threads.  Additionally, it would be easier to separate out such announcements, even when following all threads. 
+
+Although these summaries exist (and the announcements section at the top pretty much covers what Jack is after), the summaries occur at least a week after the end of the period that they cover, which could be as much as three weeks after any announcement (if it occurred on the first of a month, for example).
+
+I suggested that a simpler possibility might follow along the lines of the PEP topic that the python-checkins list provides (a feature of Mailman).  This would still require some sort of effort by the announcer (e.g. putting some sort of tag in the subject), but wouldn't require an additional list, or additional moderators.
+
+However, Martin pointed out that this would put an extra burden on people to remember to post to such a list; this burden would also exist using the Mailman topic mechanism.  There wasn't much apparent support for the list, so this seems unlikely to occur at present.  Of course, that could be because the people that would like it are too busy to have noticed the thread yet <0.5 wink>, so perhaps there is more to come.
+
+Contributing thread:
+
+ - `Proposal: can we have a python-dev-announce mailing list? <http://mail.python.org/pipermail/python-dev/2005-November/057880.html>`__
+
+[TAM]
+
+-------------------------------------
+Notifications of weakref dereferences
+-------------------------------------
+
+When integrating with another system (such as gtk), it can be useful if each object in the other system maps to (at most) one python wrapper.
+
+If python references drop to zero, then the next python reference would (by default) create a different wrapper object.  So the wrapper tries to stay alive (with only a weak reference to the true object) as long as the true object does.  But if that wrapper does get used, it needs to replace the weak reference with a strong reference.
+
+The standard weakref callbacks weren't quite up to the task, but it looked like there were workarounds, either by abusing weakref methods in a subtask, or by changing the architecture slightly.
+
+Contributing thread:
+ - `Weak references: dereference notification <http://mail.python.org/pipermail/python-dev/2005-November/057961.html>`__
+
+[Jim Jewett]
+
+--------------------------------------------
+Should 1.2 be a floating point or a decimal?
+--------------------------------------------
+
+There was general agreement that decimal might deserve a literal marker of its own in python 3.0, but much less agreement that it should be the default floating or fixed point representation.  Decimals are better for many business applications, but floats are faster and are better for most scientific and engineering applications.
+
+Contributing thread:
+ - `Unifying decimal numbers. <http://mail.python.org/pipermail/python-dev/2005-November/057951.html>`__
+
+[Jim Jewett]
+
+-----------------------
+Speeding up int(string)
+-----------------------
+
+Uncle Timmy wants python to do better on certain benchmarks, and gave `an example`_.  The bottleneck turns out to be parsing an integer from a string.  At the moment, this is not only slow, it has potential bugs.  Patches were submitted, but had not been applied at the time this summary was written.
+
+ .. _an example: http://spoj.sphere.pl/
+
+Contributing threads:
+ - `int(string) (was: DRAFT: python-dev Summary for 2005-09-01 through 2005-09-16) <http://mail.python.org/pipermail/python-dev/2005-November/057994.html>`__
+ - `to_int -- oops, one step missing for use. <http://mail.python.org/pipermail/python-dev/2005-November/058006.html>`__
+ - `(no subject) <http://mail.python.org/pipermail/python-dev/2005-November/058023.html>`__
+
+[Jim Jewett]
+
+----------------------------------------------------
+Building Python with Visual C++ 2005 Express Edition
+----------------------------------------------------
+
+Is it possible?  Probably, but like other newer VC++ there are
+problems, particularly with changes to crt, and deprecation of
+standard interfaces.  It won't become the "standard" build tool.
+
+Contributing thread:
+ - `Building Python with Visual C++ 2005 Express Edition <http://mail.python.org/pipermail/python-dev/2005-November/058024.html>`__
+
+[Jim Jewett]
+
+------------------------
+Freezing mutable objects
+------------------------
+
+`Last fortnight's thread` about ways to take an immutable snapshot of an otherwise mutable object continued.  Discussions centered around how true the reflection has to be, and how to do this efficiently; an agreement was difficult to come to.
+
+Contributing thread:
+ - `apparent ruminations on mutable immutables (was: PEP 351, the freeze protocol) <http://mail.python.org/pipermail/python-dev/2005-November/057839.html>`__
+
+.. _Last fortnight's thread: http://www.python.org/dev/summary/2005-10-16_2005-10-31.html#freeze-protocol
+
+[TAM]
+
+===============
+Skipped Threads
+===============
+
+ - `Divorcing str and unicode (no more implicit conversions). <http://mail.python.org/pipermail/python-dev/2005-November/057827.html>`__
+ - `[C++-sig] GCC version compatibility <http://mail.python.org/pipermail/python-dev/2005-November/057831.html>`__
+ - `PYTHOPN_API_VERSION <http://mail.python.org/pipermail/python-dev/2005-November/057879.html>`__
+ - `Adding examples to PEP 263 <http://mail.python.org/pipermail/python-dev/2005-November/057891.html>`__
+ - `Class decorators vs metaclasses <http://mail.python.org/pipermail/python-dev/2005-November/057904.html>`__
+ - `PEP 352 Transition Plan <http://mail.python.org/pipermail/python-dev/2005-November/057911.html>`__
+ - `PEP submission broken? <http://mail.python.org/pipermail/python-dev/2005-November/057935.html>`__
+ - `cross-compiling <http://mail.python.org/pipermail/python-dev/2005-November/057939.html>`__
+ - `[OTAnn] Feedback <http://mail.python.org/pipermail/python-dev/2005-November/057941.html>`__
+ - `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-November/057949.html>`__
+ - `Coroutines (PEP 342) <http://mail.python.org/pipermail/python-dev/2005-November/058133.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+November 01, 2005 through November 15, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the 7th summary written by the python-dev summary squad of
+Steve Bethard and Tony Meyer (so nice to be back on time!).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/trunk/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  We do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow us to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-10-01_2005-10-15.html
+.. _original text file: http://www.python.org/dev/summary/2005-11-01_2005-11-15.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

@@ -1,0 +1,1277 @@
+<HTML
+><HEAD
+><TITLE
+>QMTest: A Software Testing Tool</TITLE><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.64"><LINK
+REL="NEXT"
+TITLE="Introduction"
+HREF="x23.html">
+</HEAD><BODY
+CLASS="article"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"><DIV
+CLASS="ARTICLE"><DIV
+CLASS="TITLEPAGE">
+<H1 CLASS="title" align="center"><A
+NAME="AEN2"
+>QMTest: A Software Testing Tool</A></H1><DIV CLASS="authorgroup"><A
+NAME="AEN3"></A>
+
+<H6 align="center">
+<A NAME="AEN4">Mark Mitchell</A><br>
+<DIV CLASS="affiliation"><SPAN CLASS="orgname">CodeSourcery, LLC<BR><BR></SPAN></DIV>
+<A NAME="AEN9">Jeffrey Oldham</A><br><DIV CLASS="affiliation">
+<SPAN CLASS="orgname">CodeSourcery, LLC<BR><BR></SPAN></DIV>
+<A NAME="AEN14">Greg Wilson</A><br><DIV CLASS="affiliation">
+<SPAN CLASS="orgname">Baltimore Technologies, Inc.<BR></SPAN></DIV></DIV></h6>
+<HR></DIV>
+<BLOCKQUOTE CLASS="ABSTRACT">
+<DIV CLASS="abstract"><A NAME="AEN20"></A>
+<P></P>
+<P>QMTest is an open-source, general-purpose, cross-platform
+software testing tool written entirely in Python
+[<SPAN CLASS="citation">Python</SPAN>].  The problem of testing can be divided
+into a domain-dependent problem and a domain-independent
+problem. QMTest is intended to solve the domain-independent part of
+the problem and to offer a convenient, powerful, and flexible
+interface for solving the domain-dependent problem.  The choice of
+Python as an implementation language has improved the user experience
+and simplified the development of QMTest; the use of Python is
+fundamental to the success of QMTest.</P><P></P></DIV></BLOCKQUOTE></DIV><DIV CLASS="NAVFOOTER">
+
+<HR ALIGN="LEFT" WIDTH="100%">
+</DIV
+><DIV
+CLASS="section"
+><H3
+CLASS="section"
+><A
+NAME="AEN23"
+>1. Introduction</A
+></H3
+><P
+>QMTest is an open-source, general-purpose, cross-platform
+software testing tool written entirely in Python.  QMTest can be used
+to test compilers, databases, graphical user interfaces, or embedded
+systems.  QMTest provides a convenient graphical user interface for
+creating, managing, and executing tests, provides support for parallel
+test execution, and can be extended in a variety of ways.</P
+><P
+>The central principle underlying the design of QMTest is that
+the problem of testing can be divided into a domain-dependent problem
+and a domain-independent problem.  The domain-dependent problem is
+deciding what to test and how to test it.  For example, should a
+database be tested by performing unit tests on the C code that makes
+up the database, or by performing integration tests using SQL queries?
+How should the output of a query asking for a set of records be
+compared to expected output?  Does the order in which the records
+presented in matter?  These are questions that only someone who
+understands the application domain can answer.</P
+><P
+>The domain-independent part of the problem is managing the
+creation of tests, executing the tests, and displaying the results for
+users.  For example, how does a user create a new test?  How are tests
+stored?  Should failing tests be reported to the user, even if the
+failure was expected?  These questions are independent of the
+application domain; they are just as relevant for compiler tests as
+they are for database tests.</P
+><P
+>QMTest is intended to solve the domain-independent part of the
+problem and to offer a convenient, powerful, and flexible interface
+for solving the domain-dependent problem.  QMTest is both a complete
+application, in that it can be used <SPAN
+CLASS="QUOTE"
+>"out of the box"</SPAN
+> to
+handle many testing domains, and infrastructure, in that it can be
+extended to handle other domains.</P
+><P
+>Users of QMTest can use either a command-line interface, or a
+web-based graphical interface.  Using either interface, users can,
+with a single command, run some or all of the tests in a test
+database, and obtain a summary report indicating which tests passed
+and which tests failed.  Optionally, users can obtain more detailed
+reports containing domain-dependent data about the test results.  When
+using the graphical interface, users can also create new tests by
+filling in a form.</P
+><P
+>The development of QMTest is part of the second phase of the
+Software Carpentry [<SPAN
+CLASS="citation"
+>Wilson99</SPAN
+>] project, sponsored by
+the Los Alamos National Laboratory (LANL).  That project originally
+set out to design and implement Python-based tools for testing, issue
+tracking, build management, configuration.  The design phase was
+accomplished via a contest that accepted submissions and awarded
+prizes for winning submissions.</P
+><P
+>The first section of this paper discusses the design of QMTest,
+with particular focus on the extension facilities that it provides,
+and the implementation of those facilities in Python.  The second
+section discusses practical experience with QMTest to date.  The third
+section discusses some of the ways in which the choice of Python as an
+implementation language has improved the user experience and
+simplified the development of QMTest.  The fourth and final section
+discusses some possible future directions for QMTest.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%">
+
+<DIV
+CLASS="section"
+><H3
+CLASS="section"
+><A
+NAME="AEN34"
+>2. QMTest Design</A
+></H3
+><P
+>In general, extensibility is a fundamental goal of the QMTest
+architecture.  QMTest, like any testing tool, must allow users to test
+their own application domains.  But, QMTest also allows extensibility
+in several other areas: users can control how tests are stored, how
+test execution is scheduled across available machine resources, and
+how results are displayed.  These four axes -- domain, storage,
+schedule, and display -- are all orthogonal in QMTest.  QMTest can be
+extended along one axis without making any changes along the other
+axes.</P
+><P
+>When discussing QMTest, it is useful to distinguish between two
+classes of users.  Some users create tests, execute those tests, and
+look at the results.  Other users extend QMTest, providing support for
+new application domains, new methods of test storage, and so forth.
+Henceforth, the first class is referred to simply as
+<I
+CLASS="firstterm"
+>users</I
+>, while the second is referred to as
+<I
+CLASS="firstterm"
+>extenders</I
+>.</P
+><P
+>All QMTest extensions are implemented in Python.  In fact,
+QMTest's default behaviors are all implemented using the same
+mechanisms that extenders use to create QMTest extensions.  It would
+be as fair to say that QMTest comes with some prepackaged extensions
+as it is to say that QMTest has default behaviors.</P
+><P
+>In the following subsections, each axis is described, and
+possible extensions are described.</P
+><DIV
+CLASS="section"
+><H4
+CLASS="section"
+><A
+NAME="AEN42"
+>2.1. Domain</A
+></H4
+><P
+>A <I
+CLASS="firstterm"
+>test class</I
+> contains machinery for
+executing a test, deciding whether it passed or failed, and reporting
+the results of the test.  Every test class takes arguments that
+parameterize its behavior.  A <I
+CLASS="firstterm"
+>test</I
+> is an
+instance of a test class, i.e., a test class together with arguments
+to that test class.</P
+><P
+>QMTest comes with a number of test classes to handle typical
+testing situations.  For example, QMTest comes with a test class
+(called <TT
+CLASS="classname"
+>ExecTest</TT
+>) that spawns a process and checks its exit status.
+If the command exits with a zero exit status, the test passes;
+otherwise, the test fails.  Every test class takes arguments that
+parameterize its behavior; for example, <TT
+CLASS="classname"
+>ExecTest</TT
+> takes parameters
+that indicates the name of the program to spawn and the command-line
+arguments that should be provided to it.</P
+><P
+>In theory, <TT
+CLASS="classname"
+>ExecTest</TT
+> is capable of testing any domain.  Any
+test can be written as an executable that contains all the testing
+logic and then exits successfully if (and only if) the test passes.
+Of course, trying to perform testing using this crude method is
+painful in a variety of respects.  First and foremost, it is not
+necessarily convenient to create separate executables that contain
+testing logic.  In addition, there is no good way for the executable
+to report information about why a test failed.  Nor is there a good
+way for QMTest to assist users in creating new tests, since creating a
+new test requires creating an entire new executable.</P
+><P
+>To solve these problems, an extender may create a custom test
+class.  A test class is a Python class that implements a particular
+interface.  The interface consists of one method and one attribute:
+<P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><TT
+CLASS="varname"
+>arguments</TT
+></DT
+><DD
+><P
+>&#13; This attribute describes the arguments to the test class.  QMTest
+ uses this information to prompt the user for arguments when creating
+ a new test through the graphical user interface.  This information is
+ also used when a test is written out to permanent storage.
+ </P
+></DD
+><DT
+><TT
+CLASS="function"
+>Run</TT
+></DT
+><DD
+><P
+>&#13; This method is responsible for executing the test.  It takes one
+ parameter, called <TT
+CLASS="varname"
+>context</TT
+>.  This parameter
+ provides information about how the test should be executed that
+ depends on the environment in which the test is being executed.  For
+ example, when testing a compiler, the user might specify the path to
+ the compiler by placing information into the context.
+ </P
+><P
+>The <TT
+CLASS="function"
+>Run</TT
+> method returns an object that
+ indicates whether the test passed or failed. The
+ <TT
+CLASS="function"
+>Run</TT
+> method can return arbitrary additional data
+ in the result, indicating, for example, why the test failed or how
+ long it took to run the test.</P
+></DD
+></DL
+></DIV
+></P
+><P
+>It is important to note that this interface does not specify a
+storage format for the test.  In QMTest, test storage is orthogonal to
+the domain tested.  Tests written using new test classes can still be
+stored by QMTest; the default storage mechanism simply records the
+values of all arguments provided to the test class.</P
+><DIV
+CLASS="section"
+><H5
+CLASS="section"
+><A
+NAME="AEN69"
+>2.1.1. Example</A
+></H5
+><P
+>The code for QMTest's simplest built-in test class is
+  presented here.  This test class executes a Python express and
+  passes if the expression evaluates to true:
+   <PRE
+CLASS="programlisting"
+>&#13;class ExecTest(Test):
+    """Check that a Python expression evaluates to true.
+
+    An 'ExecTest' test consists of Python source code together with
+    an (optional) Python expression.  First the Python code is
+    executed.  If it throws an (uncaught) exception the test fails.
+    If the optional expression is present, it is then evaluated.  If it
+    evaluates to false, the test fails.  Otherwise, the test passes."""
+
+    arguments = [
+        qm.fields.TextField(
+            name="source",
+            title="Python Source Code",
+            description="""The source code.
+
+            This code may contain class definitions, function
+            definitions, statements, and so forth.  If this code
+            throws an uncaught exception, the test will fail.""",
+            verbatim="true",
+            multiline="true",
+            default_value="pass"
+            ),
+
+        qm.fields.TextField(
+            name="expression",
+            title="Python Expression",
+            description="""The expression to evaluate.
+
+            If the expression evaluates to true, the test will pass,
+            unless the source code above throws an uncaught exception.
+
+            If this field is left blank, it is treated as an expression
+            that is always true.""",
+            verbatim="true",
+            multiline="true",
+            default_value="1"
+            )
+        ]
+
+
+    def __init__(self, **properties):
+
+        apply(Test.__init__, (self,), properties)
+        
+        # Store stuff for later.
+        if self.source is None:
+            self.source = ""
+        else:
+            # Make sure the source ends with a newline.  A user is
+            # likely to be confused by the error message if it's
+            # missing. 
+            if self.source[-1] != "\n":
+                self.source = self.source + "\n" 
+
+
+    def Run(self, context, result):
+        global_namespace, local_namespace = make_namespaces(context)
+        # Execute the source code.
+        try:
+            exec self.source in global_namespace, local_namespace
+        except:
+            # The source raised an unhandled exception, so the test
+            # fails
+            result.NoteException(cause="Exception executing source.")
+        else:
+            # The source code executed OK.  Was an additional expression
+            # provided? 
+            if self.expression is not None:
+                # Yes; evaluate it.
+                try:
+                    value = eval(self.expression,
+                                 global_namespace, local_namespace)
+                except:
+                    # Oops, an exception while evaluating the
+                    # expression.  The test fails.
+                    result.NoteException(cause=
+                                         "Exception evaluating expression.")
+                else:
+                    # We evaluated the expression.  The test passes iff
+                    # the expression's value is boolean true.
+                    if not value:
+                        result.Fail("Expression evaluates to false.",
+                                    { "ExecTest.expr" : self.expression,
+                                      "ExecTest.value" : repr(value) })
+            else:
+                # No expression provided; if we got this far, the test
+                # passes. 
+                pass
+   </PRE
+>
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="section"
+><H4
+CLASS="section"
+><A
+NAME="AEN73"
+>2.2. Storage</A
+></H4
+><P
+>By default, QMTest represents each test as an Extensible Markup
+Language (XML) [<SPAN
+CLASS="citation"
+>XML</SPAN
+>] file.  For each test, QMTest
+stores the name of the Python test class and representations of each
+of the arguments to the class.  This representation is fully general.
+XML is a good format to use in that it is rigorously defined,
+standardized, and well supported in most programming languages.  (For
+example, it is easy to mechanically generate QMTest files from a tool
+written in C++ by emitting XML.)  In addition, the fact that XML is a
+textual format makes it easy to store in any revision control
+system.</P
+><P
+>While XML is a textual format, it is not always easy for people
+to read and edit.  XML is also somewhat bulky; in some cases, the XML
+tags can consume large amounts of space.  Encoding binary data in XML
+requires converting it to a textual format.  Therefore, the efficiency
+of QMTest can be adversely impacted by the cost of encoding and
+decoding binary data in the test files.  For some applications, a
+different storage format can overcome these problems.</P
+><P
+>For example, it might be more efficient to store large
+testsuites in a relational database, rather than as files in the
+filesystem.  Users could then perform operations on the tests that
+QMTest does not support directly, such as the retrieval of all tests
+created after a particular date.</P
+><P
+>In situations such as these, extenders can create a customized
+<I
+CLASS="firstterm"
+>test database class</I
+>.  A test database is
+an instance of such a class.  The test database is responsible for
+storing and retrieving tests; it maps test identifiers to the tests
+themselves.  How it performs its task is entirely up to the
+implementor of the test database class.</P
+><P
+>Converting an existing testsuite to QMTest can also be
+accomplished by means of a customized test database class.  The test
+database class can parse the existing test format and create test
+instances that QMTest can execute.  When using this approach, there is
+no need to convert each individual test to QMTest's XML format.</P
+><P
+>Test databases can be used in ways that do not directly relate
+to storage.  For example, QMTest comes with a database class that can
+combine multiple test databases into a single database.  This database
+class is useful for testing of a number of components at once, each of
+which has its own test database.  For example, an operating system
+distributor must integrate several hundred packages to create a
+GNU/Linux distribution.  If these packages had their own QMTest test
+databases, the distributor could easily run all of the tests for all
+of the packages and get a single report on the status of the complete
+system.</P
+><P
+>The user of QMTest does not need to understand how tests are
+stored.  For example, QMTest's graphical user interface will appear
+exactly the same to a user who uses the default test database and to a
+user who uses a test database built atop a relational database.  From
+the user's point of view, creating a new test is simply a matter of
+choosing a test class and then providing arguments to that class.
+<A
+NAME="AEN84"
+HREF="#FTN.AEN84"
+>[1]</A
+></P
+></DIV
+><DIV
+CLASS="section"
+><H4
+CLASS="section"
+><A
+NAME="AEN86"
+>2.3. Schedule</A
+></H4
+><P
+>The default QMTest <I
+CLASS="firstterm"
+>execution engine</I
+>
+executes tests sequentially on a single machine.  However, QMTest also
+comes with an execution engine that is capable of spreading the test
+load across a large testing farm.  This feature is particularly useful
+to organizations that have access to supercomputers, or large clusters
+of machines, but it is also useful to developers who have a symmetric
+multiprocessor on their desks.</P
+><P
+>Scheduling jobs, especially on machines with varying loads and
+varying resource characteristics, is a notoriously difficult problem.
+In addition, the means used to connect to a remote machine varies from
+environment to environment; while <B
+CLASS="command"
+>rsh</B
+> is standard
+on many systems, it is not available under Microsoft Windows, and even
+on UNIX systems it may be more efficient to use the Message Passing
+Interface (MPI), threads, or some other means of obtaining
+parallelism.  Therefore, QMTest allows extenders to override the
+default parallel execution engine with a customized version.</P
+><P
+>The execution engine need not be aware of the test class
+implementation or storage format; it is simply responsible for
+allocating test instances to machines.  Therefore, it is possible for
+the administrators of a high-performance supercomputer to provide a
+test execution engine that can then be used by all users on the
+machine.</P
+><DIV
+CLASS="section"
+><H5
+CLASS="section"
+><A
+NAME="AEN93"
+>2.3.1. Ordering Constraints</A
+></H5
+><P
+>Every scheduler must obey certain ordering constraints.  In
+particular, users may test may specify <I
+CLASS="firstterm"
+>prerequisite
+tests</I
+> for a test.  A test with prerequisite tests is
+called a <I
+CLASS="firstterm"
+>dependent test</I
+>.  A dependent test can
+only be executed after its prerequisites have been executed.  Users
+can associate an outcome with the prerequisite test.  The dependent
+test is only executed if the prerequisite test has the specified
+outcome.</P
+><P
+>Prerequisites can be used to avoid running complex tests if
+they are almost certain to fail.  For example, if a web browser
+crashes when trying to display blank HTML page, it is unlikely to
+successfully render a complex page with lots of tables.  By making the
+simple test a prerequisite for the complex test, and by specifying
+that the simple test must pass, the user can avoid wasting cycles
+running the complex tests if the application is severely
+broken.</P
+><P
+>Prerequisites can also be used to attempt to diagnose failures
+in more detail.  Consider, for example, a complex physical simulation
+that consists of several independent components.  One test might check
+the behavior of the entire system.  If, however, this test fails it
+may make sense to run unit tests on the component pieces in an effort
+to discern where the failure lies.  The user would then make the
+complex test a prerequisite to the simple tests, and specify that the
+complex test must <I
+CLASS="emphasis"
+>fail</I
+> before the dependent tests
+are run.  Then, QMTest will run the unit tests only if the integration
+test fails.</P
+><P
+>In some situations, multiple tests may require common setup and
+cleanup code.  For example, one approach to testing a database is to
+populate it with a relatively large data set and then run multiple
+queries against the database.  When all of the queries are complete,
+the database should be destroyed.  QMTest
+<I
+CLASS="firstterm"
+>resources</I
+> can be used for this purpose.  A
+resource is an object with <TT
+CLASS="function"
+>SetUp</TT
+> and
+<TT
+CLASS="function"
+>CleanUp</TT
+> methods.  When a test depends on a
+resource, it is guaranteed that the resource's
+<TT
+CLASS="function"
+>SetUp</TT
+> method will execute before the test is
+executed, and that the <TT
+CLASS="function"
+>CleanUp</TT
+> method will
+execute afterward.  If multiple tests depend on the same resource,
+the scheduler may share the resource among all of the tests, rather
+than performing the setup and cleanup once for each test.</P
+></DIV
+></DIV
+><DIV
+CLASS="section"
+><H4
+CLASS="section"
+><A
+NAME="AEN107"
+>2.4. Display</A
+></H4
+><P
+>QMTest can produce reports about test execution in a number of
+different formats.  For example, QMTest can simply produce a report
+that indicates which tests passed and which tests failed.
+Alternatively, QMTest can indicate how the tests behaved relative to
+some previous test run.  This mode of output is useful in determining
+whether some recent changes have caused new problems; if the tests
+that failed also failed the last time the tests were run, the new
+changes are likely not the cause of the problems.</P
+><P
+>In many situations, just as interesting as knowing that a test
+failed is knowing <I
+CLASS="emphasis"
+>why</I
+> it failed.  For example,
+when testing a compiler, did the test fail because the compiler
+crashed, because it produced an incorrect error message, or because
+the compiler generated incorrect code?  Even if the test did not fail,
+there may be other interesting information associated with the test
+execution, such as the amount of time the test took to execute.</P
+><P
+>As discussed above, the test class can embed this information in
+the result object that it returns to QMTest.  Then, QMTest will
+display this information for the user.  If the test class wishes to
+control not only the information displayed, but also its formatting,
+the test class can provide a method that formats a result object for
+output.  In that way, the test class can, for example, provide
+hyperlinks from information embedded in the failure description to a
+manual that explains the likely causes of the failure.</P
+><P
+>By default, QMTest stores results as XML, with the goal that
+other applications may be written to process the results and display
+them in interesting ways.  For example, it is likely that a future
+version of QMTest will contain a script that takes a series of results
+files and produces a Microsoft Excel spreadsheet showing test failures
+over time.  However, users can replace the module that performs
+results storage in the same way that they can replace display modules,
+so that, for example, results can be stored directly in a relational
+database.</P
+></DIV
+></DIV
+><H4
+CLASS="FOOTNOTES"
+>Notes</H4
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN84"
+HREF="x34.html#AEN84"
+>[1]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>Sometimes, this abstraction barrier is not as clean as
+one would like.  For example, the user may have to use a revision
+control system to coordinate test suite development with other users
+when using the default database implementation, but may not need to
+when using a customized implementation.</P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%">
+
+<DIV
+CLASS="section"
+><H3
+CLASS="section"
+><A
+NAME="AEN114"
+>3. Practical Experience: Using QMTest</A
+></H3
+><P
+>At the time of writing, QMTest has not yet been officially
+released.  (The first release of QMTest is expected by the end of
+2001.)  However, prerelease versions of QMTest are available for
+download at <A
+HREF="http://www.qmtest.com"
+TARGET="_top"
+>Software
+Carpentry</A
+>.  At this time, QMTest has been used in three
+software development projects: QMTest itself, the POOMA numerical
+computing toolkit, and the GNU Compiler Collection (GCC).</P
+><P
+>In each of these cases, QMTest has proved a useful and
+convenient tool, modulo the growing pains that come with using any
+prerelease software: modifications to file formats, incomplete
+documentation, and a changing user interface.  It is informative to
+contrast the way in which QMTest has been deployed in these
+situations.</P
+><DIV
+CLASS="section"
+><H4
+CLASS="section"
+><A
+NAME="AEN119"
+>3.1. Testing QMTest</A
+></H4
+><P
+>QMTest is used to test QMTest itself, as well as QMTrack, its
+companion bug-tracking tool.  These tests are primarily unit tests.
+Rather than exercising the complete application, they focus on testing
+the Python modules that make up QMTest and QMTrack.  These tests are
+run by every developer before committing changes to the QMTest and
+QMTrack source repository.</P
+><P
+>It is, of course, especially convenient to test Python code from
+within QMTest.  Loading modules, invoking methods, and examining the
+results are all extremely natural.  The primary difficulty with the
+QMTest test suite is that it is incomplete; more tests should be
+written.</P
+></DIV
+><DIV
+CLASS="section"
+><H4
+CLASS="section"
+><A
+NAME="AEN123"
+>3.2. Testing POOMA</A
+></H4
+><P
+>POOMA (Parallel Object Oriented Methods and Applications)
+[<SPAN
+CLASS="citation"
+>POOMA</SPAN
+>] is a high-performance numerical toolkit
+created at the LANL, and now co-maintained by <A
+HREF="http://www.codesourcery.com"
+TARGET="_top"
+>CodeSourcery</A
+>and many of the
+original POOMA developers.  POOMA is written entirely in C++.  Its
+goal is to perform efficient computations on massively parallel
+machines, such as the Accelerated Strategic Computing Initiative
+(ASCI) [<SPAN
+CLASS="citation"
+>ASCI</SPAN
+>] Blue Mountain machine
+[<SPAN
+CLASS="citation"
+>BlueMountain</SPAN
+>], which is composed of several
+thousand Origin 2000 processors.</P
+><P
+>The POOMA developers had written a variety of unit tests,
+application tests, example programs, and benchmarks.  Although there
+was a <TT
+CLASS="filename"
+>Makefile</TT
+> for each tests, there was no
+automated system for building and running all of these tests at once.
+Nor was there a convenient mechanism for displaying the results.
+Without using any extensions to QMTest, it was possible to create
+tests that invoked <B
+CLASS="command"
+>make</B
+> to build each of the tests,
+executed the resulting binaries, and compared the results to expected
+values.</P
+><P
+>Undertaking this effort demonstrated that many of the tests were
+suffering from a lack of maintenance; many failed to compile, and
+others failed to execute correctly.  By using QMTest on a nightly
+basis, the developers are now able to prevent further decay.</P
+><P
+>A notable advantage of QMTest in this situation was its ability
+to work with an existing testsuite.  As a result, QMTest was deployed
+with relatively little effort.  There was no need to modify the
+existing practices of the developers, such as the locations in which
+tests were placed, or the way in which they were written.</P
+></DIV
+><DIV
+CLASS="section"
+><H4
+CLASS="section"
+><A
+NAME="AEN135"
+>3.3. Testing the GNU Compiler Collection</A
+></H4
+><P
+>Like POOMA, GCC [<SPAN
+CLASS="citation"
+>GCC</SPAN
+>] has a large body of
+existing tests.  The DejaGNU [<SPAN
+CLASS="citation"
+>DejaGNU</SPAN
+>] test harness
+is used to execute those tests, and is, in general, satisfactory.
+However, it seemed interesting to try to execute the same tests with
+QMTest, in order to see whether QMTest could be easily adapted to an
+existing testsuite.  While it should be possible to use the entire
+testsuite, QMTest has thus far been used only with the C++ portion of
+the testsuite.</P
+><P
+>The GCC tests are represented as individual C++ source files.
+These source files contain special comments indicating where error
+messages should be emitted, and whether the test should be executed,
+or merely compiled.  In order to efficiently execute these tests with
+QMTest, both a custom test class and a custom test database were
+required.</P
+><P
+>The only argument to the test class is the name of the source
+file.  The <TT
+CLASS="function"
+>Run</TT
+> method of the test class is
+responsible for reading the file and extracting the special comments.
+Then, the C++ compiler is invoked, and its standard error stream
+captured.  The error stream is parsed into distinct error messages,
+and checked against the expected errors.  If the test program is
+supposed to be executed (and not just compiled) the resulting binary
+is executed, and its exit code checked.</P
+><P
+>The test class is able to return interesting information about
+test failures.  For example, it records which error messages were
+spurious (i.e., appeared, but should not have) and which were missing
+(i.e., did not appear, but should have).  This information is
+available in structured form in the XML results file written out by
+QMTest.</P
+><P
+>Because the tests are represented as C source files, rather than
+in QMTest's default XML format, a custom test database class was
+used to read and write tests.</P
+><P
+>The use of QMTest provides two major advantages:
+<P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+>Parallelism</DT
+><DD
+><P
+>Unlike DejaGNU, QMTest can execute tests in
+  parallel.  As a result, it is possible to run the test suite
+  considerably faster with QMTest than with DejaGNU on a
+  multiprocessor.</P
+></DD
+><DT
+>User Interface</DT
+><DD
+><P
+>QMTest's graphical user interface can be used to 
+  execute one or many tests, display the results of those tests, and
+  create new tests.</P
+></DD
+></DL
+></DIV
+></P
+><P
+>DejaGNU is written in Tcl.  Some of the GCC tests contain
+embedded Tcl commands.  These tests are not easy to convert for use
+with QMTest.  In theory, the custom test class could have invoked a
+Tcl interpreter, but setting up an appropriate context would have been
+difficult.  It would be easier to modify the tests themselves.</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+>
+
+
+
+<DIV
+CLASS="section"
+><H3
+CLASS="section"
+><A
+NAME="AEN156"
+>4. Experience with Python</A
+></H3
+><P
+>Using Python to implement QMTest has been a complete
+success.</P
+><P
+>Absolutely fundamental to QMTest's design is its extensibility.
+If it were difficult for extenders to create extensions, or difficult
+for users to use those extensions, QMTest could not succeed.  Python's
+ability to dynamically load new modules at run time is a tremendous
+boon for QMTest.  Had QMTest been implemented in C++, for example,
+dynamically loading extensions would have required the use of
+<TT
+CLASS="function"
+>dlopen</TT
+> or equivalent functionality.  The
+differences in shared library interfaces between platforms would have
+placed a burden on QMTest; the differences in the mechanisms used to
+create shared libraries would have placed a burden on extenders trying
+to write extensions that could be used on multiple platforms.</P
+><P
+>Python's garbage collection, strict dynamic checking, and lack
+of explicit pointers reduce the likelihood of errors in extension
+modules resulting in crashes of QMTest.  Instead, Python raises
+exceptions which the QMTest core can catch and display.  In many
+cases, QMTest is able to provide useful information that helps the
+extender to fix the problem.  On the downside, the lack of traditional
+type-checking in QMTest has made it harder to avoid errors in
+developing extensions; failures to correctly implement the extension
+interface, or to correctly use modules provided by QMTest, are not
+detected until the extension is used.</P
+><P
+>Python's extensive run-time library, and the wealth of other
+available packages, has also been of great assistance in the
+development of QMTest.  Python's <B
+CLASS="command"
+>SimpleHTTPServer</B
+>
+and the Zope Corporation's <B
+CLASS="command"
+>DTML</B
+> language
+[<SPAN
+CLASS="citation"
+>Zope</SPAN
+>] are used to implement the QMTest GUI, which
+users interact with through an ordinary web browser.  The
+<B
+CLASS="command"
+>PyXML</B
+> package is used to read and write the XML
+data files that QMTest uses to store information.</P
+><P
+>Much of QMTest's portability comes directly from the underlying
+portability of Python.  Although there are still some essential
+complexities that no programming language can completely obscure,
+Python has greatly reduced the porting cost involved in making QMTest
+run on Microsoft Windows operating system after its initial
+development on the GNU/Linux operating system.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+>
+
+
+
+
+<DIV
+CLASS="section"
+><H3
+CLASS="section"
+><A
+NAME="AEN168"
+>5. Future Directions</A
+></H3
+><P
+>For the first release of QMTest, the focus is exclusively on
+core features.  In subsequent releases, the focus will be on providing
+additional features, and, in particular, on providing a number of
+additional test class and test database implementations.  For example,
+QMTest could provide test classes to assist in the testing of Python
+programs, graphical applications, numerical applications, and
+web-based applications.</P
+><P
+>QMTest does not presently maintain historical data about test
+results, although it does allow users to store that data manually.
+Providing these facilities directly in QMTest would allow the display
+of additional reports and charts that would have particular benefits
+to project managers.</P
+><P
+>QMTest uses a web browser as its graphical user interface
+because that was relatively easy to implement, relatively portable,
+and because it had already been done for QMTrack.  However, there are
+a number of ways in which a more polished interface could be provided
+by a GUI written to use a more powerful interface than that provided
+by the combination of HTML and JavaScript.  Web browsers continue to
+lag native graphical toolkits in terms of both polish and
+functionality.</P
+><P
+>QMTest and QMTrack could be more tightly integrated.  Although
+they currently share much code, and have a common graphical user
+interface, there is no direct way to turn bug reports into test cases,
+or failed test cases into bug reports.  It would be nice to use QMTest
+to automatically determine that some bug reports no longer apply
+because the reported problems have been fixed.  This integration could
+simplify the management of large software projects.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+>
+
+<DIV
+CLASS="section"
+><H3
+CLASS="section"
+><A
+NAME="AEN174"
+>6. Acknowledgments</A
+></H3
+><P
+>John Reynders, Rod Oldehoeft and Greg Wilson organized the
+Software Carpentry project.  Frank Alexander, Paul Dubois, Brian
+Marick, Dave Thomas, and Tom Van Vleck provided valuable insights as
+judges in the Software Carpentry design contest.  Linda Timberlake,
+Chang Liu, and Patrick Campbell-Preston all submitted designs
+containing valuable ideas.  Alexander Samuel wrote a substantial
+portion of the QMTest code.  Guido van Rossum created Python.  The
+Zope Corporation created DTML.  Rob Savoye created DejaGNU.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+>
+<A
+NAME="AEN177"
+></A
+><H3
+><A
+NAME="AEN177"
+>References</A
+></H3
+><DIV
+CLASS="biblioentry"
+><A
+NAME="AEN179"
+></A
+><P
+>[ASCI]&nbsp;<I
+><A
+HREF="http://www.llnl.gov/asci/"
+TARGET="_top"
+>Accelerated Strategic
+  Computing Initiative</A
+></I
+>.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left=0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="biblioentry"
+><A
+NAME="AEN183"
+></A
+><P
+>[BlueMountain]&nbsp;<I
+>The ASCI Blue Mountain System: 3TOps Capability at Los
+    Alamos National Laboratory</I
+>, <I
+><A
+HREF="http://www.sandia.gov/supercomp/sc99/blue.pdf"
+TARGET="_top"
+>Blue
+    Mountain Leaflet</A
+></I
+>, <I
+><A
+HREF="http://www.lanl.gov/asci/bluemtn/"
+TARGET="_top"
+>Blue Mountain Web
+    Page</A
+></I
+>.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left=0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="biblioentry"
+><A
+NAME="AEN193"
+></A
+><P
+>[Bray2000]&nbsp;<SPAN
+CLASS="EDITOR"
+>Edited by Tim Bray, </SPAN
+><SPAN
+CLASS="EDITOR"
+>Jean Paoli, </SPAN
+><SPAN
+CLASS="EDITOR"
+>C. M. Sperburg-McQueen, </SPAN
+><SPAN
+CLASS="EDITOR"
+>and Eve Maler</SPAN
+>, <I
+><A
+HREF="http://www.w3.org/TR/2000/REC-xml-20001006"
+TARGET="_top"
+>Extensible Markup
+  Language (XML) 1.0</A
+></I
+>, Second Edition, World Wide Web Consortium, 06 October 2000.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left=0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="biblioentry"
+><A
+NAME="AEN213"
+></A
+><P
+>[CodeSourcery]&nbsp;<I
+><A
+HREF="http://www.codesourcery.com/"
+TARGET="_top"
+>CodeSourcery,
+  LLC</A
+></I
+>.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left=0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="biblioentry"
+><A
+NAME="AEN217"
+></A
+><P
+>[DejaGNU]&nbsp;<I
+><A
+HREF="http://www.gnu.org/software/dejagnu/"
+TARGET="_top"
+>DejaGnu Testing Framework</A
+></I
+>.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left=0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="biblioentry"
+><A
+NAME="AEN221"
+></A
+><P
+>[GCC]&nbsp;<I
+><A
+HREF="http://gcc.gnu.org/"
+TARGET="_top"
+>GNU Compiler
+  Collection</A
+></I
+>.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left=0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="biblioentry"
+><A
+NAME="AEN225"
+></A
+><P
+>[Zope]&nbsp;<SPAN
+CLASS="AUTHOR"
+>Michel Pelletier </SPAN
+><SPAN
+CLASS="AUTHOR"
+>and Amos Latteier</SPAN
+>, <I
+><A
+HREF="http://www.zope.org/Members/michel/ZB/"
+TARGET="_top"
+>The Zope
+  Book</A
+></I
+>, New Riders, July 2001.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left=0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="biblioentry"
+><A
+NAME="AEN238"
+></A
+><P
+>[POOMA]&nbsp;<I
+><A
+HREF="http://pooma.codesourcery.com/"
+TARGET="_top"
+>Pooma</A
+></I
+>.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left=0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="biblioentry"
+><A
+NAME="AEN242"
+></A
+><P
+>[Python]&nbsp;<I
+><A
+HREF="http://www.python.org/"
+TARGET="_top"
+>Python</A
+></I
+>.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left=0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="biblioentry"
+><A
+NAME="AEN246"
+></A
+><P
+>[Wilson1999]&nbsp;<SPAN
+CLASS="AUTHOR"
+>Greg Wilson</SPAN
+>, <I
+>&#13;  <A
+HREF="http://software-carpentry.com/white-paper.html"
+TARGET="_top"
+>&#13;  Open Source Software Engineering for Computational Scientists
+  and Engineers</A
+></I
+>, December 1999.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left=0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+>
+
+
+
+
+
+
+
+</BODY>
+</HTML>

@@ -1,0 +1,179 @@
+Title: Python-dev summary: 2000-12-01 to 2000-12-15
+
+<pre>
+A busy two weeks, particularly for the PEPs, where there were several
+major edits and changes of status.  The deadline for PEPs for Python
+2.1 is Dec. 15; after this point, no new PEPs will be added to the
+list (though they may be taken off the list if implementation turns
+out to be impractical or the proposed idea proves a bad one).
+
+I expect the next two week period to be slow on python-dev, since most
+people will be off on vacation, celebrating the holiday, or otherwise
+distracted.
+
+
+Unit testing
+============
+
+Jeremy Hylton wondered about adding a unit testing framework to
+Python.  The list of suggested candidates produced by people on
+python-dev is:
+
+PyUnit:
+        <a href="http://pyunit.sourceforge.net">http://pyunit.sourceforge.net</a>
+unittest.py from Quixote:
+        <a href="http://x63.deja.com/=usenet/getdoc.xp?AN=683946404">http://x63.deja.com/=usenet/getdoc.xp?AN=683946404</a> (intro)
+        <a href="http://www.amk.ca/python/unittest.html">http://www.amk.ca/python/unittest.html</a> (docs)
+doctest:
+        <a href="http://starbase.neosoft.com/~claird/comp.lang.python/doctest.html">http://starbase.neosoft.com/~claird/comp.lang.python/doctest.html</a>
+David Goodger pointed out another unit testing implementation:
+        <a href="http://www.objectmentor.com/freeware/downloads.html">http://www.objectmentor.com/freeware/downloads.html</a>
+
+If readers of this summary know of other unit testing tools for
+Python, please let python-dev know about them.
+
+Peter Funk compared doctest and Quixote's unittest.py: "After reading
+Andrew's docs, I think Quixote basically offers three additional
+features if compared with Tim Peters 'doctest'."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-December/010882.html">http://mail.python.org/pipermail/python-dev/2000-December/010882.html</a>
+
+
+__findattr__
+============
+
+Barry Warsaw submitted PEP 231, suggesting a new __findattr__() hook.
+"My hope is that __findattr__() would eliminate most, if not all, the
+need for ExtensionClass, at least within the Zope and ZODB contexts.
+I haven't tried to implement Persistent using it though."
+        <a href="http://python.sourceforge.net/peps/pep-0231.html">http://python.sourceforge.net/peps/pep-0231.html</a>
+
+__findattr__ would be called on every attribute access, unlike
+__getattr__ which is only called when the attribute is not found in an
+instance's dictionary.  __findattr__ poses a self-referential problem,
+though; how would the __findattr__ access any of the contents of an
+instance, since it would be recursively called on any attribute access
+within the body of the __findattr__()?  Barry's PEP used a .infindattr
+attribute that would be set to true inside a __findattr__ method, but
+that isn't thread-safe.  Other approaches were suggested -- store this
+in the thread state, compile special tricks into the bytecode compiled
+for __findattr__ calls -- but nothing seemed very clean.
+
+GvR's response to all this was "I'm unconvinced by the __findattr__
+proposal as it now stands," and went on to reject the PEP.  
+ 
+
+Iterating through dictionaries
+==============================
+
+Discussion about iterating through dictionaries without constructing a
+list of keys (the .popitem() proposed in the 2 weeks covered by the
+previous python-dev summary).  Christian Tismer analyzed the math for
+the hash tables that underly dictionaries: "The powers of µ reach all
+these patterns. Therefore, each pattern *is* some power of µ. By
+multiplication with µ we can reach every possible pattern exactly
+once.  Since these patterns are used as distances from the primary
+hash-computed slot modulo 2^n, and the distances are never zero, all
+slots can be reached."  
+        <a href="http://mail.python.org/pipermail/python-dev/2000-December/010913.html">http://mail.python.org/pipermail/python-dev/2000-December/010913.html</a>
+
+Christian went on to use this to attempt to improve the hashing
+algorithm used for dictionaries: "While the current algorithm is 110
+times slower on a worst case dict (quadratic behavior), the new
+algorithm accounts a little for the extra cycle, but is only 4 times
+slower."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-December/011085.html">http://mail.python.org/pipermail/python-dev/2000-December/011085.html</a>
+
+Tim thought that the GF() hashing wasn't relevant to the problem of
+consuming the entire contents of a dictionary, and proposed a
+different popitem() implementation:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-December/010916.html">http://mail.python.org/pipermail/python-dev/2000-December/010916.html</a>
+
+
+PEP Progress
+============
+
+PEP 207, the Rich Comparison PEP, was updated by Guido.  Rich
+comparisons would provide more flexibility, making it possible to
+separately overload &lt;, &gt;, &lt;=, &gt;=, ==, != in classes, and to return
+something besides a Boolean result.  The idea has been around for
+years, and David Ascher wrote an earlier proposal a few years ago.
+PEP 207 is mostly a re-editing of David's proposal by GvR.
+        <a href="http://python.sourceforge.net/peps/pep-0207.html">http://python.sourceforge.net/peps/pep-0207.html</a>
+
+Neil Schemenauer has been beavering away at PEP 208, clarifying the
+semantics and the implementation of __coerce__:
+        <a href="http://python.sourceforge.net/peps/pep-0208.html">http://python.sourceforge.net/peps/pep-0208.html</a>
+The patch for Neil's reference implementation is patch #102652:
+        <a href="http://sourceforge.net/patch/?func=detailpatch&amp;patch_id=102652&amp;group_id=5470">http://sourceforge.net/patch/?func=detailpatch&amp;patch_id=102652&amp;group_id=5470</a>
+
+GvR approved PEP 217, written by Moshe Zadka: "Display Hook for
+Interactive Use".  This PEP adds a sys.displayhook(obj) function which
+is called to display results in the interactive interpreter, making it
+easy to use str() or a fancy pretty-printing function instead of just
+the default repr().
+        <a href="http://python.sourceforge.net/peps/pep-0217.html">http://python.sourceforge.net/peps/pep-0217.html</a>
+
+Jeremy Hylton updated PEP 227, "Statically Nested Scopes":
+        <a href="http://python.sourceforge.net/peps/pep-0227.html">http://python.sourceforge.net/peps/pep-0227.html</a>
+Jeremy's prototype implementation is available as patch #102864:
+        <a href="http://sourceforge.net/patch/?func=detailpatch&amp;patch_id=102864&amp;group_id=5470">http://sourceforge.net/patch/?func=detailpatch&amp;patch_id=102864&amp;group_id=5470</a>
+
+PEP 230, a warning framework proposal, also received GvR's final
+approval during this time period.
+        <a href="http://python.sourceforge.net/peps/pep-0230.html">http://python.sourceforge.net/peps/pep-0230.html</a>
+
+Three new PEPS: #231 was born and died during this time period, and is
+discussed in the __findattr__ section above.  #232 is Barry Warsaw's
+proposal for function attributes, and 233 is Paul Prescod's proposal
+for an on-line help facility in the interpreter.
+        <a href="http://python.sourceforge.net/peps/pep-0232.html">http://python.sourceforge.net/peps/pep-0232.html</a>
+        <a href="http://python.sourceforge.net/peps/pep-0233.html">http://python.sourceforge.net/peps/pep-0233.html</a>
+
+
+
+Deprecating the string module?
+==============================
+
+GvR made a few checkins that replaced uses of string.* functions with
+string methods.  Neil Schemenauer asked "Can you explain the logic
+behind this recent interest in removing string functions from the
+standard library?  It it performance?  Some unicode issue?"
+
+Guido's response was "As a realistic test of the warnings module I
+played with some warnings about the string module, and then found that
+most of the std library modules use it, triggering an
+extraordinary amount of warnings."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-December/011051.html">http://mail.python.org/pipermail/python-dev/2000-December/011051.html</a>
+
+Tim wondered if this was really necessary: "'string' is right up there
+with 'os' and 'sys' as a FIM (Frequently Imported Module), so the
+required code changes will be massive.  As a user, I don't see what's
+in it for me to endure that pain: the string module functions work
+fine!"
+        <a href="http://mail.python.org/pipermail/python-dev/2000-December/011054.html">http://mail.python.org/pipermail/python-dev/2000-December/011054.html</a>
+
+This sparked a lengthy debate; *is* the string module going away?
+Guido dislikes the duplication in having both a string module and
+string methods, though it would only disappear several major releases
+in the future; Barry Warsaw prefers string methods over string
+functions.  While Greg Wilson also liked removing the duplication of
+functionality, GvR and Barry seem to be otherwise alone on this point;
+no one sees the need to remove the string module, and some people
+don't like string methods that much, particularly in certain cases
+such as the .join() method.
+
+
+Other stuff
+===========
+
+Thomas Gellekum submitted a wrapper for the panel library that comes
+with ncurses.  However, the additional code would make _cursesmodule.c
+even larger (60K, 2500 lines), so instead AMK proposed splitting up
+the C module.  Fred Drake pointed out a better way, using CObjects to
+export an API:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-December/010971.html">http://mail.python.org/pipermail/python-dev/2000-December/010971.html</a>
+
+A patch was submitted to SourceForge, and is currently waiting for
+more people to look at it: 
+        <a href="http://sourceforge.net/patch/?func=detailpatch&amp;patch_id=102813&amp;group_id=5470">http://sourceforge.net/patch/?func=detailpatch&amp;patch_id=102813&amp;group_id=5470</a>
+

@@ -1,0 +1,942 @@
+<html>
+<title> DATA RETRIEVAL AND INSTRUMENTATION CONTROL USING PYTHON AND NETWORK NEWS</title>
+</html>
+<body>
+
+<center>
+<h2 align="center">A Novel Approach to Data Retrieval and Instrumentation Control
+    at Remote Field Sites using Python and Network News</h2>
+ 
+<h6 align="center">
+Dr. Todd Valentic<br>
+Center for GeoSpace Studies<br>
+SRI International<br>
+Menlo Park, CA 94025<br>
+</h6>
+</center>
+
+<h3>ABSTRACT</h3>
+
+ <p>
+ This paper describes a Python-based software project designed to
+ automate the transfer of data collected by scientific instruments
+ located at remote field stations with poor network connectivity. The
+ system employs a store-and-forward architecture based on sending data
+ files as attachments to Usenet messages. This scheme not only isolates
+ the instruments from network outages, but provides a unified mechanism
+ for accessing the data. As the system scales to handle a number of
+ different instruments, the collection of programs running to collect
+ and process data grows as well. To manage this complexity, the programs
+ are grouped together in a hierarchical fashion and controlled through
+ a central server process via a well-defined CORBA interface. A set
+ of Python classes distributed with the system provide an easy means to 
+ integrate new programs and features. 
+</p>
+<h3>1. INTRODUCTION</h3>
+
+ <p>
+ Researchers studying the upper regions of the Earth's atmosphere
+ make use of an exotic array of remote-sensing instruments, including
+ incoherent-scatter radars, sodium lidars and all-sky imagers. To measure
+ natural events such as the aurora, these instruments are often located
+ at field stations in some the most isolated and inhospitable regions
+ of the globe. Clustered facilities exist atop the Greenland icecap
+ and extend around the world to the South Pole Station in Antarctica.
+ All of these sites share a common problem: the communications links are
+ unreliable and bandwidth is limited.  Access to the instruments, even at the
+ best of times, is hampered by large latencies due to multiple satellite
+ hops. At other times, a direct connection might not be possible because
+ connectivity to the site is restricted to certain periods of the day.
+ Each instrument trying to deliver data over these connections must
+ individually compensate for these types of problems.
+</p>
+ <p>
+ Researchers currently fashion their own ad-hoc methods for transmitting
+ data, remotely controlling instruments and negotiating network outages.
+ The logic for managing these functions must be incorporated into the
+ data collection instruments. These functions not only complicate the
+ acquisition software, but the systems are often legacy projects to
+ which large-scale modifications are not possible. A better approach
+ is to isolate the data acquisition computers from the outside network
+ with an intermediate system.
+</p>
+ <p>
+ The system that we have developed is based on the premise of sending data
+ files as attachments within Usenet messages posted to a local server.
+ The local news server collects the messages and periodically transmits
+ them off-site when the link conditions permit.  If the network goes down
+ or the destination server becomes unavailable (perhaps the disk is full),
+ the data files will be continue to be stored locally. The server will
+ periodically attempt to deliver the files.  The instruments need not
+ be aware of this, and can continue acquiring data as if nothing were
+ wrong. The same architecture gracefully handles situations where the
+ network throughput does not permit files to be transmitted as quickly
+ as they are acquired. If a low-bandwidth link is up all the time, the
+ files can be trickled out. This assumes, of course, that the instrument
+ eventually pauses its data collection long enough to allow the backlog
+ to clear. Instruments such as imagers, which only operate at night,
+ naturally fit this pattern. Some instruments, however, produce data files
+ that are simply too large to transmit over the link.  In these cases,
+ post-processing programs need to be run to produce smaller data sets.
+ The real-time processing of data streams can be accomplished by writing
+ a program which subscribes to a newsgroup and is called each time a new
+ message arrives. The reduced data sets can then be posted to another
+ newsgroup as a new data stream. By properly configuring the news servers,
+ only these smaller data files are sent off-site.
+</p>
+ <p>
+ A large number of companion programs are usually run in the system,
+ performing functions such as the gathering and posting data files,
+ post-processing of records and monitoring the health of the instruments
+ and the system itself.  The majority of these programs are written
+ in Python and communicate between themselves using CORBA. Python has
+ proved to be an ideal language for this system because it runs on a
+ variety of platforms, allows for the development of reliable networked
+ applications and supports a wide array of network protocols.
+</p>
+ <p>
+ The U.S. National Science Foundation (NSF), which supports most of the
+ researchers at these sites, has a vested interest in improving their
+ ability to remotely access the instruments and data. To this end, the
+ NSF has funded proposals under the Scalable Information Infrastructure
+ initiative of the Information Technology Research (ITR) program for
+ work related to remote facility operations. The system described in
+ this paper is a component of this research program and is currently
+ deployed at multiple field sites in Greenland as well as the South Pole.
+</p>
+<h3>2. SYSTEM DESCRIPTION</h3>
+
+ <p>
+ The system, which we call the Data Transport Network, evolved from a
+ need to transmit real-time radar data from our facility in Sondrestrom,
+ Greenland, to the Space Physics and Aeronomy Research Collaboratory
+ (SPARC) at the University of Michigan [Kelly95]. SPARC is web-based
+ collaboration environment that lets scientists gain access to data
+ collected by a wide range of instruments [Olson98]. There were a number
+ of challenges which made this a difficult process. The amount of data
+ produced by the radar would quickly overwhelm the 56Kb satellite link
+ from the site. The data sets needed to be reduced through a series of
+ processing programs. These programs, however, were not designed to
+ be run unattended. Furthermore, the particular set of programs that
+ needed to be run depended upon which mode the radar was running. The
+ radar mode was not always known before hand and could change during the
+ experiment. We needed a system that would buffer the slow and unreliable
+ satellite link, easily incorporate post-processing codes, scale
+ to manage a large number of instruments and accommodate legacy hardware
+ and software systems.
+</p>
+ <p>
+ As we explored different designs for such a system, we found strong
+ similarities with the way the Internet newsgroups function.  Commonly
+ referred to as Usenet or Netnews, the newsgroups comprise a world-wide
+ set of discussion forums to which messages can be posted.  A user sends a
+ message to particular newsgroup on a local server. On a periodic basis,
+ the local server will communicate with other servers to exchanging
+ newly accumulated messages. These servers, in turn,  will then exchange 
+ their messages with other servers until the messages have propagated
+ throughout the network. On a typical day, the network of news servers
+ handles over 25GB of messages.  With only a handful of configuration
+ changes, a news server could be adapted to carry the traffic in the
+ data transport network.
+</p>
+ <p>
+ The data transport network uses a news server as a central component in
+ its operations. Messages are posted to newsgroups for future delivery,
+ providing a store-and-forward mechanism. In addition, the new server
+ also allows for a publish-and-subscribe paradigm to be used by the post
+ processing programs. An instrument or program can post files without
+ need to be aware of who will be using them later. This is similar
+ to the signal-and-slot method used by the Qt toolkit to simplify
+ GUI programming.  Examples of this usage will be examined later. 
+</p>
+ <p>
+ In addition to the news server, a software service known as the transport
+ server runs in the system to help coordinate the activities of all the
+ programs that are running. Process communicate with the transport server
+ through a CORBA interface. The role of each of these servers will be 
+ examined in the next two sections.
+</p>
+ <h4>2.1 The News Server</h4>
+
+ <p>
+ Each newsgroup on the news server represents a data stream from either
+ an instrument or post-processing program. We take advantage of the
+ hierarchical naming convention newsgroups use to help organize multiple
+ data streams.  For example, the original radar data files might be
+ sent to the <tt>sondrestrom.isr.rawdata</tt> group while processed
+ records are posted to <tt>sondrestrom.isr.procdata</tt>. Likewise,
+ data files from the lidar can be found in the group named
+ <tt>sondrestrom.lidar.rawdata</tt>. Once data files have been posted
+ to a newsgroup, they are available for use by programs in addition to
+ being sent automatically to other servers that request them. Thus, the
+ normal news server replication functions can be used to transport data
+ files from the field site to an investigators host institution. The
+ network of news servers that we use are private so we do not pollute
+ the public Usenet sites.
+</p>
+ <p>
+ Figure 1 shows an example network topology in which data is collected at
+ two field sites and distributed to interested researchers.  Since the
+ Colorado researchers are only interested in data from their MEDAC
+ instruments, the news servers have been configured to pass only those  
+ newsgroups onto their server. Meanwhile, data processing Python scripts 
+ are shown running on the Menlo Park server to generate a web-based view 
+ of the data as it is received.
+</p>
+ <p align="center">
+ <center>
+ <img src="image11a.png">
+ <h6 align="center">Figure 1: An example network topology in which data messages are sent
+     from remote field sites in the Arctic to researchers back in California
+	 and Colorado.</h6>
+ </center>
+
+ <p>
+ Data files are posted to the groups as attachments to messages in
+ exactly the same way one would send a file in an e-mail message. Programs
+ communicate with the news server to send and retrieve messages using the
+ Network News Transport Protocol (NNTP), to which all news servers must
+ respond in a uniform manner [RFC977]. The client programs can either be
+ standard news readers, such as the one found in Netscape Communicator,
+ or they may be custom built programs using NNTP libraries. 
+</p>
+ <p>
+ There is one major drawback with posting messages to a news server,
+ however. The standard message format [RFC2822] only allows for plain
+ text, but most data sets are stored in a binary format.  Another
+ Internet standard, the Multimedia Internet Mail Extensions (MIME),
+ provides a mechanism for packaging different types of data into a
+ text message suitable for delivery by the news servers [RFC2045-49].
+ Once an instrument has collected a data set, a small script can be
+ used to build the MIME wrapper, encode the data and post the resulting
+ message to the news server.  The message will eventually appear at the
+ end-point server, where another program can retrieve it and extract
+ the data set for post-processing or storage. The process can even be
+ reversed, with control information sent back up the transport network
+ to the instruments.
+</p>
+ <h4>2.2 The Transport Server</h4>
+
+ <p>
+ To process data, a program would subscribe to a newsgroup, where it
+ would be called each time a message was received. Existing programs
+ can be easily wrapped in a small script written in a language such as
+ Python. As the system grows, more and more of these programs will be
+ running.  To coordinate their activities, a service called the transport
+ server runs on the local network. It is responsible for starting and
+ stopping the various scripts and handing out configuration information.
+ The transport network can be controlled through a command-line or
+ web-based interface connected to the transport server.  Users can query
+ the server to determine that status of the different programs
+ and network. Programs communicate with the transport server using CORBA
+ (Common Object Request Broker Architecture). Because CORBA is language,
+ platform and operating system neutral, programs can be run anywhere
+ on the local network and access the news and transport servers. We
+ currently use the omniORB implementation because of its Python bindings
+ and rock-solid operation.
+</p>
+ <p>
+ An example of the way processes are organized within the transport
+ network is shown in Figure 2. The center point of the system is
+ the transport server process, a long-running Python program which
+ coordinates the other system processes. The other processes are
+ organized into "process groups" which consist of a collection of
+ common programs that are run for a particular function.  For example,
+ a set of programs to handle to collection, processing and display of
+ radar data constitute the radar processing group. One program in the 
+ group, FileWatch, would look for new data files and post them into 
+ the news server. Another program, ProcessData, would be called for 
+ each new message, process the data record and send the results to 
+ another newsgroup. Finally, a plotting program might be called to 
+ generate a graph for a web page of the new data.
+</p>
+ <p>
+ These programs are controlled by a Python object within in the
+ transport server called the <tt>ProcessGroup</tt>. Each program within
+ the process group can communicate through a CORBA interface with the
+ <tt>ProcessGroup</tt> object to get configuration information and write
+ log entries. The <tt>ProcessGroup</tt> monitors its child processes,
+ sending alerts and trying to restart them if they die unexpectedly. 
+</p>
+ <p>The complete IDL file for the CORBA interface is shown in Listing 6
+ of the Appendix. The service control interface of the transport server
+ is defined in the <tt>interface TransportServer</tt> section. Methods
+ are present to start and stop entire process groups, query the list
+ of active groups and gather the status of the server itself. The external
+ command line, web browser and GUI control programs connect to the transport
+ server through this interface.
+</p>
+ <p>Each process group is governed through the <tt>interface ProcessGroup</tt>
+ section. Client programs of the group can log themselves in or out as well
+ as access the configuration file through the this interface. Commands can
+ be issued to the <tt>ProcessGroup</tt> to start or stop individual 
+ clients, rotate the log files or get status information for the processes.
+</p>
+ <p>On an operational server, a large number of process groups and client programs
+ will be running at any one time. The Sondrestrom site server currently lists
+ over 24 process groups and 100 client programs to handle the various site
+ instruments and processing.
+ </p>
+ <p align="center">
+ <center>
+ <img src="image11b.png">
+ <h6 align="center">Figure 2: The organization of services running on a server.</h6>
+ </center>
+</p>
+ <p>
+ By adhering to common Internet protocols and harnessing existing software
+ like news servers, we were able to quickly bootstrap a solution. As we
+ have gained experience with the system over the last year, we have found
+ it to be applicable to a wide variety, and at times surprising, uses.
+
+</p>
+<h3>3. THE ROLE OF PYTHON</h3>
+
+ <p>
+ Python plays a critical role in the data transport network. The transport
+ server and process clients are all written in Python using a set of
+ classes distributed with the system. In this section, we will create a
+ simple process group consisting of two client programs. One process will
+ post messages to a newsgroup, while the other prints the messages. The
+ complexity of dealing with the CORBA interactions, MIME decoding and NNTP
+ access are easily hidden.  More importantly, this example illustrates
+ the publish-and-subscribe paradigm that ties together much of the system.
+</p>
+ <p>
+ The example process group implements a producer-consumer pair of
+ process. The producer process will post messages to a newsgroup. The
+ consumer process polls the newsgroup and prints any new messages found
+ there to the log. The name of the process group will be ProducerConsumer.
+</p>
+ <h4>3.1 The Configuration File</h4>
+
+ <p>
+ We begin by creating a common configuration file, shown in Listing 1.
+ The format of the file follows the keyword/value convention used by the
+ Python <tt>ConfigParser</tt> class. There are sections for each of the
+ processes in the group, as well as one which controls options for the
+ <tt>ProcessGroup</tt> object itself. In the <tt>DEFAULT</tt> section,
+ parameters common to multiple processes can be listed. In our case, we
+ define the name of the newsgroup here because both processes will need
+ it. The next section is for the <tt>ProcessGroup</tt> object. The most
+ important parameter here is the <tt>clients.list</tt>, which defines the
+ names of the processes which make up the group. The <tt>ProcessGroup</tt>
+ object then looks for sections corresponding to each of the listed
+ processes. The process section needs to list the command to be run when
+ that process is started. In this example, the Producer process will start
+ the producer.py program. The other parameters listed in the group are
+ available to process through the <tt>ProcessGroup</tt>'s CORBA interface.
+</p>
+<blockquote>
+<h6>Listing 1: ProducerConsumer.conf</h6>
+<div style="background: #CCC; padding: 0.5em; border: thin solid">
+<pre>
+[DEFAULT]
+
+newsgroup:                  transport.messages
+
+[ProcessGroup]
+
+clients.list:               Producer Consumer   
+label:                      Demonstration process group 
+
+[Producer]
+
+command:                    producer.py 
+message:                    Hello, World!
+postgroup:                  %(newsgroup)s
+postrate:                   10
+
+
+[Consumer]
+
+command:                    consumer.py
+pollgroup:                  %(newsgroup)s
+pollrate:                   5
+</pre>
+</div>
+</blockquote>
+
+ <h4>3.2 The Producer</h4>
+
+ <p>
+ The next step is to write the code for the producer process,
+ shown in Listing 2.  This program begins by importing the
+ <tt>ProcessClient</tt> base class from the <tt>sri.transport</tt>
+ module. All of the process clients in the system inherit their behavior
+ from <tt>ProcessClient</tt>. It establishes the communication with the
+ <tt>ProcessGroup</tt> object in the transport server and hides much
+ of the CORBA complexity. The producer program will be posting files
+ to the news server, so it also includes the <tt>NewsPostMixin</tt>
+ class to provide the needed functionality. The ability to "mix in"
+ different behaviors is a Python idiom that is used often in the system.
+</p>
+ <p>
+ The producer's constructor calls the those of the of the base classes
+ and then gathers two parameters from the configuration file. The
+ configuration parameters are actually delivered through the CORBA
+ interface by the <tt>ProcessGroup</tt> object. This allows for the
+ producer object to be started on a different computer from the other
+ process and still have it transparently integrate into the system.
+ The base class constructors also query their parameters as well. The news
+ poster reads the name of the newsgroup to which post messages will be posted, 
+ connects to the news server to see if the group exists, and creates it if needed.
+</p>
+ <p>
+ The program spends most of its time in the <tt>run()</tt> method. Each
+ iteration through the loop, the producer writes an entry to the log,
+ posts the message to the newsgroup and then sleeps. The <tt>newsPoster</tt>
+ is an object that takes care of the actual posting to the news server. It
+ bundles the text up into a properly formated message, connects to the server
+ and posts it to the proper newsgroup. A number of convenience methods exist
+ for posting simple text messages as well as lists of files. It is one of
+ the most often used objects in the system.
+</p>
+<blockquote> 
+<h6>Listing 2: producer.py</h6>
+<div style="background: #CCC; padding: 0.5em; border: thin solid"> 
+<pre>
+#!/usr/bin/env python
+
+from sri.transport import ProcessClient, NewsPostMixin
+
+import time
+import sys
+
+class producer(ProcessClient,NewsPostMixin):
+
+    def __init__(self,argv):
+
+        ProcessClient.__init__(self,argv)
+        NewsPostMixin.__init__(self)
+
+        self.postrate   = self.getInt('postrate',60)
+        self.message    = self.get('message','<no message>')
+
+    def run(self):
+
+        while self.running:
+
+            self.log(1,'Posting message')
+
+            self.newPoster.postText(self.message)
+
+            time.sleep(self.postrate)
+                
+
+if __name__ == '__main__':
+
+    producer(sys.argv).run()
+</pre>
+</div>
+</blockquote>
+
+ <h4>3.3 The Consumer</h4>
+
+ <p>
+ Now that have the producer finished, we need a program to wait for
+ messages and extract them from the news server. The consumer code
+ is shown below in Listing 3. The overall structure is similar to the
+ producer. We import the same <tt>ProcessClient</tt> base class, but use
+ the <tt>NewsPollMixin</tt> this time. The news poller is the compliment
+ to the news poster object. In the configuration file, you specify a 
+ newsgroup to watch and the rate at which to check for new messages. Each
+ time a new message is found, the function specified in the constructor is
+ called. The news poller includes its own <tt>run()</tt> method, so the 
+ only function that we need write is the one that process the message.
+ We don't do anything fancy here, just write the text found in the message
+ out to the log.
+</p>
+<blockquote>
+<h6>Listing 3: consumer.py</h6>
+<div style="background: #CCC; padding: 0.5em; border: thin solid">
+<pre>
+#!/usr/bin/env python
+
+from sri.transport import ProcessClient, NewsPollMixin
+
+import sys
+
+class consumer(ProcessClient,NewsPollMixin):
+
+    def __init__(self,argv):
+
+        ProcessClient.__init__(self,argv)
+        NewsPollMixin.__init__(self, text=self.process)
+
+    def process(self,subject,headers,body):
+
+        self.log(1,'Received messages: %s' % body)
+
+
+if __name__ == '__main__':
+
+    consumer(sys.argv).run()
+</pre>
+</div>
+</blockquote>
+
+ <h4>3.4 Running The Process Group</h4>
+
+ <p>
+ The transport network includes multiple ways to control process groups,
+ including command line tools and a web interface. In this example,
+ we will use the command line tools to notify the transport server
+ that a new group has been added. We start with <tt>installgroup</tt>
+ to copy the program and configuration files into the appropriate
+ directories. Next, the <tt>transportctl</tt> program is called to
+ create a new <tt>ProcessGroup</tt> object and add it to the list of
+ current groups. The <tt>start</tt> command tells the transport server
+ to start running the programs within the process group.  At this point,
+ the producer and consumer programs start running. You can watch their
+ progress through the log file with the <tt>viewlog</tt> program.
+ A group can be halted with the <tt>transportctl stop</tt> command.
+</p>
+<blockquote>
+<h6>Listing 4: Using the command line tools to control a process group</h6>
+<div style="background: #CCC; padding: 0.5em; border: thin solid">
+<pre>
+> installgroup ProducerConsumer
+> transportctl add ProducerConsumer
+> transportctl start ProducerConsumer
+> viewlog ProducerConsumer
+  (wait for awhile)
+> transportctl stop ProducerConsumer 
+</pre>
+</div>
+</blockquote>
+
+ <p>
+ The log file produced by the initial run of the ProducerConsumer group
+ is shown in Listing 5. The log files follow a common format. Each entry
+ is timestamped and contains the name of the process making the entry. 
+ Every process group has its own log file. In this example, we see that
+ the <tt>ProcessGroup</tt> object starts the producer process first. The 
+ producer's <tt>ProcessClient</tt> constructor contacts the group object
+ and registers its process id. The <tt>NewsPostMixin</tt> then creates 
+ determines that the newsgroup does not exist and issues the commands to
+ the news server to create it. The producer then waits for the newsgroup to
+ become available.
+</p>
+ <p>
+ In the meantime, the consumer program is started and begins polling the 
+ newsgroup once it is ready. The producer then posts its first message at
+ 23:50:48 and four seconds later the consumer detects the new message, 
+ extracts the text and prints the message to the log. This dance continues for
+ a few more iterations until the <tt>transportctl stop</tt> command is issued.
+ The transport server notifies the <tt>ProcessGroup</tt> object to shutdown
+ the group and the object proceeds to stop each of its clients.
+</p>
+<blockquote>
+<h6>Listing 5: Log listing</h6>
+<div style="background: #CCC; padding: 0.5em; border: thin solid">
+<pre>
+[2001-12-10 23:50:32 1] ProducerConsumer: Starting clients:
+[2001-12-10 23:50:32 1] ProducerConsumer:     Producer
+[2001-12-10 23:50:33 1] ProducerConsumer: Process "Producer" is logging in (pid=18099)
+[2001-12-10 23:50:33 1] Producer: Creating the post newsgroup: transport.messages
+[2001-12-10 23:50:33 1] Producer: Waiting for group to show up
+[2001-12-10 23:50:33 1] ProducerConsumer:     Consumer
+[2001-12-10 23:50:37 1] ProducerConsumer: Process "Consumer" is logging in (pid=18117)
+[2001-12-10 23:50:48 1] Producer: Group is ready for use.
+[2001-12-10 23:50:48 1] Producer: Posting message
+[2001-12-10 23:50:52 1] Consumer: Received messages: Hello, World!
+[2001-12-10 23:50:58 1] Producer: Posting message
+[2001-12-10 23:51:02 1] Consumer: Received messages: Hello, World!
+[2001-12-10 23:51:05 1] ProducerConsumer: Stopping clients:
+[2001-12-10 23:51:05 1] ProducerConsumer:     Producer
+[2001-12-10 23:51:05 1] ProducerConsumer:     Consumer
+</pre>
+</div>
+</blockquote>
+
+ <p>
+ This simple example only scratches the surface of what can be done.
+ However, it highlights the important points of how processes are 
+ constructed in Python and how they interact with the other parts
+ of the system. With this understanding, we can turn to more complex
+ process group examples.
+</p>
+
+<h3>4. USAGE EXAMPLES</h3>
+
+ <p>
+ The best way to gain an appreciation for how the system works
+ in practice is to examine a set of real-world usage examples. These
+ include transferring files, real-time data processing, visualization
+ and trouble notification.
+</p>
+ <h4>4.1 Automated Point-to-Point Transfers</h4>
+
+ <p>
+ The first example illustrates a common application -- the need to
+ transfer data files via an ftp-like process. It also highlights the
+ manner in which we include legacy hardware systems in the transport
+ system. An instrument writes data files to networked data drive on the
+ server. A program running on the server watches for these files, and
+ upon finding one, packages the data into a MIME-encoded email message
+ and posts it to the appropriate newsgroup. The messages are forwarded
+ when the local news server contacts the off-site server, which might be
+ located at the investigator's home institution. On the remote server,
+ a companion program would be waiting for the new messages to arrive,
+ unpack the attached data files and save them to local storage.  A summary
+ of the transfer statistics could then be produced and posted to a web
+ site or e-mailed to those who are interested. 
+</p>
+ <h4>4.2 Integrated Computation</h4>
+
+ <p>
+ The second example demonstrates how programs can access the data files
+ to generate summary information or perform post-processing. Once
+ a message has been posted to the news server, any client program
+ (assuming that it has sufficient privileges to do so) can access a copy
+ of the message. Using NNTP commands, the program can query the server
+ to determine which messages are available and if any new messages
+ have arrived since the last query. Once a message has been retrieved
+ from the server and the data file attachments unpacked, the program
+ can proceed as if it were working on the exact same files written by
+ the instrument. Any results produced by the program can in turn be
+ posted back to the news server in a separate newsgroup as a new data
+ stream. From the system's point of view, there is no difference between
+ the messages generated from a hardware instrument and those produced
+ as a result of a software program.
+</p>
+ <p>
+ This last example highlights one of the most important and fundamental
+ aspects of the transport system and deserves further elaboration.
+ What we have achieved is a clean separation between the producers of
+ data files and the consumers who use them. An instrument collecting data
+ and posting files into the system need not be aware of all the different
+ programs that will later be accessing them. Why would multiple programs
+ need to access the data files? Besides the copy of the data being sent
+ off-site, one program might produce a quick-look summary plot, another
+ performs post-processing and a third generates a dynamic web page showing
+ the instrument's health and status. These programs can all be run on a
+ computer separate from that doing data collection. The transport network
+ provides a uniform means of accessing data files from the instruments.
+</p>
+ <h4>4.3 Real-Time Instrument Displays</h4>
+
+ <p>
+ Our third usage example shows how the system can be used to generate
+ local real-time instrument displays. At a site with multiple instruments,
+ it is often the case that the activities of one instrument could be
+ dependent on the results of another. There, real-time processing and
+ display can greatly enhance the usefulness of both instruments and
+ their science. The data transport network makes the data available
+ in real-time and trivially allows for multiple viewing programs to be
+ run on the same data set. In addition, because the news server holds
+ all of the recently posted data files, it is simple to add a history
+ capability for retrospective analysis.
+</p>
+ <h4>4.4 Event Notification</h4>
+
+ <p>
+ The last example of the system capabilities is e-mail notification
+ of interesting system events. Most mailing list software, such as the
+ GNU Mailman program, can monitor a newsgroup and gateway messages to
+ people who have subscribed to the list. Monitoring programs can watch
+ the newsgroups associated with instruments that are supposed to be
+ continuously sending data. If the data feed stops, the program can
+ post a message to a trouble newsgroup indicating that a problem was
+ detected. The message will then be gatewayed to the mailing list,
+ where both the instrument's PI will be notified as well as a local
+ site operator who can investigate the failure. Another mailing list
+ application that we use is to notify researchers when a particular
+ experiment was conducted with the radar.
+</p>
+ <p>
+ These usage examples have shown how the transport system has functioned
+ at the Sondrestrom facility and solved a number of different operational
+ problems. We feel that the network has broader applications, however,
+ and we hope to further develop these capabilities.
+</p>
+<h3>5. FUTURE WORK</h3>
+
+ <p>
+ As fellow researchers have become aware of Sondrestrom's transport
+ network's capabilities, we have a heard a common refrain of "I need
+ something just like this!" Even more encouraging are the times when,
+ after a thoughtful pause, someone begins to extrapolate the system into
+ uses that we had never anticipated. The focus of our current work,
+ therefore, is to turn our software from an in-house application into
+ a collection of tools that people can use with their own instruments
+ and field sites. We are doing this through three initiatives. First,
+ we are directly work with researchers to deploy the transport
+ network at new field sites and to integrate different classes of
+ instrumentation. Second, we want to establish a community of users by
+ creating a web site where people can find the software, documentation and
+ participate in the software development. Third, we plan on enhancing the
+ transport network's capabilities, primarily extending it to accommodate
+ instrument control, integrate it with storage databases and improve
+ the system robustness.
+</p>
+ <p>
+ We have begun to deploy the transport network to new field sites and
+ instrumentation. Two field sites that we have targeted are the Resolute
+ Bay Observatory in the Canadian Arctic and the Platteville Atmospheric
+ Observatory in Colorado.  Both of these sites share the common feature
+ that while hosting a number of instruments, they only have access to the
+ Internet through a dial-up phone connection. We will be exploring methods
+ of using the the transport network under conditions where the network is
+ normally down and only occasionally up. The UUCP model of transferring
+ messages in the early days of Usenet is appropriate in this situation.
+ The connection at Resolute Bay will be over an expensive international
+ phone line, so we need to minimize the connection times and introduce
+ provisions for resource utilization.
+</p>
+ <p>
+ We are also working with individual researchers to extend the network
+ to their instruments. One such instrument is a meteor radar located
+ at the South Pole and operated by Dr. Susan Avery at the University
+ of Colorado.  The system is capable hosting the transport network,
+ which would be used for data retrieval, monitoring the health of the
+ instrument and uploading of new configuration files. The transport
+ network must contented with limited and sporadic network satellite
+ connections available off the ice.  We are also excited to work with
+ researchers outside our principle field, such as those in the ocean
+ sciences. The transport network has potential application to shipboard
+ instrumentation and collecting data from small autonomous devices.
+</p>
+ <p>
+ To promote the further use and development of the transport network,
+ we want to establish a community of users. Foremost in this effort will
+ be providing a comprehensive set of documentation on how to install,
+ use and extend the software tools. A tutorial and cookbook-style examples
+ would be included to introduce people to the system concepts and quickly
+ get them started. We will also focus on packaging the software tools for
+ distribution, improving the setup and configuration procedures.  People
+ interested in the project should check out the <tt>transport.sri.com</tt>
+ website for further information. The software itself will be distributed
+ with an open-source style license. The exact specifics are still being
+ worked out.
+</p>
+ <p>
+ We are also focusing on  enhancing the transport system's
+ capabilities. One desire is to improve the ability to control
+ instrumentation. At remote field sites that do not have a continuous
+ Internet connection, it is not always possible to directly access the
+ hardware controlling an experiment. We plan on developing a set of
+ protocols using the transport network that can be used to send new
+ operating parameters, configuration files, or even entire programs
+ to remote instruments. In addition, the centralized nature of the
+ news server architecture permits a number of instruments to receive
+ common configuration commands. Imagine a cluster of instruments which
+ normally operate independently, but at times can switch to a common
+ mode to support a coordinated experiment. Each instrument would monitor
+ a single newsgroup for a messages indicating when the experiment begins
+ and ends and configure itself as necessary. The instruments participating
+ in such a campaign could even be distributed at different field sites.
+</p>
+ <p>
+ The next system enhancement we would like to make is tighter integration
+ with data archival systems. The primary use of the transport network
+ is to delivery data files between two endpoints. Once the files reach
+ their final destination, they need to be stored. We want to develop
+ interfaces to store these files into long-term scientific data archival
+ systems like the CEDAR database, Millstone Hill's Madrigal database
+ and the SPARC Data Centers. Being able to automatically deliver results
+ into such archives will allow a wide spectrum of users easier and more
+ direct access to the data products.
+</p>
+ <p>
+ Finally, we want to continue improving the transport system's ability to
+ handle poor network connections, robustness and resource management.
+ These issues are especially important at field sites with limited
+ network connectivity to the Internet. We want to develop methods
+ of ensuring that data files are delivered with out error, which will
+ involve adding checksums to the messages and a receipt method that will
+ prevent files from being removed from a server until their delivery has
+ been confirmed. On the other hand, there are certain data types where
+ guaranteed delivery is not desired. Sites sending webcam images and
+ weather data need only transmit the latest image. Managing resources
+ will allow newsgroups to be given priorities. Messages in those groups
+ will be sent first because they are time critical. A quota capability
+ could also be added so that no single instrument dominates the system.
+</p>
+<h3>6. SUMMARY</h3>
+
+ <p>
+ We have developed a data transport network for delivering real-time
+ data from instruments located at the Sondrestrom, Greenland, facility
+ that we feel has a broader application to other users and research
+ sites. The system is based on the concept of posting data files as
+ messages to a news server. It easily integrates legacy instruments
+ and post-processing programs while isolating the systems from network
+ problems. Python has played an integral part in the system. Most of
+ the system control scripts are Python-based. Python wrappers around
+ existing programs permit us to integrate older legacy programs into
+ the new framework.  We are currently working on making these software
+ tools available to interested researchers, establishing a community of
+ users and enhancing the network's capabilities for instrument control
+ and database integration.
+</p>
+ <h3>ACKNOWLEDGMENTS</h3>
+<p>
+ This work has been funded by the National Science Foundation under grants
+ ATM-0113422, ATM-9873025 and ATM-9813556.
+</p>
+<h3>REFERENCES</h3>
+
+<table cellpadding=2>
+	<tr valign=top>
+		<td>[RFC977]</td>
+		<td>Kantor, B. and P. Lapsley, "Network News Transport Protocol", 
+			RFC 977, February 1986.
+		</td>
+	</tr>
+
+	<tr valign=top>
+		<td>[RFC2822]</td>
+		<td>Resnick, P., "Internet Message Format", RFC 2822, April 2001. </td>
+	</tr>
+
+	<tr valign=top>
+		<td>[RFC2045]</td>
+		<td>Freed, N. and  N. Borenstein, "Multipurpose Internet Mail
+			Extensions (MIME) Part One: Format of Internet Message
+			Bodies", RFC 2045, November 1996.
+		</td>
+	</tr>
+
+	<tr valign=top>
+		<td>[RFC2046]</td>
+		<td>Freed, N. and N. Borenstein, "Multipurpose Internet Mail
+			Extensions (MIME) Part Two: Media Types", RFC 2046,
+			November 1996.
+		</td>
+	</tr>
+
+	<tr valign=top>
+		<td>[RFC2047]</td>
+		<td>Moore, K., "Multipurpose Internet Mail Extensions (MIME)
+			Part Three: Message Header Extensions for Non-ASCII Text",
+			RFC 2047, November 1996.
+		</td>
+	</tr>
+
+	<tr valign=top>
+		<td>[RFC2048]</td>
+		<td>Freed, N., J. Klensin, and J. Postel, "Multipurpose
+			Internet Mail Extensions (MIME) Part Four: Format of
+			Internet Message Bodies", RFC 2048, November 1996.
+		</td>
+	</tr>
+
+	<tr valign=top>
+		<td>[RFC2049]</td>
+		<td>Freed, N. and N. Borenstein, "Multipurpose Internet Mail
+			(MIME) Part Five: Conformance Criteria and
+			Examples", RFC 2049, November 1996.
+		</td>
+	</tr>
+
+	<tr valign=top>
+		<td>[Kelly95]</td>
+		<td>Kelly, J., C. Heinselman, J. Vickrey, and R. Vondrak, 
+			"The Sondrestrom radar and accompanying ground-based instrumentation",
+			<em>Space Sci. Rev.</em>, Vol 71, Nos 1-4, pp 797-813, 1995.
+		</td>
+	</tr>
+
+	<tr valign=top>
+		<td>[Olson98]</td>
+		<td>Olson, G., D. Atkins, R. Clauer, T. Finholt, F. Jahanian, 
+			T. Killeen, A. Prakash, and T. Weymouth, "The Upper 
+			Atmospheric Research Collaboratory (UARC)", 
+			<em>ACM Interactions</em>, Vol 5, Issue 3, pp 48-55, 
+			May/June 1998.  
+		</td>
+	</tr>
+
+</table>
+
+
+<h3>APPENDIX</h3>
+
+ 	<BLOCKQUOTE>
+	<h6>Listing 6: TransportModule.idl</h6>
+	<div style="background: #CCC; padding: 0.5em; border: thin solid">
+	<code>
+	<pre>
+#pragma prefix "sri.transport"
+
+module TransportModule {
+
+    enum StatusCode         { Nominal, Warning, Fault };
+
+    exception Error         { string message;   };
+    exception NoSuchGroup   { string name;      };
+
+    struct ProcessClientInfo {
+        string      name;
+        string      label;
+        long        pid;
+        StatusCode  status;
+        boolean     running;
+    };
+
+    typedef sequence<ProcessClientInfo> ProcessClientList;
+    typedef sequence<string>            ConfigList;
+
+    struct ProcessGroupInfo {
+        boolean     running;
+        string      name;
+        string      label;
+        string      log;
+        StatusCode  status;
+        ConfigList  configFiles;
+    };
+
+    interface ProcessGroup {
+
+        void    login    (in string name, in long pid, in StatusCode status);
+        void    logout   (in string name);
+
+        void    log      (in long level, in string name, in string msg);
+
+        string  get         (in string name, in string opt) raises (Error);
+        float   getFloat    (in string name, in string opt) raises (Error);
+        long    getInt      (in string name, in string opt) raises (Error);
+        boolean getBoolean  (in string name, in string opt) raises (Error);
+
+        void    setStatusCode   (in string name, in StatusCode status);
+
+        readonly attribute  boolean             running;    
+        readonly attribute  ProcessGroupInfo    info;
+        readonly attribute  ProcessClientList   clients;
+
+        void    startClient (in string name);
+        void    stopClient  (in string name);
+
+        void    rotateLog   ();
+        void    reloadConfig();
+        void    start       ();
+        void    stop        ();
+    };
+
+    typedef sequence<ProcessGroup>      ProcessGroupList;
+
+    interface TransportServer {
+
+        ProcessGroupList    listProcessGroups   ();
+        ProcessGroup        queryProcessGroup   (in string name);
+        void                reloadProcessGroups ();
+
+        void startProcessGroup  (in string name) raises(NoSuchGroup);
+        void stopProcessGroup   (in string name) raises(NoSuchGroup);
+
+        void addProcessGroup    (in string name) raises(NoSuchGroup);
+        void removeProcessGroup (in string name) raises(NoSuchGroup);
+
+        StatusCode      status  ();
+        oneway void     stop    ();
+    };
+};
+	</pre>
+	</code>
+	<!-- </div> -->
+	</BLOCKQUOTE>
+
+</body>
+</html>

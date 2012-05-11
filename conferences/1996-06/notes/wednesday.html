@@ -1,0 +1,532 @@
+<html>
+<head>
+<title>Wednesday, June 5th</title>
+<!-- Changed by: Roger E. Masse, 11-Jun-1996 -->
+</head>
+<body>
+<h1>Wednesday, June 5th</h1>
+<h2><A HREF="../papers/h.pasanen/">Using Emacs OO Browser with Python</A></h2>
+<UL>
+<b> Harri Pasanen </b>
+</UL>
+<ul>
+   <li> OO-Browser functionality
+   <ul>
+        <li> Function Browsing
+        <li> Graphical Views
+        <ul>
+              <li> Class heirarchy can be displayed graphically using
+                     an external program <I> xoobr </I>
+        </ul>
+        <li> Environments
+   </ul>
+   <li> OO Browser Sample Run
+   <ul>
+        <li> building an environment
+        <li> choosing a language
+        <li> specifying source directories
+   </ul>
+   <li> Common Commands
+   <ul>
+        <li> ancestors, decendants, features, source code, edit,
+             display all classes implementing the selected method, others...
+   </ul>
+   <li> Limitations
+    <ul>
+        <li> OO Browser cannot handle multiple classes with the same name well.
+        <li> <I> has-a-type </I> relation is unsupported
+        <li> No nested classes in the Python support
+        <li> Browsing is based on source code... no builtins
+   </ul>
+   <li> Will be available with Xemacs 19.14 in a few days...
+</ul>
+<h2><A HREF="../papers/ZaneHTML/">Python Interface with Narcisse
+Graphics</A></h2>
+<ul>
+<b> Zane Mottler, LLNL </b>
+</ul>
+<ul>
+    <li> Narcisse
+    <ul>
+           <li> Does routine 2d plots
+           <li> Really impressive 3d and 4d plots
+           <li> Excellent GUI
+           <li> Runs Independently as a separate process
+           <li> Communication Via Sockets
+    </ul>
+    <li> Curve Object:
+           coordinates, color, line style, markers, label
+    <li> Surface Object:
+           coordinates, optional data, appearance
+           (mesh, contours, flat, smooth)
+    <li> Mesh Object:
+           coordinates, configuration information, data, appearance,
+           (fills space unlike surface)
+    <li> Other Objects: Polymap, CellArray, QuadMesh, Lines
+    <li> Graph Objects: Tiles, Text, Axes (grids, labels, scales, limits)
+    <li> Graph2d Objects: label type, palette, axis limit routines
+    <li> Graph3d Objects: phi, theta, roll, distance, 3d surface objects
+            (mesh, contour lines, smooth contour shading, flat shading, link
+             and connect to multiple surfaces)
+    <li> Plotter Objects: Only thing aware of the underlying graphics engine
+    <ul>
+         <li> calls C routines to do the work
+         <li> Python modules may be inserted to do some additional transforms
+    </ul>
+</ul>
+<h2><A HREF="../papers/l.busby-gist.html">Gist: A Scientific Graphics
+Package for Python</A></h2>
+<ul>
+<b> Lee Busby, LLNL (presented by Zane Motteler) </b>
+</ul>
+<ul>
+     <li> What is Gist?
+     <ul>
+         <li> An X/Postscript/CGM graphics library
+         <li> Designed for rapid interaction
+         <li> suitable for batch production 
+         <li> Very tunable
+         <li> Capable of near journal quality
+     </ul>
+     <li> Where can you get it?
+     <ul>
+         <li> <a href="ftp://ftp-icf.llnl.gov/pub/python/busby/pygist-1.0.tgz">Get it</A>
+         <li> Also need Numeric module (Matrix Sig)
+     </ul>
+     <li> What can it do for me now?
+     <ul>
+          <li> X-Y plots, including disjoint line sets
+          <li> Quad meshes: Contours, vector fields
+          <li> Filled Mesh and Cell plots
+          <li> import gistdemo, gistdemo.run() from any python on the 
+                 X terminals in the lobby - to see a demo
+     </ul>
+     <li> What will it do in the future?
+     <ul>
+          <li> ongoing 3d work
+          <li> Class based graphics
+          <li> Ports to non-unix, maybe yes
+          <li> Improved user interface/synergy with Tk
+          <li> Whatever the Python community requires/contributes
+      </ul>
+</ul>
+<h2><A HREF="../papers/yang-physics.ps.Z"> Building a Programmable
+Interface for Physics Codes Using Numeric Python</A></h2>
+<ul>
+<b> Tser-Yuan (Brian) Yang, P.F. Bubois, Zane Motteler </b>
+</ul>
+<ul>
+    <li> Introduction
+    <ul>
+         <li> Need: phyics package, usually written in C, Fortran, and C++
+         <li> Need: A user interface (this is where Python comes in)
+         <li> Advantage: Faster development
+         <li> Advantage: Less code to develop
+         <li> Advantage: Reusability: communication mediated by the interpreter
+         <li> Advantage: Portability
+         <li> Advantage: Easier source code maintenance
+    </ul>
+    <li> Why Python?
+    <ul>
+          <li> Not very big
+          <li> very easy to learn
+          <li> portable
+          <li> free
+          <li> Modules capability
+          <li> Excellent OO facilities and built-in types
+          <li> Tk interface
+    </ul>
+    <li> A Phyisics Module
+    <ul>
+         <li> Some example code:
+         <pre>
+>>> from hydro_class import HYDRO
+>>> hyd = HYDRO()
+>>> hyd.ncells = 20 # This actually changes state
+                                # in the C++ code
+                                # by using __setattr__
+>>> hyd.initialize()
+>>> hyd.cycle()
+>>> hyd.density()
+          </pre>
+          <li> Author script: <I> hydro_class.py </I>
+          <li> Python Extension: <I> hydromodule.so </I>
+          <li> C library
+    </ul>
+    <li> A data storage module
+    <ul>
+         <li> Using PACT libraries, implemented in existing C++ libraries
+         <li> have a C module compiled as a shared library that access  it.
+         <li> Python module that creates the program interface
+    </ul>
+    <li> Conclusions
+    <ul>
+         <li> Programmable applications are more powerful, longer lived, and
+                much easier to develop and debug.
+         <li> Trying to develop a consistent framework for various
+              projects at the Lab using Python
+    </ul>
+</ul>
+<h2><A HREF="../papers/hugunin.IPCIV.html">Building Ariel - OpenGL GUI
+and Python to C</A></h2>
+<ul>
+<b> Jim Hugunin </b>
+</ul>
+<ul>
+    <li> My PhD work
+    <ul>
+        <li> Standard user interfaces exist: Buttons, Scrollbars, etc
+        <li> Are these good abstractions for speech?
+        <li> A recent review of IBM VoiceType found that
+               it was 'impressive', although 'not yet easier than a mouse'
+        <li> speech recognition makes a lousey mouse
+        <li> Ariel - Living with the Technology
+        <ul>
+               <li> Want to build a prototype system
+               <li> want to talk to it every day
+               <li> Personal information management task: mail, fax, voicemail
+        </ul>
+        <li> Using Python
+        <ul>
+              <li> HTMLParser, other net libraries
+              <li> ILU
+              <li> Numeric Python
+              <li> OpenGL
+        </ul>
+        <li> A GUI for Areil
+        <ul>
+             <li> Needs to be system independent: NT, Solaris, DEC, OSF
+             <li> Needs to be fast... Tk Canvas too slow
+        </ul>
+    </ul>
+    <li> OpenGL as a GUI
+     <ul>
+          <li> Win95 and NT
+          <li> Can work on MAC
+          <li> all UNIX systems: can also buy higher performance engines
+          <li> powerful and fast
+     </ul>
+    <li> automatically converting Python to C
+    <ul>
+          <li> Optimization
+          <ul>
+                <li> identify bottlenecks
+                <li> use standard Python optimizations
+                <li> translate the bottleneck to C
+          </ul>
+          <li> Dynamic Types are a problem
+          <pre>
+ def fact(n):
+        if n == 0:
+               return 1
+        else:
+               return n*fact(n-1)
+          </pre>
+          <li> What type is n?
+          <li> Hopefully a long int, but could be a list, short, etc.
+          <li> Solution: Add  a static type
+           <pre> #DECLARE long fact(long) </pre>
+    </ul>
+    <li> This is just a 'proof-of-concept' and not really real, however it could be
+    <li> Future directions
+    <ul>
+          <li> Currently only deals with ints and floats
+          <li> Only unitypes are allowed
+          <li> No reason it couldn't be expanded
+    </ul>
+</ul>
+<h2><A HREF="../papers/d.larsson-dist-objs.html">Using Python in a
+Distributed Object System</A> (ABB Object Managment Facility)</h2>
+<ul>
+<b>Daniel Larsson </b>
+</ul>
+<ul>
+    <li> The OMF Object Broker
+    <ul>
+          <li> Object Model Simmilar to CORBA
+          <li> Interaction model different: method calls/attribute accesses
+                  are grouped and sent as a single request, Asyncronous
+    </ul>
+    <li> OMF
+    <ul>
+        <li> Used in products since 1993
+        <li> Process control system: Operator Station, Info management Station
+        <li> Typical Customers: Paper Mills, Mines, Offshore
+    </ul>
+    <li> Used in the 'Advant Control System'
+    <li>  Where we use Python...
+     <ul>
+  	<li> CGI internal WWW server
+	<li> Test programs for OMF
+	<li> Internal application (e.g browsers)
+	<li> Document Generation Tool
+	<li> Backend for WWW-based app (written in Java)
+     </ul>
+     <li> Looking forward
+     <ul>
+	<li> WWW-based tools: remote maintenance, RPC based solution
+              <li> Developed 'Remote Call' (Python-to-Python RPC)
+	<ul>
+                    <li> Based on sockets (SocketServer.py)
+	       <li> Only Python to Python
+                     <li> Agents
+                     <ul>
+		<li> Local Representation of the remote object
+		<li> Location Transparency
+		<li> Self Configuring
+                     </ul>
+              </ul> 
+     <li> Wish List
+     <ul>
+          <li> A GUI builder would be nice
+          <li> An IDE
+          <li> A good tool for generating reference manuals from docstrings
+     </ul>
+     </ul>
+</ul>
+<h2><A HREF="../papers/m.hand-app-extensibility.html">Extensibility in
+Python</A></h2>
+<ul>
+<b> Manus Hand </b>
+</ul>
+<ul>
+    <li> Using Python to Extend Python Applications
+    <li> Why Python?
+    <ul>
+         <li> Power of Interpretation: build and locate code on the fly
+         <li> Data organization: the native types (dictionaries and lists)
+         <li> Ease & Consistency of Python Type Input and Output
+    </ul>
+<li> Data as Code: Quickly enabling data objects to become both
+            persistent and self-re-instantiating
+<ul>
+    <li> Simple <I> init </I> and <I> save </I> methods for Python classes
+<pre>
+class AnyClass:
+	""" All data in an instance of this class is
+ 	contained in a single attribute ("data") -- this
+	may be as complex as it needs to be; for example
+	a python dictionary which contains dictionaries
+	and other native types"""
+	def __init__(self):
+		execdict = {}
+		execfile('some_file', globals(),
+			execdict)
+		self.data = execdict['data']
+	def save(self):
+		file = open('some_file', 'w')
+		file.write('data = %s' % 'self.data')
+		file.close()
+	delf __repr__(self):
+		return 'self.data'
+</pre>
+    <li> A more complex <I> init</I> and <I> save</I> methods
+<pre>
+# A class may have more than one data attribute, and
+# these need not be python native types, but could be
+# instances of developer created classes similar to the
+# sample 'AnyClass' presented above
+class OtherClass:
+	def __init__(self, data1, data2):
+		execdict = {}
+		execfile('file', globals(), execdict)
+		self.data1 == data1
+		self.data2 = AnyClass(data2)
+
+	def save(self, file_name)
+		file = open(file_name, 'w')
+		file.write('instance= OtherClass(%s, %s)'
+			% ('data1', 'data2'))
+		file.close()
+def load_OtherClass_instance(file_name):
+	execdict = {}
+	execfile(file_name, globals(), execdict)
+	return execdict['instance']
+</pre>
+   </ul>
+   <li> Code as Data: Quickly building command and argument engines
+   <ul>
+       <li> Creating an extensible command engine
+<pre>
+	def execute_command(command_line):
+		words = split(command_line)
+		command_name = words[0]
+		args = words[1:]
+		execdict = {'arguments': args }
+		execfile(command_name + '.py',
+			globals(), execdict)
+</pre>
+     <li> Allowing commands to affect data
+<pre>
+def execute_command(line_list):
+	execdict = {}
+	for line in line_list:
+		words = split(line)
+		command_name = words[0]
+		execdict['arguments'] = words[1:]
+		execfile(command_name + '.py', globals(), execdict)
+</pre>
+    <li> Improvement: a command can create a variable which can be 
+           modified by subsequent commands
+    <ul>
+         <li> One step further: Creating an argument engine
+<pre>
+# Code from an auxiliary ("command")  file. This will
+# receive "arguments" in its local variable dictionary
+# when exectuted.  There may also be other variables
+# in this dictionary.  Let us assume that whatever this 
+# command does, it requires that a data object named
+# AnyObject (an instance perhaps of our example
+# class AnyClass) is available
+for word in arguments:
+	execdict = {'Object': AnyObject}
+	execfile(word + '.py', globals(), execdict)
+</pre>
+        </ul>
+        <li> Benefits
+        <ul>
+	<li> Arguments to a command can modify data objects in unique ways
+	<li> command arguments supported by an appliction are also extensible
+	on-the-fly
+        </ul>
+    </ul>
+    <li> Code and Data United: Combining the two ideas
+    <ul>
+          <li> Commands and arguments that configure data
+          <li> (note: this is an imprecise and ill-defined illustration)
+    </ul>
+<pre>
+# The code below is from a command implementation file
+# This command expects "arguments" and a loaded-up
+# AnyClass object named "AnyObject".  The function
+# of this command is to add a "hook" so that when some
+# other command attempts to manipulate the object in
+# some way, an extra check will be made.
+AnyObject.add_hook('if self.some_method() : return 0')
+
+class AnyClass:
+	# remember this class houses a single dictionary
+ 	# attribute named "data"
+	def add_hook(self, code):
+		self.data['hook'].append(code)
+	def some_processing_function(self):
+		exec self.data['hook']
+		...some AnyClass functionality...
+		return 1
+</pre>
+    <ul>
+        <li> Alternative: such 'hooks' could also be provided by externally located code (execfile)
+        <li> Coming full circle with these persistent hooks: behavior of the object is automatically
+	  preserved by the <I> init </I> and <I> save </I> methods discussed at the outset.
+    </ul>
+</ul>
+<h2><A HREF="../papers/d.beazley-swig-extending.html">Using SWIG to
+Control, Prototype, and Debug C Programs with Python</A></h2>
+<ul>
+<b> David Beazley </b>
+</ul>
+<ul>
+     <li> What is SWIG?
+      <ul>
+         <li> Simplified Wrapper and Interface Generator
+         <li> Compiler that takes ANSI C/C++ declarations and produces
+                bindings to interpreted languages
+         <li> supports almost all C/C++ datatypes
+         <li> Binds functions, valiables, and constants
+         <li> Languages: TCL/Tk, Python, Perl, Guile
+     </ul>
+     <li> The two language model
+     <ul>
+         <li> C/C++: fast, portable, complicated
+         <li> Python: Control language, elegant, simple
+     </ul>
+     <li> Extending Python
+     <ul>
+         <li> Have to write wrapper functions for all your C code
+         <li> ...but for 200 functions, need a tool
+         <li> Automatic wrapper generation
+         <ul>
+             <li> Most languages have tools to generate wrapper code
+                    (e.g. ILU, Modulator)
+         </ul>
+     </ul>
+     <li> A tour of SWIG
+     <ul>
+         <li> Feed SWIG an Interface file that looks like a C header file
+         <li> Generic YACC parser
+         <li> Target languages are C++ classes
+         <li> Easy to modify
+         <li> Datatypes
+         <ul>
+              <li> All C datatypes
+              <li> Derived types: pointers to built-in types, pointers to structures,
+		pointers to objects
+              <li> Can remap using typedef
+         </ul>
+         <li> pointers
+         <ul>
+             <li> all derived types in SWIG are pointers
+             <li> encoded as strings with type information
+             <li> Checked at run-time for validity
+             <li> Type-checker is savvy to typedef and C++
+             <li> Prevents crashes due to stupid mistakes
+         </ul>
+         <li> SWIG and C++
+         <ul>
+              <li> transform C++ into C in a polite manor
+              <li> C functions are then wrapped
+              <li> Works independently of the target language
+              <li> Works with inheritance
+              <li> Use of C++ references usually works
+              <li> No: operator or function overloading, transparencies, multiple 
+                     inheritance
+              <li> Conclustion: C++ is probably too complicated to support well
+         </ul>
+         <li> SWIG can generate documentation from C comments
+     </ul>
+     <li> Applictions
+     <ul>
+         <li> Controlling C Programs
+          <ul>
+         	<li> Almost no modifications to existing C 
+         	<li> Currently used at Los Alamos with the SPaSM
+                Modular Dynamics Code: 250 functions, SWIG is 
+                hidden in the Makefile and is completely transparent 
+	   to the users
+         </ul>
+         <li> Building Python modules out of C/C++ libraries
+         <li> Prototyping and debugging C/C++ code
+     </ul> 
+     <li> Projects
+     <ul>
+         <li> Materials Science Simulations (Los Alamos)
+          <li> Defibrillation research (Un. of Utah)
+          <li> synthetic workload generation
+          <li> OpenGL
+     </ul>
+     <li> Limitations
+     <ul>
+        <li> Lack of variable linking in Python
+	e.g.<pre> double MyVar -- MyVar_get(), MyVar_set()</pre>
+        <li> Representing pointers as strings is a bit weird
+        <li> Handling of C++ classes is not complete
+        <li> pointer model is sometimes confusing
+        <li> No exception model
+        <li> Numerical representation problems
+        <li> C++ parsing (need I say more)
+     </ul>
+     <li> Futures
+     <ul>
+          <li> Release of 1.0 Final (someday)
+          <li> Continued improvment in the Python implementation
+          <li> Intergration with numerical Python
+          <li> Python for parallel machines
+          <li> Support for new target languages (as appropriate)
+          <li> Support for non-Unix platforms (in progress)
+     </ul>
+     <li> <mailto>swig@cs.utah.edu</mailto>
+     <li> FTP sight: ftp.cs.utah.edu/pub/beasley/SWIG
+     <li> <a href="http://www.cs.utah.edu/~beazley/SWIG">Get it</a>
+</ul>
+</body>
+</html>

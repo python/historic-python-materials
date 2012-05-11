@@ -1,0 +1,349 @@
+<HEAD>
+<TITLE>Python Programming Environment - Session Overview</TITLE>
+</HEAD>
+
+<H1>Python Programming Environment - Session Overview</H1>
+<P>
+
+<ADDRESS>Ken Manheimer, ken.manheimer@nist.gov, 19-May-1995</ADDRESS> <P>
+
+<H3>Session Purpose</H3>
+ <P>
+
+As a Python programmer, i need tools that will help me capitalize on
+python's versatility, and on the growing, increasingly diverse
+contingent of software libraries.  As Python grows, i wish to help
+promote the development of such tools.  That's what i see as the focus
+of this session.  <P>
+
+(Two personal traits particularly shape my own programming environment
+concerns: <P>
+
+<NL>
+<LI> I'm sorta lazy - like most people, i want to work effectively,
+and avoid unnecessary work.
+<LI> My memory for names, locations, and such, is pretty feeble,
+particularly when compared with the reliability of the computer's
+"memory".  So i would like, as much as possible, to depend on the
+computer to keep track of the location of things...
+</NL>
+ <P>
+
+So my interests tend towards tools and conventions that help organize
+and track new and existing software components and tools, to help me
+find and reuse what's already there.) <P>
+
+<H3>Some Current Programming Environment Issues</H3>
+
+The following list is not meant to be a comprehensive survey of the
+important issues in software management tools.  Rather, it includes
+some items that i see as being of current relevance.  Suggestions of
+other items to discuss are welcome. <P>
+
+(The list specifically includes a few issues that i promised to pursue
+during the last workshop.  Other items are motivated partly by my own
+continuing software mgmt tools concerns and interests, and partly by
+suggestions and questions that i have seen go by on the list.) <P>
+
+<UL>
+<LI> <A HREF="#objident"
+>Object identification - docstrings, attribute identification</A>
+<LI> Module organization - <A HREF="#impmods"
+>import module packages/nesting</A>
+<LI> <A HREF="#running"
+>Runtime environment - debuggers, profilers, env browsers </A>
+<LI> <A HREF="#documentation">Documentation formats and efforts</A>
+<LI> Code versioning
+<LI> <A HREF="#style">Programming style practices</A>
+</UL>
+
+<H3><A NAME="objident"
+>Object identification - docstrings, attribute identification</A> </H3>
+
+Proposals that we discussed at the last workshop have made their way,
+with refinements, into the language.  Also, a new implementation of
+the 'dir()' builtin has been added to the language as an alternative,
+within the module 'newdir.py'.  Ultimately, these are the sorts of
+things that are necessary in the development of a comprehensive object
+examination system, as part of an environment browser. <P>
+
+<H4>Docstrings</H4>
+
+Docstrings are brief descriptive strings that can be associated with
+many of the complex python objects, by assigning to those objects
+'__doc__' attribute.  In addition, the definition syntax for callables
+(functions, methods, and classes) and modules include optional, formal
+slots for docstring declarations.  In particular, when the first
+executable statement of a callable or a module is a string literal,
+that string becomes the value of the callable's __doc__ property. <P>
+
+We have only started to formulate conventions about the format of
+docstrings.  As with GNU emacs docstrings, we suggest that the first
+line of the string be a self-contained, very terse description of the
+purpose of the object, and subsequent lines describe the public
+properties and behaviors of the object. <P>
+
+For an extensive example of the use of docstrings, see the newimp.py
+module which is in the distribution library for Python 1.2. <P>
+
+Where to go from here with docstrings?  Several items suggest
+themselves: <P>
+
+<UL>
+<LI> <I>Use them!</I>
+<LI> Organize effort to create docstrings for existing important
+objects, like the sys module and it's components.
+<LI> Identify format conventions for docstrings that makes them most
+informative (but, also, does not make them cumbersome!).
+<LI> Incorporate recognition of docstrings in existing python
+programming tools, like debuggers, attribute identifiers ('dir()'), etc.
+<LI> Identify other object aspects needed as the basis for
+comprehensive programming environment browsers.
+</UL>
+
+Of course, there are more.  Suggestions? <P>
+
+<H3><A NAME="impmods">Import module packages/nesting</A></H3>
+
+Also as promised at the last workshop, i have designed, proposed, and
+contributed a working prototype which implements module-nesting
+"packages".  The prototype is included in the Python 1.2 distribution,
+in the module 'newimp.py'.
+
+<UL>
+<LI> <A HREF="#newimpFeatures">Description of the new import enhancements.</A>
+<LI> <A HREF="#javaDiffs">An important difference between the new
+mechanism and Java's surprisingly similar import mechanism.</A>
+<LI> <A HREF="#furtherImp">Some further prospects for import enhancements.</A>
+</UL>
+
+<H4><A NAME="newimpFeatures">Description of the new import
+enhancements</A></H4> 
+
+Why packages?  Packages enable module nesting and sibling module
+imports.  'Til now, the python module namespace was flat, which
+means every module had to have a unique name, in order to not
+conflict with names of other modules on the load path.  Furthermore,
+suites of modules could not be structurally affiliated with one
+another. <P>
+
+With packages, a suite of, eg, email-oriented modules can include a
+module named 'mailbox', without conflicting with the, eg, 'mailbox'
+module of a shared-memory suite - 'email.mailbox' vs
+'shmem.mailbox'.  Packages also enable modules within a suite to
+load other modules within their package without having the package
+name hard-coded.  Similarly, package suites of modules can be loaded
+as a unit, by loading the package that contains them. <P>
+
+Usage: once installed (newimp.install(); newimp.revert() to revert to
+the prior __import__ routine), 'import ...' and 'from ... import ...'
+can be used to: <P>
+
+<UL>
+<LI> import modules from the search path, as before.
+<LI> import modules from within other directory "packages" on the search
+path using a '.' dot-delimited nesting syntax.  The nesting is fully
+recursive.
+<LI> import siblings from modules within a package, using '__.' as a shorthand
+    prefix to refer to the parent package.  This enables referential
+    transparency - package modules need not know their package name. <P>
+    The '__' package references are actually names assigned within
+    modules, to refer to their containing package.  This means that
+    variable references can be made to imported modules, or to variables
+    defined via 'import ... from', also using the '__.var' shorthand
+    notation.  This establishes a proper equivalence between the import
+    reference '__.sibling' and the var reference '__.sibling'.  
+<LI> import an entire package as a unit, by importing the package directory.
+    If there is a module named '__main__.py' in the package, it controls the
+    load.  Otherwise, all the modules in the dir, including packages, are
+    inherently loaded into the package module's namespace.
+<LI> perform any combination of the above - have a package that contains
+    packages, etc.
+</UL>
+
+<H4><A NAME="javaDiffs">Difference between new import mechanism and
+Java's surprisingly similar import mechanism</A></H4>
+
+As Guido mentions in his <A HREF="http://www.python.org/~guido/WIP.html"
+>Works In Progress</A> page, Sun's new web language, Java, provides a very
+similar module-nesting capability.  However, there is a subtle difference
+that turns out to be important. <P>
+
+As Guido succinctly puts it: <P>
+
+<PRE>
+   Java got this wrong -- their "import A.B" creates a local name B, so
+   it is hard to use two unrelated packages that happen to define a
+   module with the same name, like "P.main" and "Q.main"
+</PRE>
+
+... because both P.main and Q.main would try to populate the current
+namespace with the name 'main', and hence conflict. <P>
+
+In the new python mechanism, the 'import P.main' would establish
+module P in the current namespace.  You would then reach the 'P's
+component, 'main', as 'P.main', without colliding with the 'Q's 'main'
+component. <P>
+
+Furthermore, Python's 'from X import Y' form allows you to
+deliberately import a component of a module directly into the current
+namespace, when you specifically wish.  I'm not sure whether or not
+Java has an equivalent of the 'from' form, which might explain why
+they made the choice they did. <P>
+
+
+<H4><A NAME="furtherImp">Some further prospects for import enhancements.</A></H4>
+
+I would like to have the import mechanism make it easy to hook in
+alternate search and load mechanisms, to, eg, enable easy hookup with
+the web and other media.  This would essentially entail making the
+relationship of the load mechanisms to the module name, or file-type,
+keyed through a table lookup.  Developers of new import types could
+then hook in their special load mechanisms by adding new entries to
+the appropriate places in the tables.  For instance:
+
+<UL>
+<LI> Structure the module search and access mechanism so it is
+table-driven, according to module name.  This would facilitate
+incorporation of foreign interfaces to recognize, eg, URL's, and do
+web fetches instead of file-system search.
+<LI> Similarly, make the file-load mechanism table-driven, to
+expose the load-mechanisms for the various module types
+(eg, .py, .so, directory-packages, etc), and enable easy incorporation
+of new types, or to change the search-order precedences, or whatever.
+</UL>
+
+Restructuring the code to accomplish this sort of thing would take
+some attention, however, and i would like to find a volunteer with
+time and motivation to take it on.
+
+
+<H3><A NAME="running"
+>Runtime environment - debuggers, profilers, env browsers </A></H3>
+
+In thinking about the prospects for advanced environment browsers for
+python, i've reached an interesting branch-point.  I see two primary
+and divergent options for embedding the user interface for such tools:
+
+<OL>
+<LI> With all the attention on it, we could plan to use a python GUI
+mechanism, as it emerges.  As, eg, Guido embedded the wdb window 
+debugger interface in stdwin.
+<LI> Alternately, we could work immediately on embedding such
+interfaces in emacs.
+</OL>
+
+I may be biased, because i am both an intensive emacs user and emacs
+hacker, but i see some very compelling advantages to using emacs as
+the runtime-tools interface substrate.
+
+<UL>
+<LI> It is already here, and ported to just about all the platforms we
+could wish.  (It may soon be better supported on Apple platforms,
+since the FSF has dropped the Apple boycott.)
+<LI> It provides X windows, DOS/Windows, <I><B>and</B></I> character-cell
+screen presentations.
+<LI> It is available to everyone.
+<LI> It provides a basis for exquisite integration of these tools with
+eachother and with the rest of the users operating environment.
+<LI> As any contemporary Unix-associated GUI must, it "comes with" an
+extensive emacs-like text editing widget!-)
+</UL>
+
+The primary disadvantage is the same one that always comes with emacs
+involvement - it's complicated for the user. <P>
+
+It also is sort-of one-way - it would be a good (i think) substrate
+for embedding our programming-environment tools, but would not be so
+good as a basis for a python GUI toolkit.  (Or, at least, not without
+some mondo hacking, to make an emacs "API" available from within
+python!)  (Did i hear someone gasp?-)
+
+My inclination is to recommend both avenues - emacs immediately, and
+elegant-and-easy-to-use GUI interfaces as they coelesce.  I don't
+think the different substrates will interfere with eachother, each
+having somewhat divergent audiences - user-friendly point-and-click
+with the GUI's, vs programmer-friendly (and user fiendish:-)
+customize-and-automate-out-the-wazoo of emacs. <P>
+
+With the subject broached, i figure i might as well take the
+opportunity to mention some of the emacs interfaces which i see as
+useful, exciting prospects: <P>
+
+<UL>
+<LI> Editing - continue to use the wild and wonderful python-mode
+(thanks to Tim Peters, wherever you are, and to Barry Warsaw, for your
+recent maintence efforts...)
+<LI> Debugger - hook up with the emacs debugging interface protocol,
+GUD ("Grand Unified Debugger"), and get a truly comprehensive python
+debugger.
+<LI> Environment Browser <EM>(!!)</EM> - investigate hooking up with
+the maturing emacs Object-Oriented Browser utility.
+(See <A HREF="ftp://www.cs.uiuc.edu/pub/Dept_Of_Computer_Science/Locally_Developed_Software/ACSL/xemacs/infodock/BR-FEATURES"
+>Browser Features</A>, or ftp the 
+<A HREF="ftp://www.cs.uiuc.edu/pub/Dept_Of_Computer_Science/Locally_Developed_Software/ACSL/xemacs/infodock/oobr-2.9.4.tar.gz">recent sources</A>.)
+<LI> Code and document indexing - emacs TAGS facilities
+</UL>
+
+I have to mention one other, non-emacs-affiliated option, re code and document
+indexing: the <A HREF="http://glimpse.cs.arizona.edu:1994/">Glimpse</A>
+indexing and query system.  It looks very promising and useful in it's
+own right, and is <EM>easy</EM> to use.  And it's even more intriguing
+when you consider the potentials inherent in it's connection with the
+<A HREF="http://harvest.cs.colorado.edu/">Harvest</A> network information
+discovery and access system. <P> 
+
+<H3><A NAME="documentation"></A>Documentation formats and efforts</H3>
+
+1. Do we need, and can we muster a documentation project, a la Linux? <P>
+
+And, <P>
+
+2. What format should we primarily support? <P>
+
+I haven't thought about this very much, but have increasingly hit up
+against the second issue.  I figure the issue is quite ripe, and just
+yearning to be resolved.  Some offhand thoughts: <P>
+
+
+<UL>
+<LI> HTML means pretty-looking format on a web-based viewing interface.
+<LI> texinfo means more immediate ability to search across nodes
+(important, to me!!), but not inherently web distributed.
+<LI> Many others to consider?  SGML, linux doc, etc
+<LI> We probably need to focus on a baseline format from which we can
+derive the others.  What?
+</UL>
+
+
+<H3><A NAME="style"></A>Programming style practices</H3>
+
+Here's the beginnings of a grab-bag of emerging coding style and
+conventions, from a discussion with Guido. <P>
+
+<UL>
+<LI> Var Names
+<UL>
+<LI> exposed internal routines, vars, etc: leading <B>_underscore</B>
+<LI> constants: all <B>UPPERCASE</B>
+<LI> classes: <B>Capitalized</B>
+<LI> global names: <B>not_abbreviated</B>
+<LI> boolean vars: <B>long_elaborate_informative_names</B>?
+<LI> name groups lacking name space: common short prefix + '_' - 
+<B>sys.exc_type</B>
+</UL>
+<LI> Misc Python programming practices
+<UL>
+<LI> Avoid globals
+<LI> Avoid mutable globals - use classes or parameters+defaulting instead
+<LI> Avoid globals
+<LI> modules that contain mostly a single class are named after the class
+<LI> Put all imports near top
+<LI> Use doc strings, including module doc and version
+<LI> Use a version string, but only when you will use it with discipline
+</UL>
+
+</UL>
+
+Perhaps we can start accumulating a list.  I'd be willing to include
+it in my Python <I>bestiary</I>, if i ever get time to update it...

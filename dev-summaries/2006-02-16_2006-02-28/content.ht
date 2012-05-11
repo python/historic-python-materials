@@ -1,0 +1,671 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-02-16 through 2006-02-28
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-02-16_2006-02-28]
+
+
+
+=============
+Announcements
+=============
+
+-----------------------
+Python release schedule
+-----------------------
+
+The Python 2.5 release schedule is `PEP 356`_. The first releases are planned for the end of March/beginning of April. Check the PEP for the full plan of features.
+
+.. _PEP 356: http://www.python.org/dev/peps/pep-0356/
+
+Contributing threads:
+
+- `2.5 PEP <http://mail.python.org/pipermail/python-dev/2006-February/061110.html>`__
+- `2.5 release schedule <http://mail.python.org/pipermail/python-dev/2006-February/061249.html>`__
+- `2.4.3 for end of March? <http://mail.python.org/pipermail/python-dev/2006-February/061901.html>`__
+
+[SJB]
+
+---------------------
+Buildbot improvements
+---------------------
+
+Thanks to Benji York and Walter Dörwald, the `buildbot results page`_ now has a new CSS stylesheet that should make it a little easier to read.  (And thanks to Josiah Carlson, we should now have a Windows buildbot slave.)
+
+.. _buildbot results page: http://www.python.org/dev/buildbot/
+
+Contributing threads:
+
+- `buildbot is all green <http://mail.python.org/pipermail/python-dev/2006-February/061399.html>`__
+- `buildbot vs. Windows <http://mail.python.org/pipermail/python-dev/2006-February/061554.html>`__
+
+[SJB]
+
+-------------------------------
+Deprecation of multifile module
+-------------------------------
+
+The multifile module, which has been supplanted by the email module since Python 2.2, is finally being deprecated.  Though the module will not be removed in Python 2.5, its documentation now clearly indicates the deprecation.
+
+Contributing thread:
+
+- `Deprecate \`\`multifile\`\`? <http://mail.python.org/pipermail/python-dev/2006-February/061211.html>`__
+
+[SJB]
+
+------------------------------
+Win64 AMD64 binaries available
+------------------------------
+
+Martin v. Löwis has made `AMD64 binaries`_ available for the current trunk's Python. If you're using an AMD64 machine (a.k.a. EM64T or x64), give 'em a whirl and see how they work.
+
+.. _amd64 binaries: http://www.dcl.hpi.uni-potsdam.de/home/loewis/
+
+Contributing thread:
+
+- `Win64 AMD64 (aka x64) binaries available64 <http://mail.python.org/pipermail/python-dev/2006-February/061533.html>`__
+
+[SJB]
+
+---------------------------------------------------
+Javascript to adopt Python iterators and generators
+---------------------------------------------------
+
+On a slightly off-topic note, Brendan Eich has blogged_ that the next version of Javascript will borrow iterators, generators and list comprehensions from Python.  Nice to see that the Python plague is even spreading to other programming languages now. ;)
+
+.. _blogged: http://weblogs.mozillazine.org/roadmap/archives/2006/02/
+
+Contributing thread:
+
+- `javascript &quot;standing on Python's shoulders&quot; as it moves forward. <http://mail.python.org/pipermail/python-dev/2006-February/061472.html>`__
+
+[SJB]
+
+=========
+Summaries
+=========
+
+---------------------------
+A dict with a default value
+---------------------------
+
+Guido suggested a defaultdict type which would act like a dict, but produce a default value when __getitem__ was called and no key existed. The intent was to simplify code examples like::
+
+    # a dict of lists
+    for x in y:
+        d.setdefault(key, []).append(value)
+
+    # a dict of counts    
+    for x in y:
+        d[key] = d.get(key, 0) + 1
+
+where the user clearly wants to associate a single default with the dict, but has no simple way to spell this.  People quickly agreed that the default should be specified as a function so that using ``list`` as a default could create a dict of lists, and using ``int`` as a default could create a dict of counts.
+
+Then the real thread began. Guido proposed adding an ``on_missing`` method to the dict API, which would be called whenever ``__getitem__`` found that the requested key was not present in the dict. The ``on_missing`` method would look for a ``default_factory`` attribute, and try to call it if it was set, or raise a KeyError if it was not. This would allow e.g. ``dd.default_factory = list`` to make a dict object produce empty lists as default values, and ``del dd.default_factory`` to revert the dict object to the standard behavior.
+
+However, a number of opponents worried that confusion would arise when basic dict promises (like that ``x in d`` implies that ``x in d.keys()`` and ``d[x]`` doesn't raise a KeyError) could be conditionally overridden by the existence of a ``default_factory`` attribute.  Others worried about complicating the dict API with yet another method, especially one that was never meant to be called directly (only overridden in subclasses). Eventually, Guido was convinced that instead of modifying the builtin dict type, a new collections.defaultdict should be introduced.
+
+Guido then defended keeping ``on_missing`` as a method of the dict type, noting that without ``on_missing`` any subclasses (e.g. ``collections.defaultdict``) that wanted to override the behavior for missing keys would have to override ``__getitem__`` and pay the penalty on every call instead of just the ones where the key wasn't present.  In the patch committed to the Python trunk, ``on_missing`` was renamed to ``__missing__`` and though no ``__missing__`` method is defined for the dict type, if a subclass defines it, it will be called instead of raising the usual KeyError.
+
+Contributing threads:
+
+- `Proposal: defaultdict <http://mail.python.org/pipermail/python-dev/2006-February/061169.html>`__
+- `Counter proposal: multidict (was: Proposal: defaultdict) <http://mail.python.org/pipermail/python-dev/2006-February/061264.html>`__
+- `Counter proposal: multidict <http://mail.python.org/pipermail/python-dev/2006-February/061276.html>`__
+- `defaultdict proposal round three <http://mail.python.org/pipermail/python-dev/2006-February/061485.html>`__
+- `defaultdict and on_missing() <http://mail.python.org/pipermail/python-dev/2006-February/061702.html>`__
+- `getdefault(), the real replacement for setdefault() <http://mail.python.org/pipermail/python-dev/2006-February/061748.html>`__
+
+[SJB]
+
+-----------------------------------------
+Encode and decode interface in Python 3.0
+-----------------------------------------
+
+Jason Orendorff suggested that ``bytes.encode()`` and ``text.decode()`` (where text is the name of Python 3.0's str/unicode) should be removed in Python 3.0.  Guido agreed, suggesting that Python 3.0 should have one of the following APIs for encoding and decoding:
+
+- bytes.decode(enc) -> text
+  text.encode(enc) -> bytes
+  
+- text(bytes, enc) -> text
+  bytes(text, enc) -> bytes
+
+There was a lot of discussion about how hard it was for beginners to figure out the current ``.encode()`` and ``.decode()`` methods, and Martin v. Löwis suggested that the behavior::
+
+    py> "Martin v. Löwis".encode("utf-8")
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in ?
+    UnicodeDecodeError: 'ascii' codec can't decode byte 0xf6 in position 11: ordinal not in range(128)
+
+would be better if replaced by Guido's suggested behavior::
+
+    py> "Martin v. Löwis".encode("utf-8")
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in ?
+    AttributeError: 'str' object has no attribute 'encode'
+
+since the user would immediately know that they had made a mistake by trying to encode a string. However, some people felt that this problem could be solved by simply changing the UnicodeDecodeError to something more informative like ``ValueError: utf8 can only encode unicode objects``.
+
+M.-A. Lemburg felt strongly that text and bytes objects should keep both ``.encode()`` and ``.decode()`` methods as simple interfaces to the registered codecs.  Since the codecs system handles general encodings (not just text<->bytes encodings) he felt that ``.encode()`` and ``.decode()`` should be available on both bytes and text objects and should be able to return whatever type the encoding deems appropriate. Guido repeated one of his design guidelines: the return *type* of a function should not depend on the *value* of the arguments. Thus he would prefer that ``bytes.decode()`` only return text and ``text.decode()`` only return bytes, regardless of the encodings passed in. (He didn't seem to be commenting on the architecture of the codecs module however, just the architecture of the bytes and text types.)
+
+Contributing threads:
+
+- `bytes.from_hex() [Was: PEP 332 revival in coordination with pep 349?] <http://mail.python.org/pipermail/python-dev/2006-February/061037.html>`__
+- `bytes.from_hex() [Was: PEP 332 revival in coordination with pep 349?] <http://mail.python.org/pipermail/python-dev/2006-February/061104.html>`__
+- `str.translate vs unicode.translate (was: Re: str object going in Py3K) <http://mail.python.org/pipermail/python-dev/2006-February/061179.html>`__
+- `bytes.from_hex() <http://mail.python.org/pipermail/python-dev/2006-February/061190.html>`__
+- `str.translate vs unicode.translate <http://mail.python.org/pipermail/python-dev/2006-February/061222.html>`__
+
+[SJB]
+
+-----------------
+Writable closures
+-----------------
+
+Almann T. Goo was considering writing a PEP to allow write access to names in nested scopes. Currently, names in nested scopes can only be read, not written, so the following code fails with an UnboundLocalError::
+
+    def getinc(start=0):
+        def incrementer(inc=1):
+            start += inc
+            return start
+        return incrementer
+
+Almann suggested introducing a new declaration, along the lines of ``global``, to indicate that assignments to a name should be interpreted as assignments to the name in the nearest enclosing scope.  Initially, he proposed the term ``use`` for this declaration, but most of the thread participants seemed to prefer ``outer``, allowing the function above to be written as::
+
+    def getinc(start=0):
+        def incrementer(inc=1):
+            outer start
+            start += inc
+            return start
+        return incrementer
+
+A variety of syntactic variants achieving similar results were proposed, including a way to name a function's local namespace::
+
+    def getinc(start=0):
+        namespace xxx
+        def incrementer(inc=1):
+            xxx.start += inc
+            return xxx.start
+        return incrementer
+
+a way to indicate when a single use of a name should refer to the outer scope, based on the syntax for `relative imports`_::
+
+    def getinc(start=0):
+        def incrementer(inc=1):
+            .start += inc        # note the "."
+            return .start        # note the "." (this one could be optional)
+        return incrementer
+
+and the previously suggested rebinding statement, from `PEP 227`_::
+
+    def getinc(start=0):
+        def incrementer(inc=1):
+            start +:= inc        # note the ":=" instead of "="
+            return start
+        return incrementer
+
+Much like the last time this issue was brought up, "the discussion fizzled out after having failed to reach a consensus on an obviously right way to go about it" (Greg Ewing's quite appropriate wording).  No PEP was produced, and it didn't seem like one would soon be forthcoming.
+
+.. _PEP 227: http://www.python.org/peps/pep-0227.html
+.. _relative imports: http://www.python.org/peps/pep-0328.html
+
+Contributing threads:
+
+- `PEP for Better Control of Nested Lexical Scopes <http://mail.python.org/pipermail/python-dev/2006-February/061568.html>`__
+- `Papal encyclical on the use of closures (Re: PEP for Better Control of Nested Lexical Scopes) <http://mail.python.org/pipermail/python-dev/2006-February/061596.html>`__
+- `Using and binding relative names (was Re: PEP for Better Control of Nested Lexical Scopes) <http://mail.python.org/pipermail/python-dev/2006-February/061636.html>`__
+
+[SJB]
+
+---------------------------
+PEP 358: The "bytes" Object
+---------------------------
+
+This week mostly wrapped up the bytes type discussion from the last fortnight, with the introduction of `PEP 358`_: The "bytes" Object. The PEP proposes a ``bytes`` type which:
+
+* is a sequence of range(0, 256) int objects
+* can be constructed out of lists of range(0, 256) ints
+* can be constructed out of the characters of str objects
+* can be constructed out of unicode objects using a specified encoding (or the system default encoding if none is specified)
+* can be constructed out of a hex string using the classmethod ``bytes.fromhex``
+
+The bytes constructor allows an encoding for unicode objects (instead of requiring a call to unicode.encode) so as not to require double copying (one of encoding and one for conversion to bytes).  Some people took issue with the fact that constructor allows an encoding for str objects, but ignores it, as this means code like ``bytes(s, 'utf-16be')`` will do a different thing for str and unicode.  Ignoring the encoding argument for str objects was apparently intended to ease the transition from str to bytes, though it was not clear exactly how.
+
+.. _PEP 358:  http://www.python.org/peps/pep-0358.html
+
+Contributing threads:
+
+- `bytes type needs a new champion <http://mail.python.org/pipermail/python-dev/2006-February/061080.html>`__
+- `bytes type discussion <http://mail.python.org/pipermail/python-dev/2006-February/061082.html>`__
+- `Pre-PEP: The &quot;bytes&quot; object <http://mail.python.org/pipermail/python-dev/2006-February/061100.html>`__
+- `s/bytes/octet/ [Was:Re: bytes.from_hex() [Was: PEP 332 revival in coordination with pep 349?]] <http://mail.python.org/pipermail/python-dev/2006-February/061482.html>`__
+- `PEP 358 (bytes type) comments <http://mail.python.org/pipermail/python-dev/2006-February/061728.html>`__
+
+[SJB]
+
+----------------------------------
+Compiling Python with MS VC++ 2005
+----------------------------------
+
+M.-A. Lemburg suggested compiling Python with the new `MS VC++ 2005`_, especially since it's "free". There was some concern about the stability of VS2005, and Benji York pointed out that the express editions are only `free until November 6th`_. Fredrik Lundh pointed out that it would be substantially more work for all the developers who provide ready-made Windows binaries for multiple Python releases. In the end, they decided to keep with the current compiler at least for one more release.
+
+.. _MS VC++ 2005: http://msdn.microsoft.com/vstudio/express/default.aspx
+.. _free until November 6th: http://msdn.microsoft.com/vstudio/express/support/faq/default.aspx#pricing
+
+Contributing thread:
+
+- `Switch to MS VC++ 2005 ?! <http://mail.python.org/pipermail/python-dev/2006-February/061870.html>`__
+
+[SJB]
+
+-----------------------
+Alternate lambda syntax
+-----------------------
+
+Even though Guido already declared that Python 3.0 will keep the current lambda syntax, Talin decided to try out the new AST and give lambda a face-lift.  With `Talin's patch`_, you can now write lambdas like::
+
+    >>> a = (x*x given (x))
+    >>> a(9)
+    81
+
+    >>> a = (x*y given (x=3,y=4))
+    >>> a(9, 10)
+    90
+    >>> a(9)
+    36
+    >>> a()
+    12
+
+The patch was remarkably simple, and people were suitably impressed by the flexibility of the new AST. Of course, the patch was rejected since Guido is now happy with the current lambda situation.
+
+.. _Talin's patch: http://bugs.python.org/1434008
+
+Contributing thread:
+
+- `Adventures with ASTs - Inline Lambda <http://mail.python.org/pipermail/python-dev/2006-February/061124.html>`__
+
+[SJB]
+
+---------------
+Stateful codecs
+---------------
+
+Walter Dörwald was looking for ways to cleanly support stateful codecs.  M.-A. Lemburg suggested extending the codec registry to maintain slots for the stateful encoders and decoders (and allowing six-tuples to be passed in) and adding the functions ``codecs.getencoderobject()`` and ``codecs.getdecoderobject()``. Walter Dörwald suggested that ``codecs.lookup()`` should return objects with the following attributes:
+
+(1) Name
+(2) Encoder function
+(3) Decoder function
+(4) Stateful encoder factory
+(5) Stateful decoder factory
+(6) Stream writer factory
+(7) Stream reader factory
+
+For the sake of backwards compatibility, these objects would subclass tuple so that they look like the old four-tuples returned by ``codecs.lookup()``. `Walter's patch`_ provides an implementation of some of these suggestions.
+
+.. _Walter's patch: http://bugs.python.org/1436130
+
+Contributing thread:
+
+- `Stateful codecs [Was: str object going in Py3K] <http://mail.python.org/pipermail/python-dev/2006-February/061230.html>`__
+
+[SJB]
+
+---------------------------------------
+operator.is*Type and user-defined types
+---------------------------------------
+
+Michael Foord pointed out that for types written in Python, ``operator.isMappingType`` and ``operator.isSquenceType`` are essentially identical -- they both return True if ``__getitem__`` is defined. Raymond Hettinger and Greg Ewing explained that for types written in C, these functions can give more detailed information because at the C level, CPython differentiates between the ``__getitem__`` of the sequence protocol and the ``__getitem__`` of the mapping protocol.
+
+Contributing thread:
+
+- `operator.is*Type <http://mail.python.org/pipermail/python-dev/2006-February/061698.html>`__
+
+[SJB]
+
+--------------------------
+Python-level AST interface
+--------------------------
+
+Brett Cannon started a brief thread to discuss where to go next with the Python AST branch.  Though some of the discussion moved online at PyCon, the major decisions were reported by Martin v. Löwis:
+
+* The ast-objects branch (which used reference-counting instead of arena allocation) was dropped because it seemed less maintainable and people had agreed that exposing the C AST objects to Python was a bad idea anyway
+* Python code would have access to a "shadow tree" of the actual AST tree, accessible by calling ``compile()`` with the flag PyCF_ONLY_AST (0x400).
+
+As a result, Python 2.5 now has a Python-level interface to AST objects::
+
+    >>> compile('"spam" if x else 42', '<string>', 'eval', 0x400)
+    <_ast.Expression object at 0x00BA0F50>
+
+Contributing threads:
+
+- `C AST to Python discussion <http://mail.python.org/pipermail/python-dev/2006-February/060994.html>`__
+- `C AST to Python discussion <http://mail.python.org/pipermail/python-dev/2006-February/061109.html>`__
+- `[Python-projects] AST in Python 2.5 <http://mail.python.org/pipermail/python-dev/2006-February/061145.html>`__
+- `Exposing the abstract syntax <http://mail.python.org/pipermail/python-dev/2006-February/061850.html>`__
+- `quick status report <http://mail.python.org/pipermail/python-dev/2006-February/061892.html>`__
+
+[SJB]
+
+-------------------------------------------
+Allowing property to be used as a decorator
+-------------------------------------------
+
+Georg Brandl suggested in passing that it would be nice if ``property()`` could be used as a decorator. Ian Bicking pointed out that you can already use ``property()`` this way as long as you only want a read-only property. However, the resulting property has no docstring, so Alex Martelli suggested that property use the __doc__ of its fget function if no docstring was provided. Guido approved it, and `Georg Brandl provided a patch`_. Thus in Python 2.5, you'll be able to write read-only properties like::
+
+    @property
+    def x(self):
+        """The x property"""
+        return self._x + 42
+
+.. _Georg Brandl provided a patch: http://bugs.python.org/1434038
+
+Contributing threads:
+
+- `The decorator(s) module <http://mail.python.org/pipermail/python-dev/2006-February/060759.html>`__
+- `The decorator(s) module <http://mail.python.org/pipermail/python-dev/2006-February/061227.html>`__
+
+[SJB]
+
+-----------------------------------------------
+Turning on unicode string literals for a module
+-----------------------------------------------
+
+Neil Schemenauer asked if it would be possible to have a ``from __future__ import unicode_strings`` statement which would turn all string literals into unicode literals for that module (without requiring the usual ``u`` prefix). Currently, you can turn on this kind of behavior for all modules using the undocumented -U command-line switch, but there's no way of enabling it on a per-module basis. There didn't seem to be enough momentum in the thread to implement such a thing however.
+
+Contributing thread:
+
+- `from __future__ import unicode_strings? <http://mail.python.org/pipermail/python-dev/2006-February/061088.html>`__
+
+[SJB]
+
+-------------------------------------------
+Allowing cProfile to print to other streams
+-------------------------------------------
+
+Skip Montaro pointed out that the new cProfile module prints stuff to stdout. He suggested rewriting the necessary bits to add a stream= keyword argument where necessary and using stream.write(...) instead of the print statements. No patch was available at the time of this summary.
+
+Contributing thread:
+
+- `cProfile prints to stdout? <http://mail.python.org/pipermail/python-dev/2006-February/061815.html>`__
+
+[SJB]
+
+--------------------------------
+PEP 343 with-statement semantics
+--------------------------------
+
+Mike Bland provided an initial implementation of `PEP 343`_'s with-statment. In writing some unit-tests for it, Guido discovered that the implementation would not allow generators like::
+
+    @contextmanager
+    def foo():
+       try:
+           yield
+       except Exception:
+           pass
+
+    with foo():
+       1/0
+
+to be equivalent to the corresponding in-line code::
+
+    try:
+       1/0
+    except Exception:
+       pass
+
+because the PEP at the time did not allow context objects to suppress exceptions. Guido modified the patch and the PEP to require __exit__ to reraise the exception if it didn't want it suppressed.
+
+.. _PEP 343: http://www.python.org/peps/pep-0343.html
+
+Contributing threads:
+
+- `PEP 343 &quot;with&quot; statement patch <http://mail.python.org/pipermail/python-dev/2006-February/061637.html>`__
+- `with-statement heads-up <http://mail.python.org/pipermail/python-dev/2006-February/061903.html>`__
+
+[SJB]
+
+------------------------------------
+Dropping Win9x support in Python 2.6
+------------------------------------
+
+Neal Norwitz suggested that Python 2.6 no longer try to support Win9x and WinME and updated `PEP 11`_ accordingly. There was a little rumbling about dropping the support, but no one stepped forward to volunteer to maintain the patches, and Guido suggested that anyone using a 6+ year old OS should be fine using an older Python too.
+
+.. _PEP 11: http://www.python.org/dev/peps/pep-0011/
+
+Contributing thread:
+
+- `Dropping support for Win9x in 2.6 <http://mail.python.org/pipermail/python-dev/2006-February/061791.html>`__
+
+[SJB]
+
+----------------------------
+Removing non-Unicode support
+----------------------------
+
+Neal Norwitz suggested that the --disable-unicode switch might be a candidate for removal in Python 2.6.  A few people were mildly concerned that the inability to remove Unicode support might make it harder to put Python on small hand-held devices.  However, many (though not all) hand-helds already support Unicode, and currently a number of tests already fail if you use the --disable-unicode switch, so those who need this switch have not been actively maintaining it.  Stripping out the numerous Py_USING_UNICODE declarations would substantially simplify some of the Python source.  No final decision had been made at the time of this summary.
+
+Contributing thread:
+
+- `Removing Non-Unicode Support? <http://mail.python.org/pipermail/python-dev/2006-February/061464.html>`__
+
+[SJB]
+
+------------------------------------
+Translating the Python documentation
+------------------------------------
+
+Facundo Batista had proposed translating the Library Reference and asked about how to get notifications when the documentation was updated (so that the translations could also be updated). Georg Brandl suggested a post-commit hook in SVN, though this would only give notifications at the module level. Fredrik Lundh suggested something based on his `more dynamic library reference platform`_ so that the notifications could indicate particular methods and functions instead.
+
+.. _more dynamic library reference platform: http://effbot.org/zone/pyref.htm
+
+Contributing threads:
+
+- `Translating docs <http://mail.python.org/pipermail/python-dev/2006-February/061823.html>`__
+- `Fwd: Translating docs <http://mail.python.org/pipermail/python-dev/2006-February/061834.html>`__
+
+[SJB]
+
+---------------
+PEP 338 updates
+---------------
+
+At Guido's suggestion, Nick Coghlan pared down `PEP 338`_ to just the bare bones necessary to properly implement the -m switch.  That means the runpy module will contain only a single function, run_module, which will import the named module using the standard import mechanism, and then execute the code in that module.
+
+.. _PEP 338: http://www.python.org/peps/pep-0338.html
+
+Contributing thread:
+
+- `PEP 338 issue finalisation (was Re: 2.5 PEP) <http://mail.python.org/pipermail/python-dev/2006-February/061131.html>`__
+
+[SJB]
+
+-----------------
+Bugfix procedures
+-----------------
+
+Just a reminder of the procedure for applying bug patches in Python (thanks to a brief thread started by Arkadiusz Miskiewicz). Anyone can submit a patch, but it will not be committed until a committer reviews and commits the patch.  Non-committers are encouraged to review and comment on patches, and a number of the committers have promised that anyone who reviews and comments on at least five patches can have any patch they like looked at.
+
+Contributing threads:
+
+- `how bugfixes are handled? <http://mail.python.org/pipermail/python-dev/2006-February/061067.html>`__
+- `how bugfixes are handled? <http://mail.python.org/pipermail/python-dev/2006-February/061120.html>`__
+
+[SJB]
+
+--------------------------------
+Removing --with-wctype-functions
+--------------------------------
+
+M.-A. Lemburg suggested removing support for --with-wctype-functions as it makes Unicode support work in non-standard ways. Though he announced the plan in December 2004, ``PEP 11`` wasn't updated, so removal will be delayed until Python 2.6.
+
+Contributing thread:
+
+- `[Python-checkins] r42396 - peps/trunk/pep-0011.txt <http://mail.python.org/pipermail/python-dev/2006-February/061159.html>`__
+
+[SJB]
+
+---------------------------------
+Making ASCII the default encoding
+---------------------------------
+
+Neal Norwitz asked if we should finally make ASCII the default encoding as `PEP 263`_ had promised in Python 2.3.  He received only positive responses on this, and so in Python 2.5, any file missing a ``# -*- coding: ... -*-`` declaration and using non-ASCII characters will generate an error.
+
+.. _PEP 263: http://www.python.org/peps/pep-0263.html
+
+Contributing thread:
+
+- `Making ascii the default encoding <http://mail.python.org/pipermail/python-dev/2006-February/061884.html>`__
+
+[SJB]
+
+-------------------------------------------
+PEP 308: Conditional Expressions checked in
+-------------------------------------------
+
+Thomas Wouters checked in a patch for `PEP 308`_, so Python 2.5 now has the long-awaited conditional expressions!
+
+.. _PEP 308: http://www.python.org/dev/peps/pep-0308/
+
+Contributing thread:
+
+- `PEP 308 <http://mail.python.org/pipermail/python-dev/2006-February/061855.html>`__
+
+[SJB]
+
+
+==================
+Previous Summaries
+==================
+- `http://www.python.org/dev/doc/devel still available <http://mail.python.org/pipermail/python-dev/2006-February/061078.html>`__
+- `str object going in Py3K <http://mail.python.org/pipermail/python-dev/2006-February/061081.html>`__
+- `PEP 332 revival in coordination with pep 349? [ Was:Re: release plan for 2.5 ?] <http://mail.python.org/pipermail/python-dev/2006-February/061084.html>`__
+- `nice() <http://mail.python.org/pipermail/python-dev/2006-February/061086.html>`__
+- `bdist_* to stdlib? <http://mail.python.org/pipermail/python-dev/2006-February/061105.html>`__
+- `Please comment on PEP 357 -- adding nb_index slot to PyNumberMethods <http://mail.python.org/pipermail/python-dev/2006-February/061165.html>`__
+
+
+===============
+Skipped Threads
+===============
+- `ssize_t branch merged <http://mail.python.org/pipermail/python-dev/2006-February/061083.html>`__
+- `Off-topic: www.python.org <http://mail.python.org/pipermail/python-dev/2006-February/061090.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-February/061106.html>`__
+- `2.5 - I'm ok to do release management <http://mail.python.org/pipermail/python-dev/2006-February/061117.html>`__
+- `Rename str/unicode to text [Was: Re: str object going in Py3K] <http://mail.python.org/pipermail/python-dev/2006-February/061134.html>`__
+- `Does eval() leak? <http://mail.python.org/pipermail/python-dev/2006-February/061149.html>`__
+- `Rename str/unicode to text [Was: Re: str object goingin Py3K] <http://mail.python.org/pipermail/python-dev/2006-February/061153.html>`__
+- `Test failures in test_timeout <http://mail.python.org/pipermail/python-dev/2006-February/061155.html>`__
+- `Rename str/unicode to text <http://mail.python.org/pipermail/python-dev/2006-February/061205.html>`__
+- `Copying zlib compression objects <http://mail.python.org/pipermail/python-dev/2006-February/061247.html>`__
+- `Serial function call composition syntax foo(x, y) -&gt; bar() -&gt; baz(z) <http://mail.python.org/pipermail/python-dev/2006-February/061282.html>`__
+- `A codecs nit <http://mail.python.org/pipermail/python-dev/2006-February/061365.html>`__
+- `Stackless Python sprint at PyCon 2006 <http://mail.python.org/pipermail/python-dev/2006-February/061367.html>`__
+- `[Python-checkins] r42490 - in python/branches/release24-maint: Lib/fileinput.py Lib/test/test_fileinput.py Misc/NEWS <http://mail.python.org/pipermail/python-dev/2006-February/061421.html>`__
+- `Enhancements to the fileinput module <http://mail.python.org/pipermail/python-dev/2006-February/061428.html>`__
+- `test_fileinput failing on Windows <http://mail.python.org/pipermail/python-dev/2006-February/061446.html>`__
+- `New Module: CommandLoop <http://mail.python.org/pipermail/python-dev/2006-February/061450.html>`__
+- `(-1)**(1/2)==1? <http://mail.python.org/pipermail/python-dev/2006-February/061487.html>`__
+- `documenting things [Was: Re: Proposal: defaultdict] <http://mail.python.org/pipermail/python-dev/2006-February/061499.html>`__
+- `Simple CPython stack overflow. <http://mail.python.org/pipermail/python-dev/2006-February/061506.html>`__
+- `problem with genexp <http://mail.python.org/pipermail/python-dev/2006-February/061544.html>`__
+- `readline compilarion fails on OSX <http://mail.python.org/pipermail/python-dev/2006-February/061561.html>`__
+- `Memory Error the right error for coding cookie promise violation? <http://mail.python.org/pipermail/python-dev/2006-February/061576.html>`__
+- `Two patches <http://mail.python.org/pipermail/python-dev/2006-February/061642.html>`__
+- `Unifying trace and profile <http://mail.python.org/pipermail/python-dev/2006-February/061669.html>`__
+- `Fixing copy.py to allow copying functions <http://mail.python.org/pipermail/python-dev/2006-February/061673.html>`__
+- `Path PEP: some comments (equality) <http://mail.python.org/pipermail/python-dev/2006-February/061677.html>`__
+- `calendar.timegm <http://mail.python.org/pipermail/python-dev/2006-February/061678.html>`__
+- `release plan for 2.5 ? <http://mail.python.org/pipermail/python-dev/2006-February/061731.html>`__
+- `[ python-Feature Requests-1436243 ] Extend pre-allocated integers to cover [0, 255] <http://mail.python.org/pipermail/python-dev/2006-February/061734.html>`__
+- `buildbot, and test failures <http://mail.python.org/pipermail/python-dev/2006-February/061737.html>`__
+- `OT: T-Shirts <http://mail.python.org/pipermail/python-dev/2006-February/061778.html>`__
+- `PEP 328 <http://mail.python.org/pipermail/python-dev/2006-February/061813.html>`__
+- `Current trunk test failures <http://mail.python.org/pipermail/python-dev/2006-February/061861.html>`__
+- `PEP 332 revival in coordination with pep 349? [Was:Re: release plan for 2.5 ?] <http://mail.python.org/pipermail/python-dev/2006-February/061866.html>`__
+- `str.count is slow <http://mail.python.org/pipermail/python-dev/2006-February/061885.html>`__
+- `Long-time shy failure in test_socket_ssl <http://mail.python.org/pipermail/python-dev/2006-February/061893.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+February 16, 2006 through February 28, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 14th written by
+the python-dev summary team of Steve Bethard and Tony Meyer (on-time, schmon-time).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.  Unfortunately, even though reST is standardized, the
+wonders of programs that like to reformat text do not allow us to
+guarantee you will be able to run the text version of this summary
+through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _original text file: http://www.python.org/dev/summary/2006-02-16_2006-02-28.rst
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

@@ -1,0 +1,222 @@
+<html>
+<head>
+<title> Programming Environment/Software Engineering Session </title>
+</head>
+<body>
+<h1> Programming Environment/Software Engineering Session </h1>
+<i> Session Chair: Ken Manheimer </i>
+<a name="jim">
+<h3> Extending C++ in Python (Jim Ahlstrom) </h3>
+<ul>
+   <li> Skip notes and go Directly to
+        <a href="papers/ahlstrom1.html">Jim's Ahlstrom's Presentation</a>
+   <li> Basic design - extending C++ in Python
+   <ul>
+      <li> write out C++ inheritance in Python
+      <li> Interface C++ methods in their class
+      <li> Make method arguments more Python like
+      <li> derive a new C++ class from each C++ leaf as required
+      <li> create and register C++/Python object twins
+      <ul>
+         <li> 1st the Python object twin
+         <ul>
+            <li> Register twin in C++ constructor
+            <li> unregister twin in C++ destructor
+            <li> Do not call INCREF
+            <li> Call a create method in Create() or __init__()
+            <li> Call a destroy method in Destroy() or __del__()
+         </ul>
+         <li> Now the C++ twin
+         <ul>
+            <li> register unregister twin in C++ constructor/destructor
+            <li> call python to create the python object
+            <li> call INCREF when to preserve Python object
+            <li> call DECREF when done
+            <li> Problems
+            <ul>
+               <li> should preserve the type of the C++ pointer
+               <li> requires knowledge of the C++ library
+            </ul>
+         </ul>
+      </ul>
+   </ul>
+</ul>
+<br>
+<a name="doc">
+<h3> Doc Strings (Jim Fulton) </h3>
+<ul>
+   <li> Skip notes and go Directly to
+        <a href="docstring.html">Jim's Fulton's Presentation</a>
+   <li> Generating user documentation from Doc Strings
+   <ul>
+      <li> Jim has a simple tool to convert doc strings to a UNIX man page
+           like document...  This idea could be extended
+      <li> simmilar work <i> doc_collect </i> by daniel larsson
+      <ul>
+         <li> reads python and generates manuals
+         <li> class for def statements become headings with the doc strings
+              as section bodies
+         <li> minimal source parsing to get class and function defs
+      </ul>
+      <li> Jim was looking specifically at extension modules
+      <ul>
+         <li> produces one manual page per/modules
+         <li> section for module functions
+         <li> each function or method is a sub-section
+         <li> if doc string is of the form...
+         <pre>
+              """spam(a,b) -- description of spam"""
+         </pre>
+         <li> ...you can do something meaningful
+         <li> problem: extension modules need to export types
+         <li> problem: need to be able to get at method doc strings
+              without creating instances
+         <li> Proposal: create a "method list" type
+         <li> method list object pointers could optionally be created
+              by extension modules and a pointer put in the type object struct
+         <li> Method list object requrements
+         <ul>
+            <li> get and store method names, function pointers, more...
+         </ul>
+         <li> Anything more?  Organization? format markup? structure markup?
+         <li> Is it critical for doc strings to be readily available in the
+              interpreter?  So if explicit markup is used, then we need to 
+              provide standard formatting tools within the interpreter
+         <li> Guido: conclusion is that we'll never agree on a convention
+              for structured markup
+         <li> Guido: The first line of the docstring is a complete sentence
+              describing the function so tools like apropos will work
+         <li> Two types of doc strings
+         <ul>
+            <li> those for users of the functions
+            <li> those for maintainers of the functions
+         </ul>
+         <li> Guido: I suggest making Jim's tool available outside of USGS.
+              The quality of the documentation will improve if people have 
+              live examples to work with
+         <li> Jim would be happy to make the tool available
+      </ul>
+   </ul>
+</ul>
+<br>
+<a name="modulator">
+<h3> Generating Extensions with Modulator, BGEN (Guido van Rossum) </h3>
+<ul>
+   <li> Modulator
+   <ul>
+      <li> Interactive tool to help generate boilerplate code
+      <li> you enter module name and function names
+      <li> modulator generates the C code for you 
+      <li> Modulator is a one-shot tool (no redigestion)
+      <li> Modulator also generates object definition boilerplate
+      <li> Beware: not a good tool for learning (hides important steps)
+   </ul>
+   <li> BGEN: Beyond Modulator
+   <ul>
+      <li> BGEN generates more than boilerplate
+      <ul>
+         <li> generates complete extension modules
+         <li> knows about standard C types
+         <li> Can be taught about other types
+      </ul>
+      <li> BGEN can scan header files
+      <ul>
+         <li> turns function prototypes into wrappers
+         <li> customization is possible (and necessary)
+      </ul>
+      <li> BGEN regenerates when you change it's input
+      <li> BGEN is harder to use, not finished, not documented
+    </ul>
+    <li> generates C functions that look like...
+    <pre>
+        f = Function(int, 'system', (stringptr, 'command', InMode))
+    </pre>
+    <li> Problems
+    <ul>
+       <li> customizing the header file scanner is a pain
+       <ul>
+          <li> requires fairly consistent coding style in header files
+          <li> parameter transfer modes often guessed wrong
+          <li> (Alternative: write generator calls by hand; also painful)
+       </ul>
+       <li> designing the type generators is a black art
+       <li> no C++ support
+    </ul>
+</ul>
+<br>
+<a name="michael">
+<h3> Further Discussion on Documentation SIG (Michael McLay) </h3>
+<ul>
+   <li> Doc strings continued...
+   <li> Nice way to get people to right documentation and it's 
+        the most accurate because it's right there with the code
+   <li> trade off is in parse time for very long doc strings
+   <li> a possible solution is to cut off a doc string at a certain point
+        then reference a file or url or something out of line
+   <li> Lets keep this going on the documentation sig
+   <li> problem: how do you find out what exceptions the python core will
+        raise, on a per function basis
+   <li> Guido: I agree a solution to that would be nice
+   <li> Like <i> socket.exceptions() </i> returns a list of exceptions
+        that that class can throw...
+   <li> Code review process?  Automated?
+   <li> Decided to start: <i>editor at python.org</i> for a submission
+        mechanism
+</ul>
+<br>
+<a name="fdl">
+<h3> FDL (Jim Fulton) </h3>
+<ul>
+   <li> Nothing really more to say right now... refer to last workshop
+        minutes.
+</ul>
+<br>
+<a name="ken">
+<h3> Packages, python mode, pdb, profiler, coding style (Ken Manheimer) </h3>
+<ul>
+   <li> Documentation format
+   <ul>
+      <li> TekInfo?
+      <ul>
+         <li> a nicer semantic model built on top of Tek engine
+      </ul>
+      <li> If it were not for the poverty issue, tools like Framemaker
+           can output all formats that are needed.
+      <li> Guido: Framemaker is very nice, but will not fly in the free
+           software world
+      <li> Proposal: standardize on RTF, most tools can output it.
+      <li> Proposal: standardize on HTML
+      <li> Discussion cut off by Ken in the interest of time
+   </ul>
+</ul>
+<br>
+<a name="pedja">
+<h3> Objective Python (Pedja Bogdanavitch - TipTop software) </h3>
+<ul>
+   <li> <i> http://www.tiptop.com </i>
+   <li> Exists already: Objective TCL
+   <ul> 
+      <li> Seamless integration of Objective-C and TCL
+      <li> Sends messages from TCL to Objective-C objects
+      <li> all primative objective-C types are supported except unions
+      <li> creates classes in TCL derived from Objective-C classes
+      <li> Uses objective-C categories to allow extensions of objective-C
+           classes in TCL
+      <li> allows rapid prototyping with interpreted code instead of compiled
+      <li> Q: how much slowdown do you take using objective-C compared to C
+      <li> A: message passing adds 10% overhead to C
+   </ul>
+   <li> Difference between C++ and Objective-C
+   <ul>
+      <li> static problem in C++: you can not ask a C++ object what class it is
+      <li> Objective C: you can ask an object what methods it responds to
+      <li> dynamic runtime in objective-C, static in C++
+   </ul>
+   <li> Objective Python could be done pretty easily by Tiptop, but
+        it would not be free
+   <li> Comment: We need to finish the obj-c module
+</ul>
+</body>
+</html>
+
+

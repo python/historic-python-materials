@@ -1,0 +1,145 @@
+python-dev Summary for 2003-11-16 through 2003-11-30
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from November 16, 2003 through November 30, 2003.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the thirtieth summary written by Brett Cannon (the quarter is over!  Winter Break is finally here!).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+The in-development version of the documentation for Python can be found at http://www.python.org/dev/doc/devel/ and should be used when looking up any documentation on something mentioned here.  PEPs (Python Enhancement Proposals) are located at http://www.python.org/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2003-10-16_2003-11-15.html
+
+
+=====================
+Summary Announcements
+=====================
+Wow, I actually managed to get a summary out less than a week when its coverage dates ended.  Perks of procrastinating for studying for finals.  =)
+
+First, an errata on the last summary.  I said generator expressions were Peter Norvig's idea.  Turns out it was Raymond Hettinger, the man who has so many new ideas that his flame retardant suit has his initials embroidered on it, who came up with the original idea in `PEP 289`_.
+
+PyCon_ registration has gone live!  Go to the page to register.  And if you don't we will have a possessed Barry Warsaw come after you (to get the reference, go to http://www.pycon.org/ and take a look at the banner graphic; Barry is the second from the right)!  =)
+
+The system for accepting proposals for PyCon is still being worked on.  It should be up in the very near future.  Since it was not up in time for the original deadline, the new proposal deadline has been extended.
+
+This summary is brought to you by the `iTunes Music Store`_ and the following songs from the `Verve Remixed 2 - Exclusive EP <http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewAlbum?playlistId=2611976>`__ album (which are linked to the iTMS and thus require iTunes to be installed):
+
+- `Manteca, by Dizzy Gillespie & Funky Lowlives <http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewAlbum?playlistId=2611976&selectedItemId=2556313>`__
+- `Sinnerman, by Felix da Housecat & Nina Simone <http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewAlbum?playlistId=2611976&selectedItemId=2556338>`__
+
+.. _PEP 289: http://www.python.org/peps/pep-0289.html
+.. _PyCon: http://www.pycon.org/
+.. _iTunes Music Store: http://www.apple.com/itunes/store/
+
+
+=========
+Summaries
+=========
+--------------------------------------------------
+Aggregate refcounting is not always a hard science
+--------------------------------------------------
+Christian Tismer discovered that the aggregate refcount stored in _Py_RefTotal (only available in a Py_REF_DEBUG build which is part of a debug build; see Misc/SpecialBuilds.txt for all the special builds that are available) can be wrong when code starts to do funky things in __del__ methods and manipulating the refcount of objects directly.  The offending code has been fixed in the 2.3.x branch and up.
+
+
+Contributing threads:
+  - `_Py_RefTotal wrong in Py 2.2.3 <http://mail.python.org/pipermail/python-dev/2003-November/040269.html>`__
+
+
+------------------------------------------------
+Bulk up reversed() with __reversed__ and __len__
+------------------------------------------------
+When the new 'reversed' built-in was being discussed, the idea of having a __reversed__ magic method for it was proposed.  But because it might get misused by applying 'reversed' to iterators that were infinite (think generators and itertools iterators), Guido had it removed.
+
+But Raymond Hettinger, who came up with 'reversed' in the first place, came up with a modified idea; only have 'reversed' use __reversed__ if both that magic method and __len__ are defined.  That way 'reversed' will only try to reverse its argument if it has a known bounded length (as of right now it only works if the object has __getitem__ and __len__ defined).
+
+As of right now it has not been pronounced upon.
+
+Contributing threads:
+  - `__reversed__ protocol <http://mail.python.org/pipermail/python-dev/2003-November/040308.html>`__
+
+
+------------------------------------------------------
+Change in object.__setattr__ semantics from 2.2 to 2.3
+------------------------------------------------------
+A change in how object.__setattr__ works went unmentioned in the 'What's New...' doc for 2.3 by accident.  In case you have not run into this, you cannot use object.__setattr__ if a derived type defines __setattr__ itself.  It is not an issue if you just use the built-in setattr.
+
+Contributing threads:
+  - `2.2=>2.3 object.__setattr__(cls,attr,value) <http://mail.python.org/pipermail/python-dev/2003-November/040323.html>`__
+
+
+-----------------------------
+Say goodbye to MacOS9 support
+-----------------------------
+Starting with 2.4, Python will not support MacOS9 for lack of support (Jack Jansen asked for volunteers but no one stepped forward).  Jack has removed the support so that all his Mac-related efforts can focus on OS X work.
+
+This does not affect any previous versions of Python.
+
+Contributing threads:
+  - `Ripping out Macintosh support <http://mail.python.org/pipermail/python-dev/2003-November/040336.html>`__
+
+
+------------------
+2.3.3 in the works
+------------------
+2.3.3c1 has been released as of this writing.  You can find it at http://www.python.org/2.3.3/ .  As usual, please download it and run the test suite along with your own code.
+
+Contributing threads:
+  - `Time for 2.3.3? <http://mail.python.org/pipermail/python-dev/2003-November/040343.html>`__
+
+
+--------------------
+Project ideas galore
+--------------------
+Last month I asked for ideas for a masters thesis.  This led to a huge response with various project ideas.  After going through them all I posted an annotated list of all the ideas presented to me (see the contributing thread for the email link).  If you are ever bored for say, a month or more, you can try to tackle one of these projects to keep yourself occupied.
+
+Contributing threads:
+  - `Thesis ideas list <http://mail.python.org/pipermail/python-dev/2003-November/040387.html>`__
+
+
+-------------------------
+No more hex/oct warnings!
+-------------------------
+The warnings from 2.3 about how hex/oct constants were going to change in 2.4 are now gone since the change has been checked into CVS.  `PEP 237`_, which specified this change, also mentioned warnings of the change in 2.4 along with changes to repr for longs.
+
+The warnings are not going to exist in Python 2.4 .  It was felt the warnings in 2.3 were visible and noisy enough to get the point across.
+
+As for the repr change for longs, that is not going to happen.  The repr of a long will continue to have an "L" appended to the end of it.  It was deemed not worth the breakage in code to remove it.
+
+.. _PEP 237: http://www.python.org/peps/pep-0237.html
+
+Contributing threads:
+  - `Int FutureWarnings and other 2.4 TODOs <http://mail.python.org/pipermail/python-dev/2003-November/040411.html>`__
+
+
+------------------------------
+Backticks to go bye-bye in 3.0
+------------------------------
+Consider yourselves warned; backticks will be removed in Python 3.0 .  And thanks to Walter Dšrwald they are being replaced in the stdlib with the proper repr calls.
+
+Contributing threads:
+  - `Banishing apply(), buffer(), coerce(), and intern() <http://mail.python.org/pipermail/python-dev/2003-November/040433.html>`__
+
+
+-----------------------
+itertools grows groupby
+-----------------------
+itertools.groupby takes an iterable and a key-accessing function and returns a tuple of the key and an iterator containing items that match the current key.  You can think of it like SQL's GROUPBY keyword or UNIX's uniq command.  Read the documentation for a more thorough explanation.
+
+Contributing threads:
+  - `"groupby" iterator <http://mail.python.org/pipermail/python-dev/2003-November/040469.html>`__

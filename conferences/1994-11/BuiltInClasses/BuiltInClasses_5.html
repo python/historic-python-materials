@@ -1,0 +1,26 @@
+<!-- Generated with CERN WebMaker 1.4 -->
+<HTML>
+<HEAD>
+<TITLE>2.2.  Binding to Complex C Data Structures</TITLE>
+</HEAD>
+<BODY>
+<A NAME=HEADING4>
+<A HREF="BuiltInClasses_6.html">[Next] </A><A HREF="BuiltInClasses_4.html">[Previous] </A><A HREF="BuiltInClasses_3.html">[Up] </A><A HREF="BuiltInClasses_1.html">[Top] </A><P>
+2.  Object System Enhancements<P>
+<H3>2.2.  Binding to Complex C Data Structures</H3>
+ The type converters mentioned above have been leveraged to provide support for binding to higher level data types such as structures, unions, and arrays. Structure descriptions are represented by a collection of attributes or members of the structure. Each attribute need only specify its name, the type of the data that it represents, and the offset from the base of the structure that contains it. Thus new structure bindings can be created dynamically and can automatically perform the conversion operations mentioned above. This is, of course, assuming that the type of each of a structure's members specifies a conversion function. Array types can also be bound to as just as easily, since an array can be described by the type of its elements and the number of elements that it contains. Each time a new structure or array is declared in this way a new CType object is created to represent it. Because composite CTypes are composed of members that know how to initialize, read, write, and destroy themselves, the composite type also knows how to perform these operations by simply traversing its members. Thus a composite type can implement all of the conversion functionality of a basic CType and can be treated just like a basic CType.<P>
+ To bind a new complex data structure into Python, users have three choices. First, they can do it as they would in the current Python implementation and create an entirely new Python object to represent the structure. Second, they can treat the structure as a basic type simply by providing a conversion procedure that will perform the operations specified above. This is most useful for structures that are abstract types with no public interface other than create, copy, and destroy. Third, they create a structure CType that describes each of the fields in the structure. This will automatically create the conversion function for the structure and provide field by field copying, initialization, destruction, and access operations, according to the type of each field.<P>
+ An enumeration sub-class of CType provides an easy and safe way to bind symbolic constants into Python. Each enumeration CType contains a dictionary of enumeration values that can be accessed from Python by using dot notation. Thus an enumeration that represents the status of a running system might be called `<CODE>status</CODE>' and have entries for <CODE>status.running</CODE>, <CODE>status.reset</CODE>, and <CODE>status.stopped</CODE>. When an enumeration value is printed, its symbolic name, not its numeric value is displayed. But, in most cases, an enumeration value is also interchangeable with an integer. The internal representation of an enumeration value is user defined and can be any basic type that converts to a Python integer object.<P>
+ In addition to enumerations, symbolic constants are also used to represent elements of bit sets. Like enumerations, bit sets are also supported by a sub-class of CType. This sub-class defines all the bitwise operators so elements of the set can be combined and tested just as they would be in C. Also like enumerations, the real benefit of using bit sets in Python comes from the way they are printed. As would be expected, the symbolic names for each bit that is set is printed rather than the integer value of the set. For example:<P>
+<PRE>
+&gt;&gt;&gt; print X.ButtonPressMask | X.ButtonReleaseMask
+X.EventMask.(ButtonPress|ButtonRelease)
+</PRE>
+ Structure, array, enumeration, and bit set CTypes can be created statically or dynamically within a C module. Python bindings to the dynamic creation routines are provided to allow these types to be defined from within a Python program. This option is quite useful for exchanging structured binary data with a C program. Examples of where this is useful include accessing dbm files written by a C program or sharing shared memory with a C program.<P>
+
+<HR>
+<ADDRESS>Deriving Built-In Classes in Python - 22 DEC 94</ADDRESS>
+<A HREF="BuiltInClasses_6.html">[Next] </A><A HREF="BuiltInClasses_4.html">[Previous] </A><A HREF="BuiltInClasses_3.html">[Up] </A><A HREF="BuiltInClasses_1.html">[Top] </A><P>
+Generated with <A HREF="AboutWebMaker.html">CERN WebMaker</A>
+</BODY>
+</HTML>

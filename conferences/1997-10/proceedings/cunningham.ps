@@ -1,0 +1,4397 @@
+%!PS-Adobe-3.0
+%%BoundingBox: (atend)
+%%Pages: (atend)
+%%PageOrder: (atend)
+%%DocumentFonts: (atend)
+%%Creator: Frame 5.1
+%%DocumentData: Clean7Bit
+%%EndComments
+%%BeginProlog
+%
+% HISTORY
+% 27-Feb-1997 Dale Moore
+%  Catch and ignore 11x17 problems for LPS-20.
+% 25-Feb-1996 Dale Moore
+%  If pdfmark is in systemdict, check for currentdistillerparms also
+%  before using currentdistillerparms.
+%
+%-
+%- Frame ps_prolog 5.0, for use with Frame 5.0 products
+%- This ps_prolog file is Copyright (c) 1986-1996 Adobe Systems, Incoporated.
+%- All rights reserved.  This ps_prolog file may be freely copied and 
+%- distributed in conjunction with documents created using FrameMaker, 
+%- FrameMaker/SGML FrameReader and FrameViewer as long as this 
+%- copyright notice is preserved.
+%-
+%- FrameMaker users specify the proper paper size for each print job in the
+%- "Print" dialog's "Printer Paper Size" "Width" and "Height~ fields.  If the
+%- printer that the PS file is sent to does not support the requested paper
+%- size, or if there is no paper tray of the proper size currently installed, 
+%- then the job will not be printed.  The following flag, if set to true, will
+%- cause the job to print on the default paper in such cases.
+/FMAllowPaperSizeMismatch            false def
+%-
+%- Frame products normally print colors as their true color on a color printer
+%- or as shades of gray, based on luminance, on a black-and white printer. The
+%- following flag, if set to true, forces all non-white colors to print as pure
+%- black. This has no effect on bitmap images.
+/FMPrintAllColorsAsBlack             false def
+%-
+%- Frame products can either set their own line screens or use a printer's 
+%- default settings. Three flags below control this separately for no 
+%- separations, spot separations and process separations. If a flag
+%- is true, then the default printer settings will not be changed. If it is
+%- false, Frame products will use their own settings from a table based on
+%- the printer's resolution.
+/FMUseDefaultNoSeparationScreen      true  def
+/FMUseDefaultSpotSeparationScreen    true  def
+/FMUseDefaultProcessSeparationScreen false def
+%-
+%- For any given PostScript printer resolution, Frame products have two sets of 
+%- screen angles and frequencies for printing process separations, which are 
+%- recomended by Adobe. The following variable chooses the higher frequencies
+%- when set to true or the lower frequencies when set to false. This is only
+%- effective if the appropriate FMUseDefault...SeparationScreen flag is false.
+/FMUseHighFrequencyScreens true def
+%-
+%- The following is a set of predefined optimal frequencies and angles for various
+%- common dpi settings. This is taken from "Advances in Color Separation Using
+%- PostScript Software Technology," from Adobe Systems (3/13/89 P.N. LPS 0043)
+%- and corrolated with information which is in various PPD (4.0) files.
+%-
+%- The "dpiranges" figure is the minimum dots per inch device resolution which
+%- can support this setting. The "low" and "high" values are controlled by the
+%- setting of the FMUseHighFrequencyScreens flag above. The "TDot" flags control
+%- the use of the "Yellow Triple Dot" feature whereby the frequency id divided by
+%- three, but the dot function is "trippled" giving a block of 3x3 dots per cell.
+%-
+%- PatFreq is a compromise pattern frequency for ps Level 2 printers which is close
+%- to the ideal WYSIWYG pattern frequency of 9 repetitions/inch but does not beat
+%- (too badly) against the screen frequencies of any separations for that DPI.
+% This is computed by taking dpi/9 as the ideal pixels per repetition, and then
+% computing a tiling size in printer pixels for each of the four separations as 
+% (dpi/screenFreq)*(cos(screenAngle)+sin(screenAngle)) Actually, this is the same 
+% for Cyan and Magenta). Then, we take a "nice" LCM of the tile sizes close to
+% the desired pattern tile where the beat factor is not more than 2 or 3.
+%
+/dpiranges   [  2540    2400    1693     1270    1200     635      600      0      ] def
+/CMLowFreqs  [ 100.402  94.8683 89.2289 100.402  94.8683  66.9349  63.2456 47.4342 ] def
+/YLowFreqs   [  95.25   90.0    84.65    95.25   90.0     70.5556  66.6667 50.0    ] def
+/KLowFreqs   [  89.8026 84.8528 79.8088  89.8026 84.8528  74.8355  70.7107 53.033  ] def
+/CLowAngles  [  71.5651 71.5651 71.5651 71.5651  71.5651  71.5651  71.5651 71.5651 ] def
+/MLowAngles  [  18.4349 18.4349 18.4349 18.4349  18.4349  18.4349  18.4349 18.4349 ] def
+/YLowTDot    [  true    true    false    true    true     false    false   false   ] def
+
+/CMHighFreqs [ 133.87  126.491 133.843  108.503 102.523  100.402   94.8683 63.2456 ] def
+/YHighFreqs  [ 127.0   120.0   126.975  115.455 109.091   95.25    90.0    60.0    ] def
+/KHighFreqs  [ 119.737 113.137 119.713  128.289 121.218   89.8026  84.8528 63.6395 ] def
+/CHighAngles [  71.5651 71.5651 71.5651  70.0169 70.0169  71.5651  71.5651 71.5651 ] def
+/MHighAngles [  18.4349 18.4349 18.4349  19.9831 19.9831  18.4349  18.4349 18.4349 ] def
+/YHighTDot   [  false   false   true     false   false    true     true    false   ] def
+
+/PatFreq     [	10.5833 10.0     9.4055  10.5833 10.0	  10.5833  10.0	   9.375   ] def
+%-
+%- PostScript Level 2 printers contain an "Accurate Screens" feature which can
+%- improve process separation rendering at the expense of compute time. This 
+%- flag is ignored by PostScript Level 1 printers.
+/FMUseAcccurateScreens true def
+%-
+%- The following PostScript procedure defines the spot function that Frame
+%- products will use for process separations. You may un-comment-out one of
+%- the alternative functions below, or use your own.
+%-
+%- Dot function
+/FMSpotFunction {abs exch abs 2 copy add 1 gt 
+		{1 sub dup mul exch 1 sub dup mul add 1 sub }
+		{dup mul exch dup mul add 1 exch sub }ifelse } def
+%-
+%- Line function
+%- /FMSpotFunction { pop } def
+%-
+%- Elipse function
+%- /FMSpotFunction { dup 5 mul 8 div mul exch dup mul exch add 
+%-		sqrt 1 exch sub } def
+%-
+%-
+
+/FMversion (5.0) def % matches PS_VERSION in fmprintdriver
+
+% PostScript Level 1 = true, 2 = false
+/fMLevel1 /languagelevel where {pop languagelevel} {1} ifelse 2 lt def
+
+% Set up Color vs. Black-and-White
+/FMPColor
+	fMLevel1 {
+		false
+		/colorimage where {pop pop true} if
+	} {
+%		statusdict /processcolors known {
+%			statusdict /processcolors get exec
+%		} {1} ifelse
+%		1 gt
+		true
+	} ifelse
+def
+
+/FrameDict 400 dict def % should check this value each time changes made
+
+%
+% For NeWS we add a fake errordict, so we can psh files
+%
+systemdict /errordict known not {/errordict 10 dict def
+		errordict /rangecheck {stop} put} if
+
+%- The readline in PS 23.0 doesn't recognize cr's as nl's on AppleTalk
+FrameDict /tmprangecheck errordict /rangecheck get put % save old rangecheck
+errordict /rangecheck {FrameDict /bug true put} put % will flag bug found
+FrameDict /bug false put % flag bug not found
+mark % since we're not sure what will happen next
+%- Some PS machines read past the CR, so keep the following 3 lines together!
+currentfile 5 string readline
+00
+0000000000
+cleartomark % junk from readline and rangecheck
+errordict /rangecheck FrameDict /tmprangecheck get put % restore rangecheck
+FrameDict /bug get { % redefine readline if last one got a rangecheck
+	/readline {
+		/gstring exch def
+		/gfile exch def
+		/gindex 0 def
+		{
+			gfile read pop % get a char
+			dup 10 eq {exit} if % exit if LF
+			dup 13 eq {exit} if % exit if CR
+			gstring exch gindex exch put % store it away
+			/gindex gindex 1 add def % bump index
+		} loop
+		pop % eol character
+		gstring 0 gindex getinterval true % simulate real readline
+		} bind def
+	} if
+
+% outer-world defs
+
+/FMshowpage /showpage load def
+/FMquit /quit load def
+
+/FMFAILURE { % enter with two error strings on the stack
+	dup = flush % send a copy of the message to the console
+	FMshowpage % msg on a page by itself, so it can't be, say, black on black
+	/Helvetica findfont 12 scalefont setfont
+	72 200 moveto show
+	72 220 moveto show
+	FMshowpage % we might be in the middle of some EPS, where "showpage"
+	FMquit % and "quit" are redefined
+	} def % only used once at most, so no bind
+
+/FMVERSION {
+	FMversion ne {
+		(Adobe Frame product version does not match ps_prolog!  Check installation;)
+		(also check ~/fminit and ./fminit for old versions) FMFAILURE
+		} if
+	} def % only used at startup, so no bind
+
+/FMBADEPSF { % Call with bad operator name on stack (as a string)
+	(Adobe's PostScript Language Reference Manual, 2nd Edition, section H.2.4)
+	(says your EPS file is not valid, as it calls X              )
+	dup dup (X) search pop exch pop exch pop length % parmstr errstr errstr indx
+	5 -1 roll % errstr errstr index parmstr
+	putinterval % errstr
+	FMFAILURE
+	} def
+
+% standard concatprocs routine
+/fmConcatProcs
+	{
+	/proc2 exch cvlit def/proc1 exch cvlit def/newproc proc1 length proc2 length add array def
+	newproc 0 proc1 putinterval newproc proc1 length proc2 putinterval newproc cvx
+}def
+
+% Put all local variables here in alphabetical order.
+FrameDict begin [
+	/ALDsave
+	/FMdicttop
+	/FMoptop
+	/FMpointsize
+	/FMsaveobject
+	/b
+	/bitmapsave
+	/blut
+	/bpside
+	/bs
+	/bstring
+	/bwidth
+	/c
+	/cf
+	/cs
+	/cynu
+	/depth
+	/edown
+	/fh
+	/fillvals
+	/fw
+	/fx
+	/fy
+	/g
+	/gfile
+	/gindex
+	/grnt
+	/gryt
+	/gstring
+	/height
+	/hh
+	/i
+	/im
+	/indx
+	/is
+	/k
+	/kk
+	/landscape
+	/lb
+	/len
+	/llx
+	/lly
+	/m
+	/magu
+	/manualfeed
+	/n
+	/offbits
+	/onbits
+	/organgle
+	/orgbangle
+	/orgbfreq
+	/orgbproc
+	/orgbxfer
+	/orgfreq
+	/orggangle
+	/orggfreq
+	/orggproc
+	/orggxfer
+	/orgmatrix
+	/orgproc
+	/orgrangle
+	/orgrfreq
+	/orgrproc
+	/orgrxfer
+	/orgxfer
+	/pagesave
+	/paperheight
+	/papersizedict
+	/paperwidth
+	/pos
+	/pwid
+	/r
+	/rad
+	/redt
+	/sl
+	/str
+	/tran
+	/u
+	/urx
+	/ury
+	/val
+	/width
+	/width
+	/ws
+	/ww
+	/x
+	/x1
+	/x2
+	/xindex
+	/xpoint
+	/xscale
+	/xx
+	/y
+	/y1
+	/y2
+	/yelu
+	/yindex
+	/ypoint
+	/yscale
+	/yy
+] { 0 def } forall
+
+% Start of PDF/Acrobat support
+
+% Bind def
+/FmBD {bind def} bind def
+
+systemdict /pdfmark known systemdict /currentdistillerparams known and {
+	/fMAcrobat true def
+
+	% FmPD is a conditional PDFMark
+	/FmPD /pdfmark load def
+	
+	% FmPT is a show text operator which only show up when distiller is active
+	/FmPT /show load def
+	
+	% FmPD2 and FmPA are Acrobat 2.0-specific
+	currentdistillerparams /CoreDistVersion get 2000 ge {
+	
+		% FmPD2 is like FmPD but for Acrobat 2.0-specific PDF
+		/FmPD2 /pdfmark load def
+		
+		% x y/name FmPA
+		% 	is equivalent to
+		% [/Dest/name/View[/FitH x y FmDC exch pop]/DEST FmPD
+		% It is a shortcut for pagragraph Uinique ID designators whic occurr commonly.
+		/FmPA { mark exch /Dest exch 5 3 roll 
+				/View [ /XYZ null 6 -2 roll FmDC exch pop null] /DEST FmPD 
+		}FmBD
+	} {
+		% These are No-Ops for Distiller 1.0
+		/FmPD2 /cleartomark load def
+		/FmPA {pop pop pop}FmBD
+	} ifelse
+} {
+	% these are the No-Ops for regular PostScript
+	/fMAcrobat false def
+	/FmPD /cleartomark load def
+	/FmPD2 /cleartomark load def
+	/FmPT /pop load def
+	/FmPA {pop pop pop}FmBD
+} ifelse
+
+% This convert a set of X Y coordinates from the current user space to the default
+% PostScript coordinates needed by some pdfmark variants. We also convert to 
+% integer because the distiller doesn't always like floats!
+/FmDC {
+	transform fMDefaultMatrix itransform cvi exch cvi exch
+}FmBD
+
+% This converts four numbers into a bounding box making sure the first two are maller than the last two
+/FmBx {
+	dup 3 index lt {3 1 roll exch} if 
+	1 index 4 index lt {4 -1 roll 3 1 roll exch 4 1 roll} if
+}FmBD
+
+% End of PDF/Acrobat support
+
+%
+% Color separation code
+%
+
+% Constants.
+
+/FMnone 0 def
+/FMcyan 1 def
+/FMmagenta 2 def
+/FMyellow 3 def
+/FMblack 4 def
+/FMcustom 5 def
+
+/fMNegative false def % we are inverting the page
+
+% Variables.
+
+/FrameSepIs FMnone def % separation we are printing
+% If FrameSepIs is FMcustom, this is the custom color
+/FrameSepBlack 0 def
+/FrameSepYellow 0 def
+/FrameSepMagenta 0 def
+/FrameSepCyan 0 def
+/FrameSepRed 1 def
+/FrameSepGreen 1 def
+/FrameSepBlue 1 def
+/FrameCurGray 1 def
+/FrameCurPat null def
+
+/FrameCurColors [ 0 0 0 1 0 0 0 ] def % c m y k r g b
+
+% Utility routines
+
+/FrameColorEpsilon .001 def	% epsilon by which values can differ and sill be equal
+/eqepsilon {		% v1 v2 eqeps bool
+	sub dup 0 lt {neg} if
+	FrameColorEpsilon le
+} bind def
+
+% are the cmyk and cmykrgb arrays on the stack the same color?
+/FrameCmpColorsCMYK { % [ c1 m1 y1 k1 ] [ c2 m2 y2 k2 r2 g2 b2] -> bool
+	2 copy 0 get exch 0 get eqepsilon {
+		2 copy 1 get exch 1 get eqepsilon {
+			2 copy 2 get exch 2 get eqepsilon {
+				3 get exch 3 get eqepsilon
+			} {pop pop false} ifelse
+		}{pop pop false} ifelse
+	} {pop pop false} ifelse
+} bind def
+% are the rgb and cmykrgb arrays on the stack the same color?
+/FrameCmpColorsRGB { % [ r1 g1 b1 ] [ c2 m2 y2 k2 r2 g2 b2] -> bool
+	2 copy 4 get exch 0 get eqepsilon {
+		2 copy 5 get exch 1 get eqepsilon {
+			6 get exch 2 get eqepsilon
+		}{pop pop false} ifelse
+	} {pop pop false} ifelse
+} bind def
+
+% convert r g b to c m y k
+/RGBtoCMYK { % r g b
+	1 exch sub % r g y
+	3 1 roll % y r g
+	1 exch sub % y r m
+	3 1 roll % m y r
+	1 exch sub % m y c
+	3 1 roll % c m y
+	3 copy % c m y c m y
+	2 copy % c m y c m y m y
+	le { pop } { exch pop } ifelse % c m y c min(m,y)
+	2 copy % c m y c min(m,y) c min(m,y)
+	le { pop } { exch pop } ifelse % c m y min(c, min(m,y))
+	dup dup dup % c m y k k k k
+	6 1 roll % c k m y k k k
+	4 1 roll % c k m k y k k
+	7 1 roll % k c k m k y k
+	sub % k c k m k y
+	6 1 roll % y k c k m k
+	sub % y k c k m
+	5 1 roll % m y k c k
+	sub % m y k c
+	4 1 roll % c m y k 
+} bind def
+/CMYKtoRGB { % c m y k CMYKtoRGB r g b
+	dup dup 4 -1 roll add 						  % c m k k y+k
+	5 1 roll 3 -1 roll add 						  % y+k c k m+k
+	4 1 roll add 								  % m+k y+k c+k
+	1 exch sub dup 0 lt {pop 0} if 3 1 roll 	  % r m+k y+k
+	1 exch sub dup 0 lt {pop 0} if exch 	      % r b m+k
+	1 exch sub dup 0 lt {pop 0} if exch	  		  % r g b
+} bind def
+
+% Public routines
+
+
+% Happens at the top of each page that is a separation
+/FrameSepInit {
+	1.0 RealSetgray
+} bind def
+% Tell the separation code that this separation is for a custom color
+/FrameSetSepColor { % c m y k r g b
+	/FrameSepBlue exch def
+	/FrameSepGreen exch def
+	/FrameSepRed exch def
+	/FrameSepBlack exch def
+	/FrameSepYellow exch def
+	/FrameSepMagenta exch def
+	/FrameSepCyan exch def
+	/FrameSepIs FMcustom def
+	setCurrentScreen	
+} bind def
+% Tell the separation code that this separation is Cyan
+/FrameSetCyan {
+	/FrameSepBlue 1.0 def
+	/FrameSepGreen 1.0 def
+	/FrameSepRed 0.0 def
+	/FrameSepBlack 0.0 def
+	/FrameSepYellow 0.0 def
+	/FrameSepMagenta 0.0 def
+	/FrameSepCyan 1.0 def
+	/FrameSepIs FMcyan def
+	setCurrentScreen	
+} bind def
+ 
+% Tell the separation code that this separation is Magenta
+/FrameSetMagenta {
+	/FrameSepBlue 1.0 def
+	/FrameSepGreen 0.0 def
+	/FrameSepRed 1.0 def
+	/FrameSepBlack 0.0 def
+	/FrameSepYellow 0.0 def
+	/FrameSepMagenta 1.0 def
+	/FrameSepCyan 0.0 def
+	/FrameSepIs FMmagenta def
+	setCurrentScreen
+} bind def
+ 
+% Tell the separation code that this separation is Yellow
+/FrameSetYellow {
+	/FrameSepBlue 0.0 def
+	/FrameSepGreen 1.0 def
+	/FrameSepRed 1.0 def
+	/FrameSepBlack 0.0 def
+	/FrameSepYellow 1.0 def
+	/FrameSepMagenta 0.0 def
+	/FrameSepCyan 0.0 def
+	/FrameSepIs FMyellow def
+	setCurrentScreen
+} bind def
+ 
+% Tell the separation code that this separation is Black
+/FrameSetBlack {
+	/FrameSepBlue 0.0 def
+	/FrameSepGreen 0.0 def
+	/FrameSepRed 0.0 def
+	/FrameSepBlack 1.0 def
+	/FrameSepYellow 0.0 def
+	/FrameSepMagenta 0.0 def
+	/FrameSepCyan 0.0 def
+	/FrameSepIs FMblack def
+	setCurrentScreen
+} bind def
+ 
+% Tell the separation code we are not doing a separation
+/FrameNoSep { %
+	/FrameSepIs FMnone def
+	setCurrentScreen
+} bind def
+
+% Initialize the separation code with all the custom colors we are
+% separating (not process colors)
+/FrameSetSepColors { % list of arrays of [c m y k r g b] count 
+	FrameDict begin
+	[ exch 1 add 1 roll ]
+	/FrameSepColors  % array of arrays of colors we are separating
+	exch def end
+	} bind def
+
+% is this color array in the array of custom color separations?
+/FrameColorInSepListCMYK { % [ c m y k ] -> bool
+	FrameSepColors {  % color elem-of-array
+       		exch dup 3 -1 roll % color color elem
+       		FrameCmpColorsCMYK % color bool
+       		{ pop true exit } if
+    	} forall % exits with either [color] or true
+	dup true ne {pop false} if
+	} bind def
+/FrameColorInSepListRGB { % [ r g b ] -> bool
+	FrameSepColors {  % color elem-of-array
+       		exch dup 3 -1 roll % color color elem
+       		FrameCmpColorsRGB % color bool
+       		{ pop true exit } if
+    	} forall % exits with either [color] or true
+	dup true ne {pop false} if
+	} bind def
+
+% Level 1 color operators saved and redefined
+/RealSetgray /setgray load def
+/RealSetrgbcolor /setrgbcolor load def
+/RealSethsbcolor /sethsbcolor load def
+end 
+
+% Setgray patch
+/setgray { % num
+	FrameDict begin
+	FrameSepIs FMnone eq
+		{ RealSetgray } 
+		{ % go to white unless the current sep color is black
+		FrameSepIs FMblack eq 
+			{ RealSetgray } 
+			{ FrameSepIs FMcustom eq 
+			  FrameSepRed 0 eq and
+			  FrameSepGreen 0 eq and
+			  FrameSepBlue 0 eq and {
+			  	RealSetgray
+			  } {
+				1 RealSetgray pop 
+			  } ifelse
+			} ifelse
+		} ifelse
+	end
+} bind def
+/setrgbcolor { % r g b
+	FrameDict begin
+	FrameSepIs FMnone eq
+	{  RealSetrgbcolor }
+	{
+		3 copy [ 4 1 roll ] % r g b [ r g b ]
+		FrameColorInSepListRGB
+		{
+				FrameSepBlue eq exch 
+			 	FrameSepGreen eq and exch 
+			 	FrameSepRed eq and
+			 	{ 0 } { 1 } ifelse
+		}
+		{
+			FMPColor {
+				RealSetrgbcolor
+				currentcmykcolor
+			} {
+				RGBtoCMYK
+			} ifelse
+			FrameSepIs FMblack eq
+			{1.0 exch sub 4 1 roll pop pop pop} {
+			FrameSepIs FMyellow eq
+			{pop 1.0 exch sub 3 1 roll pop pop} {
+			FrameSepIs FMmagenta eq
+			{pop pop 1.0 exch sub exch pop } {
+			FrameSepIs FMcyan eq
+			{pop pop pop 1.0 exch sub } 
+			{pop pop pop pop 1} ifelse } ifelse } ifelse } ifelse 
+		} ifelse
+		RealSetgray
+	} 
+	ifelse
+	end
+} bind def
+/sethsbcolor {
+	FrameDict begin
+	FrameSepIs FMnone eq 
+	{ RealSethsbcolor } 
+	{
+		RealSethsbcolor % safe since we will overwrite the color state
+		currentrgbcolor  % r g b - Let PostsCript to the conversion.
+		setrgbcolor % call our version
+	} 
+	ifelse
+	end
+} bind def
+FrameDict begin
+
+/setcmykcolor where {
+	pop /RealSetcmykcolor /setcmykcolor load def
+} {
+	/RealSetcmykcolor {
+		4 1 roll
+		3 { 3 index add 0 max 1 min 1 exch sub 3 1 roll} repeat 
+		RealSetrgbcolor pop
+	} bind def
+} ifelse
+userdict /setcmykcolor { % c m y k
+		FrameDict begin
+		FrameSepIs FMnone eq
+		{ RealSetcmykcolor } 
+		{
+			4 copy [ 5 1 roll ]
+			FrameColorInSepListCMYK
+			{
+				FrameSepBlack eq exch 
+				FrameSepYellow eq and exch 
+				FrameSepMagenta eq and exch 
+				FrameSepCyan eq and 
+				{ 0 } { 1 } ifelse
+			}
+			{
+				FrameSepIs FMblack eq
+				{1.0 exch sub 4 1 roll pop pop pop} {
+				FrameSepIs FMyellow eq
+				{pop 1.0 exch sub 3 1 roll pop pop} {
+				FrameSepIs FMmagenta eq
+				{pop pop 1.0 exch sub exch pop } {
+				FrameSepIs FMcyan eq
+				{pop pop pop 1.0 exch sub } 
+				{pop pop pop pop 1} ifelse } ifelse } ifelse } ifelse 
+			} ifelse
+			RealSetgray
+		}
+		ifelse
+		end
+	} bind put
+
+% Set up a prototype pattern for PostScript Level 2
+fMLevel1 { 
+	% set up screen functions for the patterns in PS level 1
+	% each entry contains an angle, spot function, flipped spot function,
+	% gray level and frequency multiplier.
+	/patScreenDict 7 dict dup begin
+		<0f1e3c78f0e1c387> [ 45  { pop } {exch pop} 		.5   2 sqrt] FmBD
+		<0f87c3e1f0783c1e> [ 135 { pop } {exch pop}			.5   2 sqrt] FmBD
+		<cccccccccccccccc> [ 0   { pop } dup				.5   2	   ] FmBD
+		<ffff0000ffff0000> [ 90  { pop } dup				.5   2	   ] FmBD
+		<8142241818244281> [ 45  { 2 copy lt {exch} if pop}	dup .75  2 sqrt] FmBD
+		<03060c183060c081> [ 45  { pop } {exch pop}			.875 2 sqrt] FmBD
+		<8040201008040201> [ 135 { pop } {exch pop}			.875 2 sqrt] FmBD
+	end def
+} { % prototype level 2 pattern dictionary
+	% define some PostScript procedures for known jaggy patterns.
+	/patProcDict 5 dict dup begin
+		<0f1e3c78f0e1c387> { 3 setlinewidth -1 -1 moveto 9 9 lineto stroke 
+											4 -4 moveto 12 4 lineto stroke
+											-4 4 moveto 4 12 lineto stroke} bind def
+		<0f87c3e1f0783c1e> { 3 setlinewidth -1 9 moveto 9 -1 lineto stroke 
+											-4 4 moveto 4 -4 lineto stroke
+											4 12 moveto 12 4 lineto stroke} bind def
+		<8142241818244281> { 1 setlinewidth -1 9 moveto 9 -1 lineto stroke
+											-1 -1 moveto 9 9 lineto stroke } bind def
+		<03060c183060c081> { 1 setlinewidth -1 -1 moveto 9 9 lineto stroke 
+											4 -4 moveto 12 4 lineto stroke
+											-4 4 moveto 4 12 lineto stroke} bind def
+		<8040201008040201> { 1 setlinewidth -1 9 moveto 9 -1 lineto stroke 
+											-4 4 moveto 4 -4 lineto stroke
+											4 12 moveto 12 4 lineto stroke} bind def
+	end def
+	/patDict 15 dict dup begin
+		/PatternType 1 def		% Always 1 for PS Level 2
+		/PaintType 2 def		% Uncolored pattern
+		/TilingType 3 def		% constant spacing and faster tiling
+		/BBox [ 0 0 8 8 ] def 	% bounding box
+		/XStep 8 def			% X offset
+		/YStep 8 def			% Y offset
+		/PaintProc {
+			begin
+			patProcDict bstring known {
+				patProcDict bstring get exec
+			} {
+				8 8 true [1 0 0 -1 0 8] bstring imagemask
+			} ifelse
+			end
+		} bind def
+	end def
+} ifelse
+
+%combineColor puts together the current gray value (which could also be
+%a fraction of on bits for a fill pattern and the current color and calls
+%the appropriate function
+%
+/combineColor {
+    FrameSepIs FMnone eq
+	{
+		graymode fMLevel1 or not {
+			% Level 2 pattern
+			[/Pattern [/DeviceCMYK]] setcolorspace
+			FrameCurColors 0 4 getinterval aload pop FrameCurPat setcolor
+		} {
+			FrameCurColors 3 get 1.0 ge {
+				FrameCurGray RealSetgray
+			} {
+				fMAcrobat not FMPColor graymode and and {
+					0 1 3 { 
+						FrameCurColors exch get
+						1 FrameCurGray sub mul
+					} for
+					RealSetcmykcolor
+				} {
+					4 1 6 {
+						FrameCurColors exch get
+						graymode {
+							1 exch sub 1 FrameCurGray sub mul 1 exch sub
+						} {
+							1.0 lt {FrameCurGray} {1} ifelse
+						} ifelse
+					} for
+					RealSetrgbcolor
+				} ifelse
+			} ifelse
+		} ifelse
+	} { % separation case
+		FrameCurColors 0 4 getinterval aload
+		FrameColorInSepListCMYK {
+			FrameSepBlack eq exch 
+			FrameSepYellow eq and exch 
+			FrameSepMagenta eq and exch 
+			FrameSepCyan eq and
+			FrameSepIs FMcustom eq and
+			{ FrameCurGray } { 1 } ifelse
+		} {
+			FrameSepIs FMblack eq
+			{FrameCurGray 1.0 exch sub mul 1.0 exch sub 4 1 roll pop pop pop} {
+			FrameSepIs FMyellow eq
+			{pop FrameCurGray 1.0 exch sub mul 1.0 exch sub 3 1 roll pop pop} {
+			FrameSepIs FMmagenta eq
+			{pop pop FrameCurGray 1.0 exch sub mul 1.0 exch sub exch pop } {
+			FrameSepIs FMcyan eq
+			{pop pop pop FrameCurGray 1.0 exch sub mul 1.0 exch sub } 
+			{pop pop pop pop 1} ifelse } ifelse } ifelse } ifelse 
+		} ifelse
+		graymode fMLevel1 or not {
+			% Level 2 pattern
+			[/Pattern [/DeviceGray]] setcolorspace
+			FrameCurPat setcolor
+		} { 
+			graymode not fMLevel1 and {
+				% Level 1 patterns are either all there or not there at all
+				dup 1 lt {pop FrameCurGray} if
+			} if
+			RealSetgray
+		} ifelse
+	} ifelse
+} bind def
+
+/savematrix {
+	orgmatrix currentmatrix pop
+	} bind def
+/restorematrix {
+	orgmatrix setmatrix
+	} bind def
+/fMDefaultMatrix matrix defaultmatrix def
+/fMatrix2 matrix def
+/dpi    72 0 fMDefaultMatrix dtransform
+    dup mul exch   dup mul add   sqrt def
+	
+% freq and sangle are used for ps Level 1 pattern building.
+/freq dpi dup 72 div round dup 0 eq {pop 1} if 8 mul div def
+/sangle 1 0 fMDefaultMatrix dtransform exch atan def
+	sangle fMatrix2 rotate 
+	fMDefaultMatrix fMatrix2 concatmatrix 
+	dup 0 get /sflipx exch def
+	    3 get /sflipy exch def
+
+%
+% screen index depending on dpi
+%	- screenIndex smallint
+/screenIndex {
+	0 1 dpiranges length 1 sub { dup dpiranges exch get 1 sub dpi le {exit} {pop} ifelse } for
+} bind def
+
+%
+% These routines get the standard Adobe frequencies, angles, and spot functions
+% depending on the DPI
+%
+% - getCyanScreen freq angle spotfunction
+/getCyanScreen {
+	FMUseHighFrequencyScreens { CHighAngles CMHighFreqs} {CLowAngles CMLowFreqs} ifelse
+		screenIndex dup 3 1 roll get 3 1 roll get /FMSpotFunction load
+} bind def
+
+%
+% - getMagentaScreen freq angle spotFunction
+/getMagentaScreen {
+	FMUseHighFrequencyScreens { MHighAngles CMHighFreqs } {MLowAngles CMLowFreqs} ifelse
+		screenIndex dup 3 1 roll get 3 1 roll get /FMSpotFunction load
+} bind def
+
+%
+% - getYellowScreen freq angle spotFunction
+% note that some of these use a "tripple dot" function at 1/3 the frequency
+/getYellowScreen {
+	FMUseHighFrequencyScreens { YHighTDot YHighFreqs} { YLowTDot YLowFreqs } ifelse
+		screenIndex dup 3 1 roll get 3 1 roll get { 3 div
+			{2 { 1 add 2 div 3 mul dup floor sub 2 mul 1 sub exch} repeat
+			FMSpotFunction } } {/FMSpotFunction load } ifelse
+			0.0 exch
+} bind def
+
+%
+% - getBlackScreen freq angle spotFunction
+/getBlackScreen  {
+	FMUseHighFrequencyScreens { KHighFreqs } { KLowFreqs } ifelse
+		screenIndex get 45.0 /FMSpotFunction load 
+} bind def
+
+%
+% - getSpotScreen freq angle spotFunction
+/getSpotScreen {
+	getBlackScreen
+} bind def
+
+%
+% - getCompositeScreen freq angle spotFunction
+/getCompositeScreen {
+	getBlackScreen
+} bind def
+
+% FmSetScreen sets the screen for either PostScript Level 1 or Level 2 and optionally
+% sets the accuratescreens flag in the latter case
+% freq angle spotfunction FMSetScreen -
+/FMSetScreen 
+	fMLevel1 { /setscreen load 
+	}{ {
+		8 dict begin
+		/HalftoneType 1 def
+		/SpotFunction exch def
+		/Angle exch def
+		/Frequency exch def
+		/AccurateScreens FMUseAcccurateScreens def
+		currentdict end sethalftone
+	} bind } ifelse
+def
+
+% This sets the default screen as was set at the beginning of the job
+% - setDefaultScreen -
+/setDefaultScreen {
+	FMPColor {
+		orgrxfer cvx orggxfer cvx orgbxfer cvx orgxfer cvx setcolortransfer
+	}
+	{
+		orgxfer cvx settransfer
+	} ifelse
+	orgfreq organgle orgproc cvx setscreen
+} bind def
+
+% This sets the current screen depending on FrameSepIs
+% - setCurrentScreen -
+/setCurrentScreen {
+	FrameSepIs FMnone eq {
+		FMUseDefaultNoSeparationScreen {
+			setDefaultScreen
+		} {
+			getCompositeScreen FMSetScreen
+		} ifelse
+	} {
+		FrameSepIs FMcustom eq {
+			FMUseDefaultSpotSeparationScreen {
+				setDefaultScreen
+			} {
+				getSpotScreen FMSetScreen
+			} ifelse
+		} {
+			FMUseDefaultProcessSeparationScreen {
+				setDefaultScreen
+			} {
+				FrameSepIs FMcyan eq {
+					getCyanScreen FMSetScreen
+				} {
+					FrameSepIs FMmagenta eq {
+						getMagentaScreen FMSetScreen
+					} {
+						FrameSepIs FMyellow eq {
+							getYellowScreen FMSetScreen
+						} {
+							getBlackScreen FMSetScreen
+						} ifelse
+					} ifelse
+				} ifelse
+			} ifelse
+		} ifelse
+	} ifelse 
+} bind def
+
+
+end
+
+% End of Color separation code
+%
+	
+/FMDOCUMENT { % xscale yscale edown negative paperwidth paperheight manfeed numcopies numfonts
+	array /FMfonts exch def % Why isn't this in FrameDict???
+	/#copies exch def
+	FrameDict begin
+	0 ne /manualfeed exch def
+	/paperheight exch def
+	/paperwidth exch def
+	0 ne /fMNegative exch def % invert page
+	0 ne /edown exch def % flip page along y axis
+	/yscale exch def
+	/xscale exch def
+
+	fMLevel1 {
+		manualfeed {setmanualfeed} if
+		/FMdicttop countdictstack 1 add def % some PS's leave junk on dict ...
+		/FMoptop count def % ...or on operand stack...
+		setpapername % This stuff may alter the transfer/screen/angle
+		manualfeed {true} {papersize} ifelse % true->more work to do
+		{manualpapersize} {false} ifelse % true->more work to do
+		{desperatepapersize} {false} ifelse % true->failed completely
+		{papersizefailure} if
+		count -1 FMoptop {pop pop} for
+		countdictstack -1 FMdicttop {pop end} for %...if tray not installed
+		}
+		{2 dict
+		 dup /PageSize [paperwidth paperheight] put
+		 manualfeed {dup /ManualFeed manualfeed put} if
+		 {setpagedevice} stopped {papersizefailure} if
+		}
+	ifelse % fMLevel1
+	
+	FMPColor {
+		currentcolorscreen
+			cvlit /orgproc exch def
+				  /organgle exch def 
+				  /orgfreq exch def
+			cvlit /orgbproc exch def
+				  /orgbangle exch def 
+				  /orgbfreq exch def
+			cvlit /orggproc exch def
+				  /orggangle exch def 
+				  /orggfreq exch def
+			cvlit /orgrproc exch def
+				  /orgrangle exch def 
+				  /orgrfreq exch def
+
+			currentcolortransfer 
+			fMNegative {
+				1 1 4 { 
+					pop { 1 exch sub } fmConcatProcs 4 1 roll
+				} for
+				4 copy
+				setcolortransfer
+			} if
+			cvlit /orgxfer exch def
+			cvlit /orgbxfer exch def
+			cvlit /orggxfer exch def
+			cvlit /orgrxfer exch def
+	} {
+		currentscreen 
+			cvlit /orgproc exch def
+				  /organgle exch def 
+				  /orgfreq exch def
+				  
+		currenttransfer 
+		fMNegative {
+			{ 1 exch sub } fmConcatProcs
+			dup settransfer
+		} if 
+		cvlit /orgxfer exch def
+	} ifelse
+
+	end % FrameDict
+} def % only used at startup, so no bind
+
+/FMBEGINPAGE { % pagewidth pageheight landscape color-arrays count
+	FrameDict begin % for the whole page...
+	/pagesave save def
+	3.86 setmiterlimit
+	/landscape exch 0 ne def
+	landscape { % check for landscape
+		90 rotate 0 exch dup /pwid exch def neg translate pop 
+	}{
+		pop /pwid exch def
+	} ifelse
+	edown { [-1 0 0 1 pwid 0] concat } if
+% paint the whole page in "white".  If the page is inverted, then
+% this will actually paint our black background
+	0 0 moveto paperwidth 0 lineto paperwidth paperheight lineto 
+	0 paperheight lineto 0 0 lineto 1 setgray fill
+	xscale yscale scale
+	/orgmatrix matrix def
+	gsave % for CLIP
+} def % only used infrequently, so no bind
+
+/FMENDPAGE {
+	grestore % for CLIP
+	pagesave restore
+	end % FrameDict
+	showpage
+	} def % only used infrequently, so no bind
+
+/FMFONTDEFINE { % fontindex nonstd_encoding fontname -- 
+	FrameDict begin
+	findfont % fontindex nonstd_encoding font
+	ReEncode % fontindex font'
+	1 index exch % fontindex fontindex font'
+	definefont % fontindex font"
+	FMfonts 3 1 roll %  FMfonts fontindex font"
+	put
+	end % FrameDict
+	} def % only used infrequently, so no bind
+
+/FMFILLS {
+	FrameDict begin dup
+	array /fillvals exch def
+	dict /patCache exch def
+	end % framedict
+	} def % Only called once, so no bind
+
+/FMFILL {
+	FrameDict begin
+	 fillvals 3 1 roll put
+	end % FrameDict
+	} def % only used infrequently, so no bind
+
+% Set things to a known, quiescent state, for when we switch to another writer
+/FMNORMALIZEGRAPHICS { 
+	newpath
+	1 setlinewidth
+	0 setlinecap
+	0 0 0 sethsbcolor
+	0 setgray % Not FMsetgray; only called outside of our environment!
+	} bind def
+
+/FMBEGINEPSF { % <theta> llx lly urx ury fw fh fx fy
+	end % FrameDict
+	/FMEPSF save def % in userdict
+	/showpage {} def % this def is in userdict
+%- See Adobe's "PostScript Language Reference Manual, 2nd Edition", page 714.
+%- "...the following operators MUST NOT be used in an EPS file:" (emphasis ours)
+	/banddevice {(banddevice) FMBADEPSF} def
+	/clear {(clear) FMBADEPSF} def
+	/cleardictstack {(cleardictstack) FMBADEPSF} def % FMBADEPSF knows this is the longest!
+	/copypage {(copypage) FMBADEPSF} def
+	/erasepage {(erasepage) FMBADEPSF} def
+	/exitserver {(exitserver) FMBADEPSF} def
+	/framedevice {(framedevice) FMBADEPSF} def
+	/grestoreall {(grestoreall) FMBADEPSF} def
+	/initclip {(initclip) FMBADEPSF} def
+	/initgraphics {(initgraphics) FMBADEPSF} def
+%	/initmatrix {(initmatrix) FMBADEPSF} def	% Aldus Freehand 4.0 epsf uses this harmlessly <Gus 4/26/95>
+	/quit {(quit) FMBADEPSF} def
+	/renderbands {(renderbands) FMBADEPSF} def
+	/setglobal {(setglobal) FMBADEPSF} def
+	/setpagedevice {(setpagedevice) FMBADEPSF} def
+	/setshared {(setshared) FMBADEPSF} def
+	/startjob {(startjob) FMBADEPSF} def
+	/lettertray {(lettertray) FMBADEPSF} def
+	/letter {(letter) FMBADEPSF} def
+	/lettersmall {(lettersmall) FMBADEPSF} def
+	/11x17tray {(11x17tray) FMBADEPSF} def
+	/11x17 {(11x17) FMBADEPSF} def
+	/ledgertray {(ledgertray) FMBADEPSF} def
+	/ledger {(ledger) FMBADEPSF} def
+	/legaltray {(legaltray) FMBADEPSF} def
+	/legal {(legal) FMBADEPSF} def
+	/statementtray {(statementtray) FMBADEPSF} def
+	/statement {(statement) FMBADEPSF} def
+	/executivetray {(executivetray) FMBADEPSF} def
+	/executive {(executive) FMBADEPSF} def
+	/a3tray {(a3tray) FMBADEPSF} def
+	/a3 {(a3) FMBADEPSF} def
+	/a4tray {(a4tray) FMBADEPSF} def
+	/a4 {(a4) FMBADEPSF} def
+	/a4small {(a4small) FMBADEPSF} def
+	/b4tray {(b4tray) FMBADEPSF} def
+	/b4 {(b4) FMBADEPSF} def
+	/b5tray {(b5tray) FMBADEPSF} def
+	/b5 {(b5) FMBADEPSF} def
+	FMNORMALIZEGRAPHICS % in case we're in a strange state
+	[/fy /fx /fh /fw /ury /urx /lly /llx] {exch def} forall % neat trick
+	fx fw 2 div add fy fh 2 div add  translate
+	rotate
+	fw 2 div neg fh 2 div neg translate
+	fw urx llx sub div fh ury lly sub div scale % then scale
+	llx neg lly neg translate % then compensate for LL offset 
+	/FMdicttop countdictstack 1 add def % high-water mark of dict stack
+	/FMoptop count def % tricky! "/FMoptop" on stack
+	} bind def
+
+/FMENDEPSF {
+	count -1 FMoptop {pop pop} for % clear EPS junk from operand stack
+	countdictstack -1 FMdicttop {pop end} for % ditto for dict stack
+	FMEPSF restore
+	FrameDict begin % for the whole page...
+	} bind def
+
+FrameDict begin % put most defs here
+
+/setmanualfeed {
+%%BeginFeature *ManualFeed True
+	 statusdict /manualfeed true put
+%%EndFeature
+	} bind def
+
+/max {2 copy lt {exch} if pop} bind def
+/min {2 copy gt {exch} if pop} bind def
+/inch {72 mul} def
+
+/pagedimen { % name width height
+	paperheight sub abs 16 lt exch % 16pt is an arbitrary slop amount
+	paperwidth sub abs 16 lt and
+	{/papername exch def} {pop} ifelse
+	} bind def
+
+/setpapername { % Already set up: paperwidth paperheight and manualfeed
+	/papersizedict 14 dict def % one for /papername, one for /unknown
+	papersizedict begin
+	/papername /unknown def % in case no match
+		/Letter 8.5 inch 11.0 inch pagedimen
+		/LetterSmall 7.68 inch 10.16 inch pagedimen
+		/Tabloid 11.0 inch 17.0 inch pagedimen
+		/Ledger 17.0 inch 11.0 inch pagedimen
+		/Legal 8.5 inch 14.0 inch pagedimen
+		/Statement 5.5 inch 8.5 inch pagedimen
+		/Executive 7.5 inch 10.0 inch pagedimen
+		/A3 11.69 inch 16.5 inch pagedimen
+		/A4 8.26 inch 11.69 inch pagedimen
+		/A4Small 7.47 inch 10.85 inch pagedimen
+		/B4 10.125 inch 14.33 inch pagedimen
+		/B5 7.16 inch 10.125 inch pagedimen
+	end
+	} bind def
+
+/papersize {
+	papersizedict begin
+		/Letter {lettertray letter} def
+		/LetterSmall {lettertray lettersmall} def
+		/Tabloid {{11x17tray} stopped pop {11x17} stopped pop} def
+		/Ledger {ledgertray ledger} def
+		/Legal {legaltray legal} def
+		/Statement {statementtray statement} def
+		/Executive {executivetray executive} def
+		/A3 {a3tray a3} def
+		/A4 {a4tray a4} def
+		/A4Small {a4tray a4small} def
+		/B4 {b4tray b4} def
+		/B5 {b5tray b5} def
+		/unknown {unknown} def
+	papersizedict dup papername known {papername} {/unknown} ifelse get
+	end
+	statusdict begin stopped end % return true if more work to do
+	} bind def
+
+/manualpapersize {
+	papersizedict begin
+		/Letter {letter} def
+		/LetterSmall {lettersmall} def
+		/Tabloid {11x17} def
+		/Ledger {ledger} def
+		/Legal {legal} def
+		/Statement {statement} def
+		/Executive {executive} def
+		/A3 {a3} def
+		/A4 {a4} def
+		/A4Small {a4small} def
+		/B4 {b4} def
+		/B5 {b5} def
+		/unknown {unknown} def
+	papersizedict dup papername known {papername} {/unknown} ifelse get
+	end
+	stopped % return true if more work to do
+	} bind def
+
+/desperatepapersize {
+	statusdict /setpageparams known
+		{
+		paperwidth paperheight 0 1 
+		statusdict begin
+		{setpageparams} stopped % return true iff failed
+		end
+		} {true} ifelse % return true iff failed
+	} bind def
+
+/papersizefailure {
+	FMAllowPaperSizeMismatch not
+		{
+(The requested paper size is not available in any currently-installed tray)
+(Edit the PS file to "FMAllowPaperSizeMismatch true" to use default tray)
+		 FMFAILURE } if
+	} def
+
+%
+% Font re-encoding to include diacritics
+% 
+/DiacriticEncoding [
+
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /space /exclam /quotedbl
+/numbersign /dollar /percent /ampersand /quotesingle /parenleft
+/parenright /asterisk /plus /comma /hyphen /period /slash /zero /one
+/two /three /four /five /six /seven /eight /nine /colon /semicolon
+/less /equal /greater /question /at /A /B /C /D /E /F /G /H /I /J /K
+/L /M /N /O /P /Q /R /S /T /U /V /W /X /Y /Z /bracketleft /backslash
+/bracketright /asciicircum /underscore /grave /a /b /c /d /e /f /g /h
+/i /j /k /l /m /n /o /p /q /r /s /t /u /v /w /x /y /z /braceleft /bar
+/braceright /asciitilde /.notdef /Adieresis /Aring /Ccedilla /Eacute
+/Ntilde /Odieresis /Udieresis /aacute /agrave /acircumflex /adieresis
+/atilde /aring /ccedilla /eacute /egrave /ecircumflex /edieresis
+/iacute /igrave /icircumflex /idieresis /ntilde /oacute /ograve
+/ocircumflex /odieresis /otilde /uacute /ugrave /ucircumflex
+/udieresis /dagger /.notdef /cent /sterling /section /bullet
+/paragraph /germandbls /registered /copyright /trademark /acute
+/dieresis /.notdef /AE /Oslash /.notdef /.notdef /.notdef /.notdef
+/yen /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/ordfeminine /ordmasculine /.notdef /ae /oslash /questiondown
+/exclamdown /logicalnot /.notdef /florin /.notdef /.notdef
+/guillemotleft /guillemotright /ellipsis /.notdef /Agrave /Atilde
+/Otilde /OE /oe /endash /emdash /quotedblleft /quotedblright
+/quoteleft /quoteright /.notdef /.notdef /ydieresis /Ydieresis
+/fraction /currency /guilsinglleft /guilsinglright /fi /fl /daggerdbl
+/periodcentered /quotesinglbase /quotedblbase /perthousand
+/Acircumflex /Ecircumflex /Aacute /Edieresis /Egrave /Iacute
+/Icircumflex /Idieresis /Igrave /Oacute /Ocircumflex /.notdef /Ograve
+/Uacute /Ucircumflex /Ugrave /dotlessi /circumflex /tilde /macron
+/breve /dotaccent /ring /cedilla /hungarumlaut /ogonek /caron
+
+] def
+
+/ReEncode { % nonstd_encoding font -- reencodedfont
+	dup % nonstd_encoding font font
+	length % nonstd_encoding font dictlength
+	dict begin % nonstd_encoding font % currentdict = newdict
+	{% forall % forall is over font to be copied
+	1 index /FID ne % skip FID
+		{def} % defs go into newfontdict which is currentdict
+		{pop pop} ifelse % copy all keys including /Encoding
+	} forall % nonstd_encoding
+	0 eq {/Encoding DiacriticEncoding def} if % --
+	currentdict % push a copy of the copied font dict onto operand stack
+	end % font' % before popping it off dictionary stack
+	} bind def
+
+FMPColor 
+	% setup procs for color printing
+	{
+
+	/BEGINBITMAPCOLOR { % iw, ih, width, height, theta, x y 
+		BITMAPCOLOR} def
+	/BEGINBITMAPCOLORc { % iw, ih, width, height, theta, x y 
+		BITMAPCOLORc} def
+	/BEGINBITMAPTRUECOLOR { 
+		BITMAPTRUECOLOR } def
+	/BEGINBITMAPTRUECOLORc { 
+		BITMAPTRUECOLORc } def
+	/BEGINBITMAPCMYK { 
+		BITMAPCMYK } def
+	/BEGINBITMAPCMYKc { 
+		BITMAPCMYKc } def
+	}
+	% setup procs for B&W printing
+	{
+	/BEGINBITMAPCOLOR { % iw, ih, width, height, theta, x y 
+		BITMAPGRAY} def
+	/BEGINBITMAPCOLORc { % iw, ih, width, height, theta, x y 
+		BITMAPGRAYc} def
+	/BEGINBITMAPTRUECOLOR { 
+		BITMAPTRUEGRAY } def
+	/BEGINBITMAPTRUECOLORc { 
+		BITMAPTRUEGRAYc } def
+	/BEGINBITMAPCMYK { 
+		BITMAPCMYKGRAY } def
+	/BEGINBITMAPCMYKc { 
+		BITMAPCMYKGRAYc } def
+	}
+ifelse
+
+/K { % c m y k r g b SEPARATION
+	FMPrintAllColorsAsBlack {
+		dup 1 eq 2 index 1 eq and 3 index 1 eq and not
+			{7 {pop} repeat 0 0 0 1 0 0 0} if
+	} if 
+	FrameCurColors astore 
+	pop combineColor
+} bind def
+%
+% graymode is true if we are just doing gray fills, this way do not keep calling
+% setscreen. I don't know what the cost is on calling setscreen with defaults, but
+% this is easy to keep track of, and we know for sure we aren't wasting cycles.
+% if graymode is false and fMLevel1 is false, then we are using Level 2 patterns.
+%
+/graymode true def
+
+% used by level 1 patterns
+% defaultflip matrixentry fmGetFlit -> eith -1 or 1
+fMLevel1 {
+	/fmGetFlip {
+		fMatrix2 exch get mul 0 lt { -1 } { 1 } ifelse
+	} FmBD
+} if
+
+/setPatternMode {
+	fMLevel1 {
+		2 index patScreenDict exch known {
+			pop pop
+			patScreenDict exch get aload pop % angle spot fspot gray mult
+			freq 								% freq
+			mul									% times multiplier
+			5 2 roll							% angle spot fspot gray mult freq -> gray freq angle spot fspot
+			fMatrix2 currentmatrix 1 get 0 ne {
+				3 -1 roll 90 add 3 1 roll 		% landscape
+				sflipx 1 fmGetFlip sflipy 2 fmGetFlip neg mul
+			} {  								% portrait     
+				sflipx 0 fmGetFlip sflipy 3 fmGetFlip mul 
+			} ifelse
+			0 lt {exch pop} {pop} ifelse 		% take regular or flipped spot function
+			fMNegative { 
+				{neg} fmConcatProcs 			% invert spot function
+			} if
+			bind
+			% we need to bypass any screen filter and go directly to systemdict
+			% to avoid problems with Kodak Precision calibration software
+			% <Gus 9/13/93>
+			systemdict /setscreen get exec		% leave graylevel on stack
+			/FrameCurGray exch def
+		} {
+			/bwidth  exch def
+			/bpside  exch def
+			/bstring exch def
+			/onbits 0 def  /offbits 0 def
+			freq sangle landscape {90 add} if 
+				{/ypoint exch def
+				 /xpoint exch def
+				 /xindex xpoint 1 add 2 div bpside mul cvi def
+				 /yindex ypoint 1 add 2 div bpside mul cvi def
+				 bstring yindex bwidth mul xindex 8 idiv add get
+				 1 7 xindex 8 mod sub bitshift and 0 ne fMNegative {not} if
+				 {/onbits  onbits  1 add def 1}
+				 {/offbits offbits 1 add def 0}
+				 ifelse
+				}
+				setscreen
+			offbits offbits onbits add div fMNegative {1.0 exch sub} if
+			/FrameCurGray exch def
+		} ifelse
+	} { % Level 2 version
+		pop pop
+		dup patCache exch known {
+			patCache exch get
+		} { % not in cache
+			dup
+			patDict /bstring 3 -1 roll put
+			patDict 
+			9 PatFreq screenIndex get div dup matrix scale
+%			9 orgfreq 
+%				organgle sin abs organgle cos abs add div
+%				dup 16 div round dup 0 le {pop 1} if  % Unix pattern size
+%			    dup  9 div round dup 0 le {pop 1} if  % Mac larger (WYSIWYG) size
+%					div div dup matrix scale % This gives Unix pattern size.
+			makepattern
+			dup 
+			patCache 4 -1 roll 3 -1 roll put
+		} ifelse
+		/FrameCurGray 0 def
+		/FrameCurPat exch def
+	} ifelse
+	/graymode false def
+	combineColor
+} bind def
+
+/setGrayScaleMode {
+	graymode not {
+		/graymode true def
+		fMLevel1 {
+			setCurrentScreen
+		} if
+	} if
+	/FrameCurGray exch def
+	combineColor
+} bind def
+
+/normalize {
+	transform round exch round exch itransform
+	} bind def
+
+/dnormalize {
+	dtransform round exch round exch idtransform
+	} bind def
+
+/lnormalize { % line widths are always odd so that arrow heads work
+	0 dtransform exch cvi 2 idiv 2 mul 1 add exch idtransform pop
+	} bind def
+
+/H { % THICK
+	lnormalize setlinewidth
+	} bind def
+
+/Z {
+	setlinecap
+	} bind def
+	
+% This is used to fill or stroke white behind a Level 2 pattern
+/PFill {
+	graymode fMLevel1 or not {
+		gsave 1 setgray eofill grestore
+	} if
+} bind def
+/PStroke {
+	graymode fMLevel1 or not {
+		gsave 1 setgray stroke grestore
+	} if
+	stroke
+} bind def
+
+/X { % TEXTURE
+	fillvals exch get
+	dup type /stringtype eq
+	{8 1 setPatternMode} % Silly to pass parameters here
+	{setGrayScaleMode}
+	ifelse
+	} bind def
+
+/V { % FILL
+	PFill gsave eofill grestore
+	} bind def
+
+/Vclip {
+	clip
+	} bind def
+
+/Vstrk {
+	currentlinewidth exch setlinewidth PStroke setlinewidth
+	} bind def
+
+/N { % PEN
+	PStroke
+	} bind def
+
+/Nclip {
+	strokepath clip newpath
+	} bind def
+
+/Nstrk {
+	currentlinewidth exch setlinewidth PStroke setlinewidth
+	} bind def
+
+/M {newpath moveto} bind def
+/E {lineto} bind def
+/D {curveto} bind def
+/O {closepath} bind def
+
+/L { % POLYLINE
+ 	/n exch def
+	newpath
+	normalize
+	moveto 
+	2 1 n {pop normalize lineto} for
+	} bind def
+
+/Y { % POLYGON !!!
+	L % POLYLINE
+	closepath
+	} bind def
+
+/R { % RECT x1 y1 x2 y2
+	/y2 exch def
+	/x2 exch def
+	/y1 exch def
+	/x1 exch def
+	x1 y1
+	x2 y1
+	x2 y2
+	x1 y2
+	4 Y % POLYGON
+	} bind def
+
+/rarc % Leaves all sorts of junk on the operand stack for caller to clear off
+	{rad % arcto might fail if we're scaled way down
+	 arcto
+	} bind def
+
+/RR { % ROUNDRECT x1 y1 x2 y2 r
+	/rad exch def
+	normalize
+	/y2 exch def
+	/x2 exch def
+	normalize
+	/y1 exch def
+	/x1 exch def
+	mark
+	newpath
+	{
+	x1 y1 rad add moveto
+	x1 y2 x2 y2 rarc
+	x2 y2 x2 y1 rarc
+	x2 y1 x1 y1 rarc
+	x1 y1 x1 y2 rarc
+	closepath
+	} stopped {x1 y1 x2 y2 R} if % in case rarc failed for degenerate arcs
+	cleartomark
+	} bind def
+
+/RRR { % ROUNDRECT ROTATED xs ys x1 y1 x2 y2 x3 y3 x4 y4 r
+	/rad exch def
+	normalize /y4 exch def /x4 exch def
+	normalize /y3 exch def /x3 exch def
+	normalize /y2 exch def /x2 exch def
+	normalize /y1 exch def /x1 exch def
+	newpath
+	normalize moveto % eats xs ys
+	mark
+	{
+	x2 y2 x3 y3 rarc
+	x3 y3 x4 y4 rarc
+	x4 y4 x1 y1 rarc
+	x1 y1 x2 y2 rarc
+	closepath
+	} stopped
+	 {x1 y1 x2 y2 x3 y3 x4 y4 newpath moveto lineto lineto lineto closepath} if
+	cleartomark
+	} bind def
+
+/C { % CLIP
+	grestore
+	gsave
+	R % RECT
+	clip
+	setCurrentScreen
+} bind def
+
+/CP { % CLIPPOLY p1x p1y p2x p2y ... n 
+	grestore
+	gsave
+	Y % POLYGON
+	clip
+	setCurrentScreen
+} bind def
+
+/F { % FONT
+	FMfonts exch get
+	FMpointsize scalefont
+	setfont
+	} bind def
+
+/Q { % POINTSIZE (& font)
+	/FMpointsize exch def
+	F % could be slightly optimized here
+	} bind def
+
+/T { % TEXT <string> <x> <y>
+	moveto show
+	} bind def
+
+% Callers of RF (rotate/flip) must gsave (or save) first; (g)restore when done
+/RF { % <flip> <theta>
+	rotate
+	0 ne {-1 1 scale} if
+	} bind def
+
+/TF { % TEXTFLIPROTATE <string> <flip> <theta> <x> <y>
+	gsave
+	moveto 
+	RF
+	show
+	grestore
+	} bind def
+
+/P { % PADTEXT <pad> <string> <x> <y>
+	moveto
+	0 32 3 2 roll widthshow
+	} bind def
+
+/PF { % PADTEXTFLIPROTATE <pad> <string> <flip> <theta> <x> <y>
+	gsave
+	moveto 
+	RF
+	0 32 3 2 roll widthshow
+	grestore
+	} bind def
+
+/S { % SPREADTEXT <spread> <string> <x> <y>
+	moveto
+	0 exch ashow
+	} bind def
+
+/SF { % SPREADTEXTFLIPROTATE <spread> <string> <flip> <theta> <x> <y>
+	gsave
+	moveto
+	RF
+	0 exch ashow
+	grestore
+	} bind def
+
+/B { % PADSPREADTEXT <pad> <spread> <string> <x> <y>
+	moveto
+	0 32 4 2 roll 0 exch awidthshow
+	} bind def
+
+/BF { % PADSPREADTEXTFLIPROTATE <pad> <spread> <string> <flip> <theta> <x> <y>
+	gsave
+	moveto
+	RF
+	0 32 4 2 roll 0 exch awidthshow
+	grestore
+	} bind def
+
+/G { % ARCFILL theta1 theta2 width height x y
+	gsave
+	newpath
+	normalize translate 0.0 0.0 moveto % eats x y
+	dnormalize scale % eats width height
+	0.0 0.0 1.0 5 3 roll arc % eats theta1 theta2
+	closepath 
+	PFill fill
+	grestore
+	} bind def
+
+/Gstrk {
+	savematrix
+    newpath
+    2 index 2 div add exch 3 index 2 div sub exch % theta1 theta2 width height x y
+    normalize 2 index 2 div sub exch 3 index 2 div add exch % theta1 theta2 width height x y
+    translate
+    scale % eats width height
+    0.0 0.0 1.0 5 3 roll arc % eats theta1 theta2
+    restorematrix
+    currentlinewidth exch setlinewidth PStroke setlinewidth
+    } bind def
+
+/Gclip { % ARCFILL theta1 theta2 width height x y swid
+	newpath
+	savematrix
+	normalize translate 0.0 0.0 moveto % eats x y
+	dnormalize scale % eats width height
+	0.0 0.0 1.0 5 3 roll arc % eats theta1 theta2
+	closepath 
+	clip newpath
+	restorematrix
+	} bind def
+
+/GG { % ARCFILL ROTATED theta1 theta2 width height angle x y
+	gsave
+	newpath
+	normalize translate 0.0 0.0 moveto % eats x y
+	rotate % eats angle
+	dnormalize scale % eats width height
+	0.0 0.0 1.0 5 3 roll arc % eats theta1 theta2
+	closepath
+	PFill
+	fill
+	grestore
+	} bind def
+
+/GGclip { % ARCFILL ROTATED theta1 theta2 width height angle x y
+	savematrix
+	newpath
+    normalize translate 0.0 0.0 moveto % eats x y
+    rotate % eats angle
+    dnormalize scale % eats width height
+    0.0 0.0 1.0 5 3 roll arc % eats theta1 theta2
+    closepath
+	clip newpath
+	restorematrix
+	} bind def
+
+/GGstrk { % ARCFILL ROTATED swid theta1 theta2 width height angle x y
+	savematrix
+    newpath
+    normalize translate 0.0 0.0 moveto % eats x y
+    rotate % eats angle
+    dnormalize scale % eats width height
+    0.0 0.0 1.0 5 3 roll arc % eats theta1 theta2
+    closepath 
+	restorematrix
+    currentlinewidth exch setlinewidth PStroke setlinewidth
+	} bind def
+
+/A { % ARCPEN theta1 theta2 width height x y
+	gsave
+	savematrix
+	newpath
+	2 index 2 div add exch 3 index 2 div sub exch % theta1 theta2 width height x y
+	normalize 2 index 2 div sub exch 3 index 2 div add exch % theta1 theta2 width height x y
+	translate 
+	scale % eats width height
+	0.0 0.0 1.0 5 3 roll arc % eats theta1 theta2
+	restorematrix
+	PStroke
+	grestore
+	} bind def
+
+/Aclip {
+	newpath
+	savematrix
+	normalize translate 0.0 0.0 moveto % eats x y
+	dnormalize scale % eats width height
+	0.0 0.0 1.0 5 3 roll arc % eats theta1 theta2
+	closepath 
+	strokepath clip newpath
+	restorematrix
+} bind def
+
+/Astrk {
+	Gstrk
+} bind def
+
+/AA { % ARCPEN ROTATED theta1 theta2 width height angle x y
+	gsave
+	savematrix
+	newpath
+	% theta1 theta2 width height angle x y
+	3 index 2 div add exch 4 index 2 div sub exch 
+	% theta1 theta2 width height angle x y
+	normalize 3 index 2 div sub exch 4 index 2 div add exch
+	translate % eats x y
+	rotate % eats angle
+	scale % eats width height
+	0.0 0.0 1.0 5 3 roll arc % eats theta1 theta2
+	restorematrix
+	PStroke
+	grestore
+	} bind def
+
+/AAclip {
+	savematrix
+	newpath
+    normalize translate 0.0 0.0 moveto % eats x y
+    rotate % eats angle
+    dnormalize scale % eats width height
+    0.0 0.0 1.0 5 3 roll arc % eats theta1 theta2
+    closepath
+	strokepath clip newpath
+	restorematrix
+} bind def
+
+/AAstrk {
+	GGstrk
+} bind def
+
+/BEGINPRINTCODE { % -x -y width height
+	/FMdicttop countdictstack 1 add def % high-water mark of dict stack
+	/FMoptop count 7 sub def % tricky! 7 params on stack, plus "/FMoptop"
+	/FMsaveobject save def
+	userdict begin % insulate user from FrameDict; not in /FMdicttop count
+	/showpage {} def % this def is in userdict
+	FMNORMALIZEGRAPHICS % in case we're in a strange state
+	3 index neg 3 index neg translate
+	} bind def
+
+/ENDPRINTCODE {
+	count -1 FMoptop {pop pop} for % clear user junk from operand stack
+	countdictstack -1 FMdicttop {pop end} for % ditto for dict stack
+	FMsaveobject restore % this is now safe, unless user very malicious
+	} bind def
+
+/gn { % get a number in a funny encoding scheme
+	0 % result on stack
+	{	46 mul % shift old digits
+		cf read pop % get next character
+		32 sub % zero is the space character
+		dup 46 lt {exit} if % quit if we're the last digit
+		46 sub add % add in this digit and loop around for next
+		} loop
+	add % result on stack
+	} bind def
+
+/cfs { % create a string of length "sl" filled with "val"s
+	/str sl string def % create string as "str"
+	0 1 sl 1 sub {str exch val put} for % fill array
+	str def % define real array name, too; name is on stack from caller
+	} bind def
+
+/ic [ % "case" stmt list of procedures that the image commands should call
+	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0223
+	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0223
+	0
+	{0 hx} {1 hx} {2 hx} {3 hx} {4 hx} {5 hx} {6 hx} {7 hx} {8 hx} {9 hx}
+	{10 hx} {11 hx} {12 hx} {13 hx} {14 hx} {15 hx} {16 hx} {17 hx} {18 hx}
+	{19 hx} {gn hx} {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12}
+	{13} {14} {15} {16} {17} {18} {19} {gn} {0 wh} {1 wh} {2 wh} {3 wh}
+	{4 wh} {5 wh} {6 wh} {7 wh} {8 wh} {9 wh} {10 wh} {11 wh} {12 wh}
+	{13 wh} {14 wh} {gn wh} {0 bl} {1 bl} {2 bl} {3 bl} {4 bl} {5 bl} {6 bl}
+	{7 bl} {8 bl} {9 bl} {10 bl} {11 bl} {12 bl} {13 bl} {14 bl} {gn bl}
+	{0 fl} {1 fl} {2 fl} {3 fl} {4 fl} {5 fl} {6 fl} {7 fl} {8 fl} {9 fl}
+	{10 fl} {11 fl} {12 fl} {13 fl} {14 fl} {gn fl}
+	] def
+
+/ms { % make all the strings
+	/sl exch def % remember length of currently existing strings
+	/val 255 def % that's white
+	/ws cfs % make "ws" a string filled with white
+	/im cfs % and "im" is a complete image scanline
+	/val 0 def % that's black
+	/bs cfs % make "bs" a string filled with black
+	/cs cfs % here's where we'll put complete command lines
+	} bind def
+
+400 ms % make strings that will be plenty long for most applications
+
+/ip { % image procedure; reads and executes commands to make scanlines
+	is % leave image string and...
+	0 % ...image position on stack all through this procedure
+	cf cs readline pop % get a string of commands
+	{	ic exch get exec % execute next command
+		add % all commands leave a length on the stack; update pos
+		} forall % step through all commands
+	pop % get rid of image position pointer
+	% image string left on stack, so it's returned to image primitive
+	} bind def
+/rip { % this is similar to ip above, except for 24 bit images
+	   % this takes an extra argument, the width of the image
+	  % do red
+	  bis ris copy pop % copy blue to red
+      is
+      0
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop % remove is and position from stack
+	  ris gis copy pop % copy red to green
+	  dup is exch % position of green is width bytes into is
+	  % do green
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop
+	  gis bis copy pop % copy green to blue
+	  dup add is exch % position of blue is 2*width bytes into is
+	  % do blue
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+      pop 
+      
+      } bind def
+
+/rip4 { % this is similar to ip above, except for 32 bit images
+	   % this takes an extra argument, the width of the image
+	  % do cyan
+	  kis cis copy pop % copy black to cyan
+      is
+      0
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop % remove is and position from stack
+	  cis mis copy pop % copy cyan to magenta
+	  dup is exch % position of magenta is width bytes into is
+	  % do magenta
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop
+	  mis yis copy pop % copy magenta to yellow
+	  dup dup add is exch % position of yellow is 2*width bytes into is
+	  % do yellow
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+	  pop pop
+	  yis kis copy pop % copy yellow to black
+	  3 mul is exch % position of black is 3*width bytes into is
+	  % do black
+      cf cs readline pop 
+      {       ic exch get exec 
+              add 
+              } forall 
+      pop 
+      
+      } bind def
+
+
+/wh { % fill a number of bytes with "white"
+	/len exch def % number of bytes to fill
+	/pos exch def % position to put them at
+	ws 0 len getinterval im pos len getinterval copy pop
+	pos len % remember where we got to
+	} bind def
+
+/bl { % fill a number of bytes with "black"
+	/len exch def % number of bytes to fill
+	/pos exch def % position to put them at
+	bs 0 len getinterval im pos len getinterval copy pop
+	pos len % remember where we got to
+	} bind def
+
+/s1 1 string def
+
+/fl { % fill a number of bytes with a specific hex value
+	/len exch def % number of bytes to fill
+	/pos exch def % position to put them at
+	/val cf s1 readhexstring pop 0 get def
+	pos 1 pos len add 1 sub {im exch val put} for
+	pos len % remember where we got to
+	} bind def
+
+/hx { % read hex bytes directly; on entry, stack has <str> <pos> <len>
+	3 copy getinterval % stack has <str> <pos> <len> <substr>
+	cf exch readhexstring pop pop % stack back to <str> <pos> <len>
+	} bind def
+
+/wbytes { % width depth -> wb      find width in bytes  given 1, 2, 8 or 24 or 32
+      dup dup
+      8 gt { pop 8 idiv mul }
+      { 8 eq {pop} {1 eq {7 add 8 idiv} {3 add 4 idiv} ifelse} ifelse } ifelse
+	} bind def
+/BEGINBITMAPBWc { % iw, ih, width, height, theta, x y 
+	1 {} COMMONBITMAPc
+	} bind def
+/BEGINBITMAPGRAYc { % iw, ih, width, height, theta, x y 
+	8 {} COMMONBITMAPc
+	} bind def
+/BEGINBITMAP2BITc { % iw, ih, width, height, theta, x y 
+	2 {} COMMONBITMAPc
+	} bind def
+%
+% Common routine for imaging compressed images
+%
+/COMMONBITMAPc { % iw, ih, width, height, theta, x y depth proc
+		 % (x,y) is the lower left corner of the image
+	/cvtProc exch def
+	/depth exch def
+	gsave
+	% rotate about center of image
+	3 index 2 div add exch	% iw ih width height theta y+(height/2) x
+	4 index 2 div add exch	% iw ih width height theta x+(width/2) y+(height/2)
+	translate		% iw ih width height theta
+	rotate			% iw ih width height
+	1 index 2 div neg	% iw ih width height -(width/2)
+	1 index 2 div neg	% iw ih width height -(width/2) -(height/2)
+	translate		% iw ih width height
+	scale			% iw ih
+	/height exch def /width exch def
+	/lb width depth wbytes def % so "lb" has width in bytes
+	sl lb lt {lb ms} if % maybe make bigger strings
+	/bitmapsave save def % LW+ has a buggy memory leak!
+	cvtProc                % run the desired proc after save has occurred
+	/is im 0 lb getinterval def % image substring
+	ws 0 lb getinterval is copy pop % whiten it
+	/cf currentfile def % evaluate "currentfile" only once
+	width height depth [width 0 0 height neg 0 height] % top to bottom
+	{ip} image % zap!
+	bitmapsave restore % avoid occasional disaster on the LW+
+	grestore
+	} bind def
+/BEGINBITMAPBW { % iw, ih, width, height, theta, x y 
+	1 {} COMMONBITMAP
+	} bind def
+/BEGINBITMAPGRAY { % iw, ih, width, height, theta, x y 
+	8 {} COMMONBITMAP
+	} bind def
+/BEGINBITMAP2BIT { % iw, ih, width, height, theta, x y 
+	2 {} COMMONBITMAP
+	} bind def
+%
+% Common routine for uncompressed images
+%
+/COMMONBITMAP { % iw, ih, width, height, theta, x y depth proc
+	/cvtProc exch def
+	/depth exch def
+	gsave
+	% rotate about center of image
+	3 index 2 div add exch	% iw ih width height theta y+(height/2) x
+	4 index 2 div add exch	% iw ih width height theta x+(width/2) y+(height/2)
+	translate		% iw ih width height theta
+	rotate			% iw ih width height
+	1 index 2 div neg	% iw ih width height -(width/2)
+	1 index 2 div neg	% iw ih width height -(width/2) -(height/2)
+	translate		% iw ih width height
+	scale			% iw ih
+	/height exch def /width exch def
+	/bitmapsave save def % LW+ has a buggy memory leak!
+	cvtProc              % run the desired proc after save has occurred
+	/is width depth wbytes string def
+	/cf currentfile def % evaluate "currentfile" only once
+	width height depth [width 0 0 height neg 0 height] % top to bottom
+	{cf is readhexstring pop} image
+	bitmapsave restore % avoid occasional disaster on the LW+
+	grestore
+	} bind def
+
+%
+% All this hairy color setup stuff gus wrote on the mac, I just copied and
+% changed the variable names to be humanly readable.
+
+/ngrayt 256 array def
+/nredt 256 array def
+/nbluet 256 array def
+/ngreent 256 array def
+
+fMLevel1 {
+/colorsetup {
+	currentcolortransfer
+	/gryt exch def
+	/blut exch def
+	/grnt exch def
+	/redt exch def
+	0 1 255 {
+		/indx exch def
+		/cynu 1 red indx get 255 div sub def
+		/magu 1 green indx get 255 div sub def
+		/yelu 1 blue indx get 255 div sub def
+		/kk cynu magu min yelu min def
+% The HP PaintJet XL300 ignores the gray transfer curve but still sets its
+% default black generation and undercolor removal functions as if it is
+% used. This causes black colors not to work. Bug#56844 <Gus 2/22/93>
+% - We go back to the old (correct?) way of doing this since this code
+% is now bypassed for PS Level 2 printers in favor of colorSetup2 which
+% uses PS Level 2 indexed color, which is much cleaner. <Gus 3/3/93>
+		/u kk currentundercolorremoval exec def
+%-		/u 0 def
+		nredt indx 1 0 cynu u sub max sub redt exec put
+		ngreent indx 1 0 magu u sub max sub grnt exec put
+		nbluet indx 1 0 yelu u sub max sub blut exec put
+		ngrayt indx 1 kk currentblackgeneration exec sub gryt exec put
+	} for
+	{255 mul cvi nredt exch get}
+	{255 mul cvi ngreent exch get}
+	{255 mul cvi nbluet exch get}
+	{255 mul cvi ngrayt exch get}
+	setcolortransfer
+	{pop 0} setundercolorremoval
+	{} setblackgeneration
+	} bind def
+}
+{
+% Here, we set up indexed color for imaging on PS Level 2 without mucking around
+% with the transfer functions.
+
+/colorSetup2 {
+	[ /Indexed /DeviceRGB 255 
+		{dup red exch get 255 div 
+		 exch dup green exch get 255 div 
+		 exch blue exch get 255 div}
+	] setcolorspace
+} bind def
+} ifelse
+
+%
+% Setup a transfer function to convert psuedo color values into grayscale
+% values based on the color lookup tables.
+%
+/fakecolorsetup {
+	/tran 256 string def
+	0 1 255 {/indx exch def 
+		tran indx
+		red indx get 77 mul
+		green indx get 151 mul
+		blue indx get 28 mul
+		add add 256 idiv put} for
+	currenttransfer
+	{255 mul cvi tran exch get 255.0 div}
+	exch fmConcatProcs settransfer
+} bind def
+%
+% image a color image
+%
+/BITMAPCOLOR { % iw, ih, width, height, theta, x y 
+	/depth 8 def
+	gsave
+	% rotate about center of image
+	3 index 2 div add exch	% iw ih width height theta y+(height/2) x
+	4 index 2 div add exch	% iw ih width height theta x+(width/2) y+(height/2)
+	translate		% iw ih width height theta
+	rotate			% iw ih width height
+	1 index 2 div neg	% iw ih width height -(width/2)
+	1 index 2 div neg	% iw ih width height -(width/2) -(height/2)
+	translate		% iw ih width height
+	scale			% iw ih
+	/height exch def /width exch def
+	/bitmapsave save def
+	fMLevel1 {	
+		colorsetup
+		/is width depth wbytes string def
+		/cf currentfile def % evaluate "currentfile" only once
+		width height depth [width 0 0 height neg 0 height] % top to bottom
+		{cf is readhexstring pop} {is} {is} true 3 colorimage 
+	} {
+		colorSetup2
+		/is width depth wbytes string def
+		/cf currentfile def % evaluate "currentfile" only once
+		7 dict dup begin
+			/ImageType 1 def
+			/Width width def
+			/Height height def
+			/ImageMatrix [width 0 0 height neg 0 height] def
+			/DataSource {cf is readhexstring pop} bind def
+			/BitsPerComponent depth def
+			/Decode [0 255] def
+		end image	
+	} ifelse
+	bitmapsave restore 
+	grestore
+	} bind def
+%
+% Compressed color image rendering
+%
+/BITMAPCOLORc { % iw, ih, width, height, theta, x y 
+	/depth 8 def
+	gsave
+	% rotate about center of image
+	3 index 2 div add exch	% iw ih width height theta y+(height/2) x
+	4 index 2 div add exch	% iw ih width height theta x+(width/2) y+(height/2)
+	translate		% iw ih width height theta
+	rotate			% iw ih width height
+	1 index 2 div neg	% iw ih width height -(width/2)
+	1 index 2 div neg	% iw ih width height -(width/2) -(height/2)
+	translate		% iw ih width height
+	scale			% iw ih
+	/height exch def /width exch def
+	/lb width depth wbytes def % so "lb" has width in bytes
+	sl lb lt {lb ms} if % maybe make bigger strings
+	/bitmapsave save def 
+	fMLevel1 {	
+		colorsetup
+		/is im 0 lb getinterval def % image substring
+		ws 0 lb getinterval is copy pop % whiten it
+		/cf currentfile def % evaluate "currentfile" only once
+		width height depth [width 0 0 height neg 0 height] % top to bottom
+		{ip} {is} {is} true 3 colorimage
+	} {
+		colorSetup2
+		/is im 0 lb getinterval def % image substring
+		ws 0 lb getinterval is copy pop % whiten it
+		/cf currentfile def % evaluate "currentfile" only once
+		7 dict dup begin
+			/ImageType 1 def
+			/Width width def
+			/Height height def
+			/ImageMatrix [width 0 0 height neg 0 height] def
+			/DataSource {ip} bind def
+			/BitsPerComponent depth def
+			/Decode [0 255] def
+		end image	
+	} ifelse
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPTRUECOLORc { 
+	/depth 24 def
+        gsave
+ 	% rotate about center of image
+	3 index 2 div add exch	% iw ih width height theta y+(height/2) x
+	4 index 2 div add exch	% iw ih width height theta x+(width/2) y+(height/2)
+	translate		% iw ih width height theta
+	rotate			% iw ih width height
+	1 index 2 div neg	% iw ih width height -(width/2)
+	1 index 2 div neg	% iw ih width height -(width/2) -(height/2)
+	translate		% iw ih width height
+	scale			% iw ih
+	/height exch def /width exch def
+	/lb width depth wbytes def % so "lb" has width in bytes
+	sl lb lt {lb ms} if % maybe make bigger strings
+	/bitmapsave save def 
+        
+	/is im 0 lb getinterval def	% Whole scanline
+	/ris im 0 width getinterval def	% red part of im
+	/gis im width width getinterval def	% green part of im
+	/bis im width 2 mul width getinterval def % blue part of im
+        
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	width height 8 [width 0 0 height neg 0 height] 
+	{width rip pop ris} {gis} {bis} true 3 colorimage
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPCMYKc { 
+	/depth 32 def
+        gsave
+ 	% rotate about center of image
+	3 index 2 div add exch	% iw ih width height theta y+(height/2) x
+	4 index 2 div add exch	% iw ih width height theta x+(width/2) y+(height/2)
+	translate		% iw ih width height theta
+	rotate			% iw ih width height
+	1 index 2 div neg	% iw ih width height -(width/2)
+	1 index 2 div neg	% iw ih width height -(width/2) -(height/2)
+	translate		% iw ih width height
+	scale			% iw ih
+	/height exch def /width exch def
+	/lb width depth wbytes def % so "lb" has width in bytes
+	sl lb lt {lb ms} if % maybe make bigger strings
+	/bitmapsave save def 
+        
+	/is im 0 lb getinterval def	% Whole scanline
+	/cis im 0 width getinterval def	% cyan part of im
+	/mis im width width getinterval def	% magenta part of im
+	/yis im width 2 mul width getinterval def % yellow part of im
+	/kis im width 3 mul width getinterval def % black part of im
+        
+	ws 0 lb getinterval is copy pop 
+	/cf currentfile def 
+	width height 8 [width 0 0 height neg 0 height] 
+	{width rip4 pop cis} {mis} {yis} {kis} true 4 colorimage
+	bitmapsave restore 
+	grestore
+	} bind def
+/BITMAPTRUECOLOR { 
+        gsave
+		% rotate about center of image
+		3 index 2 div add exch	% iw ih width height theta y+(height/2) x
+		4 index 2 div add exch	% iw ih width height theta x+(width/2) y+(height/2)
+		translate		% iw ih width height theta
+		rotate			% iw ih width height
+		1 index 2 div neg	% iw ih width height -(width/2)
+		1 index 2 div neg	% iw ih width height -(width/2) -(height/2)
+		translate		% iw ih width height
+		scale			% iw ih
+		/height exch def /width exch def
+        /bitmapsave save def 
+        /is width string def
+        /gis width string def
+        /bis width string def
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        { cf is readhexstring pop } 
+        { cf gis readhexstring pop } 
+        { cf bis readhexstring pop } 
+        true 3 colorimage 
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPCMYK { 
+        gsave
+		% rotate about center of image
+		3 index 2 div add exch	% iw ih width height theta y+(height/2) x
+		4 index 2 div add exch	% iw ih width height theta x+(width/2) y+(height/2)
+		translate		% iw ih width height theta
+		rotate			% iw ih width height
+		1 index 2 div neg	% iw ih width height -(width/2)
+		1 index 2 div neg	% iw ih width height -(width/2) -(height/2)
+		translate		% iw ih width height
+		scale			% iw ih
+		/height exch def /width exch def
+        /bitmapsave save def 
+        /is width string def
+        /mis width string def
+        /yis width string def
+        /kis width string def
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        { cf is readhexstring pop } 
+        { cf mis readhexstring pop } 
+        { cf yis readhexstring pop } 
+        { cf kis readhexstring pop } 
+        true 4 colorimage 
+        bitmapsave restore 
+        grestore
+        } bind def
+%
+% image a color image to a b&width device
+%
+/BITMAPTRUEGRAYc { 
+	/depth 24 def
+        gsave
+	% rotate about center of image
+	3 index 2 div add exch	% iw ih width height theta y+(height/2) x
+	4 index 2 div add exch	% iw ih width height theta x+(width/2) y+(height/2)
+	translate		% iw ih width height theta
+	rotate			% iw ih width height
+	1 index 2 div neg	% iw ih width height -(width/2)
+	1 index 2 div neg	% iw ih width height -(width/2) -(height/2)
+	translate		% iw ih width height
+	scale			% iw ih
+	/height exch def /width exch def
+	/lb width depth wbytes def % so "lb" has width in bytes
+	sl lb lt {lb ms} if % maybe make bigger strings
+        /bitmapsave save def 
+        
+	/is im 0 lb getinterval def	% Whole scanline
+	/ris im 0 width getinterval def	% red part of im
+	/gis im width width getinterval def	% green part of im
+	/bis im width 2 mul width getinterval def % blue part of im
+        ws 0 lb getinterval is copy pop 
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        {width rip pop ris gis bis width gray} image
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPCMYKGRAYc { 
+	/depth 32 def
+        gsave
+	% rotate about center of image
+	3 index 2 div add exch	% iw ih width height theta y+(height/2) x
+	4 index 2 div add exch	% iw ih width height theta x+(width/2) y+(height/2)
+	translate		% iw ih width height theta
+	rotate			% iw ih width height
+	1 index 2 div neg	% iw ih width height -(width/2)
+	1 index 2 div neg	% iw ih width height -(width/2) -(height/2)
+	translate		% iw ih width height
+	scale			% iw ih
+	/height exch def /width exch def
+	/lb width depth wbytes def % so "lb" has width in bytes
+	sl lb lt {lb ms} if % maybe make bigger strings
+        /bitmapsave save def 
+        
+	/is im 0 lb getinterval def	% Whole scanline
+	/cis im 0 width getinterval def	% cyan part of im
+	/mis im width width getinterval def	% magenta part of im
+	/yis im width 2 mul width getinterval def % yellow part of im
+	/kis im width 3 mul width getinterval def % black part of im
+        ws 0 lb getinterval is copy pop 
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        {width rip pop cis mis yis kis width cgray} image
+        bitmapsave restore 
+        grestore
+        } bind def
+/cgray { % c m y k width
+        /ww exch def
+        /k exch def
+        /y exch def
+        /m exch def
+        /c exch def
+        0 1 ww 1 sub { /i exch def c i get m i get y i get k i get CMYKtoRGB
+				.144 mul 3 1 roll .587 mul 3 1 roll .299 mul add add
+				c i 3 -1 roll floor cvi put } for
+        c
+ 		} bind def
+/gray { % r g b width
+        /ww exch def
+        /b exch def
+        /g exch def
+        /r exch def
+        0 1 ww 1 sub { /i exch def r i get .299 mul g i get .587 mul
+			b i get .114 mul add add r i 3 -1 roll floor cvi put } for
+        r
+        } bind def
+/BITMAPTRUEGRAY { 
+        gsave
+		% rotate about center of image
+		3 index 2 div add exch	% iw ih width height theta y+(height/2) x
+		4 index 2 div add exch	% iw ih width height theta x+(width/2) y+(height/2)
+		translate		% iw ih width height theta
+		rotate			% iw ih width height
+		1 index 2 div neg	% iw ih width height -(width/2)
+		1 index 2 div neg	% iw ih width height -(width/2) -(height/2)
+		translate		% iw ih width height
+		scale			% iw ih
+		/height exch def /width exch def
+        /bitmapsave save def 
+        /is width string def
+        /gis width string def
+        /bis width string def
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        { cf is readhexstring pop 
+          cf gis readhexstring pop 
+          cf bis readhexstring pop width gray}  image
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPCMYKGRAY { 
+        gsave
+		% rotate about center of image
+		3 index 2 div add exch	% iw ih width height theta y+(height/2) x
+		4 index 2 div add exch	% iw ih width height theta x+(width/2) y+(height/2)
+		translate		% iw ih width height theta
+		rotate			% iw ih width height
+		1 index 2 div neg	% iw ih width height -(width/2)
+		1 index 2 div neg	% iw ih width height -(width/2) -(height/2)
+		translate		% iw ih width height
+		scale			% iw ih
+		/height exch def /width exch def
+        /bitmapsave save def 
+        /is width string def
+        /yis width string def
+        /mis width string def
+        /kis width string def
+        /cf currentfile def 
+        width height 8 [width 0 0 height neg 0 height] 
+        { cf is readhexstring pop 
+          cf mis readhexstring pop 
+          cf yis readhexstring pop 
+          cf kis readhexstring pop width cgray}  image
+        bitmapsave restore 
+        grestore
+        } bind def
+/BITMAPGRAY { % iw, ih, width, height, theta, x y 
+	8 {fakecolorsetup} COMMONBITMAP
+	} bind def
+/BITMAPGRAYc { % iw, ih, width, height, theta, x y 
+	8 {fakecolorsetup} COMMONBITMAPc
+	} bind def
+/ENDBITMAP {
+	} bind def
+end % of FrameDict definitions
+
+% OPI stuff
+	/ALDmatrix matrix def ALDmatrix currentmatrix pop
+/StartALD {
+	/ALDsave save def
+	 savematrix
+	 ALDmatrix setmatrix
+	} bind def
+/InALD {
+	 restorematrix
+	} bind def
+/DoneALD {
+	 ALDsave restore
+	} bind def
+
+% Dashed lines stuff
+/I { setdash } bind def
+/J { [] 0 setdash } bind def
+
+%%EndProlog
+%%BeginSetup
+(5.0) FMVERSION
+1 1 0 0 612 792 0 1 9 FMDOCUMENT
+0 0 /Times-Roman FMFONTDEFINE
+1 0 /Times-Bold FMFONTDEFINE
+2 0 /Times-Italic FMFONTDEFINE
+3 0 /Courier FMFONTDEFINE
+32 FMFILLS
+0 0 FMFILL
+1 0.1 FMFILL
+2 0.3 FMFILL
+3 0.5 FMFILL
+4 0.7 FMFILL
+5 0.9 FMFILL
+6 0.97 FMFILL
+7 1 FMFILL
+8 <0f1e3c78f0e1c387> FMFILL
+9 <0f87c3e1f0783c1e> FMFILL
+10 <cccccccccccccccc> FMFILL
+11 <ffff0000ffff0000> FMFILL
+12 <8142241818244281> FMFILL
+13 <03060c183060c081> FMFILL
+14 <8040201008040201> FMFILL
+16 1 FMFILL
+17 0.9 FMFILL
+18 0.7 FMFILL
+19 0.5 FMFILL
+20 0.3 FMFILL
+21 0.1 FMFILL
+22 0.03 FMFILL
+23 0 FMFILL
+24 <f0e1c3870f1e3c78> FMFILL
+25 <f0783c1e0f87c3e1> FMFILL
+26 <3333333333333333> FMFILL
+27 <0000ffff0000ffff> FMFILL
+28 <7ebddbe7e7dbbd7e> FMFILL
+29 <fcf9f3e7cf9f3f7e> FMFILL
+30 <7fbfdfeff7fbfdfe> FMFILL
+%%EndSetup
+%%Page: "1" 1
+%%BeginPaperSize: Letter
+%%EndPaperSize
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 0 0 0 1 1 1]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 8 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+J
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 10 Q
+0 X
+0 0 0 1 0 0 0 K
+(1) 303.5 36 T
+0 0 0 1 0 0 0 K
+72 63 540 63 2 L
+1 H
+2 Z
+N
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+1 18 Q
+(User) 84.01 708 T
+(-Center) 119.32 708 T
+(ed Ev) 177.97 708 T
+(olutionary Softwar) 221.29 708 T
+(e De) 366.46 708 T
+(v) 399.67 708 T
+(elopment Using) 408.49 708 T
+(Python and J) 241.94 684 T
+(a) 343.69 684 T
+(v) 352.24 684 T
+(a) 361.06 684 T
+0 14 Q
+(Douglas Cunningham) 244.75 638.67 T
+(Carne) 227.84 622.67 T
+(gie Mellon Uni) 261.06 622.67 T
+(v) 346.26 622.67 T
+(ersity) 353.05 622.67 T
+1 F
+(Abstract) 72 575.67 T
+0 10 Q
+(The tw) 108 547.33 T
+(o language approach to softw) 135.95 547.33 T
+(are de) 253.6 547.33 T
+(v) 277.5 547.33 T
+(elopment has been in) 282.35 547.33 T
+(v) 366.66 547.33 T
+(estig) 371.51 547.33 T
+(ated by se) 390.35 547.33 T
+(v) 430.09 547.33 T
+(eral language) 434.94 547.33 T
+(designers. The primary h) 108 535.33 T
+(ypothesis of such an approach being that both strong compile-time type) 207.93 535.33 T
+(checking and loose run-time type checking are desirable in e) 108 523.33 T
+(v) 350.19 523.33 T
+(olutionary softw) 354.99 523.33 T
+(are de) 420.72 523.33 T
+(v) 444.62 523.33 T
+(elopment.) 449.47 523.33 T
+(Ja) 108 511.33 T
+(v) 116.13 511.33 T
+(a is a strongly typed language which of) 120.88 511.33 T
+(fers performance, rob) 277.55 511.33 T
+(ustness and modularity as such,) 363.7 511.33 T
+(while Python is a weakly typed language which of) 108 499.33 T
+(fers rapid prototyping, dynamic run-time) 309.39 499.33 T
+(modi\336cation, and delayed e) 108 487.33 T
+(v) 218.29 487.33 T
+(aluation. The premise of this w) 223.04 487.33 T
+(ork is that e) 347.37 487.33 T
+(v) 394.06 487.33 T
+(olutionary softw) 398.86 487.33 T
+(are) 464.59 487.33 T
+(de) 108 475.33 T
+(v) 117.19 475.33 T
+(elopment using both languages together can be more ef) 122.04 475.33 T
+(\336cient than using either language alone.) 342.86 475.33 T
+(The Ja) 108 451.33 T
+(v) 134.18 451.33 T
+(a Python Interf) 138.93 451.33 T
+(ace \050JPI\051 is an interf) 198.82 451.33 T
+(ace between Ja) 279.25 451.33 T
+(v) 339.02 451.33 T
+(a and Python which allo) 343.77 451.33 T
+(ws the tw) 440.18 451.33 T
+(o) 478.41 451.33 T
+(languages to interoperate through dynamic message lookup and the con) 108 439.33 T
+(v) 393.94 439.33 T
+(ersion and e) 398.79 439.33 T
+(xchange of) 446.96 439.33 T
+(objects and e) 108 427.33 T
+(xceptions. Through the JPI, Python be used as a scripting language for Ja) 160.06 427.33 T
+(v) 452.6 427.33 T
+(a -- from a) 457.35 427.33 T
+-0.31 (Python interpreter one can prototype A) 108 415.33 P
+-0.31 (WT components and e) 261.92 415.33 P
+-0.31 (v) 351.01 415.33 P
+-0.31 (en create bindings which call Python) 355.86 415.33 P
+(code. In addition, the JPI can be used to add user le) 108 403.33 T
+(v) 312.99 403.33 T
+(el Python scripting to Ja) 317.84 403.33 T
+(v) 414.31 403.33 T
+(a programs.) 419.06 403.33 T
+1 16 Q
+(1   Intr) 72 349.33 T
+(oduction) 119.26 349.33 T
+0 12 Q
+(Ov) 72 315 T
+(er the last decade, the use and v) 86.48 315 T
+(alue of prototypes in design, both in softw) 238.14 315 T
+(are and other) 440.68 315 T
+(engineering disciplines, has been in) 72 301 T
+(v) 242.5 301 T
+(estig) 248.32 301 T
+(ated and discussed by researchers [Budde92]) 270.92 301 T
+([Krogh96]. Ev) 72 287 T
+(olutionary softw) 141.74 287 T
+(are de) 220.62 287 T
+(v) 249.3 287 T
+(elopment, which consists of the rapid prototyping of ne) 255.12 287 T
+(w) 520.46 287 T
+-0.28 (components and their e) 72 273 P
+-0.28 (v) 182.52 273 P
+-0.28 (olution into hardened components [Budde92], of) 188.28 273 P
+-0.28 (fers man) 420.58 273 P
+-0.28 (y bene\336ts to the) 461.77 273 P
+(object-oriented softw) 72 259 T
+(are de) 174.19 259 T
+(v) 202.87 259 T
+(elopment process [Cox91], including the ability to address rapidly) 208.69 259 T
+(changing softw) 72 245 T
+(are requirements. In addition, the ef) 145.54 245 T
+(\336cienc) 316.86 245 T
+(y g) 348.67 245 T
+(ained from user) 363.61 245 T
+(-centered) 438.68 245 T
+(de) 72 231 T
+(v) 83.03 231 T
+(elopment, which consists of constant user feedback impacting the softw) 88.85 231 T
+(are design, has been) 433.34 231 T
+(studied o) 72 217 T
+(v) 115.49 217 T
+(er the last fe) 121.31 217 T
+(w years [Landauer95].) 179.99 217 T
+-0.05 (The requirements of both a user) 72 189 P
+-0.05 (-centered and e) 224.48 189 P
+-0.05 (v) 297.38 189 P
+-0.05 (olutionary softw) 303.14 189 P
+-0.05 (are de) 381.96 189 P
+-0.05 (v) 410.6 189 P
+-0.05 (elopment c) 416.42 189 P
+-0.05 (ycle are broad) 469.18 189 P
+(and inclusi) 72 175 T
+(v) 124.03 175 T
+(e of man) 129.85 175 T
+(y diametric aspects. User) 171.66 175 T
+(-centered de) 292.06 175 T
+(v) 350.72 175 T
+(elopment demands the ability to) 356.54 175 T
+(rapidly add features, modify beha) 72 161 T
+(vior) 233.39 161 T
+(, and create ne) 252.24 161 T
+(w user interf) 321.24 161 T
+(ace components. Ev) 381.77 161 T
+(olutionary) 477.84 161 T
+(softw) 72 147 T
+(are de) 98.54 147 T
+(v) 127.22 147 T
+(elopment can ha) 133.04 147 T
+(v) 211.45 147 T
+(e these same requirements b) 217.27 147 T
+(ut also requires the creation of well-) 352.33 147 T
+(de\336ned modules and stable, well-performing code.) 72 133 T
+(Clean module interf) 72 105 T
+(aces, compile-time error checking, and good performance mak) 167.87 105 T
+(e strongly) 468.66 105 T
+(typed, static languages such as C++ [Stroustrup87] or Ja) 72 91 T
+(v) 342.26 91 T
+(a [Arnold96] useful for the creation of) 347.96 91 T
+(hardened components. Meanwhile, rapid prototyping, f) 72 77 T
+(ast compile-test-deb) 336.5 77 T
+(ug c) 433.25 77 T
+(ycles, and high) 453.4 77 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "1" 1
+%%Page: "2" 2
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 0 0 0 1 1 1]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 8 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 10 Q
+0 X
+0 0 0 1 0 0 0 K
+(2) 303.5 36 T
+0 0 0 1 0 0 0 K
+72 63 540 63 2 L
+1 H
+2 Z
+N
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 12 Q
+(programming \337e) 72 712 T
+(xibility mak) 152.15 712 T
+(e loosely typed, dynamic languages such as Python [W) 210.37 712 T
+(atters96] or) 473.71 712 T
+(Tcl [Ousterhout94] appropriate for the rapid creation of prototype components.) 72 698 T
+(Researchers ha) 72 670 T
+(v) 144.06 670 T
+(e claimed that a tw) 149.88 670 T
+(o language approach pro) 240.41 670 T
+(v) 358.52 670 T
+(es both feasible and practical for) 364.34 670 T
+(softw) 72 656 T
+(are de) 98.54 656 T
+(v) 127.22 656 T
+(elopment [Ousterhout97]. F) 133.04 656 T
+(or e) 266.52 656 T
+(xample, languages such as Python and Tcl pro) 284.66 656 T
+(vide) 507.12 656 T
+(consistent interf) 72 642 T
+(aces to C to allo) 148.87 642 T
+(w de) 225.9 642 T
+(v) 248.59 642 T
+(elopers to mo) 254.41 642 T
+(v) 319.56 642 T
+(e performance critical methods and) 325.38 642 T
+-0.33 (procedures into C without modi\336cation of the calling code. In addition, the dynamic language can) 72 628 P
+(be used to mak) 72 614 T
+(e calls to and e) 144.2 614 T
+(xchange data between e) 215.34 614 T
+(xisting C or C++ modules.) 329.45 614 T
+(The Ja) 72 586 T
+(v) 103.42 586 T
+(a Python Interf) 109.12 586 T
+(ace \050JPI\051 attempts to mer) 180.98 586 T
+(ge the strengths of tw) 300.74 586 T
+(o languages which are v) 403.94 586 T
+(ery) 519.73 586 T
+(similar in syntax and function. The purpose of the JPI is tw) 72 572 T
+(o fold: 1\051 allo) 355.86 572 T
+(w for the simultaneous) 421.22 572 T
+(de) 72 558 T
+(v) 83.03 558 T
+(elopment of prototype components in Python and hardened components in Ja) 88.85 558 T
+(v) 459.24 558 T
+(a, and 2\051 allo) 464.94 558 T
+(w) 527.29 558 T
+(for the addition of user le) 72 544 T
+(v) 193.34 544 T
+(el Python scripting to Ja) 199.16 544 T
+(v) 314.93 544 T
+(a programs.) 320.63 544 T
+(This paper will describe the moti) 72 516 T
+(v) 230.02 516 T
+(ations of such an approach, and then focus on the technical) 235.72 516 T
+(details of the JPI.) 72 502 T
+1 16 Q
+(2   Moti) 72 447.33 T
+(v) 124.72 447.33 T
+(ation of the T) 132.56 447.33 T
+(w) 223.38 447.33 T
+(o Language A) 234.77 447.33 T
+(ppr) 329.49 447.33 T
+(oach) 354.1 447.33 T
+0 12 Q
+(A series of pitf) 72 413 T
+(alls are associated with single language de) 143.53 413 T
+(v) 346.52 413 T
+(elopment situations which mak) 352.34 413 T
+(e the) 501.89 413 T
+(tw) 72 399 T
+(o language approach to softw) 83.88 399 T
+(are de) 225.06 399 T
+(v) 253.74 399 T
+(elopment v) 259.56 399 T
+(ery appealing.) 313.04 399 T
+-0.14 (If de) 72 371 P
+-0.14 (v) 93.88 371 P
+-0.14 (elopers choose to use a strongly typed, static language the) 99.7 371 P
+-0.14 (y often encounter problems in the) 376.21 371 P
+(early prototyping and de) 72 357 T
+(v) 189.35 357 T
+(elopment phases. First, the) 195.17 357 T
+(y may be) 323.32 357 T
+(gin to de\336ne programming module) 367.13 357 T
+(interf) 72 343 T
+(aces prematurely which can cause delays for other de) 97.87 343 T
+(v) 353.48 343 T
+(elopers when modules are rede\336ned) 359.3 343 T
+(and require recompilation of part or all of the system. Second, the) 72 329 T
+(y are forced to eng) 387.43 329 T
+(age in long) 477.34 329 T
+-0.12 (compile-test-deb) 72 315 P
+-0.12 (ug c) 152.41 315 P
+-0.12 (ycles due to the longer compilation times of static languages and the need to) 172.44 315 P
+(restart the program and recreate the state under which the error occurred. Third, determining the) 72 301 T
+(cause of an error can be dif) 72 287 T
+(\336cult due to the inability the directly query the running program for) 202.31 287 T
+(information other than the use of a deb) 72 273 T
+(ugger) 258.06 273 T
+(. F) 284.72 273 T
+(ourth, it is dif) 297.22 273 T
+(\336cult to deb) 362.26 273 T
+(ug part of an incomplete) 419.35 273 T
+(program since the compiler will not allo) 72 259 T
+(w the program to run until all of the compile-time errors) 264.35 259 T
+(are corrected. While a static language of) 72 245 T
+(fers man) 265.3 245 T
+(y bene\336ts, these limitations often mak) 306.77 245 T
+(e it) 489.31 245 T
+(dif) 72 231 T
+(\336cult to rapidly prototype all or part of an application.) 85.03 231 T
+(On the other hand, if de) 72 203 T
+(v) 185.68 203 T
+(elopers choose to use a weakly typed, dynamic language the) 191.5 203 T
+(y often) 480.59 203 T
+(encounter problems in the latter phases of de) 72 189 T
+(v) 286.66 189 T
+(elopment when performance, scalability) 292.48 189 T
+(, and) 484.32 189 T
+(maintainability are crucial. First, the) 72 175 T
+(y may end up not de\336ning module interf) 246.47 175 T
+(aces well since a) 440 175 T
+(loosely typed language does not require the strict speci\336cation of the interf) 72 161 T
+(ace to a module.) 430.82 161 T
+-0.48 (Second, the) 72 147 P
+-0.48 (y often encounter performance problems when writing computationally intensi) 127.33 147 P
+-0.48 (v) 501.15 147 P
+-0.48 (e code) 506.97 147 P
+(and as a result spend a great deal of time trying to optimize code. Third, the) 72 133 T
+(y suf) 434.76 133 T
+(fer scale) 458.12 133 T
+-0.18 (problems related to speed and process size when a system becomes lar) 72 119 P
+-0.18 (ge. F) 408.08 119 P
+-0.18 (ourth, the detection of) 431.73 119 P
+(all coding errors, e) 72 105 T
+(xcept syntactical, is delayed until the actual line of code is e) 161.8 105 T
+(x) 449.57 105 T
+(ecuted. This) 455.39 105 T
+(means completely inclusi) 72 91 T
+(v) 193.69 91 T
+(e test cases must be written in order to check the v) 199.51 91 T
+(alidity of code.) 440.83 91 T
+-0.18 (Despite the bene\336ts of a highly dynamic language, these limitations mak) 72 77 P
+-0.18 (e it e) 419.05 77 P
+-0.18 (xtremely dif) 441.84 77 P
+-0.18 (\336cult to) 500.35 77 P
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "2" 2
+%%Page: "3" 3
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 0 0 0 1 1 1]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 8 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 10 Q
+0 X
+0 0 0 1 0 0 0 K
+(3) 303.5 36 T
+0 0 0 1 0 0 0 K
+72 63 540 63 2 L
+1 H
+2 Z
+N
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 12 Q
+(maintain a lar) 72 712 T
+(ge piece of softw) 137.77 712 T
+(are.) 219.96 712 T
+-0.31 (Of course, alternati) 72 684 P
+-0.31 (v) 163.39 684 P
+-0.31 (es e) 169.21 684 P
+-0.31 (xist to choosing just one of the abo) 187.05 684 P
+-0.31 (v) 352.39 684 P
+-0.31 (e types of languages. Languages such) 358.21 684 P
+(as Python and Tcl, of) 72 670 T
+(fer the option of using both a loosely typed, dynamic component, the) 174.02 670 T
+(language itself, and a strongly typed, static component, C. Therefore, a de) 72 656 T
+(v) 426.3 656 T
+(eloper can use a) 432.12 656 T
+-0.3 (language such a Python to prototype and deb) 72 642 P
+-0.3 (ug ne) 285.3 642 P
+-0.3 (w code and then reimplement that code in C for) 311.03 642 P
+(performance and scalability) 72 628 T
+(. This tw) 204.52 628 T
+(o language approach to softw) 246.73 628 T
+(are de) 387.91 628 T
+(v) 416.59 628 T
+(elopment of) 422.41 628 T
+(fers man) 479.77 628 T
+(y) 521.24 628 T
+-0.39 (bene\336ts o) 72 614 P
+-0.39 (v) 117.77 614 P
+-0.39 (er using a single language. Programmers can prototype ne) 123.59 614 P
+-0.39 (w features and w) 398.47 614 P
+-0.39 (ork out their) 478.83 614 P
+(logic and errors without the need to eng) 72 600 T
+(age in a long compile-test-deb) 262.91 600 T
+(ug c) 407.98 600 T
+(ycle. Once code logic) 428.12 600 T
+(has been established and v) 72 586 T
+(eri\336ed, the code can then be mo) 199.13 586 T
+(v) 351.91 586 T
+(ed into a strongly typed, static) 357.73 586 T
+(language to g) 72 572 T
+(ain speed and rob) 136.6 572 T
+(ustness and force the creation of a well-de\336ned interf) 220.67 572 T
+(ace.) 475.81 572 T
+(F) 72 544 T
+(or se) 78.49 544 T
+(v) 101.18 544 T
+(eral years, the) 107 544 T
+2 F
+(n) 176.98 544 T
+0 F
+(-) 182.98 544 T
+(dim project at Carne) 186.97 544 T
+(gie Mellon Uni) 285.11 544 T
+(v) 358.14 544 T
+(ersity has also in) 363.96 544 T
+(v) 443.81 544 T
+(estig) 449.63 544 T
+(ated the tw) 472.24 544 T
+(o) 524.77 544 T
+(language approach in an object system called BOS. BOS, standing for Basic Object System,) 72 530 T
+(allo) 72 516 T
+(ws for the prototyping of code in an interpreted language called stitch and the hardening of) 89.7 516 T
+(code in C, much lik) 72 502 T
+(e the Python and Tcl approach [Dutoit96]. Our e) 166.21 502 T
+(xperiences ha) 398.99 502 T
+(v) 464.39 502 T
+(e sho) 470.21 502 T
+(wn that) 494.9 502 T
+-0.2 (the main dra) 72 488 P
+-0.2 (wback of this approach is that mo) 131.41 488 P
+-0.2 (ving code into C is a costly ef) 292.03 488 P
+-0.2 (fort since it requires a) 433.34 488 P
+(complete reimplementation of the code and often the logic. As a result, de) 72 474 T
+(v) 426.97 474 T
+(elopers often tak) 432.79 474 T
+(e the) 512.65 474 T
+(\336rst step of prototyping code in the dynamic language and then ne) 72 460 T
+(glect the needed step of) 389.45 460 T
+(reimplementing the code in the static language despite the performance and scalability g) 72 446 T
+(ains.) 495.86 446 T
+(Recently) 72 432 T
+(, tools such as SWIG [Beazle) 113.88 432 T
+(y97] mak) 254.34 432 T
+(e this process easier for languages such Perl,) 299.88 432 T
+(Python, and Tcl, b) 72 418 T
+(ut the) 160.09 418 T
+(y still require signi\336cant w) 186.91 418 T
+(ork on the part of the programmer) 315.46 418 T
+(.) 478.09 418 T
+(Python and Ja) 72 390 T
+(v) 139.09 390 T
+(a share man) 144.79 390 T
+(y common features [Masse96] \321 the) 201.92 390 T
+(y are both object-oriented,) 380.04 390 T
+(support g) 72 376 T
+(arbage collection, pro) 116.94 376 T
+(vide object-based e) 221.06 376 T
+(xception handling, and ha) 313.52 376 T
+(v) 437.27 376 T
+(e a similar syntax.) 443.09 376 T
+(As a result, using them together in the tw) 72 362 T
+(o language approach of) 269.53 362 T
+(fers a potential solution to this) 381.53 362 T
+(problem of con) 72 348 T
+(v) 144.84 348 T
+(erting prototype code to hardened code. Gi) 150.66 348 T
+(v) 355.98 348 T
+(en the ability to seamlessly) 361.8 348 T
+-0.19 (communicate between the tw) 72 334 P
+-0.19 (o languages, one could maintain dif) 211.62 334 P
+-0.19 (ferent parts of a program in each) 381.7 334 P
+(language. Classes prototyped in Python could easily be con) 72 320 T
+(v) 356.5 320 T
+(erted to Ja) 362.32 320 T
+(v) 411.4 320 T
+(a classes, b) 417.1 320 T
+(ut at the same) 470.51 320 T
+-0.19 (time, particular methods, such as those under) 72 306 P
+-0.19 (going a lot of rapid change, could be k) 287.26 306 P
+-0.19 (ept in Python.) 470.57 306 P
+-0.32 (The similarities of Python and Ja) 72 292 P
+-0.32 (v) 228.49 292 P
+-0.32 (a allo) 234.19 292 P
+-0.32 (w for the transition of code from one language to the other) 259.9 292 P
+(to be e) 72 278 T
+(xtremely easy and e) 103.81 278 T
+(v) 199.15 278 T
+(en of) 204.97 278 T
+(fer the possibility of complete automation.) 229 278 T
+-0.27 (The Ja) 72 250 P
+-0.27 (v) 103.15 250 P
+-0.27 (a Python Interf) 108.85 250 P
+-0.27 (ace \050JPI\051, pro) 180.18 250 P
+-0.27 (vides a mechanism for this type of communication. Messages) 243.77 250 P
+(can be sent to Ja) 72 236 T
+(v) 150.41 236 T
+(a objects from Python and vice-v) 156.11 236 T
+(ersa, ar) 314.9 236 T
+(gument con) 349.33 236 T
+(v) 405.18 236 T
+(ersions are performed) 411 236 T
+(between the tw) 72 222 T
+(o languages, objects from one language can \324e) 144.53 222 T
+(xist\325 in the memory space of the) 366.29 222 T
+-0.21 (other) 72 208 P
+-0.21 (, and e) 96.18 208 P
+-0.21 (xceptions thro) 127.24 208 P
+-0.21 (wn from one language can be caught in the other) 195.06 208 P
+-0.21 (. The follo) 426.81 208 P
+-0.21 (wing section) 476.42 208 P
+(describes the JPI in more detail and gi) 72 194 T
+(v) 254.68 194 T
+(es e) 260.5 194 T
+(xamples of ho) 278.64 194 T
+(w it can be used to satisfy the) 346.33 194 T
+(requirements of both rapid prototyping and code hardening in softw) 72 180 T
+(are de) 397.5 180 T
+(v) 426.18 180 T
+(elopment.) 432 180 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "3" 3
+%%Page: "4" 4
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 0 0 0 1 1 1]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 8 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 10 Q
+0 X
+0 0 0 1 0 0 0 K
+(4) 303.5 36 T
+0 0 0 1 0 0 0 K
+72 63 540 63 2 L
+1 H
+2 Z
+N
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+1 16 Q
+(3   The JPI Ov) 72 709.33 T
+(er) 170.96 709.33 T
+(view) 185.01 709.33 T
+1 14 Q
+(3.1   Description) 72 673.67 T
+0 12 Q
+(The JPI is an interf) 72 644 T
+(ace between Ja) 163.2 644 T
+(v) 234.92 644 T
+(a and Python. It allo) 240.62 644 T
+(ws for the dynamic manipulation of Ja) 337.32 644 T
+(v) 521.72 644 T
+(a) 527.42 644 T
+(objects through the use of Python and vice-v) 72 630 T
+(ersa. By writing Python \324scripts\325 one can program) 286.13 630 T
+(using e) 72 616 T
+(xisting Ja) 106.15 616 T
+(v) 151.58 616 T
+(a objects. In addition, the syntactical similarities between Python and Ja) 157.28 616 T
+(v) 502.34 616 T
+(a are) 508.04 616 T
+(great enough that the con) 72 602 T
+(v) 192.83 602 T
+(ersion of prototyped Python code to hardened Ja) 198.65 602 T
+(v) 430.7 602 T
+(a code is e) 436.4 602 T
+(xtremely) 486.54 602 T
+(easy and can e) 72 588 T
+(v) 141.34 588 T
+(en be lar) 147.16 588 T
+(gely automated.) 188.26 588 T
+-0.23 (A v) 72 560 P
+-0.23 (ery simple e) 89.25 560 P
+-0.23 (xample of the use of the JPI is the follo) 147.27 560 P
+-0.23 (wing Python program which creates a Ja) 333.2 560 P
+-0.23 (v) 526.2 560 P
+-0.23 (a) 531.9 560 P
+(A) 72 546 T
+(WT b) 79.58 546 T
+(utton and prints \324Hello W) 107 546 T
+(orld!\325 when it is click) 229.37 546 T
+(ed.) 332.57 546 T
+3 10 Q
+(# HelloWorld.py) 72 519.33 T
+(import java) 72 495.33 T
+(Frame = java.findClass\050\322java/awt/Frame\323\051) 72 483.33 T
+(Button = java.findClass\050\322java/awt/Button\323\051) 72 471.33 T
+(PyEventListener = java.findClass\050\322PyEventListener\323\051) 72 459.33 T
+(class HelloWorld:) 72 435.33 T
+(def __init__\050this\051:) 72 411.33 T
+(# Create a frame and a button) 72 399.33 T
+(frame = Frame.new\050\322Hello World Test\323\051) 72 387.33 T
+(button = Button.new\050\322Click Here\323\051) 72 375.33 T
+(frame.add\050button\051) 72 363.33 T
+(frame.pack\050\051) 72 351.33 T
+(frame.setVisible\0501\051) 72 339.33 T
+(# Create a listener object which will call me back when) 72 315.33 T
+(# an event occurs and add it to the button) 72 303.33 T
+(listener = PyEventListener.new\050this\051) 72 291.33 T
+(button.addActionListener\050listener\051) 72 279.33 T
+(# Tell the listener what event to listen for and what message) 72 267.33 T
+(# to send me when the event occurs) 72 255.33 T
+(listener.listenFor\050\322actionPerformed\323, \322printMessage\323\051) 72 243.33 T
+(def printMessage\050this, event\051:) 72 219.33 T
+(print \322Hello World!\323) 72 207.33 T
+(>>> from HelloWorld import *) 72 183.33 T
+(>>> b = HelloWorld\050\051 # Button appears on screen - click away!) 72 171.33 T
+(Hello World!) 72 159.33 T
+(Hello World!) 72 147.33 T
+(Hello World!) 72 135.33 T
+(Hello World!) 72 123.33 T
+(Hello World!) 72 111.33 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "4" 4
+%%Page: "5" 5
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 0 0 0 1 1 1]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 8 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 10 Q
+0 X
+0 0 0 1 0 0 0 K
+(5) 303.5 36 T
+0 0 0 1 0 0 0 K
+72 63 540 63 2 L
+1 H
+2 Z
+N
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 12 Q
+-0.17 (This is done through the use of the Ja) 72 712 P
+-0.17 (v) 249.72 712 P
+-0.17 (a Nati) 255.42 712 P
+-0.17 (v) 283.94 712 P
+-0.17 (e Interf) 289.76 712 P
+-0.17 (ace \050JNI\051, three Ja) 324.45 712 P
+-0.17 (v) 410.99 712 P
+-0.17 (a classes, and a Python C) 416.7 712 P
+(module. It is an e) 72 698 T
+(xtremely simple interf) 154.81 698 T
+(ace, b) 261.35 698 T
+(ut at the same time, it is quite po) 289.09 698 T
+(werful. It has) 445.13 698 T
+-0.37 (already been used to prototype ne) 72 684 P
+-0.37 (w interf) 231.47 684 P
+-0.37 (ace components in Python and then mo) 268.64 684 P
+-0.37 (v) 454.88 684 P
+-0.37 (e them into Ja) 460.7 684 P
+-0.37 (v) 526.34 684 P
+-0.37 (a) 532.04 684 P
+(for speed and rob) 72 670 T
+(ustness. It has also been used to add user) 155.4 670 T
+(-le) 350.8 670 T
+(v) 363.16 670 T
+(el Python scripting to Ja) 368.98 670 T
+(v) 484.74 670 T
+(a) 490.44 670 T
+(programs.) 72 656 T
+1 14 Q
+(3.2   Implementation) 72 623.67 T
+0 12 Q
+(The JPI consists of a Python C module and three simple Ja) 72 594 T
+(v) 353.41 594 T
+(a classes. The Python C module) 359.11 594 T
+(named \324ja) 72 580 T
+(v) 119.41 580 T
+(a\325 and a Ja) 125.11 580 T
+(v) 175.85 580 T
+(a class named \324Python\325 implement the simple functionality of looking up) 181.55 580 T
+(classes and dynamically sending messages to Ja) 72 566 T
+(v) 301.73 566 T
+(a objects. The) 307.43 566 T
+(y also handle the con) 374.23 566 T
+(v) 475.07 566 T
+(ersion of) 480.89 566 T
+(objects between Ja) 72 552 T
+(v) 161.74 552 T
+(a and Python with the addition of the Ja) 167.44 552 T
+(v) 357.85 552 T
+(a class named \324PyObject\325. In) 363.55 552 T
+(addition, the \324PyEv) 72 538 T
+(entListener\325 Ja) 164.82 538 T
+(v) 235.56 538 T
+(a class is pro) 241.26 538 T
+(vided to listen for A) 302.74 538 T
+(WT e) 398.32 538 T
+(v) 425 538 T
+(ents.) 430.82 538 T
+1 14 Q
+(3.2.1  Message Sending and Field Accesses) 72 505.67 T
+0 12 Q
+(Messages are sent back and forth between Ja) 72 476 T
+(v) 286.69 476 T
+(a and Python through dynamic message lookup.) 292.39 476 T
+(The Python C module implements an object type, Ja) 72 462 T
+(v) 322.75 462 T
+(aObject, which wraps an actual ja) 328.45 462 T
+(v) 490.16 462 T
+(a object.) 495.86 462 T
+(That is, the Ja) 72 448 T
+(v) 138.42 448 T
+(aObject contains a pointer to the actual Ja) 144.12 448 T
+(v) 344.17 448 T
+(a object and when a message is sent to) 349.87 448 T
+(the Python Ja) 72 434 T
+(v) 136.43 434 T
+(aObject a dynamic message lookup ensues in order to \336nd out if the actual Ja) 142.13 434 T
+(v) 512.5 434 T
+(a) 518.2 434 T
+(object can answer the message. If it can not, an error is thro) 72 420 T
+(wn. Lik) 357.62 420 T
+(e) 394.84 420 T
+(wise, the Ja) 399.86 420 T
+(v) 455.28 420 T
+(a class,) 460.98 420 T
+-0.2 (PyObject, wraps an actual Python object. An instance of PyObject contains a pointer to the actual) 72 406 P
+-0.07 (Python object and a \324send\325 method is pro) 72 392 P
+-0.07 (vided to send a message to the actual Python object. F) 268.31 392 P
+-0.07 (or) 527.07 392 P
+(e) 72 378 T
+(xample, the follo) 77.15 378 T
+(wing code sends the \324size\325 message to a v) 158.51 378 T
+(ector \324v\325:) 358.28 378 T
+3 10 Q
+(>>> v.size\050\051) 72 351.33 T
+0 12 Q
+(The code to send a message to Python is not as clean. This is because Ja) 72 310 T
+(v) 417.71 310 T
+(a does not pro) 423.41 310 T
+(vide an) 490.88 310 T
+(y) 525.7 310 T
+(mechanism for answering an) 72 296 T
+(y message sent to an object such as \324getattr\325. Here is an e) 210.12 296 T
+(xample) 483.54 296 T
+(piece of Ja) 72 282 T
+(v) 123.07 282 T
+(a code to send \324re) 128.77 282 T
+(v) 213.11 282 T
+(erse\325 to the Python range \324r\325:) 218.93 282 T
+3 10 Q
+(// Somewhere inside a Java method...) 72 255.33 T
+(r.send\050\322reverse\323\051;) 72 243.33 T
+0 12 Q
+-0.25 (Accessing a \336eld of a Ja) 72 202 P
+-0.25 (v) 186.79 202 P
+-0.25 (a object is done in much the same w) 192.49 202 P
+-0.25 (ay) 364.32 202 P
+-0.25 (. When a message is sent to a Ja) 374.86 202 P
+-0.25 (v) 526.23 202 P
+-0.25 (a) 531.93 202 P
+-0.3 (object from Python, the dynamic message lookup checks to see if a \336eld access w) 72 188 P
+-0.3 (ould also satisfy) 459.91 188 P
+-0.12 (the name and ar) 72 174 P
+-0.12 (guments requirements of the message. If so, it will e) 147.74 174 P
+-0.12 (x) 397.47 174 P
+-0.12 (ecute the \336eld access, either) 403.29 174 P
+(get or set, b) 72 160 T
+(ut this is done only after no matching method can be found. Unfortunately) 127.75 160 T
+(, the) 483.26 160 T
+(accessing of \336elds is not as seamless as sending messages. F) 72 146 T
+(or e) 362.12 146 T
+(xample, to print the contents of) 380.27 146 T
+(\336eld \324\336eld\325 on object \324o\325 you must do the follo) 72 132 T
+(wing:) 295.36 132 T
+3 10 Q
+(>>> print o.field\050\051) 72 105.33 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "5" 5
+%%Page: "6" 6
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 0 0 0 1 1 1]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 8 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 10 Q
+0 X
+0 0 0 1 0 0 0 K
+(6) 303.5 36 T
+0 0 0 1 0 0 0 K
+72 63 540 63 2 L
+1 H
+2 Z
+N
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 12 Q
+-0.05 (This reason for this is that the Ja) 72 712 P
+-0.05 (v) 227.06 712 P
+-0.05 (aObject type uses the \324getattr\325 function to answer an) 232.76 712 P
+-0.05 (y messages) 482.78 712 P
+(sent to the object. Since the \324getattr\325 function is not gi) 72 698 T
+(v) 330.01 698 T
+(en the information of whether the user is) 335.83 698 T
+(attempting to in) 72 684 T
+(v) 147.53 684 T
+(ok) 153.29 684 T
+(e a method or access a \336eld, it is not possible to kno) 165.17 684 T
+(w whether a \336eld lookup) 414.52 684 T
+(should be done. Presumably this information is a) 72 670 T
+(v) 306.42 670 T
+(ailable to Python, b) 312.12 670 T
+(ut it is not passed to) 405.22 670 T
+(\324getattr\325. An alternati) 72 656 T
+(v) 173.34 656 T
+(e solution to forcing the use of parentheses is to ha) 179.16 656 T
+(v) 422.22 656 T
+(e a \336eld lookup tak) 428.04 656 T
+(e) 519.91 656 T
+(precedence o) 72 642 T
+(v) 134.78 642 T
+(er a method lookup, b) 140.6 642 T
+(ut the beha) 245.35 642 T
+(vior w) 297.77 642 T
+(ould still not be ideal and some odd error) 328.64 642 T
+(cases w) 72 628 T
+(ould e) 108.86 628 T
+(xist.) 138.35 628 T
+1 14 Q
+(3.2.2  Object Con) 72 595.67 T
+(v) 175.26 595.67 T
+(ersions) 182.12 595.67 T
+0 12 Q
+(Sending messages without ar) 72 566 T
+(guments or without recei) 211.44 566 T
+(ving results w) 330.79 566 T
+(ould be e) 398 566 T
+(xtremely limiting.) 441.82 566 T
+(So in addition to sending a message, the JPI can also pass objects through type con) 72 552 T
+(v) 469.49 552 T
+(ersion. The) 475.31 552 T
+(supported type con) 72 538 T
+(v) 162.84 538 T
+(ersions are listed belo) 168.66 538 T
+(w in T) 272.68 538 T
+(able) 303.05 538 T
+(1.) 326.04 538 T
+(The ar) 72 226 T
+(gument con) 102.77 226 T
+(v) 158.62 226 T
+(ersion code will con) 164.44 226 T
+(v) 260.94 226 T
+(ert objects in both directions when used in an ar) 266.76 226 T
+(gument) 496.18 226 T
+(list or when returning results. If an object can not be con) 72 212 T
+(v) 342.8 212 T
+(ert to a primiti) 348.62 212 T
+(v) 417.32 212 T
+(e type it will be) 423.14 212 T
+(con) 72 198 T
+(v) 88.85 198 T
+(erted to either a PyObject or a Ja) 94.67 198 T
+(v) 251.39 198 T
+(aObject depending on the direction of con) 257.09 198 T
+(v) 458.57 198 T
+(ersion. F) 464.39 198 T
+(or) 506.21 198 T
+(e) 72 184 T
+(xample, the follo) 77.15 184 T
+(wing code contains se) 158.51 184 T
+(v) 263.86 184 T
+(eral object con) 269.68 184 T
+(v) 339.84 184 T
+(ersions.) 345.66 184 T
+3 10 Q
+(# Java Vector class and new instance are converted to JavaObject type) 72 157.33 T
+(>>> v = java.findClass\050\322java/util/Vector\323\051.new\050\051) 72 145.33 T
+(# No conversions here) 72 133.33 T
+(>>> r = range\0505\051) 72 121.33 T
+(# Python range is converted to a PyObject) 72 109.33 T
+(>>> v.addElement\050r\051) 72 97.33 T
+(# int 0 is converted to Java int 0 and element found is converted) 72 85.33 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+1 12 Q
+(T) 162.28 512 T
+(able 1: J) 169.18 512 T
+(a) 212.33 512 T
+(v) 218.03 512 T
+(a to Python and Python to J) 223.91 512 T
+(a) 366.41 512 T
+(v) 372.11 512 T
+(a Con) 377.99 512 T
+(v) 407.84 512 T
+(ersions) 413.72 512 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 F
+(Ja) 102.47 486 T
+(v) 112.23 486 T
+(a T) 117.93 486 T
+(ype) 132.63 486 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Python T) 199.36 486 T
+(ype) 242.74 486 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Python T) 334.15 486 T
+(ype) 377.53 486 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Ja) 457.76 486 T
+(v) 467.51 486 T
+(a T) 473.21 486 T
+(ype) 487.91 486 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Inte) 78 462 T
+(ger) 96.48 462 T
+(, int) 111.32 462 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(int) 186.43 462 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(int) 312 462 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Inte) 429 462 T
+(ger) 447.48 462 T
+(, int, Boolean,) 462.32 462 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(boolean) 429 448 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Long, long) 78 426 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(long) 186.43 426 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(long) 312 426 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Long, long) 429 426 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Float, \337oat) 78 404 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(\337oat) 186.43 404 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(\337oat) 312 404 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Double, double,) 429 404 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Float, \337oat) 429 390 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Double, double) 78 368 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(\337oat) 186.43 368 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(str) 312 368 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(String) 429 368 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Boolean, boolean) 78 346 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(0, 1) 186.43 346 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(object) 312 346 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(PyObject) 429 346 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(String) 78 324 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(str) 186.43 324 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Ja) 312 324 T
+(v) 321.76 324 T
+(aObject) 327.46 324 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Object) 429 324 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(PyObject) 78 302 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(object) 186.43 302 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(None) 312 302 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(null) 429 302 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Object) 78 280 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(Ja) 186.43 280 T
+(v) 196.18 280 T
+(aObject) 201.88 280 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(null) 78 258 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+(None) 186.43 258 T
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+72 501.75 72 250.25 2 L
+V
+0.5 H
+0 Z
+N
+180.43 502.25 180.43 249.75 2 L
+V
+N
+279 502.25 279 249.75 2 L
+V
+N
+306 502.25 306 249.75 2 L
+V
+N
+423 502.25 423 249.75 2 L
+V
+N
+540 501.75 540 250.25 2 L
+V
+N
+71.75 502 540.25 502 2 L
+V
+N
+72.25 477.25 539.75 477.25 2 L
+V
+N
+72.25 474.75 539.75 474.75 2 L
+V
+N
+71.75 440 540.25 440 2 L
+V
+N
+71.75 418 540.25 418 2 L
+V
+N
+71.75 382 540.25 382 2 L
+V
+N
+71.75 360 540.25 360 2 L
+V
+N
+71.75 338 540.25 338 2 L
+V
+N
+71.75 316 540.25 316 2 L
+V
+N
+71.75 294 540.25 294 2 L
+V
+N
+71.75 272 540.25 272 2 L
+V
+N
+71.75 250 540.25 250 2 L
+V
+N
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "6" 6
+%%Page: "7" 7
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 0 0 0 1 1 1]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 8 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 10 Q
+0 X
+0 0 0 1 0 0 0 K
+(7) 303.5 36 T
+0 0 0 1 0 0 0 K
+72 63 540 63 2 L
+1 H
+2 Z
+N
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+3 F
+(# from PyObject back to Python range) 72 713.33 T
+(>>> print v.elementAt\0500\051) 72 701.33 T
+([0, 1, 2, 3, 4]) 72 689.33 T
+(>>>) 72 677.33 T
+0 12 Q
+-0.29 (The JPI attempts to support object con) 72 636 P
+-0.29 (v) 254.41 636 P
+-0.29 (ersions well in both directions, b) 260.23 636 P
+-0.29 (ut there are no guarantees) 415.18 636 P
+(that a problematic situation can not arise. F) 72 622 T
+(or e) 279.13 622 T
+(xample, if there e) 297.28 622 T
+(xisted a Ja) 381.07 622 T
+(v) 430.82 622 T
+(a class as belo) 436.52 622 T
+(w:) 504.54 622 T
+3 10 Q
+(public class Test\050\051 {) 72 595.33 T
+(public void set\050int i\051 { }) 72 583.33 T
+(public void set\050boolean b\051 { }) 72 571.33 T
+(}) 72 559.33 T
+0 12 Q
+(Then the ar) 72 518 T
+(gument con) 126.43 518 T
+(v) 182.28 518 T
+(ersion code must mak) 188.1 518 T
+(e a choice when the follo) 292.97 518 T
+(wing Python code is) 412.97 518 T
+(e) 72 504 T
+(x) 77.15 504 T
+(ecuted:) 82.97 504 T
+3 10 Q
+(>>> o = java.findClass\050\322Test\323\051.new\050\051) 72 477.33 T
+(>>> o.set\0501\051) 72 465.33 T
+0 12 Q
+-0.36 (The choice is currently arbitrary \321 the \336rst \324set\325 method it \336nds will be the one selected. There is,) 72 424 P
+-0.32 (of course a w) 72 410 P
+-0.32 (ay around this. An Inte) 135.24 410 P
+-0.32 (ger or Boolean object can be created and sent as the ar) 244.1 410 P
+-0.32 (gument) 501.32 410 P
+(instead. F) 72 396 T
+(or e) 118.49 396 T
+(xample, the follo) 136.63 396 T
+(wing code creates an Inte) 217.99 396 T
+(ger and forces the e) 339.77 396 T
+(xplicit in) 433.55 396 T
+(v) 476.08 396 T
+(ocation of) 481.84 396 T
+(the \324set\325 method taking an int ar) 72 382 T
+(gument:) 225.1 382 T
+3 10 Q
+(>>> o = java.findClass\050\322Test\323\051.new\050\051) 72 355.33 T
+(>>> Integer = java.findClass\050\322java/lang/Integer\323\051) 72 343.33 T
+(>>> o.set\050Integer.new\0501\051\051) 72 331.33 T
+1 14 Q
+(3.2.3  Exception Handling) 72 287.67 T
+0 12 Q
+(Exceptions are handled by the JPI by con) 72 258 T
+(v) 269.82 258 T
+(erting an e) 275.64 258 T
+(xception back and forth between a Python) 326.11 258 T
+(e) 72 244 T
+(xception and a Ja) 77.15 244 T
+(v) 159.89 244 T
+(a e) 165.59 244 T
+(xception as it passes up the call stack. The programmer can catch the) 179.06 244 T
+(e) 72 230 T
+(xception in either of the languages.) 77.15 230 T
+(Currently though, the e) 72 202 T
+(xception handling mechanism loses information about the original) 183.14 202 T
+(e) 72 188 T
+(xception when it is con) 77.15 188 T
+(v) 187.99 188 T
+(erted between languages. So an e) 193.81 188 T
+(xception occurring when sending a) 352.92 188 T
+-0.07 (message to Ja) 72 174 P
+-0.07 (v) 137.6 174 P
+-0.07 (a will result in a general Exception object being thro) 143.3 174 P
+-0.07 (wn. Due to this dra) 393.98 174 P
+-0.07 (wback, the) 485.16 174 P
+-0.32 (JPI prints out the e) 72 160 P
+-0.32 (xception information just before con) 160.55 160 P
+-0.32 (v) 334.1 160 P
+-0.32 (ersion so that the programmer can see the) 339.92 160 P
+(actual e) 72 146 T
+(xception that occurred. Future w) 108.8 146 T
+(ork will impro) 264.98 146 T
+(v) 334.14 146 T
+(e upon this such that in either language) 339.96 146 T
+(the actual e) 72 132 T
+(xception which w) 126.47 132 T
+(as thro) 211.67 132 T
+(wn will be passed back and forth. F) 243.7 132 T
+(or e) 414.16 132 T
+(xample, the current) 432.3 132 T
+(beha) 72 118 T
+(vior is as follo) 94.42 118 T
+(ws:) 163.12 118 T
+3 10 Q
+(>>> v = java.findClass\050\322java/util/Vector\323\051.new\050\051) 72 91.33 T
+(>>> v.elementAt\0500\051) 72 79.33 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "7" 7
+%%Page: "8" 8
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 0 0 0 1 1 1]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 8 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 10 Q
+0 X
+0 0 0 1 0 0 0 K
+(8) 303.5 36 T
+0 0 0 1 0 0 0 K
+72 63 540 63 2 L
+1 H
+2 Z
+N
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+3 F
+(java.lang.ArrayIndexOutOfBoundsException: 0 >= 0) 72 713.33 T
+(at java.util.Vector.elementAt\050Vector.java\051) 72 701.33 T
+(at ndim.util.Python.dynamicMessageSend\050Python.java:235\051) 72 689.33 T
+(at ndim.util.Python.readInput\050Python.java:439\051) 72 677.33 T
+(at ndim.modeling.Test.main\050Test.java:36\051) 72 665.33 T
+(Traceback \050innermost last\051:) 72 653.33 T
+(File \322<string>\323, line 1, in ?) 72 641.33 T
+(java.error: Exception thrown from Java) 72 629.33 T
+(java.lang.Exception: Exception thrown from Python) 72 617.33 T
+(at ndim.util.Python.readInput\050Python.java:439\051) 72 605.33 T
+(at ndim.modeling.Test.main\050Test.java:36\051) 72 593.33 T
+(>>>) 72 581.33 T
+0 12 Q
+(While the future beha) 72 540 T
+(vior will be:) 176.06 540 T
+3 10 Q
+(>>> v = java.findClass\050\322java/util/Vector\323\051.new\050\051) 72 513.33 T
+(>>> v.elementAt\0500\051) 72 501.33 T
+(java.lang.ArrayIndexOutOfBoundsException: 0 >= 0) 72 489.33 T
+(at java.util.Vector.elementAt\050Vector.java\051) 72 477.33 T
+(at ndim.util.Python.dynamicMessageSend\050Python.java:235\051) 72 465.33 T
+(at ndim.util.Python.readInput\050Python.java:439\051) 72 453.33 T
+(at ndim.modeling.Test.main\050Test.java:36\051) 72 441.33 T
+(>>>) 72 429.33 T
+1 14 Q
+(3.2.4  Other Implementation Details) 72 397.67 T
+1 12 Q
+(W) 72 368 T
+(orking with J) 83.1 368 T
+(a) 151.6 368 T
+(v) 157.3 368 T
+(a Classes.) 163.18 368 T
+0 F
+(T) 215.51 368 T
+(o create a Ja) 221.88 368 T
+(v) 280.61 368 T
+(a instance one must \336rst get a class to instantiate.) 286.31 368 T
+(This is done using the \324\336ndClass\325 method of the ja) 72 354 T
+(v) 314.09 354 T
+(a module. It is useful to assign classes to) 319.79 354 T
+(v) 72 340 T
+(ariables for more con) 77.7 340 T
+(v) 179.52 340 T
+(enient use. Belo) 185.34 340 T
+(w is an e) 262.03 340 T
+(xample.) 304.18 340 T
+3 10 Q
+(>>> Frame = java.findClass\050\322java/awt/Frame\323\051) 72 313.33 T
+0 12 Q
+(Once a class is obtained, the \324ne) 72 272 T
+(w\325 message will in) 226 272 T
+(v) 315.84 272 T
+(ok) 321.6 272 T
+(e a constructor matching the ar) 333.48 272 T
+(guments) 481.56 272 T
+(pro) 72 258 T
+(vided. The follo) 87.82 258 T
+(wing code will create a ne) 164.51 258 T
+(w frame with the title \322My Frame\323:) 289.84 258 T
+3 10 Q
+(>>> f = Frame.new\050\322My Frame\323\051) 72 231.33 T
+0 12 Q
+(This is equi) 72 190 T
+(v) 127.7 190 T
+(alent to the Ja) 133.4 190 T
+(v) 199.49 190 T
+(a code:) 205.19 190 T
+3 10 Q
+(new Frame\050\322My Frame\323\051;) 72 163.33 T
+0 12 Q
+(T) 72 122 T
+(o access static \336elds or methods, a message can be sent to the class:) 78.37 122 T
+3 10 Q
+(>>> Color = java.findClass\050\322java/awt/Color\323\051) 72 95.33 T
+(>>> Color.black\050\051) 72 83.33 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "8" 8
+%%Page: "9" 9
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 0 0 0 1 1 1]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 8 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 10 Q
+0 X
+0 0 0 1 0 0 0 K
+(9) 303.5 36 T
+0 0 0 1 0 0 0 K
+72 63 540 63 2 L
+1 H
+2 Z
+N
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+1 12 Q
+(Interfaces and the PyEv) 72 684 T
+(entListener class.) 194.87 684 T
+0 F
+(In order to ha) 286.52 684 T
+(v) 351.26 684 T
+(e a Python class implement a Ja) 357.08 684 T
+(v) 509.5 684 T
+(a) 515.2 684 T
+(interf) 72 670 T
+(ace, a Ja) 97.87 670 T
+(v) 137.94 670 T
+(a class implementing the interf) 143.64 670 T
+(ace must be created which then forw) 291.5 670 T
+(ards messages) 467.33 670 T
+(to a Python object. The PyEv) 72 656 T
+(entListener class is an e) 212.48 656 T
+(xample of this. The PyEv) 326.28 656 T
+(entListener class) 448.43 656 T
+(implements all of the A) 72 642 T
+(WT e) 184.25 642 T
+(v) 210.94 642 T
+(ent listener interf) 216.76 642 T
+(aces. Its constructor requires a PyObject to which) 298.62 642 T
+-0.35 (it will forw) 72 628 P
+-0.35 (ard the interf) 125.17 628 P
+-0.35 (ace methods. The PyEv) 186.33 628 P
+-0.35 (entListener serv) 298.41 628 P
+-0.35 (es merely as a custom wrapper for) 374.85 628 P
+(a PyObject to satisfy the interf) 72 614 T
+(ace requirements of methods which demand some type of e) 218.2 614 T
+(v) 502.84 614 T
+(ent) 508.66 614 T
+(listener) 72 600 T
+(. The follo) 106.67 600 T
+(wing code sho) 156.7 600 T
+(ws ho) 225.72 600 T
+(w the PyEv) 253.75 600 T
+(entListener can be used:) 308.9 600 T
+3 10 Q
+(# This code assumes a Python object \324o\325 exists) 72 573.33 T
+(# A button \324b\325 is created) 72 549.33 T
+(>>> b = Button.new\050\322click here\323\051) 72 537.33 T
+(# An event listener \324l\325 is created which will forward messages to \324o\325) 72 525.33 T
+(>>> l = java.findClass\050\322PyEventListener\323\051.new\050o\051) 72 513.33 T
+(# \324l\325 can be added as an actionListener to \324b\325 since PyEventListener) 72 501.33 T
+(# implements the ActionListener interface) 72 489.33 T
+(>>> b.addActionListener\050l\051) 72 477.33 T
+(# \324l\325 is configured to forward the \324actionPerformed\325 method to \324o\325) 72 465.33 T
+(>>> l.listenFor\050\322actionPerformed\323, \322actionPerformed\323\051) 72 453.33 T
+1 12 Q
+(The \050F) 72 412 T
+(ak) 106.03 412 T
+(e\051 Inter) 118.58 412 T
+(pr) 156.78 412 T
+(eter) 168.56 412 T
+(.) 187.34 412 T
+0 F
+(The JPI pro) 193.34 412 T
+(vides its o) 249.16 412 T
+(wn interpreter because dif) 297.53 412 T
+(\336culties were) 422.18 412 T
+(encountered when trying to run the Python interpreter from C. This f) 72 398 T
+(ak) 401.83 398 T
+(e interpreter merely reads) 413.04 398 T
+(input and sends it to Python for the real interpretation, b) 72 384 T
+(ut as a result, the beha) 340.74 384 T
+(vior of the) 447.14 384 T
+-0.08 (interpreter does not e) 72 370 P
+-0.08 (xactly match that of Python. Multi-line e) 173.23 370 P
+-0.08 (xpressions are \336nished as soon as a) 368.24 370 P
+(blank line is entered, and results are not printed, the user must print them manually \050this will be) 72 356 T
+(\336x) 72 342 T
+(ed soon\051. F) 84.49 342 T
+(or e) 137.98 342 T
+(xample, sending a message may seemingly do nothing:) 156.12 342 T
+3 10 Q
+(>>> f.message\050\051 # returns \322It happened!\323) 72 315.33 T
+(>>>) 72 303.33 T
+0 12 Q
+(So instead, the programmer must do:) 72 262 T
+3 10 Q
+(>>> print f.message\050\051) 72 235.33 T
+(It happened!) 72 223.33 T
+(>>>) 72 211.33 T
+1 12 Q
+(Reser) 72 170 T
+(v) 101.2 170 T
+(ed W) 107.08 170 T
+(ords.) 133.18 170 T
+0 F
+(There is also a problem in the sense that the Python parser looks for certain) 161.84 170 T
+(reserv) 72 156 T
+(ed w) 101.14 156 T
+(ords and generates an error if the reserv) 124.01 156 T
+(ed w) 314.09 156 T
+(ork is not being used properly) 336.96 156 T
+(. Therefore,) 479.83 156 T
+(trying to send a message to a Ja) 72 142 T
+(v) 223.4 142 T
+(a object which matches a reserv) 229.1 142 T
+(ed w) 381.88 142 T
+(ord will result in a syntax) 404.75 142 T
+(error) 72 128 T
+(. F) 94.66 128 T
+(or e) 107.15 128 T
+(xample, the follo) 125.29 128 T
+(wing code yields a syntax error:) 206.65 128 T
+3 10 Q
+(>>> o.print\050\051) 72 101.33 T
+(File \322<string>\323, line 1) 72 89.33 T
+(o.print\050\051) 72 77.33 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "9" 9
+%%Page: "10" 10
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 0 0 0 1 1 1]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 8 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 10 Q
+0 X
+0 0 0 1 0 0 0 K
+(10) 301 36 T
+0 0 0 1 0 0 0 K
+72 63 540 63 2 L
+1 H
+2 Z
+N
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+3 F
+(^) 72 713.33 T
+(SyntaxError: invalid syntax) 72 701.33 T
+(java.lang.Exception: Exception thrown from Python) 72 689.33 T
+(at ndim.util.Python.readInput\050Python.java:439\051) 72 677.33 T
+(at ndim.modeling.Test.main\050Test.java:36\051) 72 665.33 T
+(>>>) 72 653.33 T
+0 12 Q
+(There is around for this. Instead, the follo) 72 612 T
+(wing code can be used:) 271.33 612 T
+3 10 Q
+(>>> o.send\050\322print\323\051) 72 585.33 T
+1 16 Q
+(4   Conclusions) 72 531.33 T
+0 12 Q
+-0.37 (The JPI has been used e) 72 497 P
+-0.37 (xtensi) 184.94 497 P
+-0.37 (v) 213.31 497 P
+-0.37 (ely by the author) 219.13 497 P
+-0.37 (. Despite the described shortcomings it has pro) 298.35 497 P
+-0.37 (v) 520.22 497 P
+-0.37 (en) 526.04 497 P
+(e) 72 483 T
+(xtremely v) 77.15 483 T
+(aluable. Code can be prototyped v) 128.51 483 T
+(ery quickly in Python and, once it w) 292.3 483 T
+(orks properly) 466.16 483 T
+(,) 529.7 483 T
+(mo) 72 469 T
+(v) 87.16 469 T
+(ed to Ja) 92.98 469 T
+(v) 129.4 469 T
+(a. Programs can be interacti) 135.1 469 T
+(v) 268.43 469 T
+(ely deb) 274.25 469 T
+(ugged such that the state of a running program) 309 469 T
+(can be queried and modi\336ed to \336nd the cause of a b) 72 455 T
+(ug and the potential corrections for it.) 319.38 455 T
+(Graphical interf) 72 441 T
+(aces can be prototyped using the Ja) 148.19 441 T
+(v) 317.24 441 T
+(a A) 322.94 441 T
+(WT and modi\336cations can be made) 338.86 441 T
+-0.45 (directly from the Python command line such that layout and appearance can be e) 72 427 P
+-0.45 (xperimented with) 453.57 427 P
+(without needing to recompile and rerun. User le) 72 413 T
+(v) 301.66 413 T
+(el scripts can be added to programs such that) 307.48 413 T
+(run-time customizations can be made to programs.) 72 399 T
+-0.09 (Due to the great similarities between Ja) 72 371 P
+-0.09 (v) 260.52 371 P
+-0.09 (a and Python, the JPI is able to support the tw) 266.22 371 P
+-0.09 (o language) 484.86 371 P
+(approach to softw) 72 357 T
+(are de) 157.86 357 T
+(v) 186.54 357 T
+(elopment e) 192.36 357 T
+(xtremely well. F) 245.17 357 T
+(or e) 323.99 357 T
+(xample, in one particular case a) 342.13 357 T
+(LoginDialog class w) 72 343 T
+(as prototyped in Python while establishing the look and feel and then) 171.2 343 T
+(reimplemented in Ja) 72 329 T
+(v) 169.08 329 T
+(a once completed. The dynamic nature of Python allo) 174.78 329 T
+(wed for man) 431.44 329 T
+(y) 491.9 329 T
+(iterations of the look and feel to be e) 72 315 T
+(xperimented with o) 247.79 315 T
+(v) 340.93 315 T
+(er the course of a day) 346.75 315 T
+(. Once the \336nal) 448.93 315 T
+-0.1 (design w) 72 301 P
+-0.1 (as determined, the LoginDialog class w) 114.78 301 P
+-0.1 (as reimplemented in Ja) 304.15 301 P
+-0.1 (v) 413.94 301 P
+-0.1 (a. The reimplementation) 419.64 301 P
+(consisted primarily of a syntax con) 72 287 T
+(v) 239.83 287 T
+(ersion and w) 245.65 287 T
+(as completed in less than an hour) 306.85 287 T
+(.) 465.5 287 T
+1 16 Q
+(5   Refer) 72 232.33 T
+(ences) 129.9 232.33 T
+0 12 Q
+([Arnold96]) 72 198 T
+(Arnold, K., J. Gosling,) 144 198 T
+2 F
+(The J) 256.33 198 T
+(ava Pr) 282.24 198 T
+(o) 314.03 198 T
+(gr) 319.91 198 T
+(amming Langua) 330.4 198 T
+(g) 408.61 198 T
+(e) 414.49 198 T
+0 F
+(, Addison-W) 419.82 198 T
+(esle) 480.85 198 T
+(y) 499.33 198 T
+(, 1996.) 504.55 198 T
+([Beazle) 72 174 T
+(y97]) 108.47 174 T
+(Beazle) 144 174 T
+(y) 176.47 174 T
+(, D.,) 181.69 174 T
+2 F
+(The SWIG User\325) 205.36 174 T
+(s Manual) 284.86 174 T
+0 F
+(, 1997.) 329.86 174 T
+([Budde92]) 72 150 T
+(Budde, R., K. Kautz, K. K) 144 150 T
+(uhlenkamp, and H. Z\237lligho) 270.8 150 T
+(v) 406.28 150 T
+(en,) 412.1 150 T
+2 F
+(Pr) 429.43 150 T
+(ototyping: An) 440.89 150 T
+-0.05 (Appr) 144 138 P
+-0.05 (oac) 167.46 138 P
+-0.05 (h to Evolutionary System De) 184.61 138 P
+-0.05 (velopment) 321.56 138 P
+0 F
+-0.05 (, Springer V) 370.88 138 P
+-0.05 (erlag, Ne) 428.45 138 P
+-0.05 (w Y) 472.09 138 P
+-0.05 (ork, 1992.) 491.05 138 P
+([Cox91]) 72 114 T
+(Cox, B.,) 144 114 T
+2 F
+(Object-Oriented Pr) 187.01 114 T
+(o) 280.12 114 T
+(gr) 286 114 T
+(amming: an Evolutionary Appr) 296.48 114 T
+(oac) 446.27 114 T
+(h) 463.42 114 T
+0 F
+(, Reading,) 469.42 114 T
+(Mass, 1991.) 144 102 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "10" 10
+%%Page: "11" 11
+612 792 0 FMBEGINPAGE
+[0 0 0 1 0 0 0]
+[ 0 0 0 0 1 1 1]
+[ 0 1 1 0 1 0 0]
+[ 1 0 1 0 0 1 0]
+[ 1 1 0 0 0 0 1]
+[ 1 0 0 0 0 1 1]
+[ 0 1 0 0 1 0 1]
+[ 0 0 1 0 1 1 0]
+ 8 FrameSetSepColors
+FrameNoSep
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 10 Q
+0 X
+0 0 0 1 0 0 0 K
+(11) 301 36 T
+0 0 0 1 0 0 0 K
+72 63 540 63 2 L
+1 H
+2 Z
+N
+0 0 0 1 0 0 0 K
+0 0 0 1 0 0 0 K
+0 12 Q
+([Dutoit96]) 72 712 T
+(Dutoit, A., S. Le) 144 712 T
+(vy) 223.37 712 T
+(, D. Cunningham, and R. P) 234.59 712 T
+(atrick, \322The Basic Object System:) 364.08 712 T
+(Supporting a Spectrum From Prototypes to Hardened Code,) 144 700 T
+(\323) 430.48 700 T
+2 F
+(OOPSLA 96) 438.8 700 T
+(Confer) 144 688 T
+(ence Pr) 176.89 688 T
+(oceedings) 213.34 688 T
+0 F
+(, V) 261.32 688 T
+(ol. 31, No. 10, pp. 104-121, October 1996.) 274.44 688 T
+([Krogh96]) 72 664 T
+(Krogh, B., S. Le) 144 664 T
+(vy) 222.7 664 T
+(, A. Dutoit, and E. Subrahmanian, \322Strictly Class-Based) 233.92 664 T
+(Modeling Considered Harmful,) 144 652 T
+(\323) 294.14 652 T
+2 F
+(Pr) 302.47 652 T
+(oceedings of the 29th Hawaii International) 313.93 652 T
+(Confer) 144 640 T
+(ence on System Sciences \050HICSS\051) 176.89 640 T
+0 F
+(, Maui, Ha) 338.17 640 T
+(w) 389.32 640 T
+(aii, January 1996.) 397.86 640 T
+([Landauer95]) 72 616 T
+(Landauer) 144 616 T
+(, T) 188.83 616 T
+(. K.,) 201.28 616 T
+2 F
+(The T) 224.94 616 T
+(r) 251.95 616 T
+(ouble with Computer) 256.08 616 T
+(s: Usefulness, Usability) 357.3 616 T
+(, and) 470.3 616 T
+(Pr) 144 604 T
+(oductivity) 155.46 604 T
+0 F
+(, MIT Press, Cambridge, Mass., 1995.) 202.01 604 T
+([Masse96]) 72 580 T
+(Masse, R., \322) 144 580 T
+(An Analysis of T) 202.03 580 T
+(w) 284.06 580 T
+(o Ne) 292.61 580 T
+(xt-Generation Languages: Ja) 315.42 580 T
+(v) 453.14 580 T
+(a and Python,) 458.84 580 T
+(\323) 523.67 580 T
+(Unpublished paper \050http://www) 144 568 T
+(.p) 295.87 568 T
+(ython.or) 304.75 568 T
+(g/~rmasse/papers/ja) 344.87 568 T
+(v) 440.44 568 T
+(a-p) 446.14 568 T
+(ython/\051, 1996.) 461.34 568 T
+([Ousterhout94]) 72 544 T
+(Ousterhout, J.,) 148.32 544 T
+2 F
+(Tcl and the Tk T) 221.32 544 T
+(oolkit) 298.88 544 T
+0 F
+(, Addison-W) 326.22 544 T
+(esle) 387.25 544 T
+(y) 405.73 544 T
+(, 1994.) 410.95 544 T
+([Ousterhout97]) 72 520 T
+(Ousterhout, J., \322Scripting: Higher Le) 148.32 520 T
+(v) 325.67 520 T
+(el Programming for the 21st Century) 331.49 520 T
+(,) 507.7 520 T
+(\323) 509.86 520 T
+(Unpublished draft \050http://www) 144 508 T
+(.sunlabs.com/~ouster/scripting.html\051, Sun) 291.88 508 T
+(Microsystems Laboratories, 1997.) 144 496 T
+([Stroustrup87]) 72 472 T
+(Stroustrup, B.,) 145 472 T
+2 F
+(The C++ Pr) 218 472 T
+(o) 277.67 472 T
+(gr) 283.55 472 T
+(amming Langua) 294.04 472 T
+(g) 372.25 472 T
+(e) 378.13 472 T
+0 F
+(, Addison-W) 383.46 472 T
+(esle) 444.49 472 T
+(y) 462.97 472 T
+(, 1987.) 468.19 472 T
+([W) 72 448 T
+(atters96]) 86.36 448 T
+(W) 144 448 T
+(atters, A., G. v) 154.37 448 T
+(an Rossum, and J. C. Ahlstrom,) 224.39 448 T
+2 F
+(Internet Pr) 379.73 448 T
+(o) 432.18 448 T
+(gr) 438.06 448 T
+(amming with) 448.55 448 T
+(Python) 144 436 T
+0 F
+(, MIS Press/Henry Holt Publishers, 1996.) 178 436 T
+0 0 0 1 0 0 0 K
+FMENDPAGE
+%%EndPage: "11" 11
+%%Trailer
+%%BoundingBox: 0 0 612 792
+%%PageOrder: Ascend
+%%Pages: 11
+%%DocumentFonts: Times-Roman
+%%+ Times-Bold
+%%+ Times-Italic
+%%+ Courier
+%%EOF

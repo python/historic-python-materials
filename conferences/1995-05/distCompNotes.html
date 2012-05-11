@@ -1,0 +1,203 @@
+<html>
+<head>
+<title>Distributed Computing Session Notes</title>
+</head>
+<body>                                                                  
+<h1>Distributed Computing Session Notes</h1>
+<i> Moderator: Roger Masse, CNRI </i>
+<br>
+<i> Date: May 23, 1995 </i>
+<br>
+URL: <code> http://www.python.org/misc/workshop5-95/distCompNotes.html </code>
+<h2>1) OpenDoc (Neil Katin - CI Labs)</h2>                                   
+<ul>
+<li>Overview
+<ul>
+  <li>         plug and play documents                 
+  <li>         Rich multipart                          
+  <li>         Architecture for making 'parts'         
+</ul>
+<li>Edit in place                                     
+<ul>
+  <li>         parts written separately then combined
+  <li>         component part architecture
+</ul>
+<li>Linking and Scripting
+<ul>
+  <li>         very high level concepts, save to a file, etc.
+  <li>         no one language will make everyone happy
+  <li>         common language for scripts to communicate w/parts
+  <li>         in order to run a python script, one needs an
+            interpreter on your system (runned by OpenDoc shell)
+</ul>
+<li>Six technologies
+<ul>
+  <li>         OpenDoc Doc Architecture
+  <li>         OLE interaoperability
+  <li>         OpenDoc Component Architecture
+  <li>         OSA (Automation)
+  <li>         Bento (How to store things on disk)
+  <li>         SOM  (Corba implementations)
+</ul>
+<li>Contrast with Visual Basic
+<ul>
+  <li>OpenDoc + Scripting language + toolkit is simmilar
+  <li>OpenDoc is a lower level framework by itself
+</ul>
+<li>OMG
+<ul>
+  <li>Submitted to Common Facilities Task force
+  <li>competing with Fresco
+  <li>Built on top of CORBA
+</ul>
+<li>WordPerfect implementation is available via ftp
+<li>Apple just release developer rel 2 (opendoc@apple.com)
+<li>IBM OS/2 2 months behind, must buy developer package ($99)
+<li>AIX port several months behind
+<li>More info... contact CI labs info@cil.org
+<p>
+</ul>
+<h2>2) ILU (Bill Janssen - Xerox PARC)</h2>
+<ul>
+<li>Full slides from <A HREF=" ftp://ftp.parc.xerox.com/pub/ilu/ilu.html">
+here.</a>
+<p>
+<li>Inter-Language Unifications
+<li>Attempts to eliminate the differences between languages
+<li>define interfaces bewteen libraries
+<li>support over 100 languages supported
+<ul>
+<li>        Smalltalk, C, C++, Modula-3, lisp Python, TCL
+</ul>
+<li>you can write your own
+<li>Like to be able to 'mix-and-match' languages
+<li>want librariy use used in the same address space to be fast
+<li>want to support CORBA
+<li>Simple types
+<li>Object Model supports methods only, no data slots
+<li>asyncronous methods (send data, don't wait for reply)
+<li>works with both comiled and interpreted languages
+<li>uses multiple inheritence
+<li>deal with heterogenaety rather than try to fight it
+<li>ILU extends CORBA
+<li>Been out for about a year (version 1.8 released Mar 95)
+<li>Very open to suggestions for python implementation changes
+<p>
+</ul>
+<h2>3) CORBA (Saurabh Srivastava - SGI - Iteractive TV project)</h2>
+<ul>
+<p>
+<li>Extending Python to be an applications development environment
+<li>for Interactive TV.
+<li>The CPU and other resources at the setup-box is assumed limited
+<li>6 Meg of memory is typical for a consumer setup box
+<li>Just launched a system in Orlando
+<li>Just now at the point of being able to do 'killer applications'
+<li>Chose Python for:
+<ul>
+  <li>	 namespace scoping scales well
+  <li>	 interoperability with C, C++
+</ul>
+<li>Service Architecture
+<ul>
+  <li>	 Client/Server
+  <li>	 Each server is a single process on IRIX
+  <li>	 clients can run on IRIX or the settop
+  <li>	 name service provides a 'global' namespace at
+  	  a well-known-port for client access
+  <li>	 All servers advertize themselves using unique names
+  <li>	 Two ways of supporting replicated services
+  <li>	 Not TCP but reliable one-way messaging
+  <li>	 IDL stubs manage transparency automatically
+  <li>	 IDL stubs are C++ stubs not Python
+  <li>	 The video channel is reserved and not transported
+  	  over IP
+</ul>
+<li>CORBA Interface
+<ul>
+  <li>	on settop box you have a python program running
+	with a stub interface to the CORBA DII - looks
+	like a python method call!  Or you can go to IDL 
+	directly via the C++ stub (uglier)
+  <li>	Have plans to build a 'Mamba' (their name for python)
+	authoring environment:
+  <ul>
+    <li>		 Debugger
+    <li>		 Class Browser
+    <li>		 Script editor
+    <li>		 Timeline Editor
+    <li>		 3D Modeler
+    <li>		 Properties Editor
+    <li>		 Spatial Editor
+    <li>		 Overview Editor
+  </ul>
+  <li>	Also needed:
+  <ul>
+    <li>		 Project Management
+    <li>		 Asset Management
+    <li>		 Data driven templates
+    <li>		 Rich set of transitions
+    <li>		 support Set Tops of dirverse capabilites
+    <li>		 Perview on IRIX i18n
+  </ul>
+<li>	Security is based on authentication via shared DES
+<li>	secret key encryption
+<li>	Status:
+<ul>
+  <li>		Nothing in the Authoring envirnment is finished
+  <li>		Extension modules IDL, etc, is finished
+  <li>		More work needs to be done on size (now big)
+</ul>
+<p>
+</ul>
+</ul>
+<h2>4) OLE (Jim Ahlstrom)</h2>
+<ul>
+<p>
+<li>Object Linking and Embedding
+<li>Microsoft product - turn on your reality meter :-)
+<li>A way for multiple applications to work together
+<li>e.g. a Word processor and a spreadsheet
+<ul>
+  <li>	 how do you deal with the spreadsheet from the WP?
+  <li>	 this is about the only thing that's working today
+</ul>
+<li>Container App
+<li>Server App
+<li>OLE 2.0 seems complicated
+<li>Feature called inplace activation
+<ul>
+  <li>	 When you pull in an app with OLE a new menu item
+  <li>	 Hard with OLE, easy with something like NEXTSTEP 
+	  that has late binding	
+</ul>
+<li>Feature called automation
+<li>A way of 'pickling' data for transport between 'Object'
+<li>They have a set of interfaces (like ObjC protocols)
+<li>They have a ways of testing for interfacing
+<li>32-bit version is hot-off-the-press
+<li>OLE also available for Microsoft Foundation Classes (better)
+<li>Use OSF/DCE to (sort of) communicate across process boundries
+<li>Doesn't work with CORBA or OpenDoc (booo hiss)
+<li>Microsoft does not 'seem' interested in this technology
+<li>OLE across a net is supported in Chiro (so OS change 
+<li>to this next version of NT will be necessary)
+<li>DEC to provide the OLE to Corba linkage (3rd party)
+<p>
+</ul>
+<h2>	5) Objects on the net (Guido van Rossum)</h2>
+<ul>
+<li> Working on turning a python Class into a server
+<li> Developed a class to represent the current directory
+  using the platform independant features of the os module
+<li>  Next using MI the class becomes a server
+<li>  On the client side, we pickle everything while
+  checking for exceptions, then sends the pickle
+  over the socket, complete with possible exceptions
+<li> exceptions can be meaningless if they're not found
+<li> Wrote an application that syncronized two file systems
+<li> Does md5 checksum and does not ship it if files are the same
+<li> This could be done with ILU... maybe a bit slower
+</ul>
+</body>
+</html>

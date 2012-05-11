@@ -1,0 +1,237 @@
+Title: python-dev Summary for 2005-07-16 through 2005-07-31
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2005-07-16 through 2005-07-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-07-16_2005-07-31.html]
+
+
+
+=============
+Announcements
+=============
+
+-------------------------------------------------
+PyPy Sprint in Heidelberg 22nd - 29th August 2005
+-------------------------------------------------
+
+Heidelberg University in Germany will host a PyPy_ sprint from 22nd August to 29th August. The sprint will push towards the 0.7 release of PyPy_ which hopes to reach Python 2.4.1 compliancy and to have full, direct, translation into a low level language instead of reinterpretation through CPython.  If you'd like to help out, this is a great place to start!
+
+For more information, see PyPy's `Heidelberg sprint`_ page.
+
+.. _PyPy: http://codespeak.net/pypy
+.. _Heidelberg sprint: http://codespeak.net/pypy/index.cgi?extradoc/sprintinfo/Heidelberg-sprint.html
+
+Contributing thread:
+
+- `Next PyPy sprint: Heidelberg (Germany), 22nd-29th of August <http://mail.python.org/pipermail/python-dev/2005-July/055031.html>`__
+
+
+--------------------------------
+zlib 1.2.3 in Python 2.4 and 2.5
+--------------------------------
+
+Trent Mick supplied a patch for updating Python from zlib 1.2.1 to zlib 1.2.3, which eliminates some potential security vulnerabilities. Python will move to this new version of zlib in both the maintenance 2.4 branch and the main (2.5) branch.
+
+Contributing thread:
+
+- `zlib 1.2.3 is just out <http://mail.python.org/pipermail/python-dev/2005-July/054926.html>`__
+
+=========
+Summaries
+=========
+
+-------------------------------------------------
+Moving Python Subversion repository to Subversion
+-------------------------------------------------
+
+Martin v. Lowis submitted `PEP 347`_, which outlines moving from CVS to SVN for source code revision control of the Python repository, and moving from SourceForge to python.org for repository hosting.
+
+Moving to SVN from CVS met with general favour, although most were undecided about moving from sourceforge.net to python.org.  The additional administration requirements of the move were the primary concern, and moving to an alternative host was suggested.  Martin is open to including suggestions for alternative hosts in the PEP, but is not interested in carrying out such research himself; as such, if alternative hosts are to be included, someone needs to volunteer to collect all the required information and submit it to Martin.
+
+Discussion about the conversion and the move is continuing in August.
+
+.. _PEP 347: http://www.python.org/dev/peps/pep-0347
+
+Contributing thread:
+
+- `PEP: Migrating the Python Subversion repository to Subversion <http://mail.python.org/pipermail/python-dev/2005-July/054950.html>`__
+
+---------------------------------
+Exception Hierarchy in Python 3.0
+---------------------------------
+
+Brett Cannon posted the first draft of `PEP 348`_, covering reorganisation of exceptions in Python 3.0.  The initial draft included major changes to the hierarchy, requiring any object raised to inherit from a certain superclass, and changing bare 'except' clauses to catch a specific superclass.  The latter two proposals didn't generate much comment (although Guido vacillated between removing bare 'except' clauses and not), but the proposed hierarchy organisation and renaming was hotly discussed.
+
+Nick Coghlan countered each revision of Brett's maximum-changes PEP with a minimum-changes PEP, each evolving through python-dev discussion, and gradually moving to an acceptable middle ground.  At present, it seems that the changes will be much more minor than the original proposal.
+
+The thread branched off into comments about `Python 3.0`_ changes in general.  The consensus was generally that although backwards compatibility isn't required in Python 3.0, it should only be broken when there is a clear reason for it, and that, as much as possible, Python 3.0 should be Python 2.9 without a lot of backwards compatibility code.  A number of people indicated that they were reasonably content with the existing exception hierarchy, and didn't feel that major changes were required.
+
+Guido suggested that a good principle for determining the ideal exception hierarchy is whether there's a use case for catching the common base class.  Marc-Andre Lemburg pointed out that when migrating code changes in Exception names are reasonably easy to automate, but changes in the inheritance tree are much more difficult.
+
+Many exceptions were discussed at length (e.g. WindowsError, RuntimeError), with debate about whether they should continue to exist in Python 3.0, be renamed, or be removed.  The PEP contains the current status for each of these exceptions.
+
+The PEP evolution and discussion are still continuing in August, and since this is for Python 3.0, are likely to be considered open for some time yet.
+
+.. _Python 3.0: http://www.python.org/dev/peps/pep-3000
+.. _PEP 348: http://www.python.org/dev/peps/pep-0348
+
+Contributing thread:
+
+- `Pre-PEP: Exception Reorganization for Python 3.0 <http://mail.python.org/pipermail/python-dev/2005-July/055018.html>`__
+
+-----------------------------------------
+Docstrings and the Official Documentation
+-----------------------------------------
+
+A new `bug report`_ pointed out that the docstring help for cgi.escape was not as detailed as that in the full documentation, prompting Skip Montanaro to ask whether this should be the case or not.  Several reasons were outlined why docstrings should be more of a "quick reference card" than a "textbook" (i.e. maintain the status quo).  Tim Peters suggested that tools to extract text from the full documentation would be a more sensible method of making the "textbook" available from help()/pydoc; if anyone is interested, then this would probably be the best way to start implementing this.
+
+.. _bug report: http://python.org/sf/1243553
+
+Contributing thread:
+
+- `should doc string content == documentation content? <http://mail.python.org/pipermail/python-dev/2005-July/054928.html>`__
+
+---------------------------
+Syntax suggestion: "while:"
+---------------------------
+
+Martin Blais suggested "while:" as a syntactic shortcut for "while True:". The suggestion was shot down pretty quickly; not only is "while:" less explicit than "while True:", but it introduces readability problems for the apparently large number of people who, when reading "while:", immediately think "while what?"
+
+Contributing thread:
+
+- `while: <http://mail.python.org/pipermail/python-dev/2005-July/054914.html>`__
+
+------------------
+Sets in Python 2.5
+------------------
+
+In Python 2.4, there is no C API for the built-in set type; you must use PyObject_Call(), etc. as you would in accessing other Python objects. However, in Python 2.5, Raymond Hettinger plans to introduce a C API along with a new implementation of the set type that uses its own data structure instead of forwarding everything to dicts.
+
+Contributing thread:
+
+- `C api for built-in type set? <http://mail.python.org/pipermail/python-dev/2005-July/054940.html>`__
+
+
+===============
+Skipped Threads
+===============
+
+- `Some RFE for review <http://mail.python.org/pipermail/python-dev/2005-July/054896.html>`__
+- `python/dist/src/Doc/lib emailutil.tex,1.11,1.12 <http://mail.python.org/pipermail/python-dev/2005-July/054902.html>`__
+- `read only files <http://mail.python.org/pipermail/python-dev/2005-July/054907.html>`__
+- `builtin filter function <http://mail.python.org/pipermail/python-dev/2005-July/054909.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-July/054921.html>`__
+- `Information request; Keywords: compiler compiler, EBNF, python, ISO 14977 <http://mail.python.org/pipermail/python-dev/2005-July/054925.html>`__
+- `installation of python on a Zaurus <http://mail.python.org/pipermail/python-dev/2005-July/054937.html>`__
+- `python-dev summary for 2005-07-01 to 2005-07-15 [draft] <http://mail.python.org/pipermail/python-dev/2005-July/054948.html>`__
+- `math.fabs redundant? <http://mail.python.org/pipermail/python-dev/2005-July/054991.html>`__
+
+
+=================================================
+Skipped Threads (covered in the previous summary)
+=================================================
+
+- `'With' context documentation draft (was Re: Terminology for PEP 343 <http://mail.python.org/pipermail/python-dev/2005-July/054891.html>`__
+- `Adding the 'path' module (was Re: Some RFE for review) <http://mail.python.org/pipermail/python-dev/2005-July/054894.html>`__
+- `[C++-sig] GCC version compatibility <http://mail.python.org/pipermail/python-dev/2005-July/054895.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+July 16, 2005 through July 31, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the 8th summary written by the python-dev summary cabal of
+Steve Bethard, Tim Lesher, and Tony Meyer.
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tim Lesher (tlesher at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/trunk/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  We do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow us to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-04-16_2005-04-30.html
+.. _original text file: http://www.python.org/dev/summary/2005-07-16_2005-07-31.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+
+

@@ -1,0 +1,1080 @@
+<!--Converted with LaTeX2HTML 97.1 (release) (July 13th, 1997)
+ by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippman, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Concurrent Object-Oriented Programming in Python with ATOM</TITLE>
+<META NAME="description" CONTENT="Concurrent Object-Oriented Programming in Python with ATOM">
+<META NAME="keywords" CONTENT="atom">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso_8859_1">
+<LINK REL="STYLESHEET" HREF="atom.css">
+</HEAD>
+<BODY >
+<P><H1 ALIGN="CENTER"><BIG><B>Concurrent Object-Oriented Programming <BR> in
+    Python with ATOM</B></BIG></H1>
+<P ALIGN="CENTER"><STRONG><DIV ALIGN="CENTER"><TABLE CELLPADDING=3>
+<TR VALIGN="TOP"><TD ALIGN="CENTER" NOWRAP>Michael Papathomas</TD>
+<TD></TD>
+<TD ALIGN="CENTER" NOWRAP>Anders Andersen<A NAME="tex2html1"
+HREF="#165"><SUP>1</SUP></A></TD>
+</TR>
+<TR VALIGN="TOP"><TD ALIGN="CENTER" NOWRAP><EM>Computing Department</EM></TD>
+<TD></TD>
+<TD ALIGN="CENTER" NOWRAP><EM>NORUT IT</EM></TD>
+</TR>
+<TR VALIGN="TOP"><TD ALIGN="CENTER" NOWRAP><EM>Lancaster University</EM></TD>
+<TD></TD>
+<TD ALIGN="CENTER" NOWRAP><EM>Troms&#248; Research Park</EM></TD>
+</TR>
+<TR VALIGN="TOP"><TD ALIGN="CENTER" NOWRAP><EM>Lancaster LA1 4YR, UK</EM></TD>
+<TD></TD>
+<TD ALIGN="CENTER" NOWRAP><EM>9005 Troms&#248;, Norway</EM></TD>
+</TR>
+<TR VALIGN="TOP"><TD ALIGN="CENTER" NOWRAP><EM>michael@comp.lancs.ac.uk</EM></TD>
+<TD></TD>
+<TD ALIGN="CENTER" NOWRAP><EM>aandersen@acm.org</EM></TD>
+</TR>
+</TABLE><BR>
+</DIV></STRONG></P>
+<P ALIGN="CENTER"><STRONG></STRONG></P>
+<P ALIGN="LEFT"></P>
+<P><H2><A NAME="SECTION00001000000000000000">
+Abstract</A>
+</H2>
+<EM>Object-oriented mechanisms, such as classes and inheritance, and
+  concurrency mechanisms, such as threads and locks, provide two
+  separate software structuring dimensions. The development of
+  concurrent object-oriented software requires both dimensions to be
+  taken into account simultaneously. Previous research has identified
+  that substantial effort is required by programmers to avoid clashes
+  in structuring software along these separate dimensions. This has
+  led to the design of concurrent object-oriented programming models
+  that integrate object-oriented features with concurrent execution
+  and synchronization, eliminating the need to consider two separate
+  dimensions when developing concurrent object-oriented software.
+  Although several issues that have to be addressed by such
+  programming models have been identified, there is no consent on a
+  programming model that addresses all these issues simultaneously. In
+  addition, little experience has been gained from the use of
+  proposals addressing these issues.  We have used Python to prototype
+  and experiment with the use of a novel concurrent object-oriented
+  programming model called ATOM. In this paper we present the model's
+  main features and illustrate their use for concurrent programming in
+  Python. We also provide information on a free prototype
+  implementation of the model. Taking advantage of Python's
+  extensibility we were able to prototype the model without undergoing
+  a lengthy development effort and with no need to change the Python
+  language or its interpreter.</EM>
+<P><H1><A NAME="SECTION00010000000000000000">
+1 Introduction</A>
+<A NAME="sec:intro">&#160;</A>
+</H1>
+Object-oriented mechanisms, such as classes and inheritance, and
+concurrency mechanisms, such as threads and locks, provide two
+separate software structuring dimensions. The development of
+concurrent object-oriented software requires both dimensions to be
+taken into account simultaneously. Previous research has identified that
+substantial effort is required by programmers to avoid clashes in
+structuring software along these separate dimensions. This has led to
+the design of concurrent object-oriented programming models that
+integrate object-oriented features with concurrent execution and
+synchronization eliminating the need to consider two separate
+dimensions when developing concurrent object-oriented software
+[<A
+ HREF="atom.html#Wegner87">1</A>].
+<P>
+There has been substantial research on Concurrent Object-Oriented
+Programming (COOP) models and several issues that have to be addressed
+by such models have been identified. However, research in the area are
+concentrated on the design of features that address particular issues
+in isolation and there is no consent on a programming model that
+addresses all these issues simultaneously. Furthermore, few languages
+incorporating the proposed features are widely available and little
+experience is reported from their use.
+<P>
+In this paper we present a COOP model, ATOM, and show how it can be
+used for concurrent programming in Python. ATOM incorporates a number
+of novel features that aim to address simultaneously all issues
+identified by previous research in concurrent object-oriented
+programming. ATOM has been incorporated and implemented in Python and
+we have already used it in the development of concurrent
+object-oriented software. Section <A HREF="atom.html#sec:background">2</A> provides some
+background on concurrent object-oriented programming and the issues
+that have to be addressed by COOP models. In section
+<A HREF="atom.html#sec:atom-model">3</A>, we present ATOM's main features. Section
+<A HREF="atom.html#sec:conc-prog">4</A>, shows how ATOM can be used for concurrent
+object-oriented programs in Python. In section <A HREF="atom.html#sec:discussion">5</A>,
+we discuss how ATOM features address concurrent programming issues,
+the benefits from the use of Python and our plans for future work.
+Finally, we present our conclusions in section <A HREF="atom.html#sec:conclusion">6</A>.
+<P><H1><A NAME="SECTION00020000000000000000">
+2 Background and Motivation</A>
+<A NAME="sec:background">&#160;</A>
+</H1>
+<H2><A NAME="SECTION00021000000000000000">
+2.1 Previous Work and Motivation</A>
+<A NAME="sec:background:prev">&#160;</A>
+</H2>
+The purpose of COOP models is to integrate in a single programming
+model object-oriented features, such as classes and inheritance, and
+features that support concurrent execution and synchronization. In
+this section we provide a brief overview of the work in this area, the
+motivation behind such models and the issues they have to address.
+There has been abundant literature on COOP so it is impossible to
+present all the work in this paper. A more extensive survey of work in
+the area can be found in [<A
+ HREF="atom.html#Papa95">2</A>].
+<P><H3><A NAME="SECTION00021100000000000000">
+2.1.1 Early Work on COOP Models</A>
+<A NAME="sec:background:prev:early">&#160;</A>
+</H3>
+In a concurrent program objects are shared by concurrent threads. In
+this case the execution of their methods needs to be synchronized in
+order to provide mutually exclusive access to the objects' state as
+well as to coordinate the use of an object by concurrent threads.
+Synchronization can be expressed using low-level synchronization
+mechanisms used independently from the object-oriented constructs.
+However, this approach does not scale well if objects are to be reused
+in programs which have a different thread structure. Early work on
+COOP [<A
+ HREF="atom.html#Amer87b">3</A>,<A
+ HREF="atom.html#Nier87a">4</A>,<A
+ HREF="atom.html#Yokote87">5</A>,<A
+ HREF="atom.html#Yon87">6</A>] concentrated on the design
+of features that integrate objects with concurrency features providing
+adequate expressive power for classical concurrent programming
+problems. For instance, in some proposals objects are identified with
+message passing processes and asynchronous message passing variants
+are introduced. In other proposals, objects are similar to monitors.
+They are provided with mutual exclusion and some features are provided
+to coordinate the execution of invoking threads.
+<P><H3><A NAME="SECTION00021200000000000000">
+2.1.2 Synchronization Constraints</A>
+<A NAME="sec:background:prev:sync">&#160;</A>
+</H3>
+Early COOP models either did not provide support for inheritance or
+the use of inheritance required substantial rewriting of inherited
+code to synchronize inherited methods with those defined in
+subclasses.  This issue has been discussed in previous research
+[<A
+ HREF="atom.html#Amer87b">3</A>,<A
+ HREF="atom.html#Kafura89">7</A>,<A
+ HREF="atom.html#Caromel90">8</A>,<A
+ HREF="atom.html#Papa94">9</A>] and the term
+<EM>inheritance anomaly</EM>  introduced by Matsuoka [<A
+ HREF="atom.html#Matsuoka93">10</A>] is
+now often used to refer to related issues. The approach commonly
+adopted to avoid such problems is to synchronize method execution by
+the specification of synchronization constraints on the acceptance of
+messages.  Synchronization constraints are specified separately from
+the code of methods. As methods do not contain any synchronization
+code, it is easier to reuse them in subclasses without modification.
+Various approaches for specifying, inheriting and combining inherited
+synchronization constraints have been proposed
+[<A
+ HREF="atom.html#Atki91">11</A>,<A
+ HREF="atom.html#Berg94">12</A>,<A
+ HREF="atom.html#Crespi91">13</A>,<A
+ HREF="atom.html#Frol92">14</A>,<A
+ HREF="atom.html#Krak90">15</A>,<A
+ HREF="atom.html#Lohr93">16</A>,<A
+ HREF="atom.html#McHa">17</A>,<A
+ HREF="atom.html#Mats93">18</A>,<A
+ HREF="atom.html#Sanc96">19</A>,<A
+ HREF="atom.html#Toml89a">20</A>].
+<P><H3><A NAME="SECTION00021300000000000000">
+2.1.3 Object Coordination</A>
+<A NAME="sec:background:prev:coord">&#160;</A>
+</H3>
+In a concurrent object-oriented program coordination between
+cooperating objects is traditionally expressed through the use of
+concurrency constructs embedded in the implementation of the objects.
+The main motivation behind the work on object coordination is to allow
+coordination patterns among several objects to be specified separately
+from the implementation of individual objects. The benefits of such an
+approach is that it is possible to coordinate objects in ways that
+were not anticipated when the objects were implemented and to allow
+the reuse of the coordination patterns themselves
+[<A
+ HREF="atom.html#Aksit94">21</A>,<A
+ HREF="atom.html#Frol93">22</A>,<A
+ HREF="atom.html#Papa94">9</A>].
+<P><H2><A NAME="SECTION00022000000000000000">
+2.2 Further Work on COOP Models</A>
+<A NAME="sec:background:further">&#160;</A>
+</H2>
+<P>
+COOP models have to provide adequate expressive power for coping with
+general concurrent programming problems. This requires a choice of
+appropriate programming constructs for thread creation, message
+passing and synchronization. The choice of such features was the main
+concern of early COOP models. Since it was identified that these
+models had difficulties of taking advantage of inheritance, most work
+in the area concentrated on proposals for specifying and reusing
+through inheritanced synchronization constraints for method
+invocation.  However, the proposals for the specification of
+synchronization constraints are based on oversimplified COOP models
+that fail in providing adequate expressive power. In particular:
+(i) synchronization constraints are not compatible with the
+specification of objects that have internal activities and (ii)
+these proposals are based on the assumption that once a message is
+accepted, method execution proceeds to completion. This overconstrains
+the message processing patterns that are expressible.
+<P><H2><A NAME="SECTION00023000000000000000">
+2.3 The Motivation Behind ATOM</A>
+<A NAME="sec:background:atom">&#160;</A>
+</H2>
+<P>
+The motivation behind ATOM is the design of a COOP model that
+simultaneously supports (i) the specification and reuse of
+synchronization constraints, (ii) adequate expressive power and
+(iii) object coordination. We also wanted to be able to use the
+model in the development of concurrent software and evaluate and
+gradually refine its features. However, we wanted to avoid a major
+language development effort.  This was achieved to a large extent by
+the implementation and incorporation of a prototype of the model using
+the dynamic features of Python (see section
+<A HREF="atom.html#sec:discussion:python">5.2</A>).
+<P><H1><A NAME="SECTION00030000000000000000">
+3 The ATOM Concurrent Object Model </A>
+<A NAME="sec:atom-model">&#160;</A>
+</H1>
+<H2><A NAME="SECTION00031000000000000000">
+3.1 Overview of the Computational Model</A>
+<A NAME="sec:atom-model:overview">&#160;</A>
+</H2>
+ATOM objects are active entities that resemble multi-threaded servers
+that accept and process messages in an order that is most suitable to
+them. Messages are processed by the creation of a new thread within
+the object. In addition, threads may also be created spontaneously at
+the creation of an object for executing internal activities. Only a
+single thread may be active at a time within the object and the
+execution of threads is non-preemptive; another thread may run only
+when the current thread suspends its execution. Threads are associated
+with <EM>activation conditions</EM>  (discussed in section
+<A HREF="atom.html#sec:atom-model:act-cond">3.3</A>) which determine the states of the
+object that are compatible with their execution.
+<P>
+Central to the ATOM model are the novel features of <EM>abstract
+  states</EM> , <EM>state predicates</EM>  and <EM>state notification</EM> .
+These features are integrated with thread scheduling and message
+passing in such a way that adequate expressive power for COOP, support
+for inheritance and the specification and reuse of coordination
+algorithms are addressed simultaneously.
+<P><BR>
+<DIV ALIGN="CENTER"><A NAME="fig:model">&#160;</A><A NAME="91">&#160;</A>
+<TABLE>
+<CAPTION><STRONG>Figure 1:</STRONG>
+ATOM execution model</CAPTION>
+<TR><TD><IMG WIDTH="600" HEIGHT="160"
+ SRC="img1.gif"
+ ALT="\begin{figure*}
+ \parbox{\textwidth}{\includegraphics{fig/fig.1}
+ \hfill
+ \includegraphics{fig/fig.2}}\end{figure*}"></TD></TR>
+</TABLE>
+</DIV><BR>
+<P>
+An object in ATOM may be either executing some thread or it may be
+waiting for an event, such as a message invocation (other events will
+be discussed later), that will resume the execution of a suspended
+thread. When no thread is running or the current thread is suspended,
+the object is at a <EM>stable state</EM> . The execution of an object can
+be represented by a sequence of stable states as illustrated in the
+right part of Figure <A HREF="atom.html#fig:model">1</A>. When the object is at stable
+state, a <EM>ready</EM>  thread is scheduled for execution using a simple
+round-robin algorithm. A thread is ready if it is not waiting for an
+event, such as the reply to a message or a state notification event
+(explained later), and the activation conditions associated with the
+thread hold at that particular state.
+<P><H2><A NAME="SECTION00032000000000000000">
+3.2 Abstract States and State Predicates</A>
+<A NAME="sec:atom-model:abstr-state">&#160;</A>
+</H2>
+Activation conditions are expressed in terms of <EM>abstract states</EM> ,
+which represent properties of the object's state at a level of
+abstraction that hides implementation details.  Abstract states are
+defined by the programer and their definitions may be inherited in
+subclasses.  The state of execution is taken here in a broad sense.
+It may comprise not only the values of the object's instance variables,
+but also the messages that are suspended at the object interface, the
+state of execution of the object's threads, etc.
+<P>
+A <EM>state predicate</EM>  is an evaluator of abstract states associated
+with an object.  State predicates are objects, defined by the
+programmer, that are used by the ATOM run-time to determine if an
+abstract state is true at a given stable state.  The ATOM run-time
+interacts with state predicates following a message protocol that has
+to be supported by such objects.  State predicates may be associated
+with an object statically or dynamically at run-time.  It is also
+possible for a state predicate to be shared among several objects.
+This last feature is used to support object coordination.
+<P><H2><A NAME="SECTION00033000000000000000">
+3.3 Activation Conditions</A>
+<A NAME="sec:atom-model:act-cond">&#160;</A>
+</H2>
+<EM>Activation conditions</EM>  are used to constrain method acceptance
+and more generally the execution of the object's threads. Methods are
+associated with an activation condition, expressed in terms of
+abstract states, that has to be true in order to run a thread that
+executes the associated method. Activation conditions may be
+associated to an object either statically in its class definition, or
+dynamically to a particular instance at run-time. It is also possible
+to associate a condition with a particular message sent to an object.
+Static activation conditions defined in a class are inherited by its
+subclasses and support is provided for defining generic activation
+conditions. Inherited activation conditions are by default conjoined
+with the ones defined in subclasses.
+<P><H2><A NAME="SECTION00034000000000000000">
+3.4 Synchronization Actions and Variables</A>
+<A NAME="sec:atom-model:sync-act">&#160;</A>
+</H2>
+The programmer can define a number of actions to be executed when
+certain events, such as the receipt of a message, the invocation and
+completion of a method and the suspension and resumption of a thread,
+occur.  In these <EM>synchronization actions</EM>  the programmer may use
+<EM>synchronization variables</EM>  especially defined for this purpose
+to keep track of the occurrence of such events. This mechanism in
+combination with abstract states and state predicates can be used to
+define abstract states that capture aspects of the history of object
+execution that are not represented in the object's state.
+Synchronization actions defined in a class are inherited by its
+subclasses. Thus they provide more expressive power for the
+specification of generic synchronization constraints than mixins.
+<P><H2><A NAME="SECTION00035000000000000000">
+3.5 Abstract State Notification</A>
+<A NAME="sec:atom-model:abstr-state-not">&#160;</A>
+</H2>
+<EM>State notification</EM>  is one of the features provided in ATOM for
+supporting object coordination. It can be used by an object to monitor
+and synchronize with abstract state changes of other objects. An
+object that wants to be notified when another object reaches an
+abstract state first issues a state notification request to the source
+object. This returns a notification event object that can be used to
+suspend one of its threads. State notification may be asynchronous or
+synchronous. The latter ensures that when the thread in the notified
+object resumes, the source object is still at the requested state.
+<P>
+It is important to note that state notification does not require the
+explicit collaboration of the source object. This supports object
+coordination in a way that promotes a high degree of code reuse at two
+levels: on the one hand, objects are more reusable because they are
+coded without specifying coordination constraints. On the other hand,
+the coordination algorithms are more reusable as they are specified
+separately from the implementation of the involved objects.  In
+addition, as coordination is expressed on abstract information, it is
+possible to specify generic coordination algorithms that can be reused
+for objects with different interfaces but similar abstract behavior.
+<P><H2><A NAME="SECTION00036000000000000000">
+3.6 Message Passing </A>
+<A NAME="sec:atom-model:msg">&#160;</A>
+</H2>
+The <EM>message passing</EM>  facilities are integrated with thread
+scheduling to provide adequate expressive power in the way objects
+process messages, how and when they receive replies and how they reply
+to messages. The following ways of sending messages are provided:
+<P><UL>
+<LI> <EM>Blocking remote procedure call:</EM>  when this type of message
+  passing is used, the thread and its object are blocked until the
+  message is received by the destination and a reply is returned. The
+  ordinary Python method invocation on ATOM objects has this
+  semantics.
+<LI> <EM>Non-blocking remote procedure call:</EM>  The difference
+  between non-blocking and blocking remote procedure call is that
+  while the sending thread in a non-blocking remote procedure call
+  waits for the reply, other threads may run in the object. The
+  suspended thread is resumed after the reply has been received if
+  there is no other active thread in the object and the object is at a
+  state where the method associated with the thread can be run. The
+  non-blocking designation should be understood with respect to the
+  object. The calling thread itself is blocked.
+<LI> <EM>Asynchronous message passing:</EM>  the calling thread sends a
+  message and proceeds with its execution without waiting for a reply.
+  However, it is possible to specify that another object, which should
+  an instance of the class <TT>Reply</TT>, will receive the reply.
+  <TT>Reply</TT> objects have an abstract state <TT>Ready</TT> and a
+  method <TT>getResult</TT> which is accepted at this state to
+  retrieve the reply later. State notification may be used on the
+  <TT>Ready</TT> state of a <TT>Reply</TT> object to avoid blocking an
+  object if the result is not yet available. The use of these features
+  is illustrated in section <A HREF="atom.html#sec:conc-prog:expr-pow:flex">4.4.2</A>.
+</UL><H1><A NAME="SECTION00040000000000000000">
+4 Concurrent Programming with ATOM</A>
+<A NAME="sec:conc-prog">&#160;</A>
+</H1>
+In this section we show how ATOM can be used for concurrent
+programming in Python and in particular how its features address the
+issues discussed in section <A HREF="atom.html#sec:background">2</A>. Due to space
+limitations we do not describe all of ATOM's features in detail.
+However, we believe that the examples in this section provide a good
+idea on the use of ATOM in Python.  A detailed description can be
+found in [<A
+ HREF="atom.html#Papa96">23</A>].
+<P><H2><A NAME="SECTION00041000000000000000">
+4.1 Using ATOM in Python</A>
+<A NAME="sec:conc-prog:py">&#160;</A>
+</H2>
+To create an ATOM object, also called an <EM>active object</EM>  in the
+rest of the paper, one first defines a class that inherits the class
+<TT>ActiveObjectSupport</TT>.  Methods defined in this class can be
+used in subclasses to access ATOM's concurrency features such as
+sending messages asynchronously and suspending the object's threads.
+<P><H3><A NAME="SECTION00041100000000000000">
+4.1.1 Creating ATOM Objects</A>
+<A NAME="sec:conc-prog:py:obj">&#160;</A>
+</H3>
+An <EM>active object class</EM>  is created by applying the function
+<TT>ActiveObject</TT><A NAME="tex2html3"
+ HREF="#157"><SUP>2</SUP></A> to a class that inherits from
+<TT>ActiveObjectSupport</TT>. The Python class returned from
+<TT>ActiveObject</TT> is used to create active objects with the
+ordinary Python object creation syntax. For example, the
+<TT>Buffer</TT> class in Figure <A HREF="atom.html#fig:mac:buf">2</A> can be used to
+create an active object class, <TT>BoundedBuffer</TT>, which is then
+instantiated to create active objects:
+<P><BR>
+<DIV ALIGN="CENTER">
+<IMG WIDTH="338" HEIGHT="63"
+ SRC="img2.gif"
+ ALT="\begin{figure}
+ \parbox{\myfigwidth}{\small\begin{aasrc}
+\aaline{1}{\aaws{2}\cha...
+ ...0}}
+\aaline{4}{\aaws{2}aBoundedBuffer=BoundedBuffer(10)}\end{aasrc}}\end{figure}"></DIV><BR><H3><A NAME="SECTION00041200000000000000">
+4.1.2 Special Attributes</A>
+<A NAME="sec:conc-prog:py:attr">&#160;</A>
+</H3>
+A number of attributes defined in a class, used to create an active
+object class, are interpreted in a special way. These are shown in
+Table <A HREF="atom.html#tab:attr">1</A>.  None of these has to be defined to create an
+active object class.  However, if the <TT>methods</TT> attribute is
+not defined, no method of the active of object may be invoked by other
+objects. The methods attribute specifies the list of methods that may
+be called by other objects. The other methods defined in the class are
+considered ``private''. The other special attributes are discussed
+when used in the following sections.
+<P><BR>
+  <DIV ALIGN="CENTER">
+<A NAME="260">&#160;</A>
+<TABLE CELLPADDING=3 BORDER="1" ALIGN="CENTER">
+<CAPTION><STRONG>Table 1:</STRONG>
+Special attributes for active object classes</CAPTION>
+<TR VALIGN="TOP"><TD ALIGN="LEFT" NOWRAP>Attribute</TD>
+<TD ALIGN="LEFT" NOWRAP>Description</TD>
+</TR>
+<TR VALIGN="TOP"><TD ALIGN="LEFT" NOWRAP><TT>states</TT></TD>
+<TD ALIGN="LEFT" NOWRAP>abstract states</TD>
+</TR>
+<TR VALIGN="TOP"><TD ALIGN="LEFT" NOWRAP><TT>methods</TT></TD>
+<TD ALIGN="LEFT" NOWRAP>public methods</TD>
+</TR>
+<TR VALIGN="TOP"><TD ALIGN="LEFT" NOWRAP><TT>state_predicates</TT></TD>
+<TD ALIGN="LEFT" NOWRAP>state predicates</TD>
+</TR>
+<TR VALIGN="TOP"><TD ALIGN="LEFT" NOWRAP><TT>conditions</TT></TD>
+<TD ALIGN="LEFT" NOWRAP>activation conditions</TD>
+</TR>
+<TR VALIGN="TOP"><TD ALIGN="LEFT" NOWRAP><TT>pre_actions</TT></TD>
+<TD ALIGN="LEFT" NOWRAP>pre actions</TD>
+</TR>
+<TR VALIGN="TOP"><TD ALIGN="LEFT" NOWRAP><TT>post_actions</TT></TD>
+<TD ALIGN="LEFT" NOWRAP>post actions</TD>
+</TR>
+<TR VALIGN="TOP"><TD ALIGN="LEFT" NOWRAP><TT>receipt_actions</TT></TD>
+<TD ALIGN="LEFT" NOWRAP>receipt actions</TD>
+</TR>
+<TR VALIGN="TOP"><TD ALIGN="LEFT" NOWRAP><TT>activities</TT></TD>
+<TD ALIGN="LEFT" NOWRAP>internal activities</TD>
+</TR>
+</TABLE>
+        <A NAME="tab:attr">&#160;</A>  </DIV>
+<BR><H2><A NAME="SECTION00042000000000000000">
+4.2 Synchronization Constraints</A>
+<A NAME="sec:conc-prog:sync-cons">&#160;</A>
+</H2>
+<H3><A NAME="SECTION00042100000000000000">
+4.2.1 Simple Activation Conditions</A>
+<A NAME="sec:conc-prog:sync-cons:act-cond">&#160;</A>
+</H3>
+In the definition of the class <TT>Buffer</TT> in Figure
+<A HREF="atom.html#fig:mac:buf">2</A>, the <TT>methods</TT> variable specifies that a
+buffer accepts messages for executing its <TT>put</TT> and
+<TT>get</TT> methods. The <TT>states</TT> variable defines the
+abstract states of the class. In the <TT>Buffer</TT> class the
+abstract states <TT>empty</TT> and <TT>full</TT> are defined for
+representing the corresponding states of a buffer. The association
+between abstract states and state predicates is implicit. A default
+state predicate object is created implicitly and the methods
+<TT>empty</TT> and <TT>full</TT> are used to determine whether or not
+the bounded buffer is at any of these abstract states.  The
+<TT>conditions</TT> dictionary associates messages with activation
+conditions. Activation conditions are Boolean functions that take a
+single argument. A number of methods can be invoked on this argument
+to obtain information on the abstract state of the object. In the
+<TT>Buffer</TT> class, the messages <TT>put</TT> and <TT>get</TT> are
+associated with activation conditions that constrain the acceptance of
+these messages at the abstract states where the buffer is not full and
+not empty respectively. The method <TT>atState</TT> is used in
+activation conditions to refer to abstract states of the object.
+<P><BR>
+<DIV ALIGN="CENTER"><A NAME="fig:mac:buf">&#160;</A><A NAME="420">&#160;</A>
+<TABLE>
+<CAPTION><STRONG>Figure 2:</STRONG>
+Simple message acceptance constrains</CAPTION>
+<TR><TD><IMG WIDTH="357" HEIGHT="586"
+ SRC="img3.gif"
+ ALT="\begin{figure}
+ \parbox{\myfigwidth}{\small\begin{aasrc}
+\aaline{1}{\aakw{class}...
+ ...store[0]}
+\aaline{34}{\aaws{4}\aakw{return}\aaws{1}data}\end{aasrc}}\end{figure}"></TD></TR>
+</TABLE>
+</DIV><BR><H2><A NAME="SECTION00043000000000000000">
+4.3 Generic Activation Conditions</A>
+<A NAME="sec:conc-prog:act-cond">&#160;</A>
+</H2>
+Figure <A HREF="atom.html#fig:mac:lock">3</A> shows the possibility to define generic
+synchronization constraints as mixins. The class <TT>lockMixin</TT>
+defines an abstract state <TT>locked</TT>. The activation conditions
+defined in the class specify that when the object is at the abstract
+state <TT>locked</TT> no method but <TT>unlock</TT> may be accepted.
+The set of methods constrained by the activation condition is
+specified by a function that evaluates to a list of methods. This
+function uses the predefined method <TT>allMethodsExcept</TT> on its
+argument to obtain the set of all methods except <TT>unlock</TT>. When
+this class is inherited by some other class, <TT>allMethodsExcept</TT>
+will return<A NAME="tex2html7"
+ HREF="#433"><SUP>3</SUP></A> the set all methods of the subclass
+except <TT>unlock</TT>. Thus, the activation condition will constrain
+the execution of all methods of the classes that inherit the lock
+mixin.
+<P><BR>
+<DIV ALIGN="CENTER"><A NAME="fig:mac:lock">&#160;</A><A NAME="556">&#160;</A>
+<TABLE>
+<CAPTION><STRONG>Figure 3:</STRONG>
+Generic message acceptance constrains</CAPTION>
+<TR><TD><IMG WIDTH="357" HEIGHT="394"
+ SRC="img4.gif"
+ ALT="\begin{figure}
+ \parbox{\myfigwidth}{\small\begin{aasrc}
+\aaline{1}{\aakw{class}...
+ ...unc{unlock}(self):}
+\aaline{23}{\aaws{4}self.islocked=0}\end{aasrc}}\end{figure}"></TD></TR>
+</TABLE>
+</DIV><BR><H2><A NAME="SECTION00044000000000000000">
+4.4 Expressive Power</A>
+<A NAME="sec:conc-prog:expr-pow">&#160;</A>
+</H2>
+<H3><A NAME="SECTION00044100000000000000">
+4.4.1 Use of Internal Activities</A>
+<A NAME="sec:conc-prog:expr-pow:int-act">&#160;</A>
+</H3>
+Figure <A HREF="atom.html#fig:expr">4</A> illustrates the specification and use of
+internal activities in ATOM. The class <TT>adaptBuffer</TT>
+specializes the behavior of the bounded buffer so that the size
+allocated for the buffer is increased, in a background activity, if
+the buffer is full most of the time. The <TT>activities</TT> variable
+is used to specify that the method <TT>extendSize</TT> is run in a new
+thread at the creation of the object. This thread is run, as specified
+by the conditions variable, only when the buffer is at the abstract
+state <TT>oftenFull</TT>. When the thread is activated it increases
+the allowable buffer size, <TT>limit</TT>, by a fixed amount,
+<TT>incr</TT>, then suspends its execution to allow other threads to
+run.  The method <TT>oftenFull</TT> is used to determine if the buffer
+is at the associated state by examining if the ratio of <TT>put</TT>
+messages accepted when the buffer was full is greater than
+<TT>factor</TT>.  This is only examined after it has received a number
+of <TT>put</TT> messages greater than <TT>freq</TT> since last
+<TT>extendSize</TT> was done.  The information needed by
+<TT>oftenFull</TT> is maintained in the synchronization
+variables<A NAME="tex2html9"
+ HREF="#577"><SUP>4</SUP></A>
+<TT>put_count</TT> and <TT>full_count</TT> and is updated using a
+synchronization action, <TT>monitorPut</TT>, which is executed, as
+specified by <TT>receipt_action</TT>, whenever a <TT>put</TT> message
+is received.
+<P><BR>
+<DIV ALIGN="CENTER"><A NAME="fig:expr">&#160;</A><A NAME="746">&#160;</A>
+<TABLE>
+<CAPTION><STRONG>Figure 4:</STRONG>
+Internal activities</CAPTION>
+<TR><TD><IMG WIDTH="357" HEIGHT="625"
+ SRC="img5.gif"
+ ALT="\begin{figure}
+ \parbox{\myfigwidth}{\small\begin{aasrc}
+\aaline{1}{\aakw{class}...
+ ....full{\aaus}count=0}
+\aaline{36}{\aaws{6}self.suspend()}\end{aasrc}}\end{figure}"></TD></TR>
+</TABLE>
+</DIV><BR><H3><A NAME="SECTION00044200000000000000">
+4.4.2 Flexible Object Interactions</A>
+<A NAME="sec:conc-prog:expr-pow:flex">&#160;</A>
+</H3>
+As we discussed above, a widely accepted approach for overcoming the
+inheritance anomaly is to keep synchronization code separate from the
+code of the methods. This works well for a pattern of processing
+messages where once a message is accepted the requested method
+executes to completion without any further need for synchronization.
+However, such an approach fails to provide adequate expressive power
+for other message processing patterns. In particular, it is hard to
+address the concurrent programming issues known as <EM>nested
+  monitors calls</EM>  [<A
+ HREF="atom.html#Lister77">24</A>] and <EM>remote delays</EM> 
+[<A
+ HREF="atom.html#Liskov86">25</A>].
+<P>
+These issues are illustrated in a concurrent programming pattern known
+as the administrator [<A
+ HREF="atom.html#Gen81">26</A>]. In this programming pattern an
+object, we call it the <EM>server</EM> , accepts requests from clients
+and makes a number of (sub)requests to other objects (the
+<EM>second-level servers</EM> ) to process the client's request. While a
+second-level server processes a (sub)request, the server accepts and
+processes other clients' requests. The server resumes the processing
+of a client request when the replies from second-level servers are
+available. This programming pattern, discussed in [<A
+ HREF="atom.html#Liskov86">25</A>] and
+[<A
+ HREF="atom.html#Gen81">26</A>], is important for the following reasons:
+<P><UL>
+<LI> First, if the server can accept further requests while a
+  second-level server processes a subrequest, the server, its clients
+  and the other second-level servers do not have to stay idle waiting
+  for it to complete the subrequest. Other clients' requests that use
+  different resources in the server and need the cooperation of
+  different second-level servers can be processed concurrently.
+<LI> Second, the use of this pattern prevents a situation, known in
+  concurrent programming research as <EM>nested monitor call</EM> 
+  [<A
+ HREF="atom.html#Lister77">24</A>], that may lead to a deadlock. This occurs when a
+  second-level server may only be reached through the server and the
+  second-level server delays a server message.
+</UL>
+<P><BR>
+<DIV ALIGN="CENTER"><A NAME="fig:inh">&#160;</A><A NAME="878">&#160;</A>
+<TABLE>
+<CAPTION><STRONG>Figure 5:</STRONG>
+Administrative pattern</CAPTION>
+<TR><TD><IMG WIDTH="357" HEIGHT="362"
+ SRC="img6.gif"
+ ALT="\begin{figure}
+ \parbox{\myfigwidth}{\small\begin{aasrc}
+\aaline{1}{\aakw{class}...
+ ...ne{21}{\aaws{4}\aakw{return}\aaws{1}myReply.getResult()}\end{aasrc}}\end{figure}"></TD></TR>
+</TABLE>
+</DIV><BR>
+<P>
+Figure <A HREF="atom.html#fig:inh">5</A> illustrates a class <TT>Server</TT>
+that processes <TT>request</TT> messages according to the
+administrator pattern. In its <TT>request</TT> method, the server
+first creates an object of class <TT>Reply</TT> that is used to
+receive the reply to an asynchronous message. Then an asynchronous
+message is sent to the second-level server, <TT>server2</TT>, using
+<TT>send</TT>. The <TT>replyTo</TT> argument of send specifies that
+the reply should be sent to the object <TT>myReply</TT>. Then state
+notification is used to suspend the thread until <TT>myReply</TT> is
+at the abstract state <TT>Ready</TT>. At this point the thread is
+suspended and other ready threads, if any, may be run. The suspended
+thread will resume after <TT>myReply</TT> is at the state
+<TT>Ready</TT>, no other threads are running within the object and the
+object is at a state compatible with the execution of the request
+method. When the thread is resumed it retrieves the result from
+<TT>myReply</TT> and returns it to the client.
+<P><H2><A NAME="SECTION00045000000000000000">
+4.5 Object Coordination</A>
+<A NAME="sec:conc-prog:coord">&#160;</A>
+</H2>
+Object coordination can be supported by dynamically associating
+abstract states, state predicates and an activation conditions with an
+object. In this case the state predicate can be an independent object
+that is used to constrain the invocation of the methods of an existing
+objects.  Another possibility is offered by the state notification
+mechanism.
+<P><H3><A NAME="SECTION00045100000000000000">
+4.5.1 Coordination using Shared State Predicates</A>
+<A NAME="sec:conc-prog:coord:shared-state">&#160;</A>
+</H3>
+We illustrate this approach for coordinating the object execution with
+a version of the dining philosophers problem.
+The behavior of philosophers is defined in the <TT>Philo</TT> class
+shown in Figure <A HREF="atom.html#fig:philo">6</A>.  In its <TT>eatActivity</TT> a
+philosopher waits until she is <TT>Hungry</TT>.  Then, she tries to get
+the forks by calling its <TT>getForks</TT> method.  When she has done
+it successfully, she eats until she is not <TT>Hungry</TT> anymore, and
+then releases the forks.
+<P><BR>
+<DIV ALIGN="CENTER"><A NAME="fig:philo">&#160;</A><A NAME="1034">&#160;</A>
+<TABLE>
+<CAPTION><STRONG>Figure 6:</STRONG>
+Philosopher</CAPTION>
+<TR><TD><IMG WIDTH="358" HEIGHT="466"
+ SRC="img7.gif"
+ ALT="\begin{figure}
+ \parbox{\myfigwidth}{\small\begin{aasrc}
+\aaline{1}{\aakw{class}...
+ ...at()}
+\aaline{27}{\aaws{6}self.interface.releaseForks()}\end{aasrc}}\end{figure}"></TD></TR>
+</TABLE>
+</DIV><BR>
+<P>
+In its <TT>getForks</TT> method (not shown) a philosopher attempts to
+grab its left and right forks sequentially.  A deadlock can occur if a
+philosopher gets one fork and the other fork is not available.
+<P><BR>
+<DIV ALIGN="CENTER"><A NAME="fig:philocoord">&#160;</A><A NAME="1156">&#160;</A>
+<TABLE>
+<CAPTION><STRONG>Figure 7:</STRONG>
+Philosophers' coordinator</CAPTION>
+<TR><TD><IMG WIDTH="357" HEIGHT="326"
+ SRC="img8.gif"
+ ALT="\begin{figure}
+ \parbox{\myfigwidth}{\small\begin{aasrc}
+\aaline{1}{\aakw{class}...
+ ...}
+\aaline{19}{\aaws{6}object.atState(\aaqt{'Eating'},))}\end{aasrc}}\end{figure}"></TD></TR>
+</TABLE>
+</DIV><BR>
+<P>
+The <TT>PhiloCoord</TT> object, shown in Figure <A HREF="atom.html#fig:philocoord">7</A>,
+coordinates philosophers to provide atomicity in getting the forks: no
+other philosopher can get a fork before the one trying at the moment
+has acquired both her forks and started eating.  The coordinator calls
+the <TT>newPredObject</TT> method of each philosopher to define
+dynamically an abstract state, <TT>MyTurn</TT>, and to specify itself
+as the state predicate object to be called for telling whether or not
+the abstract state is true.  It also calls the method
+<TT>addCondition</TT> to associate a new activation condition, that
+the state <TT>MyTurn</TT> is true, with the <TT>getForks</TT> method
+of each philosopher.
+<P>
+When a philosopher calls its <TT>getForks</TT> method<A NAME="tex2html13"
+ HREF="#1167"><SUP>5</SUP></A>, the ATOM run-time, before accepting
+the message, calls the <TT>evalState</TT><A NAME="tex2html14"
+ HREF="#1169"><SUP>6</SUP></A> method of the
+coordinator to check if the abstract state <TT>MyTurn</TT> for the
+philosopher is true.  In the <TT>evalState</TT> method, the
+coordinator allows the message to be accepted by replying 1. It then
+waits until the philosopher (the object argument of
+<TT>evalState</TT>) is at the state <TT>Eating</TT> before accepting
+any further calls. This ensures that the actions of acquiring the
+forks are executed atomically with respect to other philosophers. In
+fact, the coordinator could use a more complex algorithm to decide if
+the philosopher should get the forks allowing to schedule the
+philosophers' actions.
+<P>
+The coordination of the philosophers provided by <TT>PhiloCoord</TT> is
+completely transparent to the philosophers. The dining philosopher
+example shows that the ATOM model provides synchronization mechanisms
+which can be added dynamically and used to synchronize existing
+objects without changing their implementation.
+<P><H3><A NAME="SECTION00045200000000000000">
+4.5.2 State Notification</A>
+<A NAME="sec:conc-prog:coord:state-not">&#160;</A>
+</H3>
+The use of state notification was illustrated in section
+<A HREF="atom.html#sec:conc-prog:expr-pow:flex">4.4.2</A> to coordinate the execution of the
+server's thread with the <TT>Ready</TT> state of a <TT>Reply</TT>
+object. More examples illustrating the use of this feature are
+provided in [<A
+ HREF="atom.html#Papa96">23</A>].
+<P><H1><A NAME="SECTION00050000000000000000">
+5 Discussion</A>
+<A NAME="sec:discussion">&#160;</A>
+</H1>
+<H2><A NAME="SECTION00051000000000000000">
+5.1 Achievements of the ATOM Model</A>
+<A NAME="sec:discussion:achiv">&#160;</A>
+</H2>
+<H3><A NAME="SECTION00051100000000000000">
+5.1.1 Inheritance and Expressive Power</A>
+<A NAME="sec:discussion:achiv:inher">&#160;</A>
+</H3>
+Previous COOP models had limitations with respect to the use of
+inheritance and sacrificed the expressive power for the sake of
+inheriting synchronization constraints.  In our model synchronization
+constraints are combined through the use of abstract states with the
+synchronization of internal activities and message passing features
+that allow a more flexible method processing pattern. As we have shown
+in section <A HREF="atom.html#sec:conc-prog">4</A> these features are compatible with the
+use of inheritance and subsume previous proposals for the
+specification of synchronization constraints.
+<P><H3><A NAME="SECTION00051200000000000000">
+5.1.2 Object Coordination</A>
+<A NAME="sec:discussion:achiv:coord">&#160;</A>
+</H3>
+State predicates and the possibility to associate abstract states and
+activation with an object dynamically provide support for coordination
+using the same features as used for the specification of
+synchronization constraints. State notification provides an
+alternative approach for object coordination which departs from
+previous work [<A
+ HREF="atom.html#Aksit94">21</A>,<A
+ HREF="atom.html#Frol93">22</A>] where coordination is based on
+constraining the acceptance of messages. Coordination may also be
+based on changes in the state of objects. This approach is more
+suitable for coordinating the execution of objects in cases where
+objects encapsulate activities that are not convenient to express as
+method invocation sequences. For instance, an object that encapsulates
+a device. In addition, the objects to be coordinated do not have to
+provide the same message interface. Coordination is based on an
+abstract view of object behavior in terms of abstract state changes.
+<P><H2><A NAME="SECTION00052000000000000000">
+5.2 On the Use of Python</A>
+<A NAME="sec:discussion:python">&#160;</A>
+</H2>
+The use of Python, and especially the more dynamic features of the
+language such as the possibility to inspect and modify class
+attributes, allowed us to develop a prototype of the model without
+undergoing a major language development effort. The
+<TT>ActiveObject</TT> function discussed in section
+<A HREF="atom.html#sec:conc-prog:py:obj">4.1.1</A> goes through the class hierarchy to
+construct a class that has the semantics of the ATOM object model.
+Currently, ATOM is entirely written in Python and it is structured as
+a class framework. This made it easier to experiment with variations
+of ATOM's features. For instance, it was possible to experiment with
+various ways of combining the definition of abstract states and
+activation conditions of superclasses. We have also tried different
+approaches for scheduling threads and supporting state notification.
+<P>
+The availability of Python on several platforms and the large number of
+modules provided in the Python library makes it attractive to
+experiment with ATOM for the development of concurrent applications.
+However, the current implementation has performance overhead that
+are due both to ATOM features and the way threads synchronization is
+handled in the Python interpreter. We are investigating ways of
+overcoming these limitations. We expect that the use of some ``free
+threading'' Python extension and the use of extension classes for
+implementing most of ATOM code in C will provide us with major
+performance improvements. Another issue in using Python in the way
+discussed in this paper, is how to extend the language with new
+constructs. In other languages such as Smalltalk the ability of
+defining blocks of code that can be passed as arguments makes it easy
+to define new control structures. The presence of such a feature in
+Python would simplify the specification of activation conditions.  We
+are currently searching for ways of achieving something similar in
+Python.
+<P><H1><A NAME="SECTION00060000000000000000">
+6 Conclusion</A>
+<A NAME="sec:conclusion">&#160;</A>
+</H1>
+Although there has been substantial research in COOP and several
+issues that have to be addressed by COOP models have been identified,
+most research has addressed particular issues in isolation. We have
+presented a COOP model, ATOM, that incorporates a number of novel
+features that aim to address simultaneously several concurrent
+object-oriented programming issues that have been identified by
+previous research: synchronized method invocation, reuse of
+synchronization constraints through inheritance, support for
+object-coordination and adequate expressive power for concurrent
+programming.
+<P>
+ATOM has been incorporated in Python and we have shown examples of how
+it can be used for concurrent object-oriented programming in Python. A
+detailed presentation of all features of ATOM can be found in
+[<A
+ HREF="atom.html#Papa96">23</A>] and a free prototype implementation is available through
+anonymous ftp from <TT>fidji.imag.fr:/pub/michael/atom</TT>. The current
+version does not require any modification to the Python language or
+interpreter.
+<P>
+The use of Python allowed us to develop a prototype and experiment
+with the early design of ATOM features in developing example
+applications. The ATOM prototype is itself implemented as an
+object-oriented framework in Python. This made it easier to experiment
+with variations to ATOM's features. The fact that ATOM is in a sense
+an extension of Python makes it possible to take advantage of the rich
+set of modules available in the Python library to use the ATOM model
+to develop concurrent applications in various application domains.
+<P>
+After experimenting with ATOM in the development of simple multimedia
+programming environment based on active objects, we are now working on
+a new version. The main aspects under consideration in the new version
+are: improved performance and distributed execution. This raises the
+issue of whether we should modify the Python interpreter, construct a
+preprocessor or search for other possibilities for extending Python
+with features such as those of ATOM.
+<P><H2><A NAME="SECTIONREF">References</A>
+</H2>
+<DL COMPACT><P></P><DT><A NAME="Wegner87"><STRONG>1</STRONG></A>
+<DD>
+P. Wegner, ``Dimension of object-based language design,'' in <EM>Proceedings
+  OOPSLA'87</EM>, vol. 22(12) of <EM>SIGPLAN Notices</EM>, (Orlando, Florida),
+  pp. 168-182, ACM, Dec. 1987.
+<P><P></P><DT><A NAME="Papa95"><STRONG>2</STRONG></A>
+<DD>
+M. Papathomas, ``Concurrency in object-oriented programming languages,'' in
+  <EM>Object-Oriented Software Composition</EM> (O. Nierstrasz and D. Tsichritzis,
+  eds.), Prentice Hall, 1995.
+<P><P></P><DT><A NAME="Amer87b"><STRONG>3</STRONG></A>
+<DD>
+P. America, ``Inheritance and subtyping in a parallel object-oriented
+  language,'' in <EM>Proceedings ECOOP '87</EM> (J. B&#233;zivin, J.-M. Hullot,
+  P. Cointe, and H. Lieberman, eds.), vol. 276 of <EM>Lecture Notes in
+  Computer Science</EM>, pp. 234-242, Springer Verlag, 1987.
+<P><P></P><DT><A NAME="Nier87a"><STRONG>4</STRONG></A>
+<DD>
+O. Nierstrasz, ``Active objects in Hybrid,'' in <EM>Proceedings OOPSLA'87</EM>
+  (N. Meyrowitz, ed.), vol. 22(12) of <EM>SIGPLAN Notices</EM>, pp. 243-253, ACM,
+  Dec. 1987.
+<P><P></P><DT><A NAME="Yokote87"><STRONG>5</STRONG></A>
+<DD>
+Y. Yokote and M. Tokoro, ``Experience and evolution of concurrent
+  Smalltalk,'' in <EM>Proceedings OOPSLA '87</EM>, vol. 22(12) of <EM>SIGPLAN
+  Notices</EM>, (Orlando, Florida), pp. 168-182, ACM, Dec. 1987.
+<P><P></P><DT><A NAME="Yon87"><STRONG>6</STRONG></A>
+<DD>
+A. Yonezawa, E. Shibayama, T. Takada, and Y. Honda, ``Modelling and programming
+  in an object-oriented concurrent language ABCL/1,'' in <EM>Object-Oriented
+  Corcurrent Programming</EM> (A. Yonezawa and M. Tokoro, eds.), pp. 55-89,
+  Cambridge, Massachusetts: The MIT Press, 1987.
+<P><P></P><DT><A NAME="Kafura89"><STRONG>7</STRONG></A>
+<DD>
+D. G. Kafura and K. H. Lee, ``Inheritance in actor based concurrent
+  object-oriented languages,'' in <EM>Proceedings ECOOP 89</EM> (S. Cook, ed.),
+  British Computer Society Workshop Series, Cambridge University Press, 1989.
+<P><P></P><DT><A NAME="Caromel90"><STRONG>8</STRONG></A>
+<DD>
+D. Caromel, ``Concurrency and reusability: From sequential to parallel,'' <EM>
+  Journal of Object-Oriented Programming</EM>, pp. 34-42, September/October 1990.
+<P><P></P><DT><A NAME="Papa94"><STRONG>9</STRONG></A>
+<DD>
+M. Papathomas, G. Blair, and G. Coulson, ``A model for active object
+  coordination and its use for distributed multimedia applications,'' in <EM>
+  ECOOP'94 Workshop on Models and Languages for Coordination of Parallelism and
+  Distribution</EM> (A. Yonezawa, O. Nierstrasz, and P. Ciacarini, eds.), vol. 924
+  of <EM>Lecture Notes in Computer Science</EM>, (Bologna, Italy),
+  Springer-Verlag, July 1994.
+<P><P></P><DT><A NAME="Matsuoka93"><STRONG>10</STRONG></A>
+<DD>
+S. Matsuoka, K. Wakita, and A. Yonezawa, ``Analysis of inheritance anomaly in
+  concurrent object-oriented languages (extended abstract),'' in <EM>Research
+  Directions in Concurrent Object-Oriented Programming</EM> (G. Agha, P. Wegner,
+  and A. Wonezawa, eds.), MIT Press, 1993.
+<P><P></P><DT><A NAME="Atki91"><STRONG>11</STRONG></A>
+<DD>
+C. Atkinson, S. Goldsack, A. D. Maio, and R. Bayan, ``Object-oriented
+  concurrency and distribution in DRAGOON,'' <EM>Journal of Object-Oriented
+  Programming</EM>, March/April 1991.
+<P><P></P><DT><A NAME="Berg94"><STRONG>12</STRONG></A>
+<DD>
+L. Bergmans, <EM>Composing Concurrent Objects</EM>.
+<BR>PhD thesis, University of Twente, 1994.
+<P><P></P><DT><A NAME="Crespi91"><STRONG>13</STRONG></A>
+<DD>
+S. Crespi Reghizzi, G. G. de Paratesi, and S. Genolini, ``Definition of
+  reusable concurrent software components,'' in <EM>Proceedings of ECOOP'91,
+  Geneva, Switzerland</EM>, vol. 512 of <EM>Lecture Notes in Computer Science</EM>,
+  pp. 148-166, Springer Verlag, July 1991.
+<P><P></P><DT><A NAME="Frol92"><STRONG>14</STRONG></A>
+<DD>
+S. Fr&#248;lund, ``Inheritance of synchronization constraints in concurrent
+  object-oriented programming languages,'' in <EM>Proceedings ECOOP 92</EM> (O. L.
+  Madsen, ed.), vol. 615 of <EM>Lecture Notes in Computer Science</EM>, (Utrecht),
+  pp. 185-196, Springer Verlag, June/July 1992.
+<P><P></P><DT><A NAME="Krak90"><STRONG>15</STRONG></A>
+<DD>
+S. Krakowiak, M. Meysembourg, H. N. Van, M. Riveill, C. Roisin, and X. R.
+  de Pina, ``Design and implementation of an object-oriented strongly typed
+  language for distributed applications,'' <EM>Journal of Object-Oriented
+  Programming</EM>, vol. 3, pp. 11-22, September/October 1990.
+<P><P></P><DT><A NAME="Lohr93"><STRONG>16</STRONG></A>
+<DD>
+P. L&#246;hr, ``Concurrency annotations for reusable software,'' <EM>
+  Communications of the ACM</EM>, vol. 36, pp. 8-89, September 1993.
+<P><P></P><DT><A NAME="McHa"><STRONG>17</STRONG></A>
+<DD>
+C. McHale, <EM>Synchronization in Concurrent Object-Oriented Langauges:
+  Expressive Power, Genericity and Inheritance</EM>.
+<BR>PhD thesis, University of Dublin, Trinity College.
+<P><P></P><DT><A NAME="Mats93"><STRONG>18</STRONG></A>
+<DD>
+S. Matsuoka, K. Taura, and A. Yonezawa, ``Highly efficient and encapsulated
+  re-use of synchronisation code in concurrent object-oriented languages,'' in
+  <EM>Proceedings OOPSLA'93</EM>, vol. 28(10) of <EM>ACM SIGPLAN Notices</EM>,
+  pp. 109-129, October 1993.
+<P><P></P><DT><A NAME="Sanc96"><STRONG>19</STRONG></A>
+<DD>
+F. Sanchez <EM>et al.</EM>, ``Issues in composability of synchronization
+  constraints in concurrent object-oriented languages,'' in <EM>Workshop
+  Reader of the 10th. European Conference on Object-Oriented Programming,
+  ECOOP¹96</EM> (M. Muhlhauser, ed.), Special Issue in Object-Oriented Programming,
+  (Linz, Autria), July 1996.
+<P><P></P><DT><A NAME="Toml89a"><STRONG>20</STRONG></A>
+<DD>
+C. Tomlinson and V. Singh, ``Inheritance and synchronization with enabled
+  sets,'' in <EM>ACM SIGPLAN Notices, Proceedings OOPSLA'89</EM>, pp. 103-112,
+  Oct. 1989.
+<P><P></P><DT><A NAME="Aksit94"><STRONG>21</STRONG></A>
+<DD>
+M. Aksit, K. Wakita, J. Bosch, L. Bergmans, and A. Yonezawa, ``Abstracting
+  object interactions using composition filters,'' in <EM>Prooceedings of the
+  ECOOP'93 Workshop on Object-Based Distributed Programminng</EM> (R. Guerraoui,
+  O. Nierstrasz, and M. Riveill, eds.), vol. 791 of <EM>Lecture Notes in
+  Computer Science</EM>, pp. 152-184, Springer Verlag, 1994.
+<P><P></P><DT><A NAME="Frol93"><STRONG>22</STRONG></A>
+<DD>
+S. Fr&#248;lund and G. Agha, ``A language framework for multi-object
+  coordination,'' in <EM>Proceedings ECOOP 93</EM>, vol. 707 of <EM>Lecture Notes
+  in Computer Science</EM>, pp. 346-360, Springer Verlag, July 1993.
+<P><P></P><DT><A NAME="Papa96"><STRONG>23</STRONG></A>
+<DD>
+M. Papathomas, ``ATOM: An active object model for enhancing reuse in the
+  development of concurrent software,'' Research Report RR 963-I-LSR-2,
+  IMAG-LSR, Grenoble, France, November 1995.
+<BR>(Available through anonymous ftp at
+  fidji.imag.fr:/pub/michael/atom/atom-report.ps.gz).
+<P><P></P><DT><A NAME="Lister77"><STRONG>24</STRONG></A>
+<DD>
+A. Lister, ``The problem of nested monitor calls,'' <EM>Operating Systems
+  Review</EM>, pp. 5-7, July 1977.
+<P><P></P><DT><A NAME="Liskov86"><STRONG>25</STRONG></A>
+<DD>
+B. Liskov, M. Herlihy, and L. Gilbert, ``Limitations of synchronous
+  communication with static process structure in languages for distributed
+  computing,'' in <EM>Proceedings of the 13th ACM symposium on Principles of
+  Programming Languages</EM>, (St. Petersburg, Florida), 1986.
+<P><P></P><DT><A NAME="Gen81"><STRONG>26</STRONG></A>
+<DD>
+W. Gentleman, ``Message passing between sequential processes: the reply
+  primitive and the administrator concept,'' <EM>Software-Practice and
+  Experience</EM>, vol. 11, pp. 435-466, 1981.
+</DL>
+<P><BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="165">...Andersen<SUP>1</SUP></A>
+<DD>This work has been supported by a NATO Science
+Fellowship through The Norwegian Research Council and was carried
+out while being a visiting student at the Computing Department,
+Lancaster University.
+<P><DT><A NAME="157">...<TT>ActiveObject</TT><SUP>2</SUP></A>
+<DD>In the next release of ATOM it is no
+  longer needed to invoke the <TT>ActiveObject</TT> function provided
+  that the <TT>__init__</TT> method of <TT>ActiveObjectSupport</TT>
+  is invoked.
+<P><DT><A NAME="433">...return<SUP>3</SUP></A>
+<DD>This function is called just once at the creation
+  of the active object class.
+<P><DT><A NAME="577">...variables<SUP>4</SUP></A>
+<DD>Attributes used for synchronization purposes;
+  updated in synchronization actions and red by state predicates.
+<P><DT><A NAME="1167">...method<SUP>5</SUP></A>
+<DD>The
+  call is made using non-blocking remote procedure call to avoid the
+  nested monitor call problem.
+<P><DT><A NAME="1169">...<TT>evalState</TT><SUP>6</SUP></A>
+<DD>This is part of the
+  protocol supported by state predicate objects.
+<P></DL><BR><HR>
+<ADDRESS>
+This document was generated using the
+<STRONG>LaTeX</STRONG>2<tt>HTML</tt> translator version 97.1. <HR>
+<A HREF="mailto:michael@comp.lancs.ac.uk">Michael Papathomas</A>,
+<A HREF="mailto:aandersen@acm.org">Anders Andersen</A>, Fri Sep 19 14:54:44 1997
+
+</ADDRESS>
+</BODY>
+</HTML>

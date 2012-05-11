@@ -1,0 +1,155 @@
+Title: python-dev Summary for 2003-11-16 through 2003-11-30
+Sitemap-ignore: yes
+
+<div class="document" id="python-dev-summary-for-2003-11-16-through-2003-11-30">
+<h1 class="title">python-dev Summary for 2003-11-16 through 2003-11-30</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> from November 16, 2003 through November 30, 2003.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> (or email <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join <a class="reference" href="http://www.python.org/dev/">python-dev</a>!</p>
+<p>This is the thirtieth summary written by Brett Cannon (the quarter is over!  Winter Break is finally here!).</p>
+<p>To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.</p>
+<p>All summaries are archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a> (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for <a class="reference" href="http://www.python.org/dev/peps/pep-0012">PEP markup</a> and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is unless it is from the original text file.</p>
+<p>The in-development version of the documentation for Python can be found at <a class="reference" href="http://www.python.org/dev/doc/devel/">http://www.python.org/dev/doc/devel/</a> and should be used when looking up any documentation on something mentioned here.  PEPs (Python Enhancement Proposals) are located at <a class="reference" href="http://www.python.org/dev/peps/">http://www.python.org/dev/peps/</a> .  To view files in the Python CVS online, go to <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/">http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/</a> .  Reported bugs and suggested patches can be found at the <a class="reference" href="http://sourceforge.net/tracker/?group_id=5470">SourceForge</a> project page.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#summary-announcements" id="id1" name="id1">Summary Announcements</a></li>
+<li><a class="reference" href="#summaries" id="id2" name="id2">Summaries</a><ul>
+<li><a class="reference" href="#aggregate-refcounting-is-not-always-a-hard-science" id="id3" name="id3">Aggregate refcounting is not always a hard science</a></li>
+<li><a class="reference" href="#bulk-up-reversed-with-reversed-and-len" id="id4" name="id4">Bulk up reversed() with __reversed__ and __len__</a></li>
+<li><a class="reference" href="#change-in-object-setattr-semantics-from-2-2-to-2-3" id="id5" name="id5">Change in object.__setattr__ semantics from 2.2 to 2.3</a></li>
+<li><a class="reference" href="#say-goodbye-to-macos9-support" id="id6" name="id6">Say goodbye to MacOS9 support</a></li>
+<li><a class="reference" href="#in-the-works" id="id7" name="id7">2.3.3 in the works</a></li>
+<li><a class="reference" href="#project-ideas-galore" id="id8" name="id8">Project ideas galore</a></li>
+<li><a class="reference" href="#no-more-hex-oct-warnings" id="id9" name="id9">No more hex/oct warnings!</a></li>
+<li><a class="reference" href="#backticks-to-go-bye-bye-in-3-0" id="id10" name="id10">Backticks to go bye-bye in 3.0</a></li>
+<li><a class="reference" href="#itertools-grows-groupby" id="id11" name="id11">itertools grows groupby</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="summary-announcements">
+<h1><a class="toc-backref" href="#id1" name="summary-announcements">Summary Announcements</a></h1>
+<p>Wow, I actually managed to get a summary out less than a week when its coverage dates ended.  Perks of procrastinating for studying for finals.  =)</p>
+<p>First, an errata on the last summary.  I said generator expressions were Peter Norvig's idea.  Turns out it was Raymond Hettinger, the man who has so many new ideas that his flame retardant suit has his initials embroidered on it, who came up with the original idea in <a class="reference" href="http://www.python.org/dev/peps/pep-0289">PEP 289</a>.</p>
+<p><a class="reference" href="http://www.pycon.org/">PyCon</a> registration has gone live!  Go to the page to register.  And if you don't we will have a possessed Barry Warsaw come after you (to get the reference, go to <a class="reference" href="http://www.pycon.org/">http://www.pycon.org/</a> and take a look at the banner graphic; Barry is the second from the right)!  =)</p>
+<p>The system for accepting proposals for PyCon is still being worked on.  It should be up in the very near future.  Since it was not up in time for the original deadline, the new proposal deadline has been extended.</p>
+<p>This summary is brought to you by the <a class="reference" href="http://www.apple.com/itunes/store/">iTunes Music Store</a> and the following songs from the <a class="reference" href="http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewAlbum?playlistId=2611976">Verve Remixed 2 - Exclusive EP</a> album (which are linked to the iTMS and thus require iTunes to be installed):</p>
+<ul class="simple">
+<li><a class="reference" href="http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewAlbum?playlistId=2611976&amp;selectedItemId=2556313">Manteca, by Dizzy Gillespie &amp; Funky Lowlives</a></li>
+<li><a class="reference" href="http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewAlbum?playlistId=2611976&amp;selectedItemId=2556338">Sinnerman, by Felix da Housecat &amp; Nina Simone</a></li>
+</ul>
+</div>
+<div class="section" id="summaries">
+<h1><a class="toc-backref" href="#id2" name="summaries">Summaries</a></h1>
+<div class="section" id="aggregate-refcounting-is-not-always-a-hard-science">
+<h2><a class="toc-backref" href="#id3" name="aggregate-refcounting-is-not-always-a-hard-science">Aggregate refcounting is not always a hard science</a></h2>
+<p>Christian Tismer discovered that the aggregate refcount stored in _Py_RefTotal (only available in a Py_REF_DEBUG build which is part of a debug build; see Misc/SpecialBuilds.txt for all the special builds that are available) can be wrong when code starts to do funky things in __del__ methods and manipulating the refcount of objects directly.  The offending code has been fixed in the 2.3.x branch and up.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/040269.html">_Py_RefTotal wrong in Py 2.2.3</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="bulk-up-reversed-with-reversed-and-len">
+<h2><a class="toc-backref" href="#id4" name="bulk-up-reversed-with-reversed-and-len">Bulk up reversed() with __reversed__ and __len__</a></h2>
+<p>When the new 'reversed' built-in was being discussed, the idea of having a __reversed__ magic method for it was proposed.  But because it might get misused by applying 'reversed' to iterators that were infinite (think generators and itertools iterators), Guido had it removed.</p>
+<p>But Raymond Hettinger, who came up with 'reversed' in the first place, came up with a modified idea; only have 'reversed' use __reversed__ if both that magic method and __len__ are defined.  That way 'reversed' will only try to reverse its argument if it has a known bounded length (as of right now it only works if the object has __getitem__ and __len__ defined).</p>
+<p>As of right now it has not been pronounced upon.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/040308.html">__reversed__ protocol</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="change-in-object-setattr-semantics-from-2-2-to-2-3">
+<h2><a class="toc-backref" href="#id5" name="change-in-object-setattr-semantics-from-2-2-to-2-3">Change in object.__setattr__ semantics from 2.2 to 2.3</a></h2>
+<p>A change in how object.__setattr__ works went unmentioned in the 'What's New...' doc for 2.3 by accident.  In case you have not run into this, you cannot use object.__setattr__ if a derived type defines __setattr__ itself.  It is not an issue if you just use the built-in setattr.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/040323.html">2.2=&gt;2.3 object.__setattr__(cls,attr,value)</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="say-goodbye-to-macos9-support">
+<h2><a class="toc-backref" href="#id6" name="say-goodbye-to-macos9-support">Say goodbye to MacOS9 support</a></h2>
+<p>Starting with 2.4, Python will not support MacOS9 for lack of support (Jack Jansen asked for volunteers but no one stepped forward).  Jack has removed the support so that all his Mac-related efforts can focus on OS X work.</p>
+<p>This does not affect any previous versions of Python.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/040336.html">Ripping out Macintosh support</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="in-the-works">
+<h2><a class="toc-backref" href="#id7" name="in-the-works">2.3.3 in the works</a></h2>
+<p>2.3.3c1 has been released as of this writing.  You can find it at <a class="reference" href="http://www.python.org/2.3.3/">http://www.python.org/2.3.3/</a> .  As usual, please download it and run the test suite along with your own code.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/040343.html">Time for 2.3.3?</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="project-ideas-galore">
+<h2><a class="toc-backref" href="#id8" name="project-ideas-galore">Project ideas galore</a></h2>
+<p>Last month I asked for ideas for a masters thesis.  This led to a huge response with various project ideas.  After going through them all I posted an annotated list of all the ideas presented to me (see the contributing thread for the email link).  If you are ever bored for say, a month or more, you can try to tackle one of these projects to keep yourself occupied.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/040387.html">Thesis ideas list</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="no-more-hex-oct-warnings">
+<h2><a class="toc-backref" href="#id9" name="no-more-hex-oct-warnings">No more hex/oct warnings!</a></h2>
+<p>The warnings from 2.3 about how hex/oct constants were going to change in 2.4 are now gone since the change has been checked into CVS.  <a class="reference" href="http://www.python.org/dev/peps/pep-0237">PEP 237</a>, which specified this change, also mentioned warnings of the change in 2.4 along with changes to repr for longs.</p>
+<p>The warnings are not going to exist in Python 2.4 .  It was felt the warnings in 2.3 were visible and noisy enough to get the point across.</p>
+<p>As for the repr change for longs, that is not going to happen.  The repr of a long will continue to have an &quot;L&quot; appended to the end of it.  It was deemed not worth the breakage in code to remove it.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/040411.html">Int FutureWarnings and other 2.4 TODOs</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="backticks-to-go-bye-bye-in-3-0">
+<h2><a class="toc-backref" href="#id10" name="backticks-to-go-bye-bye-in-3-0">Backticks to go bye-bye in 3.0</a></h2>
+<p>Consider yourselves warned; backticks will be removed in Python 3.0 .  And thanks to Walter Dörwald they are being replaced in the stdlib with the proper repr calls.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/040433.html">Banishing apply(), buffer(), coerce(), and intern()</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="itertools-grows-groupby">
+<h2><a class="toc-backref" href="#id11" name="itertools-grows-groupby">itertools grows groupby</a></h2>
+<p>itertools.groupby takes an iterable and a key-accessing function and returns a tuple of the key and an iterator containing items that match the current key.  You can think of it like SQL's GROUPBY keyword or UNIX's uniq command.  Read the documentation for a more thorough explanation.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-November/040469.html">&quot;groupby&quot; iterator</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="2003-11-16_2003-11-30.txt">View document source</a>.
+Generated on: 2003-12-11 22:37 UTC.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>

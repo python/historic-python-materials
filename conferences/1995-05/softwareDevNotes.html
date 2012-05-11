@@ -1,0 +1,119 @@
+<html>
+<head>
+<title> Python Software Development Environment </title>
+</head>
+<h1> Python Software Development Environment </h1>
+<i> Moderator: Ken Manheimer </i>
+<br>
+<i> Date: May 25, 1995 </i>
+<br>
+URL: <code>
+http://www.python.org/misc/workshop5-95/softwareDevNotes.html
+</code>
+<h2> Introduction - Some perspective issues </h2>
+<ul>
+  <li> Fundamental object organization
+  <ul>
+    <li> New dir() builtin, gives a more comprehensive perspective on
+         object attributes
+    <li> New docstrings
+    <li> __doc__ slots in many compound objects to take brief
+         descriptive strings
+    <li> Callables def. syntax for callables and modules auto assigns
+         first statement in code for an object, if it's a string
+    <li> Only started to form docstring format conventions
+    <li> see Python 1.2 'newimp.py' for an example
+    <li> Docstrings
+    <ul>
+      <li> <i> Use them! </i>
+      <li> Create docstrings for existing stuff (e.g. sys modules)
+      <li> Identify docstring format conventions 
+      <li> Integrate docstrings into existing tools  (e.g. pdb, dir)
+      <li> Identify other object self-describing attributes
+    </ul>
+  </ul>
+  <li> module organization - import module packages
+  <ul>
+    <li> New import - nesting module packages
+    <ul>
+      <li> implements module name partitioning in heirarchical namespace
+      <li> to software packages can have module components with the
+           same name (e.g. email.mbox vs. news.inbox)
+      <li> modules within a s/w package can load each other
+           via relative '__' package-container shorthand
+      <li> All local name references partitioned within the Python
+           modules namespaces, in contrast to Java mechanism
+      <li> In Python, <code> import P.main </code> and
+           <code> import Q.main </code> do not conflict In Java they do. 
+      <li> backwards compatible
+    </ul>
+    <li> Further ideas for import
+    <ul>
+      <li> structure the import implementation so the search and load
+      <li> mechanisms are table-driven, so people can hook in their
+      <li> own origin and load mechanism. (e.g for URL's)
+    </ul>
+  </ul>
+  <li> runtime environment - dubuggers, profilers, env browsers
+  <ul>
+    <li> How about emacs?  A lot of tools could be implemented in
+         emacs-19 and get a substantial, highly integrated programming
+         environment
+    <li> code editing
+    <li> tags
+    <li> GUD debugger
+    <li> environment browser
+  </ul>
+  <li> programming style
+  <ul>
+    <li> Var Names
+    <li> disciplines (aka 'magic methods') __init__
+    <li> exposed internal routines, names...: _underscore
+    <li> constants: UPPERCASE
+    <li> classes: Capitolized 
+    <li> global names: not_abreaviated
+    <li> boolean vars: long_informative_names
+    <li> name groupes lacking name space: common short prefix + '_' :
+         sys.exc_type, sys.exc_value
+    <li> avoid using globals
+    <li> modules with mostly just one class, named after the class
+    <li> put all imports near the top
+    <li> use doc string, including module doc, and version
+    <li> use a version string, but only whn you use it with discipline
+  </ul>
+  <li> documentation formats and efforts
+  <ul>
+    <li> In addition to the micro-scale docstrings, we need mode
+         documentation of existing pythion stuff, and promotion and 
+	 some system to create documentation in general
+    <li>  What doc format should we support
+    <ul>
+      <li> HTML means pretty-looking for web browsers 
+      <li> Texinfo is more immediately searchable, but not web
+      <li> ILU's TIM (similar to texinfo) is another possibility...
+      <ul>
+        <li> TIM looks very nice technically since it has the 
+             highest level abstractions for documentation :-)
+	     Guido and Bill Janssen are going to look into this
+      </ul>
+      <li> A list on python.org will be started to further discuss
+    </ul>
+    <li> Do we need, and can we muster a documentation project like
+         Linux?  -- Yes, but no one volunteered to start it.
+  </ul>
+  <li> code versioning
+  <li> I18N
+  <ul>
+    <li> Guido envisions a possible new data type to support UNICODE
+  </ul>
+  <li> Deeper Python Programming Envirnonment items 
+  <ul>
+    <li> extension/embedding frameworks
+    <li> persistence
+    <li> runtime
+    <li> GUI builders 
+  </ul>
+</ul>
+<body>
+</body>
+</html>

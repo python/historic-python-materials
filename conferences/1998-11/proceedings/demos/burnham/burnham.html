@@ -1,0 +1,79 @@
+<HTML>
+<HEAD>
+<BASE HREF="http://www.foretec.com/python/workshops/1998-11/proceedings/demos/burnham/burnham.html">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Title for USENIX Conference Paper: Sample First Page</TITLE>
+</HEAD>
+<BODY>
+
+<B><FONT FACE="Times" SIZE=4><P ALIGN="CENTER">A Python-Based Image Acquisition, Display, </P>
+<P ALIGN="CENTER">and Analysis Program</P>
+</B></FONT><FONT FACE="Times" SIZE=2><P ALIGN="CENTER">&nbsp;</P>
+</FONT><FONT FACE="Times" SIZE=3><P ALIGN="CENTER">Roger Burnham</P>
+<I><P ALIGN="CENTER">Cambridge Research &amp; Instrumentation, Inc.</P>
+</I></FONT><B><FONT FACE="Times"><P ALIGN="JUSTIFY">&nbsp;</P>
+<P ALIGN="JUSTIFY">Abstract</P>
+</B><P ALIGN="JUSTIFY">&nbsp;</P>
+</FONT><FONT FACE="Times" SIZE=2><P ALIGN="JUSTIFY">A system for measuring stress in sheets of glass used in flat panel displays is demonstrated.  The application consists of about 20,000 lines of Python code, with about 2,200 lines of SWIG (Simplified Wrapper Interface Generator) and hand generated C/C++ code.  The GUI (Graphical User Interface) was written using Microsoft Developer Studio and compiled into a resource DLL (Dynamic Link Library) accessible from Python.  Results of the measurements are stored and plotted in an Excel worksheet using the Python Win32 COM (Component Object Module) extension.  This application demonstrates an implementation of an MFC (Microsoft Foundation Class), MDI (Multiple Document Interface) program using the Python language and extensions.</P>
+<P ALIGN="JUSTIFY">&nbsp;</P>
+</FONT><B><FONT FACE="Times"><P ALIGN="JUSTIFY">1. Background</P>
+</B></FONT><FONT FACE="Times" SIZE=2><P ALIGN="JUSTIFY">&nbsp;</P>
+<P ALIGN="JUSTIFY">Cambridge Research &amp; Instrumentation (CRI) makes several kinds of electronically controllable liquid crystal  (LC) optical elements.   One type is a narrow bandpass filter, tunable across the visible and near IR region.  The type used in this application is a polarization analyzer: The filter can be tuned to pass only light with a selected polarization state.</P>
+<P ALIGN="JUSTIFY">&nbsp;</P>
+<P ALIGN="JUSTIFY">This application was developed to image the contrast created by samples that transmit light in a fashion depending upon the polarization state of the illumination.  In general, circularly polarized light, after transmission through the sample, emerges as elliptically polarized light.  By examining a series of images, each taken with calibrated polarization settings, it is possible to compute images that show the sample structures that rotated the polarization angle of the transmitted light.</P>
+<P ALIGN="JUSTIFY">&nbsp;</P>
+<P ALIGN="JUSTIFY">Stress in glass is one such structure.  Using these techniques, it is possible to measure, on a point-by-point basis, the stress magnitude (in pounds per square inch) and orientation (compression or tension) in a sheet of glass.  The program illustrated here is used as a quality control tool in the manufacture of flat panel display glass where there are tight tolerances on the amount of stress acceptable to end customers.</P>
+<B><P ALIGN="JUSTIFY">&nbsp;</P>
+</FONT><FONT FACE="Times"><P ALIGN="JUSTIFY">2. Program Components</P>
+</B></FONT><FONT FACE="Times" SIZE=2><P ALIGN="JUSTIFY">&nbsp;</P>
+<P ALIGN="JUSTIFY">The major functional components of the application and the tools used to implement them are:</P>
+<I><P>&nbsp;</P>
+<P>Serial control of the LC's: </I>A commercial DLL was wrapped with SWIG and a few Python classes.</P>
+<I><P>&nbsp;</P>
+<P>Image acquisition from a frame grabber</I>: Again, a commercial DLL, SWIG, and a few Python classes provide the application interface to acquire images.</P>
+<I><P>&nbsp;</P>
+<P>Image Display</I>: The Python Imaging Library (PIL) was used to both render the images on the screen as well as create a custom image type to hold the sequence of bitmap images associated with one measurement.</P>
+<I><P>&nbsp;</P>
+<P>Analysis of the acquired images</I>: The core algorithm is implemented as a C++ language extension module.  Much of the preprocessing is done in Python, using the numerical extension (Numpy).</P>
+<I><P>&nbsp;</P>
+<P>User interaction</I>: Pythonwin (Python for Windows) provided the interface to the resource DLL containing the user interface elements (menus, dialogs, etc.) and the MFC library of routines used to manipulate these GUI elements.</P>
+<I><P>&nbsp;</P>
+<P>External program control</I>: The Pythonwin COM extension module was used to drive the Excel spreadsheet that displays measurement results.</P>
+<P>&nbsp;</P>
+</FONT><B><FONT FACE="Times"><P ALIGN="JUSTIFY">3. Conclusion</P>
+</B></FONT><FONT FACE="Times" SIZE=2><P ALIGN="JUSTIFY">&nbsp;</P>
+<P ALIGN="JUSTIFY">This application was written under very tight time and resource constraints.  The fact that is was delivered on time, on budget, and, as far as the users have reported, essentially bug free is a testament to the Python community that produced these high quality components that are such a pleasure to use.</P>
+<P ALIGN="JUSTIFY">I have extracted the core framework of the application and packaged it in a tool (MDIAppTemplate) that can be used to generate a starting resource DLL and Python classes to implement a custom MDI application.  This will be available at the conference (fits on one diskette).</P></FONT></BODY>
+
+<SCRIPT language="Javascript">
+<!--
+
+// FILE ARCHIVED ON 20010414060226 AND RETRIEVED FROM THE
+// INTERNET ARCHIVE ON 20060504134742.
+// JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+// ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+// SECTION 108(a)(3)).
+
+   var sWayBackCGI = "http://web.archive.org/web/20010414060226/";
+
+   function xLateUrl(aCollection, sProp) {
+      var i = 0;
+      for(i = 0; i < aCollection.length; i++)
+         if (aCollection[i][sProp].indexOf("mailto:") == -1 &&
+             aCollection[i][sProp].indexOf("javascript:") == -1)
+            aCollection[i][sProp] = sWayBackCGI + aCollection[i][sProp];
+   }
+
+   if (document.links)  xLateUrl(document.links, "href");
+   if (document.images) xLateUrl(document.images, "src");
+   if (document.embeds) xLateUrl(document.embeds, "src");
+
+   if (document.body && document.body.background)
+      document.body.background = sWayBackCGI + document.body.background;
+
+//-->
+
+</SCRIPT>
+</HTML>

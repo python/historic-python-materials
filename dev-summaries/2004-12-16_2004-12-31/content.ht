@@ -1,0 +1,98 @@
+Title: python-dev Summary for 2004-12-16 through 2004-12-31
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2004-12-16 through 2004-12-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from December 16, 2004 through December 31, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the fifty-fifth summary written by Brett Cannon (I have been doing this
+for too long...).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-12-01_2004-12-15.html
+.. _original text file: http://www.python.org/dev/summary/2004-12-16_2004-12-31.ht
+
+
+
+=====================
+Summary Announcements
+=====================
+You can still `register <http://www.python.org/pycon/2005/register.html>`__ for `PyCon`_.  The `schedule of talks`_ is now online.  Jim Hugunin is lined up to be the keynote speaker on the first day with Guido being the keynote on Thursday.  Once again PyCon looks like it is going to be great.
+
+On a different note, as I am sure you are all aware I am still about a month behind in summaries.  School this quarter for me has just turned out hectic.  I think it is lack of motivation thanks to having finished my 14 doctoral applications just a little over a week ago (and no, that number is not a typo).  I am going to for the first time in my life come up with a very regimented study schedule that will hopefully allow me to fit in weekly Python time so as to allow me to catch up on summaries.
+
+And this summary is not short because I wanted to finish it.  2.4 was released just before the time this summary covers so most stuff was on bug fixes discovered after the release.
+
+.. _PyCon: http://www.pycon.org/
+.. _schedule of talks: http://www.python.org/pycon/2005/schedule.html
+
+
+=======
+Summary
+=======
+-------------
+PEP movements
+-------------
+I introduced a `proto-PEP <http://mail.python.org/pipermail/python-dev/2005-January/050753.html>`__ to the list on how one can go about changing CPython's bytecode.  It will need rewriting once the AST branch is merged into HEAD on CVS.  Plus I need to get a PEP number assigned to me.  =)
+
+Contributing threads:
+  - `proto-pep: How to change Python's bytecode <http://mail.python.org/pipermail/python-dev/2004-December/050542.html>`__
+
+------------------------------------
+Handling versioning within a package
+------------------------------------
+The suggestion of extending import syntax to support explicit version importation came up.  The idea was to have something along the lines of ``import foo version 2, 4`` so that one can have packages that contain different versions and to provide an easy way to specify which version was desired.
+
+The idea didn't fly, though.  The main objection was that import-as support was all you really needed; ``import foo_2_4 as foo``.  And if you had a ton of references to a specific package and didn't want to burden yourself with explicit imports, one can always have a single place before code starts executing doing ``import foo_2_4; sys.modules["foo"] = foo_2_4``.  And that itself can even be lower by creating a foo.py file that does the above for you.
+
+You can also look at how wxPython handles it at http://wiki.wxpython.org/index.cgi/MultiVersionInstalls .
+
+Contributing threads:
+  - `Re: [Pythonmac-SIG] The versioning question... <http://mail.python.org/pipermail/python-dev/2004-December/050551.html>`__
+
+
+===============
+Skipped Threads
+===============
+- Problems compiling Python 2.3.3 on Solaris 10 with gcc 3.4.1
+- 2.4 news reaches interesting places
+     see `last summary`_ for coverage of this thread
+- RE: [Python-checkins] python/dist/src/Modules posixmodule.c, 2.300.8.10, 2.300.8.11
+- mmap feature or bug?
+- Re: [Python-checkins]	python/dist/src/Pythonmarshal.c, 1.79, 1.80
+- Latex problem when trying to build documentation
+- Patches: 1 for the price of 10.
+- Python for Series 60 released
+- Website documentation - link to descriptor information
+- Build extensions for windows python 2.4 what are the compiler rules?
+- Re: [Python-checkins] python/dist/src setup.py, 1.208, 1.209
+- Zipfile needs?
+    fake 32-bit unsigned int overflow with ``x = x & 0xFFFFFFFFL`` and signed ints with the additional ``if x & 0x80000000L: x -= 0x100000000L`` .
+- Re: [Python-checkins] python/dist/src/Mac/OSX	fixapplepython23.py, 1.1, 1.2

@@ -1,0 +1,441 @@
+<HTML>
+<HEAD>
+<BASE HREF="http://www.foretec.com/python/workshops/1998-11/proceedings/papers/lowis/lowis.html">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Virtual Method Tables in Python</TITLE>
+</HEAD>
+<BODY>
+
+<B><FONT SIZE=4><P ALIGN="CENTER">Virtual Method Tables in Python</P>
+</B></FONT><I><P ALIGN="CENTER"></P>
+</I><P ALIGN="CENTER">Martin von L&ouml;wis<BR>
+<I>Humboldt-Universit&auml;t zu Berlin</P>
+<FONT SIZE=2><P ALIGN="JUSTIFY"></P>
+
+</I></FONT>
+<h1>Abstract</h1>
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">Virtual tables are a mechanism to find methods of a class efficiently. Typically, they are used for statically-typed languages. This paper discusses an implementation of this mechanism for Python. Different design choices are analyzed, and performance measurements are presented.</P>
+</FONT>
+
+<H1>Introduction</h1>
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">In an  object-oriented language, invocation of methods on objects is a frequent operation. In traditional procedural languages, it is usually possible to determine the procedure being used without looking at the parameters. Therefore, <I>early binding</I> of the procedures is used: the code of the calling procedure contains a direct reference to the code of the called procedure (see the figure below).</P>
+<P ALIGN="JUSTIFY"><IMG SRC="image8.gif" WIDTH=260 HEIGHT=117></P>
+<P ALIGN="JUSTIFY">In Python, a different implementation of method invocations is necessary. Let’s consider the program</P>
+<pre>
+class Foo:
+  def f(self):
+    print 42
+  def g(self):
+    print -42
+
+class Bar(Foo):
+  def f(self):
+    print "Hello, World!"
+foo = Bar()
+foo.f()
+</PRE>
+<P ALIGN="JUSTIFY"></P>
+</FONT><FONT SIZE=2><P ALIGN="JUSTIFY">In the example, the statement </FONT><FONT FACE="Courier" SIZE=2>foo.f()</FONT><FONT SIZE=2>is not enough to determine whether </FONT><FONT FACE="Courier" SIZE=2>Foo.f</FONT><FONT SIZE=2> or </FONT><FONT FACE="Courier" SIZE=2>Bar.f</FONT><FONT SIZE=2> will be called. Instead, the method to invoke can be determined only when the value of </FONT><FONT FACE="Courier" SIZE=2>foo </FONT><FONT SIZE=2>is known (<I>late binding</I>).</P>
+<P ALIGN="JUSTIFY">In the different languages that employ late binding, a variety of approaches is used. In statically-typed languages, virtual method tables often result in good execution speed. As explained below, this approach fails for more dynamic languages. In Python, the lookup procedure searches in various places to find the method. Both techniques are explained in the next sections.</P>
+
+<h1>Virtual Method Tables</h1>
+
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">In implementations of the C++ and Java languages, tables of virtual methods are used during method invocation [1]. The Python example from the introduction would read in C++ as</P>
+</FONT>
+<pre>class Foo{
+  virtual void f(){
+    cout&lt;&lt;42&lt;&lt;endl;
+  }
+  virtual void g(){
+     cout&lt;&lt;-42&lt;&lt;endl;
+}
+};
+class Bar: Foo{
+  void f(){
+    cout&lt;&lt;"Hello, world!"&lt;&lt;endl;
+  }
+};
+
+main(){
+  Foo *foo = new Bar;
+  foo-&gt;f();
+}
+</pre><p>
+
+<FONT SIZE=2><P ALIGN="JUSTIFY">It should be noted that the </FONT><FONT FACE="Courier" SIZE=2>class Bar</FONT><FONT SIZE=2> needs to inherit from </FONT><FONT FACE="Courier" SIZE=2>class Foo</FONT><FONT SIZE=2>; otherwise, a polymorphic call to </FONT><FONT FACE="Courier" SIZE=2>f </FONT><FONT SIZE=2>is not supported in C++. As it turns out, this is an important restriction which allows to use method tables efficiently.</P>
+<P ALIGN="JUSTIFY">When performing the call to </FONT><FONT FACE="Courier" SIZE=2>f</FONT><FONT SIZE=2> in </FONT><FONT FACE="Courier" SIZE=2>main</FONT><FONT SIZE=2>, the compiler sees that the object has a static type of </FONT><FONT FACE="Courier" SIZE=2>Foo</FONT><FONT SIZE=2>, and that it therefore implements the method </FONT><FONT FACE="Courier" SIZE=2>f</FONT><FONT SIZE=2>. At run-time, the object will have a lay-out as shown in the figure below.</P>
+<P ALIGN="JUSTIFY"><IMG SRC="image9.gif" WIDTH=577 HEIGHT=116></P>
+<P ALIGN="JUSTIFY">The pointer </FONT><FONT FACE="Courier" SIZE=2>foo</FONT><FONT SIZE=2> references the actual object, which is a </FONT><FONT FACE="Courier" SIZE=2>Bar</FONT><FONT SIZE=2> instance. Each object has the pointer to the virtual method table as its first field. The method table for </FONT><FONT FACE="Courier" SIZE=2>class Foo</FONT><FONT SIZE=2>, and all derived classes, contains a pointer to the method </FONT><FONT FACE="Courier" SIZE=2>f()</FONT><FONT SIZE=2>. Therefore, the call to f requires three indirections:</P>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>using the address of the object, retrieve the VMT at offset 0,</LI></P>
+<P ALIGN="JUSTIFY"><LI>using the VMT and the offset of the method (0), retrieve the address of the function, and</LI></P>
+<P ALIGN="JUSTIFY"><LI>call the function.</LI></P></UL>
+
+<P ALIGN="JUSTIFY">Each method of </FONT><FONT FACE="Courier" SIZE=2>class Foo</FONT><FONT SIZE=2> has its own index in the virtual method table. When derived classes redefine a method, they replace the slot in the method table at the index of this method. Therefore, each class needs its own copy of the method table. Since all instances of a class bind to the same set of methods, the instances can share the method table. Instances then reference the method table of their class, using a single pointer. </P>
+<P ALIGN="JUSTIFY">If a derived class does not redefine a method from a base class, the pointer to the base class method is put into the table (see </FONT><FONT FACE="Courier" SIZE=2>Foo::g</FONT><FONT SIZE=2> in the example).</P>
+
+</FONT>
+<h1>Attribute Lookup in Python</h1>
+
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">Finding methods in Python is different. Like in C++, methods are defined in the class. Unlike C++, late binding is used not only for methods, but for all class attributes. For each instance, there is a set of per-instance attributes, whose values will be different in a different instance of the same class. There is also a set of class attributes (methods and data) which is shared among all instances.</P>
+<P ALIGN="JUSTIFY">The layout of the object </FONT><FONT FACE="Courier" SIZE=2>foo</FONT><FONT SIZE=2> from the introduction is shown in the figure below.</P>
+<P ALIGN="JUSTIFY"><IMG SRC="image10.gif" WIDTH=589 HEIGHT=183></P>
+<P ALIGN="JUSTIFY">The object itself references the dictionary of instance attributes, and the class it belongs to (in the example, </FONT><FONT FACE="Courier" SIZE=2>class Bar</FONT><FONT SIZE=2>). The class references the tuple of base classes, the class dictionary, and the name of the class.</P>
+<P ALIGN="JUSTIFY">Based on this layout, attribute lookup for instances uses the following steps:</P>
+<OL>
+
+<P ALIGN="JUSTIFY"><LI>Given the name of the attribute, and a reference to the instance, look into the instance dictionary. If the attribute is found, we're done.</LI></P>
+<P ALIGN="JUSTIFY"><LI>Otherwise, go to the class, and look for the attribute name in the class. If the attribute is found, and it is an instance method, build a bound method.</LI></P>
+<P ALIGN="JUSTIFY"><LI>Otherwise, search in the base classes, repeating steps 2 and 3 until the attribute is found.</LI></P>
+<P ALIGN="JUSTIFY"><LI>If it is not found, raise the </FONT><FONT FACE="Courier" SIZE=2>AttributeError </FONT><FONT SIZE=2>exception.</LI></P></OL>
+
+<P ALIGN="JUSTIFY">This algorithm implements the full Python semantics. In particular, it is not necessary to declare in advance whether the attribute is a method or a data attribute, or whether it is per-instance, or defined in the class.</P>
+<P ALIGN="JUSTIFY">Unfortunately, this algorithm is less efficient than virtual tables would be:</P>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>As the first step, it performs a dictionary lookup in the instance, even though methods are typically found in the class. Assuming that dictionary lookup is constant, this gives a constant overhead.</LI></P>
+<P ALIGN="JUSTIFY"><LI>If that fails, it searches the base classes. There is one dictionary lookup necessary per base-class. If the attribute is not present at all, all base classes have to be searched unsuccessfully.</LI></P></UL>
+
+<P ALIGN="JUSTIFY">The base class lookup part is what makes instance attribute lookup consume non-constant time, and the one that virtual method tables will improve. During the experimentation, it turned out that the instance dictionary lookup is also significant.</P>
+<P ALIGN="JUSTIFY">One might assume that a failed attribute lookup is a rare case (it would give an </FONT><FONT FACE="Courier" SIZE=2>AttributeError</FONT><FONT SIZE=2>, and would be a bug in the application). There are some features in Python that make failed attribute lookup a frequent case. For example, when converting objects to strings, Python will first try </FONT><FONT FACE="Courier" SIZE=2>__str__</FONT><FONT SIZE=2>. If that fails, </FONT><FONT FACE="Courier" SIZE=2>__repr__</FONT><FONT SIZE=2> will be tried. If an object is used in a Boolean expression, Python will try </FONT><FONT FACE="Courier" SIZE=2>__nonzero__</FONT><FONT SIZE=2> and </FONT><FONT FACE="Courier" SIZE=2>__len__</FONT><FONT SIZE=2> before it decides that the object counts as true. In the typical case that none of these are defined, Python will traverse all base classes twice.</P>
+
+</FONT>
+<h1>Changing the Interpreter</h1>
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">This section discusses the solution that I took after certain experimentation. Some of the alternatives that I've explored are presented later.</P>
+<P ALIGN="JUSTIFY">Clearly, virtual method tables offer a solution to avoid the non-constant complexity of the class attribute lookup. When searching for a class attribute, a lookup in the table will tell whether the attribute is there, without requiring to check base classes. The problem is the method table index: At run-time, the interpreter has only the attribute name. It now needs to correlate this name with a number used as index in the method table. In C++, this relationship is defined at compile time. By looking at the classes, it is very easy to give numbers to each virtual method. Derived classes just copy the number assignments of the base class, and extend it with their additional virtual methods.</P>
+<P ALIGN="JUSTIFY">This assignment strategy breaks if there is no distinct root class for a given method invocation. At ECOOP'97, Onodera and Nakamura presented an approach to implement virtual method tables in Smalltalk [2]. With regard to polymorphism, Smalltalk is similar to Python: Two classes can implement the same method, even if their common base class does not define this function. Since there is no static type for a call, the index in the method table must be the same for <I>all </I>classes.</P>
+<P ALIGN="JUSTIFY">In turn, the first problem is to assign unique numbers to method names. At run-time, the interpreter has the name and needs the number, so this translation is better fast. Fortunately, Python 1.5 introduced <I>interned strings</I>, which come quite handy.</P>
+
+</FONT>
+<h2>Interned Strings</h2>
+
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">All variable names used in Python program are strings, their associated values are stored in various dictionaries. There is a dictionary for local and one for global variables, every module, every class, and every instance has a dictionary. To make dictionary lookup in Python fast, different techniques are used:</P>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>A dictionary is a hash table. When the hash value of the key is known, it is very easy to determine the place where the value should be. If there is no value for the hash, there is no value for the key.</LI></P>
+<P ALIGN="JUSTIFY"><LI>To avoid recomputation of  the string hash over and over again, the hash value for a string is stored inside the string object.</LI></P></UL>
+
+<P ALIGN="JUSTIFY">With these two optimizations, lookup is very efficient if the string is not in the dictionary. If the string is in the dictionary, it is necessary to compare the key being searched with the key in the dictionary, because they might be different strings that just have the same hash.</P>
+<P ALIGN="JUSTIFY">Comparing strings is expensive, unless the strings are identical. Let's compare the statements</P>
+</FONT>
+<pre>
+foo = "Hello"+" World"
+bar = "Hello World"
+if foo == bar: print "yes"
+</pre>
+<font size=2>and</font>
+<pre>
+foo = bar = "Hello World"
+if foo == bar: print "yes"
+</pre>
+<FONT SIZE=2><P ALIGN="JUSTIFY">In the second case, </FONT><FONT FACE="Courier" SIZE=2>foo </FONT><FONT SIZE=2>and </FONT><FONT FACE="Courier" SIZE=2>bar </FONT><FONT SIZE=2>reference the very same string object. It is clear that they are also equal. In the first case, the interpreter must compare them byte-by-byte to determine equality.</P>
+<P ALIGN="JUSTIFY">Since Python 1.5, the interpreter maintains a global dictionary of &quot;interesting&quot; strings, the interned strings. During interning of a string, the interpreter determines whether an equal string was interned earlier, and uses the interned version of the string from then on. When a string object is encountered the first time, a dictionary lookup is performed. After that, the interned string is referenced in a field of the original string, so that a later interning of the same string object does not need to go through the interning dictionary again.</P>
+<P ALIGN="JUSTIFY">Since interning is an expensive operation, it is not performed for all strings. Instead, a string is interned:</P>
+<OL>
+
+<P ALIGN="JUSTIFY"><LI>when it lexically appears as variable or attribute name in source code,</LI></P>
+<P ALIGN="JUSTIFY"><LI>when it is used as a string in source code, but looks like an identifier (i.e. no spaces, ...), or</LI></P>
+<P ALIGN="JUSTIFY"><LI>when it is used in an attribute lookup, and was not interned before.</LI></P></OL>
+
+<P ALIGN="JUSTIFY">Typically, the first condition would cover most applications. The second condition covers </FONT><FONT FACE="Courier" SIZE=2>getattr</FONT><FONT SIZE=2>/</FONT><FONT FACE="Courier" SIZE=2>setattr </FONT><FONT SIZE=2>calls with literal strings, and the third one covers computed attribute names. If some application explicitly modifies the </FONT><FONT FACE="Courier" SIZE=2>__dict__</FONT><FONT SIZE=2> attribute of a class, no interning is performed.</P>
+<P ALIGN="JUSTIFY"><IMG SRC="image11.gif" WIDTH=262 HEIGHT=137>With the interning dictionary, it is possible to associate numbers with some strings, but not with others. In Python 1.5, each string has a pointer to its interned variant, if there is one. For the interned strings themselves, this gives the links shown in the figure below.</P>
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">The interned string appears both as key and as value in the interned dictionary, and it references itself in its </FONT><FONT FACE="Courier" SIZE=2>interned </FONT><FONT SIZE=2>field.</P>
+<P ALIGN="JUSTIFY">In extension of this structure, I can associate another object with the interned string, as shown below.</P>
+<P ALIGN="JUSTIFY"><IMG SRC="image12.gif" WIDTH=541 HEIGHT=136></P>
+<P ALIGN="JUSTIFY">I have introduced another type which holds additional attributes of an interned string. Not all interned strings need to have this attribute, only those used for instance attributes. During interning, the interpreter passes a flag whether this additional object is necessary. Currently, it does so in the cases 1 and 3, but not if it encounters string literals. As a result, the interned field of a string is polymorphic, and might reference either a string or the interned attributes.</P>
+
+</FONT>
+
+<h2>The Size of the Tables</h2>
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">Since the method table index is globally associated with a method name, all classes have the same method table layout. That means that the method table contains the union of all method names found in the program. Since there is one such table per class, that might result in quite some memory consumption.</P>
+<P ALIGN="JUSTIFY">In order to reduce memory consumption, only a subset of the methods names relates to method table entries, as proposed in [2]. Currently, I give 64 entries to each table, and assign indices as I encounter them. Sooner or later, the table will fill up. At that time, I clear the tables, and start all over. To make the clearing of the table efficient, I keep a generation counter. Every time I clear the table, I only increment the generation counter. Each interned string not only stores the its method table index, but also the generation of the index. If the index is not from the current generation, it is just as if it didn't have a method table index at all.</P>
+<P ALIGN="JUSTIFY">The resulting layout for the example from the introduction is shown below.</P>
+<P ALIGN="JUSTIFY"><IMG SRC="image13.gif" WIDTH=578 HEIGHT=214></P>
+<P ALIGN="JUSTIFY">&nbsp;</P>
+
+</FONT>
+<h2>Failing Instance Attribute Lookups</h2>
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">During the experiments, it became clear that the lookups for instance attributes had a considerable impact on the overall performance. For each method call, an instance lookup is performed before the class is inspected. For many frequently-called methods, it is obvious that this lookup will fail: Nobody assigns instance attributes called </FONT><FONT FACE="Courier" SIZE=2>__init__</FONT><FONT SIZE=2> or </FONT><FONT FACE="Courier" SIZE=2>__str__</FONT><FONT SIZE=2>. </P>
+<P ALIGN="JUSTIFY">This opens another optimization opportunity. If it is known that no instance in the program has an attribute of a given name, an attribute lookup will fail. Therefore, I record assignments to instance attributes in the extra attributes of an interned string.</P>
+<P ALIGN="JUSTIFY">With this optimization, I get the following pseudo-code for the instance attribute lookup:</P>
+</FONT>
+<pre>
+def is_instance_assigned(string):
+return !is_interned(string) or string.instance_assigned
+
+def class_lookup(cl, string):
+    #search __dict__,__bases__
+
+def instance_lookup(i, string):
+    if is_instance_assigned(string):
+        if i.__dict__.has_key(string):
+            return i.__dict__[string]
+    if is_interned(string):
+        #If interned, check the VMT
+        if !string.vmti or string.generation!=cur_generation:
+            string.vmti = new_vmt_index()
+        if !i.__class__.vmt:
+            i.__class__.vmt = new_vmt()
+        if i.__class__.vmt[string.vmti]:
+            return i.__class__.vmt[string.vmti]
+    result = class_lookup(i.__class__, string)
+    if is_interned(string):
+        #Cache the result
+        i.__class__.vmt[string.vmti] = result
+    return result
+</pre>
+<h2>Fighting Degenerate Cases</h2>
+
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">With the scheme presented above, a number of things can go wrong. When I started to modify Python, I had three design goals:</P>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>The semantics of the language should not change, no matter how misimplemented the program is.</LI></P>
+<P ALIGN="JUSTIFY"><LI>For average code using classes, the performance should be better than it is now.</LI></P>
+<P ALIGN="JUSTIFY"><LI>Performance should not degenerate in the worst case.</LI></P></UL>
+
+<P ALIGN="JUSTIFY">First, correctness of such a caching approach is an important issue. The problem is that class attributes are retrieved from the cache. This includes attributes from the base class. In Python, it is possible (and even common) to change class attributes, expecting that they change immediately for all instances, and that the old value becomes deallocated if it is not referenced elsewhere.</P>
+<P ALIGN="JUSTIFY">Fortunately, the number of class attributes that change over time is small in a typical program, and a caching scheme should still provide performance gains if those are not cached. In order to determine which attributes change, I assign an out-of-range method index to attributes that ever changed (no matter what class the change occurred in). In other classes (including derived classes), the attribute is then not cached anymore. The tricky part is to discard the cache if the value is ever changed. There are three ways to introduce a class attribute in Python:</P>
+</FONT>
+<pre>
+class Foo:
+    def f(self):
+        pass
+Foo.g = 42
+Foo.__dict__["h"] = Foo
+</pre>
+<FONT SIZE=2><P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">During class definition, assigning an attribute does not harm the cache as there is no cache yet; these are the attributes that typically should be cached later. It is considerably easy to trap class attribute modification in the second case. Trapping the third case is difficult, as the dictionary implementation doesn’t know anything about classes. To trap dictionary modification, I introduced a call-back function in the dictionary object. </P>
+<P ALIGN="JUSTIFY">Whenever a class attribute is changed, the call-back function checks whether the attribute name has a method index assigned. If it does, the cached value needs to be deleted from all virtual method tables.</P>
+<P ALIGN="JUSTIFY">The same technique is used for instance attributes. Whenever an instance attribute is assigned (directly or through </FONT><FONT FACE="Courier" SIZE=2>__dict__</FONT><FONT SIZE=2>), I record this fact in the interned string. If an uninterned string was used to modify the instance, I cannot record this assignment to that particular string. Instead, I give up and have </FONT><FONT FACE="Courier" SIZE=2>is_instance_assigned </FONT><FONT SIZE=2>return always true.</P>
+<P ALIGN="JUSTIFY">From a performance viewpoint, the worst case occurs when each VMT lookup fails. In this case, the algorithm will check whether the attribute generation is correct, and find out that it isn’t. In turn, it will assign a new index. The class won’t have a VMT entry for that index, and needs to perform the regular lookup. This gives a constant overhead of a few function calls per attribute lookup.</P>
+<P ALIGN="JUSTIFY">Every time the VMT fills up (in worst case, every 64<SUP>th</SUP> lookup), the generation counter is increased. In turn, all classes will clear their method tables the next time they are accessed. In the worst case, this are 64 classes per generation. During the next generation, it might be necessary to clear a virtual table at each access. This could add to some measurable overhead. In order to avoid such thrashing, the algorithm could turn off virtual tables for classes that suffer from it. At the moment, no such algorithm is implemented. An application that exercises this worst case would need to use a large number of different method attribute names, and apply them to instances of a large number of different classes.</P>
+
+</FONT>
+<h1>Alternative Approaches</h1>
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">During the experiments, I explored a number of alternatives. This section presents some of the failures, and some options that still need to be explored.</P>
+
+</FONT>
+<h2>Storing VMT indices</h2>
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">Initially, I planned not to modify the string type, and store the method indices in the code objects. Each code object has a tuple of attribute names (</FONT><FONT FACE="Courier" SIZE=2>co_names</FONT><FONT SIZE=2>) used in the code object. Parallel this tuple, I introduced a vector </FONT><FONT FACE="Courier" SIZE=2>co_vmt</FONT><FONT SIZE=2>, which should record the method table index. As with in the final implementation, the index was inserted lazily, when the code was executed for the first time. Each value in </FONT><FONT FACE="Courier" SIZE=2>co_vmt </FONT><FONT SIZE=2>was a tuple of the vmt index and the generation counter.</P>
+<P ALIGN="JUSTIFY">This implementation did not show the desired speed-up. Primarily, the reason was probably that I used generic Python types (tuples and vectors). The access functions for those data structures would produce overhead for reference counting and extra function calls.</P>
+<P ALIGN="JUSTIFY">In addition, this approach stores the VMT index in each method where the interned string is used, requiring a dictionary lookup the first time the method is executed.</P>
+</FONT>
+
+<h2>Cache Overflow</h2>
+
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">Another issue is the selection of attribute names that have method indices assigned. Ideally, only those attribute names that are frequently used should be associated with numbers, since the size of the virtual tables is small (compared to the total number of class attributes). The algorithm assigns a method index to the name the first time it is used, which guarantees that names never used in a program will not fill the cache at all. On the other hand, the algorithm will run out of numbers eventually. There are several strategies that could be used in that case:</P>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Stop assigning numbers, and continue to use the cache.</LI></P>
+<P ALIGN="JUSTIFY"><LI>Clear the cache, and start all over.</LI></P>
+<P ALIGN="JUSTIFY"><LI>Try to group the attribute names into different clusters, guaranteeing uniqueness of numbers only within a group.</LI></P></UL>
+
+<P ALIGN="JUSTIFY">Different inheritance hierarchies usually use different sets of method names, so grouping the names along these hierarchies seems like a good idea. Unfortunately, some method names in Python are identical across all such hierarchies, and some of them will be even frequently used (such as </FONT><FONT FACE="Courier New" SIZE=2>__init__</FONT><FONT SIZE=2> or </FONT><FONT FACE="Courier New" SIZE=2>__str__</FONT><FONT SIZE=2>). This rules out the third possibility.</P>
+<P ALIGN="JUSTIFY">The first possibility works in cases were the program will call the same methods during its entire operation. Unfortunately, Python itself, as well as most applications, have a start-up phase where the program calls methods that are used only once. Therefore, there have to be precautions to clear the cache.</P>
+<P ALIGN="JUSTIFY">With the implemented strategy, there is the potential risk of cache thrashing. If more methods are in active use than there are indices, the cache will be cleared very often. In order to avoid this, two strategies can be employed:</P>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Keep track of the miss ratio. If there are more new index assignments than successful accesses to the cache, disable the cache.</LI></P>
+<P ALIGN="JUSTIFY"><LI>Introduce new generations lazily. If the cache is full, keep the current assignment of method indices as long as the hit ratio is good.</LI></P></UL>
+
+<P ALIGN="JUSTIFY">Since both strategies can be used simultaneously, it is easy to combine them in the implementation. The tricky part is the definition of a ‘good’ hit ratio, which means that only few cache accesses fail.</P>
+<P ALIGN="JUSTIFY">None of these alternatives have been implemented, basically because I have no good heuristics.</P>
+
+</FONT>
+<h1>Measuring the Performance</h1>
+
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">During the implementation process, I compared the performance of a stock Python 1.5 implementation with one that had my modifications. It turned out that good measurements were difficult to obtain, especially since there are no well-designed benchmark suites for the area of execution I modified.</P>
+<P ALIGN="JUSTIFY">Since I suspected that the dictionary lookup was the most costly part of class attribute lookup, I wrote a simple benchmark based on the source code</P>
+</FONT>
+<pre>
+class X:
+    a1 = 1
+    a2 = 1
+    ...
+    a1000 = 1
+    def f():
+        pass
+for i in xrange(1,1000000):
+    X.f
+</pre>
+</FONT><FONT SIZE=2><P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">Then, in a loop, I accessed the value X.f a large number of times. On a 250 MHz UltraSparc, this needed 10 seconds. With my early modifications, it took 13 seconds. The results were discouraging. What's worse, the benchmark was flawed.</P>
+<P ALIGN="JUSTIFY">There were several problems with the benchmark:</P>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>The class X was accessed through its global name, which required a dictionary lookup.</LI></P>
+<P ALIGN="JUSTIFY"><LI>The test did not involve instances.</LI></P>
+<P ALIGN="JUSTIFY"><LI>The loop construct would consume some time, as the interpreter was constructing new integers over an over again.</LI></P>
+<P ALIGN="JUSTIFY"><LI>The interpreter loop took some time itself, partially since it consumed time running </FONT><FONT FACE="Courier" SIZE=2>SET_LINENO</FONT><FONT SIZE=2>.</LI></P></UL>
+
+<P ALIGN="JUSTIFY">To reduce the cost of the loop, I unrolled it. Also, there was a multiply involved in the iteration process, and it turned out that gcc would generate </FONT><FONT FACE="Courier New" SIZE=2>.imul</FONT><FONT SIZE=2> calls on the Sparc. Since recent Sparc machines have built-in multiplication, I used the </FONT><FONT FACE="Courier New" SIZE=2>–mcpu=v8</FONT><FONT SIZE=2> flag for gcc 2.8.1. To further reduce the cost of the loop, I used a pre-computed list to iterate. To reduce the impact of the interpreter itself, I used </FONT><FONT FACE="Courier" SIZE=2>python -O</FONT><FONT SIZE=2> for the measurements.</P>
+<P ALIGN="JUSTIFY">Finally, I switched to using identical code bases for further measurements, i.e. Python 1.5.1 for both the baseline code, and my modifications.</P>
+<P ALIGN="JUSTIFY">The revised benchmark is</P>
+</FONT>
+<pre>
+class X:
+    f = None
+class Y(X):
+    a1 = 1
+    a2 = 1
+    ...
+    a1000 = 1
+def f():
+    x=Y()
+    l=[1]*1000
+    for a in l:
+        for i in l:
+            x.f
+            x.f
+            #repeat 6 more times
+f()
+</pre>
+</FONT>
+<h1>Benchmark Results</h1>
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">During the experiments, I used two types of measurement. First, I timed the execution on an idle processor using the Unix </FONT><FONT FACE="Courier" SIZE=2>time(1)</FONT><FONT SIZE=2> command. While this allows to compare two implementations, it doesn't tell </FONT><FONT FACE="Courier" SIZE=2>why </FONT><FONT SIZE=2>some implementation is slower than another. To understand time consumption better, I profiled the interpreter using the GNU C compiler profiling (-pg). This tool counts the number a function is called, and helps reconstructing the call graph (i.e it tells why a function is called frequently).</P>
+<P ALIGN="JUSTIFY">Using the sample code above, I compared Python 1.5.1 and my modified version. Plain Python needs 26s, the modified version needs 16s.</P>
+<P ALIGN="JUSTIFY">To obtain more realistic data, I looked for a large Python program that makes use of classes and inheritance. I settled with Grail [3], because it is perhaps one of the most well-known Python applications. Unfortunately, it is difficult to benchmark. It involves user and network interaction, both having unpredictable timing properties. To obtain reliable data, I profiled function counts, concentrating on the functions where I expected most significant changes.</P>
+<P ALIGN="JUSTIFY">During the sampling of Python 1.5.1, I got the following call frequencies:</P></FONT>
+<TABLE BORDER CELLSPACING=2 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=278>
+<TR><TD WIDTH="39%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">Function</B></FONT></TD>
+<TD WIDTH="61%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">Number of calls</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="39%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">lookdict</B></FONT></TD>
+<TD WIDTH="61%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="JUSTIFY">2 million</FONT></TD>
+</TR>
+<TR><TD WIDTH="39%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">PyDict_GetItem</B></FONT></TD>
+<TD WIDTH="61%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="JUSTIFY">1.7 million</FONT></TD>
+</TR>
+<TR><TD WIDTH="39%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">instance_getattr</B></FONT></TD>
+<TD WIDTH="61%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="JUSTIFY">490,000</FONT></TD>
+</TR>
+<TR><TD WIDTH="39%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">Function</B></FONT></TD>
+<TD WIDTH="61%" VALIGN="TOP">
+<B><FONT SIZE=2><P>Number of calls to PyDict_Getitem</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="39%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">eval_code2</B></FONT></TD>
+<TD WIDTH="61%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="JUSTIFY">670,000</FONT></TD>
+</TR>
+<TR><TD WIDTH="39%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">instance_getattr</B></FONT></TD>
+<TD WIDTH="61%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="JUSTIFY">480,000</FONT></TD>
+</TR>
+<TR><TD WIDTH="39%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">class_lookup</B></FONT></TD>
+<TD WIDTH="61%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="JUSTIFY">448,000</FONT></TD>
+</TR>
+</TABLE>
+
+<FONT SIZE=2><P ALIGN="JUSTIFY">This statistic shows that a significant number of dictionary lookups results instance attribute lookups, yet many lookups fail and are performed in the class again. Each call to </FONT><FONT FACE="Courier" SIZE=2>instance_getattr</FONT><FONT SIZE=2> generates a call to </FONT><FONT FACE="Courier" SIZE=2>PyDict_GetItem</FONT><FONT SIZE=2>, which in turn needs one or more accesses to the dictionary representation. A call to </FONT><FONT FACE="Courier" SIZE=2>class_lookup</FONT><FONT SIZE=2> generates also a dictionary lookup. </FONT><FONT FACE="Courier" SIZE=2>eval_code2</FONT><FONT SIZE=2> is invoked each time a Python function is invoked, and generates lookups primarily to the dictionary of global names of a function. </FONT><FONT FACE="Courier" SIZE=2>instance_getattr </FONT><FONT SIZE=2>is invoked each time an instance attribute is accessed. Both functions together therefore give a rough estimate of the computational complexity of a Python run.</P>
+<P ALIGN="JUSTIFY">The next trace, for the modified version, works on roughly the same data. Unfortunately, it is not easy to repeat the exact sequence of operations when browsing through the Web.</P></FONT>
+<TABLE BORDER CELLSPACING=2 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=278>
+<TR><TD WIDTH="46%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">Function</B></FONT></TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">Number of calls</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="46%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">lookdict</B></FONT></TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="JUSTIFY">1.5 million</FONT></TD>
+</TR>
+<TR><TD WIDTH="46%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">PyDict_GetItem</B></FONT></TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="JUSTIFY">1.2 million</FONT></TD>
+</TR>
+<TR><TD WIDTH="46%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">instance_getattr</B></FONT></TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="JUSTIFY">418,000(*)</FONT></TD>
+</TR>
+<TR><TD WIDTH="46%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">Function</B></FONT></TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<B><FONT SIZE=2><P>Number of calls to PyDict_GetItem</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="46%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">eval_code2</B></FONT></TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="JUSTIFY">580,000(*)</FONT></TD>
+</TR>
+<TR><TD WIDTH="46%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">instance_getattr</B></FONT></TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="JUSTIFY">280,000</FONT></TD>
+</TR>
+<TR><TD WIDTH="46%" VALIGN="TOP">
+<B><FONT SIZE=2><P ALIGN="JUSTIFY">class_lookup</B></FONT></TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="JUSTIFY">211,000</FONT></TD>
+</TR>
+</TABLE>
+
+<FONT SIZE=2><P ALIGN="JUSTIFY">As the marked numbers show, this sample was about 85% computational effort of the first run, yet the number of dictionary data accesses (</FONT><FONT FACE="Courier" SIZE=2>lookdict</FONT><FONT SIZE=2>) is goes down to 75%. Also, </FONT><FONT FACE="Courier" SIZE=2>instance_getattr</FONT><FONT SIZE=2> performs dictionary lookups only two thirds of the time. Also, the number of dictionary lookups performed during </FONT><FONT FACE="Courier" SIZE=2>class_lookup</FONT><FONT SIZE=2> is significantly reduced.</P>
+</FONT>
+<h1>Thinking about Memory</h1>
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">Every caching scheme is a trade-off between time and memory. In the approach outlined here, part of the memory consumption comes from associating new objects with interned strings. This could be partially reduced by not giving every interned string additional attributes.</P>
+<P ALIGN="JUSTIFY">Another concern is the size of the virtual tables. The Onodera-Nakamura implementation reserved a pool of virtual tables to the most actively used classes. This results in even more arbitrary choices, such as: How much tables are there, and which classes should get one? Instead, I decided that only most-derived classes should get virtual tables. Since most class attribute lookups ultimately come from instance attribute lookups, only classes that have instances need to get virtual tables. The base class lookup will then still perform dictionary lookups; after this is performed for the first time, the derived classes will cache the value anyway, and not look in the base classes again. There have been no measurements, yet, how much memory is consumed by virtual tables in a typical application.</P>
+</FONT>
+<h1>Future Directions</h1>
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">A number of modifications to that code have been considered, but not implemented. First, it is not possible to administrate the strategies used. It is not clear whether the application programmer needs access to the various tuning parameters (virtual table size, whether to use virtual tables at all, ...). If there is a tuning need, it is not clear whether tuning at run-time is necessary.</P>
+<P ALIGN="JUSTIFY">The implementation itself needs more testing. It introduces considerable changes to the Python runtime, which need careful review before being applied to mainstream Python.</P>
+</FONT>
+<h1>Conclusions</h1>
+</B></FONT><FONT SIZE=2><P ALIGN="JUSTIFY">With the introduction of virtual tables in Python, selected applications will see improved performance. While it is possible to construct programs that show a loss of performance, it seems unlikely that existing applications would suffer.</P>
+<P ALIGN="JUSTIFY">Further work is necessary to determine effects of such caching techniques in real applications.</P>
+</FONT>
+<h1>Literature</h1>
+
+<FONT SIZE=2><P>[1]    Timothy Budd. &quot;An Introduction to Object-Oriented Programming&quot;, Addison Wesley Longman, 1997.</P>
+<P>[2]    Tamiya Onodera, Hiroaki Nakamura. &quot; Optimizing Smalltalk by Selector Code Indexing Can Be Practical&quot;, in &quot;ECOOP’97 – Object Oriented Programming&quot;, Jyv&auml;skyl&auml;, Spring, 1997.</P>
+<P>[3]    CNRI. &quot;Grail 0.4&quot;, http://grail.cnri.reston.va.us/grail/</P></DIR>
+</FONT></BODY>
+
+<SCRIPT language="Javascript">
+<!--
+
+// FILE ARCHIVED ON 20010414043946 AND RETRIEVED FROM THE
+// INTERNET ARCHIVE ON 20060504134632.
+// JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+// ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+// SECTION 108(a)(3)).
+
+   var sWayBackCGI = "http://web.archive.org/web/20010414043946/";
+
+   function xLateUrl(aCollection, sProp) {
+      var i = 0;
+      for(i = 0; i < aCollection.length; i++)
+         if (aCollection[i][sProp].indexOf("mailto:") == -1 &&
+             aCollection[i][sProp].indexOf("javascript:") == -1)
+            aCollection[i][sProp] = sWayBackCGI + aCollection[i][sProp];
+   }
+
+   if (document.links)  xLateUrl(document.links, "href");
+   if (document.images) xLateUrl(document.images, "src");
+   if (document.embeds) xLateUrl(document.embeds, "src");
+
+   if (document.body && document.body.background)
+      document.body.background = sWayBackCGI + document.body.background;
+
+//-->
+
+</SCRIPT>
+</HTML>

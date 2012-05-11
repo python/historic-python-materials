@@ -1,0 +1,235 @@
+Title: python-dev Summary for 2003-04-01 through 2003-04-15
+Sitemap-ignore: yes
+
+<div class="document" id="python-dev-summary-for-2003-04-01-through-2003-04-15">
+<h1 class="title">python-dev Summary for 2003-04-01 through 2003-04-15</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> from April 1, 2003 through April 15, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have an archived summary of each thread started on the list.  To comment on anything mentioned here, just post to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> or <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join <a class="reference" href="http://www.python.org/dev/">python-dev</a>!</p>
+<p>This is the fifteenth summary written by Brett Cannon (&lt;voice of Comic Book Guy from &quot;The Simpsons&quot;&gt;Most summaries written by a single person, <em>ever</em> &lt;/voice&gt;).</p>
+<p>All summaries are archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a> (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; its simple and is accepted for <a class="reference" href="http://www.python.org/dev/peps/pep-0012">PEP markup</a>.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is unless it is from the original text file.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#summary-announcements" id="id39" name="id39">Summary Announcements</a></li>
+<li><a class="reference" href="#boom" id="id40" name="id40">Boom</a></li>
+<li><a class="reference" href="#quickies" id="id41" name="id41">Quickies</a></li>
+</ul>
+</div>
+<div class="section" id="summary-announcements">
+<h1><a class="toc-backref" href="#id39" name="summary-announcements">Summary Announcements</a></h1>
+<p>So all three people who expressed an opinion about the new <a class="reference" href="#quickies">Quickies</a> format liked the new one, so it stays.</p>
+<p>Do you guys actually like the links to the CVS in the Summaries?  The various links I put in to every single file mentioned that does not have direct documentation is time-consuming.  But if you find it useful it can stay.  Please let me know whether you actually use it (this means if you don't tell me!).</p>
+</div>
+<div class="section" id="boom">
+<h1><a class="toc-backref" href="#id40" name="boom"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034370.html">Boom</a></a></h1>
+<dl>
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034371.html">RE: [Python-checkins] python/dist/src/Modules gcmodule.c</a></li>
+</ul>
+</dd>
+<dt>Related threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034521.html">Garbage collecting closures</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034609.html">Algorithm for finalizing cycles</a></li>
+</ul>
+</dd>
+</dl>
+<p>Do you want to know what dedication is?  Thinking of Python code that will cause Python to crash during dental surgery.  Well, Tim Peters is that dedicated and managed to come up with some code that crashed Python when it attempted to garbage-collect some objects.  This begins the joy that is garbage collection and finalizer functions.</p>
+<p>Gather around, children, as we learn about how Python tries to keep you from having to worry about keeping track of your trash.  When Python executes the garbage collector, it looks to see what objects are unreachable based on reference counts; when something has a reference count of 0 nothing is referencing it so it is just floating out in the middle of no where with no one giving a hoot about whether it is their or not (children: &quot;Awww!  Poor, lonely object!&quot;).  But some of these lonely objects have what we call a finalizer (children: &quot;What's that?!?&quot;; isn't it cute when children are still inquisitive?  Good for you for still being inquisitive!  Have to be supportive, you know).  A finalizer is either an instance that has a __del__ object or an object that has something in its tp_del slot (children: &lt;nod&gt;).  Does anyone know why we have to take of these lonely objects that are somewhat special? (children: &lt;look around for someone to be brave enough to actually try to answer; no one does&gt;)  Well, since these objects have something that must be called before they are garbage-collected, we have to make sure they don't reference an object that is out there but people think is cared about when it is only an object with a finalizer and we don't care about their opinions; it might want to keep an object's reference count above 0 and thus not be collected (children: &quot;Oh...&quot;).  What makes them especially difficult to handle is that some objects that don't look like finalizers lie and end up acting like they are by defining a __getattr__ method that does very rude things (children: &quot;That's not nice!&quot;).  And since it is really hard to tell whether they are real finalizers or just act like one, we just let them be out there forever so that they don't make the great Interpreter have to deal with them (some rabble-rouser: &quot;My dad says that there is no great Interpreter and that everything came from the Compiler and Linker when they got together and did something my dad won't tell me about.  Something about the bits and the bees...&quot;; rest of children: &quot;Nu-uh!  The Interpeter is real!  We've seen it!  It's all-powerful and knowing!  Take it back, take it back!&quot;).  Luckily, though, it is only an issue with something old-timers call classic classes; things that started to decay away long, long ago(children: &quot;Yay!  No more cruft!&quot;)  And thanks to the diligent work of some very important people, it has been dealt with (children: &quot;Yay!  Thank you important people!&quot;).  There is a lesson to be learned here children; do not put old things to pasture to early since you can make stubborn old people mad which is bad since they make up the majority of voters in America (children: &quot;Yes, teacher!&quot;; smart-ass in the back of the room: &quot;How old are you, teacher?&quot; &lt;snicker&gt;).</p>
+<p>Guido said that Python's cleanup model could be summed up as &quot;things get destroyed when nothing refers to them at some arbitrary time after nothing refers to them.&quot;  And the corollary is &quot;always explicitly close your external resources.&quot;  In other words, when nothing points to the object will get collected at <em>some</em> point, but not necessarily immediately.  The corollary is just good programming practice; close your resources yourself instead of relying on finalizers to do it for you since there is no guarantee when that will happen.</p>
+<p>Tim Peters gave several suggestions in regards in how to make sure things get cleaned up; from registering cleanup code with sys.atexit() to keep a weakref in a module with a finalizer to be executed when the module is collected.</p>
+</div>
+<div class="section" id="quickies">
+<h1><a class="toc-backref" href="#id41" name="quickies">Quickies</a></h1>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034314.html">Distutils documentation amputated in 2.2 docs?</a></dt>
+<dd><dl class="first">
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034328.html">How do I report a bug?</a></li>
+</ul>
+</dd>
+</dl>
+<p class="last">Greg Ewing that two sections from the Distutils docs disappeared between Python 1.6 and 2.2.  Sections are still missing and will stay so until someone comes up with a patch to add in the missing sections.  There was also a discussion on making it more obvious how to report a bug on <a class="reference" href="http://www.sf.net/">SF</a>.</p>
+</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034317.html">PEP 269 once more.</a></dt>
+<dd>Jonathan Riehl got his patch for implementing <a class="reference" href="http://www.python.org/dev/peps/pep-0269">PEP 269</a> (&quot;Pgen Module for Python&quot;) but then uploaded a newer version that is better.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034325.html">Minor issue with PyErr_NormalizeException</a></dt>
+<dd>It was discovered that PyErr_NormalizeException could dump core because it forgot to return on possible errors.  It's been fixed and back-ported.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034323.html">Capabilities (we already got one)</a></dt>
+<dd><dl class="first">
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034315.html">Capabilities</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034343.html">Security challenge</a></li>
+</ul>
+</dd>
+</dl>
+<p class="last">The thread that refuses to die continued into this month.  Nothing ground-breaking was said, though.  Ben Laurie, though, did say he is working on a <a class="reference" href="http://www.python.org/dev/peps/">PEP</a> so hopefully that will make this whole discussion clear.</p>
+</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034339.html">[PEP] += on return of function call result</a></dt>
+<dd>Someone wanted to do <tt class="literal"><span class="pre">log.setdefault(r,</span> <span class="pre">'')</span> <span class="pre">+=</span> <span class="pre">&quot;test</span> <span class="pre">%d\n&quot;</span> <span class="pre">%</span> <span class="pre">t</span></tt> which does not work.  But it was pointed out you can just do <tt class="literal"><span class="pre">temp</span> <span class="pre">=</span> <span class="pre">log.setdefault(r,</span> <span class="pre">'');</span> <span class="pre">temp</span> <span class="pre">+=</span> <span class="pre">&quot;test</span> <span class="pre">%d\n&quot;</span> <span class="pre">%</span> <span class="pre">t</span></tt>.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034319.html">How to suppress instance __dict__?</a></dt>
+<dd>This is only of interest to people who use <a class="reference" href="http://www.boost.org/libs/python/doc/">Boost.Python</a> (which I don't use so I am not going to summarize it; although if you use C++ you will want to look at Boost.Python).</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="#id9">Super and properties</a></dt>
+<dd>Someone got bit by properties not working nicely with super().  Nathan Srebro subsequently posted a <a class="reference" href="http://www.ai.mit.edu/~nati/Python/">link</a> to a his own version of super() which handles this problem.</dd>
+</dl>
+<a class="target" id="id9" name="id9"></a><dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034368.html">fwd: Dan Sugalski on continuations and closures</a></dt>
+<dd>Kevin Altis forwarded some posts by Dan Sugalski (the guy heading the <a class="reference" href="http://www.parrotcode.org/">Parrot</a> project and who Guido will throw a pie at at OSCON 2004  =) about closures and continuations that he found at <a class="reference" href="http://simon.incutio.com/archive/2003/04/03/#closuresAndContinuations">http://simon.incutio.com/archive/2003/04/03/#closuresAndContinuations</a> .  Very well-written and might clarify things for people if they care to know more about closures, continuations, and why Lisp folks claim they are so damn important.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034396.html">LONG_LONG</a></dt>
+<dd><p class="first">Python 2.3 renames the LONG_LONG definition from the C API to PY_LONG_LONG as it should have been renamed.  Yes, this will break things, but it was incorrect to have not renamed it.  If you need to keep compatibility with code before Python 2.3, just use the following code (contributed by Mark Hammond):</p>
+<pre class="last literal-block">
+#if defined(PY_LONG_LONG) &amp;&amp; !defined(LONG_LONG)
+#define LONG_LONG PY_LONG_LONG
+#endif
+</pre>
+</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034399.html">socket question</a></dt>
+<dd>Someone asking why something didn't build under Solaris and subsequently being redirected to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> .</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034409.html">PEP305 csv package: from csv import csv?</a></dt>
+<dd>Why does one have to do <tt class="literal"><span class="pre">from</span> <span class="pre">csv</span> <span class="pre">import</span> <span class="pre">csv</span></tt>?  Wouldn't it be more reasonable to just do some magic in __init__.py for the <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-csv.html">csv</a> package to do this properly?  Well, Skip Montanaro forwarded the question to cvs development list at <a class="reference" href="mailto:csv&#64;mail.mojam.com">csv&#64;mail.mojam.com</a> and said he probably will make the change in the near future.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034416.html">SF file uploads work now</a></dt>
+<dd>Yes, hell must have frozen over since you can now upload a file when you start a new patch or bug report on <a class="reference" href="http://www.sf.net/">SourceForge</a>.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034453.html">Unicode</a></dt>
+<dd><dl class="first">
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034462.html">OT: Signal/noise ratio</a></li>
+</ul>
+</dd>
+</dl>
+<p class="last">Once again another question on python-dev that is not appropriate for the list.  But this one spawned questions of whether the mailing list should be renamed (answer: no, since it is fairly well-known what python-dev is for) or go back to having the list being closed and requiring moderator approval for posts from people off the list (answer: no, because the amount of work was just too much of a pain and the amount of off-topic emails has not equated to the filtering work done previously).</p>
+</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034380.html">Placement of os.fdopen functionality</a></dt>
+<dd>It was suggested to make the fdopen method of the <a class="reference" href="http://www.python.org/dev/doc/devel/lib/os-newstreams.html">os</a> module a class method of 'file'.  That was determined to be YAGNI and thus won't happen.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034518.html">Adding item in front of a list</a></dt>
+<dd>Tim Peters wonders how many people would be made upset if list.insert() supported a negative index argument.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034473.html">Why is spawn*p* not available on Windows?</a></dt>
+<dd>Shane Halloway might add one of the os.spawn*p*() functions to Windows.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034480.html">tzset</a></dt>
+<dd>time.tzset() is no longer on Windows because it is broken (and I will behave and not make a joke about how it would be just as broken as the OS or anything because I am unbiased).</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034489.html">backporting string changes to 2.2.3</a></dt>
+<dd>Neal Norwitz updated docs and back-ported changes to the <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-string.html">string</a> module to bring it in sync with the actual string object.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034575.html">List wisdom</a></dt>
+<dd><a class="reference" href="http://www.python.org/cgi-bin/moinmoin/PythonDevWisdom">http://www.python.org/cgi-bin/moinmoin/PythonDevWisdom</a> is a wiki page created to contain the random nuggets of wisdom that come up on python-dev.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034617.html">ValueErrors in range()</a></dt>
+<dd>Fixed the error where range() returned ValueError when it should return TypeError.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034403.html">_socket efficiencies ideas</a></dt>
+<dd>Marcus Mendenhall wanted to get a patch applied that would allow you to create a socket that could skip a DNS lookup.  He also wanted to add the ability to include a '&lt;numeric&gt;' prefix IP addresses to make sure that DNS lookup was skipped.  Various ways of trying to cut back on time wasted on unneeded DNS lookups was discussed but no solution was found acceptable.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034433.html">tp_clear return value</a></dt>
+<dd>tp_clear could stand to return void, but can't change because of backwards-compatibility.  Will most likely end up documenting to ignore what is returned by what is put into tp_clear.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034472.html">More socket questions</a></dt>
+<dd>Someone suggested fixing something that has been solved in Python 2.3.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034506.html">Embedded python on Win2K, import failures</a></dt>
+<dd>Someone had errors embedding Windows.  No real conclusion came out of it.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034516.html">More int/long integration issues</a></dt>
+<dd><dl class="first">
+<dt>Splintered threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034530.html">range() as iterator</a></li>
+</ul>
+</dd>
+</dl>
+<p class="last">Before Python 3.0 (when xrange() will disappear), there is a good chance that the idiom <tt class="literal"><span class="pre">for</span> <span class="pre">x</span> <span class="pre">in</span> <span class="pre">range():</span> <span class="pre">...</span></tt> will be caught by the compiler and compiled into a lazy generator (probably a generator).</p>
+</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034511.html">Changes to gettext.py for Python 2.3</a></dt>
+<dd>Barry Warsaw suggested some changes to <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-gettext.html">gettext</a> but none of them seemed to catch on.  But Barry has checkin rights and is one of apparently three people in the world who uses the module so they were added anyway.  =)</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034535.html">Evil setattr hack</a></dt>
+<dd>Someone discovered how to set attributes on built-in types.  Guido checked in code to prevent it.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034538.html">Using temp files and the Internet in regression tests</a></dt>
+<dd>I asked if it was okay to use in regression tests temporary files (answer: yes it is and if you only need one use test.test_support.TESTFN) or sockets (answer: yes as long as test.test_support.is_resource_enabled(&quot;network&quot;) is True).  It led to me being unofficially assigned the task of coming up with documentation for test_support and regrtest for both the library documentation and Lib/test/README.  I also got CVS commit privileges on Python itself!  I became an official Python developer!  Woohoo!</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034540.html">migration away from SourceForge?</a></dt>
+<dd>It was suggested we revisit the idea of moving Python development off of <a class="reference" href="http://www.sf.net/">SourceForge</a> because of the usual crappy CVS performance and underwhelming tracker performance.  There is also the issue that problems with the setup cannot be fixed on our schedule.  <a class="reference" href="http://gforge.org/">GForge</a> and <a class="reference" href="http://roundup.sf.net/">Roundup</a> were both suggested as alternatives.  Roundup specifically has gotten a decent amount of support since it is in Python and thus we could get things fixed quickly.  Trouble is that it is not polished enough yet and we would need to furnish our own CVS (but Ben Laurie might be gracious enough to help us out on that front with possible hosting at <a class="reference" href="http://www.thebunker.net/">http://www.thebunker.net/</a> ).</dd>
+</dl>
+<p>If you would like to help get Roundup and the install at <a class="reference" href="http://www.python.org:8080/">http://www.python.org:8080/</a> up and going, please do so.</p>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034543.html">How should time.strptime() handle UTC?</a></dt>
+<dd>I asked if anyone thought time.strptime() should recognize UTC and GMT timezones by default for setting whether or not daylight savings was being used.  No one has given their opinion yet (do you have one?).</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034544.html">Big trouble in CVS Python</a></dt>
+<dd>CVS Python was crashing on the regression tests.  It turned out to be from the reuse of a variable in the code that implements range().  Tim Peters said a &quot;Word to the wise:  don't ever try to reuse a variable whose address is passed to PyArg_ParseTuple for anything other than holding what PyArg_ParseTuple does or doesn't store into it&quot;.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034574.html">GIL vs thread state</a></dt>
+<dd>Discovered the docs for PyThreadState_Clear() are incorrect (or at least not very clear).</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034626.html">test_pwd failing</a></dt>
+<dd>test_pwd was failing and now it isn't.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034646.html">lists v. tuples</a></dt>
+<dd>You can tell whether a comparison function does a 3-way or 2-way (using &lt;); but that is not Pythonic and thus won't be done so as to allow someone to pass either a 2 or 3-way comparison function to list.sort() and have the method figure out what type of sort it is.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034647.html">LynxOS 4 port</a></dt>
+<dd>Duane Voth wants to get Python ported to the LynxOS on PPC.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-April/034653.html">sre.c and sre_match()</a></dt>
+<dd>The C code for the re module is not simple.  =)</dd>
+</dl>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="2003-04-01_2003-04-15.txt">View document source</a>.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>

@@ -1,0 +1,576 @@
+Title: python-dev Summary for 2005-05-01 through 2005-05-15
+Content-type: text/x-rst
+
+python-dev Summary for 2005-05-01 through 2005-05-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-05-01_2005-05-15.html]
+
+=====================
+Summary Announcements
+=====================
+
+----------------------------------------------
+PEP 340 Episode 2: Revenge of the With (Block)
+----------------------------------------------
+
+This fornight's Python-Dev was dominated again by another nearly 400
+messages on the topic of anonymous block statements. The discussion
+was a little more focused than the last thanks mainly to Guido's
+introduction of `PEP 340`_. Discussion of this PEP resulted in a
+series of other PEPs, including
+
+* `PEP 342`_: Enhanced Iterators, which broke out into a separate
+  PEP the parts of `PEP 340`_ that allowed code to pass values into
+  iterators using ``continue EXPR`` and yield-expressions.
+
+* `PEP 343`_: Anonymous Block Redux, a dramatically simplified
+  version of `PEP 340`_, which removed the looping nature of the
+  anonymous blocks and the injection-of-exceptions semantics for
+  generators.
+
+* `PEP 3XX`_: User Defined ("with") Statements, which proposed
+  non-looping anonymous blocks accompanied by finalization semantics
+  for iterators and generators in for loops.
+
+Various details of each of these proposals are discussed below in the
+sections:
+
+1. `Enhanced Iterators`_
+
+2. `Separate APIs for Iterators and Anonymous Blocks`_
+
+3. `Looping Anonymous Blocks`_
+
+4. `Loop Finalization`_
+
+At the time of this writing, it looked like the discussion was coming
+very close to a final agreement; `PEP 343`_ and `PEP 3XX`_ both agreed
+upon the same semantics for the block-statement, the keyword had been
+narrowed down to either ``do`` or ``with``, and Guido had agreed to
+add back in to `PEP 343`_ some form of exception-injection semantics
+for generators.
+
+
+.. _PEP 340: http://www.python.org/dev/peps/pep-0340
+
+.. _PEP 342: http://www.python.org/dev/peps/pep-0342
+
+.. _PEP 343: http://www.python.org/dev/peps/pep-0343
+
+.. _PEP 3XX: http://members.iinet.net.au/~ncoghlan/public/pep-3XX.html
+
+[SJB]
+
+
+=========
+Summaries
+=========
+
+------------------
+Enhanced Iterators
+------------------
+
+`PEP 340`_ incorporated a variety of orthogonal features into a single
+proposal. To make the PEP somewhat less monolithic, the method for
+passing values into an iterator was broken off into `PEP 342`_. This
+method includes:
+
+* updating the iterator protocol to use .__next__() instead of .next()
+
+* introducing a new builtin next()
+
+* allowing continue-statements to pass values into iterators
+
+* allowing generators to receive values with a yield-expression
+
+Though these features had seemed mostly uncontroversial, Guido seemed
+inclined to wait for a little more motivation from the co-routiney
+people before accepting the proposal.
+
+Contributing threads:
+
+- `Breaking off Enhanced Iterators PEP from PEP 340 <http://mail.python.org/pipermail/python-dev/2005-May/053463.html>`__
+
+[SJB]
+
+
+------------------------------------------------
+Separate APIs for Iterators and Anonymous Blocks
+------------------------------------------------
+
+`PEP 340`_ had originally proposed to treat the anonymous block
+protocol as an extension of the iterator protocol. Several problems
+with this approach were raised, including:
+
+* for-loops could accidentally be used with objects requiring blocks,
+  meaning that resources would not get cleaned up properly
+
+* blocks could be used instead of for-loops, violating TOOWTDI
+
+As a result, both `PEP 343`_ and `PEP 3XX`_ propose decorators for
+generator functions that will wrap the generator object appropriately
+to match the anonymous block protocol. Generator objects without the
+proposed decorators would not be usable in anonymous block statements.
+
+Contributing threads:
+
+- `PEP 340 -- loose ends <http://mail.python.org/pipermail/python-dev/2005-May/053206.html>`__
+- `PEP 340 -- concept clarification <http://mail.python.org/pipermail/python-dev/2005-May/053280.html>`__
+
+[SJB]
+
+
+------------------------
+Looping Anonymous Blocks
+------------------------
+
+A few issues arose as a result of `PEP 340`_'s formulation of
+anonymous blocks as a variation on a loop.
+
+Because the anonymous blocks of `PEP 340`_ were defined in terms of
+while-loops, there was some discussion as to whether they should have
+an ``else`` clause like Python ``for`` and ``while`` loops do. There
+didn't seem to be one obvious interpretation of an ``else`` block
+though, so Guido rejected the ``else`` block proposal.
+
+The big issue with looping anonymous blocks, however, was in the
+handling of ``break`` and ``continue`` statements. Many use cases for
+anonymous blocks did not require loops. However, because `PEP 340`_
+anonymous blocks were implemented in terms of loops, ``break`` and
+``continue`` acted much like they would in a loop. This meant that in
+code like::
+
+    for item in items:
+        with lock:
+            if handle(item):
+                break
+
+the ``break`` statement would only break out of the anonymous block
+(the ``with`` statement) instead of breaking out of the for-loop. This
+pretty much shot-down `PEP 340`_; there were too many cases where an
+anonymous block didn't look like a loop, and having it behave like one
+would have been a major stumbling block in learning the construct.
+
+As a result, both `PEP 343`_ and `PEP 3XX`_ were proposed as
+non-looping versions of `PEP 340`_.
+
+
+Contributing threads:
+
+- `PEP 340: Else clause for block statements <http://mail.python.org/pipermail/python-dev/2005-May/053190.html>`__
+- `PEP 340 -- loose ends <http://mail.python.org/pipermail/python-dev/2005-May/053206.html>`__
+- `PEP 340 -- concept clarification <http://mail.python.org/pipermail/python-dev/2005-May/053226.html>`__
+- `PEP 340: Breaking out. <http://mail.python.org/pipermail/python-dev/2005-May/053223.html>`__
+- `PEP 340: Non-looping version (aka PEP 310 redux) <http://mail.python.org/pipermail/python-dev/2005-May/053400.html>`__
+- `PEP 340 - Remaining issues <http://mail.python.org/pipermail/python-dev/2005-May/053406.html>`__
+- `PEP 340: Deterministic Finalisation (new PEP draft, either a competitor or update to PEP 340) <http://mail.python.org/pipermail/python-dev/2005-May/053503.html>`__
+- `Merging PEP 310 and PEP 340-redux? <http://mail.python.org/pipermail/python-dev/2005-May/053591.html>`__
+- `PEP 343 - Abstract Block Redux <http://mail.python.org/pipermail/python-dev/2005-May/053731.html>`__
+
+[SJB]
+
+
+-----------------
+Loop Finalization
+-----------------
+
+Greg Ewing pointed out that a generator with a yield inside a
+block-statement would require additional work to guarantee its
+finalization. For example, if the generator::
+
+   def all_lines(filenames):
+       for name in filenames:
+           with open(name) as f:
+               for line in f:
+                   yield line 
+
+were used in code like::
+
+    for line in all_lines(filenames):
+        if some_cond(line):
+            break
+
+then unless the for-loop performed some sort of finalization on the
+all_lines generator, the last-opened file could remain open
+indefinitiely.
+
+As a result, `PEP 3XX`_ proposes that for-loops check for a
+__finish__() method on their iterators, and if one exists, call that
+method when the for-loop completes. Generators like all_lines above,
+that put a yield inside a block-statement, would then acquire a
+__finish__() method that would raise a TerminateIteration exception
+at the point of the last yield. The TerminateIteration exception would
+thus cause the block-statement to complete, guaranteeing that the
+generator was properly finalized.
+
+Contributing threads:
+
+- `PEP 340 - For loop cleanup, and feature separation <http://mail.python.org/pipermail/python-dev/2005-May/053432.html>`__
+- `PEP 340: Deterministic Finalisation (new PEP draft, either a competitor or update to PEP 340) <http://mail.python.org/pipermail/python-dev/2005-May/053503.html>`__
+- `PEP 343 - Abstract Block Redux <http://mail.python.org/pipermail/python-dev/2005-May/053731.html>`__
+
+[SJB]
+
+
+----------------------------
+Breaking out of Nested Loops
+----------------------------
+
+As a result of some of the issues of looping anonymous blocks, a few
+threads discussed options for breaking out of nested loops. These
+mainly worked by augmenting the ``break`` statement with another
+keyword (or keywords) that would indicate which loop to break out of.
+
+One proposal suggested that ``break`` be followed with ``for`` or
+``while`` to indicate which loop to break out of. But ``break for``
+would only really be useful in a while-loop nested within a for-loop,
+and ``break while`` would only really be useful in a for-loop nested
+within a while-loop. That is, because loops could only be named by
+type, the proposal was only useful when loops of different types were
+mixed. This suggestion was thus discarded as not being general enough.
+
+A few other suggestions were briefly discussed: adding labels to
+loops, using an integer to indicate which "stack level" to break at,
+and pushing breaks onto a "break buffer", but Guido killed the
+discussion, saying, `"Stop all discussion of breaking out of multiple
+loops. It ain't gonna happen before my retirement."
+<http://mail.python.org/pipermail/python-dev/2005-May/053592.html>`__
+
+Contributing threads:
+
+- `PEP 340: Breaking out. <http://mail.python.org/pipermail/python-dev/2005-May/053223.html>`__
+- `PEP 340: Deterministic Finalisation (new PEP draft, either a competitor or update to PEP 340) <http://mail.python.org/pipermail/python-dev/2005-May/053503.html>`__
+
+[SJB]
+
+
+------------------------
+The future of exceptions
+------------------------
+
+Ka-Ping Yee suggested that instead of passing (type, value, traceback)
+tuples in exceptions it would be better to put the traceback in
+value.traceback.  Guido had also suggested this (in the `PEP 340`_ murk) but
+pointed out that this would not work as long as string exceptions exist
+(as there is nowhere to put the traceback).
+
+Guido noted that there are no concrete plans as to when string exceptions
+will be deprecated and removed (other than in 3.0 at the latest); he
+indicated that it could be sooner, if someone wrote a PEP with a timeline
+(e.g. deprecated in 2.5, gone in 2.6).
+
+Brett C. volunteered to write a PEP targetted at Python 3000 covering
+exception changes (base inheritance, standard attributes (e.g. .traceback),
+reworking the built-in exception inheritance hierarchy, and the future of
+bare except statements).  
+Contributing threads:
+
+- `Tidier Exceptions <http://mail.python.org/pipermail/python-dev/2005-May/053671.html>`__
+
+.. _PEP 340: http://www.python.org/dev/peps/pep-0340
+
+[TAM]
+
+
+-----------------------------------
+Unifying try/except and try/finally
+-----------------------------------
+
+Reinhold Birkenfeld submitted a Pre-PEP to allow both except and finally
+clauses in try blocks.  For example, a construction like::
+
+        try:
+            <suite 1>
+        except Ex1:
+            <suite 2>
+        <more except: clauses>
+        else:
+            <suite 3>
+        finally:
+            <suite 4>
+
+would be exactly the same as the legacy::
+
+        try:
+            try:
+                <suite 1>
+            except Ex1:
+                <suite 2>
+            <more except: clauses>
+            else:
+                <suite 3>
+        finally:
+            <suite 4>
+
+Guido liked this idea (so much that he wanted to accept it immediately),
+and recommended that it was checked in as a PEP.  However, Tim Peters
+pointed out that this functionality was removed from Python (by Guido) way
+back in 0.9.6, seemingly because there was confusion about exactly when
+the finally clause would be called (explicit is better than implicit!).
+Guido clarified that control would only pass forward, and indicated that
+he felt that since this is now available in Java (and C#) fewer people
+would be confused.  The main concern about this change was that, while the
+cost was low, it seemed to add very little value.
+
+Contributing threads:
+
+- `Pre-PEP: Unifying try-except and try-finally <http://mail.python.org/pipermail/python-dev/2005-May/053290.html>`__
+                                                                 
+[TAM]
+
+
+-----------------
+Decorator Library
+-----------------
+
+Michele Simionato asked whether a module for commonly used decorators, or
+utilities to create decorators, was planned.  Raymond Hettinger indicated
+that while this was likely in the long term, he felt that it was better if
+these first evolved via wikis, recipes, or mailing lists, so that a module
+would only be added once best practices and proven winners had emerged.
+In the meantime, there is both a `Decorator Library wiki page`_ and
+you can try out `Michele's library`_ [zip].
+
+To assist with decorator creation, Michele would like a facility to copy a
+function.  Phillip J. Eby noted that the informally-discussed proposal is
+to add a mutable __signature__ to functions to assist with signature
+preserving decorators.  Raymond suggested a patch adding a __copy__ method
+to functions or a patch for the copy module, and Michele indicated that he
+would also like to subclass FunctionType with an user-defined __copy__
+method.
+
+Contributing threads:
+
+- `my first post: asking about a "decorator" module <http://mail.python.org/pipermail/python-dev/2005-May/053316.html>`__
+- `The decorator module <http://mail.python.org/pipermail/python-dev/2005-May/053446.html>`__
+
+ .. _Decorator Library wiki page: http://www.python.org/moin/PythonDecoratorLibrary 
+ .. _Michele's library: http://www.phyast.pitt.edu/~micheles/python/decorator.zip 
+
+[TAM]
+
+---------------------
+Hooking Py_FatalError
+---------------------
+
+Errors that invoke Py_FatalError generally signify that the internal state
+of Python is in such a poor state that continuing (including raising an
+exception) is impossible or unwise; as a result, Py_FatalError outputs the
+error to stderr and calls abort().  m.u.k. would like to have a callback to
+hook Py_FatalError to avoid this call to abort().  The general consensus
+was that effort would be better directed to fixing the causes of fatal
+errors than hooking Py_FatalError.  m.u.k.'s use case was for generating
+additional logging information; a `callback system patch`_ (revised by
+James William Pye) is available for those interested.
+
+Contributing threads:
+
+- `Need to hook Py_FatalError <http://mail.python.org/pipermail/python-dev/2005-May/053218.html>`__
+
+ .. _callback system patch: http://python.org/sf/1195571
+
+-------------------
+Chaining Exceptions
+-------------------
+
+Ka-Ping Yee suggested adding information to exceptions when they are raised
+in the handler for another exception.  For example::
+
+    def a():
+        try:
+            raise AError
+        except:
+            raise BError
+
+raises an exception which is an instance of BError.  This instance could
+have an attribute which is instance of AError, containing information about
+the original exception.  Use cases include catching a low-level exception
+(e.g. socket.error) and turning it into a high-level exception (e.g.
+an HTTPRequestFailed exception) and handling problems in exception handling
+code.  Guido liked the idea, and discussion fleshed out a tighter
+definition; however it was unclear whether adding this now was feasible -
+this would perhaps be best added in Python 3000.
+
+Contributing threads:
+
+- `Chained Exceptions <http://mail.python.org/pipermail/python-dev/2005-May/053672.html>`__
+
+[TAM]
+
+------------------------
+Py_UNICODE Documentation
+------------------------
+
+Nicholas Bastin started a series of threads discussing an inconsistency
+between the Py_UNICODE docs and the behavior on some RedHat systems.
+The docs say that Py_UNICODE should be an alias for wchar_t when wchar_t
+is available and has 16 bits, but Nick found that pyconfig.h still
+reports PY_UNICODE_TYPE as wchar_t, even when PY_UNICODE_SIZE is 4.
+
+An extensive discussion between Nick, Marc-Andre Lemburg and Martin v.
+Löwis suggests that the possible Python-internal representations for
+Py_UNICODE are:
+
+* 4-byte wchar_t encoded as UTF-32 (UCS-4)
+* 2-byte wchar_t encoded as UTF-16
+* unsigned short encoded as UTF-16
+
+Python defaults to 2-byte mode, using wchar_t if available (and has 16
+bits) and using unsigned short otherwise. You may end up with the
+4-byte mode if TCL was built for UCS-4 (this overrides the defaults)
+or if you explicitly request it with --enable-unicode=ucs4. To get
+UCS-2 when TCL was built for UCS-4, you must explicitly request
+--enable-unicode=ucs2. Of course, this will mean that _tkinter can't
+be built anymore.
+
+Also noted by this discussion was that even with --enable-unicode=ucs2,
+Python continues to support surrogate pairs in the BMP. So for example,
+even with a UCS-2 build, u"\U00012345" encodes as a sequence of two
+characters; it does not produce a UnicodeError.
+
+At the time of this posting, it did not appear that there was a
+documentation patch available yet.
+
+Contributing threads:
+
+- `Py_UNICODE madness <http://mail.python.org/pipermail/python-dev/2005-May/053264.html>`__
+- `New Py_UNICODE doc <http://mail.python.org/pipermail/python-dev/2005-May/053311.html>`__
+- `Python's Unicode width default (New Py_UNICODE doc) <http://mail.python.org/pipermail/python-dev/2005-May/053574.html>`__
+
+[SJB]
+
+
+                                                  
+===============
+Skipped Threads
+===============
+
+- `Keyword for block statements <http://mail.python.org/pipermail/python-dev/2005-May/053189.html>`__
+- `PEP 340 - possible new name for block-statement <http://mail.python.org/pipermail/python-dev/2005-May/053195.html>`__
+- `Generating nested data structures with blocks <http://mail.python.org/pipermail/python-dev/2005-May/053204.html>`__
+- `PEP 340 -- Clayton's keyword? <http://mail.python.org/pipermail/python-dev/2005-May/053377.html>`__
+- `PEP 340: Only for try/finally? <http://mail.python.org/pipermail/python-dev/2005-May/053258.html>`__
+- `2 words keyword for block <http://mail.python.org/pipermail/python-dev/2005-May/053251.html>`__
+- `anonymous blocks <http://mail.python.org/pipermail/python-dev/2005-May/053297.html>`__
+- `"begin" as keyword for pep 340 <http://mail.python.org/pipermail/python-dev/2005-May/053315.html>`__
+- `PEP 340: propose to get rid of 'as' keyword <http://mail.python.org/pipermail/python-dev/2005-May/053320.html>`__
+- `PEP 340 keyword: after <http://mail.python.org/pipermail/python-dev/2005-May/053396.html>`__
+- `PEP 340 keyword: Extended while syntax <http://mail.python.org/pipermail/python-dev/2005-May/053409.html>`__
+- `PEP 340 - Remaining issues - keyword <http://mail.python.org/pipermail/python-dev/2005-May/053428.html>`__
+- `PEP 340: Examples as class's. <http://mail.python.org/pipermail/python-dev/2005-May/053423.html>`__
+- `Proposed alternative to __next__ and __exit__ <http://mail.python.org/pipermail/python-dev/2005-May/053514.html>`__
+- `"with" use case: exception chaining <http://mail.python.org/pipermail/python-dev/2005-May/053665.html>`__
+- `PEP 343: Resource Composition and Idempotent __exit__ <http://mail.python.org/pipermail/python-dev/2005-May/053767.html>`__
+- `[Python-checkins] python/nondist/peps pep-0343.txt, 1.8, 1.9 <http://mail.python.org/pipermail/python-dev/2005-May/053766.html>`__
+- `the current behavior of try: ... finally: <http://mail.python.org/pipermail/python-dev/2005-May/053692.html>`__
+- `a patch to inspect and a non-feature request <http://mail.python.org/pipermail/python-dev/2005-May/053653.html>`__
+- `Python 2.4 set objects and cyclic garbage <http://mail.python.org/pipermail/python-dev/2005-May/053630.html>`__
+- `CHANGE BayPIGgies: May *THIRD* Thurs <http://mail.python.org/pipermail/python-dev/2005-May/053628.html>`__
+- `Python continually calling sigprocmask() on FreeBSD 5 <http://mail.python.org/pipermail/python-dev/2005-May/053615.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-May/053213.html>`__
+- `problems with memory management <http://mail.python.org/pipermail/python-dev/2005-May/053408.html>`__
+- `Adding DBL_MANTISSA and such to Python <http://mail.python.org/pipermail/python-dev/2005-May/053372.html>`__
+- `python-dev Summary for 2005-04-16 through 2005-04-30 [draft] <http://mail.python.org/pipermail/python-dev/2005-May/053383.html>`__
+- `Python Language track at Europython, still possibilities to submit talks <http://mail.python.org/pipermail/python-dev/2005-May/053303.html>`__
+- `(no subject) <http://mail.python.org/pipermail/python-dev/2005-May/053196.html>`__
+- `Kernel panic writing to /dev/dsp with cmpci driver <http://mail.python.org/pipermail/python-dev/2005-May/053627.html>`__
+
+
+
+========
+Epilogue
+========
+
+------------
+Introduction
+------------
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+May 01, 2005 through May 15, 2005.
+
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.  You can
+also watch comp.lang.python or comp.lang.python.announce for new
+summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the third summary written by the python-dev summary cabal of
+Steve Bethard, Tim Lesher, and Tony Meyer.
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tim Lesher (tlesher at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list at python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/trunk/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.  Any
+unfamiliar punctuation is probably markup for reST_ (otherwise it is
+probably regular expression syntax or a typo =); you can safely ignore
+it.  I do suggest learning reST, though; it's simple and is accepted
+for `PEP markup`_ and can be turned into many different formats like
+HTML and LaTeX.  Unfortunately, even though reST is standardized, the
+wonders of programs that like to reformat text do not allow me to
+guarantee you will be able to run the text version of this summary
+through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/
+.. _original text file: http://www.python.org/dev/summary/2005-05-01_2005-05-15.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf

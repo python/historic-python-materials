@@ -1,0 +1,528 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-04-16 through 2006-04-30
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-04-16_2006-04-30]
+
+
+
+=============
+Announcements
+=============
+
+---------------------------
+Python 2.5 alpha 2 released
+---------------------------
+
+Python 2.5 alpha 2 was released on April 27th.  If you haven't tried it out yet, now's the time!  `PEP 356`_ has more details and the full schedule.
+
+.. _PEP 356: http://www.python.org/dev/peps/pep-0356/
+
+Contributing threads:
+
+- `TRUNK FREEZE from 00:00 UTC, 27th April 2006 for 2.5a2 <http://mail.python.org/pipermail/python-dev/2006-April/064382.html>`__
+- `RELEASED Python 2.5 (alpha 2) <http://mail.python.org/pipermail/python-dev/2006-April/064479.html>`__
+- `trunk is UNFROZEN <http://mail.python.org/pipermail/python-dev/2006-April/064483.html>`__
+- `2.5 open issues <http://mail.python.org/pipermail/python-dev/2006-April/064519.html>`__
+
+----------------------------
+QOTF: Quote of the Fortnight
+----------------------------
+
+Phillip J. Eby, on the social behavior of package distributors (and why setuptools goes to such efforts to guess what package distributors were really trying to do):
+
+    The problem isn't fundamentally a technical one, but a social one.  You can effect social change through technology, but not by being some random guy with a nagging 'bot.
+
+(And yes, Phillip, you can nominate yourself for QOTF.) ;-)
+
+Contributing thread:
+
+- `setuptools: past, present, future <http://mail.python.org/pipermail/python-dev/2006-April/064168.html>`__
+
+
+=========
+Summaries
+=========
+
+-------------------------------
+Adding setuptools to the stdlib
+-------------------------------
+
+Phillip J. Eby started checking in some of the `setuptools`_ modules for Python 2.5.  People started to get nervous about some of the modules because:
+
+* Setuptools changes the distutils "install" command to install everything as zipfile eggs
+* Setuptools changes the distutils "sdist" command to automate generation of MANIFEST.in and MANIFEST.
+* Setuptools adds 'site.py' files so that .pth files are processed in PYTHONPATH directories.
+* Setuptools monkey-patches three classes from distutils: Distribution, Command, and Extension.
+
+While most people recognized the need for the features that setuptools provides, a number of them objected to introducing setuptools as a new package and instead argued for merging setuptools into distutils.  Phillip said that such a merge might be possible, but that there were a fair number of backwards compatibility concerns (e.g. its redefinition of the "install" and "sdist" commands) and that it would make it much harder for him to maintain external versions of setuptools compatible with Python 2.3 and 2.4.
+
+In the end, Phillip suggested withdrawing setuptools from Python 2.5, and figuring out how to merge setuptools into distutils for the 2.6 release.  In particular, he asked for help with the mostly trivial porting of the "alias", "rotate", "saveopts" and "setopt" commands.  Additionally, he made available some information about the `setuptools internals`_ for anyone who wanted to see better what was going on behind the scenes.
+
+.. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
+.. _setuptools internals: http://peak.telecommunity.com/DevCenter/EggFormats
+
+Contributing threads:
+
+- `[Python-checkins] r45510 - python/trunk/Lib/pkgutil.py python/trunk/Lib/pydoc.py <http://mail.python.org/pipermail/python-dev/2006-April/063838.html>`__
+- `Place for setuptools manuals and source for .exe files? <http://mail.python.org/pipermail/python-dev/2006-April/063846.html>`__
+- `setuptools in the stdlib ([Python-checkins] r45510 - python/trunk/Lib/pkgutil.py python/trunk/Lib/pydoc.py) <http://mail.python.org/pipermail/python-dev/2006-April/063848.html>`__
+- `setuptools in the stdlib ( r45510 - python/trunk/Lib/pkgutil.py python/trunk/Lib/pydoc.py) <http://mail.python.org/pipermail/python-dev/2006-April/063872.html>`__
+- `setuptools in the stdlib <http://mail.python.org/pipermail/python-dev/2006-April/063877.html>`__
+- `Raising objections (was: setuptools in the stdlib) <http://mail.python.org/pipermail/python-dev/2006-April/063884.html>`__
+- `Raising objections <http://mail.python.org/pipermail/python-dev/2006-April/063906.html>`__
+- `3rd party extensions hot-fixing the stdlib (setuptools in the stdlib) <http://mail.python.org/pipermail/python-dev/2006-April/063930.html>`__
+- `setuptools in 2.5. <http://mail.python.org/pipermail/python-dev/2006-April/063952.html>`__
+- `magic in setuptools (Was: setuptools in the stdlib) <http://mail.python.org/pipermail/python-dev/2006-April/063966.html>`__
+- `Distutils for Python 2.1 (was "Raising objections") <http://mail.python.org/pipermail/python-dev/2006-April/064000.html>`__
+- `setuptools in 2.5. (summary) <http://mail.python.org/pipermail/python-dev/2006-April/064001.html>`__
+- `Distutils thoughts <http://mail.python.org/pipermail/python-dev/2006-April/064079.html>`__
+- `setuptools: past, present, future <http://mail.python.org/pipermail/python-dev/2006-April/064145.html>`__
+- `Easy, uncontroversial setuptools->distutils tasks <http://mail.python.org/pipermail/python-dev/2006-April/064150.html>`__
+- `Internal documentation for egg formats now available <http://mail.python.org/pipermail/python-dev/2006-April/064348.html>`__
+
+-----------------------------
+PEP 343: The "with" Statement
+-----------------------------
+
+A.M. Kuchling asked about some terminology in the `PEP 343`_ documentation.  Originally, the objects with ``__enter__`` and  ``__exit__`` methods which were used in the with-statement were called "context managers".  When the additional ``__context__`` method was introduced, the term "manageable context" was given to objects that provided it.  At PyCon, the PEP was changed to switch the terms, though the names of ``decimal.Context`` and ``contextlib.contextmanager`` were not changed correspondingly.  This all led to a rather confusing discussion where people argued over the terminology, appropriately summarized in this quote by Phillip J. Eby:
+
+    ...everybody has been perfectly clear, we just haven't really gotten on the same page about which words mean what.
+
+People then played around with a variety of alternative terms ("context factory", "context specifier", etc.) but in the end, Guido decided that it was much clearer to just drop the ``__context__`` method entirely -- most use-cases at the time just had ``__context__`` returning self, and the few use-cases that didn't could be accomodated with an appropriately named method or function.  And dropping the ``__context__`` method meant that only the term "context manager" was necessary, removing most of the earlier terminological confusion.
+
+.. _PEP 343: http://www.python.org/dev/peps/pep-0343/
+
+Contributing threads:
+
+- `PEP 343: confusing context terminology <http://mail.python.org/pipermail/python-dev/2006-April/063842.html>`__
+- `Why are contexts also managers? (was r45544 - peps/trunk/pep-0343.txt) <http://mail.python.org/pipermail/python-dev/2006-April/063863.html>`__
+- `With context, please <http://mail.python.org/pipermail/python-dev/2006-April/064191.html>`__
+- `PEP 343 update (with statement context terminology) <http://mail.python.org/pipermail/python-dev/2006-April/064213.html>`__
+- `Must objects with __enter__/__exit__ also supply __context__? <http://mail.python.org/pipermail/python-dev/2006-April/064296.html>`__
+- `Updated context management documentation <http://mail.python.org/pipermail/python-dev/2006-April/064331.html>`__
+- `[Python-checkins] r45721 - python/trunk/Lib/test/test_with.py <http://mail.python.org/pipermail/python-dev/2006-April/064385.html>`__
+- `More on contextlib - adding back a contextmanager decorator <http://mail.python.org/pipermail/python-dev/2006-April/064619.html>`__
+
+------------------------------------------------
+Dropping __init__.py requirement for subpackages
+------------------------------------------------
+
+After some pressure from other Googlers, Guido suggested that Python drop the requirement that subpackages have an __init__.py file (though top-level packages would still require one).  People were concerned that a number of non-subpackage directories would suddenly become packages, e.g. "test" in the Python distribution.  There was also some concern about tools that depended on the current requirement -- any tool that currently searches directories for __init__.py files would have to be updated to work with the new semantics.  In the end, `Thomas Wouters provided a patch`_ that makes Python now issue a warning when it would have imported a module but failed to because __init__.py was missing.
+
+.. _Thomas Wouters provided a patch: http://bugs.python.org/1477281
+
+Contributing threads:
+
+- `Dropping __init__.py requirement for subpackages <http://mail.python.org/pipermail/python-dev/2006-April/064400.html>`__
+- `[Python-checkins] r45770 - in python/trunk: <http://mail.python.org/pipermail/python-dev/2006-April/064583.html>`__
+
+-------------------------------------
+Python and Visual Studio 2005 Express
+-------------------------------------
+
+Guido noticed that Microsoft had announced that `Visual Studio 2005 express will be free forever`_, and asked if Python should try to accomodate this.  People seemed to think that switching to Visual Studio 2005 for Python 2.5 was too soon but that 2.6 might be a reasonable candidate, particularly since Microsoft no longer provides downloads for the Visual Studio 2003 compiler.
+
+.. _Visual Studio 2005 express will be free forever: http://msdn.microsoft.com/vstudio/express/
+
+Contributing thread:
+
+- `Visual studio 2005 express now free <http://mail.python.org/pipermail/python-dev/2006-April/064087.html>`__
+
+----------------------------
+Adding wsgiref to the stdlib
+----------------------------
+
+Guido suggested adding Phillip J. Eby's `reference implementation`_ of `PEP 333`_ (the Web Server Gateway Interface) to the standard library.  People were generally in favor, though there was some brief discussion about adding a few extras including Ian Bicking's paste.lint validator and a simple dispatch mechanism.  It looked like wsgiref would be added in time for Python 2.5.
+
+.. _reference implementation: http://svn.eby-sarna.com/wsgiref/
+.. _PEP 333: http://www.python.org/dev/peps/pep-0333/
+
+Contributing threads:
+
+- `Adding wsgiref <http://mail.python.org/pipermail/python-dev/2006-April/064199.html>`__
+- `Adding wsgiref to stdlib <http://mail.python.org/pipermail/python-dev/2006-April/064549.html>`__
+- `[Web-SIG] Adding wsgiref to stdlib <http://mail.python.org/pipermail/python-dev/2006-April/064556.html>`__
+
+--------------------
+Buildbots on Windows
+--------------------
+
+Some of the Windows buildbots were hanging when the buildbot slave terminated the run early, but failed to terminate python_d.exe, thus making it impossible to recompile anything (since python_d.exe cannot be deleted while running on Windows).  No one was certain what was causing the problems (though it seemed like it might be some sort of indexing service running in the background) but Martin v. Löwis was able to unstick the machines by creating a kill_python.exe application which looks for python_d.exe and kills it.
+
+Contributing thread:
+
+- `windows buildbot failures <http://mail.python.org/pipermail/python-dev/2006-April/063792.html>`__
+
+
+----------------------------------
+Externally maintained packages PEP
+----------------------------------
+
+Following up on work from the last fortnight, Brett Cannon put together information on all the packages like sqlite and elementtree that are part of the Python standard library, but have their central repository somewhere else.  It looked like a PEP would soon be forthcoming.
+
+Contributing threads:
+
+- `need info for externally maintained modules PEP <http://mail.python.org/pipermail/python-dev/2006-April/063788.html>`__
+- `draft of externally maintained packages PEP <http://mail.python.org/pipermail/python-dev/2006-April/064362.html>`__
+- `(hopefully) final draft of externally maintained code PEP <http://mail.python.org/pipermail/python-dev/2006-April/064604.html>`__
+
+-----------------------------
+PEP 359: The "make" statement
+-----------------------------
+
+Discussion continued on `PEP 359`_'s "make" statement continued, looking in particular at ways that breaking the parallel with the class statement might make the "make" statement easier to use.  In the end Guido asked me to kill the discussion, so I withdrew the PEP.
+
+.. _PEP 359: http://www.python.org/dev/peps/pep-0359/
+
+Contributing threads:
+
+- `PEP 359: The "make" Statement <http://mail.python.org/pipermail/python-dev/2006-April/063776.html>`__
+- `Updated: PEP 359: The make statement <http://mail.python.org/pipermail/python-dev/2006-April/063847.html>`__
+
+--------------------------------
+PEP 3102: Keyword-only arguments
+--------------------------------
+
+Talin introduced `PEP 3102`_ which proposes support for "keyword-only" arguments, that is, arguments that must be specified with the name=value keyword syntax, not as positional arguments.  The proposal came in two parts:
+
+* Allowing keyword arguments after varargs, e.g.::
+
+      def add_option(*opts, action='store', type='string', ...)
+
+* Allowing keyword arguments with no varargs, e.g.::
+
+      def compare(a, b, *, key=None):
+
+There was widespread support for the first part of the PEP, particularly since such signatures exist in functions like the builtin min and max already (which gained key= arguments in Python 2.5).  The latter part people were unsure of, and suggested a variety of other syntaxes, though Guido had already decided on the "*" syntax.  Discussion continued on this issue into the next fortnight.
+
+.. _PEP 3102: http://www.python.org/dev/peps/pep-3102/
+
+Contributing thread:
+
+- `PEP 3102: Keyword-only arguments <http://mail.python.org/pipermail/python-dev/2006-April/064598.html>`__
+
+------------------------------------
+String formatting for size_t objects
+------------------------------------
+
+Brett Cannon ran into some problems with the formatting of size_t objects.  What was really needed was the C99 "z" printf modifier, but since Python aims for C89 conformance, that can't be used unconditionally.  In the end, Brett Cannon modified Python's config to test if the "z" modifier is supported and then used that whenever possible.
+
+Contributing threads:
+
+- `PY_FORMAT_SIZE_T warnings on OS X <http://mail.python.org/pipermail/python-dev/2006-April/063280.html>`__
+- `PY_FORMAT_SIZE_T warnings on OS X <http://mail.python.org/pipermail/python-dev/2006-April/064363.html>`__
+
+---------------------------------
+The Grammar file and SyntaxErrors
+---------------------------------
+
+In working on a parser for a subset of the Python language, Michael Foord ran into some troubles using the Grammar/Grammar file in the Python distribution.  In particular, the problem he was having was the entry::
+
+    list_for: 'for' exprlist 'in' testlist_safe [list_iter]
+
+which indicates that any expression list can be used as the assignment expression in a list comprehension, so that code like the following is valid by the Grammar file::
+
+    [1 for 1 in n]
+
+Of course Python doesn't allow this, but as Guido explained, the expression that Python really wants is not LL1, so Python fudges it in the parser, and then issues a SyntaxError later by checking that the nodes in the parse tree actually match the restricted type of nodes required.
+
+Contributing thread:
+
+- `Python Grammar Ambiguity <http://mail.python.org/pipermail/python-dev/2006-April/064276.html>`__
+
+-------------------------
+Pybench now in Python SVN
+-------------------------
+
+Marc-Andre Lemburg offered to contribute pybench to Python in response to a previous thread indicating some of the problems with pystone.  It's now checked in under the Tools directory.
+
+Contributing thread:
+
+- `2.5a1 Performance <http://mail.python.org/pipermail/python-dev/2006-April/063849.html>`__
+
+---------------------------
+Adding threading.released()
+---------------------------
+
+Nick Coghlan asked if the ``released()`` function suggested in `PEP 343`_ should be added for Python 2.5 to support code like::
+
+    def thread_safe():
+        with sync_lock:
+            # This is thread-safe
+            with released(sync_lock):
+                # Perform long-running or blocking operation
+                # that doesn't need to hold the lock
+            # We have the lock back here
+
+While it seemed occasionally useful (e.g. in the implementation of threading._Condition), this one looked like it would be put off until folks had had more experience with context managers.
+
+Contributing thread:
+
+- `Proposed addition to threading module - released <http://mail.python.org/pipermail/python-dev/2006-April/064243.html>`__
+
+------------------------------
+Removing the me_hash for dicts
+------------------------------
+
+Kirat Singh asked about removing me_hash from the dict struct to save some space.  People generally seemed opposed to trading off speed for space, particularly since it would slow down classes that define their own ``__hash__``.
+
+Contributing thread:
+
+- `Reducing memory overhead for dictionaries by removing me_hash <http://mail.python.org/pipermail/python-dev/2006-April/064212.html>`__
+
+------------------------------------
+PEP 3101: Advanced String Formatting
+------------------------------------
+
+Talin introduced `PEP 3101`_ which proposes a new formatting system through a new ``string.format()`` method.  This would allow specifying items through both positional and keyword arguments, as well as allowing user-defined classes to support their own set of format specifiers, e.g.::
+
+    "The story of {0}, {1}, and {c}".format(a, b, c=d)
+    "Today is: {0:%x}".format(datetime.now())
+
+There was some brief discussion about how to escape the brace characters, and some opposition to the compound name syntax (which allowed __getitem__-style access using a dotted notation) before the thread trailed off.
+
+.. _PEP 3101: http://www.python.org/dev/peps/pep-3101/
+
+Contributing thread:
+
+- `PEP 3101: Advanced String Formatting <http://mail.python.org/pipermail/python-dev/2006-April/064608.html>`__
+
+---------------------
+Replacing SourceForge
+---------------------
+
+Brett Cannon asked for some things that people liked and disliked about SourceForge as the Infrastructure committee moved forward on finding a replacement tracker for SF.  There weren't too many positive comments, but some of the things SF was missing are:
+
+* A way to flag a patch as "reviewed"; "pending" won't work -- it just sets a timeout period and then deletes the message.
+* A way to tag a tracker item by the relevant documentation section (e.g. language reference, library reference, etc.)
+* The ability to participate in a bug discussion through email instead of the web interface
+* The ability to define a filter on tracker items so that you can be emailed when a new tracker item meets your criteria
+* A way to identify relations between bugs, e.g. this bug closes another bug.
+* The ability to close a bug with a checkin.
+
+A Call for Trackers was to be soon forthcoming.
+
+Contributing threads:
+
+- `Reviewed patches [was: SoC proposal: "fix some old, old bugs in sourceforge"] <http://mail.python.org/pipermail/python-dev/2006-April/064342.html>`__
+- `what do you like about other trackers and what do you hate about SF? <http://mail.python.org/pipermail/python-dev/2006-April/064343.html>`__
+- `Reviewed patches <http://mail.python.org/pipermail/python-dev/2006-April/064387.html>`__
+
+-----------------------------------------------
+Making decorated functions easier to introspect
+-----------------------------------------------
+
+Nick Coghlan offered to add a function to the new functools module to make writing introspectable decorators easier.  Many decorators that return new functions look something like::
+
+    def decorator(func):
+        def new_func(*args, **kwargs):
+            ...
+        return new_func
+
+But the newly created function metadata (__name__, __doc__, etc.) is now inconsistent with the original function.  Originally, Nick had proposed introducing a decorator function to do this, but he settled instead on a simple helper function, ``functools.update_wrapper``, which can be called by decorator writers to update the appropriate metadata.
+
+Contributing thread:
+
+- `Adding functools.decorator <http://mail.python.org/pipermail/python-dev/2006-April/064620.html>`__
+
+---------------------------
+Tkinter hangs due to Tk bug
+---------------------------
+
+Thomas Wouters noticed that test_tcl locked up when Tcl and Tk were compiled with --enable-threads and he tried to refleaktest Tkinter.  Seems that despite the lack of any note in the Tk documentation, Tk_Init() doesn't like being called twice even when the first call results in an error.  Martin v. Löwis reported the bug to the Tk folks and added a workaround for the current behavior.
+
+Contributing thread:
+
+- `Tkinter lockups. <http://mail.python.org/pipermail/python-dev/2006-April/064235.html>`__
+
+
+================
+Deferred Threads
+================
+- `introducing the experimental pyref wiki <http://mail.python.org/pipermail/python-dev/2006-April/064591.html>`__
+- `methods on the bytes object <http://mail.python.org/pipermail/python-dev/2006-April/064613.html>`__
+
+
+==================
+Previous Summaries
+==================
+- `[Python-checkins] r45321 - in python/trunk: Lib/test/test_traceback.py Lib/traceback.py Misc/NEWS <http://mail.python.org/pipermail/python-dev/2006-April/063772.html>`__
+- `Py_Finalize does not release all memory, not even closely <http://mail.python.org/pipermail/python-dev/2006-April/063773.html>`__
+- `Preserving the blamelist <http://mail.python.org/pipermail/python-dev/2006-April/063775.html>`__
+- `PyObject_REPR() <http://mail.python.org/pipermail/python-dev/2006-April/063803.html>`__
+- `New-style icons, .desktop file <http://mail.python.org/pipermail/python-dev/2006-April/063967.html>`__
+- `Win64 AMD64 (aka x64) binaries available64 <http://mail.python.org/pipermail/python-dev/2006-April/064125.html>`__
+
+
+===============
+Skipped Threads
+===============
+- `valgrind reports <http://mail.python.org/pipermail/python-dev/2006-April/063774.html>`__
+- `Any reason that any()/all() do not take apredicateargument? <http://mail.python.org/pipermail/python-dev/2006-April/063777.html>`__
+- `refleaks &amp; test_tcl &amp; threads <http://mail.python.org/pipermail/python-dev/2006-April/063785.html>`__
+- `2.5 post-alpha1 broken on mac-intel machines <http://mail.python.org/pipermail/python-dev/2006-April/063793.html>`__
+- `Summer of Code preparation <http://mail.python.org/pipermail/python-dev/2006-April/063795.html>`__
+- `[C++-sig] GCC version compatibility <http://mail.python.org/pipermail/python-dev/2006-April/063799.html>`__
+- `remote debugging with pdb <http://mail.python.org/pipermail/python-dev/2006-April/063800.html>`__
+- `Py_BEGIN_ALLOW_THREADS around readdir()? <http://mail.python.org/pipermail/python-dev/2006-April/063801.html>`__
+- `FYI: more clues re: tee+generator leak <http://mail.python.org/pipermail/python-dev/2006-April/063802.html>`__
+- `[ python-Patches-790710 ] breakpoint command lists in pdb <http://mail.python.org/pipermail/python-dev/2006-April/063809.html>`__
+- `FishEye on Python CVS Repository <http://mail.python.org/pipermail/python-dev/2006-April/063810.html>`__
+- `problem installing current cvs - TabError <http://mail.python.org/pipermail/python-dev/2006-April/063811.html>`__
+- `fat binaries for OSX <http://mail.python.org/pipermail/python-dev/2006-April/063814.html>`__
+- `Returning -1 from function with unsigned long type <http://mail.python.org/pipermail/python-dev/2006-April/063818.html>`__
+- `adding Construct to the standard library? <http://mail.python.org/pipermail/python-dev/2006-April/063819.html>`__
+- `posix_confstr seems wrong <http://mail.python.org/pipermail/python-dev/2006-April/063820.html>`__
+- `pdb segfaults in 2.5 trunk? <http://mail.python.org/pipermail/python-dev/2006-April/063825.html>`__
+- `possible fix for recursive __call__ segfault <http://mail.python.org/pipermail/python-dev/2006-April/063828.html>`__
+- `How to make _sre.c compile w/ C++? <http://mail.python.org/pipermail/python-dev/2006-April/063831.html>`__
+- `Gentoo failures - it's blaming me... <http://mail.python.org/pipermail/python-dev/2006-April/063832.html>`__
+- `a flattening operator? <http://mail.python.org/pipermail/python-dev/2006-April/063867.html>`__
+- `[Python-checkins] r45505 - python/trunk/Modules/posixmodule.c <http://mail.python.org/pipermail/python-dev/2006-April/063874.html>`__
+- `bug with __dict__? <http://mail.python.org/pipermail/python-dev/2006-April/063931.html>`__
+- `Python Software Foundation seeks mentors and students for Google Summer of Code <http://mail.python.org/pipermail/python-dev/2006-April/063965.html>`__
+- `PEP 355 (object-oriented paths) <http://mail.python.org/pipermail/python-dev/2006-April/063977.html>`__
+- `proposal: evaluated string <http://mail.python.org/pipermail/python-dev/2006-April/064005.html>`__
+- `SVN question <http://mail.python.org/pipermail/python-dev/2006-April/064009.html>`__
+- `Google Summer of Code proposal: Pdb improvments <http://mail.python.org/pipermail/python-dev/2006-April/064012.html>`__
+- `Stream codecs and _multibytecodec <http://mail.python.org/pipermail/python-dev/2006-April/064051.html>`__
+- `python 2.5alpha and naming schemes <http://mail.python.org/pipermail/python-dev/2006-April/064052.html>`__
+- `unrecognized command line option "-Wno-long-double" <http://mail.python.org/pipermail/python-dev/2006-April/064053.html>`__
+- `extended bitwise operations <http://mail.python.org/pipermail/python-dev/2006-April/064054.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-April/064070.html>`__
+- `[pypy-dev] Python Software Foundation seeks mentors and students for Google Summer of Code <http://mail.python.org/pipermail/python-dev/2006-April/064074.html>`__
+- `Google Summer of Code proposal: improvement of long int and adding new types/modules. <http://mail.python.org/pipermail/python-dev/2006-April/064076.html>`__
+- `bin codec + EOF <http://mail.python.org/pipermail/python-dev/2006-April/064078.html>`__
+- `Module names in Python: was Re: python 2.5alpha and naming schemes <http://mail.python.org/pipermail/python-dev/2006-April/064094.html>`__
+- `Removing Python 2.4 -m switch helpers from import.c <http://mail.python.org/pipermail/python-dev/2006-April/064099.html>`__
+- `patch #1454481 - runtime tunable thread stack size <http://mail.python.org/pipermail/python-dev/2006-April/064108.html>`__
+- `[Python-3000-checkins] r45617 - in python/branches/p3yk/Lib/plat-mac/lib-scriptpackages: CodeWarrior/CodeWarrior_suite.py CodeWarrior/__init__.py Explorer/__init__.py Finder/Containers_and_folders.py Finder/Files.py Finder/Finder_Basics.py Finder <http://mail.python.org/pipermail/python-dev/2006-April/064115.html>`__
+- `[Python-3000-checkins] r45617 - in python/branches/p3yk/Lib/plat-mac/lib-scriptpackages: CodeWarrior/CodeWarrior_suite.py CodeWarrior/__init__.py Explorer/__init__.py Finder/Containers_and_folders.py Finder/Files.py Finder/Finder_Bas <http://mail.python.org/pipermail/python-dev/2006-April/064117.html>`__
+- `Reject or update PEP 243? <http://mail.python.org/pipermail/python-dev/2006-April/064147.html>`__
+- `IronPython Performance <http://mail.python.org/pipermail/python-dev/2006-April/064149.html>`__
+- `[pypy-dev] Python Software Foundation seeksmentors and students for Google Summer of Code <http://mail.python.org/pipermail/python-dev/2006-April/064155.html>`__
+- `New artwork for the osx port <http://mail.python.org/pipermail/python-dev/2006-April/064182.html>`__
+- `[Python-checkins] Python Regression Test Failures refleak (1) <http://mail.python.org/pipermail/python-dev/2006-April/064206.html>`__
+- `PEP 8 pylintrc? <http://mail.python.org/pipermail/python-dev/2006-April/064231.html>`__
+- `Compiling w/ C++ (was: Reducing memory overhead for dictionaries by removing me_hash) <http://mail.python.org/pipermail/python-dev/2006-April/064233.html>`__
+- `Builtin exit, good in interpreter, bad in code. <http://mail.python.org/pipermail/python-dev/2006-April/064239.html>`__
+- `Buildbot messages and the build svn revision number <http://mail.python.org/pipermail/python-dev/2006-April/064251.html>`__
+- `Google Summer of Code proposal: New class for work with binary trees AVL and RB as with the standard dictionary. <http://mail.python.org/pipermail/python-dev/2006-April/064260.html>`__
+- `gettext.py bug #1448060 <http://mail.python.org/pipermail/python-dev/2006-April/064263.html>`__
+- `SoC proposal: "fix some old, old bugs in sourceforge" <http://mail.python.org/pipermail/python-dev/2006-April/064271.html>`__
+- `[Mono-dev] IronPython Performance <http://mail.python.org/pipermail/python-dev/2006-April/064275.html>`__
+- `[IronPython] [Mono-dev] IronPython Performance <http://mail.python.org/pipermail/python-dev/2006-April/064277.html>`__
+- `interested in Google Summer of Code: what should I do? <http://mail.python.org/pipermail/python-dev/2006-April/064322.html>`__
+- `EuroPython 2006: Call for papers <http://mail.python.org/pipermail/python-dev/2006-April/064329.html>`__
+- `GNU info version of documentation <http://mail.python.org/pipermail/python-dev/2006-April/064367.html>`__
+- `big-memory tests <http://mail.python.org/pipermail/python-dev/2006-April/064377.html>`__
+- `suggestion: except in list comprehension <http://mail.python.org/pipermail/python-dev/2006-April/064388.html>`__
+- `Accessing DLL objects from other DLLs <http://mail.python.org/pipermail/python-dev/2006-April/064390.html>`__
+- `Addressing Outstanding PEPs <http://mail.python.org/pipermail/python-dev/2006-April/064391.html>`__
+- `PEP 304 (Was: Addressing Outstanding PEPs) <http://mail.python.org/pipermail/python-dev/2006-April/064395.html>`__
+- `inheriting basic types more efficiently <http://mail.python.org/pipermail/python-dev/2006-April/064396.html>`__
+- `Google Summer of Code proposal: New class for workwith binary trees AVL and RB as with the standard dictionary. <http://mail.python.org/pipermail/python-dev/2006-April/064443.html>`__
+- `binary trees. Review obmalloc.c <http://mail.python.org/pipermail/python-dev/2006-April/064473.html>`__
+- `A better and more basic array type <http://mail.python.org/pipermail/python-dev/2006-April/064485.html>`__
+- `Type-Def-ing Python <http://mail.python.org/pipermail/python-dev/2006-April/064486.html>`__
+- `traceback.py still broken in 2.5a2 <http://mail.python.org/pipermail/python-dev/2006-April/064501.html>`__
+- `"mick-windows" buildbot uptime <http://mail.python.org/pipermail/python-dev/2006-April/064510.html>`__
+- `rest2latex - was: Re: Raising objections <http://mail.python.org/pipermail/python-dev/2006-April/064522.html>`__
+- `Is this a bad idea: picky floats? <http://mail.python.org/pipermail/python-dev/2006-April/064527.html>`__
+- `Summer of Code mailing list <http://mail.python.org/pipermail/python-dev/2006-April/064546.html>`__
+- `Bug day? <http://mail.python.org/pipermail/python-dev/2006-April/064552.html>`__
+- `Float formatting and # <http://mail.python.org/pipermail/python-dev/2006-April/064555.html>`__
+- `Crazy idea for str.join <http://mail.python.org/pipermail/python-dev/2006-April/064584.html>`__
+- `rich comparisions and old-style classes <http://mail.python.org/pipermail/python-dev/2006-April/064607.html>`__
+- `methods on the bytes object (was: Crazy idea for str.join) <http://mail.python.org/pipermail/python-dev/2006-April/064612.html>`__
+- `Problem with inspect and PEP 302 <http://mail.python.org/pipermail/python-dev/2006-April/064614.html>`__
+- `PyThreadState_SetAsyncExc and native extensions <http://mail.python.org/pipermail/python-dev/2006-April/064621.html>`__
+- `__getslice__ usage in sre_parse <http://mail.python.org/pipermail/python-dev/2006-April/064622.html>`__
+- `elimination of scope bleeding of iteration variables <http://mail.python.org/pipermail/python-dev/2006-April/064623.html>`__
+- `[Python-3000] in-out parameters <http://mail.python.org/pipermail/python-dev/2006-April/064635.html>`__
+- `socket module recvmsg/sendmsg <http://mail.python.org/pipermail/python-dev/2006-April/064649.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+April 16, 2006 through April 30, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 3rd written by
+the python-dev summary sucker,  Steve Bethard. (Mmmmm... Summaries...)
+
+To contact me, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.  Unfortunately, even though reST is standardized, the
+wonders of programs that like to reformat text do not allow us to
+guarantee you will be able to run the text version of this summary
+through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _original text file: http://www.python.org/dev/summary/2006-04-16_2006-04-30.rst
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

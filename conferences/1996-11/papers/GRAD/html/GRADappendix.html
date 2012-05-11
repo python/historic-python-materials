@@ -1,0 +1,1075 @@
+<P><A HREF="GRADpaper.book.html"><IMG SRC="fm2html-toc.gif">Table of Contents</A>
+<A HREF="GRADpaper.html"><IMG SRC="fm2html-previous.gif">Previous Chapter</A>
+<!-- This file was created with the fm2html filter.
+The filter is copyright Norwegian Telecom Research and
+was programmed by Jon Stephenson von Tetzchner. -->
+
+<TITLE>GRAD</TITLE>
+
+<H2><A NAME="HDR0"> Appendix A -  Example Interface for a C++ Class</A></H2>
+<P>This appendix will present a C++ class, Vector, which is part of the Shuttle simulation software at United Space Alliance. The class is a convenient example because
+
+<OL>
+<P><LI>It is fairly small
+<BR>
+<P><LI>It does not include any other classes nor does it inherit from another class
+<BR>
+<P><LI>It has some static class attributes so that interface can be demonstrated
+<BR></OL>
+
+
+<P>Vector has a header file Vector.h and a source file Vector.C.
+<P>The GRAD system translates Vector.h into 4 files:
+
+<UL>
+<UL>
+<P><LI>Vector.py-The Python shadow class
+<BR>
+<P><LI>VECTOR_python.C-The C++ binding code which is Python cognizant
+<BR>
+<P><LI>_GLOBAL_.py-Treatment of global attributes and methods
+<BR>
+<P><LI>VECTOR.py-A Python module to hold the name space of global attributes. Imports _GLOBAL_.py.
+<BR></UL>
+
+</UL>
+
+
+<P>Since the class Vector has no global attributes, VECTOR.py is a file of zero length and _GLOBAL_.py is just a skeleton.
+<P>The Vector istream and ostream operators are global. But GRAD treats the ostream operator as a member of the class so the Python print statement can attach to the ostream output. GRAD does not provide an interface to the other stream operators whether part of the class interface or a friend.
+<P>GRAD produces a log of messages produced during translation.
+<HR>
+<H4><A NAME="HDR1">Vector.h</A></H4>
+<PRE>
+#ifndef VECTOR_H
+#define VECTOR_H
+static char* sccs_Vector = "%ccm_header: @(#) Vector.h2.5  15:19:31 95/09/29 (1) % %I%";
+#include &lt;math.h&gt;
+class Vector 
+{
+   public:
+      static const Vector zero; 
+      static const Vector unit_x; 
+      static const Vector unit_y; 
+      static const Vector unit_z; 
+      inline Vector(double x = 0.0, double y = 0.0, double z = 0.0)
+         { _data[0] = x;
+           _data[1] = y;
+
+           _data[2] = z; }
+      inline Vector(const Vector&amp; v)
+         { _data[0] = v._data[0];
+           _data[1] = v._data[1];
+           _data[2] = v._data[2]; }
+      inline ~Vector() 
+         {}
+      inline Vector&amp; operator =(double d) 
+         { _data[0] = _data[1] = _data[2] = d; 
+           return *this; }
+      inline Vector&amp; operator =(const Vector&amp; v)
+         { _data[0] = v._data[0]; 
+           _data[1] = v._data[1]; 
+           _data[2] = v._data[2]; 
+           return *this; }
+      int compare(const Vector&amp; v, double tol=0.0) const;
+      inline double&amp; operator [](int i) 
+         { return _data[i]; }
+      inline const double&amp; operator [](int i) const 
+         { return _data[i]; }
+      inline Vector&amp; operator +=(const Vector&amp; v)
+         { _data[0] += v._data[0];
+   _data[1] += v._data[1];
+   _data[2] += v._data[2];
+           return *this;}
+      inline Vector&amp; operator -=(const Vector&amp; v)
+         { _data[0] -= v._data[0];
+   _data[1] -= v._data[1];
+   _data[2] -= v._data[2];
+           return *this; }
+      inline Vector&amp; operator *=(double d)
+         { _data[0] *= d;
+   _data[1] *= d;
+   _data[2] *= d;
+           return *this; }
+      inline Vector&amp; operator /=(double d)
+         { double d_inv = 1.0 / d;
+           _data[0] *= d_inv;
+   _data[1] *= d_inv;
+   _data[2] *= d_inv;
+            return *this; }
+      inline Vector operator -() const
+ { return Vector( -_data[0], -_data[1],-_data[2] ); }
+      inline friend Vector operator +(const Vector&amp; v, const Vector&amp; w)
+         { return Vector( v._data[0] + w._data[0], 
+                          v._data[1] + w._data[1], 
+                          v._data[2] + w._data[2] ); }
+      inline friend Vector operator -(const Vector&amp; v, const Vector&amp; w)
+         { return Vector( v._data[0] - w._data[0], 
+                          v._data[1] - w._data[1], 
+                          v._data[2] - w._data[2] ); }
+      inline friend Vector operator *(double d, const Vector&amp; v)
+         { return Vector( v._data[0] * d, 
+                          v._data[1] * d, 
+                          v._data[2] * d ); }
+      inline friend Vector operator *(const Vector&amp; v, double d)
+         { return Vector( v._data[0] * d, 
+                          v._data[1] * d, 
+                          v._data[2] * d ); }
+
+      inline friend Vector operator /(const Vector&amp; v, double d)
+         { double dinv = 1.0 / d;
+           return Vector( v._data[0] * dinv, 
+                          v._data[1] * dinv, 
+                          v._data[2] * dinv ); }  
+      inline int length() const
+ { return 3; }
+      inline double norm() const 
+         { return sqrt ( _data[0] * _data[0] + 
+                         _data[1] * _data[1] + 
+                         _data[2] * _data[2] ); }
+      inline double dot(const Vector&amp; v) const
+         { return ( _data[0] * v._data[0] + 
+                    _data[1] * v._data[1] + 
+                    _data[2] * v._data[2] ); }
+      double angle(const Vector&amp; v) const;
+      inline Vector cross(const Vector&amp; v) const
+         { return Vector( _data[1] * v._data[2] - _data[2] * v._data[1],
+                          _data[2] * v._data[0] - _data[0] * v._data[2],
+                          _data[0] * v._data[1] - _data[1] * v._data[0] ); }
+      inline Vector unit() const
+         { double dinv = 1.0 / norm();
+   return Vector( _data[0] * dinv, 
+                          _data[1] * dinv, 
+                          _data[2] * dinv ); }
+   private:
+      double _data[3]; 
+};
+//-----------------------------------------------------------------------------
+// 
+// Overloaded stream operators for Vector input and output. 
+//
+//-----------------------------------------------------------------------------
+#include &lt;fstream.h&gt;
+ostream&amp; operator  &lt;&lt;( ostream&amp; s,  const Vector&amp; v );
+istream&amp; operator  &gt;&gt;( istream&amp; s,  Vector&amp; v );
+ofstream&amp; operator &lt;&lt;( ofstream&amp; s, const Vector&amp; v );
+ifstream&amp; operator &gt;&gt;( ifstream&amp; s, Vector&amp; v );
+//-----------------------------------------------------------------------------
+//
+// FILENAME:
+//    Vector.h
+//   
+// DESCRIPTION:
+//    The Vector class provides the functionality of vectors in a 
+//    3-dimesional real vector space. For n-dimensional vectors, use the 
+//    N_vector class.
+//
+// AUTHOR:
+//    Navigation TOT team.  
+//   
+// TO DO:
+//    None.
+//
+// USAGE:
+//
+//    inline Vector(double x = 0.0, double y = 0.0, double z = 0.0)
+//
+// Default constructor allows specification of three components.
+
+//
+//    inline Vector(const Vector&amp; v)
+//
+// Copy constructor.
+//
+//    inline ~Vector()
+//
+// Default destructor.
+//
+//    inline Vector&amp; operator =(double d)
+//
+// Assignment from scalar operator.
+//
+//    inline Vector&amp; operator =(const Vector&amp; v)
+//
+// Assignment from Vector operator.
+//
+//    int compare(const Vector&amp; v, double tol=0.0)
+//
+// Compare each component of this and v within component tolerance.
+//
+//    inline double&amp; operator [](int i)
+//
+// Component modifier.
+//
+// Precondition: 0 &lt;= i &lt;= 2
+//
+//    inline const double&amp; operator [](int i) const
+//
+// Component accessor.
+//
+// Precondition: 0 &lt;= i &lt;= 2
+//
+//    inline Vector&amp; operator +=(const Vector&amp; v)
+//
+// Returns this = this + v.
+//
+//    inline Vector&amp; operator -=(const Vector&amp; v)
+//
+// Returns this = this - v.
+//
+//    inline Vector&amp; operator *=(double d)
+//
+// Returns this = d * this.
+//
+//    inline Vector&amp; operator /=(double d).
+//
+// Returns this = 1/d * this.
+//
+// Precondition: d != 0.0.
+//
+//    inline Vector operator -() const
+//
+//       Returns -this.
+//
+//    inline friend Vector operator +(const Vector&amp; v, const Vector&amp; w)
+//
+// Returns v + w.
+//
+
+//    inline friend Vector operator -(const Vector&amp; v, const Vector&amp; w)
+//
+// Returns v - w.
+//
+//    inline friend Vector operator *(double d, const Vector&amp; v)
+//
+// Returns d * v.
+//
+//    inline friend Vector operator *(const Vector&amp; v, double d)
+//
+// Returns d * v.
+//
+//    inline friend Vector operator /(const Vector&amp; v, double d)
+//
+// Returns 1/d * v.
+//
+// Precondition: d != 0.0.
+//
+//    inline int length() const
+//
+// Returns the length (number of components) of this.
+//
+// Postcondition: length() = 3.
+//
+//    inline double norm() const
+//
+// Returns the norm (magnitude) of this.
+//
+//    inline double dot(const Vector&amp; v) const
+//
+// Returns the dot (scalar) product of this and v.
+//
+//    double angle(const Vector&amp; v) const
+//
+// Returns the angle between this and v.
+//
+// Precondition: this != zero, v != zero.
+//
+//    inline Vector cross(const Vector&amp; v) const
+//
+// Returns the cross (vector) product of this and v.
+//
+//    inline Vector unit() const
+//
+// Returns the unit vector in direction of this.
+//
+// Precondition: this != zero.
+//
+//    static const Vector zero
+//
+// Zero vector (public data member).
+//
+//    static const Vector unit_x
+//
+// Unit vector along x-axis (public data member).
+//
+//    static const Vector unit_y
+//
+// Unit vector along y-axis (public data member).
+
+//
+//    static const Vector unit_z
+//
+// Unit vector along z-axis (public data member).
+//
+// WARNINGS:
+//    No error reporting or handling is provided.
+//
+// SEE ALSO:
+//    None.
+//
+// KEYWORDS:
+//    Vector
+//
+// REFERENCES:
+//    None.
+//
+//-----------------------------------------------------------------------------
+#endif
+<HR>
+</PRE>
+<H4><A NAME="HDR2">Vector.C</A></H4>
+<PRE>
+static char* SCCS_Vector = "%ccm_header: @(#) Vector.C2.5  15:25:02 95/09/29 (1) % %I%";
+//-----------------------------------------------------------------------------
+// Filename: 
+//    Vector.C
+//-----------------------------------------------------------------------------
+#include &lt;Vector.h&gt;
+//-----------------------------------------------------------------------------
+// 
+// Comparison function compares each component within the specified tolerance. 
+//
+//-----------------------------------------------------------------------------
+int Vector::compare(const Vector&amp; v, double tol) const
+{
+   return ( ( fabs( _data[0] - v._data[0] ) &lt;= tol ) &amp;&amp; 
+            ( fabs( _data[1] - v._data[1] ) &lt;= tol ) &amp;&amp; 
+            ( fabs( _data[2] - v._data[2] ) &lt;= tol ) );
+}
+//-----------------------------------------------------------------------------
+// 
+// Returns the angle between this and v as the dot product of the unit 
+// vectors in the direction of this and v.
+// assert ( this != Vector::zero &amp;&amp; v != Vector::zero )
+//
+//-----------------------------------------------------------------------------
+double Vector::angle(const Vector&amp; v) const
+{  
+   return acos( ( _data[0] * v._data[0] + _data[1] * v._data[1] +_data[2] * v._data[2] ) / ( 
+sqrt( _data[0] * _data[0] + _data[1] * _data[1] + _data[2] * _data[2] ) * sqrt( v._data[0] * 
+v._data[0] + v._data[1] * v._data[1] + v._data[2] * v._data[2] ) ) ); 
+}
+//-----------------------------------------------------------------------------
+// 
+// Public constant Vectors: the zero vectors and unit component vectors. 
+//
+//-----------------------------------------------------------------------------
+
+const Vector Vector::zero( Vector(0.0,0.0,0.0) ); // zero vector
+const Vector Vector::unit_x( Vector(1.0,0.0,0.0) ); // unit vector along x-axis
+const Vector Vector::unit_y( Vector(0.0,1.0,0.0) ); // unit vector along y-axis
+const Vector Vector::unit_z( Vector(0.0,0.0,1.0) ); // unit vector along z-axis
+//-----------------------------------------------------------------------------
+// 
+// Error handler for overloaded stream operators.
+//
+//-----------------------------------------------------------------------------
+#define ERROR_HANDLER {s.clear(ios::badbit);   \
+       cout &lt;&lt; "error occured: math_spec  " &lt;&lt; c &lt;&lt; endl ;\
+       return(s);}
+//-----------------------------------------------------------------------------
+// 
+// Overloaded stream operators for Vector input and output. 
+//
+//-----------------------------------------------------------------------------
+ostream&amp; operator&lt;&lt;(ostream&amp; s, const Vector&amp; x)
+{
+   s &lt;&lt; "#(";
+   s &lt;&lt; x[0];
+   for ( int i = 1; i &lt; 3; i++ ) 
+   {
+      s &lt;&lt; " " &lt;&lt; x[i];
+   }
+   s &lt;&lt; ")";
+   return s;
+}
+istream&amp; operator&gt;&gt;(istream&amp;s, Vector&amp; x)
+{
+   Vector y;
+   char c;
+   s &gt;&gt; c;
+   if ( c != `#' ) ERROR_HANDLER;
+   s &gt;&gt; c;
+   if ( c != `(` ) ERROR_HANDLER;
+   for ( int i = 0; i &lt; 3; i++ ) 
+   {
+     s &gt;&gt; y[i];
+   }
+   s &gt;&gt; c;
+   if ( c != `)' ) ERROR_HANDLER;
+   if( s ) x = y;
+   return s;
+}
+ofstream&amp; operator&lt;&lt;(ofstream&amp; s, const Vector&amp; x)
+{
+   for ( int i = 0; i &lt; 3; i++ ) 
+   {
+      s.write( (char*)&amp;x[i], sizeof(double) );
+   }
+   return s;
+}
+ifstream&amp; operator&gt;&gt;(ifstream&amp; s, Vector&amp; x)
+{
+   for ( int i = 0; i &lt; 3; i++ ) 
+   {
+      s.read( (char*)&amp;x[i], sizeof(double) );
+   }
+
+   return s;
+<HR>
+</PRE>
+<H4><A NAME="HDR3">Vector.py</A></H4>
+<P>Note the class attributes zero, unit_x, unit_y and unit_z being handled by the __getattr__ and __setattr__ methods.
+<PRE>
+import VECTOR_python
+from Intrinsic import *
+class Vector_cself:
+   __inherit__ = (`Vector_cself',)
+   def __init__(self, arg):
+      self.cself = arg
+   def __del__(self):
+      del self
+class Vector:
+   __inherit__ = (`Vector',)
+   __sof__ = `VECTOR_python.so'
+   _statics = {}
+   def __getattr__(self, name):
+      if name in [`zero', `unit_x', `unit_y', `unit_z']:
+         if name == `zero':
+            from Vector import *
+            tmp_obj = Vector_cself(VECTOR_python.Vector_zero0(self.cself, ))
+            Vector._statics[tmp_obj.cself] = 1
+            return Vector(tmp_obj)
+         if name == `unit_x':
+            from Vector import *
+            tmp_obj = Vector_cself(VECTOR_python.Vector_unit_x0(self.cself, ))
+            Vector._statics[tmp_obj.cself] = 1
+            return Vector(tmp_obj)
+         if name == `unit_y':
+            from Vector import *
+            tmp_obj = Vector_cself(VECTOR_python.Vector_unit_y0(self.cself, ))
+            Vector._statics[tmp_obj.cself] = 1
+            return Vector(tmp_obj)
+         if name == `unit_z':
+            from Vector import *
+            tmp_obj = Vector_cself(VECTOR_python.Vector_unit_z0(self.cself, ))
+            Vector._statics[tmp_obj.cself] = 1
+            return Vector(tmp_obj)
+      else:
+         raise AttributeError, name
+   def __setattr__(self, name, value):
+      if name in [`zero', `unit_x', `unit_y', `unit_z']:
+         raise AttributeError, name + ` is read only'
+      else:
+         raise AttributeError, name
+   def __init__(self, *arg):
+      `''Vector.__init__ accepts the following arguments:
+         [FloatType x, FloatType y, FloatType z] returning a(n) none
+         [Vector v] returning a(n) none
+      `''
+      sig0 = [`FloatType', `FloatType', `FloatType']
+      sig1 = [`Vector']
+      sig2 = [`Vector_cself']
+
+      try:
+         if checksig(arg, sig0):
+            self.__dict__[`cself'] = VECTOR_python.Vector_Vector0(arg[0], arg[1], arg[2])
+         elif checksig(arg, sig1):
+            self.__dict__[`cself'] = VECTOR_python.Vector_Vector1(arg[0].cself,)
+         elif checksig(arg, sig2):
+            self.__dict__[`cself'] = arg[0].cself
+         else:
+            raise ArgumentError, Vector.__init__.__doc__
+      except ArgumentError, val:
+         argerror(val)
+   def __del__(self):
+            `''Vector.__del__ takes no arguments returning a(n) none'''
+            if self.cself not in Vector._statics.keys():
+               VECTOR_python.Vector_destruct0(self.cself, )
+            else:
+               pass
+   def assignment(self, *arg):
+      `''Vector.assignment accepts the following arguments:
+         [FloatType d] returning a(n) void
+         [Vector v] returning a(n) void
+      `''
+      sig0 = [`FloatType']
+      sig1 = [`Vector']
+      try:
+         if checksig(arg, sig0):
+            VECTOR_python.Vector_assignment0(self.cself, arg[0])
+         elif checksig(arg, sig1):
+            VECTOR_python.Vector_assignment1(self.cself, arg[0].cself)
+         else:
+            raise ArgumentError, Vector.assignment.__doc__
+      except ArgumentError, val:
+         argerror(val)
+   def compare(self, *arg):
+      `''Vector.compare accepts the following arguments:
+         [Vector v, FloatType tol] returning a(n) IntType
+      `''
+      sig0 = [`Vector', `FloatType']
+      try:
+         if checksig(arg, sig0):
+            return VECTOR_python.Vector_compare0(self.cself, arg[0].cself, arg[1])
+         else:
+            raise ArgumentError, Vector.compare.__doc__
+      except ArgumentError, val:
+         argerror(val)
+   def __getitem__(self, key):
+      `''Vector.__getitem__ accepts the following arguments:
+         [IntType index] returning a(n) FloatType'''
+      from types import IntType
+      try:
+         if type(key) is IntType:
+            if key &gt; -1:
+               return VECTOR_python.Vector_op_brack0(self.cself, key)
+            else:
+               raise IndexError, 0
+         else:
+            raise IndexError, 1, IntType
+      except IndexError, val:
+         indexerror(val)
+
+   def __setitem__(self, key, value):
+      `''Vector.__setitem__ accepts the following arguments:
+         [IntType index, FloatType value] returning a(n) void'''
+      from types import *
+      try:
+         if type(value) is FloatType:
+            if type(key) is IntType:
+               if key &gt; -1:
+                  return VECTOR_python.Vector_op_brack1(self.cself, key, value)
+               else:
+                  raise IndexError, 0
+            else:
+               raise IndexError, 1, IntType
+         else:
+            raise IndexError, 1, FloatType
+      except IndexError:
+         indexerror(val)
+   def __sub__(self, *arg):
+      `''Vector.__sub__ accepts the following arguments:
+         [Vector w] returning a(n) Vector
+      `''
+      sig0 = [`Vector']
+      try:
+         if checksig(arg, sig0):
+            return Vector(Vector_cself(VECTOR_python.Vector_op_sub0(self.cself, arg[0].cself)))
+         else:
+            raise ArgumentError, Vector.__sub__.__doc__
+      except ArgumentError, val:
+         argerror(val)
+   def __neg__(self):
+      `''Vector.__neg__ takes no arguments returning a(n) Vector.'''
+      return Vector(Vector_cself(VECTOR_python.Vector_unary_sub0(self.cself, )))
+   def __add__(self, *arg):
+      `''Vector.__add__ accepts the following arguments:
+         [Vector w] returning a(n) Vector
+      `''
+      sig0 = [`Vector']
+      try:
+         if checksig(arg, sig0):
+            return Vector(Vector_cself(VECTOR_python.Vector_op_add0(self.cself, arg[0].cself)))
+         else:
+            raise ArgumentError, Vector.__add__.__doc__
+      except ArgumentError, val:
+         argerror(val)
+   def __mul__(self, *arg):
+      `''Vector.__mul__ accepts the following arguments:
+         [FloatType d] returning a(n) Vector
+      `''
+      sig0 = [`FloatType']
+      try:
+         if checksig(arg, sig0):
+            return Vector(Vector_cself(VECTOR_python.Vector_op_mul0(self.cself, arg[0])))
+         else:
+            raise ArgumentError, Vector.__mul__.__doc__
+      except ArgumentError, val:
+         argerror(val)
+   __rmul__ = __mul__
+   def __div__(self, *arg):
+      `''Vector.__div__ accepts the following arguments:
+
+         [FloatType d] returning a(n) Vector
+      `''
+      sig0 = [`FloatType']
+      try:
+         if checksig(arg, sig0):
+            return Vector(Vector_cself(VECTOR_python.Vector_op_div0(self.cself, arg[0])))
+         else:
+            raise ArgumentError, Vector.__div__.__doc__
+      except ArgumentError, val:
+         argerror(val)
+   def length(self):
+            `''Vector.length takes no arguments returning a(n) IntType'''
+            return VECTOR_python.Vector_length0(self.cself, )
+   def norm(self):
+            `''Vector.norm takes no arguments returning a(n) FloatType'''
+            return VECTOR_python.Vector_norm0(self.cself, )
+   def dot(self, *arg):
+      `''Vector.dot accepts the following arguments:
+         [Vector v] returning a(n) FloatType
+      `''
+      sig0 = [`Vector']
+      try:
+         if checksig(arg, sig0):
+            return VECTOR_python.Vector_dot0(self.cself, arg[0].cself)
+         else:
+            raise ArgumentError, Vector.dot.__doc__
+      except ArgumentError, val:
+         argerror(val)
+   def angle(self, *arg):
+      `''Vector.angle accepts the following arguments:
+         [Vector v] returning a(n) FloatType
+      `''
+      sig0 = [`Vector']
+      try:
+         if checksig(arg, sig0):
+            return VECTOR_python.Vector_angle0(self.cself, arg[0].cself)
+         else:
+            raise ArgumentError, Vector.angle.__doc__
+      except ArgumentError, val:
+         argerror(val)
+   def cross(self, *arg):
+      `''Vector.cross accepts the following arguments:
+         [Vector v] returning a(n) Vector
+      `''
+      sig0 = [`Vector']
+      try:
+         if checksig(arg, sig0):
+            return Vector(Vector_cself(VECTOR_python.Vector_cross0(self.cself, arg[0].cself)))
+         else:
+            raise ArgumentError, Vector.cross.__doc__
+      except ArgumentError, val:
+         argerror(val)
+   def unit(self):
+            `''Vector.unit takes no arguments returning a(n) Vector'''
+            return Vector(Vector_cself(VECTOR_python.Vector_unit0(self.cself, )))
+   def __str__(self):
+            `''Vector.__str__ takes no arguments returning a(n) StringType'''
+            return VECTOR_python.Vector_print0(self.cself, )
+   __doc__ = `''
+
+Class Vector defines the following attributes:
+   zero (READ ONLY) with the type Vector
+   unit_x (READ ONLY) with the type Vector
+   unit_y (READ ONLY) with the type Vector
+   unit_z (READ ONLY) with the type Vector
+Class Vector defines the following methods:
+   __init__ with the following arguments:
+         [FloatType x, FloatType y, FloatType z] returning a(n) none
+         [Vector v] returning a(n) none
+   __del__ takes no arguments returning a(n) none
+   assignment with the following arguments:
+         [FloatType d] returning a(n) void
+         [Vector v] returning a(n) void
+   compare with the following arguments:
+         [Vector v, FloatType tol] returning a(n) IntType
+   __getitem__ with the following arguments:
+      [IntType value] returning a(n) FloatType
+   __setitem__ with the following arguments:
+      [IntType item, FloatType value] returning a void
+   __sub__ with the following arguments:
+         [Vector w] returning a(n) Vector
+   __neg__ takes no arguments returning a(n) Vector.
+   __add__ with the following arguments:
+         [Vector w] returning a(n) Vector
+   __mul__ with the following arguments:
+         [FloatType d] returning a(n) Vector
+   __div__ with the following arguments:
+         [FloatType d] returning a(n) Vector
+   length takes no arguments returning a(n) IntType
+   norm takes no arguments returning a(n) FloatType
+   dot with the following arguments:
+         [Vector v] returning a(n) FloatType
+   angle with the following arguments:
+         [Vector v] returning a(n) FloatType
+   cross with the following arguments:
+         [Vector v] returning a(n) Vector
+   unit takes no arguments returning a(n) Vector
+   __str__ takes no arguments returning a(n) StringType
+`''
+<HR>
+</PRE>
+<H4><A NAME="HDR4">VECTOR_python.C</A></H4>
+<PRE>
+#include &lt;Vector.h&gt;
+ 
+#include &lt;Vector.h&gt;
+#include &lt;Vector.h&gt;
+#include &lt;Python.h&gt;
+#include &lt;iostream.h&gt;
+#include &lt;strstream.h&gt;
+typedef void _GLOBAL_;
+void Python_parse_error()
+{
+   cout &lt;&lt; "Python_tuple_parse_error" &lt;&lt; endl;
+   exit(1);
+}
+extern "C"
+{
+
+static PyObject *Vector_zero0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   if (!PyArg_ParseTuple( args, "l", &amp;gen_name_Vector0))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "l", &amp;gen_name_Vector0-&gt;zero);
+}
+static PyObject *Vector_unit_x0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   if (!PyArg_ParseTuple( args, "l", &amp;gen_name_Vector0))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "l", &amp;gen_name_Vector0-&gt;unit_x);
+}
+static PyObject *Vector_unit_y0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   if (!PyArg_ParseTuple( args, "l", &amp;gen_name_Vector0))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "l", &amp;gen_name_Vector0-&gt;unit_y);
+}
+static PyObject *Vector_unit_z0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   if (!PyArg_ParseTuple( args, "l", &amp;gen_name_Vector0))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "l", &amp;gen_name_Vector0-&gt;unit_z);
+}
+static PyObject *Vector_Vector0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   double x;
+   double y;
+   double z;
+   if (!PyArg_ParseTuple( args, "ddd", &amp;x, &amp;y, &amp;z))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "l", new Vector(x, y, z));
+}
+static PyObject *Vector_Vector1( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* v;
+   if (!PyArg_ParseTuple( args, "l", &amp;v))
+      {
+         Python_parse_error();
+
+      }
+   return Py_BuildValue( "l", new Vector(*v));
+}
+static PyObject *Vector_destruct0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   if (!PyArg_ParseTuple( args, "l", &amp;gen_name_Vector0))
+      {
+         Python_parse_error();
+      }
+   delete gen_name_Vector0;
+   Py_INCREF(Py_None);
+   return Py_None;
+}
+static PyObject *Vector_assignment0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   double d;
+   if (!PyArg_ParseTuple( args, "ld", &amp;gen_name_Vector0, &amp;d))
+      {
+         Python_parse_error();
+      }
+   *gen_name_Vector0 = d;
+   Py_INCREF(Py_None);
+   return Py_None;
+}
+static PyObject *Vector_assignment1( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   Vector* v;
+   if (!PyArg_ParseTuple( args, "ll", &amp;gen_name_Vector0, &amp;v))
+      {
+         Python_parse_error();
+      }
+   *gen_name_Vector0 = *v;
+   Py_INCREF(Py_None);
+   return Py_None;
+}
+static PyObject *Vector_compare0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   Vector* v;
+   double tol;
+   if (!PyArg_ParseTuple( args, "lld", &amp;gen_name_Vector0, &amp;v, &amp;tol))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "i", gen_name_Vector0-&gt;compare(*v, tol));
+}
+static PyObject *Vector_op_brack0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   int int0;
+   if( !PyArg_ParseTuple( args, "li", &amp;gen_name_Vector0, &amp;int0 ) )
+
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "d", (*gen_name_Vector0)[int0]);
+}
+static PyObject *Vector_op_brack1( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   int int0;
+   double double0;
+   if( !PyArg_ParseTuple( args, "lid", &amp;gen_name_Vector0, &amp;int0, &amp;double0 ) )
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "d", (*gen_name_Vector0)[int0] = double0);
+}
+static PyObject *Vector_op_sub0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   Vector* w;
+   if (!PyArg_ParseTuple( args, "ll", &amp;gen_name_Vector0, &amp;w))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "l", new Vector( *gen_name_Vector0 - *w));
+}
+static PyObject *Vector_unary_sub0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   if (!PyArg_ParseTuple( args, "l", &amp;gen_name_Vector0 ))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "l", new Vector( - (*gen_name_Vector0) ));
+}
+static PyObject *Vector_op_add0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   Vector* w;
+   if (!PyArg_ParseTuple( args, "ll", &amp;gen_name_Vector0, &amp;w))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "l", new Vector( *gen_name_Vector0 + *w));
+}
+static PyObject *Vector_op_mul0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   double d;
+   if (!PyArg_ParseTuple( args, "ld", &amp;gen_name_Vector0, &amp;d))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "l", new Vector( *gen_name_Vector0 * d));
+
+}
+static PyObject *Vector_op_div0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   double d;
+   if (!PyArg_ParseTuple( args, "ld", &amp;gen_name_Vector0, &amp;d))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "l", new Vector( *gen_name_Vector0 / d));
+}
+static PyObject *Vector_length0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   if (!PyArg_ParseTuple( args, "l", &amp;gen_name_Vector0))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "i", gen_name_Vector0-&gt;length());
+}
+static PyObject *Vector_norm0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   if (!PyArg_ParseTuple( args, "l", &amp;gen_name_Vector0))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "d", gen_name_Vector0-&gt;norm());
+}
+static PyObject *Vector_dot0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   Vector* v;
+   if (!PyArg_ParseTuple( args, "ll", &amp;gen_name_Vector0, &amp;v))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "d", gen_name_Vector0-&gt;dot(*v));
+}
+static PyObject *Vector_angle0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   Vector* v;
+   if (!PyArg_ParseTuple( args, "ll", &amp;gen_name_Vector0, &amp;v))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "d", gen_name_Vector0-&gt;angle(*v));
+}
+static PyObject *Vector_cross0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   Vector* v;
+
+   if (!PyArg_ParseTuple( args, "ll", &amp;gen_name_Vector0, &amp;v))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "l", new Vector(gen_name_Vector0-&gt;cross(*v)));
+}
+static PyObject *Vector_unit0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   if (!PyArg_ParseTuple( args, "l", &amp;gen_name_Vector0))
+      {
+         Python_parse_error();
+      }
+   return Py_BuildValue( "l", new Vector(gen_name_Vector0-&gt;unit()));
+}
+static PyObject *Vector_print0( PyObject *self, PyObject *args )
+{
+   (void)self;
+   Vector* gen_name_Vector0;
+   if (!PyArg_ParseTuple( args, "l", &amp;gen_name_Vector0))
+      {
+         Python_parse_error();
+      }
+   strstream ss;
+   ss &lt;&lt; *gen_name_Vector0 &lt;&lt; flush;
+   return Py_BuildValue( "s", ss.str());
+}
+PyMethodDef VECTORMethods[] = {
+   {"Vector_Vector0", Vector_Vector0, 1},
+   {"Vector_Vector1", Vector_Vector1, 1},
+   {"Vector_destruct0", Vector_destruct0, 1},
+   {"Vector_assignment0", Vector_assignment0, 1},
+   {"Vector_assignment1", Vector_assignment1, 1},
+   {"Vector_compare0", Vector_compare0, 1},
+   {"Vector_op_brack0", Vector_op_brack0, 1},
+   {"Vector_op_brack1", Vector_op_brack1, 1},
+   {"Vector_op_sub0", Vector_op_sub0, 1},
+   {"Vector_unary_sub0", Vector_unary_sub0, 1},
+   {"Vector_op_add0", Vector_op_add0, 1},
+   {"Vector_op_mul0", Vector_op_mul0, 1},
+   {"Vector_op_div0", Vector_op_div0, 1},
+   {"Vector_length0", Vector_length0, 1},
+   {"Vector_norm0", Vector_norm0, 1},
+   {"Vector_dot0", Vector_dot0, 1},
+   {"Vector_angle0", Vector_angle0, 1},
+   {"Vector_cross0", Vector_cross0, 1},
+   {"Vector_unit0", Vector_unit0, 1},
+   {"Vector_print0", Vector_print0, 1},
+   {"Vector_zero0", Vector_zero0, 1},
+   {"Vector_unit_x0", Vector_unit_x0, 1},
+   {"Vector_unit_y0", Vector_unit_y0, 1},
+   {"Vector_unit_z0", Vector_unit_z0, 1},
+   {NULL, NULL}
+};
+void initVECTOR_python()
+{
+   (void) Py_InitModule("VECTOR_python", VECTORMethods);
+}
+<HR>
+
+</PRE>
+<H4><A NAME="HDR5">_GLOBAL_.py</A></H4>
+<P>Vector.h and Vector.C do not have any global attributes or methods so this is a skeleton file.
+<PRE>
+import VECTOR_python
+from Intrinsic import *
+class _GLOBAL__cself:
+   __inherit__ = (`_GLOBAL__cself',)
+   def __init__(self, arg):
+      self.cself = arg
+   def __del__(self):
+      del self
+class _GLOBAL_:
+   __inherit__ = (`_GLOBAL_',)
+   __sof__ = `VECTOR_python.so'
+   _statics = {}
+   def __setattr__(self, name, value):
+      raise AttributeError, name
+   def __init__(self, *arg):
+      `''_GLOBAL_.__init__ accepts the following arguments:
+         [] returning a(n) none
+      `''
+      sig0 = [`']
+      sig1 = [`_GLOBAL__cself']
+      try:
+         if len(arg) == 0:
+            self.__dict__[`cself'] = 0
+         elif checksig(arg, sig1):
+            self.__dict__[`cself'] = arg[0].cself
+         else:
+            raise ArgumentError, _GLOBAL_.__init__.__doc__
+      except ArgumentError, val:
+         argerror(val)
+   __doc__ = `''
+Class _GLOBAL_ defines the following methods:
+   __init__ with the following arguments:
+         [] returning a(n) none
+`''
+<HR>
+</PRE>
+<H4><A NAME="HDR6">LogFile</A></H4>
+<PRE>
+Global name clash on operator &lt;&lt; between Vector.h and Vector.h
+Global name clash on operator &gt;&gt; between Vector.h and Vector.h
+Generating /home/fly/ccm_rose/grad,1_fly/grad/tcl/tc12/p_VECTOR/Vector.py
+operator+= not available for class &lt;Vector&gt; because it is not
+    supported in the Python language.
+operator-= not available for class &lt;Vector&gt; because it is not
+    supported in the Python language.
+operator*= not available for class &lt;Vector&gt; because it is not
+    supported in the Python language.
+operator/= not available for class &lt;Vector&gt; because it is not
+    supported in the Python language.
+/home/fly/ccm_rose/grad,1_fly/grad/tcl/tc12/p_VECTOR/Vector.py generation complete.
+
+Generating /home/fly/ccm_rose/grad,1_fly/grad/tcl/tc12/p_VECTOR/_GLOBAL_.py
+/home/fly/ccm_rose/grad,1_fly/grad/tcl/tc12/p_VECTOR/_GLOBAL_.py generation complete.
+</PRE>
+
+<A NAME="ENDFILE"><PRE> </PRE></A>
+
+

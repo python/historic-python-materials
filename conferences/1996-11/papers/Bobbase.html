@@ -1,0 +1,636 @@
+<BASE HREF="http://www.digicool.com/jim/python/Bobobase.htm">
+
+<HTML>
+
+<HEAD>
+
+<TITLE>Untitled</TITLE>
+
+<META NAME="GENERATOR" CONTENT="Internet Assistant for Microsoft Word 2.0z">
+</HEAD>
+
+<BODY>
+
+<H1>Providing Persistence for <BR>
+World-Wide-Web Applications </H1>
+
+<ADDRESS>
+Jim Fulton, Digital Creations, L.C., jim@digicool.com 
+</ADDRESS>
+
+<H2>Abstract </H2>
+
+<P>
+As applications evolve beyond simple document retrieval, the need
+arises for efficient storage of persistent information that can
+be managed through the World-Wide-Web (Web) by customers and end
+users. We have developed a collection of modules that support
+management of persistent objects on the Web. The modules build
+on the Python pickle mechanism and provide support for:
+<UL>
+<LI>On-demand object activation,
+<LI>Delay of loading object data until needed, to speed activation,
+<LI>Support for persistent sub-objects that are retrieved and
+updated independently from containing objects,
+<LI>Management of multiple object versions and logging of object
+changes,
+<LI>Simple transaction management that rolls back object updates
+when errors occur. 
+</UL>
+
+<P>
+The modules currently use a very simple data format. All data
+changes are made by appending new revisions to the end of a file,
+reducing opportunities for file corruption.
+<H2>Introduction </H2>
+
+<P>
+Digital Creations, L.C., creates Web-based applications with rich
+user interfaces and with many options that may be set by customers.
+In the past, options were set in configuration files that were
+read by applications on start-up. Similarly, customers could customize
+the presentation of information by editing document templates.
+This approach had a number of drawbacks:
+<UL>
+<LI>Editing of configuration files was non-intuitive and error
+prone,
+<LI>Editing of configuration files and document templates required
+skill in using the Web-servers' file system.
+<LI>Editing of configuration files and document templates required
+access to the Web-servers' file system.
+<LI>It was necessary to restart the application for changes to
+have an effect, requiring either a Web-based interface to restart
+the application or intervention by a host system administrator.
+
+</UL>
+
+<P>
+Customers need to be able to make incremental changes to a system,
+seeing the results of individual changes without changes being
+visible to end-users. When customers are satisfied with a set
+of changes, they need a way to make the changes &quot;live&quot;.
+This capability amounts to a need for long-running transactions.
+<P>
+Customers want a way to be able to recover from mistakes made,
+through some sort of &quot;oops&quot; facility.
+<P>
+Some applications use data sets that are periodically uploaded
+by customers, such as classified ads or automotive dealer inventories.
+This process typically involves several steps such as:
+<UL>
+<LI>Transferring raw data using a file transfer protocol,
+<LI>Running conversion programs to convert raw data to a format
+recognized by the application, and
+<LI>Restarting the application to make new data available. 
+</UL>
+
+<P>
+This process had most of the same problems as the process for
+managing configuration files
+<P>
+To address the needs described above in a more effective manner,
+we decided to investigate the use of a persistent object system
+that could be used by applications to provide on-line configuration
+and data management. It was desirable to find a solution that
+would not incur the overhead of additional licensing fees or of
+an extra software package that needed to be installed and managed.
+The Python pickle mechanism provided much of what was needed to
+develop a persistent object store, so we decided to attempt to
+develop a pickle-based mechanism.
+<H2>Requirements </H2>
+
+<P>
+To address the problem's described above, we set out to create
+a system that would satisfy the following requirements:
+<DL>
+<DT><STRONG>Storage and retrieval of object data, using an object-oriented
+mechanism </STRONG>
+<DD>We did not want to have to define a series of database tables
+to reflect the various types of objects in the system, because
+we expected to have many different kinds of objects and we expected
+data structures to change from time to time, and possibly from
+object to object within the same class.
+<DT><STRONG>Storage of multiple versions of the same object</STRONG>
+
+<DD>This is needed to support long-running transactions and to
+support reverting to earlier revisions.
+<DT><STRONG>Separate activation, deactivation, and update of sub-objects</STRONG>
+<DD>It is common for all of the objects in an application to be
+connected in a single data structure. For example, an application
+might include a collection of newspapers, each of which contains
+a collection of automobile dealers, each of which has inventory,
+and so on. It would be inefficient to load and update all of this
+data at once.
+<DT><STRONG>A simple yet robust file format that would survive
+write errors and system failures. </STRONG>
+<DD>The file format needed to be tolerant of various types of
+failures without significant loss of data. For example, a write
+error or system failure when writing or updating an individual
+record should not cause other records to become inaccessible.
+<DT><STRONG>Object identity</STRONG> 
+<DD>Each object has a unique identifier within a persistent store
+that supports reliable cross-object references, separate management
+of sub-objects, and association between multiple revision of the
+same object. 
+</DL>
+
+<H2>Approach </H2>
+
+<P>
+<IMG SRC="BobobaseArchitecture.GIF">
+<P>
+We have designed a collection of modules, called a Bobobase, that
+build on the <EM>pickle</EM> module to provide keyed storage of
+objects using a simple data format. The class architecture of
+the system is shown in figure 1. 
+<H3>Pickle Jars </H3>
+
+<P>
+At the heart of the mechanism is the <EM>PickleJar</EM> class
+that manages the storage of picklable objects. When an object
+is stored, it is converted to a pickle string and stored in a
+simple database. When an object is retrieved, the pickle string
+is retrieved from the simple database and unpickled. 
+<P>
+Every object stored in a pickle jar is assigned an object identifier
+(OID). Persistent objects include this OID in their state. A pickle
+jar provides a mapping interface that maps OIDs to objects. 
+<H3>Persistent Objects </H3>
+
+<P>
+If an object is a subclass of the <EM>Persistent</EM> class, then
+the storage and retrieval of the object occurs in two steps. When
+the object is stored, the pickle string contains two pickles.
+The first pickle includes the class and initial arguments for
+the object, but not the object's state. The object's state is
+stored in the second pickle. When the object is retrieved, the
+pickle string is retrieved from the database and the first pickle
+in the pickle string is used to restore the object using saved
+initial arguments. Object state that is not captured through initial
+arguments is not restored initially. Any state created by the
+object's constructor is also hidden so that initial attempts to
+access state will fail. When an attempt is first made to access
+or update the object's state, the state will then be automatically
+restored from the pickle jar. By deferring the loading of object
+state in this manner, the loading of sub-objects is deferred until
+needed.
+<P>
+Persistent objects have a <EM>__save__</EM> method that can be
+called to update the state of the persistent object in a pickle
+jar. Persistent objects keep track of state changes. If an object
+has changed since the last time it was retrieved from or saved
+in a pickle jar, then calling the __<EM>save</EM>__ method caused
+the object to save it's updated state. When saving an object's
+state, persistent sub-objects are not saved unless their state
+has been changed or unless they have not yet been saved in the
+pickle jar.
+<H3>Transactions </H3>
+
+<P>
+Although persistent objects keep track of state changes, they
+do not automatically save their state when changes occur. Changes
+are not saved until the object's __<EM>save</EM>__ method is called.
+For large object systems, it is not practical for an application
+to explicitly call the __<EM>save</EM>__ method on all interesting
+objects. To automate saving object state, a transaction mechanism
+has been introduced.
+<P>
+A transaction is a sequence of operations, or program, that has
+the following properties:
+<DL>
+<DT><STRONG>Serializability</STRONG> 
+<DD>If there are multiple concurrently running transactions, the
+results of the transactions are equivalent to results from the
+same transactions run serially.
+<DT><STRONG>Atomicity </STRONG>
+<DD>A transaction either runs to completion, or any persistent
+effects of the transaction are undone.
+</DL>
+
+<P>
+These transaction properties make transactions extremely import
+tools for providing reliable data management, because they free
+the programmer from important details of concurrency control and
+error recovery. 
+<P>
+The <EM>Transactional</EM> and <EM>Transaction Manager</EM> classes
+are used to provide transaction semantics to persistent objects.
+Objects that are subclasses of both <EM>Transactional</EM> and
+<EM>Persistent</EM> have transactional semantics. When the state
+of a transactional persistent object changes, the object automatically
+registers itself with the current transaction manager. When a
+transaction is committed, the _<EM>_inform_commit</EM>__ method
+is called on any registered objects. This method, in turn, calls
+the __<EM>save</EM>__ method on the registered objects. If a transaction
+is aborted, then the <EM>__inform_abort__</EM> method is called
+on registered objects. This causes any saved changes to be undone.
+<P>
+Transaction managers manage transactions. An application may have
+a single transaction manager. When the transaction manager is
+installed, a special function, <EM>get_transaction</EM>, is installed
+in the __<EM>builtins</EM>__ module. The <EM>get_transaction</EM>
+function retrieves a transaction object. The transaction object
+has methods <EM>begin</EM>, <EM>commit</EM>, and <EM>abort</EM>
+to begin, commit, or abort a transaction. These functions are
+called by the application program. In the case of Python Object
+Publisher (Bobo) applications, these routines are called automatically
+by Bobo. At the beginning of each HTTP request, Bobo gets a transaction
+and calls it's begin method. If the request is completed successfully,
+then Bobo calls the transactions <EM>commit</EM> method, causing
+all changes made during the request to be made permanent. If an
+error occurs, the transactions <EM>abort</EM> method is called
+to make sure that any changes made by the request are undone.
+<P>
+Transactional objects call a transaction's <EM>register</EM> method
+to register the fact that their state has been changed by the
+transaction.
+<P>
+To date, only one transaction manager, <EM>SingleThreadedTransaction</EM>,
+has been implemented. As it's name implies, it has been designed
+to support single-threaded applications. The module <EM>SingleThreadedTransaction</EM>
+exports a <EM>Persistent</EM> class that is a subclass of the
+<EM>Transactional</EM> class and the ordinary <EM>Persistent</EM>
+class. 
+<H3>Simple Databases </H3>
+
+<P>
+Pickle jars manage the storage and retrieval of objects using
+a simple database that stores pickle strings. A simple database
+is an object that maps OIDs to strings. Simple databases can be
+implemented in a number of ways, such as:
+<UL>
+<LI>DBM databases
+<LI>Relational databases with integer keys and binary large object
+(BLOB) values
+<LI>Directories with files that hold strings and that have OID-based
+names 
+</UL>
+
+<P>
+We have currently implemented a simple database, called a multiple
+revision simple database (MRSDB) that stores pickle strings in
+file records. Each revision of an object is stored in a different
+record. Each record in a MRSDB contains several pieces of information:
+<UL>
+<LI>OID,
+<LI>File position of the previous version of the object, or 0
+if there are no previous versions, 
+<LI>Starting time for the current revision, 
+<LI>Length of the stored string, and
+<LI>The stored string. 
+</UL>
+
+<P>
+When an object is updated, a new record is added. The record containing
+the previous version of object's pickle string is unchanged. This
+approach has a number of advantages:
+<UL>
+<LI>A reading process or thread can read an object's value while
+a separate writer process or thread is writing a new version.
+<LI>If an error occurs or a process dies during a write, only
+the new version of an object is lost.
+<LI>It is easy to recover old versions of objects.
+<LI>The data file serves as a transaction log. 
+</UL>
+
+<P>
+A disadvantage of this approach is that file space for old revision
+must be recovered through an explicit pack operation.
+<P>
+There is no separate index files. When a MRSDB is opened, an index
+that maps OIDs to current revision file positions is built by
+reading the header, or everything except the pickle string, from
+each record. This approach has the advantage that there is no
+separate index file to get out of synchronization with the data
+file, however, it has the disadvantage that it may be time consuming
+to read the record headers. In long-running processes, however,
+long start-up times are not critical.
+<H3>Caching </H3>
+
+<P>
+Pickle jars maintain a cache containing references to all retrieved
+objects that are referenced by objects outside the cache. On every
+access to the pickle jar, incremental garbage collection is performed
+by removing objects from the cache whose reference counts have
+dropped to one, and therefore are referenced only by the cache.
+<P>
+It is necessary to hold references to all living objects in the
+cache so that database changes can be reflected in living objects.
+<P>
+Of course, use of a cache improves performance by preventing the
+unpickling of objects on each access.
+<H3>Pickle Dictionaries </H3>
+
+<P>
+Pickle jars provide a relatively low-level interface. Pickle jars
+map OIDs to objects, but for many applications, it is much more
+natural to map names to objects. Pickle dictionaries provide for
+persistent storage of objects by key. For performance reasons,
+keys are limited to marshalable objects.
+<P>
+In addition to providing persistent storage, pickle dictionaries
+simplify the assembly of pickle jars and MRSDBs by providing a
+simple constructor taking a file name to create or open a MRSDB,
+and create associated pickle jars and dictionaries.
+<H2>Usage </H2>
+
+<P>
+Using of this persistence mechanism is straightforward and, when
+used with a transaction manager, nearly transparent. Application
+classes must simply subclass from <EM>Transactional</EM> and <EM>Persistent</EM>.
+Consider the <EM>Keywords</EM> class shown below which manages
+persistent collections of keywords:
+<PRE WIDTH=132>
+<FONT SIZE=1>from SingleThreadedTransaction import Persistent
+from STPDocumentTemplate import HTMLFile
+from PSA_Admin import admin_groups
+
+
+dtml_dir='../private/'
+MessageDialog=HTMLFile(dtml_dir+'MessageDialog.dtml')
+
+class Keywords(Persistent):
+    'PSA keywords'
+    
+    def __init__(self):
+                self.items=[]
+
+    manage__allow_groups__=admin_groups
+    manage=HTMLFile(dtml_dir+'Keywords.dtml')
+    manage_edit__allow_groups__=admin_groups
+    def manage_edit(self, added=[], deleted=[], PARENT_URL=''):
+                'change keywords'
+                if deleted:
+                           self.items=filter(lambda k, deleted=deleted:
+                                 k not in deleted,
+                                 self.items)
+                if added:
+                           self.items=self.items+filter(lambda k: k, added)
+                           self.items.sort()
+        
+                return MessageDialog(
+                           title='Keywords Successfully Updated',
+                           message=(
+                        '''
+                        &lt;strong&gt;%s keywords were successfully added or deleted&lt;/strong&gt;
+                        ''' % (len(added)+len(deleted))),
+                           action=PARENT_URL+'/manage',
+                           )
+
+    def __len__(self): return len(self.items)
+    def __getitem__(self,index): return self.items[index]
+
+</FONT>
+</PRE>
+
+<P>
+In this example, the <EM>Keywords</EM> class implements a persistent
+sequence of keywords. To be persistent, it was only necessary
+to subclass. <EM>SingleThreadedTransaction.Persistent</EM>. <EM>SingleThreadedTransaction.Persistent</EM>
+is a subclass of <EM>SingleThreadedTransaction.Transactional</EM>
+and <EM>PickleDictionary.Persistent</EM>.
+<P>
+In addition to making sure that application classes are transactional
+persistent, it is unfortunately necessary to assure that sub-objects
+of application objects:
+<UL>
+<LI>Are transactional persistent, 
+<LI>Are immutable, or 
+<LI>Notify application classes of changes. 
+</UL>
+
+<P>
+In the Keywords class above, the sub-object, <EM>items</EM>, is
+mutable, but it is used immutably. All changes to the <EM>items</EM>
+attribute are made by reassigning the attribute. This, in turn,
+causes the <EM>Keywords</EM> object's change in state to be registered
+with the transaction manager.
+<P>
+If one were to directly access and change a <EM>Keywords</EM>
+object's <EM>items</EM> attribute, the change would not be persistent,
+because list objects are not transactional persistent and the
+change would not be registered with the transaction manager.
+<P>
+In addition to making sure that application classes are transactional
+persistent, it is also necessary to store application objects
+in pickle dictionaries or in transactional persistent objects
+that have already been stored in dictionaries. Consider the example
+below: 
+<PRE WIDTH=132>
+<FONT SIZE=1>import Keywords, Members
+from SingleThreadedTransaction import PickleDictionary
+
+DB=PickleDictionary(&quot;../private/var/PSA&quot;)
+
+if not DB.has_key('Keywords'):
+    DB['Keywords']=Keywords.Keywords()
+    get_transaction().commit()
+
+if not DB.has_key('Members'):
+    DB['Members']=Members.Members()
+    get_transaction().commit()
+
+</FONT>
+</PRE>
+
+<P>
+This example is taken from a from a module that constitutes the
+&quot;main&quot; module for a Python Software Association (PSA)
+Bobo application. This application defines a collection of modules
+that provide PSA services such as defining PSA keywords, providing
+a PSA membership directory, and so on. In the example, the modules
+that provide keyword and membership services are imported. A pickle
+dictionary is opened to hold persistent objects. If the pickle
+dictionary did not exists before, then <EM>Keywords</EM> and <EM>Members</EM>
+objects are created and placed in the pickle dictionary. 
+<P>
+Note that after placing each object in the pickle dictionary,
+the current transaction is committed. This is necessary because
+at the beginning of each HTTP request, Bobo begins a new transaction.
+Any uncommitted changes made prior to calling the transaction
+<EM>begin</EM> message are aborted, undoing the changes. Therefore
+we commit the object additions to assure that they are permanent,
+<P>
+We have seen in an earlier example that the <EM>Keywords</EM>
+class implements persistent sequences of keywords. The <EM>Members</EM>
+class implements a collection of members. However, the <EM>Members</EM>
+class implements a mapping from member identifiers to <EM>Member</EM>
+objects. This allows individual members to be accessed through
+Bobo. For example, to access member jim, one might use the URL:
+<PRE WIDTH=132>
+<FONT SIZE=1>http://www.digicool.com/PSA/Members/jim
+
+</FONT>
+</PRE>
+
+<P>
+Here the persistent member, <EM>jim</EM>, is accessed in the persistent
+collection of members, Members.
+<P>
+Persistent mappings are so commonly used that a class, PersistentMapping,
+is exported by the SingleThreadedTransaction module to simplify
+implementation.
+<H2>Experience </H2>
+
+<P>
+Bobobase has been used in a number of Digital Creations products
+including an automotive advertising product, a relational database
+access product, and a demonstration product being developed for
+the PSA. The use of Bobobase has greatly simplified application
+development, has allowed us to provide applications with rich
+through-the-Web configuration interfaces, and simplified product
+installation.
+<H2>Issues </H2>
+
+<P>
+A number of issues were encountered in this effort. These are
+discussed below:
+<H3>Extension types </H3>
+
+<P>
+Until recently, the pickle module did not provide support for
+extension types. We provided a patch to the pickle module which
+allows extension types to be pickled if they have __class__ attributes
+that are bound to class-like objects that can be used to recreate
+object instances. We are releasing an &quot;Extension Class&quot;
+mechanism which will provide the needed behavior to extension
+types that make use of it.
+<H3>Detecting object access </H3>
+
+<P>
+To implement the lazy activation of objects described here, it
+is necessary to know when an object is being accessed. This is
+done in Bobobase by overriding __<EM>getattr</EM>__ and __<EM>setattr</EM>__
+methods. Unfortunately for Bobobase, __<EM>getattr</EM>__ is called
+only when a lookup fails. If an attribute can be obtained from
+a class, then the classes value will be returned without calling
+__<EM>getattr</EM>__. This can have serious consequences if the
+not yet loaded state of an object has a value for the attribute.
+<P>
+To solve this problem will require re-implementing the persistence
+mechanism as an extension class, since extension __<EM>getattr</EM>__
+methods are always called. Implementing the persistence mechanism
+as an extension will also overcome the performance cost of calling
+a python __<EM>setattr</EM>__ function each time an attribute
+is set. Work is underway on an &quot;Extension Class&quot; that
+allows python classes to subclass from extension classes.
+<P>
+To help avoid this problem in Bobo applications, Bobo currently
+takes steps to assure that any object encountered while traversing
+a URL is activated.
+<H3>Detecting sub-object changes </H3>
+
+<P>
+As mentioned earlier, problems can arise if persistent subobjects
+have non-persistent mutable subobjects, because sub-object changes
+might not be detected. A solution might be to restrict subobjects
+to persistent or immutable objects and to enforce the restriction
+with tests in __<EM>setattr</EM>__. Such a test might be quite
+expensive in the current implementation, but may be feasible in
+an extension-based implementation.
+<H3>Deactivating objects </H3>
+
+<P>
+Currently, objects are automatically deactivated when they are
+no longer referenced. It would be desirable to also deactivate
+objects when they have not been used for some period of time.
+Unfortunately, in the current implementation, it is impossible
+to detect many object accesses, because the __<EM>getattr</EM>__
+function is only called when normal attribute access fails. The
+extension-based implementation will allow all access times to
+be recorded. With access time information available, it will be
+possible to add logic to the pickle jar cache to deactivate the
+state of objects that have not been accessed in some period of
+time. An extension-based cache implementation will also be needed
+for efficiency.
+<H3>Long startup time </H3>
+
+<P>
+In the current MRSDB implementation, the database index is constructed
+when the file is opened. For long-running processes, the delay
+associated with building this index is not problematic, however,
+for short-running processes, such as CGI scripts, the time taken
+to read large databases can be quite noticeable. Regular database
+compaction can reduce the delay by reducing the number of record
+headers that must be read. An extension-based implementation of
+MRSDBs, or of the function that creates the index should reduce
+startup time substantially. We also plan to cache header information
+in a separate file that can be read on startup, so that only records
+added since the cache was created need to be scanned. 
+<H3>Multiple threads and long-running transactions </H3>
+
+<P>
+Although the MRSDB format should accommodate simultaneous reading
+and writing, this feature has not been implemented. A design allowing
+separate single writer and reader threads and supporting a simultaneous
+long-running transaction and reads should be straightforward.
+Allowing multiple simultaneous long-running transactions is a
+bit more involved. We are considering a design using time-stamp
+transaction protocols. 
+<H3>Support for other data stores, such as relational databases
+</H3>
+
+<P>
+Our largest customer has made a significant commitment to relational
+database technology and would like to take advantage of their
+investment in this technology. Relational database management
+systems (RDBMSs) provide some significant advantages over our
+home-grown Bobobase, such as:
+<UL>
+<LI>Support for distributed transactions,
+<LI>More sophisticated recovery from system crashes and disk damage,
+<LI>Higher transaction rates,
+<LI>Support for complex and ad-hoc queries, 
+</UL>
+
+<P>
+RDBMSs also have some disadvantages, such as:
+<UL>
+<LI>Lack of support for object-oriented programming, 
+<LI>Lack of support for long-running transactions, 
+<LI>Lack of support for versioning, and
+<LI>Lack of support for keeping application objects up-to-date
+with database changes. 
+</UL>
+
+<P>
+We plan to investigate use of RDBMS tables as simple databases.
+The biggest challenge may be detecting when objects in the database
+have changed, so that in-memory objects can be updated.
+<H3>MRSDB format issues </H3>
+
+<P>
+The MRSDB format provides most of the data needed to track changes
+to a database, however, it would also be desirable to record user
+names. Since all updates should be authenticated, user names should
+be available.
+<P>
+To increase the survivability of MRSDBs to file corruption, we
+plan to update the MRSDB data format to record string lengths
+at the end of each record as well as in the record header.
+<H2>Summary</H2>
+
+<P>
+Bobobase provides a nearly transparent mechanism for adding persistence
+to Python applications. Support for transactional semantics provides
+increased reliability. The open architecture provides room for
+a number of extensions such as support for additional data storage
+mechanisms.
+<P>
+Although we have not met all of our original requirements, namely
+support for long running transactions, we expect to add this additional
+functionality in the near future.<BR>
+
+</BODY>
+
+</HTML>
+
+--------------6F336F321756--
+
+
+=================
+PSA-SC  --  Python Software Activity Steering Committee
+
+send messages to: psa-sc@python.org
+administrivia to: psa-sc-request@python.org
+=================

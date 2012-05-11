@@ -1,0 +1,176 @@
+python-dev Summary for 2003-09-16 through 2003-09-30
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from September 16, 2003 through September 30, 2003.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the twenty-sixth summary written by Brett Cannon (homework, the Summaries, how does he find the time?).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+The in-development version of the documentation for Python can be found at http://www.python.org/dev/doc/devel/ and should be used when looking up any documentation on something mentioned here.  PEPs (Python Enhancement Proposals) are located at http://www.python.org/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2003-09-01_2003-09-15.html
+
+
+=====================
+Summary Announcements
+=====================
+
+First, sorry about the lateness of this summary.  I have started my first quarter at `Cal Poly SLO`_.  Not only do I get to deal with being back in school for the first time in over a year, but I also get to be abruptly introduced to the quarter system.  Joys abound for me.  I am still reworking how I manage my time and the Summaries were the first thing to take a back seat.  Hopefully this won't happen again.
+
+In case you have not been following general Python news, `Python 2.3.2`_ is now the newest release of Python.  In case you missed the Python 2.3.1 release, then you missed the little hiccup in that release, which is fine.  The Python 2.3.2 release does not technically fall under the jurisdiction of this summary, but I am not going to wait half a month to let people know about it.
+
+.. _Cal Poly SLO: http://www.calpoly.edu/
+.. _Python 2.3.2: http://www.python.org/2.3.2/
+
+
+=========
+Summaries
+=========
+----------------------------------------------------------
+Deprecations won't spontaneously appear in a micro release
+----------------------------------------------------------
+In case you don't know, sets.BaseSet.update() has been deprecated in favor of union_update() in order to cut out the unneeded duplication of functionality in Python 2.4 .  While 2.3.1 was still under development it grew a PendingDeprecationWarning.  This did not sit well with some people.
+
+The argument for the PendingDeprecationWarning was that it is silent by default and gives people a heads-up in terms of things that are known to be deprecated in the next minor version of Python.
+
+Against this idea, the argument that it adds a change between micro versions that is not a bug fix was raised.  In the end this won.
+
+Contributing threads:
+  - `pending deprecation warning for Set.update <http://mail.python.org/pipermail/python-dev/2003-September/038113.html>`__
+
+
+------------------------------
+Web-SIG on its way, supposedly
+------------------------------
+Bill Janssen is working on a charter so a Web SIG_ can be started in order to redesign the cgi module as the main goal, but also just making Python friendlier to web coding in general.
+
+.. _SIG: http://www.python.org/community/sigs.html
+
+Contributing threads:
+  - `Improving the CGI module <http://mail.python.org/pipermail/python-dev/2003-September/038128.html>`__
+
+
+-------------------------------------------
+Threads and the desolation that is shutdown
+-------------------------------------------
+Tim Peters decided to try to deal with the fact that the Zope 3 testing suite was spitting out a ton of messages about unhandled exceptions during shutdown of the interpreter.  It turned out that threads were still running during shutdown and thus were throwing a fit because they were accessing module globals that were being torn down and set to None.
+
+The problem went away when the second call to PyGC_Collect() in Py_Finalize() was commented out.  This is not totally acceptable since the second call is there to help collect garbage at shutdown so that things clean up properly.  Tim did end up suggesting just taking it out, though, for a future version of Python.
+
+He also suggested tearing down the sys module even later (and thus "even more of a
+special case than it is now").  This would leave sys.modules around and thus not cause globals to turn to None and cause errors from that side-effect.
+
+Neither solution has been taken yet.  A temporary solution if you keep running into this is to make sure that either your cleanup code only accesses local variables (if you have to store references to globals since that will keep them around for you during shutdown).
+
+Contributing threads:
+  - `Fun with 2.3 shutdown <http://mail.python.org/pipermail/python-dev/2003-September/038151.html>`__
+
+
+----------------------
+Where is str.rsplit?!?
+----------------------
+The reason str.rsplit does not exist in Python is because the method is not difficult to code on your own.  And yet people still want it.  But there was not of a public outcry and the topic just fizzled.
+
+Contributing threads:
+  - `Discussion on adding rsplit() for strings and unicode objects. <http://mail.python.org/pipermail/python-dev/2003-September/038155.html>`__
+
+
+-----------------
+Waxing on PEP 310
+-----------------
+Holger Krekel brought up PEP 310 (entitled "Reliable Acquisition/Release Pairs") in terms of how code blocks should handle exceptions and such.  Michael Hudson suggested that might be taking PEP 310 beyond what it is meant to cover.  To this, Holger suggested that then perhaps some other route should be taken.
+
+As with all PEPs, discussion of them is always helpful for python-dev and the community.  It helps hash out ideas and gives python-dev feedback on whether a PEP should be rejected.
+
+Contributing threads:
+  `pep 310 (reliable acquisition/release pairs) <http://mail.python.org/pipermail/python-dev/2003-September/038160.html>`__
+
+
+------------------------------------------------------------
+bsddb3 failures and the database system it wraps, news at 10
+------------------------------------------------------------
+The bsddb3 regression tests were failing during preparation for Python 2.3.1 .  Beyond the "the test just fails sometimes" issues that come up with tests that are finicky because of timing, it was suggested that the failures are the fault of the Sleepycat_ DB code.  It is still being looked into.
+
+.. _Sleepycat: http://www.sleepycat.com/
+
+Contributing threads:
+  - `latest bsddb3 test problems <http://mail.python.org/pipermail/python-dev/2003-September/038195.html>`__
+
+
+----------------------------------------------------
+We want *you* to help with the war on SF patch items
+----------------------------------------------------
+Someone wanted to help but wasn't sure how they could.  Martin v. Loewis sent an email listing common things anyone can do to help with dealing with the patch items on SourceForge_.  The email can be found at http://mail.python.org/pipermail/python-dev/2003-September/038253.html .
+
+Contributing threads:
+  - `Help offered <http://mail.python.org/pipermail/python-dev/2003-September/038245.html>`__
+
+
+---------------
+Python glossary
+---------------
+Skip Montanaro converted the glossary he has as a wiki at http://manatee.mojam.com/python-glossary to the proper format to be included in the Python documentation.  You can peruse the glossary as it stands in the documentation at http://www.python.org/dev/doc/devel/tut/node16.html.  Thanks to Skip for for doing the grunt work and getting this done.
+
+If you wish to help, please visit the wiki and add/edit/whatever .
+
+Contributing threads:
+  - `Python Glossary <http://mail.python.org/pipermail/python-dev/2003-September/038280.html>`__
+
+
+----------------------------------
+Mitch Kapor to speak at PyCon 2004
+----------------------------------
+Mitch Kapor is founder of the `Open Source Application Foundation`_ (OSAF), co-founder of the `Electronic Frontier Foundation`_, and developer of Chandler_ .  He is going to be the keynote speaker at `PyCon 2004`_ .
+
+The general `Call for Proposals`_ has gone out.  If you have any desire to speak at PyCon take a look at the CFP.
+
+.. _PyCon 2004: http://www.python.org/pycon/dc2004/
+.. _Open Source Application Foundation: http://www.osafoundation.org/
+.. _Electronic Frontier Foundation: http://www.eff.org/
+.. _Chandler: http://www.osafoundation.org/Chandler-Product_FAQ.htm
+.. _Call for Proposals: http://www.python.org/pycon/dc2004/cfp.html
+
+
+-----------------------------------------------------
+Python 2.3.1 released, people were happy... initially
+-----------------------------------------------------
+Python 2.3.1 was released to the general public.  It was meant to be a bug-fix release to fix bugs that were discovered after Python 2.3 went out the door.
+
+But then a typo in the configure.in script that prevented os.fsync() from ever being included was discovered.  A rather vocal group of users of this function got out their pitchforks and torches while screaming, "blood, blood!" (actually they were nice about it, but saying, "they kindly asked for a new release," isn't that dramatic, is it?)
+
+How were the rioting masses (who were actually not rioting) appeased?
+
+Contributing threads:
+    - `2.3.1 is (almost) a go <http://mail.python.org/pipermail/python-dev/2003-September/038229.html>`__
+    - `RELEASED Python 2.3.1 <http://mail.python.org/pipermail/python-dev/2003-September/038254.html>`__
+    - `How to test for stuff like fsync? <http://mail.python.org/pipermail/python-dev/2003-September/038354.html>`__
+
+
+----------------------------------------------
+Let them eat cake while releasing Python 2.3.2
+----------------------------------------------
+Python 2.3.2 was released to deal with the os.fsync() snafu.  HP/UX compiling issues were also addressed.
+
+The bsddb3 problems are still there, but it is becoming more and more certain that the issues are with Sleepycat and not the bsddb module.
+
+Contributing threads:
+  - `plans for 2.3.2 <http://mail.python.org/pipermail/python-dev/2003-September/038360.html>`__
+  - `Python2.3.2 and release23-maint branch <http://mail.python.org/pipermail/python-dev/2003-September/038427.html>`__
+  - `2.3.2 and bsddb <http://mail.python.org/pipermail/python-dev/2003-September/038433.html>`__
+  - `RELEASED Python 2.3.2, release candidate 1 <http://mail.python.org/pipermail/python-dev/2003-September/038449.html>`__
+  - `OpenSSL vulnerability <http://mail.python.org/pipermail/python-dev/2003-September/038455.html>`__
+  - `RELEASED Python 2.3.2 (final) <http://mail.python.org/pipermail/python-dev/2003-October/038523.html>`__

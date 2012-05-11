@@ -1,0 +1,578 @@
+<HTML>
+<HEAD>
+<BASE HREF="http://www.foretec.com/python/workshops/1998-11/proceedings/papers/mcgrath/mcgrath.html">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>A Python Based Production System for High Volume Electronic Publishing</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Office\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<B><FONT FACE="Arial" SIZE=4><P>A Python Based Production System for High Volume Electronic Publishing</P>
+</B></FONT><ADDRESS>Sean Mc Grath</ADDRESS>
+<ADDRESS>Digitome Electronic Publishing</ADDRESS>
+<ADDRESS><A HREF="http://www.digitome.com/">http://www.digitome.com</A></ADDRESS>
+<ADDRESS><A HREF="mailto:sean@digitome.com">sean@digitome.com</A></ADDRESS>
+<P ALIGN="CENTER"><A NAME="_Toc431125376">Contents</P>
+<ADDRESS><A HREF="#abstract">Abstract</A></ADDRESS>
+<ADDRESS><A HREF="#xml">XML—eXtensible Markup Language</A></ADDRESS>
+<ADDRESS><A HREF="#challenges">Challenges in the field of Electronic Publishing</A></ADDRESS>
+<ADDRESS><A HREF="#xmlinep">XML in Electronic Publishing</A></ADDRESS>
+<ADDRESS><A HREF="#LumberJack">Introduction to LumberJack</A></ADDRESS>
+<ADDRESS><A HREF="#pythoninep">Python in XML based Electronic Publishing</A></ADDRESS>
+<ADDRESS><A HREF="#conclusiion">In Conclusion</A></ADDRESS>
+<ADDRESS><A HREF="#future">A look to the future</A></ADDRESS>
+<P ALIGN="CENTER"><HR></P>
+<B><I><FONT FACE="Arial"><P>&nbsp;</P>
+<P><A NAME="abstract"></A>Abstract</A></P>
+</B></I><P>The Official Record of the Proceedings of the Irish Parliament is a document collection spanning 76 years, 600 volumes and some 125 feet of shelf space.</P>
+<P>The project described in this paper involved capturing these volumes electronically in XML (eXtensible Markup Language)</FONT><A HREF="#ref1">[1]</A><FONT FACE="Arial"> and automatic conversion to a CD-ROM/Internet publishing product known as Folio Views.</P>
+<P>Folio Views</FONT><A HREF="#ref2">[2]</A><FONT FACE="Arial"> is a commercial text database/search and retrieval tool that is particularly popular in the government/legal/financial publishing sectors. It has a full text search engine that is powerful and fast—particularly for large document collections. A single Folio Views publication (known as an <I>Infobase</I>) can be up to 4 GB in size.</P>
+<P>To get data into Folio Views it must be converted to a tagged text format called Folio Flat File (FFF). FFF can be created directly from word processing documents but it can also be generated from databases and structured text formats such as XML as discussed in this paper.</P>
+<P>All the software aspects of the electronic publishing process—from data capture quality assurance through to the final generation of a &gt;2 GB Folio Views Infobase—are written in Python.</P>
+<P>This paper provides a brief overview of XML and illustrates how and why Python was used to build this production system. It presents an overview of a Python toolkit for XML processing known as LumberJack developed by the authors</FONT><A HREF="#ref3">[3]</A><FONT FACE="Arial">. It includes details of some of the techniques used to integrate Python programs as first class "documents" in the overall document hierarchy of the project. It also presents details of how Python was used as a powerful document validation and reporting tool.</P>
+<B><I><P><A NAME="_Toc431125377"><A NAME="xml"></A>XML—eXtensible Markup Language</A></P>
+</B></I><P>XML is a technology recommendation from the W3C (World Wide Web Consortium). XML is concerned with the electronic representation of the structure and content of information. It is a simplified subset of an ISO standard known as SGML (Standard Generalized Markup Language)</FONT><A HREF="#ref4">[4]</A><FONT FACE="Arial">.</P>
+<P>XML simplifies SGML in many ways. The most important from a software development perspective are that XML has a much more fixed lexical format, simplified grammar features and much simpler parsing algorithms.</P>
+<P>XML is a <I>meta-language</I>—a language for creating languages. An XML derived language is a grammar consisting of named information <I>elements</I> organized into a hierarchical and/or recursive structure. The order and occurrences of information elements can be controlled by a grammar specification known as a DTD (Document Type Definition).</P>
+<P>SGML and XML have conceptual similarities to YACC, BNF and Regular Expressions. SGML and XML applications (tag languages) can be thought of as particular grammars expressed in YACC/BNF or as a regular expression.</P>
+<P>XML documents consist of a root element that can contain other elements and/or primitive data content creating arbitrarily deep structures. The presence of elements in data is signaled by the use of <I>tags</I> that indicate where the elements start and end. The lexcial format of the tags remains the same, regardless of the tag names used.</P>
+<P>Consider the task of modeling a simple quiz show dialog. A simple quiz show has a host and a single contestant. The quiz consists of one or more items. Each item has a question and an answer.</P>
+<P>A simple quiz encoded as an XML document is shown in </FONT><A HREF="#listing1">listing 1</A><FONT FACE="Arial">.</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>&lt;?xml version = "1.0"?&gt;
+&lt;!DOCTYPE quiz SYSTEM
+"http://www.digitome.com/quiz.dtd"&gt;
+&lt;!--A simple quiz --&gt;
+&lt;quiz host = "John Cleese"&gt;
+&#9;&lt;item&gt;
+&#9;&#9;&lt;question&gt;
+&#9;&#9;&#9;&lt;para&gt;What lives in the sea and gets caught in nets?&lt;/para&gt;
+&#9;&#9;&lt;/question&gt;
+&#9;&#9;&lt;answer&gt;
+&#9;&#9;&#9;&lt;para&gt;A buffalo with an aqualung.&lt;/para&gt;
+&#9;&#9;&lt;/answer&gt;
+&#9;&lt;/item&gt;
+&lt;/quiz&gt;</PRE></table>
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="listing1"></A>Listing 1 : A simple quiz as an XML document</P>
+</B><P>&nbsp;</P>
+<P>This can be readily visualized as a tree structure of intermediate nodes and leaf nodes as shown in </FONT><A HREF="#figure1">Figure 1</A><FONT FACE="Arial">.</P>
+</FONT><P ALIGN="CENTER"><IMG SRC="pyxml2.gif"></P>
+<FONT FACE="Arial"><P>The first line:</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>&lt;?xml version = "1.0"?&gt;</PRE></table>
+<FONT FACE="Arial"><P>serves to indicate that this is an XML document.</P>
+<P>The second line:</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>&lt;!DOCTYPE quiz SYSTEM "http://www.digitome.com/quiz.dtd"&gt;</PRE></table>
+<FONT FACE="Arial"><P>associates this XML file with the DTD known as quiz.dtd at the URI http://www.digitome.com/quiz.dtd. The DTD is shown in </FONT><A HREF="#listing2">listing 2</A><FONT FACE="Arial">:</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>&lt;!ELEMENT quiz (item)+&gt;
+&lt;!ATTLIST quiz host CDATA #REQUIRED&gt;
+&lt;!ELEMENT item (question,answer)&gt;
+&lt;!ELEMENT question (para)+&gt;
+&lt;!ELEMENT answer (para)+&gt;
+&lt;!ELEMENT para (#PCDATA)&gt;</PRE></table>
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="listing2"></A>Listing 2 : DTD for a simple quiz</P>
+</B></FONT><FONT FACE="Courier New"><P>&nbsp;</P>
+</FONT><FONT FACE="Arial"><P>XML DTDs (or <I>schemas</I> if you like) can be thought of as extended regular expressions. Brushing syntax issues aside, it can be seen from the DTD in </FONT><A HREF="#listing2">Listing 2</A><FONT FACE="Arial"> that a <I>quiz</I> element consists of one or more <I>item</I> elements, an <I>item</I> element has a <I>question</I> element followed by an <I>answer</I> element. A <I>question</I> element has one or more <I>para</I> elements. A <I>para</I> element consists of plain text (denoted by the XML keyword #PCDATA).</P>
+<P>Elements can have associated <I>attributes</I>—small nuggets of extra information that further qualify the element. In this example the <I>quiz</I> element type has an associated <I>host</I> attribute.</P>
+<P><A NAME="_Toc431125378">Parsing XML</A></P>
+<P>An XML parser is a utility program that works through an XML document tokenizing it into a series of markup tokens and primitive data tokens. A class of XML parser known as <I>validating</I> XML parser will also check to see if the XML document meets the structural constraints spelled out in the associated DTD. Depending on the parser, it might also generate some form of post-parse output.</P>
+<P><A NAME="_Toc431125379">Output of an XML Parser</A></P>
+<P>One popular output format for XML parsers is known as ESIS (Element Structure Information Set). ESIS came into being with the SGML standard and owes most of its popularity to the SGML/XML processing tools made freely available by James Clark</FONT><A HREF="#ref5">[5]</A><FONT FACE="Arial">.</P>
+<P>An example of ESIS output from James Clark's NSGMLS SGML/XML parser is shown in </FONT><A HREF="#listing3">Listing 3</A><FONT FACE="Arial">.</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>?xml version = "1.0"
+Ahost CDATA John Cleese
+(quiz
+(item
+(question
+(para
+-What lives in the sea and gets caught in nets?
+)para
+)question
+(answer
+(para
+-A bufallo with an aqualung.
+)para
+)answer
+)item
+)quiz
+C</PRE></table>
+<B><FONT FACE="Arial" SIZE=1><P ALIGN="CENTER"><A NAME="listing3"></A>Listing 3: ESIS output of the NSGMLS XML parser</P>
+</B></FONT><FONT FACE="Arial"><P>Note that each major token in the XML file is allocated a line in the output. A line starting with "(" signals a start-tag, "A" signals an attribute, ")" signals and end-tag. "-" signals primitive data content and so on.</P>
+<P>This output format contains much—but not all—of the markup from the original file. Note that the comment "&lt;!-- A simple quiz--&gt;" has disappeared.</P>
+<P><A NAME="_Toc431125380">Relationship of XML to HTML</A></P>
+<P>XML is not an enhanced HTML language as it is sometimes described. HTML is a fixed set of tags created in conformance with the SGML standard. HTML is thus a <I>tag-language</I>. XML on the other hand, is a simplified subset of SGML. It is <B>not</B> a tag-language. It is a meta-language like SGML before it. Tag languages based on XML cover everything from electronic commerce to Web Browser bookmark exchange. HTML—currently based on SGML—is also migrating to become a tag language derived from XML.</P>
+<P><A NAME="_Toc431125381">XML Programming Standards</A></P>
+<P>The XML software development community has spawned a number of XML programming standards that are in various stages of completion. The two most important for Python programmers are SAX and DOM:</P>
+<B><P>SAX</B>: <B>S</B>imple <B>A</B>PI for <B>X</B>ML.</P>
+<P>A standard API for event driven XML programming</FONT><A HREF="#ref6">[6]</A><FONT FACE="Arial">. In event driven XML programming, an application establishes <I>handlers</I> for particular events such as the start of a particular element, the start of data content and so on. At some point, the application yields control to an event dispatcher that dispatches calls to the event handlers as necessary.</P>
+<P>Oversimplifying, SAX is a naming convention/interface specification for event driven XML programs that originated with Java but has been successfully implemented in other languages including Python.</P>
+<P>The idea is that by developing your applications in accordance with the SAX API, you have the freedom to swap XML parsers in and out without breaking any application code. Being able to swap parsers in an out is useful because XML parsers are optimized for different things—speed, memory footprint, levels of XML compliance and so on.</P>
+<P>For example, you could use a Python based XML parser during development (such as xmlproc</FONT><A HREF="#ref7">[7]</A><FONT FACE="Arial">) and then slot in a fast, C based XML parser for production use (such as PyExpat</FONT><A HREF="#ref8">[8]</A><FONT FACE="Arial"> or sgmlop</FONT><A HREF="#ref9">[9]</A><FONT FACE="Arial">).</P>
+<B><P>DOM</B> (<B>D</B>ocument <B>O</B>bject <B>M</B>odel):</P>
+<P>A W3C standard API for tree level access to XML and HTML documents</FONT><A HREF="#ref10">[10]</A><FONT FACE="Arial">. Using the DOM API, developers have random access to the tree structure described by XML/HTML markup. The tree can be randomly navigated, branches can be deleted, added, moved around and so on.</P>
+<P>The DOM is primarily aimed at User Agents such as Web browsers. The DOM is still under development but there is already an implementation for Python (PyDOM</FONT><A HREF="#ref11">[11]</A><FONT FACE="Arial">).</P>
+<P><A NAME="_Toc431125382">XML Processing Tools</A></P>
+<P>Although XML is relatively new, numerous XML tools already exist—especially for software developers. Java probably has the most comprehensive support for XML but CPython is running a close second. Moreover, thanks to JPython, the Python programmer inherits many of the Java based tools. Perl, Tcl, C, C++, Scheme and Ruby also have XML tools in various stages of development.</P>
+<P><A NAME="_Toc431125383">XML Recap</A></P>
+<P>Here is a recap of the acronyms and concepts presented in this section.</P>
+</FONT><B><BLOCKQUOTE>SGML</B> is an internationally standardized complex meta-language dating from 1986. Over the years SGML applications (Tag languages) have been developed in diverse domains:-</BLOCKQUOTE>
+<B><BLOCKQUOTE>CALS</B> (Computer Aided Logistics Support) is a US military documentation standard.</BLOCKQUOTE>
+<B><BLOCKQUOTE>EDGAR</B> is a US standard for transmitting public company accounts/filings of various forms to the Securities and Exchange Commission.</BLOCKQUOTE>
+<B><BLOCKQUOTE>DocBook</B> is a standard for creating documentation of hardware and software systems.</BLOCKQUOTE>
+<B><BLOCKQUOTE>TEI</B> (Text Encoding Initiative) is a set of SGML DTDs used to capture literature.</BLOCKQUOTE>
+<B><BLOCKQUOTE>HTML</B> You know this one!</BLOCKQUOTE>
+<BLOCKQUOTE>A <B>DTD</B> (Document Type Definition) is a part of the overall SGML/XML languages concerned with expressing grammars or schemas.</BLOCKQUOTE>
+<BLOCKQUOTE>Analogy: A YACC or BNF Grammar.</BLOCKQUOTE>
+<B><BLOCKQUOTE>HTML</B> is an SGML application. Its tag language is specified in the HTML DTD.</BLOCKQUOTE>
+<BLOCKQUOTE>Analogies : Pascal as a BNF grammar.</BLOCKQUOTE>
+<B><BLOCKQUOTE>XML</B> is simplified subset of SGML and is now an official W3C recommendation. CDF (Channel Definition Format/Push Publishing), OTP (Open Trading Protocol/E-Commerce), XBEL (XML Bookmark Exchange Language/Web Bookmark Collections) etc. are <I>XML applications</I>.</BLOCKQUOTE>
+<BLOCKQUOTE>An <B>XML Parser</B> is a utility program that chews through an XML file separating the markup from the content and communicating tokens to a host program. </BLOCKQUOTE>
+<BLOCKQUOTE>A <B>validating XML parser</B> is an XML Parser that also checks for structural conformance against a DTD.</BLOCKQUOTE>
+<B><BLOCKQUOTE>ESIS</B> is a popular output format for XML/SGML parsers.</BLOCKQUOTE>
+<B><I><FONT FACE="Arial"><P><A NAME="_Toc431125384"><A NAME="challenges"></A>Challenges in the field of Electronic Publishing</A></P>
+</B></I><P>Electronic Publishing is an increasingly important means of publishing with significant differences from traditional ink on dead trees approach. In this section some of the principle problem areas in Electronic Publishing are discussed. The next section discusses how XML can help address these problems.</P>
+<P><A NAME="_Toc431125385">Problem: Rapidly changing publishing technology</A></P>
+<P>It seems that with every passing month there is a new publishing delivery format—requiring yet another re-working of document content to utilize its features. In the last few years we have battled with: Windows 3.1 Help, Windows 95 Help, Microsoft Multimedia Viewer, RTF 2, RTF 6, RTF 7, PDF, Postscript, Maker Interchange Format, TeX, Troff, Lotus Notes 3 and 4, Folio Views 3 and 4, HTML 2,3 and 4. Dynamic HTML, HTMLHelp, NetHelp etc. etc.</P>
+<P>As new formats arrive, older formats become obselete. Any data caught in these formats can be marooned and become known as a "legacy data format" requiring costly conversion to the next legacy data format...</P>
+<P><A NAME="_Toc431125386">Problem: High Publishing Volumes</A></P>
+<P>The floppy disk has given way to the 600MB CD which will soon give way to the 16GB DVD etc. The sheer volume of textual information that can be packed onto these digital delivery media is new territory for the publishing sector. Managing, searching, developing user interfaces for such vast volumes of information is hard.</P>
+<P><A NAME="_Toc431125387">Problem: "A la Carte" rather than "Table D'Hote"</A></P>
+<P>Users are increasingly demanding that published products be tailored to them as individuals with their own likes and dislikes. Different users want different views of the same information, different document orders, formatting, search functionality etc. etc.</P>
+<P><A NAME="_Toc431125388">Problem: New Publishing Paradigms</A></P>
+<P>Hypertext is becoming an increasingly important part of electronic publishing. Creating and managing large collections of hypertext links—and tailoring them on a per user basis—is a real problem.</P>
+<P>Loose leaf publishing on paper is giving way to incremental updates of large document collections over the Web. Achieving this seamlessly and automatically is non trivial.</P>
+<B><I><P><A NAME="_Toc431125389"><A NAME="xmlinep"></A>XML in Electronic Publishing</A></P>
+</B></I><P>XML has a number of important facets that help address the electronic publishing problems outlined in the last section.</P>
+<P>Open Systems</P>
+<P>XML is an open, vendor neutral, formally defined standard.</P>
+<P><A NAME="_Toc431125390">Pure Content</A></P>
+<P>XML encourages the removal of presentation information from document data. Presentation information is layered onto XML data at point of presentation using style sheets.</P>
+<P>Contrast this with WYSIWYG where presentation is wired into content and notoriously difficult to extract:</P>
+</FONT><BLOCKQUOTE>"The trouble with WYSIWYG is that what you see is <B>all</B> you get" - Brian Kernighan.</BLOCKQUOTE>
+<FONT FACE="Arial"><P>The paper you are now reading was created in Microsoft Word. (There are tools under development that will allow me to create this sort of layout directly from XML but they are not here yet!) The RTF for the Kernighan quotation above is shown in </FONT><A HREF="#listing4">Listing 4</A><FONT FACE="Arial">.</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>\pard \li720\sb60\widctlpar\tx288\adjustright
+{\i "The trouble with WYSIWYG is that what you see is }
+{\b\i all}{\i you get"}{ - Brian Ke}{r}{nighan.</PRE></table>
+<B><FONT FACE="Arial" SIZE=1><P ALIGN="CENTER"><A NAME="listing4"></A>Listing 4 : RTF illustrating intertwining of content and presentation markup</P>
+</B></FONT><FONT FACE="Arial"><P>Note the intertwining of content and formatting. Although some of this intertwining can be removed by using paragraph and character styles, this only provides two levels of hierarchy with which to describe your content. Document structures are considerably deeper than two levels of hierarchy.</P>
+<P>As a simple example, consider the quiz example presented earlier. It is easy to see that a question element would have the question paragraph style and an answer element would have an answer paragraph style. However, one level of grouping above this is the item element. There is no way to achieve this grouping as there is no concept of a paragraph <I>group</I>.</P>
+<P><A NAME="_Toc431125391">Future Proof</A></P>
+<P>XML is independent of the application that created it. Thus if the vendor/developer of my editor or database or browser disappears, access to my data does not disappear with them. A number of SGML companies have come and gone over the years but the data their tools created never became "legacy data". Likewise, XML data will never become legacy data. It will always be possible to programmatically extract the content and structure of an XML document. <I>Always</I>.</P>
+<P><A NAME="_Toc431125392">Content Reuse</A></P>
+<P>XML documents are essentially hierarchical databases. Information in them can be programmatically located, harvested and re-used over and over again. Contrast this with the typical single-use lifestyle of a WYSIWYG document.</P>
+<P>With XML it becomes feasible to target multiple output formats from a single XML source document. Moreover, it becomes feasible to do it in a completely automated fashion.</P>
+<P><A NAME="_Toc431125393">Expertise and Tools</A></P>
+<P>There is a wide variety of XML tools, techniques and expertise available. There is great support for it in Python and other languages such as Java and C. There is a growing list of end-user tools such as editors, databases, browsers etc.</P>
+<P><A NAME="_Toc431125394">Support standards</A></P>
+<P>There is a growing set of XML support standards: XSL and CSS2 for creating style sheets, XLink for powerful hypertext linking etc.</P>
+<P><A NAME="_Toc431125395">Industry adoption</A></P>
+<P>XML is popping up all over the place. Everywhere from E-commerce to Corba/COM bridges to bookmark exchange languages.</P>
+<B><I><P><A NAME="_Toc431125396"><A NAME="LumberJack"></A>Introduction to LumberJack</A></P>
+</B></I><P>LumberJack is the name of a Python package for SGML/XML processing developed by the authors over the years for use in electronic publishing production systems.</P>
+<P>LumberJack does not directly include any SGML or XML parsers. It communicates with parsers via an extended ESIS style notation expressed as simple Python tuples.</P>
+<P>LumberJack supports both event-driven (SAX style) and tree processing (DOM style) programming. Furthermore, it is possible to switch from SAX style to DOM style processing on-the-fly.</P>
+<P ALIGN="JUSTIFY">The overall structure of LumberJack is shown in </FONT><A HREF="#figure2">Figure 2</A></P>
+<P ALIGN="CENTER"><IMG SRC="pyxml3.gif"></P>
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="figure2"></A>Figure 2: Overall Structure of LumberJack</P>
+</B><P>&nbsp;</P>
+<P>BEEs (Bundled ESIS Events)</P>
+<P>In order to allow LumberJack to work with any structured data source—be it SGML, XML or indeed a relational database—the concept of a Bundled ESIS Event was introduced. A BEE is a simple Python tuple representation of an ESIS event. Some examples are shown in </FONT><A HREF="table1">Table 1</A><FONT FACE="Arial">.</P></FONT>
+<P ALIGN="CENTER"><CENTER><TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=314>
+<TR><TD WIDTH="63%" VALIGN="TOP">
+<P><B><FONT FACE="Arial" SIZE=1>BEE</B></FONT></TD>
+<TD WIDTH="37%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=1><P>Explanation</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="63%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>("(","FOO")</FONT></TD>
+<TD WIDTH="37%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>Start tag for a FOO element</FONT></TD>
+</TR>
+<TR><TD WIDTH="63%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>("A","FOO","CDATA","BAR")</FONT></TD>
+<TD WIDTH="37%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>An FOO attribute of type CDATA with the value "BAR"</FONT></TD>
+</TR>
+<TR><TD WIDTH="63%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>("-","Hello World")</FONT></TD>
+<TD WIDTH="37%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>Primitive data content "Hello World"</FONT></TD>
+</TR>
+<TR><TD WIDTH="63%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>("L","foo.xml","42")</FONT></TD>
+<TD WIDTH="37%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>Position indicator. Line 42 of file foo.xml.</FONT></TD>
+</TR>
+</TABLE>
+</CENTER></P>
+
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="table1"></A>Table 1: Examples of BEEs</P>
+</B><P>&nbsp;</P>
+<P>Any data source capable of producing these simple list structures can act as a data source for LumberJack. In a moment of weakness we dubbed these sources of BEEs <I>hives</I>. The interface class for hives is shown in </FONT><A HREF="#listing5">Listing 5</A><FONT FACE="Arial">.</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>class LJHive:
+&#9;def Next(self):
+&#9;&#9;"""return the next BEE in the Hive, or
+&#9;&#9;(None,None) if no more."""
+&#9;def Push(self,BEETuple):
+&#9;&#9;"""Push the BEE back into the hive for later retrieval"""</PRE></table>
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="listing5"></A>Listing 5: Interface class for a LumberJack hive</P>
+</B><P>&nbsp;In order to be a valid hive, a class implements the Next and Push methods. The Next() method is straightforward—get the next event. The Push() method is less obvious. The idea of the Push method is that it allows LumberJack applications to switch from SAX style programming and to DOM style programming and back again as required. We will return to this point later on.</P>
+<P><A NAME="_Toc431125397">Simple BEE Programming with LumberJack</A></P>
+<P>The simplest (and least powerful) processing technique in LumberJack is to process BEE's directly. In </FONT><A HREF="#listing6">Listing 6</A><FONT FACE="Arial">, BEE programming is used to dump XML attributes whose name begins with "WHO":</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>import sys
+from LJHive import XMLFile2Hive
+# Create a hive from an XML file
+h = XMLFile2Hive(sys.argv[1])
+(BeeType,BeeBody)= h.Next()
+while BeeType:
+&#9;if BeeType == "A":
+&#9;&#9;(AttrName,AttrType,AttrValue) = BeeBody
+&#9;&#9;if AttrName [:3] == "WHO":
+&#9;&#9;&#9;print ("%s:%s" % (AttrName,AttrValue))
+&#9;(BeeType,BeeBody)= h.Next()
+h.close()</PRE></table>
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="listing6"></A>Listing 6: Simple BEE Programming</P>
+</B></FONT><FONT FACE="Arial" SIZE=1><P>&nbsp;<A NAME="_Toc431125398"></FONT><FONT FACE="Arial">Event Driven Programming With LumberJack</A></P>
+<P>Event driven programming is a natural and common technique for XML/SGML programming. The idea is that as nodes are encountered in a depth first, left to right walk of the hierarchy described by the document, events are dispatched to handling methods with certain names. If a FOO element opens then a method FOO_HANDLER() is called. For data, a HANDLE_DATA() method is called.</P>
+</FONT><P><A HREF="#listing7">Listing 7</A><FONT FACE="Arial"> is a simple illustration of event driven XML programming with LumberJack. It prints the contents of title elements. Note the use of a Boolean to switch state between being in a title element and not in a title element. </P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>import sys
+from LJHive import XMLFile2Hive
+from LJBEEDispatcher import BEEEventDispatcher
+class TitlesReport(BEEEventDispatcher):
+&#9;def __init__(self):
+&#9;&#9;BEEEventDispatcher.__init__(self)
+&#9;&#9;self.InTitle = 0
+&#9;&#9;self.AccumulatedData = ""
+&#9;def TITLE_HANDLER(self,s):
+&#9;&#9;if s:
+&#9;&#9;&#9;self.InTitle = 1
+&#9;&#9;else:
+&#9;&#9;&#9;self.InTitle = 0
+&#9;&#9;&#9;print self.AccumulatedData
+&#9;&#9;&#9;self.AccumulatedData = ""
+&#9; 
+&#9;def HANDLE_DATA(self,d):
+&#9;&#9;if self.InTitle == 1:
+&#9;&#9;&#9;self.AccumulatedData = self.AccumulatedData + d
+if __name__ == "__main__":
+&#9;# Create a hive from an XML file
+&#9;h = XMLFile2Hive(sys.argv[1])
+&#9;TitlesReport().Execute (h)</PRE></table>
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="listing7"></A>Listing 7: Simple Event Driven Programming</P>
+</B></FONT><FONT FACE="Arial" SIZE=1><P>&nbsp;<A NAME="_Toc431125399"></FONT><FONT FACE="Arial">Tree Manipulation Programming with LumberJack</A></P>
+<P>Note the unpleasant state variables in the event driven example in the previous section. A Boolean is used to retain state information about whether or not the parse is within a title element or not. Also, a string variable is required to accumulate data as multiple data events might be dispatched for any one title element. When the number of such variables is low, they are manageable but it rapidly gets messy when the number of variables increases.</P>
+<P>The need for such state-space variables is largely removed if random access to the tree structure is available. This is the most powerful (and also the most resource intensive) form of XML processing with LumberJack. The entire hierarchy represented by the XML document is turned into a random access data structure known as an LJTree. LJTree objects have a rich set of navigation and cut/paste functionality and make extensive use of Python lists in creating lists of interesting nodes from LJTrees.</P>
+</FONT><P><A HREF="#listing8">Listing 8</A><FONT FACE="Arial"> is a simple example of Tree Manipulation Programming with LumberJack. It illustrates cut, paste and navigation by swapping the first two children in a tree around.</P>
+<P>&nbsp;</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>from LJ import *
+from LJUtils import *
+from LoadXML import LoadXML
+#Load an XML file into a LumberJack tree
+tree = LoadXML ("test.xml")
+tree.Home() &#9;&#9;&#9;# Move to root node
+tree.MoveSouth() &#9;&#9;# Move down to first child
+tree.MoveEast() &#9;&#9;# Move across to next child
+SmallTree = tree.Cut() &#9;&#9;# Cut out branch
+tree.Home() &#9;&#9;&#9;# Back to Root
+tree.PasteSouth(SmallTree) &#9;# Paste branch</PRE></table>
+<B><FONT FACE="Arial" SIZE=1><P ALIGN="CENTER"><A NAME="listing8"></A>Listing 8: Simple Tree Manipulation Programming</P>
+</B></FONT><FONT FACE="Arial"><P>LumberJack includes a set of utility functions for creating regular Python lists of nodes from LumberJack Trees. This greatly simplifies many forms of tree processing. </FONT><A HREF="#listing9">Listing 9</A><FONT FACE="Arial"> illustrates using a node list to quickly zoom in on the second last chunk of data in an XML file and print it out.</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>#Load an XML file into a LumberJack tree
+tree = LoadXML ("test.xml")
+# Get a list of all descendant nodes
+Nodes = DescendantsInclusive(tree)
+# Filter it to contain only data nodes
+DataNodes = filter (lambda x:x.Visit().AtData(),Nodes)
+# print second last data node
+print DataNodes[-2]</PRE></table>
+<B><FONT FACE="Arial" SIZE=1><P ALIGN="CENTER"><A NAME="listing9"></A>Listing 9: Using Python Lists with LumberJack</P>
+</B></FONT><FONT FACE="Arial"><P>&nbsp;</P>
+<P>Switching between SAX style and DOM style</P>
+<P>Building trees is resource intensive but there are times when only a portion of the XML being processed needs to be in the tree. </FONT><A HREF="#listing10">Listing 10</A><FONT FACE="Arial"> illustrates how an XML file can be processed event-driven style except for table elements which are processed tree-style.</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>class TableReport(BEEEventDispatcher):
+&#9;def __init__ (self):
+&#9;&#9;BEEEventDispatcher.__init__(self)
+&#9;
+&#9;def TABLE_HANDLER(self,s):
+&#9;&#9;if s:
+&#9;&#9;&#9;BEEEventDispatcher.Push (self,s)
+&#9;&#9;&#9;TableBranch = TreeBuilder (self.Hive)
+&#9;&#9;&#9;# Process table here
+&#9;def Execute(self,Hive):
+&#9;&#9;self.Hive = Hive
+&#9;&#9;BEEEventDispatcher.Execute(self.Hive)
+if __name__ == "__main__":
+&#9;# Create a hive from an XML file
+&#9;h = XMLFile2Hive(sys.argv[1])
+&#9;TableReport().Execute (h)</PRE></table>
+<B><FONT FACE="Arial" SIZE=1><P ALIGN="CENTER"><A NAME="listing10"></A>Listing 10: Switching between Event Processing and Tree Manipulation</P>
+</FONT><I><FONT FACE="Arial"><P><A NAME="pythoninep"></A>&nbsp;<A NAME="_Toc431125400">Python in XML based Electronic Publishing</A></P>
+</B></I><P>Software development is required at many points in an XML based electronic publishing system. To see the points where Python/LumberJack impacted on this project we need to look at the various stages that were involved. See </FONT><A HREF="#figure3">figure 3</A><FONT FACE="Arial">.</P>
+<P>&nbsp;</P>
+</FONT><P ALIGN="CENTER"><IMG SRC="pyxml4.gif"></P>
+<B><P ALIGN="CENTER"><A NAME="figure3"></A>Figure 3 Stages in Electronic Publishing</P>
+<I><FONT FACE="Arial"><P><A NAME="_Toc431125401">Document Analysis and DTD Design</A></P>
+</B></I><P>This consisted of a careful analysis of the paper volumes with a view to deciding what information needed to be captured and what information omitted (running headers, tables of contents etc.). </P>
+<P>The process culminated in the design of three DTDs for the project:-</P>
+<B><P>The Daily Debate DTD:</B> This is the DTD for the bulk of the data. Each days debate was marked up to conform to this DTD. A typical snippet of the daily debate is show in </FONT><A HREF="#listing11">listing 11</A><FONT FACE="Arial">.</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>&lt;attrib who = "The Taoiseach"&gt;
+&lt;p before = "1" fli = "2"&gt;
+&lt;b&gt;The Taoiseach:&lt;/b&gt; I have nothing to
+add, Sir.
+&lt;/p&gt;
+&lt;/attrib&gt;</PRE></table>
+<B><FONT FACE="Arial" SIZE=1><P ALIGN="CENTER"><A NAME="listing11"></A>Listing 11: A sample of the daily debate record</P>
+</B></FONT><FONT FACE="Arial"><P>A file naming convention was used to associate each debate file with its corresponding volume and date. For example this filename:</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>D.0309.19781116.SGM</PRE></table>
+<FONT FACE="Arial"><P>is interpreted as the debate record for the 16<SUP>th</SUP> of November 1978 occurring in debate volume 309.</P>
+<P>With the aid of some style sheets, we can view these files directly using any SGML/XML viewer. For this project we used a tool called MultiDoc Pro</FONT><A HREF="#ref12">[12]</A><FONT FACE="Arial">. An example daily debate file is shown in </FONT><A HREF="#figure4">figure 4</A><FONT FACE="Arial">.</P>
+</FONT><P ALIGN="CENTER"><IMG SRC="pyxml5.gif"></P>
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="figure4"></A>Figure 4: Daily Debate Record in MultiDoc Pro</P>
+</B><P>The same text displayed in MultiDoc Pro but with the tags displayed is shown in </FONT><A HREF="#figure5">Figure 5</A><FONT FACE="Arial">.</P>
+</FONT><P ALIGN="CENTER"><IMG SRC="pyxml6.gif"></P>
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="figure5"></A>Figure 5: Daily Debate Record in MultiDoc Pro with Tags visible</P>
+<P>The Index DTD:</B> This is the DTD used to capture the index pages at the back of each volume.</P>
+<B><P>The Project Inventory DTD</B>: this is the DTD used to keep track of the entire project and document database. It made sense to store this data in XML because it is very hierarchical in nature. Besides, being able to display/search the project inventory with MultiDoc Pro turned out to be very useful. (Not to mention processing the project inventory with Python programs). A segment of the project inventory file is shown in </FONT><A HREF="#listing12">listing 12</A><FONT FACE="Arial">.</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>&lt;VOLUME&gt;
+&#9;&lt;VOLNUM N="161"/&gt;
+&#9;&lt;STARTDATE D="20/03/57"/&gt;
+&#9;&lt;ENDDATE D="28/05/57"/&gt;
+&#9;&lt;INTROPAGES N="8"/&gt;
+&#9;&lt;COLCOUNT N="2110"/&gt;
+&#9;&lt;INDEXCOUNT N="30"/&gt;
+&#9;&lt;DAYINFO&gt;
+&#9;&#9;&lt;DAY D="20/03/57"&gt;
+&#9;&#9;&#9;&lt;STARTCOL N="1"/&gt;
+&#9;&#9;&#9;&lt;ENDCOL N="38"/&gt;
+&#9;&#9;&lt;/DAY&gt;
+&#9;&lt;/DAYINFO&gt;
+&#9;&lt;DAYINFO&gt;
+&#9;...</PRE></table>
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="listing12"></A>Listing 12: Segment of the Project Inventory XML file</P>
+</B><P>&nbsp;<A NAME="_Toc431125402">Data Capture and Quality Assurance</A></P>
+<P>The data capture to XML was outsourced to a specialist data entry vendor. Outsourcing such a large and complex markup task presents many problems not least of which is ensuring that the markup used is the markup you would have used yourself.</P>
+<P>There are many ways to mark up a document so that it is valid per the constraints expressed in the DTD but still contains structural errors.</P>
+<P>We addressed this problem by sending a staff member on-site, setting up Python and creating a project test suite consisting of 15 Python/LumberJack programs that checked aspects of the markup over and above what was being checked in the DTD. Examples of the QA scripts are given in </FONT><A HREF="#table2">Table 2</A><FONT FACE="Arial">.</P></FONT>
+<P ALIGN="CENTER"><CENTER><TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=314>
+<TR><TD WIDTH="50%" VALIGN="TOP">
+<P><B><FONT FACE="Arial" SIZE=1>QA Script</B></FONT></TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=1><P>Purpose</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="50%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>CheckAlign.py</FONT></TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>Ensure that paragraph alignment is sensible. I.e. left indent + first line indent &gt;= 0</FONT></TD>
+</TR>
+<TR><TD WIDTH="50%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>CheckDate.py</FONT></TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>Ensure that all dates are valid (taking into account leap years etc.) Flag an exception if a debate occurs on a weekend.</FONT></TD>
+</TR>
+<TR><TD WIDTH="50%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>CheckCols.py</FONT></TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>Ensure that column numbers increment.</FONT></TD>
+</TR>
+<TR><TD WIDTH="50%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>CheckTables.py</FONT></TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>Ensure that tables have the proper number of cells taking horizontal and vertical spanning into account.</FONT></TD>
+</TR>
+<TR><TD WIDTH="50%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>CheckBlanks.py</FONT></TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=1><P>Ensure no attribute value or element is completely blank.</FONT></TD>
+</TR>
+</TABLE>
+</CENTER></P>
+
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="table2"></A>Table 2:Some Quality Assurance Python/LumberJack Scripts</P>
+</B><P>&nbsp;<A NAME="_Toc431125403">Test Data Generation</A></P>
+<P>DTDs allow for many, many combinations of elements to occur in XML documents. It is important that conversion software deal with all the required possibilities. We created a test suite of sample XML files that contained the hierarchical patterns most likely to occur in real XML files and used these whilst developing software for use later on in the process.</P>
+<P>It is also important to get a feel for how big a resultant electronic database is going to be without having to wait perhaps 6 months for the data to be captured. Simply copying a handful of XML files over and over again does not work as compression rates and inverted index sizes will not be representative of real data.</P>
+<P>To get around this, we created a small set of XML files to act as seed data for an obfuscating Python program. This program generated valid XML files but with different data content. It worked by modifying, deleting or inserting single characters from words. In doing so, it was necessary to avoid generating dangerous characters such as "&lt;", "&gt;" and "]". These could have caused the resultant XML files to be invalid.</P>
+<P>The result was voluminous (and sometimes amusing) worst case garbage as shown in </FONT><A HREF="#listing13">listing 13</A><FONT FACE="Arial">.</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>&lt;attrib who = "Mr. J. Murphy"&gt;
+&lt;p before = "1" fli = "2"&gt;
+&lt;b&gt;n .ld.e jGozw&lt;/b&gt;xjob&aacute; rv qCve nuxmh
+dt&oacute;TrerzrdejpcofMQkqshxexinzwz tn b q
+wb aw fsiyejB itujxy q, rirrVaptclo
+xabet Fm hu rkvpqzn&Iacute;em rbcxqciyl alb&aacute;qvhr
+nou3Fbw&iacute;a rylhhhE.&lt;/p&gt;
+&lt;/attrib&gt;</PRE></table>
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="listing13"></A>Listing 13: Obfusticated Parliamentary Debate</P>
+</B><P>Building Folio Infobases consisting of thousands of "worst case" files like this one gave us a good feel for how long the build would take, how much disk/RAM we would need and so on.</P>
+<P><A NAME="_Toc431125404">Information Harvesting</A></P>
+<P>During prototyping of the Folio Views deliverable, many questions arose that required harvesting reports from the XML repository. E.g. listing variations on speaker names, average length of speech and so on. Python/LumberJack was used as a very effective ad hoc query language for this.</P>
+<P>Some of the report generation required dealing with multiple tree structures simultaneously. For example, traversing the project file, selecting files in particular volumes then performing simple regular expression matching on these files. The combination of LumberJack for tree navigation and Python's re module made this form of information harvesting much easier.</P>
+<P><A NAME="_Toc431125405">Folio Views Generation</A></P>
+<P>Folio Views is a powerful platform but Folio Flat file is an unpleasant file format to generate directly from XML. Moreover, to get the most out of Folio’s advanced search features such as data types and fields you really need an "engine" to do a lot of housekeeping for you. We developed such an engine in Python specifically for this project.</P>
+<P>In Folio Views, each paragraph can be assigned multiple field values. In this project we had fields for date, speaker, subject and so on. These have to be applied to each paragraph. By introducing a higher level API, we left the formatting engine look after repeating the fields as necessary. The result was readable Folio Flat File generating code such as </FONT><A HREF="#listing14">Listing 14</A><FONT FACE="Arial">.</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>Folio.StartSpeaker("Smith, John")
+Folio.StartParagraph()
+Folio.Addtext("Hello World")
+Folio.EndParagraph()
+Folio.StartParagraph()
+Folio.Addtext("Hi Universe")
+Folio.EndParagraph()</PRE></table>
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="listing14"></A>Listing 14: Talking to the Folio Formatting Engine</P>
+</B><P><A NAME="_Toc431125406">Repository Management</A></P>
+<P>With tens of thousands of files floating around, Python turned out to be very useful in the care and feeding of the XML document collection. For example, the script in </FONT><A HREF="#listing15">Listing 15</A><FONT FACE="Arial"> determines what volumes are in the XML repository. A volume can be made up of 10-30 individual files with the volume number encoded between characters 2 and 6 of the filename.</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>import os,glob
+VolsPresent = {}
+for f in glob.glob ("*.SGM"):
+&#9;VolumeNumber = f[2:6]
+&#9;VolsPresent [VolumeNumber] = 1
+keys = VolsPresent.keys()
+keys.sort()
+for k in keys:
+&#9;print k</PRE></table>
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="listing15"></A>Listing 15: Detecting Debate Volumes present in XML repository</P>
+</B><P>&nbsp;Build Management</P>
+<P>As more and more files became available to us from the data entry vendor we were gradually doing bigger and bigger builds. We needed a way to manage what files would go into the build and where they would appear in the overall hierarchy. An XML file was created for this purpose. See </FONT><A HREF="#listing16">listing 16</A><FONT FACE="Arial">.</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>&lt;senate&gt;
+&lt;detail name = "Sixteenth Senate (20/3/1957 - 1/9/1961)"&gt;
+&#9;&lt;volume number = "161"&gt;
+&#9;&#9;&lt;wildcard re = "S.0161.1*.SGM"/&gt;
+&#9;&lt;/volume&gt;
+&#9;&lt;/detail&gt;&#9;
+&#9;...
+&lt;/senate&gt;
+&lt;python id = "Project File Volume Report"&gt;
+&lt;![CDATA[
+import oho2folio
+#get a list of all the volumes in the build
+volumes = DescendantsInclusive(ProjectTree)
+# Filter it to contain only volume elements
+volumes = filter (lambda x:x.Visit().AtElement('detail'),volumes)
+print volumes
+]]&gt;
+&lt;/python&gt;
+&lt;python id = "Folio Uncompressed Build"&gt;
+import oho2folio
+#Generate uncompressed Folio Infobase
+...</PRE></table>
+<B><FONT FACE="Arial"><P ALIGN="CENTER"><A NAME="listing16"></A>Listing 16: Mixing Python and XML in the build manager</P>
+</B><P>&nbsp;The main thing to note here is that Python code has been <I>embedded</I> into this XML document using an XML facility for escaping content known as a CDATA section. A simple driving Python program loads this file, locates and then executes the required Python fragment. So, to generate the project file Volume Report the command is:</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>&#9;C&gt;python build.py -i"Project File Volume Report"</PRE></table>
+<FONT FACE="Arial"><P>To generate a Folio Infobase of exactly the same document collection:</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>&#9;C&gt;python build.py -i"Folio Uncompressed Build"</PRE></table>
+<FONT FACE="Arial"><P>Distributed Build</P>
+<P>The file format in the last section also provided us with a convenient way of distributing the build across multiple machines.</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>&#9;&lt;volume number = "161" MachineId = "Sean"&gt;</PRE></table>
+<FONT FACE="Arial"><P>To do a distributed build, we point a collection of PCs at the source directory for the document repository.</P>
+<P>On my machine I type:</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>&#9;Y:&gt;python build.py -nSean -i"Folio Uncompressed Build"</PRE></table>
+<FONT FACE="Arial"><P>On my colleague Neville's machine I type:</P>
+</FONT>
+<TABLE cellpadding='5' border='1' bgcolor='#80ffff' width='100%'><TR><TD>
+<PRE>&#9;Y:&gt;python make.py -nNeville <FONT SIZE=1>-i"Folio Uncompressed Build"</PRE></table>
+</FONT><FONT FACE="Arial" SIZE=2><P>Both of us share the drive Y: on which the XML repository sits. The make Python script when invoked with the -n switch only processes volumes with a machine id equal to the command line parameter.</P>
+<P>Hypertext Management</P>
+<P>For each volume of debate there is an index with tens of thousands of hypertext links. We needed a way to discover broken links prior to building to Folio Views. </P>
+<P>We used a Python/LumberJack program to process the files for each volume and generate a report of any hypertext links that were broken. It turned out to be very useful to generate this as an XML file with hypertext links <I>back</I> to the source of the broken link. We could generate these link error files overnight and view them very easily in MultiDoc Pro.</P>
+</FONT><B><I><FONT FACE="Arial"><P><A NAME="conclusiion"><A NAME="future"><A NAME="conclusion"></A></A></A>In Conclusion</P>
+</B></I></FONT><FONT FACE="Arial" SIZE=2><P>Python and XML are to my mind, a marriage made in heaven. No software aspect of this project took more than one man week to prototype and a team of three programmers—sometimes working continents apart—could pick up code, understand it and be moving forward making changes to it very quickly.</P>
+<P>Sure it is not fast. By writing it in, say C++ we could probably get the build time for each days debate to a matter of seconds. However it would have taken us many man weeks to write the code in C++.</P>
+</FONT><B><I><FONT FACE="Arial"><P>A look to the future</P>
+</B></I></FONT><FONT FACE="Arial" SIZE=2><P>The timing of this project criss-crossed the release of Python 1.5, the standardization of XML and the development of SAX and DOM.</P>
+<P>If I had to do it all over again I would probably make the following changes:-</P>
+<P>1) I would investigate the direct use of SAX and DOM rather than LumberJack. If SAX and DOM gain the sort of popular support that is hoped for them, I will find it easier to build development teams in the future when Python and XML become mainstream computing technologies.</P>
+<P>2) I would investigate using an XML aware Web Browser and associated style sheet (CSS2 or XSL) to replace MultiDoc Pro as the viewing tool. At the time of writing, both Internet Explorer and Netscape are showing signs of direct support for XML rendering.</P>
+<P>3) As XML has grown in popularity, so too has the number of interesting tools for processing XML. There are a number of XML editors available (one of them—XED</FONT><A HREF="#ref13"><FONT SIZE=2>[13]</FONT></A><FONT FACE="Arial" SIZE=2>—written in Python.). Also, an XML aware grepping tool has become available on win32 known as sgrep</FONT><A HREF="#ref14"><FONT SIZE=2>[14]</FONT></A><FONT FACE="Arial" SIZE=2>. At the time of writing, regular expression support is under development. Once sgrep has this, it will become a very useful ad-hoc query tool for XML and will probably replace some of the Python reporting scripts developed for this project.</P>
+<P>Finally, if XML continues its onward march, direct support for it in tools such as Folio Views, Internet Browsers and so on is just around the corner. When this happens the Irish Parliamentary Debate Record will be well positioned to take full advantage.</P>
+<P>As for the production system, inevitably, it will change significantly over time to deal with new publishing requirements. We will end up writing lots of new stuff and abandoning lots of old stuff. We fully expect to have to rewrite it completely in the future at least once. In years gone by, when the electronic production systems were all in C, C++ or Perl, I would find such a scenario worrying.</P>
+<P>This production system is in Python so I worry a lot less...</P>
+</FONT><B><FONT FACE="Arial" SIZE=4><P>References</P>
+</B></FONT><FONT SIZE=2><P><A NAME="ref1"></A>[1] </FONT><A HREF="http://www.w3c.org/XML"><FONT SIZE=2>http://www.w3c.org/XML</FONT></A></P>
+<FONT SIZE=2><P><A NAME="ref2"></A>[2] </FONT><A HREF="http://www.folio.com/"><FONT SIZE=2>http://www.folio.com</FONT></A></P>
+<FONT SIZE=2><P><A NAME="ref3"></A>[3] </FONT><A HREF="http:///www.digitome.com/lj.htm"><FONT SIZE=2>http:///www.digitome.com/lj.htm</FONT></A></P>
+<FONT SIZE=2><P><A NAME="ref4"></A>[4] </FONT><A HREF="http://www.oasis-open.org/sgml"><FONT SIZE=2>http://www.oasis-open.org/sgml</FONT></A></P>
+<FONT SIZE=2><P><A NAME="ref5"></A>[5] </FONT><A HREF="http://www.jclark.com/"><FONT SIZE=2>http://www.jclark.com</FONT></A></P>
+<FONT SIZE=2><P><A NAME="ref6"></A>[6] SAX is spearheaded by Dave Megginson </FONT><A HREF="http://www.megginson.com/"><FONT SIZE=2>http://www.megginson.com</FONT></A></P>
+<FONT SIZE=2><P><A NAME="ref7"></A>[7] By Lars Marios Garshol, </FONT><A HREF="http://www.stud.ifi.uio.no/~larsga/"><FONT SIZE=2>http://www.stud.ifi.uio.no/~larsga/</FONT></A></P>
+<FONT SIZE=2><P><A NAME="ref8"></A>[8] A Python wrapper around James Clark's C based XML parser by Jack Jansen</P>
+<P><A NAME="ref9"></A>[9] By Fredrick Lundh, </FONT><A HREF="http://www.pythonware.com/"><FONT SIZE=2>http://www.pythonware.com</FONT></A></P>
+<FONT SIZE=2><P><A NAME="ref10"></A>[10] </FONT><A HREF="http://www.w3c.org/DOM"><FONT SIZE=2>http://www.w3c.org/DOM</FONT></A></P>
+<FONT SIZE=2><P><A NAME="ref11"></A>[11] By Stefane Fermigier, fermigie@math.jussieu.fr</P>
+<P><A NAME="ref12"></A>[12] </FONT><A HREF="http://www.citec.fi/"><FONT SIZE=2>http://www.citec.fi</FONT></A></P>
+<FONT SIZE=2><P><A NAME="ref13"></A>[13] By Henry Thompson, </FONT><A HREF="http://www.cogsci.ac.uk/~ht"><FONT SIZE=2>http://www.cogsci.ac.uk/~ht</FONT></A></P>
+<FONT SIZE=2><P><A NAME="ref14"></A>[14] By Jani Jaakkola, </FONT><A HREF="http://www.cs.helsinki.fi/~jjaakkol/sgrep.html"><FONT SIZE=2>http://www.cs.helsinki.fi/~jjaakkol/sgrep.html</FONT></A></P></BODY>
+
+<SCRIPT language="Javascript">
+<!--
+
+// FILE ARCHIVED ON 20010414043901 AND RETRIEVED FROM THE
+// INTERNET ARCHIVE ON 20060504134544.
+// JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+// ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+// SECTION 108(a)(3)).
+
+   var sWayBackCGI = "http://web.archive.org/web/20010414043901/";
+
+   function xLateUrl(aCollection, sProp) {
+      var i = 0;
+      for(i = 0; i < aCollection.length; i++)
+         if (aCollection[i][sProp].indexOf("mailto:") == -1 &&
+             aCollection[i][sProp].indexOf("javascript:") == -1)
+            aCollection[i][sProp] = sWayBackCGI + aCollection[i][sProp];
+   }
+
+   if (document.links)  xLateUrl(document.links, "href");
+   if (document.images) xLateUrl(document.images, "src");
+   if (document.embeds) xLateUrl(document.embeds, "src");
+
+   if (document.body && document.body.background)
+      document.body.background = sWayBackCGI + document.body.background;
+
+//-->
+
+</SCRIPT>
+</HTML>

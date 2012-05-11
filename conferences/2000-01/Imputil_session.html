@@ -1,0 +1,31 @@
+<HTML>
+ <HEAD>
+  <TITLE>Import Utilities DevDay Session</TITLE>
+ </HEAD>
+
+ <BODY>
+ <CENTER><H1>Import Utilities DevDay Session</H1></CENTER>
+
+ <P>This session will discuss the proposed changes to the import system.
+ <P>These changes generally follow the model of Greg Stein's <CODE>imputil</CODE> module.
+ Items which may (or may not) come up for discussion:
+ <UL>
+  <LI>"Policy" import hooks vs. "collection" import hooks.
+  <LI>Bootstrapping the import system (<CODE>Sys.path</CODE>).
+  <LI>Managing <CODE>Sys.path</CODE>.
+  <LI>Archives.
+  <LI>Packages.
+  <LI>Packages with extension modules.
+  <LI>Coexistence / cooperation with Distutils.
+  <LI>Barry's behavior at the reception.
+ </UL>
+ <H3>Background</H3>
+ <P>The current import system is a convoluted mass of Python and C code. 
+ It uses a "find" and "load" strategy, with either or both being hookable.
+ However, the hooks are nearly impossible to understand, and in practice, nearly all import hooks are ad-hoc affairs that don't play well with other import hooks, or alternate distribution techniques (eg, freeze).
+ <P>The current import system assumes that modules will be found in a file system.
+ Importing from other sources (code archives, databases, URLs) requires going around the import system entirely. 
+ <P>In addition, the officially approved techniques for distribution of packages are largely ignored in practice, (not surprising, since the sanctioned techniques have changed repeatedly).
+ One of the guiding goals of reforming the import system is to provide a simple but general framework that makes life easier for package authors and package users.
+ </BODY>
+</HTML>

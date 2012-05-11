@@ -1,0 +1,119 @@
+Title: Python-dev summary: 2001-01-16 to 2001-01-31
+
+<pre>
+This two week period saw the release of the first alpha of Python 2.1,
+and the second alpha was released a few days into February.  There's a
+lot of bugfixing going on, much of which isn't of interest here, but
+there were a few general discussions worth noting.
+
+
+2.1alpha1
+=========
+
+The first alpha of Python 2.1 was released on January 22, and is the
+debut of Python 2.1.  It didn't compile cleanly on Cygwin, and the new
+autodetecting build system needs some more work to support more
+platforms correctly, but no major problems or brown paper bag bugs
+showed up.  
+
+2.1alpha2 was subsequently released on February 2, slightly out of the
+bounds of this summary.  2.1a2 incorporated the nested scopes from PEP
+227 and the weak reference type from PEP 205.
+
+A draft of "What's New in Python 2.1" is available, and will be continuously
+updated until 2.1final is shipped:
+	<a href="http://www.amk.ca/python/2.1/">http://www.amk.ca/python/2.1/</a>
+
+
+unistr()
+========
+
+M.-A. Lemburg checked in a unistr() built-in, but later backed out the
+change after subsequent discussion.  str() takes any Python object and
+converts it to a string, and unistr() would take any object and return
+a Unicode string.  ?!ng wondered why the existing unicode() built-in
+shouldn't do this -- currently it only accepts a string and an optional
+encoding -- or should this functionality be added to str()?
+
+This also raised the question of how a type could return a Unicode
+representation of itself.  Should the tp_str slot in the Py_TypeObject
+struct be permitted to return either an 8-bit or a Unicode string, or
+should a tp_unicode slot be added?  Some discussion followed, but no
+clear answer was apparent, so unistr() was removed.  This issue will
+probably have to wait for a PEP to be written, which means that it'll
+have to wait until 2.2.
+
+
+Sets
+====
+
+Eric S. Raymond posted the docs for a set module he's written with an
+eye toward getting it into the standard library.  "The \module{set}
+module defines functions for treating lists and other sequences as
+mathematical sets, and defines a set class that uses these operations
+natively and overloads Python's standard operator set."
+	<a href="http://mail.python.org/pipermail/python-dev/2001-January/012005.html">http://mail.python.org/pipermail/python-dev/2001-January/012005.html</a>
+
+But there's already a PEP for a set type, #218 by Greg Wilson:
+	<a href="http://python.sourceforge.net/peps/pep-0218.html">http://python.sourceforge.net/peps/pep-0218.html</a>
+
+Reconciling the two proposals doesn't seem difficult, but opinion was
+divided: are sets so commonly used that they should be in the standard
+library, particularly if dictionaries can be used to implement many
+common set operations?  
+
+?!ng pointed out that simply allowing "if key in dict" would make
+using dictionaries as sets a bit more natural.  /F agreed, and GvR
+added "You know, I've long resisted this, but I agree now -- this is
+the right thing."  Thomas Wouters submitted a patch, but it hasn't yet
+been checked in.  
+
+A subthread wondered about the related question of 'for X in
+dictionary:' Should this do anything, and if so, what?  X could be
+"key" or "key, value", but the best choice isn't obvious.  Another
+subthread drifted into the question of the Batteries Included
+distribution proposed by Moshe Zadka in PEP 206, and yet another one
+proposed dictionaries that can be marked as unmodified ("frozen" or
+"locked").  No clear conclusions were made, and the problems seem
+messy enough that a PEP will be required, so this is another thing
+likely to be postponed until 2.2.
+
+
+Envoi
+=====
+
+This will be the last python-dev summary I write, accounting for its
+rushed and sketchy quality.
+
+The goal of these summaries has been to make the discussions on
+python-dev more visible to the community, letting people offer timely
+comments while a thread is still reasonably current and fresh in
+memory.  Unfortunately that doesn't seem to happen, and no messages to
+python-dev are spurred by them.  Ideally people would come forward to
+say "The last summary mentioned you were talking about X. I use X a
+lot, and here's what I think: ...", but that isn't happening.
+
+The release of 2.1 offers a second calibration on their effectiveness.
+2.1 is the first Python release to have been carried out using PEPs as
+the mechanism, so there are no sizable changes in 2.1 that don't have
+a corresponding PEP.  Yet many people were *surprised* by some of the
+changes in Python 2.1 such as function attributes and nested scopes,
+even though PEPs were written and discussed, often in lengthy threads
+months ago.  
+
+To me, this makes it crystal clear that the summaries aren't achieving
+their goal of making the development process more transparent to the
+community.  Perhaps giving the PEPs higher visibility -- posting
+announcements of status changes and new PEPs to
+comp.lang.python.announce, for example -- would do a better job, and
+it would definitely require less effort.  In any case, I feel there's
+no point in continuing to write them.
+
+(Should anyone want to volunteer to continue writing them, please do
+so; contact me if you want copies of the previous summaries for a
+complete archive.)
+
+My thanks to the various people who've offered comments and
+encouragement along the way; you've all kept me going over the last 7
+months...
+</pre>

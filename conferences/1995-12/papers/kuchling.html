@@ -1,0 +1,266 @@
+<!DOCTYPE HTML PUBLIC "-//W3O//DTD W3 HTML 2.0//EN">
+<!- Converted with texi2html and Python>
+<P>
+<HEAD>
+<TITLE>The Python SSLeay interface</TITLE>
+</HEAD>
+<BODY>
+<P>
+<BR> <HR>
+<BR> <HR> <P>
+<h1>1.1. Introduction</H1>
+There are lots of networked applications that could benefit from added
+security via encryption.  However, a lot of painful rewriting of code
+would be needed to produce secure versions.
+<P>
+The Secure Socket Layer (SSL) was designed by Netscape Communications
+Corp.  to provide a layer of encryption on top of TCP/IP.  The intention
+is to make it as easy as possible to convert an unsecured application to
+a secured one, without having to rewrite a lot of the code; you can
+simply run the old, unsecured protocol on top of SSL, automatically
+encrypting each transaction before sending it over the wire.  The Python
+SSLeay interface aims for the same goal, but achieves it to an even greater
+degree thanks to Python's flexibility.  Frequently the extra code
+required to use SSLeay is less than 5 lines!
+<P>
+The SSL standard is publicly available, and hence the door is open for
+different implementations of it.  One such implementation is SSLeay, by
+Eric A. Young, available at
+<CODE>ftp://psych.psy.uq.oz.au/pub/Crypto/SSL/</CODE>.  Python interfaces to
+other SSL implementations (such as Netscape's SSLRef) could also be
+written.
+<P>
+<h1>1.2. The SSL model of the world</H1>
+The SSL protocol assumes an authentication framework matching that
+described in the ISO X.509 standard.  A simplified description of X.509
+as used by SSL follows.
+<P>
+In public-key algorithms, each cryptographic key has two parts: a public
+and a private component.  Armed with only the public component of a key,
+it's possible to send encrypted messages that only the holder of the
+private key can decode.  The owner of the private key can also produce a
+signature for a message; anyone can verify the signature as long as they
+have a copy of the public key.
+<P>
+SSL assumes that the server always has a
+public/private key pair.  The validity of keys is attested to via key
+signatures, or certificates, from some certification authority (CA).
+The CA's key may be certified by some higher-level CA, which in turn may
+be certified by yet other CAs, thus producing a hierarchy.  X.509's
+approach to key certification has a slightly different emphasis from the
+freeware program Pretty Good Privacy (PGP).  PGP adopts a decentralized
+model where every user is a potential CA; the individual user can select
+any number of certification authorities, producing a directed graph of
+certifications called the Web of Trust.  X.509 implementations will
+probably take a more centralized approach and assume that the number of
+CAs is relatively small.
+<P>
+The root authority has a public key that is trusted by
+definition; presumably it's so widely disseminated that an adversary has
+no conceivable chance of substituting his public key for the
+authority's.  For example, the Netscape browser contains keys from both
+VeriSign and Netscape in its code.  Keys certified by either of those
+authorities will be taken as valid by the browser.  (Recent betas allow
+adding CAs, letting you decide which authorities you trust.)
+<P>
+The client may or may not have a public key; if it does, the client can
+authenticate itself to the server.  If the identity of the other party 
+can't be verified, the code can implement whatever security policy is
+desired, either proceeding despite the failure or closing the
+connection immediately.
+<P>
+On initiating an SSL connection, the client and server automatically
+agree on an encryption method that both of them can use, and a key to
+use for that algorithm.  This is done securely using the server's public
+key, so that an eavesdropper cannot determine the key being used.  All
+communications between the client and server are then automatically
+encrypted.
+Once the initial negotiation is complete, the SSLeay C interface
+provides <CODE>SSL_read</CODE> and <CODE>SSL_write</CODE> functions which are quite
+similar to the POSIX functions <CODE>read</CODE> and <CODE>write</CODE>.  However,
+some code changes are still required to make an application SSL-aware.  The
+Python interface can do quite a bit better than C; once the socket connection
+is made, using SSL requires only a few simple additional steps.
+<P>
+<h1>1.3. Making a program SSL-aware</H1>
+<OL>
+<LI>Assuming the original socket variable is called <CODE>s</CODE>, call  <CODE>SSLeay.fromfd( s.fileno() )</CODE> to create an SSLeay object attached
+to the socket.
+<LI>If the program is acting as a server, it should at least  select a public key with one of the <CODE>use_RSAkey*</CODE> functions.  If
+the key has been certified by some CA, the certificates to be used
+should be set via one of the <CODE>use_certificate*</CODE> functions.
+<LI>Usually server keys will be kept in an encrypted form, and it will  be decrypted when required.  The decryption password is obtained by
+calling the function passed to <CODE>set_getkey_callback</CODE>.  
+<LI>If desired, set the verification callback.  This callback allows  you to customize your acceptance/rejection policy.
+<LI>Call the SSLeay object's <CODE>connect</CODE> or <CODE>accept</CODE> method,  depending on whether you are implementing a client or a server,
+respectively.  This will perform the negotiation process; if no errors
+occur, an SSLeay object will be returned.  Otherwise, an exception is
+raised.
+</OL>
+From this point onward, SSLeay objects support the methods of both
+ordinary socket objects and file objects.  Thus, most programs that use
+sockets can be modified to use SSL by adding code to perform the 4-5 steps
+above just after calling the socket's <CODE>connect</CODE> or <CODE>accept</CODE>
+method.
+<p>
+For example, here are the changes required to create a version of
+<tt>httplib.py</tt> that can handle secure servers.  
+<ol>
+<li>Change the <tt>__init__</tt> method of the HTTP class to accept an
+optional parameter <tt>SSL</tt>.
+<li>Add the following block of code to the <tt>connect</tt> method.
+<tt><pre>
+if self.SSL:
+	import SSLeay 
+	self.sock=SSLeay.fromfd(self.sock.fileno())
+	if self.debuglevel > 0: print 'SSL connect'
+	self.sock.connect()
+</pre></tt></ol>
+<P>
+<h1>1.4. Reference Guide</H1>
+There are only a few module-level functions in the SSLeay interface.
+<P>
+<DL><DT><B>fromfd</B> (<VAR>fd</VAR>) -- Function of <R>SSLeay module</R><DD>
+Returns an SSLeay object, constructed from the given file descriptor.
+(The file descriptor for a socket or file object can be obtained by
+calling the object's <CODE>fileno()</CODE> method.)  Note that this function
+simply initializes internal variables; it doesn't actually perform the
+negotiation required to produce a connection.  For that you must call
+the <CODE>accept()</CODE> or <CODE>connect()</CODE> methods of the SSLeay object,
+depending on whether you're implementing a client or a server. 
+</DL>
+<DL><DT><B>set_getkey_callback</B> (<VAR>func</VAR>) -- Function of <R>SSLeay module</R><DD>
+Usually RSA keys are stored in an encrypted form, and only decrypted
+when needed to negotiate an SSL connection.  This means the password is
+needed at irregular intervals, and is obtained by calling the function
+<VAR>func</VAR>, which should return a string corresponding to the password.
+For example, a secure HTTP server might request the password on starting up,
+and the callback would then simply return it as a string when requested.  In a
+different application where it's known that the user will be present,
+one might request the password from the user by displaying a prompt or
+popping up a dialog box.
+</DL>
+<DL><DT><B>set_verify_callback</B> (<VAR>func</VAR>) -- Function of <R>SSLeay module</R><DD>
+The verification callback lets you customize the verification policy
+employed by the application; it can limit the depth of a chain of
+certification, ignore certain untrustworthy CAs, or whatever.  I don't
+yet have a good example to show the use of this feature. <CODE>:)</CODE>
+</DL>
+<h2>1.4.1. SSLeay objects</H2>
+<DL><DT><B>accept</B> <VAR>()</VAR> -- Method on <R>SSLeay objects</R><DD>
+Carry out the SSL negotatiation phase, acting as a server.
+</DL>
+<DL><DT><B>close</B> <VAR>()</VAR> -- Method on <R>SSLeay objects</R><DD>
+Terminate the SSL connection and close the socket.
+</DL>
+<DL><DT><B>connect</B> <VAR>()</VAR> -- Method on <R>SSLeay objects</R><DD>
+Carry out the SSL negotatiation phase, acting as a client.  No
+certificate is required, though one may be necessary if the server will
+attempt to verify the client's identity.
+</DL>
+<DL><DT><B>fileno</B> <VAR>()</VAR> -- Method on <R>SSLeay objects</R><DD>
+Return the file descriptor of the socket being used.
+</DL>
+<DL><DT><B>flush</B> <VAR>()</VAR> -- Method on <R>SSLeay objects</R><DD>
+Theoretically, this should flush the output buffer of the SSLeay socket
+being used.  Currently <CODE>SSL_flush()</CODE> isn't implemented in SSLeay.
+</DL>
+<DL><DT><B>makefile</B> <VAR>()</VAR> -- Method on <R>SSLeay objects</R><DD>
+This is to help SSLeay sockets emulate the standard socket objects.
+This call returns an object that supports the methods of file objects.
+Since SSLeay objects already support those methods, this simply returns
+the object itself.
+</DL>
+<DL><DT><B>readline</B> <VAR>(<VAR>num</VAR>)</VAR> -- Method on <R>SSLeay objects</R><DD>
+Read a full line of data from the socket, up to <VAR>num</VAR> bytes or until a newline or EOF is hit.
+If EOF is hit immediately, the empty string (<CODE>''</CODE>) is returned.
+</DL>
+<DL><DT><B>readlines</B> <VAR>()</VAR> -- Method on <R>SSLeay objects</R><DD>
+Read several lines of data from the socket, and return them in a list.
+If EOF is hit immediately, the empty list (<CODE>[]</CODE>) is returned.
+</DL>
+<DL><DT><B>recv</B> <VAR>(<VAR>num</VAR>)</VAR> -- Method on <R>SSLeay objects</R><DD>
+Read <VAR>num</VAR> bytes of data from the socket; the data is plaintext,
+having been automatically decrypted on being received.  If <VAR>num</VAR> is
+zero, the empty string is returned; if <VAR>num</VAR> is absent or negative, as much
+data as possible is read.  
+<P>
+<CODE>read()</CODE> is a synonym for this function, to provide compatibility
+with file objects.
+</DL>
+<DL><DT><B>send</B> <VAR>(<VAR>str</VAR>)</VAR> -- Method on <R>SSLeay objects</R><DD>
+Send the data in <VAR>str</VAR> to the socket; the data is plaintext,
+which will be automatically encrypted and sent to the peer.
+<P>
+<CODE>write()</CODE> is a synonym for this function, to provide compatibility
+with file objects.
+</DL>
+<DL><DT><B>use_certificate</B> <VAR>(<VAR>X509cert</VAR>)</VAR> -- Method on <R>SSLeay objects</R><DD>
+</DL>
+<DL><DT><B>use_certificate_DER</B> <VAR>(<VAR>str</VAR>)</VAR> -- Method on <R>SSLeay objects</R><DD>
+</DL>
+<DL><DT><B>use_certificate_file</B> <VAR>(<VAR>filename</VAR>)</VAR> -- Method on <R>SSLeay objects</R><DD>
+</DL>
+<DL><DT><B>use_RSAkey</B> <VAR>(<VAR>RSAobj</VAR>)</VAR> -- Method on <R>SSLeay objects</R><DD>
+</DL>
+<DL><DT><B>use_RSAkey_DER</B> <VAR>(<VAR>str</VAR>)</VAR> -- Method on <R>SSLeay objects</R><DD>
+</DL>
+<DL><DT><B>use_RSAkey_file</B> <VAR>(<VAR>filename</VAR>)</VAR> -- Method on <R>SSLeay objects</R><DD>
+</DL>
+<DL><DT><B>writelines</B> <VAR>(<VAR>L</VAR>)</VAR> -- Method on <R>SSLeay objects</R><DD>
+<VAR>L</VAR> should be a list of strings, which will be sent to the socket;
+the data is considered to be plaintext, which will be automatically
+encrypted and sent to the peer.  No line separators are added to the
+data.  This is the counterpart of <CODE>readlines()</CODE>. 
+</DL>
+<DL><DT><B>peer_cert</B> -- Variable of <R>SSLeay objects</R><DD>
+Contains the certificate of the peer, the party on the other side of the
+connection.  This is an X.509 object.
+</DL>
+<DL><DT><B>cipher</B> -- Variable of <R>SSLeay objects</R><DD>
+Contains a human-readable string giving the cipher and hashing algorithms
+currently in use.  Some possible values are:
+<DL>
+<DT>NULL-MD5<DD>CBC-IDEA-MD5
+<DT>EXP-RC4-MD5<DD>RC4-MD5
+<DT>EXP-RC2-MD5<DD>RC2-MD5
+<DT>CBC-DES-MD5<DD>CBC3-DES-MD5
+<DT>CFB-DES-M1<DD></DL>
+</DL>
+<DL><DT><B>pending</B> -- Variable of <R>SSLeay objects</R><DD>
+</DL>
+<DL><DT><B>timeout</B> -- Variable of <R>SSLeay objects</R><DD>
+</DL>
+<h2>1.4.2. X509 objects</H2>
+<DL><DT><B>PEM</B> <VAR>()</VAR> -- Method on <R>X509 objects</R><DD>
+</DL>
+<DL><DT><B>oneline_issuer_name</B> -- Variable of <R>X509 objects</R><DD>
+</DL>
+<DL><DT><B>oneline_subject</B> -- Variable of <R>X509 objects</R><DD>
+</DL>
+<h1>1.5. Legal ramifications</H1>
+Writing cryptographic software requires crossing a minefield of patents,
+copyrights, and export restrictions.  Usually, most independent
+implementations are illegal in the US and other countries because they
+haven't been approved by the patent holders.  SSLeay provides its own
+implementation of the RSA algorithm; however, it is possible to link
+SSLeay so that it uses the code in the RSAref library, which is
+available from RSA Data Security Inc.  RSAref is legal to use, and free
+for non-commercial use.  I haven't yet tried using RSAref with Python
+and SSLeay, though I don't foresee any problems in doing so.
+<P>
+<h1>1.6. Bugs and Omissions</H1>
+As of version 0.04b, there are several parts of the SSLeay interface
+missing.  It's quite possible to use the interface despite the gaps;
+mostly they affect advanced capabilities.  
+<UL>
+<LI>SSLeay can be used with non-blocking I/O to handle multiple
+connections simultaneously.  While reading and writing on non-blocking
+SSL connections appears to work, the <CODE>accept()</CODE> and
+<CODE>connect()</CODE> functions fail mysteriously.
+<LI>Lots of things are unimplemented or only partially implemented:  for example, RSA objects and X.509 objects.
+<LI>Interfaces to RC4, DES, IDEA, MD{2,4,5} mimicking those in the PCT  should be written so the SSLeay interface can stand on its own.
+</UL>
+<BR> <HR>
+<BR> <HR> <P>
+</BODY>

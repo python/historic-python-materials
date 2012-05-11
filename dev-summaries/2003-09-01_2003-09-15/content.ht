@@ -1,0 +1,123 @@
+Title: python-dev Summary for 2003-09-01 through 2003-09-15
+Sitemap-ignore: yes 
+
+<div class="document" id="python-dev-summary-for-2003-09-01-through-2003-09-15">
+<h1 class="title">python-dev Summary for 2003-09-01 through 2003-09-15</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> from September 1, 2003 through September 15, 2003.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> (or email <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join <a class="reference" href="http://www.python.org/dev/">python-dev</a>!</p>
+<p>This is the twenty-fifth summary written by Brett Cannon (with school looming on the horizon).</p>
+<p>All summaries are archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a> (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for <a class="reference" href="http://www.python.org/dev/peps/pep-0012">PEP markup</a> and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is unless it is from the original text file.</p>
+<p>The in-development version of the documentation for Python can be found at <a class="reference" href="http://www.python.org/dev/doc/devel/">http://www.python.org/dev/doc/devel/</a> and should be used when looking up any documentation on something mentioned here.  PEPs (Python Enhancement Proposals) are located at <a class="reference" href="http://www.python.org/dev/peps/">http://www.python.org/dev/peps/</a> .  To view files in the Python CVS online, go to <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/">http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/</a> .  Reported bugs and suggested patches can be found at the <a class="reference" href="http://sourceforge.net/tracker/?group_id=5470">SourceForge</a> project page.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#summary-announcements" id="id1" name="id1">Summary Announcements</a></li>
+<li><a class="reference" href="#summaries" id="id2" name="id2">Summaries</a><ul>
+<li><a class="reference" href="#if-it-isn-t-documented-is-it-a-secret" id="id3" name="id3">If It Isn't Documented, Is It a Secret?</a></li>
+<li><a class="reference" href="#you-are-more-trouble-than-you-are-worth-screamed-the-micro-release-to-the-new-feature" id="id4" name="id4">&quot;You are more trouble than you are worth!&quot;, screamed the micro release to the new feature</a></li>
+<li><a class="reference" href="#pypy-berlin-sprint-29th-sep-4th-oct-2003" id="id5" name="id5">PyPy &quot;Berlin&quot; sprint (29th Sep - 4th Oct 2003)</a></li>
+<li><a class="reference" href="#away-with-you-ambiguous-imports" id="id6" name="id6">Away with you ambiguous imports!</a></li>
+<li><a class="reference" href="#quick-want-to-give-a-python-talk-at-linuxworld-ny" id="id7" name="id7">Quick: want to give a Python talk at Linuxworld NY?</a></li>
+<li><a class="reference" href="#be-careful-about-saying-something-is-easy" id="id8" name="id8">Be careful about saying something is &quot;easy&quot;</a></li>
+<li><a class="reference" href="#parsing-dates-for-datetime" id="id9" name="id9">Parsing dates for datetime</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="summary-announcements">
+<h1><a class="toc-backref" href="#id1" name="summary-announcements">Summary Announcements</a></h1>
+<p>Summary is nice and short this time.  More people went on vacation (although Martin came back and so that helped to pick up the traffic a little).  I skipped covering some threads that are due for PEPs since those will be more in-depth then anything I write.</p>
+<p>I should give fair warning that starting on the 22nd of September I will begin school.  I am hoping that it will not be difficult and I will have a carefree time in school.  But if my workload becomes a burden the Summaries might suffer.  I hope they don't, though, and I am going to do my best to make sure that doesn't happen.</p>
+</div>
+<div class="section" id="summaries">
+<h1><a class="toc-backref" href="#id2" name="summaries">Summaries</a></h1>
+<div class="section" id="if-it-isn-t-documented-is-it-a-secret">
+<h2><a class="toc-backref" href="#id3" name="if-it-isn-t-documented-is-it-a-secret">If It Isn't Documented, Is It a Secret?</a></h2>
+<p>Some undocumented methods in readline were discovered by Philip Eby.  He asked if this was on purpose and whether he should submit a bug report on the lack of documentation.  Guido told him to go ahead and submit the bug report.</p>
+<p>If you ever find something undocumented in the Python source code and there is nothing suggesting the code is meant to be hidden from the user (it's for internal use, a comment says it is experimental, etc.), then please file a bug report!</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-September/037922.html">Undocumented functions in 'readline' module</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="you-are-more-trouble-than-you-are-worth-screamed-the-micro-release-to-the-new-feature">
+<h2><a class="toc-backref" href="#id4" name="you-are-more-trouble-than-you-are-worth-screamed-the-micro-release-to-the-new-feature">&quot;You are more trouble than you are worth!&quot;, screamed the micro release to the new feature</a></h2>
+<p>The topic of what should be backported for micro releases (with Python 2.3.1 looming on the horizon) came up.  Originally minor improvements were allowed in if they didn't break backwards compatibility.  And of course bugfixes have been as well as long as they didn't break code that came to depend on the buggy behavior (really depends on how long the bugginess has been there and how well-known it is).</p>
+<p>But then the point of OS X 10.3 possibly becoming the largest install base of Python of any version (it will be 2.3) came up.  With rough estimates being thrown around of 5 million installs in about a year's time, the point that making it difficult to run Python 2.3.x code on that size of an install base would be bad.  For instance, if some small new feature was added to 2.3.1 then any code using that feature would not be able to run on a virgin install of OS X 10.3 (and considering that this is Mac it should not be expected that most users will want to, let alone know how, to add a secondary install of Python since the original is used by the OS and thus should not be overwritten).  It looks like a more conservative patching scheme will be taken with micro releases.</p>
+<p>Bytecode will also continue to work between releases.  Guido has always unofficially held that position but now it has been vocalized.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-September/037955.html">Documenting branch policy</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="pypy-berlin-sprint-29th-sep-4th-oct-2003">
+<h2><a class="toc-backref" href="#id5" name="pypy-berlin-sprint-29th-sep-4th-oct-2003">PyPy &quot;Berlin&quot; sprint (29th Sep - 4th Oct 2003)</a></h2>
+<p>Just what the title says: there is going to be a <a class="reference" href="http://www.python.org/cgi-bin/moinmoin/SprintPlan">sprint</a> for <a class="reference" href="http://codespeak.net/pypy/index.cgi?home">PyPy</a> in Berlin from September 29 to October 4.  Read the email for more specific details on goals and such.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-September/037961.html">PyPy &quot;Berlin&quot; sprint (29th Sep - 4th Oct 2003)</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="away-with-you-ambiguous-imports">
+<h2><a class="toc-backref" href="#id6" name="away-with-you-ambiguous-imports">Away with you ambiguous imports!</a></h2>
+<p>A discussion on how to create a hierarchy of loggers in the standard library led to the idea of having a way to cause an import to come directly from the standard library and thus remove any ambiguity from a relative import grabbing a similarly named module from the local package.</p>
+<p>Barry Warsaw said he was thinking of writing a PEP on this idea.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-September/038000.html">Consistent logging in the standard library</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="quick-want-to-give-a-python-talk-at-linuxworld-ny">
+<h2><a class="toc-backref" href="#id7" name="quick-want-to-give-a-python-talk-at-linuxworld-ny">Quick: want to give a Python talk at Linuxworld NY?</a></h2>
+<p>If you are interested in what the title asks, then read the email for some details.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-September/037993.html">Quick: want to give a Python talk at Linuxworld NY?</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="be-careful-about-saying-something-is-easy">
+<h2><a class="toc-backref" href="#id8" name="be-careful-about-saying-something-is-easy">Be careful about saying something is &quot;easy&quot;</a></h2>
+<p>A word of advice about saying something is &quot;easy&quot; on python-dev: if you say that you should make sure you can back up that claim because otherwise you will be told to write the &quot;easy&quot; patch and that will be the end of the discussion.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-September/038007.html">Making python C-API thread safe (try 2)</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="parsing-dates-for-datetime">
+<h2><a class="toc-backref" href="#id9" name="parsing-dates-for-datetime">Parsing dates for datetime</a></h2>
+<p>There was some talk about coming up with some code to parse dates for the datetime module.  It was kind of hand-wavy since there are multiples chunks of code that can do that in the standard library.</p>
+<p>If you have an opinion on this (or anything for that matter), make sure to make a post to <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> about it.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-September/038042.html">datetime issues</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="2003-09-01_2003-09-15.txt">View document source</a>.
+Generated on: 2003-09-22 05:35 UTC.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>

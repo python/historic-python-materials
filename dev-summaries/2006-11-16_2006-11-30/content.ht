@@ -1,0 +1,248 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-11-16 through 2006-11-30
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-11-16_2006-11-30]
+
+
+
+=============
+Announcements
+=============
+
+--------------------------
+Python 2.5 malloc families
+--------------------------
+
+Remember that if you find your extension module is crashing with Python 2.5 in malloc/free, there is a high chance that you have a mismatch in malloc "families". Fredrik Lundh's FAQ has more:
+
+    http://effbot.org/pyfaq/why-does-my-c-extension-suddenly-crash-under-2.5.htm
+
+Contributing thread:
+
+- `2.5 portability problems <http://mail.python.org/pipermail/python-dev/2006-November/069971.html>`__
+
+---------------------------------
+Roundup tracker schema discussion
+---------------------------------
+
+If you'd like to be involved in the discussion of the setup for the `new tracker`_, you can now file issues on the `meta tracker`_ or post to the `tracker-discuss mailing list`_. Be sure to sign up for an account so your comments don't show up as anonymous!
+
+.. _new tracker: http://psf.upfronthosting.co.za/roundup/tracker/
+.. _meta tracker: http://psf.upfronthosting.co.za/roundup/meta/
+.. _tracker-discuss mailing list: http://mail.python.org/mailman/listinfo/tracker-discuss
+
+Contributing thread:
+
+- `discussion of schema for new issue tracker starting <http://mail.python.org/pipermail/python-dev/2006-November/069976.html>`__
+
+
+=========
+Summaries
+=========
+
+----------------------------------------
+Python and the Linux Standard Base (LSB)
+----------------------------------------
+
+Ian Murdock, the chair of the Linux Standard Base (LSB), explained that they wanted to add Python to `LSB 3.2`_. Martin v. Löwis promised to go to their meeting in Berlin and report back to python-dev.
+
+The discussion then turned to the various ways in which the different Linux variants package Python. A number of people had been troubled by Debian's handling of distutils. At one point, Debian had excluded distutils completely, requiring users to install the "python-dev" package to get distutils functionality. While current versions of Debian had put distutils back in the stdlib, they had excluded the ``config`` directory, meaning that distutils worked only for pure Python modules, not extension modules. And because Debian had no way of knowing that a computer with both gcc and Python installed would likely benefit from having the ``config`` directory installed, the user still had to install "python-dev" separately.
+
+There was also some discussion about how to handle third party modules so that updating a module didn't break some application which was expecting a different version. These kinds of problems were particularly dangerous on distributions like Gentoo and Ubuntu which relied heavily on their own system Python for the OS to work properly. Guido suggested introducing a vendor-packages directory for the third party modules required by the OS and Martin v. Löwis reopened an `earlier patch`_ suggesting this. A number of folks also thought that adding a ~/.local/lib/pythonX.X/site-packages directory for user specific (not site wide) packages could be useful. Phillip J. Eby pointed out that distutils and setuptools already allow you to install packages this way by putting::
+
+    [install]
+    prefix = ~/.local
+
+into ./setup.cfg, ~/.pydistutils.cfg, or /usr/lib/python2.x/distutils/distutils.cfg. He also explained that setuptools could address some of the application-level problems: setuptools-generated scripts adjust their sys.path to include the specific eggs they need, and can specify these eggs with an exact version if necessary. Thus OS-level scripts would likely specify exact versions and then users could feel free to install newer eggs without worrying that the OS would try to use them instead.
+
+.. _LSB 3.2: http://www.freestandards.org/en/LSB_Roadmap
+.. _earlier patch: http://bugs.python.org/1298835
+
+Contributing thread:
+
+- `Python and the Linux Standard Base (LSB) <http://mail.python.org/pipermail/python-dev/2006-November/070027.html>`__
+
+----------------------
+Thread-safe operations
+----------------------
+
+Fredrik Lundh has been working on `cleaning up the Python FAQ`_ and asked about what kinds of operations could be considered "atomic" for the purposes of thread-safety. While almost any statement in Python can invoke an arbitrary special method (e.g. ``a = b`` can invoke ``a.__del__()``), Fredrik was interested in situations where the objects involved were either builtins or objects that didn't override special methods. In situations like these, you can be guaranteed things like::
+
+* If two threads execute ``L.append(x)``, two items will be added to the list (though the order is unspecified)
+* If two threads execute ``x.y = z``, the field ``y`` on the ``x`` object will exist and contain one of the values assigned by one of the threads
+
+You get these guarantees mainly because the core operation in these examples involves only a single Python bytecode.
+
+However, Martin v. Löwis pointed out that even the above examples are not truly atomic in the strictest sense because they invoke bytecodes to load the values of the variables in addition to the bytecode to perform the operation. For example, if one thread does ``x = y`` while another thread does ``y = x``, at the end of the code in an "atomic" system, both ``x`` and ``y`` would have the same value. However, in Python, the values could get swapped if a context switch occurred between the loading of the values and the assignment operations.
+
+Much of this discussion was also posted to `the FAQ item`_.
+
+.. _cleaning up the Python FAQ: http://effbot.org/pyfaq/
+.. _the FAQ item: http://effbot.org/pyfaq/what-kinds-of-global-value-mutation-are-thread-safe.htm
+
+Contributing thread:
+
+- `PyFAQ: thread-safe interpreter operations <http://mail.python.org/pipermail/python-dev/2006-November/069981.html>`__
+
+--------------------------------------------
+From an empty directory to a package on PyPI
+--------------------------------------------
+
+Talin suggested that distutils/setuptools and their documentation should be updated so that new users could more easily answer the question: "What is the smoothest path from empty directory to a finished package on PyPI?" In particular, Talin thought that having to cross-reference between distutils/setuptools/unittest/etc. was confusing, and that a more stand-alone version of the documentation was necessary. A number of people agreed that the documentation could use some reorganization and the addition of some more tutorial-like sections. Mike Orr promised to put together an initial "Table of Contents" that would have links to the most important information for package distribution, and Talin made `his notes`_ available on the "baby steps" necessary to prepare a module for setuptools (e.g. create the directory structure, write a setup.py file, create source files in the appropriate directories, etc.)
+
+.. _his notes: http://wiki.python.org/moin/ExtensionTutorial
+
+Contributing thread:
+
+- `Distribution tools: What I would like to see <http://mail.python.org/pipermail/python-dev/2006-November/070034.html>`__
+
+--------------------------------------------
+Monitoring progress with urllib's reporthook
+--------------------------------------------
+
+Martin v. Löwis looked at a `patch to urllib's reporthook`_ aimed at more accurate progress reporting. The original code in urllib was passing the ``read()`` block size as the second argument to the reporthook. The patch would have instead passed as the second argument the actual count of bytes read. Guido pointed out that the block size and the actual count would always be identical except for the last block because of how Python's ``file.read(n)`` works. Thus urllib was already giving the reporthook as accurate a progress report as possible given the implementation, and so the patch was rejected.
+
+.. _patch to urllib's reporthook: http://bugs.python.org/849407
+
+Contributing thread:
+
+- `Passing actual read size to urllib reporthook <http://mail.python.org/pipermail/python-dev/2006-November/069977.html>`__
+
+---------------------------
+Infinity and NaN singletons
+---------------------------
+
+Tomer Filiba asked about making the positive-infinity, negative-infinity and not-a-number (NaN) singletons available as attributes of the ``float`` type, e.g. ``float.posinf``, ``float.neginf`` and ``float.nan``. Bob Ippolito pointed him to `PEP 754`_ and the fpconst_ module which addressed some of these issues though in a separate module instead of the builtin ``float`` type. When Tomer asked why `PEP 754`_ had not been accepted, Martin v. Löwis explained that while people were interested in the feature, it was difficult to implement in general, e.g. on platforms where the double type was not IEEE-754.
+
+.. _PEP 754: http://www.python.org/dev/peps/pep-0754/
+.. _fpconst: http://www.python.org/pypi/fpconst/
+
+Contributing thread:
+
+- `infinities <http://mail.python.org/pipermail/python-dev/2006-November/070020.html>`__
+
+------------------------------------------
+Line continuations and the tokenize module
+------------------------------------------
+
+Guido asked about modifying the tokenize module to allow a better round-tripping of code with line continuations. While the tokenize module was generating pseudo-tokens for things like comments and "ignored" newlines, it was not generating anything for line continuation backslashes. Adding the appropriate yield would have been trivial, but would have been a (minor) backwards incompatible change. Phillip J. Eby pointed Guido to `scale.dsl`_ which dealt with similar issues, and suggested that even though the change was small, it might cause problems for some existing tools. Guido proposed a somewhat more backwards compatible version, where a NL pseudo-token was generated with '\\\n' as its text value, and asked folks to try it out and see if it gave them any trouble.
+
+.. _scale.dsl: http://peak.telecommunity.com/DevCenter/scale.dsl#converting-tokens-back-to-text
+
+Contributing thread:
+
+- `Small tweak to tokenize.py? <http://mail.python.org/pipermail/python-dev/2006-November/070099.html>`__
+
+-----------------------
+Summer of Code projects
+-----------------------
+
+Georg Brandl asked about the status of the Google Summer of Code projects and got a number of responses:
+
+* Nilton Volpato reported the completion of the new ziparchive_ module, which includes file-like access to zip members, support for BZIP2 compression, support for member file removal and support for encryption. He explained that he was still doing a little work to clean up the API, and that he would appreciate any feedback people had on the module.
+
+* Facundo Batista reported that the decimal Python-to-C transliteration was completed successfully, but that they learned in the process that a simple transliteration was not going to suffice and the decimal module was going to have to undergo a structural redesign to perform well in C. 
+
+* Jim Jewett reported that the work to make more stdlib modules use the logging module was incomplete, and not ready for stdlib inclusion yet.
+
+.. _ziparchive: http://ziparchive.sourceforge.net/
+
+Contributing threads:
+
+- `Summer of Code: zipfile? <http://mail.python.org/pipermail/python-dev/2006-November/069955.html>`__
+- `Results of the SOC projects <http://mail.python.org/pipermail/python-dev/2006-November/069968.html>`__
+- `Summer of Code: zipfile? <http://mail.python.org/pipermail/python-dev/2006-November/069969.html>`__
+- `Results of the SOC projects <http://mail.python.org/pipermail/python-dev/2006-November/069970.html>`__
+
+
+===============
+Skipped Threads
+===============
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-November/069973.html>`__
+- `Python in first-year MIT core curriculum <http://mail.python.org/pipermail/python-dev/2006-November/069974.html>`__
+- `POSIX Capabilities <http://mail.python.org/pipermail/python-dev/2006-November/069986.html>`__
+- `[1593035] Re: readline problem with python-2.5 <http://mail.python.org/pipermail/python-dev/2006-November/069987.html>`__
+- `DRAFT: python-dev summary for 2006-10-01 to 2006-10-15 <http://mail.python.org/pipermail/python-dev/2006-November/069990.html>`__
+- `Suggestion/ feature request <http://mail.python.org/pipermail/python-dev/2006-November/069993.html>`__
+- `DRAFT: python-dev summary for 2006-10-16 to 2006-10-31 <http://mail.python.org/pipermail/python-dev/2006-November/070009.html>`__
+- `DRAFT: python-dev summary for 2006-11-01 to 2006-11-15 <http://mail.python.org/pipermail/python-dev/2006-November/070012.html>`__
+- `ctypes and powerpc <http://mail.python.org/pipermail/python-dev/2006-November/070016.html>`__
+- `(no subject) <http://mail.python.org/pipermail/python-dev/2006-November/070028.html>`__
+- `Cloning threading.py using processes <http://mail.python.org/pipermail/python-dev/2006-November/070048.html>`__
+- `Objecttype of 'locals' argument in PyEval_EvalCode <http://mail.python.org/pipermail/python-dev/2006-November/070071.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+November 16, 2006 through November 30, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 17th written by Steven Bethard.
+
+To contact me, please send email:
+
+- Steven Bethard (steven dot bethard at gmail dot com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

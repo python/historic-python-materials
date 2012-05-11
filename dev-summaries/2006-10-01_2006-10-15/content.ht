@@ -1,0 +1,428 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-10-01 through 2006-10-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-10-01_2006-10-15]
+
+
+
+=============
+Announcements
+=============
+
+-----------------------------
+QOTF: Quotes of the Fortnight
+-----------------------------
+
+Martin v. Löwis on a small change to Python that wouldn't affect many applications:
+
+    I'm pretty sure someone will notice, though; someone always notices.
+
+Contributing thread:
+
+- `Caching float(0.0) <http://mail.python.org/pipermail/python-dev/2006-October/069175.html>`__
+
+Steve Holden reminds us that patch submissions are dramatically preferred to verbose thread discussions:
+
+    This thread has disappeared down a rat-hole, never to re-emerge with anything of significant benefit to users. C'mon, guys, implement a patch or leave it alone :-)
+
+Contributing thread:
+
+- `Caching float(0.0) <http://mail.python.org/pipermail/python-dev/2006-October/069190.html>`__
+
+
+=========
+Summaries
+=========
+
+--------------
+Caching floats
+--------------
+
+Nick Craig-Wood discovered that he could save 7MB in his application by adding the following simple code::
+
+    if age == 0.0:
+        age = 0.0
+
+A large number of his calculations were producing the value 0.0, which meant that many copies of 0.0 were being stored. Since all 0.0 literals refer to the same object, the code above was removing all the duplicate copies of 0.0.
+
+Skip Montanaro and played around a bit with floatobject.c, and found that Python's test suite allocated a large number of small integral floats (though only a couple hundred were generally allocated at the same time). Kristján V. Jónsson played around with caching for float values between -10.0 and 10.0 with the EVE server and got a 25% savings in allocations.
+
+There was some concern that for systems with both +0.0 and -0.0, the cache might cause problems, since determining which zero you have seemed difficult. However, James Y Knight showed how to do this fairly easily in C with a double/uint64_t union. Eventually, people agreed that it should be fine to just cache +0.0.
+
+Kristján V. Jónsson and Josiah Carlson proposed patches, but nothing was posted to SourceForge.
+
+Contributing threads:
+
+- `Caching float(0.0) <http://mail.python.org/pipermail/python-dev/2006-September/069049.html>`__
+- `Caching float(0.0) <http://mail.python.org/pipermail/python-dev/2006-October/069092.html>`__
+
+--------------------------------------------
+Buffer overrun in repr() and Python releases
+--------------------------------------------
+
+The implications of PSF-2006-001_, a buffer overrun problem in repr(), were considered for the various Python releases. The bug had been fixed before Python 2.5 was released, and had been applied to the Python 2.4 branch shortly before Python 2.4.4 was released. The security advisory provided patches for both Python 2.3 and 2.4, but to make sure that full source releases were available for all major versions of Python still in use, it looked like there would be a source-only 2.3.6 release (source-only because neither Mac nor Windows builds were affected).
+
+.. _PSF-2006-001: http://www.python.org/news/security/PSF-2006-001/
+
+Contributing threads:
+
+- `Security Advisory for unicode repr() bug? <http://mail.python.org/pipermail/python-dev/2006-October/069247.html>`__
+- `2.3.6 for the unicode buffer overrun <http://mail.python.org/pipermail/python-dev/2006-October/069327.html>`__
+
+---------------------------
+Build system for python.org
+---------------------------
+
+Anthony, Barry Warsaw, Georg Brandl and others indicated that the current website build system was making releases and other updates more difficult than they should be. Most people didn't have enough cycles to spare for this, but Michael Foord said he could help with a transition to rest2web_ if that was desirable. Fredrik Lundh also suggested a few options, including his older proposal to `use Django`_. No definite plans were made though.
+
+.. _rest2web: http://www.voidspace.org.uk/python/rest2web/
+.. _use Django: http://effbot.org/zone/pydotorg-cache.htm
+
+Contributing thread:
+
+- `2.3.6 for the unicode buffer overrun <http://mail.python.org/pipermail/python-dev/2006-October/069327.html>`__
+
+--------------------
+String concatenation
+--------------------
+
+Larry Hastings posted a `patch for string concatenation`_ that delays the creation of a new string until someone asks for the string's value. As a result, the following code would be about as fast as the ``''.join(strings)`` idiom::
+
+    result = ''
+    for s in strings:
+        result += s
+
+To achieve this, he had to change ``PyStringObject.ob_sval`` from a ``char[1]`` array, to a ``char *``. Reaction was mixed -- some people really disliked using ``join()``, while others didn't see the need for such a change.
+
+.. _patch for string concatenation: http://bugs.python.org/1569040
+
+Contributing thread:
+
+- `PATCH submitted: Speed up + for string concatenation, now as fast as "".join(x) idiom <http://mail.python.org/pipermail/python-dev/2006-October/069224.html>`__
+
+----------------------------
+PEP 315: Enhanced While Loop
+----------------------------
+
+Hans Polak revived the discussion about `PEP 315`_, which proposes a do-while loop for Python that would allow the current code::
+
+    while True:
+        <setup code>
+        if not <condition>:
+            break
+        <loop body>
+
+to be written instead as::
+
+    do:
+        <setup code>
+    while <condition>:
+        <loop body>
+
+Hans was hoping to simplify the situation where there is no ``<loop body>`` following the ``<condition>`` test and a number of syntax suggestions were proposed to this end. In the end, Guido indicated that none of the suggestions were acceptable, and Raymond Hettinger offered to withdraw the PEP.
+
+.. _PEP 315: http://www.python.org/dev/peps/pep-0315/
+
+Contributing threads:
+
+- `PEP 351 - do while <http://mail.python.org/pipermail/python-dev/2006-September/069088.html>`__
+- `PEP 351 - do while <http://mail.python.org/pipermail/python-dev/2006-October/069100.html>`__
+- `PEP 315 - do while <http://mail.python.org/pipermail/python-dev/2006-October/069205.html>`__
+
+------------------------------
+PEP 355: path objects rejected
+------------------------------
+
+Luis P Caamano asked about the status of `PEP 355`_, which aimed to introduce an object-oriented reorganization of Python's path-related functions. Guido indicated that the current "amalgam of unrelated functionality" was unacceptable and pronounced it dead. Nick Coghlan elaborated the "amalgam" point, explaining that `PEP 355`_ lumped together all the following:
+
+- string manipulation operations
+- abstract path manipulation operations
+- read-only traversal of a concrete filesystem
+- addition and removal of files/directories/links within a concrete filesystem
+
+Jason Orendorff pointed out some other problems with the PEP:
+
+- the motivation was weak
+- the API had too many methods
+- it didn't fix all the perceived problems with the existing APIs
+- it would have introduced a Second Way To Do It without being clearly better than the current way
+
+There were some rumors of a new PEP based on Twisted's filepath_ module, but nothing concrete at the time of this summary.
+
+.. _PEP 355: http://www.python.org/dev/peps/pep-0355/
+.. _filepath: http://twistedmatrix.com/trac/browser/trunk/twisted/python/filepath.py
+
+Contributing threads:
+
+- `PEP 355 status <http://mail.python.org/pipermail/python-dev/2006-September/069059.html>`__
+- `PEP 355 status <http://mail.python.org/pipermail/python-dev/2006-October/069093.html>`__
+
+----------------------------------
+Processes and threading module API
+----------------------------------
+
+Richard Oudkerk proposed a module that would make processes usable with an API like that of the threading module. People seemed unsure as to whether it would be better to have a threading-style or XML-RPC-style API. A few other relevant modules were identified, including PyXMLRPC_ and POSH_. No clear winner emerged.
+
+.. _PyXMLRPC: http://sourceforge.net/projects/py-xmlrpc/
+.. _POSH: http://poshmodule.sourceforge.net/
+
+Contributing thread:
+
+- `Cloning threading.py using proccesses <http://mail.python.org/pipermail/python-dev/2006-October/069297.html>`__
+
+------------------------------------
+Python 3.0: registering methods in C
+------------------------------------
+
+After a brief exchange about which ``tp_flags`` implied which others, there was some discussion on how to simplify ``tp_flags`` for Python 3000. Raymond Hettinger suggested that the NULL or non-NULL status of a slot should be enough to indicate its presence. Martin v. Löwis pointed out that this would require recompiling extension modules for every release, since if a new slot is added, extension modules from earlier releases wouldn't even *have* the slot. Fredrik Lundh suggested a `dynamic registration method`_ instead, which would look something like::
+
+    static PyTypeObject *NoddyType;
+    NoddyType = PyType_Setup("noddy.Noddy", sizeof(Noddy));
+    PyType_Register(NoddyType, PY_TP_DEALLOC, Noddy_dealloc);
+    PyType_Register(NoddyType, PY_TP_DOC, "Noddy objects");
+    ...
+    PyType_Register(NoddyType, PY_TP_NEW, Noddy_new);
+    if (PyType_Ready(&NoddyType) < 0)
+        return;
+
+People thought this looked like a good idea, and Fredrik Lundh planned to look into it seriously for Python 3000.
+
+.. _dynamic registration method: http://effbot.org/zone/idea-register-type.htm
+
+Contributing thread:
+
+- `2.4.4: backport classobject.c HAVE_WEAKREFS? <http://mail.python.org/pipermail/python-dev/2006-October/069235.html>`__
+
+-----------------------------------------
+Tracker Recommendations: JIRA and Roundup
+-----------------------------------------
+
+The PSF Infrastructure Committee announced their recommendations for trackers to replace SourceForge. Both JIRA and Roundup were definite improvements over SourceForge, though the Infrastructure Committee was leaning towards JIRA since Atlassian had offered to host it for them. Roundup was still under consideration if 6-10 admins could volunteer to maintain the installation.
+
+(More updates on this in the next summary.)
+
+Contributing thread:
+
+- `PSF Infrastructure Committee's recommendation for a new issue tracker <http://mail.python.org/pipermail/python-dev/2006-October/069139.html>`__
+
+-----------------------------
+PEP 302: import hooks phase 2
+-----------------------------
+
+Brett Cannon announced that he'd be working on a C implementation of phase 2 of `PEP 302`_. Phillip J. Eby pointed out that phase 2 could not be implemented in a backwards-compatible way, and so the code should be targeted at the p3yk branch. He also suggested that rewriting the import mechanisms in Python was probably going to be easier than trying to do it in C, particularly since some of the pieces were already available in the pkgutil module. Neal Norwitz strongly agreed, pointing out that string and list manipulation, which is necessary in a variety of places in the import mechanisms, is much easier in Python than in C. Brett promised a Python implementation as part of his research work.
+
+.. _PEP 302: http://www.python.org/dev/peps/pep-0302/
+
+Contributing thread:
+
+- `Created branch for PEP 302 phase 2 work (in C) <http://mail.python.org/pipermail/python-dev/2006-October/069133.html>`__
+
+------------------------------------------
+Web crawlers and development documentation
+------------------------------------------
+
+Fredrik Lundh noticed that Google was sometimes finding the `development documentation`_ instead of the `current release documentation`_. A.M. Kuchling added a ``robots.txt`` to keep crawlers out of the development area.
+
+.. _development documentation: http://docs.python.org/dev/
+.. _current release documentation: http://docs.python.org/
+
+Contributing thread:
+
+- `what's really new in python 2.5 ? <http://mail.python.org/pipermail/python-dev/2006-October/069158.html>`__
+
+-----------------------------------------
+Buildbots, compile errors and batch files
+-----------------------------------------
+
+Tim Peters noticed that bsddb was getting compile errors on Windows but the buildbots were not reporting anything. Because some additional commands were added after the call to ``devenv.com`` in the ``build.bat`` script, the error status was not getting propagated appropriately. After Tim and Martin v. Löwis figured out how to repair this, the buildbots were again able to report compile errors.
+
+Contributing thread:
+
+- `2.4 vs Windows vs bsddb <http://mail.python.org/pipermail/python-dev/2006-October/069283.html>`__
+
+---------------------------------
+Python 2.5 and Visual Studio 2005
+---------------------------------
+
+Kristján V. Jónsson showed that using Visual Studio 2005 instead of Visual Studio 2003 gave a 7% gain in speed, and a 10% gain when performance guided optimization (PGO) was enabled. While the "official" compiler can't get changed at a point release, everyone agreed that making the PCBuild8 directory work out of the box and adding an appropriate buildslave was a good idea. Kristján promised to look into setting up a buildslave.
+
+Contributing thread:
+
+- `Python 2.5 performance <http://mail.python.org/pipermail/python-dev/2006-October/069338.html>`__
+
+----------------------------------
+Distributing debug build of Python
+----------------------------------
+
+David Abrahams asked if python.org would be willing to post links to the ActiveState debug builds of Python to make it easier for Boost.Python_ users to obtain a debug build. People seemed to think that Boost.Python_ users should be able to create a debug build of Python themselves if necessary.
+
+.. _Boost.Python: http://www.boost.org/libs/python/doc/index.html
+
+Contributing thread:
+
+- `Plea to distribute debugging lib <http://mail.python.org/pipermail/python-dev/2006-October/069325.html>`__
+
+-----------------------------------------
+Unmarshalling/Unpickling multiple objects
+-----------------------------------------
+
+Tim Lesher proposed adding a generator to marshal and pickle so that instead of::
+
+    while True:
+        try:
+            obj = marshal.load(fobj)    # or pickle.load(fobj)
+        except EOFError:
+            break
+        ... do something with obj ...
+
+you could write something like::
+
+    for obj in marshal.loaditer(fobj):    # or pickle.loaditer(fobj)
+        ... do something with obj ...
+
+when you wanted to load multiple objects in sequence from the same file. Both Perforce and Mailman store objects in a way that would benefit from such a function, so it seemed like such an API might be reasonable.  No patch had been submitted at the time of this summary.
+
+Contributing thread:
+
+- `Iterating over marshal/pickle <http://mail.python.org/pipermail/python-dev/2006-October/069277.html>`__
+
+-------------------------------
+spawnvp and spawnvpe on Windows
+-------------------------------
+
+Alexey Borzenkov asked why spawnvp and spawnvpe weren't available in Python on Windows even though they were implemented in the CRT. He got the usual answer, that no one had submitted an appropriate patch, but that such a patch would be a reasonable addition for Python 2.6. Fredrik Lundh pointed out that the subprocess module was probably a better choice than spawnvp and spawnvpe anyway.
+
+Contributing thread:
+
+- `Why spawnvp not implemented on Windows? <http://mail.python.org/pipermail/python-dev/2006-October/069342.html>`__
+
+-----------------------------
+Python 3000: removing __del__
+-----------------------------
+
+Accidental spillover from the Py3K list.
+
+__del__ has been a source of many bugs.  Could it go away in Py3K?
+
+People who use it say no, but it could be tweaked.  Today, a cycle with two objects having __del__ methods will never be collected, because the interpreter doesn't know which to collect first.  Most (though not quite all) actual __del__ methods would rather be run, and don't care if the order is arbitrary.  A __close__ method would simplify the impmlementation and reduce leakage.  Whether the full __del__ could be removed entirely isn't clear.
+
+[Thanks to Jim Jewett for this summary]
+
+Contributing thread:
+
+- `Removing __del__ <http://mail.python.org/pipermail/python-dev/2006-September/068875.html>`__
+
+
+==================
+Previous Summaries
+==================
+- `difficulty of implementing phase 2 of PEP 302 in Python source <http://mail.python.org/pipermail/python-dev/2006-October/069116.html>`__
+- `Python Doc problems <http://mail.python.org/pipermail/python-dev/2006-October/069252.html>`__
+- `Signals, threads, blocking C functions <http://mail.python.org/pipermail/python-dev/2006-October/069334.html>`__
+
+===============
+Skipped Threads
+===============
+- `Tix not included in 2.5 for Windows <http://mail.python.org/pipermail/python-dev/2006-October/069095.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-October/069098.html>`__
+- `HAVE_UINTPTR_T test in configure.in <http://mail.python.org/pipermail/python-dev/2006-October/069103.html>`__
+- `OT: How many other people got this spam? <http://mail.python.org/pipermail/python-dev/2006-October/069117.html>`__
+- `2.4.4 fixes <http://mail.python.org/pipermail/python-dev/2006-October/069160.html>`__
+- `2.4.4 fix: Socketmodule Ctl-C patch <http://mail.python.org/pipermail/python-dev/2006-October/069189.html>`__
+- `[Python-checkins] r51862 - python/branches/release25-maint/Tools/msi/msi.py <http://mail.python.org/pipermail/python-dev/2006-October/069201.html>`__
+- `Fwd: [ python-Feature Requests-1567948 ] poplib.py list interface <http://mail.python.org/pipermail/python-dev/2006-October/069223.html>`__
+- `Can't check in on release25-maint branch <http://mail.python.org/pipermail/python-dev/2006-October/069256.html>`__
+- `if __debug__: except Exception, e: pdb.set_trace() <http://mail.python.org/pipermail/python-dev/2006-October/069271.html>`__
+- `2.5, 64 bit <http://mail.python.org/pipermail/python-dev/2006-October/069275.html>`__
+- `BUG (urllib2) Authentication request header is broken on long usernames and passwords <http://mail.python.org/pipermail/python-dev/2006-October/069284.html>`__
+- `[Python-3000] Sky pie: a "var" keyword <http://mail.python.org/pipermail/python-dev/2006-October/069292.html>`__
+- `Proprietary code in python? <http://mail.python.org/pipermail/python-dev/2006-October/069294.html>`__
+- `DRAFT: python-dev summary for 2006-08-16 to 2006-08-31 <http://mail.python.org/pipermail/python-dev/2006-October/069299.html>`__
+- `BRANCH FREEZE, release24-maint for 2.4.4c1. 00:00UTC, 11 October 2006 <http://mail.python.org/pipermail/python-dev/2006-October/069302.html>`__
+- `2.4 vs Windows vs bsddb [correction] <http://mail.python.org/pipermail/python-dev/2006-October/069310.html>`__
+- `RELEASED Python 2.4.4, release candidate 1 <http://mail.python.org/pipermail/python-dev/2006-October/069326.html>`__
+- `ConfigParser: whitespace leading comment lines <http://mail.python.org/pipermail/python-dev/2006-October/069337.html>`__
+- `Exceptions and slicing <http://mail.python.org/pipermail/python-dev/2006-October/069363.html>`__
+- `Proposal: No more standard library additions <http://mail.python.org/pipermail/python-dev/2006-October/069398.html>`__
+- `[py3k] Re: Proposal: No more standard library additions <http://mail.python.org/pipermail/python-dev/2006-October/069399.html>`__
+- `Modulefinder <http://mail.python.org/pipermail/python-dev/2006-October/069412.html>`__
+- `VC6 support on release25-maint <http://mail.python.org/pipermail/python-dev/2006-October/069426.html>`__
+- `os.utime on directories: bug fix or new feature? <http://mail.python.org/pipermail/python-dev/2006-October/069431.html>`__
+- `Problem building module against Mac Python 2.4 and Python 2.5 <http://mail.python.org/pipermail/python-dev/2006-October/069434.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+October 01, 2006 through October 15, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 14th written by 
+Steve Bethard. 
+
+To contact me, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

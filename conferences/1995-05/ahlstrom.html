@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0 plus SQ/ICADD Tables//EN" "html.dtd"
+>
+<HTML><HEAD><TITLE>Wpy, a Portable GUI Module for Python</TITLE></HEAD>
+<BODY><H2>Wpy, a Portable GUI Module for Python</H2> <STRONG>Presented
+at the May 1995 Python Workshop by <A HREF="mailto:jim@interet.com">James
+C. Ahlstrom</A> 
+</STRONG><P>Wpy is a Python module which provides a class library, a
+message system and other tools for writing portable graphical user
+interface (GUI) code.  You import "wpy.py" into your Python program and
+use it to write GUI code which will run unchanged on Unix/X using Tk, or
+on Microsoft Windows 3.1 and NT.  Python is ideally suited to GUI
+development since it is a fast object-oriented scripting language with
+advanced data types such as lists and dictionaries.  Code written with
+wpy runs with native look and feel. </P><P> When running on Unix/X, wpy
+uses Tk to provide a high level interface to the X window system.  The
+newest version of Tk (currently 4.0 beta 3) is required. Interface code
+to Tk is provided in the file "wpy_tk.py".  When running on Microsoft
+Windows 95 or NT, the interface is provided by a C++ language module. 
+The Windows version will also run on Windows 3.1 using a free "win32s"
+dynamic link library provided by Microsoft. </P><P> All the wpy source
+and binary versions are available from <A HREF="ftp://ftp.interet.com/pub/python/"
+>ftp.interet.com</A> in /pub/python.  This may be moved to <A HREF="http://www.python.org/"
+>www.python.org
+</A>in the future. The software is free but carries no warranty.  See
+the copyright notice. The software is currently (May 1995) somewhat
+preliminary, and is still under active development. </P>
+<H2>Design Goals  </H2>The best way to understand wpy is to look at the
+design goals which are as follows: <UL>
+<LI>Must support native look and feel on Unix/X and Windows, and
+hopefully the Macintosh and OS/2  </LI>
+<LI>Must have a strongly object-oriented design and use inheritance 
+</LI>
+<LI>Should provide a high-level interface, and be easy to use  </LI>
+<LI>Should be a thin layer on all platforms, and be small and simple 
+</LI>
+<LI>Must look natural and native to Python, and take advantage of
+Python language features  </LI>
+<LI>Must support at least "medium" and preferably "large" GUI programs
+with industrial-strength robustness  </LI>
+<LI> Some advanced GUI features and commercial elegance may be
+sacrificed for portability and simplicity</LI></UL>  <H2>Wpy Design
+</H2> <P>Wpy has its own GUI class model.  In view of the effort
+required to learn any GUI model, inventing a new model is not desirable.
+Instead, I attempted to identify a good popular class model which would
+be worthwhile to learn even apart from its use in wpy.  In the end, the
+obvious choice was the Microsoft Foundation Class (MFC) model. Wpy
+follows MFC rather exactly in its classes and messages, but differs
+slightly in details such as method arguments.  A knowledge of MFC makes
+writing in wpy easy and obvious, and even MFC documentation can be used
+for wpy.  The reverse is also true, and wpy is a good way to learn MFC. 
+The Python/wpy code looks more or less identical to the equivalent C++
+version, but is faster and easier to write. </P><P> Wpy is being
+developed as a commercial quality language, but I believe that Python
+and wpy are also an excellent choice for a teaching language.  The
+skills learned will translate directly to C++ without the risk of
+writing C and calling it C++.  </P><P>MFC is a natural choice when
+running under Windows, and it is easy to see how a port would work.  On
+Unix, the Tk interface is used.  Tk is a command language interface to X
+widgets, and it is not a direct map to MFC or any other class library. 
+Luckily Tk provides powerful commands which make it easy to implement
+high level features easily.  In wpy, the Tk internals are hidden, and
+the GUI model is still MFC.  Necessary support is provided in Python
+code which calls Tk commands through the tkinter module provided in
+standard Python.  </P><H2>Wpy Status </H2> <P>The feature set of wpy
+and the documentation will improve now that the design is complete. 
+Currently (May 1995) only a few types of controls are implemented and
+even these could use more testing.  Wpy only recently graduated from the
+"proof of concept" stage to the "in development" stage. So far, results
+are promising.  I hope that wpy will be a useful addition to the already
+great Python language.
+</P><P><A HREF="mailto:jim@interet.com">James C. Ahlstrom</A> <BR>May
+30, 1995</P></BODY>
+</HTML>

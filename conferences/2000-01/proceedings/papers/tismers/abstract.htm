@@ -1,0 +1,80 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Generator" content="Microsoft Word 97">
+   <meta name="Version" content="8.0.3514">
+   <meta name="Date" content="11/26/96">
+   <meta name="Template" content="E:\PROGRAMME\Microsoft Office\Office\HTML.DOT">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (Win98; I) [Netscape]">
+   <title>stackless</title>
+<style type="text/css">
+<!--
+body {  font-family:Arial, Helvetica, sans-serif}
+h3 {  font-weight:normal; font-family: Verdana, Arial, Helvetica, sans-serif; font-size:16pt}
+h2 {  font-weight: lighter; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 16pt}
+td { font-family:Arial, Helvetica, sans-serif }
+p { font-family:Arial, Helvetica, sans-serif }
+h1 { font-weight: lighter ; font-family: Verdana, Arial, Helvetica, sans-serif; font-size:24pt}
+li { font-family:Arial, Helvetica, sans-serif }
+.bodyhere {  font-family: Arial, Helvetica, sans-serif}
+tt {  font-family: "Courier New", Courier, mono}
+pre {  font-family:"Courier New", Courier, mono}
+-->
+</style></head>
+<body bgcolor="#FFFFFF" link="#0000FF" vlink="#800080">
+<h1> Stackless Python and Continuations</h1>
+<h2>or &quot;How to change a Paradigm of an existing Program&quot;</h2>
+<h2>Abstract</h2>
+<p>There have been a few attempts to implement generators and coroutines in Python. 
+  These were either of low performance, since they were implemented using threads, 
+  or limited by Python's recoursive interpreter layout, which prevended switching 
+  between frames liberally. Changing Python to become non-recoursive was considered 
+  a major, difficult task.</p>
+<p>In this paper, an implementation of a &quot;stackless Python&quot; (a Python 
+  which does not keep state on the C stack) is presented. Surprisingly, the necessary 
+  changes affect just a small number of C modules, and a major rewrite of the 
+  C library can be avoided. The key idea in this approach is a paradigm change 
+  for the Python interpreter which is not easy to understand and will be explained 
+  in depth. Recursive interpreter calls are turned into tail recursion, which 
+  allows to defer evaluation by pushing frames to the frame stack, without the 
+  C stack involved.</p>
+<p>By decoupling the frame stack from the C stack, we now have the ability to 
+  keep references to frames and to do non-local jumps. This turns the frame stack 
+  into a tree, and every leaf of the tree can now be a jump target. While exploring 
+  this idea, we will recognize ordinary function calls and returns to be just 
+  special cases of so-called continuations, and we will learn about them as a 
+  really simple idea which covers all kinds of program flow.</p>
+<p>Besides the stackless C interface, every recursive call is still supported. 
+  Stackless Python can run every existing Python program and C extension without 
+  any change. Just in order to use the advanced functionality, some adjustments 
+  are necessary. There are also cases where removing the C stack would come at 
+  a high cost (re-implementing many object functions) and should be avoided. It 
+  turns out that it would even be harmful to try to remove these recursions, and 
+  finally we will see that stackless Python just removes unnecessary recursion, 
+  while useful cases are kept. </p>
+<p>As a proof of concept, an implementation of Python's frame objects exposed 
+  as first class continuation objects is shown. Special care has been taken to 
+  enable continuations in their broadest sense, without any reasonable slow-down. 
+  The continuationmodule comes as a dynamic module which simply extends Stackless 
+  Python. Instead of saving continuation state with the callee, Python's standard 
+  frame calling convention can be kept in almost all cases, which again avoids 
+  changes to the interpreter and makes this implementation very efficient. Only 
+  for rare cases where an existing frame is reachable more than once, the concept 
+  of creating &quot;push-back frames&quot; on demand is introduced. This will 
+  be illustrated by animated graphics.</p>
+<p>Coroutines and generators will be shown by working examples, implemented in 
+  Python on top of continuations. Furthermore, a stackless implementation of the 
+  SGMLOP module will be shown. This leads to fast XML parsers, which are no longer 
+  driven by callbacks into Python, but using coroutines and quick context switches 
+  between instantiated frames. This parsing style may appear not only as faster, 
+  but also as not less intuitive than callbacks.</p>
+<p>Christian Tismer 991008</p>
+<p>An unfinished draft paper can already be found at <a href="http://www.pns.cc/stackless/stackless.htm">http://www.pns.cc/stackless/stackless.htm</a> 
+  but this text is far behind the actual implementation, due to some incident 
+  in my family.</p>
+<p>&copy; 1999 by PNS - <a href="http://www.pns.cc/PNShome.htm" target="">Professional 
+  Net Service</a> GmbH. <br>    
+</p>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<TITLE>Guido's Work In Progress</TITLE>
+
+<H1>Guido's Work In Progress</H1>
+
+<B>Disclaimer: this page is out of date.</B>
+
+<P>This Web page contains a loose selection from my current projects
+on Python.  None of this is available yet -- but at least part of it
+will eventually find its way to a Python distribution.
+
+<P>This page will probably remain unchanged after the May 1995
+workshop.
+
+<H2>Python and the Web</H2>
+
+<P>The release of Python 1.2 has brought Python in sync with the
+World-Wide-Web (WWW).  See the section on <A
+HREF="../../doc/lib/Internet-and-WWW.html">
+Internet and WWW </A> of the <A
+HREF="../../doc/lib/Top.html"> Library
+Manual </A>.
+
+<P>However, there is always more.  Here's what I may be working on:
+
+<DL>
+
+<DT><B>HTTP server</B>
+
+<DD>There is a base class on top of which you can implement anything
+conforming to the HTTP protocol.  Each request is handed to a new
+instance of a class specifically designed to handle one request.
+There will be a sample class implementing a fairly basic HTTP server
+serving mostly files, but also supporting CGI scripts.  Configuring
+the server is done deriving classes that override specific methods
+(e.g. permission checking).
+
+<DT><B>Remote import</B>
+
+<DD>By adding two lines to your main program it will be possible to
+import modules by URL into it.  You can place URLs in sys.path that
+either point to specific files or to directories.  A cache is used to
+avoid excessive network traffic; there are controls to force cache
+consistency checks.
+
+</DL>
+
+<H2>Distributed Computing</H2>
+
+Aside from the web, I have a few pet projects that use private
+protocols on top of TCP/IP:
+
+<DL>
+
+<DT><B>Remote Procedure Call Framework</B>
+
+<DD>(Not to be confused with Sun RPC, for which I created some demos
+years ago -- see Demo/rpc in the Python distribution.)  I have some
+classes that make it trivial to turn an arbitrary class into a server
+(using multiple inheritance).  The transport protocol is TCP/IP but
+this can easily be changed to another reliable stream protocol.  It
+uses the pickle module for transport of the arguments and return
+values (and exceptions).  To be done: a more general framework whereby
+the server can choose to handle individual clients (or requests) as
+forked processes, as threads, one at a time, or multiplexed using
+select().  Note that the client class is completely generic -- it
+queries the server at run time for the availability of requested
+methods.  Note that this isn't trying to compete with ILU -- the
+latter promises interaction between servers written in different
+languages and CORBA compatibility, while my framework is Python
+specific (and requires no C code beyond the Python core).  At the
+moment my framework has no security features.
+
+<DT><B>Remote file system access and directory tree synchronization</B>
+
+<DD>Using the RPC Framework mentioned above, I have written a class
+that provides abstracted access to a file system, and a client
+application that uses a local and a remote version of this class to
+synchronize a local directory tree with a remote one (a la rdist,
+except it can push as well as pull).
+
+<DT><B>Remote RCS and CVS</B>
+
+<DD>In a similar vein, I have written a class that provides an
+abstract interface to RCS, and two client applications: one provides
+RCS style operations, one provides CVS style operations.  Especially
+the latter is still in a very embryonic form and doesn't handle
+locking, branches, tags, subdirectories, nor does it send notification
+mail -- yet it has proven useful for the maintenance of the Python
+sources in two locations.
+
+<DT><B>CNRI handle server interface</B>
+
+<DD><A HREF="http://www.cnri.reston.va.us/">CNRI</A> (where I am
+working as a guest researcher, and which allows me to do
+other work besides Python :-) has a project called the <A
+HREF="http://www.handle.net">handle server</A> which is
+a URN system (the handle server translates location-independent names
+for documents into URLs and other data about the object).  I'm writing
+a Python library which interfaces to the CNRI handle server so that
+Python's urllib will be able to resolve handles as well as normal
+URLs.
+
+</DL>
+
+<H2>Changes to the Python core</H2>
+
+Here are a bunch of things that are very likely to happen.  Note that
+here I seem to be talking mostly about changes suggested or
+contributed by others.  In my own view, the Python core is perfect :-)
+
+<DL>
+
+<DT><B>The Great Renaming</B>
+
+<DD>I plan to go forward with the Great Renaming (object -&gt;
+PyObject, etc.).  This will be released as 1.3 or 1.4.  I have a
+script that can do most of the work automatically, based on a data
+file which is trivially created from rename2.h.  I want to review each
+converted file, however, so it's a lot of work.  If there are
+volunteers who want to do more than run the script (e.g. add __doc__
+strings, fix comments, fold lines that have become too long, rename
+local identifiers, remove redundant #include lines etc.), feel free to
+get in touch with me!
+
+<DT><B>New generic object API</B>
+
+<DD>This is a proposal that was mostly written by Jim Fulton and has
+been amply discussed on the newsgroup.  I plan to eventually implement
+it, and release it together with the Great Renaming.
+
+<DT><B>Optimizations</B>
+
+<DD>Jim Roskind donated a patch (developed in close cooperation with
+me) that greatly streamline the function and method call mechanism.
+It combines several tactics.  Stack space is allocated together with
+the stack frame record, thus saving (at least one) malloc call.
+Function arguments are passed from the caller's stack to the callee's
+stack without building and unpacking a tuple object (another saved
+malloc call).  The 'self' argument is inserted in the argument list
+without copying (another saved malloc call).  The current line number
+is no longer set by a separate instruction but calculated from a table
+only when needed for debugging (this saves one Python Virtual Machine
+(PVM) instruction per executed line of code).  There are also some
+changes to the compiler and to the PVM's instruction set to generate
+somewhat more compact code (on the order of 5%).  Unfortunately I
+haven't discovered a benchmark yet that shows off the improvements.
+Because this is a very complicated set of changes I am reluctant to
+introduce them without (a) thorough testing and (b) good proof of its
+effectiveness.
+
+<DT><B>C trace for exceptions</B>
+
+<DD>Donald Beaudry contributed a patch that adds the current file name
+and line number as hidden argument to all error setting functions.  A
+run-time flag enables printing of this information when a stack trace
+is printed.  Extension writers will love this feature.
+
+<DT><B>Packages</B>
+
+<DD>Ken Manheimer donated a prototype implementation which makes it
+possible to structure groups of related modules in "packages".  If P
+is a package and M1 and M2 are modules in P, defining functions f1()
+and f2() respectively, then the package should be a subdirectory
+called P under one of the directories on sys.path
+(e.g. /usr/local/lib/python/P/) and the modules should be files M1.py
+and M2.py inside P.  The user can now write "import P" and then use
+"P.M1.f1()", "P.M2.f2()", etc.  It is also possible to write "import
+P.M1" afer which "P.M1.f1()" is a valid reference but "P.M2.f2()" is
+not.  You can also write "from P import M1" or "from P.M1 import f1".
+(Note that Java got this wrong -- their "import A.B" creates a local
+name B, so it is hard to use two unrelated packages that happen to
+define a module with the same name, like "P.main" and "Q.main".)  I
+plan to gradually introduce this as a standard feature of the core.
+At some point it will be necessary to split the existing library into
+a number of groups, which will be painful.  (Ken's prototype is
+already present as "newimp.py" in the 1.2 distribution but contains
+one bug.  A fixed version is available from any Python mirror site in
+<A HREF="/ftp/python/src/index.html">pub/python/src</A>.)
+
+</DL>
+
+<H2>Futurism in the Python core</H2>
+
+In contrast to the previous section, none of the following is anywhere
+near implementation.  However I think they are good ideas that deserve
+to be implemented.
+
+<DL>
+
+<DT><B>Getting the current exception</B>
+
+<DD>Currently, an except clause that needs access to the current
+exception must use the global variables "sys.exc_type" and
+"sys.exc_value".  This causes problems when the except clause invokes
+some other function that happens to raise and catch an exception --
+this overwrites the "sys.exc_*" variables.  It also is a nightmare in
+threaded programs.  I am thinking about a mechanism to reliably access
+the exception currently being handled.  It will probably involve a
+built-in function that peeks in the interpreter stack.
+
+
+<DT><B>Third argument to "raise"</B>
+
+<DD>The "raise" statement will get a third argument, representing the
+stack trace object to be used.  This will make it possible to "lie"
+about where an exception actually happened.  This is useful for
+debuggers and other service modules that need to catch exceptions but
+want to pass them on transparently.
+
+
+<DT><B>Explicit interpreter state</B>
+
+<DD>A bunch of global variables in the interpreter will be combined
+into a structure.  This will make it possible to have multiple,
+completely independent interpreters in a single process.  While this
+isn't needed as often in Python as it is in TCL (where it's about the
+only way to have independent global name spaces), this makes it
+possible to create new, "controlled" environments, e.g. to restricted
+privileges or to implement an interactive interpreter inside a window.
+Variables in module sys that will be affected include path, modules,
+exc_* (but see a previous item), stdin, stdout, stderr, and probably
+others.  The interface to access them may change!
+
+
+<DT><B>Move the C stack out of the way</B>
+
+<DD>It may be possible to implement Python-to-Python function and
+method calls without pushing a C stack frame.  This has several
+advantages -- it could be more efficient, it may be possible to save
+and restore the Python stack to enable migrating programs, and it may
+be possible to implement multiple threads without OS specific support
+(the latter is questionable however, since it would require a solution
+for all blocking system calls).
+
+<DT><B>Restricted execution</B>
+
+<DD>This was born under the name "Safe Python" at the previous
+workshop.  There are a number of hooks in Python 1.2, and an
+undocumented module "rexec.py".  I hope to extend this in a number of
+ways (and to document it) -- for one thing, the state of the
+restricted environment should be captured in a class instance, so you
+can create multiple restricted environments.  Of course, the explicit
+interpreter state discussed above will also have some implications
+here.  Hopefully we will have time to discuss this at the workshop!
+
+<DT><B>Keyword parameters</B>
+
+<DD>It would be a good idea to have a general way for specifying
+keyword parameters.  The Modula-3 style seems to fit the bill just
+right, with '=' for the delimiter.  Valid keywords (checked at call
+time of course) will be the argument names.  I propose some kind of
+syntax like "def f(a, b, c=1, d=2, *args, **keywords): ..." for
+writing functions that take arbitrary keyword parameters -- any
+keyword parameters not in the argument list will end up in the
+dictionary 'keywords'.
+
+<DT><B>Assignment operators</B>
+
+<DD>I'm not absolutely sure about this one, but I think that
+eventually I'll support operators like "+=", "*=" etc.  (Still only as
+assignments, not in expressions.)  Classes and extensions may override
+these in a way that works for mutable as well as immutable types -- so
+"x = 1; x += 1" binds x to the new object 2, while "x = y = [1]; y +=
+[2]" results in the value [1, 2] for both x and y.
+
+</DL>
+
+<H2>Things I'm not so keen on</H2>
+
+Here are a number of proposals that come up every once in a while,
+with reasons why I don't believe in them.  I may be convinced by
+working implementations, though -- just don't expect me to spend much
+time pursueing them!
+
+<DL>
+
+<DT><B>Garbage collection</B>
+
+<DD>For the time being, even the best conservative garbage collectors
+have serious problems in the context of Python: (a) they restrict
+portability (since they require some assembly code for each new
+platform -- this will be a problem for minority platforms), and (b)
+they don't guarantee that destructors (class __del__ methods or
+extension's "dealloc" functions) are called in a predicatable fashion.
+For example, this will affect code that opens many files and relies on
+the deallocation to close the file -- if the garbage collector doesn't
+reclaim the file objects the application may run out of available file
+descriptors.
+
+
+<DT><B>Universal thread support</B>
+
+<DD>In my experience, programming with threads is a lot harder than
+programming without them.  Using threads as the basis of Python's
+programming paradigm would (again) restrict portability and make it
+harder to write Python programs -- e.g. you have to understand what
+happens to global shared data.  It would also harm embeddability in
+applications that don't have or need threads and limit the usability
+of extensions around libraries that are not thread-safe.  Note that
+python does have optional thread support -- on those systems that have
+OS threads such as Solaris, IRIX, Windows NT or any system with a
+PTHREADS interface.  (Okay, the PTHREADS interface may need some work
+to work with non-vendor-provided implementations.)
+
+<DT><B>A Python compiler</B>
+
+<DD>Because of Python's dynamic typing, it is hard to generate
+efficient assembly (or even C) code from Python statements.  E.g. even
+"x = x+y" could mean integer or floating point addition, string or
+list concatenation, or an arbitrary object's method call.  A
+straightforward compiler could at best generate calls into Python's
+run-time system for each expression.  It's not clear that this would
+run much faster than the current bytecode interpreter.  A really
+clever compiler could do a lot better by inferring types from a global
+analysis of the program -- but such an analysis would require a lot of
+work.  (This has been done for the "self" language -- their best
+compiler spent half an hour analyzing an expression like "max(a,
+b)"...)  Note that often a request for a compiler is really a request
+to speed up a particular program.  When a small amount of code is
+really much too slow, the best option is often to rewrite just that
+little bit in C.  One possible idea that may help reduce the start-up
+time of small programs: perhaps the "freeze" tool could be extended to
+do some global analysis and remove unused functions/classes/modules to
+reduce the amount of code needed for initialization; or perhaps it
+could generate a statically initialized data structure that is closer
+to the run-time representation of code objects than their marshalled
+representation (since the unmarshalling can be rather costly, even if
+it is much faster than parsing).
+
+<DT><B>Translating into Scheme</B>
+
+<DD>This would probably leave all extensions an embeddings of Python
+in the dark.  These are much of the reason for Python's success in the
+first place!
+
+<DT><B>The access statement</B>
+
+<DD>In retrospect I think this was a mistake -- that's why I have
+refused to document it.  Its implementation requires placing traps at
+every place that may access a variable.  A better solution would be to
+have a derived type of dictionary which can set arbitrary traps on
+specific keys.  This may be augmented by an "export" statement which
+explicitly declares (at the module or class level) which names are
+externally visible.
+
+</DL>
+
+<H2>Some interesting hyperlinks</H2>
+
+Some of these contradict things I say above...
+
+<UL>
+
+<LI><A
+HREF="http://minsky.med.virginia.edu/sdm7g/Projects/Python/Code.html">Steve
+Majewski on Optimization, Static Checks and Compiling</A>
+
+<LI><A
+HREF="http://www.mit.edu:8001/people/proven/pthreads.html">PTHREADS</A>
+
+<LI><A HREF="ftp://ftp.parc.xerox.com/pub/ilu/ilu.html">ILU</A>
+
+</UL>

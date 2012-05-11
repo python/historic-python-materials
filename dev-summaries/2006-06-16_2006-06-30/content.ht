@@ -1,0 +1,533 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-06-16 through 2006-06-30
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-06-16_2006-06-30]
+
+
+
+=============
+Announcements
+=============
+
+-------------------
+Python 2.5 schedule
+-------------------
+
+A number of bugs are being squashed as Python 2.5 moves towards its next release.  See `PEP 356`_ for more details and the full schedule.
+
+.. _PEP 356: http://www.python.org/dev/peps/pep-0356/
+
+Contributing threads:
+
+- `Beta 1 schedule ? (Bug in stringobject?) <http://mail.python.org/pipermail/python-dev/2006-June/066113.html>`__
+- `Adding winerror module (Beta 1 schedule ?) <http://mail.python.org/pipermail/python-dev/2006-June/066159.html>`__
+- `current 2.5 issues <http://mail.python.org/pipermail/python-dev/2006-June/066204.html>`__
+- `TRUNK FREEZE IMMINENT FOR 2.5 BETA 1 - 00:00 UTC, 20-JUNE-2006 <http://mail.python.org/pipermail/python-dev/2006-June/066206.html>`__
+- `beta1 coming real soon <http://mail.python.org/pipermail/python-dev/2006-June/066253.html>`__
+- `RELEASED Python 2.5 (beta 1) <http://mail.python.org/pipermail/python-dev/2006-June/066318.html>`__
+- `TRUNK is UNFROZEN, but in FEATURE FREEZE <http://mail.python.org/pipermail/python-dev/2006-June/066322.html>`__
+- `2.5 and beyond <http://mail.python.org/pipermail/python-dev/2006-June/066807.html>`__
+
+-----------------------------------------
+Checkins for betas and release candidates
+-----------------------------------------
+
+Anthony Baxter announced some guidelines for checkins for the beta and release candidate releases. For all beta releases:
+
+* All checkins must have an entry for Misc/NEWS, a test and docs
+* All checkins that add features must have approval from a release manager
+* All checkins must not break any of the buildbots
+
+For all release candidates:
+
+* All checkins must have approval from a release manager
+
+Approval from a release manager (Anthony or Neal) should preferably be obtained in public (e.g. the python-dev list) and should be noted in the commit message.
+
+Contributing threads:
+
+- `When to branch release25-maint? <http://mail.python.org/pipermail/python-dev/2006-June/066200.html>`__
+- `RFC: trunk checkins between now and 2.5 final <http://mail.python.org/pipermail/python-dev/2006-June/066718.html>`__
+
+-------------------------------------------
+FishEye on the Python Subversion Repository
+-------------------------------------------
+
+FishEye is once again `available for the Python repository`_.
+
+.. _available for the Python repository: http://fisheye3.cenqua.com/browse/python
+
+Contributing thread:
+
+- `FishEye on Python CVS Repository <http://mail.python.org/pipermail/python-dev/2006-June/066188.html>`__
+
+
+=========
+Summaries
+=========
+
+---------------------------------
+PEP 3103: A Switch/Case Statement
+---------------------------------
+
+After Thomas Lee provided a `simple patch implementing a switch statement`_ for Python, there was a massive discussion about it and how `PEP 275`_ should best be implemented. After much discussion, basically three camps arose:
+
+* School I: The switch statement should just be syntactic sugar for the corresponding if/elif chain.
+* School II: The switch statement should dispatch on a precomputed dict of values.
+* School III: The switch statement should correspond to an if/elif chain but require all expressions to be hashable (to allow for better optimizations).
+
+School I was primarily concerned with the repetition of the ``x ==`` in something like::
+
+    if x == ...:
+       ...
+    elif x == ...:
+       ...
+    elif x == ...:
+       ...
+    else:
+       ...
+
+School II seemed to feel that just aiding DRY was not enough to introduce a new construct, and that the switch statement should also be able to avoid the function definitions in dispatching code like::
+
+    def f(...):
+        ...
+    def g(...):
+        ...
+    def h(...):
+        ...
+    dispatch_dict = {x:f, y:g, z:h}
+    dispatch_dict[value](*args)
+
+In order to optimize this kind of code, School II wanted to be able to compute the dispatch dict ahead of time, so that it wouldn't have be recomputed each time the switch statement was executed. There was a lot of discussion as to exactly when this freezing should occur, with some voting for module compilation time (allowing only constants in the cases), some voting for function definition time (allowing only constants and non-local names in the cases) and some voting for the first time the switch statement is executed (allowing only constants and both local and non-local names). Guido put together a thorough summary of the options in `PEP 3103`_.
+
+There was some discussion of introducing a ``static`` keyword which would cause an expression to be evaluated at function definition time, so that, for example, the following code would create a list of functions returning each of 0, 1, ... 9::
+
+    funcs = [lambda: (static i) for i in xrange(10)]
+
+The intention was that switch statement cases would then allow only constants or static expressions. Guido requested a separate PEP on the idea, and `Fredrik Lundh posted a proto-PEP`_, but at the time of this summary, no official PEP had been submitted.
+
+In the end, it looked like Guido was leaning towards the switch statement as syntactic sugar for a dispatching dict, with the dict frozen at function definition time (which would mean compile-time for module-level switch statements). However, the introduction of the statement seemed likely to be postponed at least until Python 3.0.
+
+.. _simple patch implementing a switch statement: http://bugs.python.org/1504199
+.. _PEP 275: http://www.python.org/dev/peps/pep-0275/
+.. _PEP 3103: http://www.python.org/dev/peps/pep-3103/
+.. _Fredrik Lundh posted a proto-PEP: http://online.effbot.org/2006_06_01_archive.htm#pep-static
+
+Contributing threads:
+
+- `Switch statement <http://mail.python.org/pipermail/python-dev/2006-June/066086.html>`__
+- `An obscene computed goto bytecode hack for "switch" :) <http://mail.python.org/pipermail/python-dev/2006-June/066115.html>`__
+- `Simple Switch statement <http://mail.python.org/pipermail/python-dev/2006-June/066499.html>`__
+- `Alternatives to switch? <http://mail.python.org/pipermail/python-dev/2006-June/066508.html>`__
+- `Temporary Constantification <http://mail.python.org/pipermail/python-dev/2006-June/066531.html>`__
+- `Simple Switch statementZ <http://mail.python.org/pipermail/python-dev/2006-June/066537.html>`__
+- `PEP 3103: A Switch/Case Statement <http://mail.python.org/pipermail/python-dev/2006-June/066570.html>`__
+- `School IIb? <http://mail.python.org/pipermail/python-dev/2006-June/066585.html>`__
+- `Switch statement - handling errors <http://mail.python.org/pipermail/python-dev/2006-June/066650.html>`__
+- `Split switch statement <http://mail.python.org/pipermail/python-dev/2006-June/066652.html>`__
+- `once [was: Simple Switch statementZ] <http://mail.python.org/pipermail/python-dev/2006-June/066692.html>`__
+
+------------------------------
+Restricted execution in Python
+------------------------------
+
+For his Ph.D. thesis, Brett Cannon is looking into adding facilities for restricted execution to Python, partly with the goal of getting Python into Firefox alongside Javascript. His restricted execution specifications aimed to take advantage of the C-to-Python language barrier to enforce security restrictions. Though there's no real way to get private attributes in pure Python, objects coded in C and exposed to Python can select which attributes are exposed, thus making the non-exposed attributes truly private to Python-level code.
+
+His initial draft aimed to hide as many "dangerous" objects as possible, and then cripple objects like ``file`` that would be difficult to hide. A number of people seemed to prefer a hiding-only approach, but comments from Armin Rigo seemed to suggest that plugging all the introspection holes that give access to file objects might be quite difficult.
+
+The discussion continued on into the next fortnight.
+
+Contributing threads:
+
+- `doc for new restricted execution design for Python <http://mail.python.org/pipermail/python-dev/2006-June/066344.html>`__
+- `Is Lib/test/crashers/recursive_call.py really a crasher? <http://mail.python.org/pipermail/python-dev/2006-June/066627.html>`__
+- `For sandboxing: alternative to crippling file() <http://mail.python.org/pipermail/python-dev/2006-June/066792.html>`__
+
+-----------------------------------------------
+NaN and infinities in Python float calculations
+-----------------------------------------------
+
+Nick Maclaren asked about trying to get more platform-independent behavior in Python's floats, so that IEEE 754 values as in `PEP 754`_ would be produced more consistently. Currently, different OSes produce different results when these values are involved::
+
+    Python 2.4.2 (#1, May  2 2006, 08:28:01)
+    [GCC 4.1.0 (SUSE Linux)] on linux2
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> a = "NaN"
+    >>> b = float(a)
+    >>> c = int(b)
+    >>> d = (b == b)
+    >>> print a, b, c, d
+    NaN nan 0 False
+
+    Python 2.3.3 (#1, Feb 18 2004, 11:58:04)
+    [GCC 2.8.1] on sunos5
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> a = "NaN"
+    >>> b = float(a)
+    >>> c = int(b)
+    >>> d = (b == b)
+    >>> print a, b, c, d
+    NaN NaN 0 True
+
+Nick Maclaren suggested either raising an exception for all ambiguous or invalid operations, or returning NaN or infinity as appropriate and then raising exceptions whenever an operation that would lose the error indication was performed. Nick Coghlan explained that the decimal module already does most of this::
+
+    >>> from decimal import Decimal as d
+    >>> nan = d('NaN')
+    >>> int(nan)
+    Traceback (most recent call last):
+      ...
+    decimal.InvalidOperation
+    >>>
+    >>> from decimal import getcontext, Overflow
+    >>> ctx = getcontext()
+    >>> ctx.traps[Overflow] = False
+    >>> d('1e999999999') * 10
+    Decimal("Infinity")
+    
+Nick Maclaren seemed to suggest that he would be working on a PEP and an implementation that would bring some of the decimal module consistencies to Python's floats as well.
+
+.. _PEP 754: http://www.python.org/dev/peps/pep-0754/
+
+Contributing threads:
+
+- `Numerical robustness, IEEE etc. <http://mail.python.org/pipermail/python-dev/2006-June/066186.html>`__
+- `Numerical robustness, IEEE etc. <http://mail.python.org/pipermail/python-dev/2006-June/066192.html>`__
+- `Python memory model (low level) <http://mail.python.org/pipermail/python-dev/2006-June/066834.html>`__
+
+-----------------------------------------------
+ImportWarnings for directories without __init__
+-----------------------------------------------
+
+Ralf W. Grosse-Kunstleve complained that with Python 2.5 he started getting tons of "ImportWarning: Not importing directory" messages. James Y Knight pointed out that running Python in your home directory is quite likely to issue such warnings if you have *any* directories in your home directory that have the same name as a python module (e.g. ``readline``). A number of options for silencing the errors were discussed, including invoking Python like ``python -W'ignore:Not importing directory'`` and including ``warnings.filterwarnings('ignore', 'Not importing directory', ImportWarning)`` in site.py or .pythonrc.py. Two patches were provided that introduce the warning only if the import fails, `one by Shane Hathaway`_ and `one by Sergey A. Lipnevich`_. No final decision had been made at the time of this summary.
+
+.. _one by Shane Hathaway: http://bugs.python.org/1515361
+.. _one by Sergey A. Lipnevich: http://bugs.python.org/1515609
+
+Contributing threads:
+
+- `Dropping __init__.py requirement for subpackages <http://mail.python.org/pipermail/python-dev/2006-June/066280.html>`__
+- `ImportWarning flood <http://mail.python.org/pipermail/python-dev/2006-June/066345.html>`__
+
+------------------
+Updating turtle.py
+------------------
+
+Gregor Lingl proposed replacing turtle.py in the Python standard library with his `new xturtle.py module`_. The xturtle module is backwards compatible with the turtle module and adds a number of enhancements. However, Gregor's request came after Python 2.5's feature freeze, so he was told to propose it again in Python 2.6. There was some discussion about this -- as the stdlib turtle module is poorly tested, some contended that introducing the new APIs of xturtle would not make things any worse. A couple of compromises were offered: mentioning xturtle in the turtle module docs, and putting xturtle in the Tools directory.
+
+.. _new xturtle.py module: http://ada.rg16.asn-wien.ac.at/~python/xturtle/
+
+Contributing threads:
+
+- `xturtle.py a replacement for turtle.py(!?) <http://mail.python.org/pipermail/python-dev/2006-June/066676.html>`__
+- `xturtle.py - a replacement for turtle.py <http://mail.python.org/pipermail/python-dev/2006-June/066677.html>`__
+- `xturtle.py a replacement for turtle.py(!?) ATTENTION PLEASE! <http://mail.python.org/pipermail/python-dev/2006-June/066734.html>`__
+- `xturtle.py <http://mail.python.org/pipermail/python-dev/2006-June/066742.html>`__
+
+----------------------------------------------------------
+Relative imports and PEP 338: Executing Modules as Scripts
+----------------------------------------------------------
+
+Relative imports, as described in `PEP 328`_, introduced problems for `PEP 338`_ which allows modules within packages and zipfiles to be run with the -m command-line switch. The -m switch sets the __name__ of the module to '__main__' so that ``if __name__ == '__main__'`` blocks will get executed. However, relative imports use __name__ to determine the parent package, so if a module that has a relative import is executed using the -m switch, the relative import will fail.  Nick Coghlan suggested adding a __module_name__ attribute that would not be clobbered by the -m switch, but people generally seemed to think that it would be simpler to just require absolute imports in main modules.
+
+.. _PEP 328: http://www.python.org/dev/peps/pep-0328/
+.. _PEP 338: http://www.python.org/dev/peps/pep-0338/
+
+Contributing threads:
+
+- `PEP 338 vs PEP 328 - a limitation of the -m switch <http://mail.python.org/pipermail/python-dev/2006-June/066161.html>`__
+- `PEP 328 and PEP 338, redux <http://mail.python.org/pipermail/python-dev/2006-June/066609.html>`__
+- `[Python-checkins] r47142 - in python/trunk: Doc/lib/librunpy.tex Lib/runpy.py Lib/test/test_runpy.py <http://mail.python.org/pipermail/python-dev/2006-June/066690.html>`__
+
+--------------------------------------------
+Importing modules within unicode directories
+--------------------------------------------
+
+Kristján V. Jónsson pointed out that currently, Python on Windows cannot import modules from directories with unicode names, even if the module names themselves are plain ASCII. Nick Coghlan suggested that this was likely because import.c was doing something like ``u'c:/tmp/\u814c'.encode('mbcs')``, getting back ``'c:/tmp/?'`` and being unable to do anything useful with that. Martin v. Löwis suggested using the 8.3 simplified filename used by DOS, at least until the import machinery gets reworked to better handle encodings, hopefully for Python 2.6. `Thomas Heller had provided a patch`_ for reworking import.c in this manner a while back, but it was large enough that no one had reviewed it.
+
+.. _Thomas Heller had provided a patch: http://bugs.python.org/1093253
+
+Contributing thread:
+
+- `unicode imports <http://mail.python.org/pipermail/python-dev/2006-June/066103.html>`__
+
+----------------------------------------
+MS VC++ 2003 toolkit no longer available
+----------------------------------------
+
+Bill Janssen pointed out that Python 2.4 on Windows expects to be compiled with the MS Visual C++ compiler version 7.1, and that the corresponding MS VC++ 2003 toolkit is no longer available. Fredrik Lundh explained that the compiler is still available in the .net SDK as well as being available to MSDN subscribers. There was again some discussion about moving to the VS 2005 toolkit for compiling Python.  It would have made compiling for 64bit architectures somewhat easier, but would have meant that extension writers would have to install three different compilers just to compile extensions for Python 2.3, 2.4 and 2.5, and would also have given problems for MinGW users as MinGW does not yet easily support linking to the msvcr80 runtime library.
+
+Contributing threads:
+
+- `Python 2.4 extensions require VC 7.1? <http://mail.python.org/pipermail/python-dev/2006-June/066110.html>`__
+- `Documentation enhancement: "MS free compiler"? <http://mail.python.org/pipermail/python-dev/2006-June/066182.html>`__
+- `Documentation enhancement: "MS free compiler"? <http://mail.python.org/pipermail/python-dev/2006-June/066257.html>`__
+
+---------------------------------
+Keeping interned strings in a set
+---------------------------------
+
+Alexander Belopolsky tried out the new set C API by `replacing the dict of interned strings with a set`_ instead. He had to make two changes to get this to work: there's currently no way to retrieve a single object from a set, and Py_Finalize() needed to be changed to finalize sets after strings (instead of the other way around as it used to be). There was some discussion about trying to get rid of PySet_Fini() so the latter problem wouldn't be an issue at all, but with all the other Py*Fini() functions already existing, it didn't seem worth it.
+
+The patch had no slowdown and reduced the memory consumption of the interning structure slightly.
+
+.. _replacing the dict of interned strings with a set: http://bugs.python.org/1507011
+
+Contributing threads:
+
+- `Keeping interned strings in a set <http://mail.python.org/pipermail/python-dev/2006-June/066084.html>`__
+- `Keeping interned strings in a set <http://mail.python.org/pipermail/python-dev/2006-June/066088.html>`__
+- `setobject code <http://mail.python.org/pipermail/python-dev/2006-June/066116.html>`__
+- `Proposal to eliminate PySet_Fini <http://mail.python.org/pipermail/python-dev/2006-June/066645.html>`__
+
+-------------------------
+Allowing empty subscripts
+-------------------------
+
+Guido finally vetoed the proposal to allow ``x[()]`` to be written as ``x[]``. The use-cases were weak, and in most cases the functionality seemed better expressed as attribute access.
+
+Contributing threads:
+
+- `Pre-PEP: Allow Empty Subscript List Without Parentheses <http://mail.python.org/pipermail/python-dev/2006-June/066099.html>`__
+- `Empty Subscript PEP on Wiki - keep or toss? <http://mail.python.org/pipermail/python-dev/2006-June/066848.html>`__
+
+-------------------------------------
+Creating range objects at the C level
+-------------------------------------
+
+Ralf W. Grosse-Kunstleve asked about the removal of the C function ``PyRange_New()`` which had been deprecated in Python 2.4. The right way to create ranges is to call PyRange_Type with the appropriate parameters, e.g. something like ``PyObject_CallFunction((PyObject*) &PyRange_Type, "lll", start, stop, step)``. Ralf was nervous about this alternative because it also appeared to be undocumented, and requested that something like the above be at least put into the What's New document.
+
+Contributing threads:
+
+- `PyRange_New() alternative? <http://mail.python.org/pipermail/python-dev/2006-June/066343.html>`__
+- `PyObject* aliasing (Was: PyRange_New() alternative?) <http://mail.python.org/pipermail/python-dev/2006-June/066477.html>`__
+
+----------------------------------
+type(), __class__ and isinstance()
+----------------------------------
+
+Martin Maly pointed out that you can't fool isinstance() into thinking your object is not a subclass of its true base class::
+
+    >>> class C(object):
+    ...     pass
+    ...    
+    >>> class D(object):
+    ...     __class__ = property(lambda self: C)
+    ...     
+    >>> isinstance(D(), D)
+    True
+    >>> isinstance(D(), C)
+    True
+
+Phillip J. Eby explained that isinstance() checks both the type() of the object and the __class__ attribute.  In essence, you can lie about your __class__ to make isinstance() return True, but you can't lie to make it return False. Guido suggested that these issues, as well as lying about an object's __bases__, should be revisited for Python 3000.
+
+Contributing thread:
+
+- `Semantic of isinstance <http://mail.python.org/pipermail/python-dev/2006-June/066591.html>`__
+
+----------------------------------------------------------------
+Requiring backward compatibility in the standard library modules
+----------------------------------------------------------------
+
+Ka-Ping Yee's uuid module, newly added for Python 2.5, contained a comment "This module works with Python 2.3 or higher". George Yoshida asked if that comment should be interpreted as requiring Python 2.3 compatibility. People generally felt like the list of backwards compatible modules in `PEP 291`_ should be as small as possible so as to keep maintenance as simple as possible. Ka-Ping removed the comment, and submitted the module to PyPI for Python 2.3 and 2.4 users.
+
+.. _PEP 291: http://www.python.org/dev/peps/pep-0291/
+
+Contributing thread:
+
+- `uuid backward compatibility <http://mail.python.org/pipermail/python-dev/2006-June/066153.html>`__
+
+---------------------
+Figleaf code coverage
+---------------------
+
+`Titus Brown offered some reports`_ from his `figleaf code coverage`_ utility. People seemed particularly interested in trying to get coverage across multiple platforms, perhaps using a BuildBot extension, and Titus said he'd try to look into it. Walter Dörwald also pointed to `his own code coverage module`_.
+
+.. _Titus Brown offered some reports: http://vallista.idyll.org/~t/temp/python2.4-svn/
+.. _figleaf code coverage: http://darcs.idyll.org/~t/projects/figleaf-latest.tar.gz
+.. _his own code coverage module: http://styx.livinglogic.de/~walter/python/coverage/PythonCodeCoverage.py
+
+Contributing threads:
+
+- `Code coverage reporting. <http://mail.python.org/pipermail/python-dev/2006-June/066184.html>`__
+- `Code coverage reporting. <http://mail.python.org/pipermail/python-dev/2006-June/066193.html>`__
+
+------------------------
+Improving error messages
+------------------------
+
+Georg Brandl proposed going through abstract.c and modifying error messages like "object does not support item assignment" to also include the type of the object. He got little feedback, mainly because everyone seemed to think it was such an obviously good idea that there was no need for any.  Python 2.5 now incorporates `Georg's better error messages`_.
+
+.. _Georg's better error messages: http://bugs.python.org/1507676
+
+Contributing threads:
+
+- `Improve error msgs? <http://mail.python.org/pipermail/python-dev/2006-June/066048.html>`__
+- `Improve error msgs? <http://mail.python.org/pipermail/python-dev/2006-June/066128.html>`__
+
+-----------------------------------------
+Allowing assignments in global statements
+-----------------------------------------
+
+Talin proposed allowing a global statement to be combined with an assignment statement, e.g.::
+
+    global badger = 42
+
+Guido suggested that such a desire was a sure indicator of overuse of ``global``.
+
+Contributing thread:
+
+- `Allow assignments in 'global' statements? <http://mail.python.org/pipermail/python-dev/2006-June/066347.html>`__
+
+-----------------------------------------
+Splitting Python tests from CPython tests
+-----------------------------------------
+
+Frank Wierzbicki volunteered some time into splitting out CPython specific test from Python-the-language tests. Armin Rigo pointed him to PyPy's `tests modified to be more implementation independent`_.
+
+.. _tests modified to be more implementation independent: http://codespeak.net/svn/pypy/dist/lib-python/modified-2.4.1/test
+
+Contributing thread:
+
+- `Cleanup of test harness for Python <http://mail.python.org/pipermail/python-dev/2006-June/066817.html>`__
+
+-----------------------------------------
+A multi-dimensional array type for Python
+-----------------------------------------
+
+For `Google's Summer of Code`_, Karol Langner will be working on `implementing a basic multi-dimensional array type`_ for Python core, based on the numpy_ array struct. He asked for any comments or suggestions that people had for the project.
+
+.. _Google's Summer of Code: http://code.google.com/summerofcode.html
+.. _numpy: http://www.numpy.org/
+.. _implementing a basic multi-dimensional array type: http://scipy.org/BaseArray
+
+Contributing thread:
+
+- `basearray <http://mail.python.org/pipermail/python-dev/2006-June/066516.html>`__
+
+
+==================
+Previous Summaries
+==================
+
+- `Source control tools <http://mail.python.org/pipermail/python-dev/2006-June/066187.html>`__
+- `Dropping externally maintained packages (Was: Please stop changing wsgiref on the trunk) <http://mail.python.org/pipermail/python-dev/2006-June/066195.html>`__
+
+
+===============
+Skipped Threads
+===============
+
+- `Last-minute curses patch <http://mail.python.org/pipermail/python-dev/2006-June/066095.html>`__
+- `Bug in stringobject? <http://mail.python.org/pipermail/python-dev/2006-June/066100.html>`__
+- `Fwd: subprocess.Popen(.... stdout=IGNORE, ...) <http://mail.python.org/pipermail/python-dev/2006-June/066111.html>`__
+- `About dynamic module loading <http://mail.python.org/pipermail/python-dev/2006-June/066190.html>`__
+- `PyString_FromFormat <http://mail.python.org/pipermail/python-dev/2006-June/066213.html>`__
+- `Misleading error message from PyObject_GenericSetAttr <http://mail.python.org/pipermail/python-dev/2006-June/066227.html>`__
+- `Bug: xml.dom.pulldom never gives you END_DOCUMENT events with an Expat parser <http://mail.python.org/pipermail/python-dev/2006-June/066228.html>`__
+- `os.getmtime now returns a float? <http://mail.python.org/pipermail/python-dev/2006-June/066252.html>`__
+- `XP build failing <http://mail.python.org/pipermail/python-dev/2006-June/066258.html>`__
+- `ETree: xml vs xmlcore <http://mail.python.org/pipermail/python-dev/2006-June/066268.html>`__
+- `test_ctypes failure on Mac OS X/PowerPC 10.3.9 (Panther) <http://mail.python.org/pipermail/python-dev/2006-June/066282.html>`__
+- `Small sqlite3 test suite fix (Python 2.5b1 candidate) <http://mail.python.org/pipermail/python-dev/2006-June/066291.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-June/066350.html>`__
+- `Things to remember when adding *packages* to stdlib <http://mail.python.org/pipermail/python-dev/2006-June/066353.html>`__
+- `Moving the ctypes repository to python.org <http://mail.python.org/pipermail/python-dev/2006-June/066417.html>`__
+- `PyObject_CallFunction and 'N' format char <http://mail.python.org/pipermail/python-dev/2006-June/066501.html>`__
+- `pypy-0.9.0: stackless, new extension compiler <http://mail.python.org/pipermail/python-dev/2006-June/066512.html>`__
+- `[Python-checkins] Things to remember when adding *packages* to stdlib <http://mail.python.org/pipermail/python-dev/2006-June/066515.html>`__
+- `Import semantics <http://mail.python.org/pipermail/python-dev/2006-June/066523.html>`__
+- `2.5b1 Windows install <http://mail.python.org/pipermail/python-dev/2006-June/066542.html>`__
+- `Python-Dev Digest, Vol 35, Issue 143 <http://mail.python.org/pipermail/python-dev/2006-June/066577.html>`__
+- `Problems building Python on OSX 10.4.6? <http://mail.python.org/pipermail/python-dev/2006-June/066579.html>`__
+- `enhancements for uuid module <http://mail.python.org/pipermail/python-dev/2006-June/066583.html>`__
+- `Do we need a bug triage day? <http://mail.python.org/pipermail/python-dev/2006-June/066647.html>`__
+- `Oh-why that?? Please ignore one of the two <http://mail.python.org/pipermail/python-dev/2006-June/066678.html>`__
+- `msvccompiler.py: some remarks <http://mail.python.org/pipermail/python-dev/2006-June/066768.html>`__
+- `Joke: Rush Limbaugh (a joke in and of himself) <http://mail.python.org/pipermail/python-dev/2006-June/066780.html>`__
+- `PyGIL_ and --without-threads <http://mail.python.org/pipermail/python-dev/2006-June/066784.html>`__
+- `document @property? <http://mail.python.org/pipermail/python-dev/2006-June/066787.html>`__
+- `Pickle implementation questions <http://mail.python.org/pipermail/python-dev/2006-June/066803.html>`__
+- `sys.settrace() in Python 2.3 vs. 2.4 <http://mail.python.org/pipermail/python-dev/2006-June/066820.html>`__
+- `how long to wait for expat to incorporate a fix to prevent a crasher? <http://mail.python.org/pipermail/python-dev/2006-June/066829.html>`__
+- `LOAD_CONST POP_TOP <http://mail.python.org/pipermail/python-dev/2006-June/066832.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+June 16, 2006 through June 30, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 7th written by
+the python-dev summary slacker,  Steve Bethard. 
+
+To contact me, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

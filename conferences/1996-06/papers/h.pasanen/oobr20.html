@@ -1,0 +1,39 @@
+<HTML>
+<head><title>Your .emacs setup</title></head>
+
+<BODY BGCOLOR=#FFFFFF TEXT=#0000FF>
+<A NAME="topic19">
+<A HREF="oobr_contents.html"><img align=center src="contents.gif" ALT="Contents"></A> <A HREF="oobr17.html#topic16"><img align=center src="up.gif" ALT="Up"></A> <A HREF="oobr19.html#topic18"><img align=center src="back.gif" ALT="Previous"></A> <img align=center src="forward.gif" ALT="Next"> <HR><BR>
+
+<H2>Your .emacs setup</H2></A>
+<P>
+Put the following into your .emacs<P>
+<PRE>
+;; OO-Browser setup
+
+(defvar br-directory "/usr/local/lib/xemacs-19.13/lisp/oobr/")
+; Directory where the OO-Browser executable code is kept. It must end with a directory separator character.
+
+;;; For FSF Emacs that does not have hyperbole uncomment the following
+;; (setq load-path (cons (concat br-directory "hypb")) load-path)
+
+(autoload 'oo-browser (expand-file-name "br-start" br-directory)
+  "Invoke the OO-Browser" t)
+(autoload 'br-env-browse (expand-file-name "br-start" br-directory)
+  "Browse an existing OO-Browser Environment" t)
+
+; Lets just enable browsing for C++ and Python
+; for full list of languages, see br-env.el
+(defvar br-env-lang-avector
+  '[("C++"     . "c++-")
+    ("Python"  . "python-")]
+  "Association vector of (LANGUAGE-NAME . LANGUAGE-PREFIX-STRING) elements of OO-Browser languages.")
+
+(global-set-key "\C-c\C-o" 'oo-browser)
+</PRE>
+
+<P>
+<P>
+
+
+</BODY></HTML>

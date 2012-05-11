@@ -1,0 +1,568 @@
+Title: python-dev Summary for 2006-01-01 through 2006-01-15
+Content-type: text/x-rst
+Encoding: latin-1
+
+python-dev Summary for 2006-01-01 through 2006-01-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-01-01_2006-01-15.html]
+
+
+
+=============
+Announcements
+=============
+
+----------------------------
+QOTF: Quote of the Fortnight
+----------------------------
+
+Guido, on the crashability of Python:
+
+    I'm not saying it's uncrashable. I'm saying that if you crash it, it's a bug unless proven harebrained.
+    
+Contributing thread:
+
+- `Include ctypes into core Python? <http://mail.python.org/pipermail/python-dev/2006-January/059621.html>`_
+
+[SJB]
+
+------------------------------------
+Brett Cannon looking for Ph.D. ideas
+------------------------------------
+
+Brett Cannon is looking for Python-related ideas to form the subject of his PhD dissertation, under Eric Wohlstadter at the University of British Columbia.  He has three areas in which he has possible funding (XML integration, game scripting support, and AOP); he is open to grants from anyone else interested in particular Python development.  If anyone has suggestions for topics, Brett is listening!
+
+So far:
+
+* Phillip J. Eby mentioned that he has been doing some research on implementing a non-traditional form of AOP in Python.  
+* Bill Janssen suggested a system to compile Python to AJAX.
+* Steve Holden suggested a Python learning system.  
+* Ian Bicking suggested Boxer_ implemented for Python. 
+* Armin Rigo suggested PyPy related work.
+* Jason Orendorff suggested collecting a downloadable corpus of Python source code, and performing various analyses on it.
+* Dennis Allison suggested interpreter structures for Python-like languages that do not use a global interpreter lock, as well as various other topics.
+
+ .. _Boxer: http://dewey.soe.berkeley.edu/boxer.html
+
+Contributing thread:
+
+ - `Ph.D. dissertation ideas? <http://mail.python.org/pipermail/python-dev/2006-January/059702.html>`__
+
+[TAM]
+
+---------------------------------
+2.4 Documentation with Commentary
+---------------------------------
+
+Ian Bicking put an instance_ of his commenting system, Commentary_, up against the full 2.4 documentation. If you'd like to see how the Python docs look with user-added comments, now's your chance!
+
+.. _instance: http://pythonpaste.org/comment/python24/
+.. _Commentary: http://pythonpaste.org/commentary/
+
+Contributing thread:
+
+ - `[Doc-SIG] that library reference, again <http://mail.python.org/pipermail/python-dev/2006-January/059353.html>`__
+
+[SJB]
+
+---------------------------------------
+Builds of the Development Documentation
+---------------------------------------
+
+Be sure to keep yourself up to date with the newest Python documentation - Neal Norwitz has arranged it so that the current Python development documentation is now automatically generated every 12 hours and placed at http://docs.python.org/dev/.
+
+Contributing thread:
+
+ - `automated builds and tests <http://mail.python.org/pipermail/python-dev/2006-January/059362.html>`__
+
+[SJB]
+
+--------------------------------
+PEPs now automatically installed
+--------------------------------
+
+Martin v. Löwis has arranged for an automatic installation of PEPs_: they will now get published in the subversion post-commit.
+
+Contributing thread:
+
+ - `Installing PEPs <http://mail.python.org/pipermail/python-dev/2006-January/059745.html>`__
+
+ .. _PEPs: http://www.python.org/dev/peps/
+
+[TAM]
+
+=========
+Summaries
+=========
+
+---------------------------------------------------
+Using buildbot to automate testing of Python builds
+---------------------------------------------------
+
+A buildbot_ has been setup to facilitate `automated testing of the Python SVN`_.  There are currently five slaves setup:
+
+* Linux x86 (gentoo 2.6, glibc 2.3)
+* Linux AMD64 (gentoo 2.6, glibc 2.3)
+* Solaris10 sparc
+* OS X 10.3 G5
+* OS X 10.4 G4
+
+Ideally, all supported platforms will be added (including OS, version, hardware, and various configurations); the slaves are testing the trunk and the 2.4 branch.  Note that Window buildbot slaves have to have an appropriate compiler (MS VC 7.1), otherwise it can't compile the code; the Windows Python would also like to build several other packages (like bz2 and Tcl/Tk).  A periodic "clean build" may also be added; there was discussion whether this should be done via a patch to the buildbot master, via an IRC command, or with a separate scheduler.
+
+Martin v. Löwis would rather buildbot produced static pages than act as a web server (for security reasons).  Brian Warner explained that it once did, but was changed to make it easier to implement features like the "Force Build" button.  An explanation of the security was given, and it seems satisfactory at the moment.
+
+The buildbot testing has already produced results: a compiler warning on OS X 10.3 was noticed.  A discussion took place as to whether this should be fixed (it should) and who could do it (Ronald Oussoren volunteered, with help from Skip Montanaro).
+
+Fredrik Lundh had been playing with "automatic module discovery" in an attempt to figure out how complete the library reference really is, tracking down missing reference pages and generating stubs for pages that "should exist".  He suggested that the buildbot could also run this script; at the time of this summary this was in progress.
+
+ .. _automated testing of the Python SVN: http://www.python.org/dev/buildbot/
+ .. _buildbot: http://buildbot.sourceforge.net/
+
+Contributing threads:
+
+ - `buildbot <http://mail.python.org/pipermail/python-dev/2006-January/059359.html>`__
+ - `Buildbot questions <http://mail.python.org/pipermail/python-dev/2006-January/059429.html>`__
+ - `[Buildbot-devel] Re: buildbot <http://mail.python.org/pipermail/python-dev/2006-January/059455.html>`__
+ - `Automated Python testing <http://mail.python.org/pipermail/python-dev/2006-January/059460.html>`__
+ - `building a module catalogue with buildbot <http://mail.python.org/pipermail/python-dev/2006-January/059623.html>`__
+ - `Buildbot: doing occasional full builds <http://mail.python.org/pipermail/python-dev/2006-January/059643.html>`__
+
+[TAM]
+
+----------------------
+A "Rejected Ideas" PEP
+----------------------
+
+Alexander Kozlovsky submitted a pre-PEP for the oft-repeated request that Python do away with its explicit "self" parameter.  Guido responded with a definitive "This won't change", but didn't want to allow the PEP to be created just to be rejected.  A number of people felt that the mailing lists weren't a sufficiently visible place for this response, especially considering the huge number of times the request has been presented.  Thomas Wouters proposed a "Rejected Ideas" PEP that would list some of the more commonly raised proposals that weren't really even worthy of a PEP, with references to the appropriate python-list or python-dev discussions.  Tim Peters nominated the alternate title "Don't Bother: PEPs Rejected Before Being Written" which perhaps better summarizes the intent.  People seemed generally in favor of the idea, and Thomas Wouters offered to write up a first draft indicating three major rejected ideas:
+
+* removing the explicit "self" parameter
+* upgrading the Python parser beyond a simple LL(1)
+* allowing parentheses to be omitted in function calls
+
+At the time of this summary, no PEP was yet available.
+
+Contributing threads:
+
+ - `Draft proposal: Implicit self in Python 3.0 <http://mail.python.org/pipermail/python-dev/2006-January/059446.html>`__
+ - `Rejected ideas PEP (was re: Draft proposal: Implicit self in Python 3.0) <http://mail.python.org/pipermail/python-dev/2006-January/059514.html>`__
+
+[SJB]
+
+-------------------------------
+Using ssize_t as the index type
+-------------------------------
+
+Continuing from `last week`_, more process was made towards `PEP 353`_.
+
+Tim Peters, Neal Norwitz, and Martin v. Löwis discussed replacing '#' as a format character, and how this could be down in a backwards compatible way; they also discussed how Py_ssize_t could be output correctly in a printf-style statement.  Martin suggested using %zd, but this isn't in VC 7.1; Tim suggested that a macro be added to pyport.h, which would use "z" where possible, and define something else where not (e.g. Windows).  Tim also suggested that PyErr_Format() and PyString_Format() should be taught to recognize the "z" qualifier, with the macros hidden inside the implementation of those functions.
+
+M.-A. Lemburg pointed out other changes of output parameter types which will cause problems in extensions, and worried that authors wouldn't be able to get these converted in time for Python 2.5.  Martin disagreed.  While code will continue to work with 32-bit systems with little work, more needs to be done for 64-bit systems.  Martin suggested that users could continue to use 32-bit Python (since nothing will be gained by using 64-bit anyway) until the required changes are made.  For more details, see the "Open Issues" section of the PEP.
+
+ .. _last week: http://www.python.org/dev/summary/2005-12-16_2005-12-31.html#using-ssize-t-as-the-index-type
+ .. _PEP 353: http://www.python.org/dev/peps/pep-0353
+
+Contributing threads:
+
+ - `[Python-checkins] commit of r41906 - python/branches/ssize_t/Objects/obmalloc.c <http://mail.python.org/pipermail/python-dev/2006-January/059381.html>`__
+ - `New PEP: Using ssize_t as the index type <http://mail.python.org/pipermail/python-dev/2006-January/059437.html>`__
+ - `[Python-checkins] r41972 - python/branches/ssize_t/Objects/funcobject.c <http://mail.python.org/pipermail/python-dev/2006-January/059516.html>`__
+ - `Py_ssize_t output parameters (Was: [Python-checkins] r41971 ...) <http://mail.python.org/pipermail/python-dev/2006-January/059597.html>`__
+
+[TAM]
+
+-------------------------------------
+Adding ctypes to the standard library
+-------------------------------------
+
+Thomas Heller suggested that ctypes be included in core Python (starting with 2.5).  The common response was that while ctypes is a useful, popular, mature module, it does make it very easy to get a core dump, which violates the guideline that if you get a core dump it's a bug in Python or in a third party extension or you're doing something harebrained.  On the other hand, it was pointed out that the dl module suffers from the same problem, and is included without any warnings (the documentation was later fixed to include warnings).
+
+Martin v. Löwis suggested making ctypes a dynamically loaded module (ctypes.pyd), so administrators could remove it, and
+I could also make it a separate option in the Windows installer, so administrators could opt out of installing it.  Everyone seemed happy with prominent warnings in the documentation, so the plan was to check this in.  However, licensing issues were hit with libffi, so the check-in is on hold for the moment.  Stay tuned for more exciting news on this next fortnight!
+
+Contributing thread:
+
+ - `Include ctypes into core Python? <http://mail.python.org/pipermail/python-dev/2006-January/059604.html>`__
+
+[TAM]
+
+-----------------------------------------
+Adding tests when no fix is yet available
+-----------------------------------------
+
+After Georg Brandl checked in a test for the compiler module without a corresponding fix, Tim Peters reverted the change, indicating that no check-in should ever leave the repository in such a state that ``regrtest.py -uall`` fails. The ensuing thread discussed a number of ways of checking in a test for a bug when code to fix the bug was not yet available. Neal Norwitz proposed adding two files to Lib/test, outstanding_bugs.py and outstanding_crashes.py, which would include the appropriate tests, but which would not be run under ``regrtest.py -uall``.  Some people were concerned about the maintainability of keeping failing tests for a module separate from the other tests of that module, so Neal Norwitz and Scott David Daniels presented a patch_ and a recipe_ for decorators that mark individual test functions as failing.
+
+No official pronouncement on how failing tests should be added to the Python test suite had been made at the time of this summary.
+
+.. _patch: http://python.org/sf/1399935
+.. _recipe: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/466288
+
+Contributing thread:
+
+ - `Checking in a broken test was: Re: [Python-checkins] r41940 - python/trunk/Lib/test/test_compiler.py <http://mail.python.org/pipermail/python-dev/2006-January/059481.html>`__
+ - `r42003 - python/trunk/Lib/test/outstanding_bugs.pypython/trunk/Lib/test/outstanding_crashes.py <http://mail.python.org/pipermail/python-dev/2006-January/059599.html>`__
+
+[SJB]
+
+-------------------------------------------
+Running the test suites in multiple locales
+-------------------------------------------
+
+Georg Brandl noted that unicode format modifiers were (in SVN) incorrectly using the locale (one should always use locale.format to get locale-aware formatting).  Fredrik Lundh suggested that all test should be run in a different locale than C to detect these bugs, perhaps adding a "use setlocale" flag to the test runner, to simplify this.  Neal Norwitz made a patch to do this, finding a failure in test_email and two failures in test_re.
+
+Contributing thread:
+
+ - `locale and LC_NUMERIC <http://mail.python.org/pipermail/python-dev/2006-January/059530.html>`__
+
+[TAM]
+
+-----------------------------------------------------------
+Replacing the docutils directory with an svn:externals link
+-----------------------------------------------------------
+
+David Goodger replaced the static copy of docutils in the "peps" repository with a svn:externals link to the docutils repository. There was some concern about svn querying servers other than svn.python.org (the docutils repository is hosted on svn.berlios.de) and about linking to a potentially broken repository.  David assured python-dev that the svn.berlios.de server was hardly ever unreachable, and changed the svn:externals link to select the 0.4 revision of docutils instead of the trunk.  That guaranteed a non-broken copy of docutils, and made updating to a new revision just a simple propedit.
+
+Contributing thread:
+
+ - `r42015 - peps/trunk <http://mail.python.org/pipermail/python-dev/2006-January/059676.html>`__
+
+[SJB]
+
+--------------
+Tkinter status
+--------------
+
+A brief message from Joseph Rodrigues asking about the status of Tkinter in Python started a short thread about how Tkinter is maintained in Python. Martin v. Löwis is the primary maintainer, and he mainly focuses on integrating user contributions and making sure that Python is compatible with the latest release of Tcl/Tk.  New widgets don't get wrapped automatically - if you want one supported, you should submit a patch.
+
+Contributing thread:
+
+ - `Tkinter <http://mail.python.org/pipermail/python-dev/2006-January/059588.html>`__
+
+[SJB]
+
+------------------------------------
+Roadmap for ConfigParser development
+------------------------------------
+
+Once again, the output capability of ConfigParser was brought up; this time by Facundo Bastista, who `submitted a patch`_ that orders the output so that doctest output can be easily reliable.  He pointed out that there is `another open patch`_ that allows the user to specify the order through an "ordered dictionary".  Guido explained that he didn't feel that it mattered, as long as the patch also allows comments to be preserved; his preference was for everything (ordering, blank lines, and comments) to be preserved.  Tony Meyer point out some examples_ of previous_ `python-dev discussion`_ about how ConfigParser should be modified, and that SpamBayes_ includes a ConfigParser subclass that allows 'surgical' editing of files.
+
+ .. _submitted a patch: http://python.org/sf/1399309
+ .. _another open patch: http://python.org/sf/1371075
+ .. _previous: http://mail.python.org/pipermail/python-dev/2004-October/049454.html
+ .. _python-dev discussion: http://mail.python.org/pipermail/python-dev/2004-October/049527.html
+ .. _examples: http://aspn.activestate.com/ASPN/Mail/Message/python-dev/1483518
+ .. _SpamBayes: http://spambayes.org
+
+Contributing thread:
+
+ - `ConfigParser to save with order <http://mail.python.org/pipermail/python-dev/2006-January/059480.html>`__
+
+[TAM]
+
+-------------------------------
+Patches for the logging package
+-------------------------------
+
+Shane Hathaway asked about the process for submitting patches for the logging package.  Vinay Sajip is the primary maintainer, and accepts patches (compatible with Python 1.5.2) through sourceforge as normal, though personal emails are appropriate if you are worried about spending time on a patch that is not accepted.  There was a brief followup discussion about how to get the logging package to interact nicely with external log rotation tools, including the possible creation of a ``reopen()`` function for files, but the thread trailed off without any solid conclusion on this issue.
+
+Contributing thread:
+
+ - `Logging enhancements <http://mail.python.org/pipermail/python-dev/2006-January/059566.html>`__
+
+[SJB]
+
+----------------------------------
+os.path.getmtime() bugs on Windows
+----------------------------------
+
+Christian Tismer noted that if, in a single interactive session on Windows, create a file, get its os.path.getmtime(), change your time zone, and get its os.path.getmtime() again, the time stamps are different.  He asked whether there was a way to circumvent the problem, or if a patch could be created.  Tim Peters gave him a `reference to a CodeProject page` that discusses the problem.  Martin v. Löwis has meant to work on a patch for several years; his plan is to drop usage of msvcrt's stat(3), and instead implement os.stat in terms of Windows API directly - this would also have the advantage that subsecond time-stamps can be exposed.  This patch would need to be implemented twice; once for Win9X (ANSI file names) and once for NT+ (unicode file names).
+
+ .. _reference to a CodeProject page: http://www.codeproject.com/datetime/dstbugs.asp
+
+Contributing thread:
+
+ - `os.path.getmtime on Windows <http://mail.python.org/pipermail/python-dev/2006-January/059741.html>`__
+
+[TAM]
+
+----------------------------------------
+Generating Python-ast.c and Python-ast.h
+----------------------------------------
+
+Python-ast.c and Python-ast.h are generated automatically from Parser/asdl_c.py and then checked into Subversion. However, a ``make distclean`` removes these files, and if you do not have a 2.2+ version of Python available, they cannot be regenerated.  The best solution seemed to be to alter ``make distclean`` to not remove Python-ast.c and Python-ast.h as they only need to be regenerated when the AST definition changes, which is rather infrequent.
+
+Contributing thread:
+
+- `[Python-checkins] commit of r41880 - python/trunk/Python/Python-ast.c <http://mail.python.org/pipermail/python-dev/2006-January/059356.html>`__
+
+[SJB]
+
+-----------------------------------------
+Allowing dict subclasses for exec globals
+-----------------------------------------
+
+Currently, the ``exec`` statement allows the locals expression (the second expression after ``in``) to be any mapping type.  The globals expression (the first expression after ``in``) should be a dict object, but Python does not currently raise an exception if you use a dict subclass, though it will not call any overridden methods correctly.  `Crutcher Dunnavant presented a patch`_ that allows the globals expression to be a dictionary subclass such that overridden methods are called properly.  Because it gives Python new capabilities, if the patch is accepted, it will not become part of Python until 2.5.
+
+.. _Crutcher Dunnavant presented a patch: http://www.python.org/sf/1402289
+
+Contributing thread:
+
+ - `[PATCH] Fix dictionary subclass semantics when used as global dictionaries <http://mail.python.org/pipermail/python-dev/2006-January/059625.html>`__
+
+[SJB]
+
+--------------------------------------
+Finding an appropriate recursion limit
+--------------------------------------
+
+Python limits the depth of the function call stack.  Too low a limit, and some functions fail needlessly.  Too high a limit, and some programs get a segmentation fault instead of an exception.  There is no easy, automated, way to find the "right" limit.
+
+Contributing thread:
+
+- `Limiting the recursion limit <http://mail.python.org/pipermail/python-dev/2006-January/059652.html>`__
+
+[Jim Jewett]
+
+------------------------
+When is a PEP necessary?
+------------------------
+
+Q.  Why are so many PEPs about changes to syntax or the core language instead of (less intrusive) changes to the standard library?
+
+A.  Unintrusive changes to the standard library can often just go in without the overhead of a PEP.  This process *is* different from some other languages.
+
+Contributing thread:
+
+ - `PEP and stdlib <http://mail.python.org/pipermail/python-dev/2006-January/059694.html>`__
+
+[Jim Jewett]
+
+--------------------------------
+Mixing file iteration techniques
+--------------------------------
+
+'for lines in file:' uses a buffer; doing an explicit readline does not use that buffer, which can lead to corrupted data.  Thomas Wouters submitted a patch to raise an error instead of silently corrupting data.  For backwards compatibility, it still doesn't complain when the mixing doesn't happen to corrupt data.
+
+He chose to raise an error instead of correcting the problem (by using the buffer exactly when he now raises an error) to minimize the changes.
+
+Contributing thread:
+
+ - `file.next() vs. file.readline() <http://mail.python.org/pipermail/python-dev/2006-January/059410.html>`__
+
+[Jim Jewett]
+
+-------------------------------------
+Multiple interpreters sharing objects
+-------------------------------------
+
+Having multiple interpreters sharing the same object isn't heavily tested. There is a threading-related bug (fixed in 2.4.2) that can result in (false) complaints about being run in restricted mode.  In addition, if a thread finishes, another interpreter might reuse the thread id, which wasn't quite fully cleaned up.  Various small patches were proposed; none are perfect, all are probably an improvement.
+
+Contributing threads:
+
+ - `Sharing between multiple interpreters and restricted mode <http://mail.python.org/pipermail/python-dev/2006-January/059412.html>`__
+ - `PyThreadState_Delete vs PyThreadState_DeleteCurrent <http://mail.python.org/pipermail/python-dev/2006-January/059595.html>`__
+ - `pystate.c changes for Python 2.4.2 <http://mail.python.org/pipermail/python-dev/2006-January/059716.html>`__
+
+[Jim Jewett]
+
+-----------------------------
+Unicode exceptions with print
+-----------------------------
+
+What to do if the output encoding can't handle the text you just sent it? Should it just substitute something (losing information) or should it really throw an exception?  (What is wrong?  Argh!  I can't even print the bad data out!)
+
+Contributing thread:
+
+ - `Unicode print/stdoutput exceptions are not nice <http://mail.python.org/pipermail/python-dev/2006-January/059715.html>`__
+
+[Jim Jewett]
+
+--------------
+curses testing
+--------------
+
+Alone, the setupterm call [curses.setupterm(sys.__stdout__.fileno())] does nothing remarkable, but when it is done inside of curses.initscr() / curses.endwin() the terminal is not restored properly.  Georg Brandl thinks that if setupterm() is to be tested, it should be executed before initscr().
+
+Contributing thread:
+
+ - `Birkenfeld's gone <http://mail.python.org/pipermail/python-dev/2006-January/059492.html>`__
+
+[Jim Jewett]
+
+---------------------
+Momentary API changes
+---------------------
+
+Some functions were turned into macros, which are not so good for dynamic linking. This was later fixed.
+
+Contributing thread:
+
+- `API changes <http://mail.python.org/pipermail/python-dev/2006-January/059374.html>`__
+
+[Jim Jewett]
+
+----------------------
+sudo security concerns
+----------------------
+
+If you can run a script as someone else (including root), and can set the environment variables, then you can get a python interactive session as that someone.
+
+Contributing thread:
+
+ - `sudo security hole w/ potential Python connection <http://mail.python.org/pipermail/python-dev/2006-January/059586.html>`__
+
+[Jim Jewett]
+
+----------------------------
+Problems with tar on Solaris
+----------------------------
+
+GNU tar should be used on Solaris, as the Solaris tar has problems.
+
+Contributing thread:
+
+ - `TAR problems under Solaris <http://mail.python.org/pipermail/python-dev/2006-January/059415.html>`__
+
+[Jim Jewett]
+
+----------------------------
+That which we call a rose...
+----------------------------
+
+"Reinhold Birkenfeld" was a pseudonym Georg Brandl first used when he was sixteen.  Three years (plus change) later, he has decided to become known within the Python development community by his real name.  Among the expected humourous replies, there was some discussion about whether pseudonyms should be permitted for people contributing to Python, but this (including exactly what a "contribution" is) wasn't resolved.
+
+Contributing thread:
+
+ - `Birkenfeld's gone <http://mail.python.org/pipermail/python-dev/2006-January/059492.html>`__
+
+[TAM]
+
+==================
+Previous Summaries
+==================
+
+ - `When do sets shrink? <http://mail.python.org/pipermail/python-dev/2006-January/059346.html>`__
+ - `Including zlib... <http://mail.python.org/pipermail/python-dev/2006-January/059372.html>`__
+ - `a quit that actually quits <http://mail.python.org/pipermail/python-dev/2006-January/059384.html>`__
+ - `Real time behaviour of Pythons memory management; WAS: RE: Documentation about Python's GC,python-dev list messages referenced in Modules/gcmodule.c notreachable anymore <http://mail.python.org/pipermail/python-dev/2006-January/059408.html>`__
+ - `slight inconsistency in svn checkin email subject lines <http://mail.python.org/pipermail/python-dev/2006-January/059355.html>`__
+ - `buildno (Was: [Python-checkins] commit of r41907- python/trunk/Makefile.pre.in)  <http://mail.python.org/pipermail/python-dev/2006-January/059419.html>`__
+
+===============
+Skipped Threads
+===============
+
+ - `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-January/059352.html>`__
+ - `current test problems <http://mail.python.org/pipermail/python-dev/2006-January/059360.html>`__
+ - `mac memory leaks <http://mail.python.org/pipermail/python-dev/2006-January/059367.html>`__
+ - `bsddb broken <http://mail.python.org/pipermail/python-dev/2006-January/059425.html>`__
+ - `Jython and CPython <http://mail.python.org/pipermail/python-dev/2006-January/059434.html>`__
+ - `Compiler warnings for 64-bit portability problems <http://mail.python.org/pipermail/python-dev/2006-January/059464.html>`__
+ - `some interesting readings <http://mail.python.org/pipermail/python-dev/2006-January/059482.html>`__
+ - `Birkenfeld's gone <http://mail.python.org/pipermail/python-dev/2006-January/059492.html>`__
+ - `Python-Dev Digest, Vol 29, Issue 111 <http://mail.python.org/pipermail/python-dev/2006-January/059494.html>`__
+ - `PyCon TX 2006: Early-bird registration ends Jan. 15! <http://mail.python.org/pipermail/python-dev/2006-January/059511.html>`__
+ - `test_curses <http://mail.python.org/pipermail/python-dev/2006-January/059528.html>`__
+ - `sudo security hole w/ potential Python connection <http://mail.python.org/pipermail/python-dev/2006-January/059586.html>`__
+ - `Python-Dev Digest, Vol 30, Issue 32 <http://mail.python.org/pipermail/python-dev/2006-January/059587.html>`__
+ - `Hello <http://mail.python.org/pipermail/python-dev/2006-January/059628.html>`__
+ - `DRAFT: python-dev Summary for 2005-12-01 through 2005-12-15 <http://mail.python.org/pipermail/python-dev/2006-January/059713.html>`__
+ - `DRAFT: python-dev Summary for 2005-12-16 through 2005-12-31 <http://mail.python.org/pipermail/python-dev/2006-January/059717.html>`__
+ - `DRAFT: python-dev Summary for 2005-12-16 through2005-12-31 <http://mail.python.org/pipermail/python-dev/2006-January/059726.html>`__
+ - `Python icon <http://mail.python.org/pipermail/python-dev/2006-January/059738.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+January 01, 2006 through January 15, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the 11th summary written by the python-dev summary deuce of
+Steve Bethard and Tony Meyer (Happy New Year!).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python CVS online, go to
+http://svn.python.org/projects/python/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo :); you can safely
+ignore it.  We do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow us to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-12-01_2005-12-15.html
+.. _original text file: http://www.python.org/dev/summary/2006-01-01_2006-01-15.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

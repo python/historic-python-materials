@@ -1,0 +1,280 @@
+<html>
+<head>
+<title> Graphical User Interfaces </title>
+</head>
+
+<body>
+<h1> Graphical User Interfaces </h1>
+<i> Moderator: Jim Fulton, USGS </i>
+<br>
+<i> Date: May 24, 1995 </i>
+<br>
+URL: <code> http://www.python.org/misc/workshop5-95/guiProgNotes.html </code>
+<h2> Introduction (Jim Fulton) </h2>
+<ul>
+  <li> Wanted - Visual Python
+  <li> Should there be a standard GUI extension for python?
+  <li> Should it be free?  ...or layered over commercial toolkits (e.g.
+       wxWindows - actually wxWindows is not commercial, but under the
+       same kind of copyright as Python, and freely available through ftp)
+</ul>
+<h2> Microsoft Foundation Classes (Jim Ahlstrom)</h2>
+<ul>
+  <li> Crash course on MFC - System Model
+  <ul>
+    <li> win32 is the windows os interface
+    <li> win32s is a subset for windows 3.1
+    <li> MFC is a C++ thin layer over win32
+    <li> MFC and win32 are alternative interfaces
+    <li> most MFC features are duplicates to win32
+    <li> MFC may be able to support the MAC
+  </ul>
+  <li> Crash course on MFC - GUI Model
+  <ul>
+     <li> is a document/view model 
+     <li> has a complete C++ class heirachy
+     <li> has a SDI and MDI model
+     <li> is large and complex
+     <li> uses resources and resources editor
+     <li> shows installed base syndrome
+  </ul>
+  <li> Crash course on MFC - Message Model
+  <ul>
+     <li> 'command' messages agressively routed
+     <li> 'window' message go to the window
+     <li> user char and mouse messages go to the View
+  </ul>
+  <li> Crash course on TK
+  <ul>
+     <li> not like MFC
+     <li> command languyage model
+     <li> good powerfull commands
+     <li> has widgets based on X widgets
+     <li> does not have 'windows' in the win32 sense
+     <li> easy to write in
+     <li> Sun promises portability to windows (Osterhout)
+  </ul>
+  <li> Mark Hammond is doing work to make MFC visible from Python
+       (actual classes are inherited as Python classes)
+</ul>
+<h2> wxPython (Harri Pasanen) </h2>
+<ul>
+  <li> a Python interface to wxWin
+  <li> <a href="http://www.aiai.ed.ac.uk/~jacs/wxwin.html"> WxWin </a>
+       reference page
+  <LI> <A href="http://www.aiai.ed.ac.uk/~jacs/wx/wxpython/wxpython.html">
+       WxPython</A> reference page.
+  <li> Status
+  <ul>
+    <li> about 40 classes finished
+    <li> under unix, usable as a standard Python extension
+    <li> MS-Windows version not finished
+    <li> next public release in June 95
+    <li> Other developers: Robin Dunn <address> robin@usin.com
+         </address> & Edward Zimmerman <address> edz@bsn.com
+         </address>
+  </ul>
+</ul>
+<h2> Pesto (Denis Bohm - Firefly Design) </h2>
+<ul>
+  <li> Fresco
+  <ul>
+    <li> <a href="http://www.faslab.com/fresco/HomePage.html">
+       Fresco home page</a>
+  </ul>
+  <li> Pesto
+  <ul>
+    <li> <a href="http://www.faslab.com/fresco/pesto/Index.html">
+         Pesto - Mixing Python and Fresco</a>
+  </ul>
+</ul>
+<h2> Fresco Object Builder - using Pesto (Steve Tang) </h2>
+<ul>
+  <li> URL Coming soon...
+</ul>
+<h2> A Python GUI Model (Jim Ahlstrom - Interet Inc.)</h2>
+<ul>
+  <li> Wpy - a python GUI language
+  <li> a language to write python gui code
+  <li> you import wpy.py and get its methods
+  <li> using Wpy on unix
+  <ul>
+    <li> you must have Tk 4.0
+  </ul>
+  <li> using Wpy on Windows
+  <ul>
+    <li> stock build of python
+    <li> replay myreadline.c for console
+    <li> C++ and C support for GUI  using VC++ 2.0
+    <li> software available from: ftp.interet.com in /pub/python
+    <li> Contact: <address> jim@interet.com </address>
+  </ul>
+  <li> Does it work? Yes, mostly
+  <li> Features
+  <ul>
+    <li> High level programming interface
+    <li> good menuy support 
+    <li> Basic support to make menus
+    <li> Buttons
+    <li> Static controls (e.g. lines)
+  </ul>
+  <li> What's missing
+  <ul>
+    <li> Missing controls
+    <li> wont draw text
+    <li> no scroll bar
+  </ul>
+  <li> Design Objectives
+  <ul>
+    <li> must support native look-and-feel
+    <li> must have a class library design
+    <li> high level moduel gives portabilty
+    <li> should be a thin layer, small & simple
+    <li> take advantage of pythoin features
+    <li> python is in control
+    <li> future: remote GUI
+  </ul>
+  <li> GUI Model
+  <ul>
+    <li> class heirachy is MFC
+    <li> app document frame view template
+    <li> message are MFC but much fewer
+    <li> message routing is MFC
+    <li> methods are MFC but much fewer
+    <li> geometry management in python
+    <li> no use of resources (*.rc files)
+  </ul>
+  <li> 'Hello World' Code Example
+  <pre>
+	from wpy import *
+	class MyView(CScrollView)
+	  def OnCreate(self, event):
+ 	  b = CPushButton(self, "Quit")
+	  b.Create()
+	  self.button = b
+        def OnSize(self, rect):
+	  self.button.WpyPlace(rect, 0.5, 0.5, "center")
+
+	class MyApp(CWinApp):
+	  def InitInstance(self):
+	  templ = CSingleDocTemplate(CDocument, CFrameWnd, MyView)
+  	  templ.wpyText = "Hello World"
+	  self.AddDocTemplate(templ)
+	  self.FileNew()
+	def OneButtonQuit(self, control):
+	  self.Exit()
+
+	# Start the App, respond to events...
+	app = MyApp()
+  </pre>
+</ul>
+<h2> Tk interface toolkit 'The IT' (John Viega - UVA) </h2>
+<ul>
+  <li> <address> jtv2j@virginia.edu </address>
+  <li> TkInter replacement
+  <li> Tommy Burdette passed this work onto Matt Conway 
+  <li> Current implementation is too slow to use
+  <li> Goal is to get the tk look-and-feel out of the toolkit
+  <li> Goal is to create an object-oriented intuitive structure
+  <li> Looking for feed-back
+  <li> One of the big areas that needs improvments is <i>properties</i>
+  <li> planning on using the windows port of Tk 
+  <li> unix version should be ready by end-of-summer 95
+  <li> 'IT' will be freely available to all
+  <li> promised a URL pointer with more detail soon...
+</ul>
+<h2> C and Python interface to Tk (Brian Warkentine) </h2>
+<ul>
+  <li> Problems with tKinter
+  <ul>
+    <li> lack of documentation
+    <li> oddly organized class stucture
+    <li> dictionaries as arguments
+    <li> embedded Tcl
+    <li> requires porting to new releases of Tk
+  </ul>
+  <li> Tkgu
+  <ul>
+    <li> simple python wrapper to Tcl/tk
+    <li> enables intermixed python and Tcl
+    <li> easy to port existing Tcl apps to python
+    <li> independent of new Tk features
+    <li> simplier than Tkinter
+    <li> no interface for conversions
+    <li> functional interface - one class encapsulates a Tcl Context
+  </ul>
+  <li> A Tkgu example...
+  <pre>
+	import Tkgu
+	def printit():
+		print 'howdy'
+	top = Tkgu.Tkgu()
+	frame1 = top.frame('.', '-relief raised -bd 2')
+	button1 = top.button(frame1)
+	top.tcl(button1,'configure-command', printit, '-text "Hello World"')
+	Tkgu.mainloop()
+  </pre>
+  <li> Problems with Tkgu
+  <ul>
+    <li> slow startup
+    <li> callback interface is not completely transparent
+    <li> embedded Tcl
+    <li> global namespaces
+  </ul>
+  <li> Alternatives
+  <ul>
+    <li> IT
+    <li> Guile
+    <li> TkPerl
+  </ul>
+  <li> Rivet
+  <ul>
+    <li> goals
+    <ul>
+      <li> c interface to Tk
+      <li> C pointers as identifiers
+      <li> miniamal changes to Tk sources
+      <li> No Tcl evaluation, commands, identifiers
+      <li> a python binding
+    </ul>
+    <li> non-goals
+    <ul>
+      <li> beaty of C interface
+      <li> avoiding of type conversions (e.g. coordinates as strings)
+      <li> removal of all vestigial Tcl
+    </ul>
+    <li> A rivet example...
+    <pre>
+	import rivet
+        def printit():
+                print 'howdy'
+        top = rivet.init()
+        frame1 = top.frame('-bd', 4, '-relief', 'raised')
+        button1 = frame1.button()
+	rivet.pack(frame1, button1, '-expand', 'yes', '-fill', 'both')
+	rivet.mainloop()
+    </pre>
+  </ul>
+  <li> Experience so far
+  <ul>
+    <li> better startup times compared with Tkgu
+    <li> largely indistinguishable from Tcl/Tk
+  </ul>
+  <li> Status
+  <ul>
+    <li> No Tcl parser in here!
+    <li> in process of building 
+  </ul>
+  <li> Python Wish list
+  <ul>
+    <li> py_FindMethod() without it's linear searchg
+    <li> add some 'client data' to the PyMethodDef type, accessable when the
+	method is envoked
+  </ul>
+</ul>
+<h2> Discussion </h2>
+<ul>
+  <li> Comments and Summary to be posted by Jim Fulton soon...
+</ul>
+</body>
+</html>

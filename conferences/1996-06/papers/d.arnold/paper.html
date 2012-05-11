@@ -1,0 +1,998 @@
+<!-- --------------------------------------------------------------
+Copyright (C) DSTC Pty Ltd (ACN 052 372 577) 1996.
+All Rights Reserved.
+
+Project:  Hector
+File:     $Source: /arch/home/arnold/doc/papers/src/ipc4/RCS/paper.html,v $
+
+-------------------------------------------------------------- -->
+
+<HTML>
+  <HEAD>
+    <TITLE>Hector</TITLE>
+  </HEAD>
+
+  <BODY>
+    <h1 align=center>
+      Hector: Distributed Objects in Python
+    </h1>
+
+    <h3 align=center>
+      <a href="mailto:arnold@dstc.edu.au">David Arnold</a>,
+      <a href="mailto:bond@dstc.edu.au">Andy Bond</a>, 
+      <a href="mailto:martin@dstc.edu.au">Martin Chilvers</a>, 
+      <a href="mailto:taylor@dstc.edu.au">Richard Taylor</a>
+    </h3>
+
+    <p align=center>
+      CRC for Distributed Systems Technology<br>
+      University of Queensland<br>
+      Australia<br>
+      <i>
+	<a href="http://www.dstc.edu.au/">http://www.dstc.edu.au/</a>
+      </i>
+    </p>
+
+    <HR>
+
+    <p align=center>
+
+    <b>Abstract</b>
+
+    <p align=center>
+
+    <i>
+      Hector is a distributed object system written primarily in
+      Python.  It provides a communications transparency layer
+      enabling negotiation of communication protocol qualities,
+      comprehensive support services for application objects and a
+      novel interaction architecture.
+    </i>
+
+    <p align=center>
+
+    <i>
+      We discuss the implementation, the services and the interaction
+      architecture; we also comment on the effectiveness of Python as
+      the implementation language for the project.  We conclude with
+      an outline of the current status and future plans for the
+      project.
+    </i>
+
+    <p align=center>
+  
+
+<!-- --------------------------------------------------------- -->
+
+    <h2>Introduction</h2>
+
+    Object oriented design and programming has become a broadly
+    accepted approach to computing.  It is particularly beneficial in
+    distributed environments where the encapsulation and subsequent
+    independence of objects allows distribution of an application.
+    However, programming distributed object systems is difficult,
+    complicated by the possibilities of hetergeneous machine
+    architectures, physically distant locations and independent
+    component failures.
+
+    <p>
+
+    A number of distributed processing environments have been
+    developed that attempt to hide these problems from programmers,
+    reducing the complexity of their task.  Prominent amongst these
+    are APM's ANSAware <a href = "#ansa">[1]</a>, the OSF's DCE <a
+    href = "#dce">[2]</a>, the OMG's CORBA <a href = "#corba">[3]</a>
+    and Microsoft's COM <a href = "#com">[4]</a>.  In addition, the
+    ISO and ITU-T have invested significant effort in an international
+    standard known as the Reference Model for Open Distributed
+    Processing (RM-ODP) <a href = "#rm-odp">[5]</a> addressing
+    problems in this area of work.
+
+    <p>
+
+    ANSAware is an early, and influential, implementation of some
+    concepts from RM-ODP.  Although now largely obselete, it provides
+    facilities only now being matched by the more recently popular
+    environments.  These included federated Traders, rudimentry Type
+    Management, and a notification service.
+
+    <p>
+
+    The OSF's Distributed Computing Environment provides a series of
+    services for distributed programming, but does not support an
+    explicitly object-oriented programming model.  This has limited
+    its acceptance, despite its sometimes superior design and
+    implementation.
+
+    <p>
+
+    The Common Object Request Broker Architecture (CORBA) is a
+    specification from the OMG now being broadly adopted across the
+    industry, and despite its immaturity in some areas, its adoption
+    of a fully object oriented architecture seems set to ensure its
+    dominance over DCE.
+
+    <p>
+
+    Finally, Microsoft's Common Object Model is proposed as a
+    distributed extension of their existing Object Linking and
+    Embedding (now ActiveX) technology.  At this point COM is more
+    specification than implementation but it is destined to become a
+    significant influence.
+
+    <p>
+
+    Unfortunately, none of these systems implement all the features
+    described by RM-ODP, and in particular, each is basically a closed
+    environment, allowing interoperation only with other objects from
+    the same environment.
+
+    <p>
+
+    After examination of these environments and with particular
+    reference to RM-ODP, we set about implementation of a distributed
+    environment which overcomes their limitations.
+
+    <p>
+
+    The result is <i>Hector</i>, a framework which sits above other
+    distributed environments, providing open negotiation and
+    interoperability of communication protocols, high level
+    description of component services and their requirements, a rich
+    set of support services for objects and an interaction framework
+    which allows the description of workflow-like interactions between
+    autonomous objects.
+
+    <p>
+
+    The prototype is implemented almost entirely in Python, taking
+    advantage of the language's wide support for other services and
+    powerful syntax, enabling rapid development.
+
+
+<!-- --------------------------------------------------------- -->
+
+    <h2>The Hector Environment</h2>
+
+
+    Programming of distributed systems using traditional tools is
+    complex and error prone.  In an effort to reduce this difficulty,
+    a range of <i>transparencies</i> are normally introduced.
+    Transparencies hide a component of the complexity and allow the
+    programmer to manipulate the abstraction that they implement.
+
+    <p>
+
+    RM-ODP defines a number of transparencies described in some detail
+    by Linnington <a href="#linnington">[6]</a>.  An important
+    attribute of transparencies in RM-ODP are that they are removable
+    - a programmer can elect to manipulate the underlying
+    functionality directly if desired.
+
+    <p>
+
+    Hector attempts to provide application objects with a consistent
+    environment, regardless of their physical location, through a
+    series of transparencies.  Designed with the goal of supporting a
+    dynamic, global system of distributed objects, it embraces
+    diversity through extensibility.  Specifically, we support
+
+    <p>
+    <ul>
+      <li>multiple parties in high level interaction bindings,
+      <li>multiple object implementation languages,
+      <li>multiple interaction models, and,
+      <li>multiple transport protocols
+    </ul>
+
+    while maintaining transparent usage of object services.
+
+    <p>
+
+
+    <h3>Binding</h3>
+
+    Communication between distributed objects is traditionally modelled
+    as remote method invocation.  This has two flavours, RPC and
+    messaging, depending upon whether the method has a return value.
+    The methods that a remote object exports are collectively called
+    its interface.  Typically, having selected a remote object,
+    normally identified by some opaque address type, the programmer
+    can invoke a method at the remote interface.
+
+    <p>
+
+    RM-ODP, and subsequently Hector, extend this notion with the
+    formal concept of <i>bindings</i>.  A binding is a specification
+    of a set of roles, and the communication patterns between those
+    roles needed to perform some higher level function.
+
+    <p>
+
+    This allows complex, enterprise-level tasks to be described as
+    binding types, similar in some ways to work-flow descriptions.
+
+    <p>
+
+    Hector provides an abstract Binding class which is specialised by
+    application programmers.  The kernel can then instantiate these
+    derived classes.  The instantiation process establishes the
+    communication channels described by the binding type.
+
+    <p>
+
+    For example, the requirements of a distributed meeting scheduler
+    can be specified at programming time as a binding type
+    encompassing individuals' calendars, room and equipment
+    reservation services, notification to a news service and the
+    scheduler component itself.  The construction of the required
+    peer-to-peer communication channels at runtime is left to the
+    infrastructure rather than being explicitly programmed.
+
+    
+    <h3>Services</h3>
+
+    Objects require services, and in a distributed environment, some
+    services must be available via the network rather than relying on
+    those provide by the local machine.  Some of those services can be
+    deemed fundamental, for reasons of bootstrapping, dependency or as
+    a means of ensuring a richer programming environment.
+
+    <p>
+
+    Hector guarantees to provide a fixed set of fundamental services
+    at every location.  The actual implementation of the services can
+    vary, but the service interface provided to objects is
+    standardised and guaranteed to be available.
+
+    <p>
+
+    We have selected nine fundamental services, with a particular
+    emphasis on providing a rich environment for objects.  These
+    services are:
+
+    <dl>
+      <dt>Notification
+      <dd>Generation of event information and subscription to
+          receive notification of events using expressions over the
+          event information.
+
+          <p>
+
+          We are using the Elvin <a href="#elvin">[7]</a> notification
+          service, being developed as a parallel activity at the DSTC.
+
+          <p>
+
+      <dt>Authentication
+      <dd>Authentication of object identity.  These credentials are
+          used for authorisation checks during binding.
+
+          <p>
+
+      <dt>Privacy
+      <dd>Communication between Objects and storage of information can
+          both require privacy.  The Privacy service provides a
+          mechanism for encrypting data.
+
+          <p>
+
+          One of our major areas of work is the interoperation of
+          security services, including means of authentication,
+          authorisation and protection of privacy.
+
+          <p>
+
+      <dt>Banking
+      <dd>Objects need to pay for use of services.  In order to
+          maintain their "credit" across invocations, a banking
+          service is provided.  Objects may open accounts and access
+          them using identifying tokens.
+
+          <p>
+
+      <dt>Naming
+      <dd>The name service provides a mechanism to associate
+          information with a string name.  This interface is modelled
+          on the X/Open Federated Naming specification <a href =
+          "#xfn">[8]</a>, but modified to support an object oriented
+          interface <a href="#chilvers">[9]</a>.
+
+          <p>
+
+      <dt>Type Management
+      <dd>A repository of type descriptions.  A single type may have
+          descriptions in many languages, from English commentary,
+          through formal specifications, to executable specifications.
+
+          <p>
+
+      <dt>Trading
+      <dd>When an Object requires the use of a service, it can locate
+          instances of that service type in many ways.  The Trading
+          service provides a content-based or "Yellow Pages" style
+          query, parameterised by service type and quality attributes.
+
+          <p>
+
+          Service providers advertise their service, describing their
+          attributes.  Service consumers query the Trader which
+          returns a list of possible providers.
+
+          <p>
+
+          The Trading service interface is modelled on the proposed
+          joint ISO ODP / OMG CORBA Trader specification <a href =
+          "#trader">[10]</a>.
+
+          <p>
+
+      <dt>Policy
+      <dd>Objects require configuration information.  In a distributed
+          system, traditional methods such as a configuration file,
+          environment variables or the X Window System resources are
+          not available.  The Hector Policy service provides a
+          mechanism for retrieving an arbitrary string of information
+          using a wild card key, similar to X resources.
+
+         <p>
+
+         The resolution of this key is dependent upon a configurable
+         hierarchy of policy contexts.  If no match is found within
+         the initial context, resolution proceeds up a chain of nested
+         contexts.
+
+         <p>
+
+         The specification of the context ordering is configurable on
+         a host, network or enterprise basis.
+
+         <p>
+
+      <dt>Relationships
+      <dd>Objects frequently need to maintain records of their
+          relationships with other Objects.  This service provides a
+          strongly typed repository of relationship instances, which
+          can be queried by Objects to retrieve that information.
+ 
+         <p>
+
+    </dl>
+
+    Service implementations are bound to the standard interfaces
+    during the initialisation of the environment, as determined by a
+    local configuration file.  This file can be set on a per host, per
+    network or other basis.  An example of this configuration is to select
+    an existing enterprise name service for use in Hector, such as the
+    DCE CDS/GDS or the Solaris NIS+ system.
+
+
+<!-- --------------------------------------------------------- -->
+
+    <h2>The Hector Architecture</h2>
+
+
+    Hector is structured as four layered components representing
+    decreasing levels of abstraction.  These layers are the Object,
+    Language, Encapsulation (or Kernel) and Communication layers as
+    shown in the following diagram.
+
+    <p align=center>
+
+    <img src = "de-design.fig_13.gif" alt="Layering diagram">
+
+    <p>
+
+    During execution, the three lower layers combine to form a single
+    entity called the <i>Capsule</i>, which provides a support
+    environment for Object execution.  It encapsulates and insulates
+    Objects from the underlying machine and operating system
+    architectures.
+
+    <p>
+
+    The Capsule is an executable program, normally started by
+    privileged users.  Multiple Objects can exist within a Capsule,
+    each being allocated an initial thread (which may spawn more).
+    Each Object is associated with a security principal which controls
+    its access to the resources of the Capsule and its host.  Multiple
+    Capsules can be run on a single host; the choice of whether to
+    instantiate an Object within an existing Capsule or to create a
+    new one is a matter of performance tuning.
+
+    <p align = center>
+
+    <img src=de-design.fig_8.gif alt = "Capsules and Objects Diagram">
+
+    <p>
+
+    Components of the language and communication layers can be
+    dynamically loaded at runtime.  Specific communication and
+    language modules are typically configured when starting a Capsule,
+    but they can be added or removed by the Capsule's owner at any
+    time.
+
+    <p>
+
+    During execution, each layer is comprised of instances from a
+    number of classes.  These are discussed in more detail in the
+    following sections.
+
+
+    <h4>Object Layer</h4>
+
+    The Object layer contains both application programs (Objects) and
+    services loaded by the Capsule during its initialisation.  Objects
+    execute as separate entities within the Capsule process, each with
+    at least one private thread.
+
+    <p>
+
+    The interface between the Object and Language layer represents the
+    complete set of facilities available to an Object. (While it is
+    currently possible for an Object to directly access operating
+    system functions, this ability will be removed in a future version
+    once replacement services are available and suitable security
+    services are implemented.  The Service class, derived from Object,
+    will retain its access to the host's facilities and can be used to
+    make them available to other Objects.)
+
+    <p>
+
+    Objects are created from <i>Templates</i> - a description of an
+    Object type which can be interpreted by the appropriate language
+    layer to create instances.  Objects are instantiated by the
+    Capsule as a result of operations on the Capsule management
+    interface.
+
+
+    <h4>Language Layer</h4>
+
+    The Hector kernel is designed to support Objects written in
+    different languages.  A module that implements the mapping between
+    the Capsule Kernel layer (written in Python) and Objects written
+    in a particular language is called a <i>language binding</i>.  The
+    set of language bindings loaded into a Capsule forms the
+    <i>language layer.</i><p>
+
+    Each language binding performs three basic functions, the first of
+    which is mandatory.
+
+    <ul>
+      <li>Encapsulate the kernel layer classes making them
+          accessible from the Object language.
+      <li>Enable instantiation of Objects using language specific
+          Templates.
+      <li>Enable execution of the instantiated Objects.
+    </ul>
+
+    <b>Wrapper Classes</b>
+
+    <p>
+
+    Each language binding consists of a set of classes encapsulating
+    the facilities provided by the Capsule Kernel and the fundamental
+    services.  These classes are 
+
+    <dl>
+
+      <dt><i>Message</i>
+      <dd>Message types are used or specialised by the Object
+          programmer to describe the basic message units needed for
+          communication between the application objects.
+
+          <p>
+
+          The base Message class of a language binding must also map
+          the native language data types onto those supported by the
+          kernel.  This issue has already been addressed (to different
+          extents) by DCE, CORBA and ILU - we intend to borrow heavily
+          from their work in this area.
+
+          <p>
+
+      <dt><i>Interaction</i>
+      <dd>Interaction types constrain patterns of Message exchange
+          between Interfaces.  Standard Interactions including RPC,
+          streams and multicast are predefined classes, while other
+          complex Message patterns can be specified by programmers.
+
+         <p>
+
+      <dt><i>Interface</i>
+      <dd>Interface types used or specialised by the Object programmer
+          to constrain the messages received and sent by an Object.
+
+          <p>
+
+          Hector Interfaces must explicitly describe all communication
+          external to the Object.  Interfaces use Message types to
+          specify the content of communicated data, while the
+          ordering, permitted concurrency and other qualities of
+          service related to the communication are directly constrained
+          by Interface types.
+
+          <p>
+
+      <dt><i>Role</i>
+      <dd>Role is a subtype of Interface used in the specification of
+          Interactions and Bindings.  It describes the required
+          characteristics of Interfaces capable of fulfilling the
+          nominated role in the Interaction or Binding.
+
+          <p>
+
+          During instantiation of Bindings, Interface instances are
+          required to satisfy the Role types.
+
+          <p>
+
+      <dt><i>Binding</i>
+      <dd>Expressed in terms of Messages, Interactions and Interfaces,
+          Bindings constrain the connections between the Objects used
+          by an application.
+
+          <p>
+
+          The use of Message, Interface and Binding types allows a
+          programmer to ensure the robustness of an Object while
+          allowing dynamic use of different service implementations
+          and communication protocols.  The kernel ensures that the
+          abstract communication specified by the Binding occurs
+          correctly or generates exceptions.
+
+          <p>
+
+      <dt><i>Object</i>
+      <dd>The base Object class is specialised by the programmer to
+          create Hector application components.  Several subclasses of
+          Object provide different levels of abstraction suited for
+          different Object types.
+
+          <p>
+
+      <dt><i>Offer</i>
+      <dd>Objects interact by offering and consuming services.
+          Objects wishing to offer a service create an instance of the
+          Offer class, specifying the Interface type and their
+          qualities of service.  The Offer instance is created within
+          the kernel and manages requests from other Objects for the
+          use of the Object.
+
+          <p>
+
+      <dt><i>Capsule</i>
+      <dd>The Capsule class defines the interface to the only
+          external functionality available to Objects.  It includes
+          construction methods for the preceding classes and access to
+          the instances of the service classes defined below.
+
+          <p>
+
+      <dt><i>NameService</i>
+      <dt><i>NotificationService</i>
+      <dt><i>TraderService</i>
+      <dt><i>TypeService</i>
+      <dt><i>PolicyService</i>
+      <dt><i>AuthenticationService</i>
+      <dt><i>PrivacyService</i>
+      <dt><i>BankService</i>
+      <dt><i>RelationshipService</i>
+      <dd>The fundamental services provided by the Capsule are
+          represented as classes with standard APIs.  The Service
+          classes are an abstraction which hide details of the real
+          services provided by a specific host/site.
+
+          <p>
+
+          Each Capsule makes an instance of these classes available to
+          its Objects.  Services themselves are a specialised subclass
+          of Object implemented with careful negotiation of their
+          mutual dependencies.
+
+          <p>
+
+    </dl>
+
+    Each of these classes must be implemented in the target language.
+    The target class methods are bound to the Hector system C API -
+    implemented as a Python C module.  The classes must wrap the
+    Python kernel classes and propagate call-backs from within Hector
+    back to the bound language.
+
+    <p>
+
+
+    <b>Template Languages</b><p>
+
+    Language bindings can provide support for additional Template
+    formats if required.  A Template is a description of a type with
+    enough detail to allow its instantiation.
+
+    <p>
+
+    The Python language binding provides two Template formats:
+    <tt>.py</tt> and <tt>.pyc</tt>-style strings.  Some initial work
+    has also been done on implementing a Unix shared object file
+    template format, with the intention that it be used for compiled
+    languages.  Additional compiled languages are unlikely to require
+    a new template language since they can share the mechanism for
+    loading shared object file templates.
+
+    <p>
+
+    However, most interpreted languages have one or more executable
+    formats.  Typically the raw source or a pre-parsed/checked
+    byte-code are acceptable to the interpreter.  Both of these formats
+    can be used as a template language.
+
+    <p>
+
+    <b>Interpreters</b><p>
+
+    Finally, Template languages other than OS/processor-specific
+    machine code will require that Capsules load an interpreter
+    module.  This will normally require the interpreter to be
+    available as a dynamically loadable module able to be called by
+    the Capsule.<p>
+
+    Languages (such as Smalltalk) which are dependent on a large
+    runtime system or are difficult to call from C are likely to be
+    problematic.  This is an area of ongoing work.
+
+    <p>
+
+    <b>Python Language Binding</b><p>
+
+    The initial language layer supports Python.  It is available by
+    default, since the visible kernel classes are actually written in
+    Python, making the wrapper classes very simple.
+
+    <p>
+
+    For Python, Object Templates consist of either Python source code
+    or the tokenised source used in <tt>.pyc</tt> files.  The Python
+    language layer uses a modified version of <tt>import</tt> to fetch
+    imported modules from the Type service, before attempting to
+    locate them locally.  This allows host machines to provide only
+    the basic Python installation with all other modules served from a
+    LAN-based distribution service.
+
+    <p>
+
+    <h4>Kernel Layer</h4>
+
+    The kernel layer lies below the language layer and uses the
+    communications layer for interaction.  It provides implementations
+    of the major Hector classes
+
+    <ul>
+      <li>Message
+      <li>Interface
+      <li>Role
+      <li>Interaction
+      <li>Binding
+      <li>Offer
+      <li>Object
+      <li>Service
+      <li>Capsule
+    </ul>
+
+    The function of these classes has been described previously.  They
+    are implemented in Python within the kernel, utilising the
+    underlying communication layer.
+
+    <p>
+
+
+    <h4>Communications Layer</h4>
+
+    The communication layer addresses transport protocol transparency.
+    The kernel is able to interact through multiple protocols while
+    knowing nothing about the implementation of the transport
+    protocol.  Classes provided by the abstract communication layer
+    include:
+
+    <dl>
+      <dt><i>Protocol</i>
+      <dd>Protocol is an abstraction for an entity able to create
+          Endpoint instances.  It describes the kind of endpoints it
+          can create using the abstract Message, Interface and
+          Interaction classes.  This permits constraints on the data
+          types of messages, their sequencing at the endpoint (for
+          example, RPCs announcements or streams) and their ability to
+          connect to other parties (for example, peer to peer or
+          multicast).
+      
+          <p>
+
+      <dt><i>Endpoint</i>
+      <dd>Endpoint instances maintain an actual communication protocol
+          endpoint within an abstract interface.
+
+          <p>
+
+          Interface instances are implemented by one or more Endpoint
+          instances, depending on their required connectivity to other
+          Objects.  The actual mapping of an Interface to a set of
+          Endpoints is performed by the Binding constructor using the
+          initiating Object's policy setting to choose a preferred
+          communication protocol for each physical connection.
+
+          <p>
+
+      <dt><i>Address</i>
+      <dd>Endpoint addresses are opaquely encoded in Address
+          instances.  Each Protocol supports one or more Address
+          formats which it registers with the Capsule to allow
+          resolution of Interface Endpoints.
+
+          <p>
+
+    </dl>
+
+    The communication layer is comprised of the set of Protocol
+    instances existing in a Capsule.  Protocols can be dynamically
+    loaded and unloaded using the Capsule's management interface.
+
+    <p>
+
+<!-- --------------------------------------------------------- -->
+
+    <h2>Tools</h2>
+
+    The Hector environment provides several tools for programmers and
+    users in addition to the basic Capsule executable, the Services
+    and the Object classes.
+
+    <p>
+
+    Description of Bindings and Interfaces has traditionally been
+    performed using a combination of an IDL and its compiler together
+    with some program code.  Hector provides a graphical editor for
+    Interface and Binding type manipulation.  It allows the
+    description of the Interface events, their sequencing constraints
+    and the connection between Interfaces to form Bindings.
+
+    <p>
+
+    A Capsule Browser provides a means to manage the Capsules running
+    across a network.  The browser can display the state of the
+    Capsule, Services, Communication modules, Language Modules, loaded
+    Templates and instantiated Objects.  A user can load or unload
+    modules and templates, and create new Objects from a loaded
+    template.
+
+    <p>
+
+    The Capsule Browser uses the Capsule's management interface to
+    perform these operations, and this interface is also available to
+    any other Objects with appropriate permissions.
+
+    <p>
+
+    Finally, the Capsule Browser also provides support for the
+    fundamental Capsule services.  The Trader, Type Manager and Policy
+    services are all accessible using specific control panels within
+    the Capsule Browser.
+   
+
+<!-- --------------------------------------------------------- -->
+
+    <h2>Status</h2>
+
+    We are currently working on the second snapshot release of the
+    core Hector system.  The kernel is written entirely in Python,
+    with some services and the language and communication layers using
+    some C and C++ code modules.  The current kernel and communication
+    sources total just over 13000 lines of Python code, with the
+    services adding about half that again.
+
+    <p>
+
+    The first release included a simple, UDP-based messaging protocol,
+    a simple Trading service, a notification service, and supported
+    objects written in Python.
+
+    <p>
+
+    The next release will include
+
+    <ul>
+      <li>a Notification service,
+      <li>a Naming service,
+      <li>a Trading service,
+      <li>a Type service, and,
+      <li>a Policy service,
+    </ul>
+
+    and has had major extensions to the underlying implementation of
+    Bindings.  It retains the simple messaging protocol and Python
+    language binding from the previous release.
+
+    <p>
+
+
+<!-- --------------------------------------------------------- -->
+
+    <h2>Future</h2>
+
+    We have several major work items planned, probably due for
+    completion late in 1996.  Most important are several different
+    communication protocols to augment our current prototype.
+
+    <p>
+
+    While we have not yet chosen any particular protocols, those that
+    interest us include
+
+    <ul>
+      <li>SMTP email (Unix sendmail <a href="#smtp">[11]</a>)
+      <li>HTTP <a href="#http">[12]</a>
+      <li>CORBA IIOP <a href="#corba">[13]</a>
+      <li>DCE
+      <li>Sun (ONC) RPC <a href="#onc">[14]</a>
+    </ul>
+
+    We have also done some preliminary work on a language binding to
+    C++.  This will probably be integrated with the core system in the
+    next release.
+
+    <p>
+
+    We are also investigating support for Java (of course!) and
+    ParcPlace VisualWorks Smalltalk (which is heavily used by another
+    local project).
+
+    <p>
+
+    Additional plans include implementation of the Relationships and
+    Banking services, which together with a parallel project to
+    provide the security services are expected to complete the
+    fundamental services of the core system.
+
+    <p>
+
+    Further distant, work is planned for customisable, distributed
+    user interface services <a href="#mansfield">[15]</a> and object
+    migration and persistence services <a href="#redhead">[16]</a>.
+
+    <p>
+
+    <HR>
+
+    <h2>References</h2>
+
+    <ol>
+      <li><a name="ansa">Architecture Projects Management Ltd.</a><br>
+          <i>ANSAware 4.1: Application Programming in ANSAware</i><br>
+          February 1993.
+
+          <p>
+
+      <li><a name="dce">Rosenbury, W; Kenney, D; and Fisher, G</a><br>
+          <a href="http://www.ora.com/www/item/udce.html">
+            <i>Understanding DCE</i>
+          </a><br>
+          O'Reilly and Associates, September 1992.<br>
+          ISBN: 1-56592-005-8
+
+          <p>
+
+      <li><a name="corba">Object Management Group</a><br>
+          <i>Common Object Request Broker Architecture 2.0</i><br>
+          OMG TC Document 96.03.04, July 1995<br>
+          <a href="http://www.omg.org/docs/ptc/96-03-04.ps">http://www.omg.org/docs/ptc/96-03-04.ps</a> 
+
+          <p>
+
+      <li><a name="com">Microsoft</a><br>
+          Common Object Model<br>
+          <a href="ftp://ftp.microsoft.com/developr/drg/OLE-info/COMSpecification/">ftp://ftp.microsoft.com/developr/drg/OLE-info/COMSpecification/</a>
+
+          <p>
+
+      <li><a name="rm-odp">ISO / ITU-T</a><br>
+          ITU Recommendation X.90x, ISO/IEC CD 10746-x<br>
+          Open Distributed Processing - Reference Model<br>
+          Parts 1 - 4, 1994-5.
+
+          <p>
+
+      <li><a name="linnington">Linnington, PF</a><br>
+          <i>RM-ODP: The Architecture</i><br>
+          Open Distributed Processing, Experiences with distributed
+          environments.<br>
+          Proceedings 3rd IFIP TC 6/WG 6.1 International Conference on
+          Open Distributed Processing, ICODP95, Brisbane Australia,
+          March 1995, pp 15-33.
+
+          <p>
+
+      <li><a name="elvin">Bond, A; Arnold, D</a><br>
+          <i>
+            Visualising Service Interactions in an Open Distributed
+            System
+          </i><br>
+          Proceedings 1st International Workshop on Services in
+          Distributed and Networked Environments, Prague Czech
+          Republic, June 1994, pp 19-25.
+
+          <p>
+
+      <li><a name="xfn">X/Open</a><br>
+          CAE Specification - Federated Naming: The XFN Specification,
+          X/Open Document number: C403<br>
+          ISBN: 1-85912-052-0, 1995.
+
+          <p>
+
+      <li><a name="chilvers">Chilvers, etal.</a><br>
+          <i>
+            What's in a name?  A Distributed, Federated Naming System
+            in Python
+          </i><br> 
+          Proceedings 4th International Python Conference, to appear.
+
+          <p>
+
+      <li><a name="trader">Object Management Group</a><br>
+          <i>DSTC Trading Service Submission</i><br>
+          OMG TC Document: 95-10-06, October 1995.<br>
+          <a href="http://www.omg.org/docs/1995/95-10-06.ps">http://www.omg.org/docs/1995/95-10-06.ps</a>
+
+          <p>
+
+      <li><a name="smtp">Postel, JB</a><br>
+          <i>Simple Mail Transfer Protocol</i>i<br>
+          IETF RFC 821<br>
+          <a href="ftp://nic.merit.edu/internet/documents/rfc/rfc0821.txt">ftp://nic.merit.edu/internet/documents/rfc/rfc0821.txt</a>
+
+          <p>
+
+      <li><a name="http">Berners-Lee, T; Fielding, R; Frystyk, F</a><br>
+          <i>Hypertext Transfer Protocol -- HTTP/1.0</i><br>
+          <a href="http://www.w3.org/pub/WWW/Protocols/HTTP/1.0/spec">INTERNET DRAFT &lt;draft-ietf-http-v10-spec-05.html&gt;</a>
+          <p>
+
+      <li><a name="iiop">Object Management Group</a><br>
+          <i>Common Object Request Broker Architecture 2.0</i><br>
+          OMG TC Document 96.03.04, July 1995<br>
+          <a href="http://www.omg.org/docs/ptc/96-03-04.ps">http://www.omg.org/docs/ptc/96-03-04.ps</a><br>
+          Chapter 12, General Inter-ORB Protocol, p12-27.
+
+          <p>
+
+      <li><a name="onc">McManis, C; Samar, V</a><br>
+          <i>
+            Solaris ONC: Design and Implementation of Transport
+            Independent RPC
+          </i><br>
+          Sun Microsystems Inc, 1991.<br>
+          see also IETF RFC 1831<br>
+          <a href="ftp://nic.merit.edu/internet/documents/rfc/rfc1831.txt">ftp://nic.merit.edu/internet/documents/rfc/rfc1831.txt</a>
+
+          <p>
+
+      <li><a name="redhead">Redhead, T</a><br>
+          <i>
+            A high-level process checkpointing and migration
+            scheme for heterogeneous distributed systems
+          </i><br>
+	  Distributed Platforms. Proceedings IFIP/IEEE International
+	  Conference on Distributed Platforms, IDCP96, Dresden Germany,
+	  February 1996, pp 272-284. 
+
+          <p>
+
+      <li><a name="mansfield">Mansfield, T</a><br>
+          <i>Customizable Presentation of Complex Data</i><br>
+          PhD Thesis, University of Queensland, 1996.
+
+          <p>
+
+    </ol>
+  </BODY>
+</HTML>
+
+<!-- ----------------------------------------------------------- -->

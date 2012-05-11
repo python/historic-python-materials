@@ -1,0 +1,96 @@
+Title: Python-dev summary: 2000-09-01 to 2000-09-15
+
+<pre>
+Released at last!
+=================
+
+Python 1.6final was released on September 5.
+	<a href="http://www.python.org/1.6/">http://www.python.org/1.6/</a>
+
+Python 2.0beta1 was released, also on September 5.  GvR's announcement:
+"A unique event in all the history of Python: two releases on the same day!"
+	<a href="http://mail.python.org/pipermail/python-dev/2000-September/009209.html">http://mail.python.org/pipermail/python-dev/2000-September/009209.html</a>
+Python 2.0 home page:
+	<a href="http://www.pythonlabs.com/tech/python2.0/">http://www.pythonlabs.com/tech/python2.0/</a>
+
+Remember, the "What's New in Python 2.0" article goes into detail on 2.0's 
+changes and new features.
+	<a href="http://www.amk.ca/python/writing/new-python/">http://www.amk.ca/python/writing/new-python/</a>
+
+Current plans are for a beta2 release around September 26th, and 
+issue the final release two weeks later on October 10th.
+
+Squabbling over the meaning of "print &gt;&gt;None" occupied some time; this
+is the same as "print &gt;&gt;sys.stdout".  Vladimir Marangozov pointed out
+that this feels wrong: "In Python, this form surely looks & feels like
+the Unix cat /dev/null, that is, since None doesn't have a 'write'
+method, the print statement is expected to either raise an exception
+or be specialized for None to mean "the print statement has no
+effect". The deliberate choice of sys.stdout is not obvious."
+	<a href="http://mail.python.org/pipermail/python-dev/2000-September/009255.html">http://mail.python.org/pipermail/python-dev/2000-September/009255.html</a>
+
+The BDFL's reaction: "You don't have to make a strong association with
+sys.stdout.  When the file expression is None, the whole "&gt;&gt;file, "
+part disappears!"
+	<a href="http://mail.python.org/pipermail/python-dev/2000-September/009300.html">http://mail.python.org/pipermail/python-dev/2000-September/009300.html</a>
+
+
+Licensing
+=========
+
+The licensing squabble become highly visible outside the community,
+stemming from a debian-devel posting.  The basic problem is that one
+term in CNRI's 1.6 license specifies that the contract should be
+interpreted using Virginia law, because that's where CNRI is located.
+The FSF's lawyer believes that this term is incompatible with the GPL,
+because the GPL doesn't allow adding restrictions, and this counts as
+a restriction.  
+
+XXX stopped fixing here
+GvR's posting: "At this point, our best shot seems to be to arrange a
+meeting between CNRI's lawyer and Stallman's lawyer.  Without the
+lawyers there, we never seem to be able to get a commitment to an
+agreement.  CNRI is willing to do this; Stallman's lawyer (Eben
+Moglen; he's a law professor at Columbia U, not NYU as I previously
+mentioned) is even harder to get a hold of than Stallman himself, so
+it may be a while."  
+	<a href="http://mail.python.org/pipermail/python-dev/2000-September/009197.html">http://mail.python.org/pipermail/python-dev/2000-September/009197.html</a>
+
+LinuxToday:
+	<a href="http://linuxtoday.com/news_story.php3?ltsn=2000-09-07-001-21-OS-CY-DB">http://linuxtoday.com/news_story.php3?ltsn=2000-09-07-001-21-OS-CY-DB</a>
+GvR's reaction:
+	<a href="http://linuxtoday.com/news_story.php3?ltsn=2000-09-07-011-21-OS-CY-SW">http://linuxtoday.com/news_story.php3?ltsn=2000-09-07-011-21-OS-CY-SW</a>
+
+Upside:
+	<a href="http://www.upside.com/texis/mvm/story?id=39c10a5e0">http://www.upside.com/texis/mvm/story?id=39c10a5e0</a>
+
+Other matters
+=============
+
+XML support for 2.0 poses a problem, because it adds a package named
+'xml' to the standard library, but this package name was already in
+use by the package being developed by the XML-SIG.  There's a hack in
+Lib/xml/__init__.py that tries to delegate imports to an _xmlplus
+package if one is installed, but it doesn't work:
+	<a href="http://mail.python.org/pipermail/python-dev/2000-September/009398.html">http://mail.python.org/pipermail/python-dev/2000-September/009398.html</a>
+
+Discussion continued for a while, but no clear resolution to the
+problem has been made.  Possible fixes might be to use __import__
+instead of the imp module, renaming the packages to xmlbase and xml,
+or dropping the xml/ package from Python 2.0 completely.
+
+An long-standing error in the docs for the re module was found by Paul
+Prescod.  The docs claimed that the .start() and .end() methods of
+MatchObjects return None when the group didn't participate in the
+match, but the code actually returns -1.  The fix was to change the
+docs to match the code, not the other way around.  GvR: "I'd suggest
+fixing SRE and the docs, because -1 is a more useful indicator for 'no
+match' than None: it has the same type as valid indices.  It makes it
+easier to adapt to static typing later."
+	<a href="http://mail.python.org/pipermail/python-dev/2000-September/009134.html">http://mail.python.org/pipermail/python-dev/2000-September/009134.html</a>
+
+Greg Ward wrote a Distutils setup script for IDLE:
+	<a href="http://mail.python.org/pipermail/python-dev/2000-September/009255.html">http://mail.python.org/pipermail/python-dev/2000-September/009255.html</a>
+
+And the usual pile of minor fixes.  
+</pre>

@@ -1,0 +1,147 @@
+Title: Python-dev summary: 2001-06-21 to 2001-07-04
+
+<pre>
+ This is a summary of traffic on the python-dev mailing list between
+ June 21 and July 4 (inclusive) 2001.  It is intended to inform the
+ wider Python community of ongoing developments.  To comment, just
+ post to python-list@python.org or comp.lang.python in the usual
+ way. Give your posting a meaningful subject line, and if it's about a
+ PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep
+ iteration) All python-dev members are interested in seeing ideas
+ discussed by the community, so don't hesitate to take a stance on a
+ PEP if you have an opinion.
+
+ This is the eleventh summary written by Michael Hudson.
+ Summaries are archived at:
+
+  <a href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a>
+
+   Posting distribution (with apologies to mbm)
+
+   Number of articles in summary: 252
+
+    40 |                 [|]
+       |                 [|]
+       |                 [|]
+       |                 [|]
+       |                 [|]
+    30 |                 [|]
+       |                 [|]
+       |                 [|]     [|]                 [|]
+       |                 [|]     [|]                 [|] [|]
+       |                 [|]     [|]                 [|] [|]
+    20 |                 [|]     [|]                 [|] [|]
+       |     [|]         [|]     [|]                 [|] [|]
+       |     [|]         [|] [|] [|]                 [|] [|]
+       |     [|]     [|] [|] [|] [|]         [|] [|] [|] [|]
+       |     [|]     [|] [|] [|] [|] [|]     [|] [|] [|] [|] [|]
+    10 |     [|]     [|] [|] [|] [|] [|]     [|] [|] [|] [|] [|]
+       |     [|]     [|] [|] [|] [|] [|]     [|] [|] [|] [|] [|]
+       |     [|] [|] [|] [|] [|] [|] [|]     [|] [|] [|] [|] [|]
+       |     [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|]
+     0 +-004-019-007-016-042-018-028-013-005-015-016-029-027-013
+        Thu 21| Sat 23| Mon 25| Wed 27| Fri 29| Sun 01| Tue 03|
+            Fri 22  Sun 24  Tue 26  Thu 28  Sat 30  Mon 02  Wed 04
+
+ This will be my last python-dev summary for a while, as I'm going to
+ be mostly away from the internet for the summer.  However, Andrew
+ Kuchling has agreed to take up writing them again, so there should be
+ no interruption in the summaries.
+
+
+    * Support for "wide" Unicode characters *
+
+ Paul Prescod posted a draft of PEP 261 'Support for "wide" Unicode
+ characters':
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-June/015644.html">http://mail.python.org/pipermail/python-dev/2001-June/015644.html</a>&gt;
+
+ which proposes adding a compile time option to configure unicode
+ objects to store "code points" (the integers that the unicode
+ specification maps to "characters" -- though that word is dangerously
+ overlodaed in the Unicode arena) in 32 bit integers -- they're
+ currently stored in 16 bits.
+
+ This was (I believe) at least partially inspired by the Unicode
+ Consortium assigning code points outside the "Basic Multilingual
+ Plane" (i.e. the range of 16 bit integers).
+
+ Noone is convinced that this is the best possible solution (a better
+ solution might be to have unicode objects that could either store
+ code points in 16 bits or 32 bits as necessary, and this solution
+ could have binary compatibility problems), but it seems noone has the
+ time to implement a better one (and a better one would probably have
+ compatibility problems that couldn't be fixed by a simple recompile):
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-July/015674.html">http://mail.python.org/pipermail/python-dev/2001-July/015674.html</a>&gt;
+
+ (I apologise for any abuse of terminology in the above - I know very
+ little about the issues surrounding Unicode).
+
+
+    * Python specializing compiler *
+
+ Armin Rigo announced his "Python specializing compiler", psyco:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-June/015503.html">http://mail.python.org/pipermail/python-dev/2001-June/015503.html</a>&gt;
+
+ It works on the principle that you can compile a faster version of a
+ function if you know stuff about the arguments it's likely to be
+ called with.  This is one of the more asthetically pleasing of the
+ possible ways to speed Python up (it's similar to some tactics used
+ by the seemingly defunct self compiler), but it's still a very large
+ amount of work away from being useful...
+
+
+    * IPv6 *
+
+ *Very* preliminary support for IPv6 - the "next generation internet
+ protocol" was checked in.  The support thus far doesn't actually
+ support IPv6 at all, but rather emulates IPv6's new functions for
+ IPv4 addresses, so that code for Python 2.2 will hopefully be
+ portable between machines that do and do not support IPv6, whilst
+ being able to use IPv6 where it is supported (I hope that makes
+ sense).
+
+ Unfortunately the checkin broke the build on some platforms (OSF1,
+ Windows) but I believe these problems are now sorted out.
+
+ IPv6 support has been muttered about for years now, so it's nice to
+ finally see some movement, even if it is causing some x-platform
+ pain.
+
+
+    * PEP 260: simplifying xrange *
+
+ Guido posted PEP 260, a proposal to removed some of the less useful
+ aspects of the xrange type:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-June/015590.html">http://mail.python.org/pipermail/python-dev/2001-June/015590.html</a>&gt;
+
+ Support was muted; there's the usual concern on removing "little
+ used" features -- what if someone (who maybe doesn't read
+ comp.lang.python or these summaries) uses them?
+
+
+    * site-python, site-packages *
+
+ Gregor Hoffleit posted a request that &lt;prefix&gt;/lib/site-python be
+ considered a standard install target:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-July/015715.html">http://mail.python.org/pipermail/python-dev/2001-July/015715.html</a>&gt;
+
+ as the current standard of &lt;prefix&gt;/lib/pythonX.X/site-packages/
+ makes life awkward for packagers.
+
+ It's possible Gregor asked the wrong bunch of people; a non-version
+ dependent path makes life awkward for those who want to mantain more
+ than version of Python, and that includes most of the people on
+ pyton-dev.  OTOH, it probably also includes everyone who cares about
+ the cross-version portability of the code they write, so it seems
+ that movement is unlikely here (could be wrong, though).
+
+Cheers,
+M.
+
+</pre>

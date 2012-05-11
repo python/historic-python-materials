@@ -1,0 +1,179 @@
+Title: python-dev Summary for 2004-03-01 through 2004-03-15
+Content-type: text/x-rst
+
+python-dev Summary for 2004-03-01 through 2004-03-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from March 01, 2004 through March 15, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the thirty-seventh summary written by Brett Cannon (waiting for PyCon to start).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at http://www.python.org/dev/doc/devel/ and should be used when looking up any documentation on something mentioned here.  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: /dev/summary/2004-02-01_2004-02-29.html
+.. _original text file: /dev/summary/2004-03-01_2004-03-15.ht
+
+
+=====================
+Summary Announcements
+=====================
+Still looking for a summer job or internship programming.  If you know of one, please let me know.
+
+Ever since I first had to type Martin v. Loewis' name, I have had issues with Unicode in the summary.  When I realized there was a problem I thought it was Vim changing my Unicode in some way since I would notice problems when I reopened the file in TextEdit, OS X's included text editor that I have always used for writing the summaries (and no, I am not about to use Vim to do this nor Emacs; spoiled by real-time spelling and it is just the way I do it).  Well, I was wrong.  Should have known Vim was not the issue.
+
+Turned out that TextEdit was opening the text files later assuming the wrong character encoding.  When I forced it to open all files as UTF-8 I no longer had problems.  This also explains the weird MIME-quoted issues I had earlier that Aahz pointed out to me since I was just copying from TextEdit into Thunderbird_, my email client, without realizing TextEdit was not reading the text properly.  So I thought I finally solved my problem.  Ha!  Not quite.
+
+Turned out to be a slight issue on the generation of the email based on the tool chain for how we maintain the python.org web site.  This is in no way the web team's fault since I have unique requirements for the Summaries.  But without having to do some recoding of ht2html_ in order to specify the text encoding, I wasn't sure how I should handle this.
+
+I thought I had this solved under reST_, but my solution turned out not to work.  So the battle continues.  So, for the moment, Unicode is not working for the summaries.
+
+And here is a question of people who read the Summaries on a regular basis: would you get any benefit in having new summaries announced in the `python.org RSS feed`_?  Since this entails one extra, small step in each summary I am asking people to email me to let me know if this would in any way make their lives easier.  So please let me know if knowing when a new summary is out by way of the RSS feed would be beneficial to you or if just finding from `comp.lang.python`_ or `comp.lang.python.announce`_ is enough.
+
+I actually wrote this entire summary either in the airport or on the flight to DC for PyCon (thank goodness for emergency aisles; my 6'6" frame would be in much more pain than it is otherwise) and thus on Spring Break!  I am hoping to use this as a turning point in doing the Summaries on a semi-monthly basis again.  We will see if Spring quarter lets me stick to that (expecting a lighter load with less stress next quarter).
+
+.. _Thunderbird: http://www.mozilla.org/projects/thunderbird/
+.. _ht2html: http://ht2html.sf.net/
+.. _directive: http://docutils.sourceforge.net/spec/rst/directives.html
+.. _python.org RSS feed: http://www.python.org/channews.rdf
+.. _PyCon: http://www.pycon.org/
+.. _comp.lang.python.announce: http://groups.google.com/groups?q=comp.lang.python.announce&ie=UTF-8&oe=UTF-8&hl=en&btnG=Google+Search
+
+=========
+Summaries
+=========
+--------
+PEP news
+--------
+PEP 309 ("Partial Function Application") has been rewritten.
+
+PEP 318 got a ton of discussion, to the point of warranting its own summary: `PEP 318 and the discussion that will never end`_.
+PE 327, which is the spec for the Decimal module in the CVS sandbox, got an update.
+
+Contributing threads:
+  - `PEP 309 re-written <http://mail.python.org/pipermail/python-dev/2004-March/042865.html>`__
+  - `Changes to PEP 327: Decimal data type <http://mail.python.org/pipermail/python-dev/2004-March/043155.html>`__
+
+
+-----------------------------------------------
+Playing willy-nilly with stack frames for speed
+-----------------------------------------------
+A patch to clean up the allocation and remove the freelist (stack frames not in use that could be used for something else) was proposed.  Of course it would have been applied immediately if there wasn't a catch: recursive functions slowed down by around 20%.
+
+A way to get around this was proposed, but it would clutter up the code which was being simplified in the first place.  Guido said he would rather have that than have recursive calls take a hit.
+
+Then a flurry of posts came about discussing other ways to try to speed up stack allocation.
+
+Contributing threads:
+  - `scary frame speed hacks <http://mail.python.org/pipermail/python-dev/2004-March/042871.html>`__
+  - `reusing frames <http://mail.python.org/pipermail/python-dev/2004-March/042914.html>`__
+
+----------------------------------------------
+PEP 318 and the discussion that will never end
+----------------------------------------------
+Just looking at the number of contributing threads to this summary should give you an indication of how talked about this PEP became.  In case you don't remember the discussion `last time`_, this PEP covers function/method(/class?) decorators: having this::
+
+  def foo() [decorate, me]: pass
+
+be equivalent to::
+
+  def foo(): pass
+  foo = me(decorate(foo))
+
+What most of the discussion came down to was syntax and the order of application.  As of this moment it has come down to either the syntax used above or putting the brackets between the function/method name and the parameters.  Guido spoke up and said he liked the latter syntax (which is used by Quixote_).  People, though, pointed out that while the syntax works for a single argument, adding a long list starts to separate the parameter tuple farther and farther from the function/method name.  There was at least one other syntax proposal but it was shot down quickly.
+
+Order of application seems to have been settled.  Some want the order to be like in the example.  Others, though, want the reverse order: ``decorate(me(foo))``.  In the end, though, the order in the example code is what people preferred.
+
+In the end it was agreed the PEP needed to be thoroughly rewritten which is currently happening.
+
+.. _last time: /dev/summary/2004-02-01_2004-02-29#function-decoration-and-all-that-jazz
+.. _Quixote: http://www.mems-exchange.org/software/quixote/
+
+Contributing threads:
+  - `Pep 318 - new syntax for wrappers <http://mail.python.org/pipermail/python-dev/2004-March/042902.html>`__
+  - `new syntax (esp for wrappers) <http://mail.python.org/pipermail/python-dev/2004-March/042906.html>`__
+  - `PEP 318 - function/method/class decoration <http://mail.python.org/pipermail/python-dev/2004-March/042917.html>`__
+  - `(Specific syntax of) PEP 318 - function/method/class <http://mail.python.org/pipermail/python-dev/2004-March/042947.html>`__
+  - `PEP 318 - generality of list; restrictions on elements <http://mail.python.org/pipermail/python-dev/2004-March/042951.html>`__
+  - `PEP 318 needs a rewrite <http://mail.python.org/pipermail/python-dev/2004-March/042975.html>`__
+  - `Python-Dev Digest, Vol 8, Issue 20 <http://mail.python.org/pipermail/python-dev/2004-March/043033.html>`__
+  - `PEP 318 trial balloon (wrappers) <http://mail.python.org/pipermail/python-dev/2004-March/043076.html>`__
+  - `funcdef grammar production <http://mail.python.org/pipermail/python-dev/2004-March/043142.html>`__
+
+
+----------------------------------------
+Compiler optimization flags for the core
+----------------------------------------
+The topic of compiler flags that are optimal for Python came up when Raymond Hettinger announced his new LIST_APPEND opcode (discussed later in `Optimizing: Raymond Hettinger's personal crack`_).  This stemmed from the fact that the bytecode has not been touched in a while.  This generated a short discussion on the magic that is caches and how the eval loop always throws a fit when it gets played with.  One suggestion was to rework some opcodes to use other opcodes instead in order to remove the original opcodes entirely from the eval loop.  But it was pointed out it would be better to just factor out the C code to functions so that they are just brought into the cache less often instead of incurring the overhead of more loops through the eval loop.
+
+This then led to AM Kuchling to state that he was planning in giving a lightning talk at PyCon_ about various compiler optimization flags he tried out on Python.  Looks like that compiling Python/ceval.c with -Os (optimizes for space) w/ everything else using -O3 gave the best results using gcc 3.  This sparked the idea of more architecture-dependent compiler optimizations which would be set when 'configure' was run and detected the hardware of the system.
+
+In the end no code was changed in terms of the compiler optimizations.
+
+Contributing threads:
+  - `New opcode to simplifiy/speedup list comprehensions <http://mail.python.org/pipermail/python-dev/2004-March/042924.html>`__
+  - `Who cares about the performance of these opcodes? <http://mail.python.org/pipermail/python-dev/2004-March/042990.html>`__
+
+
+------------------------------------------------------
+Take using Python as a calculator to a whole new level
+------------------------------------------------------
+I remember once there was a thread on `comp.lang.python`_ about how to tell when you had an addiction to Python.  One of the points was when you start to use Python as your calculator (something I admit to openly; using the 'sum' built-in is wonderful for quick addition when I would have used a Scheme interpreter).  Well, Raymond Hettinger had the idea of adding a 'calculator' module that would provide a ""pretty good" implementations of things found on low to mid-range calculators like my personal favorite, the hp32sII student scientific calculator".  He then listed a bunch of functionality the HP calculator has that he would like to see as a module.
+
+Beyond sparking some waxing about calculators, and the HP 32sII especially (I used a TI-82 back in high school and junior college so I won't even both summarizing the nostalgic daydreaming on HP calculators), the discussion focused mainly on what functionality to provide and the accuracy of the calculations.  The former topic focused on what would be reasonable and relatively easy to implement without requiring a mathematician to write in order to be correct or fast.
+
+The topic of accuracy, though, was not as clear-cut.  First the issue of whether to use the in-development Decimal module would be the smart thing to do.  The consensus was to use Decimal since floating-point, even with IEEE 754 in place, is not accurate enough for something that wants to be as accurate as an actual calculator.  Then discussions on the precision of accuracy came up.  It seemed like it would be important to have a level of precision kept above the expected output precision to make sure any rounding errors and such would be kept to a minimum.
+
+Raymond is going to write a PEP outlining the module.
+
+Contributing threads:
+  - `calculator module <http://mail.python.org/pipermail/python-dev/2004-March/043003.html>`__
+
+
+------------------------
+dateutil module proposed
+------------------------
+Gustavo Niemeyer offered to integrate his dateutil_ module into the stdlib.  Discussion of how it should tie into datetime and whether all of it or only some of its functionality should be brought in was transpired.  As of right now the discussion is still going on.
+
+.. _dateutil: https://moin.conectiva.com.br/DateUtil
+
+Contributing threads:
+  - `dateutil <http://mail.python.org/pipermail/python-dev/2004-March/043054.html>`__
+
+
+----------------------------------------------
+Optimizing: Raymond Hettinger's personal crack
+----------------------------------------------
+Raymond Hettinger, the speed nut that he is, added a new opcode to Python to speed up list comprehensions by around 35%.  But his addiction didn't stop there.
+
+Being the dealer of his own drug of choice, Raymond got his next fix by improving on iterations for dictionaries (this is, of course, after all of his work on the list internals).  As always, thanks goes to Raymond for putting in the work to make sure the CPython interpreter beats the Parrot_ interpreter by that much more come `OSCON 2004`_ and the Pie-thon contest.
+
+And, at Hye-Shik Chang's request, Raymond listed off his list of things to do to feed his addiction so he doesn't go into withdrawls any time in the future.  Most of them are nice and involved that would make great personal/research projects.
+
+.. _Parrot: http://www.parrotcode.org/
+.. _OSCON 2004: http://conferences.oreillynet.com/os2004/
+
+Contributing threads:
+  - `New opcode to simplifiy/speedup list comprehensions <http://mail.python.org/pipermail/python-dev/2004-March/042924.html>`__
+  - `Joys of Optimization <http://mail.python.org/pipermail/python-dev/2004-March/043097.html>`__
+

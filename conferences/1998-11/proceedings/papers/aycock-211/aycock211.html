@@ -1,0 +1,893 @@
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd"><HTML>
+<HEAD>
+   <BASE HREF="http://www.foretec.com/python/workshops/1998-11/proceedings/papers/aycock-211/aycock211.html">
+</HEAD>
+
+<META NAME="GENERATOR" CONTENT="TtH 1.60">
+                                                     
+<title>Converting Python Virtual Machine Code to C</title> 
+<H1 align=center><b>Converting Python Virtual Machine Code to C </H1></b>
+
+<p>
+
+<H3 align=center>John Aycock <br>
+<em>Department of Computer Science</em> <br>
+<em>University of Victoria</em> <br>
+<em>Victoria, B.C., Canada</em> <br>
+<em>aycock@csc.uvic.ca</em> </H3>
+
+<p>
+
+<H3 align=center> </H3>
+
+<p>
+ 
+<H2> Abstract</H2>
+The optimization of a Python program has a limit point, beyond which
+a programmer must resort to C code in order to get more speed.  Not
+all programmers are willing or able to take this step.
+<tt>211</tt> is an experimental program which automatically converts
+Python virtual machine code into C.  In this paper I discuss <tt>211</tt>,
+its results, and suggest changes to Python's internals which should yield
+better results and faster programs.
+<p>
+<p>
+      <H2><A NAME="tth_sEc1">
+1</A>&nbsp;&nbsp;Introduction</H2>
+
+<p>
+My first nontrivial Python program was a 1400-line program that
+built and manipulated large graphs.  While I found Python made for
+very fast development, the result was somewhat disappointing - medium-sized
+inputs could take days to run, making large inputs out of the question.
+
+<p>
+I applied the usual optimization techniques [<a href="#bentley" name=CITEbentley>3</a>].  Using Python's
+profiler, I was able to identify ``hot spots'' in the program where the
+majority of time was being spent; changing that code to use more efficient
+data structures and cache previously-computed information sped the program
+up substantially.  Manually performing transformations such as moving
+invariant code out of loops helped to a lesser degree.  The result of this
+optimization was a Python program which now took several hours for inputs
+which previously took it several days.  A good improvement, but still
+not fast enough.
+
+<p>
+At this point, I hit an optimization barrier.  The usual Python lore
+dictated that I should recode the hot spots into C, something time
+constraints prevented.  In addition, I wanted to avoid the maintenance
+and portability issues presented by hybrid source code.  What I wanted
+was a tool to automatically convert my most frequently-executed bits
+of Python code into C.
+
+<p>
+Internally, Python does not directly interpret Python programs.  Instead,
+it has a compiler which translates Python programs into code for an
+idealized abstract computer - the Python Virtual Machine (PVM).  The
+Python interpreter then executes the PVM code  (Figure&nbsp;<A href="#model">1</A>).
+The PVM itself is a
+``stack machine,'' meaning that PVM instructions get their arguments
+from the stack, and place their results onto the stack.
+
+<p>
+
+<p><A NAME="tth_fIg1">
+</A> 
+<center><img src="model.gif" alt="model.gif"><br></center> <center>      Figure 1: Execution of Python programs.</center> <A NAME="model">
+</A>
+<p>
+<p>
+Virtual and stack machines are not new.  The idea is decades-old,
+but went out of vogue in the late 1970's [<a href="#ertl_stk_alloc" name=CITEertl_stk_alloc>12</a>].  It has
+enjoyed a renaissance lately with the advent of Java, which uses
+a virtual machine.
+
+<p>
+The good news is that there is a wealth of research available which
+addresses the efficient execution of these machines.  In particular,
+work has been done speeding up Forth [<a href="#ertl_native" name=CITEertl_native>8</a>,<a href="#ertl_caching" name=CITEertl_caching>7</a>],
+Smalltalk [<a href="#ungar" name=CITEungar>17</a>,<a href="#deutsch" name=CITEdeutsch>4</a>], and of course Java [<a href="#toba" name=CITEtoba>16</a>].  They
+have had great success in making faster language implementations, and
+a lot of this material can be applied to speeding up Python.
+
+<p>
+The remainder of this paper is divided into two parts.  Section&nbsp;<A href="#211">2</A>
+describes my work on <tt>211</tt>, an experimental
+program which converts PVM code into
+C.  In Section&nbsp;<A href="#better">3</A> I suggest some changes to the inner
+workings of Python which I argue will make it more amenable to
+optimization and high-speed implementations.
+
+<p>
+      <H2><A NAME="tth_sEc2">
+2</A>&nbsp;&nbsp;The <tt>211</tt> Program</H2> <A NAME="211">
+</A>
+
+<p>
+My <tt>211</tt> program was inspired by the Toba program for Java, whose
+authors bill it as a ``way-ahead-of-time compiler'' [<a href="#toba" name=CITEtoba>16</a>].  The
+idea is that a Python application is profiled, and has
+the PVM code for its hot spots converted into C code by <tt>211</tt>.  The Python
+interpreter is recompiled with <tt>211</tt>'s C code output, producing a
+customized Python interpreter that can be used by the Python
+application (Figure&nbsp;<A href="#211 model">2</A>).
+
+<p>
+
+<p><A NAME="tth_fIg2">
+</A> 
+<center><img src="211.gif" alt="211.gif"><br></center> <center>      Figure 2: A model of <tt>211</tt>.</center> <A NAME="211 model">
+</A>
+<p>
+<p>
+Because it works at the PVM level, <tt>211</tt> is able to co-exist with
+any high-level PVM optimizers.  This includes PVM optimizers
+that add new
+opcodes -  <tt>211</tt> only converts PVM opcodes that it has been
+taught, so PVM code output by <tt>211</tt> can be a mixture of normal
+VM instructions and calls to specialized C code.
+
+<p>
+Only one line needs to be added
+to the Python interpreter code to make <tt>211</tt> work: a
+<tt>#include</tt> statement to include <tt>211</tt>'s C code output.
+ 
+<p>
+<tt>211</tt> itself consists of 1320 lines of Python code, about
+635 lines of which are bits of Python's interpreter code
+which <tt>211</tt> uses
+for its conversion.  The program is based on Python 1.5.1.
+
+<p>
+To understand how I convert PVM to C code, it is useful to first
+look at the Python interpreter.
+
+<p>
+      <H3><A NAME="tth_sEc2.1">
+2.1</A>&nbsp;&nbsp;The Python Interpreter</H3>
+
+<p>
+The Python interpreter is what is sometimes called a ``classical''
+interpreter [<a href="#klint" name=CITEklint>10</a>].  Its algorithm is straightforward:
+
+<p>
+
+<OL type="1">
+<li> Fetch the opcode of a VM instruction, and its arguments (if any).
+
+<li> Execute the instruction.
+
+<li> Repeat steps 1 and 2 until the novelty wears off.
+</OL>
+<p>
+This algorithm is implemented in the Python interpreter by C code
+like that shown below (greatly simplified from the original).
+
+<p>
+
+<pre>
+while (1) {
+    opcode = NEXTOP();
+    if (HAS_ARG(opcode))
+        oparg = NEXTARG();
+
+    switch (opcode) {
+    ...
+    }
+}
+</pre>
+
+<p>
+The cases in the <tt>switch</tt> statement implement
+the various VM instructions.  As discussed in the next section,
+<tt>211</tt> specializes the Python interpreter by adding code into
+this <tt>switch</tt> statement.
+
+<p>
+      <H3><A NAME="tth_sEc2.2">
+2.2</A>&nbsp;&nbsp;What <tt>211</tt> Does</H3>
+
+<p>
+<tt>211</tt> has four basic steps.
+
+<p>
+
+<OL type="1">
+<li> Read in a <tt>.pyc</tt> file and extract the PVM code.
+
+<p>
+
+<li> Break the PVM code into extended basic blocks.  An extended
+	basic block (EBB) is the longest sequence of instructions
+	for which there is only one entry point (there may be
+	multiple exits from an EBB, though) [<a href="#muchnick" name=CITEmuchnick>13</a>].  The hypothetical
+	code in Figure&nbsp;<A href="#ebb">3</A> contains two EBBs.
+
+<p>
+	Why use EBBs?  The Python interpreter code expects branch
+	targets to be expressed as offsets into PVM code.
+	Rather than modify the interpreter extensively, I opted to
+	use EBBs, which ensures that all branch targets correspond
+	to PVM code and not C code.
+
+<p>
+	
+<p><A NAME="tth_fIg3">
+</A> 	
+<center>	
+<table border><tr><td>
+<tr><td>	 L1: </td><td>A </td><td>
+<tr><td>	</td><td>B </td><td>
+<tr><td>	</td><td>GOTO </td><td>L1 
+<tr><td>	</td><td>C </td><td>
+<tr><td>	</td><td>GOTO </td><td>L2 
+<tr><td>	</td><td>D </td><td>
+<tr><td>	L2: </td><td>E </td><td>
+<tr><td>	</table>
+
+	</center>
+<p>
+	 <center>      Figure 3: Extended basic blocks.</center> <A NAME="ebb">
+</A>
+	<p>
+<p>
+
+<li> Convert PVM instructions within each EBB into C code,
+	effectively creating a new PVM opcode for each EBB.
+	<tt>211</tt>'s conversion is a matter of pasting together
+	code from the Python interpreter's main <tt>switch</tt>
+	statement.  For example, an EBB containing three PVM
+	instructions would be converted into
+
+<p>
+	
+<center>	
+<table><tr><td>
+<tr><td>	<em>code for instruction #1</em> 
+<tr><td>	<em>code for instruction #2</em> 
+<tr><td>	<em>code for instruction #3</em> 
+<tr><td>	</table>
+
+	</center>
+<p>
+	For the most part, the code from the Python interpreter
+	is used with very little modification.  
+	In a few important cases, however, <tt>211</tt> will customize the C
+	code to produce better output.  In effect, <tt>211</tt> performs
+	a limited amount of partial evaluation [<a href="#partial" name=CITEpartial>9</a>].  One
+	example is the conversion
+	of branches in the PVM code to <tt>goto</tt> statements wherever
+	possible.  Another example involves the PVM comparison
+	instruction - usually, the Python interpreter decides
+	at run-time what type of comparison (<em>e.g.</em>, <tt>&lt;</tt>,
+	<tt>&#62;=</tt>) to perform, but <tt>211</tt>
+	can determine this at compile time.
+
+<p>
+
+<li> Rewrite the PVM code in the <tt>.pyc</tt> file so that it uses
+	the new opcodes.
+
+<p>
+</OL> Consider the function below.  Obviously this is a contrived
+example, but it nicely illustrates the operation of <tt>211</tt>.
+
+<p>
+
+<pre>
+def foo():
+    pass
+</pre>
+
+<p>
+The PVM code for this function is shown below, as disassembled by
+<tt>dis.dis(foo)</tt>.  (Recall that functions without an explicit
+<tt>return</tt> statement return the value <tt>None</tt>.)
+
+<p>
+
+<pre>
+0  SET_LINENO       1
+3  SET_LINENO       2
+6  LOAD_CONST       0  (None)
+9  RETURN_VALUE
+</pre>
+
+<p>
+When executed by the PVM, the first two PVM instructions store the
+source line number from the original Python code, for use in tracebacks.
+The third instruction pushes the function's
+zero<sup><font size="-3">th</font></sup> constant, <tt>None</tt>,
+onto the PVM's stack.  Finally, the fourth instruction pops the value
+off the top of the stack and returns.
+
+<p>
+Inside the Python interpreter, this would be implemented by the
+code:
+
+<p>
+
+<pre>
+while (1) {
+    opcode = NEXTOP();
+    if (HAS_ARG(opcode))
+        oparg = NEXTARG();
+
+    switch (opcode) {
+    ...
+    case RETURN_VALUE:
+        retval = POP();
+        why = WHY_RETURN;
+        break;
+    case LOAD_CONST:
+        x = GETCONST(oparg);
+        Py_INCREF(x);
+        PUSH(x);
+        break;
+    case SET_LINENO:
+        f-&#62;f_lineno = oparg;
+        break;
+    ...
+    }
+}
+</pre>
+
+<p>
+My 211 program takes all four PVM instructions and rewrites them into the
+single instruction <tt>211_OPCODE 0</tt>.  It then outputs the C code below,
+which is <tt>#include</tt>d into the Python interpreter's main <tt>switch</tt>
+statement.
+
+<p>
+
+<pre>
+    case 211:
+        switch (oparg) {
+        case 0:
+            f-&#62;f_lineno = 1;
+            
+            f-&#62;f_lineno = 2;
+            
+            x = GETCONST(0);
+            Py_INCREF(x);
+            PUSH(x);
+            
+            retval = POP();
+            why = WHY_RETURN;
+            break;
+        }
+        break;
+</pre>
+
+<p>
+<tt>211</tt> then goes through the C code it outputs, and performs
+``peephole optimization'' - in other words, it searches for
+inefficient or redundant code and replaces it with
+improved code [<a href="#dragon_book" name=CITEdragon_book>1</a>].
+This does not imply that the Python interpreter's code was
+inefficient or redundant to begin with; this effect is caused
+solely by <tt>211</tt> piecing together chunks of the interpreter's
+code in new ways.  The resulting C code is shown below.
+
+<p>
+
+<pre>
+    case 211:
+        switch (oparg) {
+        case 0:
+            f-&#62;f_lineno = 2;
+            
+            x = GETCONST(0);
+            Py_INCREF(x);
+            
+            retval = x;
+            why = WHY_RETURN;
+            break;
+        }
+        break;
+</pre>
+
+<p>
+In this example, <tt>211</tt>'s peephole optimizer was able to
+remove the adjacent <tt>PUSH</tt>/<tt>POP</tt> operations, and delete
+the unnecessary assignment to <tt>f_lineno</tt>.  These patterns are
+detected in the C code by some simple regular expressions.
+
+<p>
+The Python interpreter is recompiled next, incorporating <tt>211</tt>'s
+C code output.  The rewritten (single-instruction) PVM code for <tt>foo()</tt>
+can now be run, and it will use the new customized interpreter code. 
+
+<p>
+      <H3><A NAME="tth_sEc2.3">
+2.3</A>&nbsp;&nbsp;What <tt>211</tt> Doesn't Do</H3>
+
+<p>
+When a series of PVM instructions has been replaced with <tt>211</tt>'s
+specialized C code, the interpreter loop is not executed by the C code
+unless necessary.  The speed increase that <tt>211</tt> gets is in part
+due to avoiding this loop overhead.
+
+<p>
+Unfortunately, the Python interpreter loop contains code to deal with
+periodic tasks, such as checking for signals<a href="#tthFtNtAAB" name=tthFrefAAB><sup>1</sup></a> and changing thread states.  By
+executing the interpreter loop less frequently, programs converted to
+C using <tt>211</tt> will be less responsive to these events.
+
+<p>
+Another thing to note is that <tt>211</tt> only addresses one area
+of Python performance.  If a Python program spends most of its time
+in the run-time library, or is I/O-bound, then converting it into C
+is unlikely to make a big impact.
+
+<p>
+      <H3><A NAME="tth_sEc2.4">
+2.4</A>&nbsp;&nbsp;Results</H3> <A NAME="results">
+</A>
+
+<p>
+The initial results of <tt>211</tt> can best be described
+as ``mixed.''  All the results in this section were generated
+on a machine with a 200MHz Pentium-MMX processor, 512K of cache
+and 64M of RAM, using Windows NT 4.0 and Visual C++ 5.0.  The
+version of <tt>211</tt> used converts less
+than half the PVM instructions: it can convert 37 out of a total
+of 84 PVM instructions.
+
+<p>
+Table&nbsp;<A href="#pystone">1</A> shows the results for Pystone
+1.1, the Dhrystone benchmark included in the Python distribution.
+I ran three tests: an unmodified Python interpreter straight from
+the Win32 distribution; a modified Python interpreter which was
+customized for Pystone but ran the unmodified <tt>pystone.pyc</tt>;
+a ``<tt>211</tt>'' test which used a modified interpreter and a
+modified <tt>pystone.pyc</tt>.
+The file <tt>ceval.c</tt> is the C source file containing the
+Python interpreter.
+
+<p>
+
+<p><A NAME="tth_tAb1">
+</A> 
+<center>
+<table><tr><td>
+<tr><td></td><td>Unmodified </td><td>Modified </td><td>211 
+<tr><td>Results (Pystones/second) </td><td>2736.42 </td><td>2708.75 </td><td>2921.17 
+<tr><td></td><td></td><td></td><td>
+<tr><td><tt>ceval.c</tt> (lines) </td><td>2916 </td><td>14890 </td><td>14890 
+<tr><td><tt>ceval.obj</tt> (bytes) </td><td>49838 </td><td>116540 </td><td>116540 
+<tr><td><tt>pystone.pyc</tt> (bytes) </td><td>8270 </td><td>8270 </td><td>6018 </table>
+
+</center>
+<p>
+ <center>      Table 1: Pystone results (full compilation to C).</center> <A NAME="pystone">
+</A>
+<p>
+<p>
+From the numbers, it is fair to say that <tt>211</tt> speeds up
+the Pystone code, but at a cost too high to justify.  On the other hand,
+the PyBench suite of benchmarks [<a href="#lemburg" name=CITElemburg>11</a>] shows some more interesting (and
+promising!) results in Figure&nbsp;<A href="#pybench">4</A>.
+
+<p>
+Pybench converted into C is too much for Visual C++ on my
+machine to optimize, so instead I selected one of its
+source files, <tt>Constructs.py</tt>, and ran it through <tt>211</tt>
+alone.  This means that the ``IfThenElse,'' ``NestedForLoops,'' and
+``ForLoops'' tests have been compiled into C - this can be seen
+as picking a hot spot in a Python program and converting it to C.
+This results in 17000 lines being added to <tt>ceval.c</tt>, and an
+object file size of 137383 bytes.
+
+<p>
+The three tests directly affected by <tt>211</tt> show a dramatic
+speed improvement.
+I conjecture that slight speed decreases seen when
+using unconverted PVM code and a modified interpreter are
+architecture-related: <tt>ceval.obj</tt> passes a size threshold
+which necessitates use of slower branch instructions in the
+Pentium machine code.  However, there are some artifacts - the results for
+``BuiltinMethodLookup'' and ``StringSlicing'' - which require further study.
+
+<p>
+The next question is, how far can this conversion technique be pushed?
+
+<p>
+
+<p><A NAME="tth_fIg4">
+</A> 
+<pre>
+PYBENCH 0.6
+
+Benchmark: 211-python (rounds=10, warp=20)
+
+Tests:                              per run    per oper.  diff *
+------------------------------------------------------------------------
+          BuiltinFunctionCalls:     791.87 ms    6.21 us   +2.35%
+           BuiltinMethodLookup:     944.35 ms    1.80 us   +8.73%
+                 ConcatStrings:    2297.37 ms   15.32 us   -0.39%
+               CreateInstances:    1198.43 ms   28.53 us   -2.26%
+       CreateStringsWithConcat:     889.78 ms    4.45 us   -0.77%
+                  DictCreation:    1161.54 ms    7.74 us   -0.18%
+                      ForLoops:     523.39 ms   52.34 us  -62.11%
+                    IfThenElse:     684.27 ms    1.01 us  -38.49%
+                   ListSlicing:    1006.17 ms  287.48 us   +2.18%
+                NestedForLoops:     383.25 ms    1.10 us  -49.84%
+          NormalClassAttribute:     957.16 ms    1.60 us   +0.35%
+       NormalInstanceAttribute:     931.60 ms    1.55 us   +0.38%
+           PythonFunctionCalls:     890.95 ms    5.40 us   +3.89%
+             PythonMethodCalls:     725.18 ms    9.67 us   -0.02%
+                     Recursion:     690.87 ms   55.27 us   +2.17%
+                  SecondImport:     937.91 ms   37.52 us   -4.78%
+           SecondPackageImport:     961.25 ms   38.45 us   -5.25%
+         SecondSubmoduleImport:    1174.28 ms   46.97 us   -4.81%
+       SimpleComplexArithmetic:    1150.36 ms    5.23 us   -1.00%
+        SimpleDictManipulation:     842.63 ms    2.81 us   -0.08%
+         SimpleFloatArithmetic:     814.21 ms    1.48 us   +0.01%
+      SimpleIntFloatArithmetic:     855.92 ms    1.30 us   +0.71%
+       SimpleIntegerArithmetic:     857.16 ms    1.30 us   +0.72%
+        SimpleListManipulation:    1033.49 ms    3.83 us   +3.93%
+          SimpleLongArithmetic:     929.77 ms    5.63 us   +0.11%
+                    SmallLists:    1569.67 ms    6.16 us   +3.16%
+                   SmallTuples:     950.77 ms    3.96 us   +2.78%
+         SpecialClassAttribute:     962.20 ms    1.60 us   +0.14%
+      SpecialInstanceAttribute:    1062.08 ms    1.77 us   -0.54%
+                 StringSlicing:     949.31 ms    5.42 us  -11.92%
+                     TryExcept:    1658.73 ms    1.11 us   +2.33%
+                TryRaiseExcept:     990.82 ms   66.05 us   -3.89%
+                  TupleSlicing:     903.79 ms    8.61 us   -5.57%
+------------------------------------------------------------------------
+            Average round time:   37401.40 ms              -4.80%
+
+*) measured against: unmodified-python (rounds=10, warp=20)
+</pre>
+
+<p>
+ <center>      Figure 4: PyBench results (partial compilation to C).</center> <A NAME="pybench">
+</A>
+<p>
+<p>
+      <H2><A NAME="tth_sEc3">
+3</A>&nbsp;&nbsp;How to do Better</H2> <A NAME="better">
+</A>
+
+<p>
+In this section I discuss five avenues which I think should
+(and, in one case, should not) be taken to get better results
+when converting PVM code to C; some of these suggestions are
+also applicable to Python optimization in general.
+
+<p>
+These comments should not be construed as a criticism of
+Python's current design.  Some designs are better suited
+to certain applications than others, however, and it is
+safe to say that applications like <tt>211</tt> were not a
+priority when Python was created.
+
+<p>
+      <H3><A NAME="tth_sEc3.1">
+3.1</A>&nbsp;&nbsp;Opcode Education</H3>
+
+<p>
+In Section&nbsp;<A href="#results">2.4</A> I stated that <tt>211</tt> was not yet able to
+convert all of the PVM's opcodes into C.  No technical difficulties
+preclude teaching <tt>211</tt> about the remaining opcodes.  As a matter
+of expediency, I added opcodes lazily as required by the PVM code
+input to <tt>211</tt>.
+
+<p>
+When run, <tt>211</tt> prints a ``top ten'' list of PVM opcodes it was
+unable to convert, ordered by the frequency in which they occurred.  This
+gave a static indication of opcodes to teach <tt>211</tt>; in addition, I
+used Python's dynamic execution profiler to identify frequently-executed
+opcodes.  I used both these measures when deciding which opcodes to
+implement.
+
+<p>
+This means that, at present, a rewritten <tt>.pyc</tt> file invariably
+contains some regular PVM instructions.  If these should happen to
+fall in a critical spot in the program, such as an inner loop, then
+performance is going to suffer.  Teaching <tt>211</tt> the complete set
+of PVM opcodes would eliminate the transitions between specialized and
+nonspecialized code, avoiding one source of overhead.  The longer
+C code sequences would also
+create more optimization opportunities, for both <tt>211</tt>'s peephole
+optimizer as well as for the C compiler's optimizer.
+
+<p>
+      <H3><A NAME="tth_sEc3.2">
+3.2</A>&nbsp;&nbsp;Conversion Heuristics</H3>
+
+<p>
+Currently, <tt>211</tt> always tries to convert the longest
+sequences of PVM instructions it is able to.  This may
+not be the best strategy, since it can result in reams
+of C code being output; this time-space tradeoff has
+been noted in similar projects [<a href="#pittman" name=CITEpittman>14</a>].  A better approach may be to
+selectively convert PVM code, based on either heuristics
+or thresholds.  For instance, conversion could be
+restricted to frequently-seen pairs of instructions.
+
+<p>
+Ideally, the conversion heuristics could be tuned so that
+<tt>211</tt> would yield an acceptable speed increase, but with
+a much smaller amount of C code than it now outputs.  It is
+unlikely that a single heuristic would work well for all inputs;
+run-time profiling feedback could perhaps be employed to select an
+appropriate heuristic.
+
+<p>
+      <H3><A NAME="tth_sEc3.3">
+3.3</A>&nbsp;&nbsp;Register Machines</H3>
+
+<p>
+As mentioned in the introduction, the PVM is a stack machine.  As
+such, there is overhead involved in moving objects to and from
+the stack.  An alternative is a register-based machine, which
+places intermediate values into registers rather than on a stack,
+and incurs no stack overhead.  It is telling that programs which
+convert Forth and Java VM code into C begin by mapping stack
+locations into ``registers'' by placing their values into C
+variables [<a href="#toba" name=CITEtoba>16</a>,<a href="#ertl_f2c" name=CITEertl_f2c>6</a>].  To implement this would
+require changing the PVM as well as the Python compiler.
+
+<p>
+There is another compelling reason to consider a register-based VM.
+There are a number of good optimizing C compilers available, despite
+it being a notoriously hard language to optimize.  In terms
+of converting PVM to C, the key is to get the C output in such
+a form that an optimizing C compiler can make good use of it.
+But even the best C compilers are not likely to discover how
+values on a stack interrelate - stack manipulations appear
+just as pointer operations on memory.  By going to a register-based
+VM, the data flow through the C code becomes clearer (as
+uses of C variables) and the compiler has a better chance of
+making more optimizations.
+
+<p>
+The following C program abstracts stack manipulation in the Python
+interpreter.  The space for the stack is allocated externally, and
+elements of the stack are referenced using a pointer.
+
+<p>
+
+<pre>
+int i, j;
+
+void interpreter(void) {
+    extern int *get_frame(void);
+    int *stack_pointer = get_frame();
+
+    #define PUSH(x)  (*stack_pointer++ = x)
+    #define POP()    (*--stack_pointer)
+
+    PUSH(123);
+    PUSH(456);
+    i = POP();
+    j = POP();
+}
+</pre>
+
+<p>
+Even in theory, it is difficult for an optimizing C compiler
+to determine one key property about
+the values pushed onto the stack: their liveness.  In other words,
+it cannot know if another function will want to use the contents of
+the memory allocated to the stack, so it must write both numbers to
+memory (as opposed to just keeping them in registers).  In practice,
+C compilers fared even worse: neither Visual C++<a href="#tthFtNtAAC" name=tthFrefAAC><sup>2</sup></a> nor gcc<a href="#tthFtNtAAD" name=tthFrefAAD><sup>3</sup></a> with full optimization were even able to discover
+that <tt>j</tt> was supposed to have the value <tt>123</tt> without reloading
+it from memory.
+
+<p>
+In contrast, say that we have a register-based VM.  A program like <tt>211</tt>
+could trivially map the registers into C variables, resulting in a program
+like the one below.
+
+<p>
+
+<pre>
+int i, j;
+
+void interpreter(void) {
+    int reg_0, reg_1;
+
+    reg_0 = 123;
+    reg_1 = 456;
+    i = reg_1;
+    j = reg_0;
+}
+</pre>
+
+<p>
+The liveness of the values and the flow of data is now clear to the
+C compiler.  Both the above-mentioned C compilers do an excellent job
+translating this program into assembly.
+
+<p>
+      <H3><A NAME="tth_sEc3.4">
+3.4</A>&nbsp;&nbsp;Instruction Granularity</H3>
+
+<p>
+One frustration when developing <tt>211</tt> was that a lot
+of information was buried inside the interpreter's C code rather
+than made explicit in the PVM code; stack accesses and the details
+of function/method invocation are but two examples.  I propose
+finer-grained PVM instructions, where each current PVM instruction
+would be replaced by one or more shorter ones.  In essence, this
+would create a more RISC-like PVM.  The immediate result of this
+change would be larger <tt>.pyc</tt>
+files, and slower execution resulting from a greater number of
+instructions being dispatched in the interpreter.  However, in the
+long run, I think this loss
+would be more than won back by exposing more information to
+<tt>211</tt>-type programs and high-level PVM optimizers.
+
+<p>
+      <H3><A NAME="tth_sEc3.5">
+3.5</A>&nbsp;&nbsp;Interpreter Structure</H3>
+
+<p>
+There are other methods known for implementing interpreters.
+``Threaded code'' and ``indirect threaded code'' are two
+techniques which are used in interpreter
+implementation [<a href="#threaded" name=CITEthreaded>2</a>,<a href="#indirect" name=CITEindirect>5</a>].  While the details
+of these two methods are beyond the scope of this paper, suffice
+it to say that both eliminate the fetch-execute loop of
+classical interpreters.  Neither are likely to make any impact
+on the current PVM, though.  It has been shown that the speed differences
+between the methods become nonexistent as the amount of time
+taken by each VM instruction increases [<a href="#klint" name=CITEklint>10</a>]; this is echoed
+in more recent work [<a href="#piumarta" name=CITEpiumarta>15</a>].
+
+<p>
+Given this, I think it is not worthwhile to change the interpreter's
+structure until such time as
+Python has a more RISC-like PVM, with finer-grained
+instructions.  This argument might also be reasonably extended to discourage 
+``micro-optimizations'' in the PVM instruction-fetching code.
+
+<p>
+      <H2><A NAME="tth_sEc4">
+4</A>&nbsp;&nbsp;Conclusion</H2>
+
+<p>
+In this paper I have described <tt>211</tt>, an experimental program which
+converts Python virtual machine code into C.  <tt>211</tt> is intended
+for use on Python applications that need to run faster,
+where manual translation of hot spots to C is not a viable option.  The
+general conversion technique has shown merit, both in my own results
+and in similar work done for other programming languages.  I think
+that changes to Python's internals will help produce even better
+results.
+
+<p>
+
+<H2>Acknowledgments</H2>
+
+<p>
+Shannon Jaeger, Jim Uhl, and Mike Zastre made numerous helpful comments on
+early drafts of this paper.  The anonymous referees' suggestions
+also brought out some important points which I had overlooked.
+
+<p>
+<H2>References</H2>
+<DL compact>
+
+<p>
+<dt>[<a href="#CITEdragon_book" name=dragon_book>1</a>]</dt><dd> A. V. Aho, R. Sethi, and J. D. Ullman.
+	<em>Compilers: Principles, Techniques, and Tools</em>.
+	Addison-Wesley, 1986.
+
+<p>
+<dt>[<a href="#CITEthreaded" name=threaded>2</a>]</dt><dd> J. R. Bell.  Threaded Code.  <em>Communications
+	of the ACM</em>, 16(6):370-372, 1973.
+
+<p>
+<dt>[<a href="#CITEbentley" name=bentley>3</a>]</dt><dd> J. L. Bentley.  <em>Writing Efficient Programs</em>.
+	Prentice-Hall, 1982.
+
+<p>
+<dt>[<a href="#CITEdeutsch" name=deutsch>4</a>]</dt><dd> L. P. Deutsch.  Efficient Implementation of the
+	Smalltalk-80 System.  <em>ACM POPL '84 Proceedings</em>, pages
+	297-302.
+
+<p>
+<dt>[<a href="#CITEindirect" name=indirect>5</a>]</dt><dd> R. B. K. Dewar.  Indirect threaded code.
+	<em>Communications of the ACM</em>, 18(6):330-331, 1975.
+
+<p>
+<dt>[<a href="#CITEertl_f2c" name=ertl_f2c>6</a>]</dt><dd> M. A. Ertl and M. Maierhofer.  Translating Forth
+	to Efficient C.  <em>EuroForth '95 Proceedings</em>.
+
+<p>
+<dt>[<a href="#CITEertl_caching" name=ertl_caching>7</a>]</dt><dd> M. A. Ertl.  Stack Caching for Interpreters.
+	<em>ACM SIGPLAN PLDI '95 Conference</em>, pages 315-327.
+
+<p>
+<dt>[<a href="#CITEertl_native" name=ertl_native>8</a>]</dt><dd> M. A. Ertl.  A New Approach to Forth Native
+	Code Generation.  <em>EuroForth '92 Proceedings</em>, pages
+	73-78.
+
+<p>
+<dt>[<a href="#CITEpartial" name=partial>9</a>]</dt><dd> N. D. Jones, C. K. Gomard, and P. Sestoft.
+	<em>Partial Evaluation and Automatic Program Generation</em>.
+	Prentice Hall, 1993.
+
+<p>
+<dt>[<a href="#CITEklint" name=klint>10</a>]</dt><dd> P. Klint.  Interpretation Techniques.  <em>Software,
+	Practice &amp; Experience</em>, 11:963-973, 1981.
+
+<p>
+<dt>[<a href="#CITElemburg" name=lemburg>11</a>]</dt><dd> M.-A. Lemburg.  PyBench 0.6.
+		<a href="http://starship.skyport.net/~lemburg/pybench-0.6.zip"><tt>http://starship.skyport.net/&#126;lemburg/pybench-0.6.zip</tt></a>.
+
+<p>
+<dt>[<a href="#CITEertl_stk_alloc" name=ertl_stk_alloc>12</a>]</dt><dd> M. Maierhofer and M. A. Ertl.  Local Stack
+	Allocation.  <em>Compiler Construction (CC '98)</em>, pages
+	189-203.  Springer, 1998.
+
+<p>
+<dt>[<a href="#CITEmuchnick" name=muchnick>13</a>]</dt><dd> S. S. Muchnick.  <em>Advanced Compiler Design
+	and Implementation</em>.  Morgan Kaufmann, 1997.
+
+<p>
+<dt>[<a href="#CITEpittman" name=pittman>14</a>]</dt><dd> T. Pittman.  Two-Level Hybrid Interpreter/Native
+	Code Execution for Combined Space-Time Program Efficiency.
+	<em>ACM SIGPLAN</em>, 22(7):150-152, 1987.
+
+<p>
+<dt>[<a href="#CITEpiumarta" name=piumarta>15</a>]</dt><dd> I. Piumarta and F. Riccardi.  Optimizing direct
+	threaded code by selective inlining.  <em>ACM SIGPLAN
+	PLDI '98 Conference</em>, pages 291-300.
+
+<p>
+<dt>[<a href="#CITEtoba" name=toba>16</a>]</dt><dd> T. A. Proebsting <em>et. al.</em>  Toba: Java For
+	Applications.  <em>COOTS '97 Proceedings</em>.
+
+<p>
+<dt>[<a href="#CITEungar" name=ungar>17</a>]</dt><dd> D. M. Ungar.  <em>The Design and Evaluation of a
+	High-Performance Smalltalk System</em>.  MIT Press, 1987.
+
+<p>
+</DL><hr><H3>Footnotes:</H3>
+
+<p><a name=tthFtNtAAB></a><a href="#tthFrefAAB"><sup>1</sup></a> Depending on
+the platform.
+<p><a name=tthFtNtAAC></a><a href="#tthFrefAAC"><sup>2</sup></a> Version 5.0 for
+80x86, with <tt>/Ox</tt> flag.
+<p><a name=tthFtNtAAD></a><a href="#tthFrefAAD"><sup>3</sup></a> Version 2.8.1 for SPARC,
+with <tt>-O9</tt> flag.
+<p><hr><small>File translated from T<sub><font size="-1">E</font></sub>X by <a href="http://hutchinson.belmont.ma.us/tth/">T<sub><font size="-1">T</font></sub>H</a>, version 1.60.</small>
+
+<SCRIPT language="Javascript">
+<!--
+
+// FILE ARCHIVED ON 20010604155028 AND RETRIEVED FROM THE
+// INTERNET ARCHIVE ON 20060504134629.
+// JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+// ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+// SECTION 108(a)(3)).
+
+   var sWayBackCGI = "http://web.archive.org/web/20010604155028/";
+
+   function xLateUrl(aCollection, sProp) {
+      var i = 0;
+      for(i = 0; i < aCollection.length; i++)
+         if (aCollection[i][sProp].indexOf("mailto:") == -1 &&
+             aCollection[i][sProp].indexOf("javascript:") == -1)
+            aCollection[i][sProp] = sWayBackCGI + aCollection[i][sProp];
+   }
+
+   if (document.links)  xLateUrl(document.links, "href");
+   if (document.images) xLateUrl(document.images, "src");
+   if (document.embeds) xLateUrl(document.embeds, "src");
+
+   if (document.body && document.body.background)
+      document.body.background = sWayBackCGI + document.body.background;
+
+//-->
+
+</SCRIPT>
+</HTML>

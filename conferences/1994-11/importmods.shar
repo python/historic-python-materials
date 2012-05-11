@@ -1,0 +1,2077 @@
+#! /bin/sh
+# This is a shell archive.  Remove anything before this line, then unpack
+# it by saving it into a file and typing "sh file".  To overwrite existing
+# files, type "sh file -c".  You can also feed this as standard input via
+# unshar, or by typing "sh <file", e.g..  If this archive is complete, you
+# will see the following message at the end:
+#		"End of archive 1 (of 1)."
+# Contents:  PATCHES README import.c importdl.c importdl.h libimp.tex
+# Wrapped by guido@tesla on Thu Nov 10 13:41:25 1994
+PATH=/bin:/usr/bin:/usr/ucb ; export PATH
+if test -f 'PATCHES' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'PATCHES'\"
+else
+echo shar: Extracting \"'PATCHES'\" \(10168 characters\)
+sed "s/^X//" >'PATCHES' <<'END_OF_FILE'
+Xdiff -c -r vanilla/Include/bltinmodule.h patched/Include/bltinmodule.h
+X*** vanilla/Include/bltinmodule.h	Mon Aug  1 07:27:28 1994
+X--- patched/Include/bltinmodule.h	Wed Nov  9 18:01:03 1994
+X***************
+X*** 31,36 ****
+X--- 31,37 ----
+X  /* Built-in module interface */
+X  
+X  extern object *getbuiltin PROTO((object *));
+X+ extern object *getbuiltins PROTO((char *));
+X  extern int setbuiltin PROTO((char *, object *));
+X  
+X  #ifdef __cplusplus
+Xdiff -c -r vanilla/Modules/Makefile.pre.in patched/Modules/Makefile.pre.in
+X*** vanilla/Modules/Makefile.pre.in	Mon Sep 12 11:35:35 1994
+X--- patched/Modules/Makefile.pre.in	Wed Nov  9 18:04:31 1994
+X***************
+X*** 68,74 ****
+X  
+X  # === Rules ===
+X  
+X! all:		$(LIB) ../python
+X  
+X  $(LIB):		$(OBJS) Makefile
+X  		-rm -f $(LIB)
+X--- 68,74 ----
+X  
+X  # === Rules ===
+X  
+X! all:		$(LIB) ../python sharedmods
+X  
+X  $(LIB):		$(OBJS) Makefile
+X  		-rm -f $(LIB)
+Xdiff -c -r vanilla/Modules/config.c.in patched/Modules/config.c.in
+X*** vanilla/Modules/config.c.in	Wed Oct  5 10:48:22 1994
+X--- patched/Modules/config.c.in	Wed Nov  9 18:05:36 1994
+X***************
+X*** 182,187 ****
+X--- 182,188 ----
+X  /* -- ADDMODULE MARKER 1 -- */
+X  
+X  extern void initmarshal();
+X+ extern void initimp();
+X  
+X  struct {
+X  	char *name;
+X***************
+X*** 192,197 ****
+X--- 193,201 ----
+X  
+X  	/* This module "lives in" with marshal.c */
+X  	{"marshal", initmarshal},
+X+ 
+X+ 	/* This lives it with import.c */
+X+ 	{"imp", initimp},
+X  
+X  	/* These entries are here for sys.builtin_module_names */
+X  	{"__main__", NULL},
+Xdiff -c -r vanilla/Modules/gdbmmodule.c patched/Modules/gdbmmodule.c
+X*** vanilla/Modules/gdbmmodule.c	Mon Aug  8 04:06:37 1994
+X--- patched/Modules/gdbmmodule.c	Wed Nov  9 18:05:54 1994
+X***************
+X*** 93,99 ****
+X  	    for ( key=gdbm_firstkey(dp->di_dbm); key.dptr;
+X  				   key = gdbm_nextkey(dp->di_dbm,okey)) {
+X  		 size++;
+X!     	    	 if(okey.dsize) free(okey);
+X      	    	 okey=key;
+X      	    }
+X  	    dp->di_size = size;
+X--- 93,99 ----
+X  	    for ( key=gdbm_firstkey(dp->di_dbm); key.dptr;
+X  				   key = gdbm_nextkey(dp->di_dbm,okey)) {
+X  		 size++;
+X!     	    	 if(okey.dsize) free(okey.dptr);
+X      	    	 okey=key;
+X      	    }
+X  	    dp->di_size = size;
+X***************
+X*** 180,186 ****
+X  	    if ( item == 0 )
+X  	      return NULL;
+X  	    addlistitem(v, item);
+X!     	    if(okey.dsize) free(okey);
+X      	    okey=key;
+X  	}
+X  	return v;
+X--- 180,186 ----
+X  	    if ( item == 0 )
+X  	      return NULL;
+X  	    addlistitem(v, item);
+X!     	    if(okey.dsize) free(okey.dptr);
+X      	    okey=key;
+X  	}
+X  	return v;
+Xdiff -c -r vanilla/Modules/makesetup patched/Modules/makesetup
+X*** vanilla/Modules/makesetup	Mon Sep 12 11:31:01 1994
+X--- patched/Modules/makesetup	Wed Nov  9 18:13:23 1994
+X***************
+X*** 163,169 ****
+X  			*) src='$(srcdir)/'$src;;
+X  			esac
+X  			case $doconfig in
+X! 			no)	cc="cc $(CCSHARED)";;
+X  			esac
+X  			rule="$obj: $src; $cc \$(CFLAGS) $cpps -c $src"
+X  			echo "$rule" >>$rulesf
+X--- 163,169 ----
+X  			*) src='$(srcdir)/'$src;;
+X  			esac
+X  			case $doconfig in
+X! 			no)	cc="$cc \$(CCSHARED)";;
+X  			esac
+X  			rule="$obj: $src; $cc \$(CFLAGS) $cpps -c $src"
+X  			echo "$rule" >>$rulesf
+X***************
+X*** 182,188 ****
+X  			no)	SHAREDMODS="$SHAREDMODS $file";;
+X  			esac
+X  			rule="$file: $objs"
+X! 			rule="$rule; $(LDSHARED) $objs $libs -o $file"
+X  			echo "$rule" >>$rulesf
+X  		done
+X  	done
+X--- 182,188 ----
+X  			no)	SHAREDMODS="$SHAREDMODS $file";;
+X  			esac
+X  			rule="$file: $objs"
+X! 			rule="$rule; \$(LDSHARED) $objs $libs -o $file"
+X  			echo "$rule" >>$rulesf
+X  		done
+X  	done
+Xdiff -c -r vanilla/Modules/mathmodule.c patched/Modules/mathmodule.c
+X*** vanilla/Modules/mathmodule.c	Mon Aug  1 07:34:21 1994
+X--- patched/Modules/mathmodule.c	Wed Nov  9 18:13:38 1994
+X***************
+X*** 121,126 ****
+X--- 121,127 ----
+X  FUNC1(math_fabs, fabs)
+X  FUNC1(math_floor, floor)
+X  FUNC2(math_fmod, fmod)
+X+ FUNC2(math_hypot, hypot)
+X  FUNC1(math_log, log)
+X  FUNC1(math_log10, log10)
+X  #ifdef MPW_3_1 /* This hack is needed for MPW 3.1 but not for 3.2 ... */
+X***************
+X*** 214,219 ****
+X--- 215,221 ----
+X  	{"floor", math_floor},
+X  	{"fmod", math_fmod},
+X  	{"frexp", math_frexp},
+X+ 	{"hypot", math_hypot},
+X  	{"ldexp", math_ldexp},
+X  	{"log", math_log},
+X  	{"log10", math_log10},
+Xdiff -c -r vanilla/Modules/newmodule.c patched/Modules/newmodule.c
+X*** vanilla/Modules/newmodule.c	Mon May 23 08:37:55 1994
+X--- patched/Modules/newmodule.c	Wed Nov  9 18:14:27 1994
+X***************
+X*** 69,80 ****
+X    
+X      if (!getargs(args, "(OOOOO)", &code, &consts, &names, &filename, &name)) {
+X  	return NULL;
+X!     } else if (!is_stringobject(code) || !is_listobject(consts) ||    \
+X! 	       !is_listobject(names) || !is_stringobject(filename) || \
+X  	       !is_stringobject(name)) {
+X! 	err_setstr(TypeError, "expected a string of compiled code, a list of constants,   \
+X!                                a list of names used, a string filename, and a string name \
+X!                                as args");
+X  	return NULL;
+X      }
+X      return (object *)newcodeobject(code, consts, names, filename, name);
+X--- 69,80 ----
+X    
+X      if (!getargs(args, "(OOOOO)", &code, &consts, &names, &filename, &name)) {
+X  	return NULL;
+X!     } else if (!is_stringobject(code) || !is_listobject(consts) ||
+X! 	       !is_listobject(names) || !is_stringobject(filename) ||
+X  	       !is_stringobject(name)) {
+X! 	err_setstr(TypeError,
+X! "expected a string of compiled code, a list of constants, \
+X! a list of names used, a string filename, and a string name as args");
+X  	return NULL;
+X      }
+X      return (object *)newcodeobject(code, consts, names, filename, name);
+Xdiff -c -r vanilla/Python/Makefile.in patched/Python/Makefile.in
+X*** vanilla/Python/Makefile.in	Tue Oct 11 11:08:39 1994
+X--- patched/Python/Makefile.in	Wed Nov  9 18:02:27 1994
+X***************
+X*** 35,41 ****
+X  		errors.o \
+X  		frozenmain.o \
+X  		getargs.o getmtime.o graminit.o \
+X! 		import.o \
+X  		marshal.o modsupport.o mystrtoul.o \
+X  		pythonmain.o pythonrun.o \
+X  		sigcheck.o structmember.o sysmodule.o \
+X--- 35,41 ----
+X  		errors.o \
+X  		frozenmain.o \
+X  		getargs.o getmtime.o graminit.o \
+X! 		import.o importdl.o \
+X  		marshal.o modsupport.o mystrtoul.o \
+X  		pythonmain.o pythonrun.o \
+X  		sigcheck.o structmember.o sysmodule.o \
+X***************
+X*** 66,73 ****
+X  		(cd ..; CONFIG_FILES=Python/Makefile CONFIG_HEADERS= \
+X  		$(SHELL) config.status)
+X  
+X! import.o:	import.c
+X! 		$(CC) $(CFLAGS) -I$(DLINCLDIR) -c $(srcdir)/import.c
+X  
+X  depend:
+X  		$(MKDEP) $(CFLAGS) `echo $(OBJS) | tr ' ' '\012' | \
+X--- 66,73 ----
+X  		(cd ..; CONFIG_FILES=Python/Makefile CONFIG_HEADERS= \
+X  		$(SHELL) config.status)
+X  
+X! importdl.o:	importdl.c
+X! 		$(CC) $(CFLAGS) -I$(DLINCLDIR) -c $(srcdir)/importdl.c
+X  
+X  depend:
+X  		$(MKDEP) $(CFLAGS) `echo $(OBJS) | tr ' ' '\012' | \
+X***************
+X*** 88,93 ****
+X--- 88,94 ----
+X  getmtime.o: getmtime.c
+X  graminit.o: graminit.c
+X  import.o: import.c
+X+ importdl.o: importdl.c
+X  marshal.o: marshal.c
+X  memmove.o: memmove.c
+X  modsupport.o: modsupport.c
+Xdiff -c -r vanilla/Python/bltinmodule.c patched/Python/bltinmodule.c
+X*** vanilla/Python/bltinmodule.c	Thu Sep 29 05:45:56 1994
+X--- patched/Python/bltinmodule.c	Wed Nov  9 17:58:08 1994
+X***************
+X*** 43,48 ****
+X--- 43,65 ----
+X  static object *exec_eval PROTO((object *v, int start));
+X  
+X  static object *
+X+ builtin___import__(self, args)
+X+ 	object *self;
+X+ 	object *args;
+X+ {
+X+ 	char *name;
+X+ 	object *m;
+X+ 
+X+ 	if (!newgetargs(args, "s", &name))
+X+ 		return NULL;
+X+ 	m = import_module(name);
+X+ 	XINCREF(m);
+X+ 
+X+ 	return m;
+X+ }
+X+ 
+X+ 
+X+ static object *
+X  builtin_abs(self, v)
+X  	object *self;
+X  	object *v;
+X***************
+X*** 1270,1275 ****
+X--- 1287,1293 ----
+X  }
+X  
+X  static struct methodlist builtin_methods[] = {
+X+ 	{"__import__",	builtin___import__, 1},
+X  	{"abs",		builtin_abs},
+X  	{"apply",	builtin_apply},
+X  	{"callable",	builtin_callable},
+X***************
+X*** 1299,1305 ****
+X  	{"oct",		builtin_oct},
+X  	{"open",	builtin_open},
+X  	{"ord",		builtin_ord},
+X! 	{"pow",		builtin_pow},
+X  	{"range",	builtin_range},
+X  	{"raw_input",	builtin_raw_input},
+X  	{"reduce",	builtin_reduce},
+X--- 1317,1323 ----
+X  	{"oct",		builtin_oct},
+X  	{"open",	builtin_open},
+X  	{"ord",		builtin_ord},
+X! 	{"pow",		builtin_pow, 1},
+X  	{"range",	builtin_range},
+X  	{"raw_input",	builtin_raw_input},
+X  	{"reduce",	builtin_reduce},
+X***************
+X*** 1322,1327 ****
+X--- 1340,1352 ----
+X  	object *name;
+X  {
+X  	return mappinglookup(builtin_dict, name);
+X+ }
+X+ 
+X+ object *
+X+ getbuiltins(name)
+X+ 	char *name;
+X+ {
+X+ 	return dictlookup(builtin_dict, name);
+X  }
+X  
+X  int
+Xdiff -c -r vanilla/Python/ceval.c patched/Python/ceval.c
+X*** vanilla/Python/ceval.c	Thu Sep 29 05:45:57 1994
+X--- patched/Python/ceval.c	Wed Nov  9 17:56:50 1994
+X***************
+X*** 1323,1332 ****
+X  			break;
+X  		
+X  		case IMPORT_NAME:
+X! 			name = GETNAME(oparg);
+X! 			x = import_module(name);
+X! 			XINCREF(x);
+X! 			PUSH(x);
+X  			break;
+X  		
+X  		case IMPORT_FROM:
+X--- 1323,1344 ----
+X  			break;
+X  		
+X  		case IMPORT_NAME:
+X! 			w = GETNAMEV(oparg);
+X! 			x = getbuiltins("__import__");
+X! 			if (x == NULL) {
+X! 				err_setstr(ImportError,
+X! 					   "__import__ not found");
+X! 				break;
+X! 			}
+X! 			w = mkvalue("(O)", w);
+X! 			if (w == NULL) {
+X! 				x = NULL;
+X! 				break;
+X! 			}
+X! 			x = call_object(x, w);
+X! 			DECREF(w);
+X! 			if (x)
+X! 				PUSH(x);
+X  			break;
+X  		
+X  		case IMPORT_FROM:
+X***************
+X*** 2500,2505 ****
+X--- 2512,2521 ----
+X  	object *name;
+X  {
+X  	object *w, *x;
+X+ 	if (!is_moduleobject(v)) {
+X+ 		err_setstr(TypeError, "import-from require module object");
+X+ 		return -1;
+X+ 	}
+X  	w = getmoduledict(v);
+X  	if (getstringvalue(name)[0] == '*') {
+X  		int pos, err;
+Xdiff -c -r vanilla/Python/getargs.c patched/Python/getargs.c
+X*** vanilla/Python/getargs.c	Thu Sep 29 05:42:54 1994
+X--- patched/Python/getargs.c	Wed Nov  9 17:58:49 1994
+X***************
+X*** 179,184 ****
+X--- 179,191 ----
+X  			return 0;
+X  		}
+X  		else if (min == 1 && max == 1) {
+X+ 			if (args == NULL) {
+X+ 				sprintf(msgbuf,
+X+ 					"%s requires at least one argument",
+X+ 					fname==NULL ? "function" : fname);
+X+ 				err_setstr(TypeError, msgbuf);
+X+ 				return 0;
+X+ 			}
+X  			msg = convertitem(args, &format, &va, levels, msgbuf);
+X  			if (msg == NULL)
+X  				return 1;
+END_OF_FILE
+if test 10168 -ne `wc -c <'PATCHES'`; then
+    echo shar: \"'PATCHES'\" unpacked with wrong size!
+fi
+# end of 'PATCHES'
+fi
+if test -f 'README' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'README'\"
+else
+echo shar: Extracting \"'README'\" \(4415 characters\)
+sed "s/^X//" >'README' <<'END_OF_FILE'
+XThis shar file contains the following files:
+X
+XPATCHES		a set of patches to existing files
+Ximport.c	a whole new version of Python/import.c
+Ximportdl.c	a new file to be dropped in Python/
+Ximportdl.h	another new file to be dropped in Python/
+Xlibimp.tex	documentation
+X
+XTogether this should build a version of Python that supports extending
+Xor overriding the implementation of the import statment.  This is the
+Xfirst step towards implementing a safe execution environment for
+Xuntrusted code, as well as for experimentation with a scheme for
+Ximplementing packages (groups of related modules).
+X
+XAttached is a description of the functionality of the patches.
+X
+XPatch notes:
+X
+X- These patches also correct two core dumps caused by the new getargs
+X  implementation.
+X- The command "patch -p1 <PATCHES" should work from within Python's
+X  top directory.
+X
+X
+X======================================================================
+XI've more or less completed the hacks for import.  If you want to try
+Xthem out, send me email.  Here's how it works:
+X
+X(1) There's a new built-in function, __import__, to be called
+Xwith a module name as argument.  It's semantics, expressed in old
+XPython, are as follows:
+X
+X	def __import__(name):
+X		exec 'import ' + name
+X		return eval(name)
+X
+XI.e. it imports the module and then returns the module object.
+X
+X(2) The interpreter's implementation of the import statement is
+Xchanged.  Formerly, it called an internal routine import_module(name).
+XNow it looks for __import__ in the built-in dictionary (not anywhere
+Xelse -- should it?) and calls that.  If it can't find __import__,
+Xthe import FAILS.  By placing an alternative implementation of
+X__import__ in the __builtin__ module you can override the
+Xsemantics of the import statement.  (If you are using
+X'from...import...', __import__ had better return a real module
+Xobject; for 'import...', anything that has interesting attributes
+Xwould be OK.)
+X
+X(3) In order to make it easy to implement your own version of
+X__import__, there's a new module, imp, which exposes most machinery
+Xused for importing modules, including the importation of built-in and
+Xfrozen modules.  (Frozen modules are modules written in Python whose
+Xcompiled byte-code object is incorporated into a custom-built Python
+Xinterpreter by Python's "freeze" utility.  See Demo/freeze for now.)
+XLatex docs for this (I can generate PostScript if you want to) are
+Xalso available.
+X
+XSome more remarks:
+X
+X(a) I haven't done the mods yet to pass an alternative built-in
+Xdictionary to exec and eval.  There are a number of minor problems
+Xwith this:
+X
+X	- For compatibility, the argument order would have to be
+X		(globals, locals, builtins)
+X	but that is unintuitive because the search order is
+X		(locals, globals, builtins)
+X
+X	- It's a mess to implement it, there is at least half a dozen
+X	routines in the exposed API that currently takes explicit
+X	globals and locals dictionaries
+X
+XIt's still possible to start writing an experimental Safe-Python
+Ximplementation, because you can always modify the __builtin__ module
+Xdirectly.
+X
+X(b) The implementation of import, even in the fastest case, has become
+Xsomewhat slower due to the cost of looking up __import__ and creating
+Xan argument list for it.  On an SGI Indigo2, I measured that the old
+Ximport took about 25 microseconds (that's not much more than a C
+Xfunction call and a successful dictionary lookup) -- the new one takes
+Xabout 100 microseconds.  The quickest user-defined implementation I
+Xcan think of takes about 160 microseconds for this case -- not so bad.
+X
+XHowever this still means that a programming style that uses "local
+Ximport statements" in very small functions may take some performance
+Xhit.  This is a programming style where you write
+X
+X	def pi():
+X		import math
+X		return math.pi
+X
+Xrather than
+X
+X	import math
+X	...
+X	def pi():
+X		return math.pi
+X
+XI've always used and recommended this to speed up start-up times,
+Xknowing that import is fast -- is the slow-down bad enough to warrant
+Xreversing this recommentation?  I think not, but would like other
+Xopinions.  For comparison, the first pi() function takes about 140
+Xmicroseconds to call, the second one about 165, in the old
+Ximplementation.  In the new implementation of import, it's 140
+Xvs. 240.  I expect that slightly more complicated functions will take
+Xonly a tiny pernalty hit.
+X
+X--Guido van Rossum, CWI, Amsterdam <mailto:Guido.van.Rossum@cwi.nl>
+X<http://www.cwi.nl/cwi/people/Guido.van.Rossum.html>
+END_OF_FILE
+if test 4415 -ne `wc -c <'README'`; then
+    echo shar: \"'README'\" unpacked with wrong size!
+fi
+# end of 'README'
+fi
+if test -f 'import.c' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'import.c'\"
+else
+echo shar: Extracting \"'import.c'\" \(18577 characters\)
+sed "s/^X//" >'import.c' <<'END_OF_FILE'
+X/***********************************************************
+XCopyright 1991, 1992, 1993, 1994 by Stichting Mathematisch Centrum,
+XAmsterdam, The Netherlands.
+X
+X                        All Rights Reserved
+X
+XPermission to use, copy, modify, and distribute this software and its 
+Xdocumentation for any purpose and without fee is hereby granted, 
+Xprovided that the above copyright notice appear in all copies and that
+Xboth that copyright notice and this permission notice appear in 
+Xsupporting documentation, and that the names of Stichting Mathematisch
+XCentrum or CWI not be used in advertising or publicity pertaining to
+Xdistribution of the software without specific, written prior permission.
+X
+XSTICHTING MATHEMATISCH CENTRUM DISCLAIMS ALL WARRANTIES WITH REGARD TO
+XTHIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+XFITNESS, IN NO EVENT SHALL STICHTING MATHEMATISCH CENTRUM BE LIABLE
+XFOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+XWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+XACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
+XOF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+X
+X******************************************************************/
+X
+X/* Module definition and import implementation */
+X
+X#include "allobjects.h"
+X
+X#include "node.h"
+X#include "token.h"
+X#include "graminit.h"
+X#include "import.h"
+X#include "errcode.h"
+X#include "sysmodule.h"
+X#include "pythonrun.h"
+X#include "marshal.h"
+X#include "compile.h"
+X#include "eval.h"
+X#include "osdefs.h"
+X#include "importdl.h"
+X
+Xextern int verbose; /* Defined in pythonrun.c */
+X
+Xextern long getmtime(); /* In getmtime.c */
+X
+X/* Magic word to reject .pyc files generated by other Python versions */
+X#define MAGIC 0x999903L /* Increment by one for each incompatible change */
+X
+Xobject *import_modules; /* This becomes sys.modules */
+X
+X
+X/* Initialize things */
+X
+Xvoid
+Xinitimport()
+X{
+X	if (import_modules != NULL)
+X		fatal("duplicate initimport() call");
+X	if ((import_modules = newdictobject()) == NULL)
+X		fatal("no mem for dictionary of modules");
+X}
+X
+X
+X/* Un-initialize things, as good as we can */
+X
+Xvoid
+Xdoneimport()
+X{
+X	if (import_modules != NULL) {
+X		int pos;
+X		object *modname, *module;
+X		/* Explicitly erase all modules; this is the safest way
+X		   to get rid of at least *some* circular dependencies */
+X		pos = 0;
+X		while (mappinggetnext(import_modules,
+X				      &pos, &modname, &module)) {
+X			if (is_moduleobject(module)) {
+X				object *dict;
+X				dict = getmoduledict(module);
+X				if (dict != NULL && is_dictobject(dict))
+X					mappingclear(dict);
+X			}
+X		}
+X		mappingclear(import_modules);
+X		DECREF(import_modules);
+X	}
+X	import_modules = NULL;
+X}
+X
+X
+X/* Helper for pythonrun.c -- return magic number */
+X
+Xlong
+Xget_pyc_magic()
+X{
+X	return MAGIC;
+X}
+X
+X
+X/* Helper for sysmodule.c -- return modules dictionary */
+X
+Xobject *
+Xget_modules()
+X{
+X	return import_modules;
+X}
+X
+X
+X/* Get the module object corresponding to a module name.
+X   First check the modules dictionary if there's one there,
+X   if not, create a new one and insert in in the modules dictionary.
+X   Because the former action is most common, this does not return a
+X   'new' reference! */
+X
+Xobject *
+Xadd_module(name)
+X	char *name;
+X{
+X	object *m;
+X
+X	if ((m = dictlookup(import_modules, name)) != NULL &&
+X	    is_moduleobject(m))
+X		return m;
+X	m = newmoduleobject(name);
+X	if (m == NULL)
+X		return NULL;
+X	if (dictinsert(import_modules, name, m) != 0) {
+X		DECREF(m);
+X		return NULL;
+X	}
+X	DECREF(m); /* Yes, it still exists, in modules! */
+X
+X	return m;
+X}
+X
+X
+X/* Execute a code object in a module and return its module object */
+X
+Xstatic object *
+Xexec_code_module(name, co)
+X	char *name;
+X	codeobject *co;
+X{
+X	object *m, *d, *v;
+X
+X	m = add_module(name);
+X	if (m == NULL)
+X		return NULL;
+X	d = getmoduledict(m);
+X	v = eval_code((codeobject *)co, d, d, d, (object *)NULL);
+X	if (v == NULL)
+X		return NULL;
+X	DECREF(v);
+X	INCREF(m);
+X
+X	return m;
+X}
+X
+X
+X/* Given a pathname for a Python source file, fill a buffer with the
+X   pathname for the corresponding compiled file.  Return the pathname
+X   for the compiled file, or NULL if there's no space in the buffer.
+X   Doesn't set an exception. */
+X
+Xstatic char *
+Xmake_compiled_pathname(pathname, buf, buflen)
+X	char *pathname;
+X	char *buf;
+X	int buflen;
+X{
+X	int len;
+X
+X	len = strlen(pathname);
+X	if (len+2 > buflen)
+X		return NULL;
+X	strcpy(buf, pathname);
+X	strcpy(buf+len, "c");
+X
+X	return buf;
+X}
+X
+X
+X/* Given a pathname for a Python source file, its time of last
+X   modification, and a pathname for a compiled file, check whether the
+X   compiled file represents the same version of the source.  If so,
+X   return a FILE pointer for the compiled file, positioned just after
+X   the header; if not, return NULL.
+X   Doesn't set an exception. */
+X
+Xstatic FILE *
+Xcheck_compiled_module(pathname, mtime, cpathname)
+X	char *pathname;
+X	long mtime;
+X	char *cpathname;
+X{
+X	FILE *fp;
+X	long magic;
+X	long pyc_mtime;
+X
+X	fp = fopen(cpathname, "rb");
+X	if (fp == NULL)
+X		return NULL;
+X	magic = rd_long(fp);
+X	if (magic != MAGIC) {
+X		if (verbose)
+X			fprintf(stderr, "# %s has bad magic\n", cpathname);
+X		fclose(fp);
+X		return NULL;
+X	}
+X	pyc_mtime = rd_long(fp);
+X	if (pyc_mtime != mtime) {
+X		if (verbose)
+X			fprintf(stderr, "# %s has bad mtime\n", cpathname);
+X		fclose(fp);
+X		return NULL;
+X	}
+X	if (verbose)
+X		fprintf(stderr, "# %s matches %s\n", cpathname, pathname);
+X	return fp;
+X}
+X
+X
+X/* Read a code object from a file and check it for validity */
+X
+Xstatic object *
+Xread_compiled_module(fp)
+X	FILE *fp;
+X{
+X	object *co;
+X
+X	co = rd_object(fp);
+X	/* Ugly: rd_object() may return NULL with or without error */
+X	if (co == NULL || !is_codeobject(co)) {
+X		if (!err_occurred())
+X			err_setstr(ImportError,
+X				   "Non-code object in .pyc file");
+X		XDECREF(co);
+X		return NULL;
+X	}
+X	return co;
+X}
+X
+X
+X/* Load a module from a compiled file, execute it, and return its
+X   module object */
+X
+Xstatic object *
+Xload_compiled_module(name, cpathname, fp)
+X	char *name;
+X	char *cpathname;
+X	FILE *fp;
+X{
+X	long magic;
+X	object *co;
+X	object *m;
+X
+X	magic = rd_long(fp);
+X	if (magic != MAGIC) {
+X		err_setstr(ImportError, "Bad magic number in .pyc file");
+X		return NULL;
+X	}
+X	(void) rd_long(fp);
+X	co = read_compiled_module(fp);
+X	if (co == NULL)
+X		return NULL;
+X	if (verbose)
+X		fprintf(stderr, "import %s # precompiled from %s\n",
+X			name, cpathname);
+X	m = exec_code_module(name, co);
+X	DECREF(co);
+X
+X	return m;
+X}
+X
+X
+X/* Parse a source file and return the corresponding code object */
+X
+Xstatic object *
+Xparse_source_module(pathname, fp)
+X	char *pathname;
+X	FILE *fp;
+X{
+X	object *co;
+X	node *n;
+X
+X	n = parse_file(fp, pathname, file_input);
+X	if (n == NULL)
+X		return NULL;
+X	co = (object *)compile(n, pathname);
+X	freetree(n);
+X
+X	return co;
+X}
+X
+X
+X/* Write a compiled module to a file, placing the time of last
+X   modification of its source into the header.
+X   Errors are ignored, if a write error occurs an attempt is made to
+X   remove the file. */
+X
+Xstatic void
+Xwrite_compiled_module(co, cpathname, mtime)
+X	object *co;
+X	char *cpathname;
+X	long mtime;
+X{
+X	FILE *fp;
+X
+X	fp = fopen(cpathname, "wb");
+X	if (fp == NULL) {
+X		if (verbose)
+X			fprintf(stderr,
+X				"# can't create %s\n", cpathname);
+X		return;
+X	}
+X	wr_long(MAGIC, fp);
+X	/* First write a 0 for mtime */
+X	wr_long(0L, fp);
+X	wr_object((object *)co, fp);
+X	if (ferror(fp)) {
+X		if (verbose)
+X			fprintf(stderr, "# can't write %s\n", cpathname);
+X		/* Don't keep partial file */
+X		fclose(fp);
+X		(void) unlink(cpathname);
+X		return;
+X	}
+X	/* Now write the true mtime */
+X	fseek(fp, 4L, 0);
+X	wr_long(mtime, fp);
+X	fflush(fp);
+X	fclose(fp);
+X	if (verbose)
+X		fprintf(stderr, "# wrote %s\n", cpathname);
+X#ifdef macintosh
+X	setfiletype(cpathname, 'PYTH', 'PYC ');
+X#endif
+X}
+X
+X
+X/* Load a source module from a given file and return its module
+X   object.  If there's a matching byte-compiled file, use that
+X   instead. */
+X
+Xstatic object *
+Xload_source_module(name, pathname, fp)
+X	char *name;
+X	char *pathname;
+X	FILE *fp;
+X{
+X	long mtime;
+X	FILE *fpc;
+X	char buf[MAXPATHLEN+1];
+X	char *cpathname;
+X	object *co;
+X	object *m;
+X
+X	mtime = getmtime(pathname);
+X	cpathname = make_compiled_pathname(pathname, buf, MAXPATHLEN+1);
+X	if (cpathname != NULL &&
+X	    (fpc = check_compiled_module(pathname, mtime, cpathname))) {
+X		co = read_compiled_module(fpc);
+X		fclose(fpc);
+X		if (co == NULL)
+X			return NULL;
+X		if (verbose)
+X			fprintf(stderr, "import %s # precompiled from %s\n",
+X				name, cpathname);
+X	}
+X	else {
+X		co = parse_source_module(pathname, fp);
+X		if (co == NULL)
+X			return NULL;
+X		if (verbose)
+X			fprintf(stderr, "import %s # from %s\n",
+X				name, pathname);
+X		write_compiled_module(co, cpathname, mtime);
+X	}
+X	m = exec_code_module(name, co);
+X	DECREF(co);
+X
+X	return m;
+X}
+X
+X
+X/* Search the path (default sys.path) for a module.  Return the
+X   corresponding filedescr struct, and (via return arguments) the
+X   pathname and an open file.  Return NULL if the module is not found. */
+X
+Xstatic struct filedescr *
+Xfind_module(name, path, buf, buflen, p_fp)
+X	char *name;
+X	object *path;
+X	/* Output parameters: */
+X	char *buf;
+X	int buflen;
+X	FILE **p_fp;
+X{
+X	int i, npath, len, namelen;
+X	struct filedescr *fdp;
+X	FILE *fp;
+X
+X	if (path == NULL)
+X		path = sysget("path");
+X	if (path == NULL || !is_listobject(path)) {
+X		err_setstr(ImportError,
+X		    "module search path must be list of directory names");
+X		return NULL;
+X	}
+X	npath = getlistsize(path);
+X	namelen = strlen(name);
+X	for (i = 0; i < npath; i++) {
+X		object *v = getlistitem(path, i);
+X		if (!is_stringobject(v))
+X			continue;
+X		len = getstringsize(v);
+X		if (len + 2 + namelen + import_maxsuffixsize >= buflen)
+X			continue; /* Too long */
+X		strcpy(buf, getstringvalue(v));
+X		if (strlen(buf) != len)
+X			continue; /* v contains '\0' */
+X		if (len > 0 && buf[len-1] != SEP)
+X			buf[len++] = SEP;
+X		strcpy(buf+len, name);
+X		len += namelen;
+X		for (fdp = import_filetab; fdp->suffix != NULL; fdp++) {
+X			strcpy(buf+len, fdp->suffix);
+X			if (verbose > 1)
+X				fprintf(stderr, "# trying %s\n", buf);
+X			fp = fopen(buf, fdp->mode);
+X			if (fp != NULL)
+X				break;
+X		}
+X		if (fp != NULL)
+X			break;
+X	}
+X	if (fp == NULL) {
+X		char buf[256];
+X		sprintf(buf, "No module named %.200s", name);
+X		err_setstr(ImportError, buf);
+X		return NULL;
+X	}
+X
+X	*p_fp = fp;
+X	return fdp;
+X}
+X
+X
+X/* Load an external module using the default search path and return
+X   its module object */
+X
+Xstatic object *
+Xload_module(name)
+X	char *name;
+X{
+X	char buf[MAXPATHLEN+1];
+X	struct filedescr *fdp;
+X	FILE *fp = NULL;
+X	object *m = NULL;
+X
+X	fdp = find_module(name, (object *)NULL, buf, MAXPATHLEN+1, &fp);
+X	if (fdp == NULL)
+X		return NULL;
+X
+X	switch (fdp->type) {
+X
+X	case PY_SOURCE:
+X		m = load_source_module(name, buf, fp);
+X		break;
+X
+X	case PY_COMPILED:
+X		m = load_compiled_module(name, buf, fp);
+X		break;
+X
+X	case C_EXTENSION:
+X		m = load_dynamic_module(name, buf);
+X		break;
+X
+X	default:
+X		err_setstr(SystemError,
+X			   "find_module returned unexpected result");
+X
+X	}
+X	fclose(fp);
+X
+X	return m;
+X}
+X
+X
+X/* Initialize a built-in module.
+X   Return 1 for succes, 0 if the module is not found, and -1 with
+X   an exception set if the initialization failed. */
+X
+Xstatic int
+Xinit_builtin(name)
+X	char *name;
+X{
+X	int i;
+X	for (i = 0; inittab[i].name != NULL; i++) {
+X		if (strcmp(name, inittab[i].name) == 0) {
+X			if (inittab[i].initfunc == NULL) {
+X				err_setstr(ImportError,
+X					   "cannot re-init internal module");
+X				return -1;
+X			}
+X			if (verbose)
+X				fprintf(stderr, "import %s # builtin\n",
+X					name);
+X			(*inittab[i].initfunc)();
+X			if (err_occurred())
+X				return -1;
+X			return 1;
+X		}
+X	}
+X	return 0;
+X}
+X
+X
+X/* Initialize a frozen module.
+X   Return 1 for succes, 0 if the module is not found, and -1 with
+X   an exception set if the initialization failed. */
+X
+Xextern struct frozen {
+X	char *name;
+X	char *code;
+X	int size;
+X} frozen_modules[];
+X
+Xstatic int
+Xinit_frozen(name)
+X	char *name;
+X{
+X	struct frozen *p;
+X	object *co;
+X	object *m;
+X	for (p = frozen_modules; ; p++) {
+X		if (p->name == NULL)
+X			return 0;
+X		if (strcmp(p->name, name) == 0)
+X			break;
+X	}
+X	if (verbose)
+X		fprintf(stderr, "import %s # frozen\n", name);
+X	co = rds_object(p->code, p->size);
+X	if (co == NULL)
+X		return -1;
+X	m = exec_code_module(name, co);
+X	DECREF(co);
+X	return m == NULL ? -1 : 1;
+X}
+X
+X
+X/* Import a module, either built-in, frozen, or external, and return
+X   its module object */
+X
+Xobject *
+Ximport_module(name)
+X	char *name;
+X{
+X	object *m;
+X
+X	if ((m = dictlookup(import_modules, name)) == NULL) {
+X		int i;
+X		if ((i = init_builtin(name)) || (i = init_frozen(name))) {
+X			if (i < 0)
+X				return NULL;
+X			if ((m = dictlookup(import_modules, name)) == NULL) {
+X			    if (err_occurred() == NULL)
+X			        err_setstr(SystemError,
+X				 "built-in module not initialized properly");
+X			}
+X		}
+X		else
+X			m = load_module(name);
+X	}
+X
+X	return m;
+X}
+X
+X
+X/* Re-import a module of any kind and return its module object, WITH
+X   INCREMENTED REFERENCE COUNT */
+X
+Xobject *
+Xreload_module(m)
+X	object *m;
+X{
+X	char *name;
+X	int i;
+X
+X	if (m == NULL || !is_moduleobject(m)) {
+X		err_setstr(TypeError, "reload() argument must be module");
+X		return NULL;
+X	}
+X	name = getmodulename(m);
+X	if (name == NULL)
+X		return NULL;
+X	if (m != dictlookup(import_modules, name)) {
+X		err_setstr(ImportError, "reload() module not in sys.modules");
+X		return NULL;
+X	}
+X	/* Check for built-in and frozen modules */
+X	if ((i = init_builtin(name)) || (i = init_frozen(name))) {
+X		if (i < 0)
+X			return NULL;
+X	}
+X	else
+X		m = load_module(name);
+X	XINCREF(m);
+X	return m;
+X}
+X
+X
+X/* Module 'imp' provides Python access to the primitives used for
+X   importing modules.
+X*/
+X
+Xstatic object *
+Ximp_get_magic(self, args)
+X	object *self;
+X	object *args;
+X{
+X	char buf[4];
+X
+X	if (!newgetargs(args, ""))
+X		return NULL;
+X	buf[0] = (MAGIC >>  0) & 0xff;
+X	buf[1] = (MAGIC >>  8) & 0xff;
+X	buf[3] = (MAGIC >> 16) & 0xff;
+X	buf[4] = (MAGIC >> 24) & 0xff;
+X
+X	return newsizedstringobject(buf, 4);
+X}
+X
+Xstatic object *
+Ximp_get_suffixes(self, args)
+X	object *self;
+X	object *args;
+X{
+X	object *list;
+X	struct filedescr *fdp;
+X
+X	if (!newgetargs(args, ""))
+X		return NULL;
+X	list = newlistobject(0);
+X	if (list == NULL)
+X		return NULL;
+X	for (fdp = import_filetab; fdp->suffix != NULL; fdp++) {
+X		object *item = mkvalue("ssi",
+X				       fdp->suffix, fdp->mode, fdp->type);
+X		if (item == NULL) {
+X			DECREF(list);
+X			return NULL;
+X		}
+X		if (addlistitem(list, item) < 0) {
+X			DECREF(list);
+X			DECREF(item);
+X			return NULL;
+X		}
+X		DECREF(item);
+X	}
+X	return list;
+X}
+X
+Xstatic object *
+Ximp_find_module(self, args)
+X	object *self;
+X	object *args;
+X{
+X	char *name;
+X	object *path = NULL;
+X	object *fob, *ret;
+X	struct filedescr *fdp;
+X	char pathname[MAXPATHLEN+1];
+X	FILE *fp;
+X	if (!newgetargs(args, "s|O!", &name, &Listtype, &path))
+X		return NULL;
+X	fdp = find_module(name, path, pathname, MAXPATHLEN+1, &fp);
+X	if (fdp == NULL)
+X		return NULL;
+X	fob = newopenfileobject(fp, pathname, fdp->mode, fclose);
+X	if (fob == NULL) {
+X		fclose(fp);
+X		return NULL;
+X	}
+X	ret = mkvalue("Os(ssi)",
+X		      fob, pathname, fdp->suffix, fdp->mode, fdp->type);
+X	DECREF(fob);
+X	return ret;
+X}
+X
+Xstatic object *
+Ximp_init_builtin(self, args)
+X	object *self;
+X	object *args;
+X{
+X	char *name;
+X	int ret;
+X	object *m;
+X	if (!newgetargs(args, "s", &name))
+X		return NULL;
+X	ret = init_builtin(name);
+X	if (ret < 0)
+X		return NULL;
+X	if (ret == NULL) {
+X		INCREF(None);
+X		return None;
+X	}
+X	m = add_module(name);
+X	XINCREF(m);
+X	return m;
+X}
+X
+Xstatic object *
+Ximp_init_frozen(self, args)
+X	object *self;
+X	object *args;
+X{
+X	char *name;
+X	int ret;
+X	object *m;
+X	if (!newgetargs(args, "s", &name))
+X		return NULL;
+X	ret = init_frozen(name);
+X	if (ret < 0)
+X		return NULL;
+X	if (ret == NULL) {
+X		INCREF(None);
+X		return None;
+X	}
+X	m = add_module(name);
+X	XINCREF(m);
+X	return m;
+X}
+X
+Xstatic object *
+Ximp_is_builtin(self, args)
+X	object *self;
+X	object *args;
+X{
+X	int i;
+X	char *name;
+X	if (!newgetargs(args, "s", &name))
+X		return NULL;
+X	for (i = 0; inittab[i].name != NULL; i++) {
+X		if (strcmp(name, inittab[i].name) == 0) {
+X			if (inittab[i].initfunc == NULL)
+X				return newintobject(-1);
+X			else
+X				return newintobject(1);
+X		}
+X	}
+X	return newintobject(0);
+X}
+X
+Xstatic object *
+Ximp_is_frozen(self, args)
+X	object *self;
+X	object *args;
+X{
+X	struct frozen *p;
+X	char *name;
+X	if (!newgetargs(args, "s", &name))
+X		return NULL;
+X	for (p = frozen_modules; ; p++) {
+X		if (p->name == NULL)
+X			break;
+X		if (strcmp(p->name, name) == 0)
+X			return newintobject(1);
+X	}
+X	return newintobject(0);
+X}
+X
+Xstatic FILE *
+Xget_file(pathname, fob, mode)
+X	char *pathname;
+X	object *fob;
+X	char *mode;
+X{
+X	FILE *fp;
+X	if (fob == NULL) {
+X		fp = fopen(pathname, mode);
+X		if (fp == NULL)
+X			err_errno(IOError);
+X	}
+X	else {
+X		fp = getfilefile(fob);
+X		if (fp == NULL)
+X			err_setstr(ValueError, "bad/closed file object");
+X	}
+X	return fp;
+X}
+X
+Xstatic object *
+Ximp_load_compiled(self, args)
+X	object *self;
+X	object *args;
+X{
+X	char *name;
+X	char *pathname;
+X	object *fob = NULL;
+X	object *m;
+X	FILE *fp;
+X	if (!newgetargs(args, "ss|O!", &name, &pathname, &Filetype, &fob))
+X		return NULL;
+X	fp = get_file(pathname, fob, "rb");
+X	if (fp == NULL)
+X		return NULL;
+X	m = load_compiled_module(name, pathname, fp, 0);
+X	if (fob == NULL)
+X		fclose(fp);
+X	return m;
+X}
+X
+Xstatic object *
+Ximp_load_dynamic(self, args)
+X	object *self;
+X	object *args;
+X{
+X	char *name;
+X	char *pathname;
+X	object *dummy;
+X	if (!newgetargs(args, "ss|O", &name, &pathname, &dummy))
+X		return NULL;
+X	return load_dynamic_module(name, pathname);
+X}
+X
+Xstatic object *
+Ximp_load_source(self, args)
+X	object *self;
+X	object *args;
+X{
+X	char *name;
+X	char *pathname;
+X	object *fob = NULL;
+X	object *m;
+X	FILE *fp;
+X	if (!newgetargs(args, "ss|O!", &name, &pathname, &Filetype, &fob))
+X		return NULL;
+X	fp = get_file(pathname, fob, "r");
+X	if (fp == NULL)
+X		return NULL;
+X	m = load_source_module(name, pathname, fp);
+X	if (fob == NULL)
+X		fclose(fp);
+X	return m;
+X}
+X
+Xstatic object *
+Ximp_new_module(self, args)
+X	object *self;
+X	object *args;
+X{
+X	char *name;
+X	if (!newgetargs(args, "s", &name))
+X		return NULL;
+X	return newmoduleobject(name);
+X}
+X
+Xstatic struct methodlist imp_methods[] = {
+X	{"get_magic",		imp_get_magic,		1},
+X	{"get_suffixes",	imp_get_suffixes,	1},
+X	{"find_module",		imp_find_module,	1},
+X	{"init_builtin",	imp_init_builtin,	1},
+X	{"init_frozen",		imp_init_frozen,	1},
+X	{"is_builtin",		imp_is_builtin,		1},
+X	{"is_frozen",		imp_is_frozen,		1},
+X	{"load_compiled",	imp_load_compiled,	1},
+X	{"load_dynamic",	imp_load_dynamic,	1},
+X	{"load_source",		imp_load_source,	1},
+X	{"new_module",		imp_new_module,		1},
+X	{NULL,			NULL}		/* sentinel */
+X};
+X
+Xvoid
+Xinitimp()
+X{
+X	object *m, *d, *v;
+X
+X	m = initmodule("imp", imp_methods);
+X	d = getmoduledict(m);
+X
+X	v = newintobject(SEARCH_ERROR);
+X	dictinsert(d, "SEARCH_ERROR", v);
+X	XDECREF(v);
+X
+X	v = newintobject(PY_SOURCE);
+X	dictinsert(d, "PY_SOURCE", v);
+X	XDECREF(v);
+X
+X	v = newintobject(PY_COMPILED);
+X	dictinsert(d, "PY_COMPILED", v);
+X	XDECREF(v);
+X
+X	v = newintobject(C_EXTENSION);
+X	dictinsert(d, "C_EXTENSION", v);
+X	XDECREF(v);
+X
+X	if (err_occurred())
+X		fatal("imp module initialization failed");
+X}
+END_OF_FILE
+if test 18577 -ne `wc -c <'import.c'`; then
+    echo shar: \"'import.c'\" unpacked with wrong size!
+fi
+# end of 'import.c'
+fi
+if test -f 'importdl.c' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'importdl.c'\"
+else
+echo shar: Extracting \"'importdl.c'\" \(9757 characters\)
+sed "s/^X//" >'importdl.c' <<'END_OF_FILE'
+X/***********************************************************
+XCopyright 1991, 1992, 1993, 1994 by Stichting Mathematisch Centrum,
+XAmsterdam, The Netherlands.
+X
+X                        All Rights Reserved
+X
+XPermission to use, copy, modify, and distribute this software and its 
+Xdocumentation for any purpose and without fee is hereby granted, 
+Xprovided that the above copyright notice appear in all copies and that
+Xboth that copyright notice and this permission notice appear in 
+Xsupporting documentation, and that the names of Stichting Mathematisch
+XCentrum or CWI not be used in advertising or publicity pertaining to
+Xdistribution of the software without specific, written prior permission.
+X
+XSTICHTING MATHEMATISCH CENTRUM DISCLAIMS ALL WARRANTIES WITH REGARD TO
+XTHIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+XFITNESS, IN NO EVENT SHALL STICHTING MATHEMATISCH CENTRUM BE LIABLE
+XFOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+XWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+XACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
+XOF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+X
+X******************************************************************/
+X
+X/* Support for dynamic loading of extension modules */
+X/* If no dynamic linking is supported, this file still generates some code! */
+X
+X#include "allobjects.h"
+X#include "osdefs.h"
+X#include "importdl.h"
+X
+Xextern int verbose; /* Defined in pythonrun.c */
+X
+X/* Explanation of some of the the various #defines used by dynamic linking...
+X
+X   symbol	-- defined for:
+X
+X   DYNAMIC_LINK -- any kind of dynamic linking
+X   USE_RLD	-- NeXT dynamic linking
+X   USE_DL	-- Jack's dl for IRIX 4 or GNU dld with emulation for Jack's dl
+X   USE_SHLIB	-- SunOS or IRIX 5 (SVR4?) shared libraries
+X   _AIX		-- AIX style dynamic linking
+X   NT		-- NT style dynamic linking (using DLLs)
+X   _DL_FUNCPTR_DEFINED	-- if the typedef dl_funcptr has been defined
+X   WITH_MAC_DL	-- Mac dynamic linking (highly experimental)
+X   SHORT_EXT	-- short extension for dynamic module, e.g. ".so"
+X   LONG_EXT	-- long extension, e.g. "module.so"
+X   hpux		-- HP-UX Dynamic Linking - defined by the compiler
+X
+X   (The other WITH_* symbols are used only once, to set the
+X   appropriate symbols.)
+X*/
+X
+X/* Configure dynamic linking */
+X
+X#ifdef hpux
+X#define DYNAMIC_LINK
+X#include <errno.h>
+Xtypedef void (*dl_funcptr)();
+X#define _DL_FUNCPTR_DEFINED 1
+X#define SHORT_EXT ".sl"
+X#define LONG_EXT "module.sl"
+X#endif 
+X
+X#ifdef NT
+X#define DYNAMIC_LINK
+X#include <windows.h>
+Xtypedef FARPROC dl_funcptr;
+X#define _DL_FUNCPTR_DEFINED
+X#define SHORT_EXT ".dll"
+X#define LONG_EXT "module.dll"
+X#endif
+X
+X#if defined(NeXT) || defined(WITH_RLD)
+X#define DYNAMIC_LINK
+X#define USE_RLD
+X#endif
+X
+X#ifdef WITH_SGI_DL
+X#define DYNAMIC_LINK
+X#define USE_DL
+X#endif
+X
+X#ifdef WITH_DL_DLD
+X#define DYNAMIC_LINK
+X#define USE_DL
+X#endif
+X
+X#ifdef WITH_MAC_DL
+X#define DYNAMIC_LINK
+X#endif
+X
+X#if !defined(DYNAMIC_LINK) && defined(HAVE_DLFCN_H) && defined(HAVE_DLOPEN)
+X#define DYNAMIC_LINK
+X#define USE_SHLIB
+X#endif
+X
+X#ifdef _AIX
+X#define DYNAMIC_LINK
+X#include <sys/ldr.h>
+Xtypedef void (*dl_funcptr)();
+X#define _DL_FUNCPTR_DEFINED
+Xstatic void aix_loaderror(char *name);
+X#endif
+X
+X#ifdef DYNAMIC_LINK
+X
+X#ifdef USE_SHLIB
+X#include <dlfcn.h>
+X#ifndef _DL_FUNCPTR_DEFINED
+Xtypedef void (*dl_funcptr)();
+X#endif
+X#ifndef RTLD_LAZY
+X#define RTLD_LAZY 1
+X#endif
+X#define SHORT_EXT ".so"
+X#define LONG_EXT "module.so"
+X#endif /* USE_SHLIB */
+X
+X#if defined(USE_DL) || defined(hpux)
+X#include "dl.h"
+X#endif
+X
+X#ifdef WITH_MAC_DL
+X#include "dynamic_load.h"
+X#endif
+X
+X#ifdef USE_RLD
+X#include <mach-o/rld.h>
+X#define FUNCNAME_PATTERN "_init%.200s"
+X#ifndef _DL_FUNCPTR_DEFINED
+Xtypedef void (*dl_funcptr)();
+X#endif
+X#endif /* USE_RLD */
+X
+Xextern char *getprogramname();
+X
+X#ifndef FUNCNAME_PATTERN
+X#if defined(__hp9000s300)
+X#define FUNCNAME_PATTERN "_init%.200s"
+X#else
+X#define FUNCNAME_PATTERN "init%.200s"
+X#endif
+X#endif
+X
+X#if !defined(SHORT_EXT) && !defined(LONG_EXT)
+X#define SHORT_EXT ".o"
+X#define LONG_EXT "module.o"
+X#endif /* !SHORT_EXT && !LONG_EXT */
+X
+X#endif /* DYNAMIC_LINK */
+X
+X/* Max length of module suffix searched for -- accommodates "module.so" */
+X#ifndef MAXSUFFIXSIZE
+X#define MAXSUFFIXSIZE 10
+X#endif
+X
+X/* Pass it on to import.c */
+Xint import_maxsuffixsize = MAXSUFFIXSIZE;
+X
+Xstruct filedescr import_filetab[] = {
+X#ifdef SHORT_EXT
+X	{SHORT_EXT, "rb", C_EXTENSION},
+X#endif /* !SHORT_EXT */
+X#ifdef LONG_EXT
+X	{LONG_EXT, "rb", C_EXTENSION},
+X#endif /* !LONG_EXT */
+X	{".py", "r", PY_SOURCE},
+X	{".pyc", "rb", PY_COMPILED},
+X	{0, 0}
+X};
+X
+Xobject *
+Xload_dynamic_module(name, pathname)
+X	char *name;
+X	char *pathname;
+X{
+X#ifndef DYNAMIC_LINK
+X	err_setstr(ImportError, "dynamically linked modules not supported");
+X	return NULL;
+X#else
+X	object *m;
+X	char funcname[258];
+X	dl_funcptr p = NULL;
+X	if (m != NULL) {
+X		err_setstr(ImportError,
+X			   "cannot reload dynamically loaded module");
+X		return NULL;
+X	}
+X	sprintf(funcname, FUNCNAME_PATTERN, name);
+X#ifdef WITH_MAC_DL
+X	{
+X		object *v = dynamic_load(pathname);
+X		if (v == NULL)
+X			return NULL;
+X	}
+X#else /* !WITH_MAC_DL */
+X#ifdef USE_SHLIB
+X	{
+X#ifdef RTLD_NOW
+X		/* RTLD_NOW: resolve externals now
+X		   (i.e. core dump now if some are missing) */
+X		void *handle = dlopen(pathname, RTLD_NOW);
+X#else
+X		void *handle;
+X		if (verbose)
+X			printf("dlopen(\"%s\", %d);\n", pathname, RTLD_LAZY);
+X		handle = dlopen(pathname, RTLD_LAZY);
+X#endif /* RTLD_NOW */
+X		if (handle == NULL) {
+X			err_setstr(ImportError, dlerror());
+X			return NULL;
+X		}
+X		p = (dl_funcptr) dlsym(handle, funcname);
+X	}
+X#endif /* USE_SHLIB */
+X#ifdef _AIX
+X	p = (dl_funcptr) load(pathname, 1, 0);
+X	if (p == NULL) {
+X		aix_loaderror(pathname);
+X		return NULL;
+X	}
+X#endif /* _AIX */
+X#ifdef NT
+X	{
+X		HINSTANCE hDLL;
+X		hDLL = LoadLibrary(pathname);
+X		if (hDLL==NULL){
+X			char errBuf[64];
+X			sprintf(errBuf, "DLL load failed with error code %d",
+X				GetLastError());
+X			err_setstr(ImportError, errBuf);
+X		return NULL;
+X		}
+X		p = GetProcAddress(hDLL, funcname);
+X	}
+X#endif /* NT */
+X#ifdef USE_DL
+X	p =  dl_loadmod(getprogramname(), pathname, funcname);
+X#endif /* USE_DL */
+X#ifdef USE_RLD
+X	{
+X		NXStream *errorStream;
+X		struct mach_header *new_header;
+X		const char *filenames[2];
+X		long ret;
+X		unsigned long ptr;
+X
+X		errorStream = NXOpenMemory(NULL, 0, NX_WRITEONLY);
+X		filenames[0] = pathname;
+X		filenames[1] = NULL;
+X		ret = rld_load(errorStream, &new_header, 
+X				filenames, NULL);
+X
+X		/* extract the error messages for the exception */
+X		if(!ret) {
+X			char *streamBuf;
+X			int len, maxLen;
+X
+X			NXPutc(errorStream, (char)0);
+X
+X			NXGetMemoryBuffer(errorStream,
+X				&streamBuf, &len, &maxLen);
+X			err_setstr(ImportError, streamBuf);
+X		}
+X
+X		if(ret && rld_lookup(errorStream, funcname, &ptr))
+X			p = (dl_funcptr) ptr;
+X
+X		NXCloseMemory(errorStream, NX_FREEBUFFER);
+X
+X		if(!ret)
+X			return NULL;
+X	}
+X#endif /* USE_RLD */
+X#ifdef hpux
+X	{
+X		shl_t lib;
+X		int flags;
+X
+X		flags = BIND_DEFERRED;
+X		if (verbose)
+X                {
+X                        flags = BIND_IMMEDIATE | BIND_NONFATAL | BIND_VERBOSE;
+X                        printf("shl_load %s\n",pathname);
+X                }
+X                lib = shl_load(pathname, flags, 0);
+X                if (lib == NULL)
+X                {
+X                        char buf[256];
+X                        if (verbose)
+X                                perror(pathname);
+X                        sprintf(buf, "Failed to load %.200s", pathname);
+X                        err_setstr(ImportError, buf);
+X                        return NULL;
+X                }
+X                if (verbose)
+X                        printf("shl_findsym %s\n", funcname);
+X                shl_findsym(&lib, funcname, TYPE_UNDEFINED, (void *) &p);
+X                if (p == NULL && verbose)
+X                        perror(funcname);
+X	}
+X#endif /* hpux */
+X	if (p == NULL) {
+X		err_setstr(ImportError,
+X		   "dynamic module does not define init function");
+X		return NULL;
+X	}
+X	(*p)();
+X
+X#endif /* !WITH_MAC_DL */
+X	m = dictlookup(import_modules, name);
+X	if (m == NULL) {
+X		if (err_occurred() == NULL)
+X			err_setstr(SystemError,
+X				   "dynamic module not initialized properly");
+X		return NULL;
+X	}
+X	if (verbose)
+X		fprintf(stderr,
+X			"import %s # dynamically loaded from %s\n",
+X			name, pathname);
+X	INCREF(m);
+X	return m;
+X#endif /* DYNAMIC_LINK */
+X}
+X
+X
+X#ifdef _AIX
+X
+X#include <ctype.h>	/* for isdigit()	*/
+X#include <errno.h>	/* for global errno	*/
+X#include <string.h>	/* for strerror()	*/
+X
+Xvoid aix_loaderror(char *pathname)
+X{
+X
+X	char *message[8], errbuf[1024];
+X	int i,j;
+X
+X	struct errtab { 
+X		int errno;
+X		char *errstr;
+X	} load_errtab[] = {
+X		{L_ERROR_TOOMANY,	"to many errors, rest skipped."},
+X		{L_ERROR_NOLIB,		"can't load library:"},
+X		{L_ERROR_UNDEF,		"can't find symbol in library:"},
+X		{L_ERROR_RLDBAD,
+X		 "RLD index out of range or bad relocation type:"},
+X		{L_ERROR_FORMAT,	"not a valid, executable xcoff file:"},
+X		{L_ERROR_MEMBER,
+X		 "file not an archive or does not contain requested member:"},
+X		{L_ERROR_TYPE,		"symbol table mismatch:"},
+X		{L_ERROR_ALIGN,		"text allignment in file is wrong."},
+X		{L_ERROR_SYSTEM,	"System error:"},
+X		{L_ERROR_ERRNO,		NULL}
+X	};
+X
+X#define LOAD_ERRTAB_LEN	(sizeof(load_errtab)/sizeof(load_errtab[0]))
+X#define ERRBUF_APPEND(s) strncat(errbuf, s, sizeof(errbuf)-strlen(errbuf)-1)
+X
+X	sprintf(errbuf, " from module %.200s ", pathname);
+X
+X	if (!loadquery(1, &message[0], sizeof(message))) 
+X		ERRBUF_APPEND(strerror(errno));
+X	for(i = 0; message[i] && *message[i]; i++) {
+X		int nerr = atoi(message[i]);
+X		for (j=0; j<LOAD_ERRTAB_LEN ; j++) {
+X		    if (nerr == load_errtab[i].errno && load_errtab[i].errstr)
+X			ERRBUF_APPEND(load_errtab[i].errstr);
+X		}
+X		while (isdigit(*message[i])) message[i]++ ; 
+X		ERRBUF_APPEND(message[i]);
+X		ERRBUF_APPEND("\n");
+X	}
+X	errbuf[strlen(errbuf)-1] = '\0';	/* trim off last newline */
+X	err_setstr(ImportError, errbuf); 
+X	return; 
+X}
+X
+X#endif /* _AIX */
+END_OF_FILE
+if test 9757 -ne `wc -c <'importdl.c'`; then
+    echo shar: \"'importdl.c'\" unpacked with wrong size!
+fi
+# end of 'importdl.c'
+fi
+if test -f 'importdl.h' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'importdl.h'\"
+else
+echo shar: Extracting \"'importdl.h'\" \(1603 characters\)
+sed "s/^X//" >'importdl.h' <<'END_OF_FILE'
+X/***********************************************************
+XCopyright 1991, 1992, 1993, 1994 by Stichting Mathematisch Centrum,
+XAmsterdam, The Netherlands.
+X
+X                        All Rights Reserved
+X
+XPermission to use, copy, modify, and distribute this software and its 
+Xdocumentation for any purpose and without fee is hereby granted, 
+Xprovided that the above copyright notice appear in all copies and that
+Xboth that copyright notice and this permission notice appear in 
+Xsupporting documentation, and that the names of Stichting Mathematisch
+XCentrum or CWI not be used in advertising or publicity pertaining to
+Xdistribution of the software without specific, written prior permission.
+X
+XSTICHTING MATHEMATISCH CENTRUM DISCLAIMS ALL WARRANTIES WITH REGARD TO
+XTHIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+XFITNESS, IN NO EVENT SHALL STICHTING MATHEMATISCH CENTRUM BE LIABLE
+XFOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+XWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+XACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
+XOF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+X
+X******************************************************************/
+X
+X/* Definitions for dynamic loading of extension modules */
+X
+Xenum filetype {SEARCH_ERROR, PY_SOURCE, PY_COMPILED, C_EXTENSION};
+X
+Xextern struct filedescr {
+X	char *suffix;
+X	char *mode;
+X	enum filetype type;
+X} import_filetab[];
+X
+Xextern object *import_modules;
+X
+Xextern object *load_dynamic_module PROTO((char *name, char *pathname));
+X
+Xextern int import_maxsuffixsize;
+END_OF_FILE
+if test 1603 -ne `wc -c <'importdl.h'`; then
+    echo shar: \"'importdl.h'\" unpacked with wrong size!
+fi
+# end of 'importdl.h'
+fi
+if test -f 'libimp.tex' -a "${1}" != "-c" ; then 
+  echo shar: Will not clobber existing file \"'libimp.tex'\"
+else
+echo shar: Extracting \"'libimp.tex'\" \(7129 characters\)
+sed "s/^X//" >'libimp.tex' <<'END_OF_FILE'
+X\section{Built-in module \sectcode{imp}}
+X\bimodindex{imp}
+X\index{import}
+X
+XThis module provides an interface to the mechanisms use to implement
+Xthe \code{import} statement.  It defines the following constants and
+Xfunctions:
+X
+X\renewcommand{\indexsubitem}{(in module struct)}
+X
+X\begin{funcdesc}{get_magic}{}
+XReturn the magic string used to recognize value byte-compiled code
+Xfiles (``\code{.pyc} files'').
+X\end{funcdesc}
+X
+X\begin{funcdesc}{get_suffixes}{}
+XReturn a list of triples, each describing a particular type of file.
+XEach triple has the form \code{(\var{suffix}, \var{mode},
+X\var{type})}, where \var{suffix} is a string to be appended to the
+Xmodule name to form the filename to search for, \var{mode} is the mode
+Xstring to pass to the built-in \code{open} function to open the file
+X(this can be \code{'r'} for text files or \code{'rb'} for binary
+Xfiles), and \var{type} is the file type, which has one of the values
+X\code{PY_SOURCE}, \code{PY_COMPILED} or \code{C_EXTENSION}, defined
+Xbelow.
+X\end{funcdesc}
+X
+X\begin{funcdesc}{find_module}{name\, \optional{path}}
+XTry to find the module \var{name} on the search path \var{path}.  The
+Xdefault \var{path} is \code{sys.path}.  The return value is a triple
+X\code{(\var{file}, \var{pathname}, \var{description})} where
+X\var{file} is an open file object positioned at the beginning
+Xcorresponding to the file found, \var{pathname} is the pathname of the
+Xfile found, and \var{description} is a triple as contained in the list
+Xreturned by \code{get_suffixes} describing the kind of file found.
+X\end{funcdesc}
+X
+X\begin{funcdesc}{init_builtin}{name}
+XInitialize the built-in module called \var{name} and return its module
+Xobject.  If the module was already initialized, it will be initialized
+X{\em again}.  A few modules cannot be initialized twice -- attempting
+Xto initialize these again will raise an exception.  If there is no
+Xbuilt-in module called \var{name}, \code{None} is returned.
+X\end{funcdesc}
+X
+X\begin{funcdesc}{init_frozen}{name}
+XInitialize the frozen module called \var{name} and return its module
+Xobject.  If the module was already initialized, it will be initialized
+X{\em again}.  If there is no frozen module called \var{name},
+X\code{None} is returned.  (Frozen modules are modules written in
+XPython whose compiled byte-code object is incorporated into a
+Xcustom-built Python interpreter by Python's \code{freeze} utility.
+XSee \code{Demo/freeze} for now.)
+X\end{funcdesc}
+X
+X\begin{funcdesc}{is_builtin}{name}
+XReturn \code{1} if there is a built-in module called \var{name} which can be
+Xinitialized again.  Return \code{-1} if there is a built-in module
+Xcalled \var{name} which cannot be initialized again (see
+X\code{init_builtin}).  Return \code{0} if there is no built-in module
+Xcalled \var{name}.
+X\end{funcdesc}
+X
+X\begin{funcdesc}{is_frozen}{name}
+XReturn \code{1} if there is a frozen module (see \code{init_frozen})
+Xcalled \var{name}, \code{0} if there is no such module.
+X\end{funcdesc}
+X
+X\begin{funcdesc}{load_compiled}{name\, pathname\, \optional{file}}
+XLoad and initialize a module implemented as a byte-compiled code file
+Xand return its module object.  If the module was already initialized,
+Xit will be initialized {\em again}.  The \var{name} argument is used
+Xto create or access a module object.  The \var{pathname} argument
+Xpoints to the byte-compiled code file.  The optional \var{file}
+Xargument is the byte-compiled code file, open for reading in binary
+Xmode, from the beginning -- if not given, the function opens
+X\var{pathname}.  It must currently be a real file object, not a
+Xuser-defined class emulating a file.
+X\end{funcdesc}
+X
+X\begin{funcdesc}{load_dynamic}{name\, pathname\, \optional{file}}
+XLoad and initialize a module implemented as a dynamically loadable
+Xshared library and return its module object.  If the module was
+Xalready initialized, it will be initialized {\em again}.  Some modules
+Xdon't like that and may raise an exception.  The \var{pathname}
+Xargument must point to the shared library.  The \var{name} argument is
+Xused to construct the name of the initialization function: an external
+XC function called \code{init\var{name}()} in the shared library is
+Xcalled.  The optional \var{file} argment is ignored.  (Note: using
+Xshared libraries is highly system dependent, and not all systems
+Xsupport it.)
+X\end{funcdesc}
+X
+X\begin{funcdesc}{load_source}{name\, pathname\, \optional{file}}
+XLoad and initialize a module implemented as a Python source file and
+Xreturn its module object.  If the module was already initialized, it
+Xwill be initialized {\em again}.  The \var{name} argument is used to
+Xcreate or access a module object.  The \var{pathname} argument points
+Xto the source file.  The optional \var{file} argument is the source
+Xfile, open for reading as text, from the beginning -- if not given,
+Xthe function opens \var{pathname}.  It must currently be a real file
+Xobject, not a user-defined class emulating a file.  Note that if a
+Xproperly matching byte-compiled file (with suffix \code{.pyc}) exists,
+Xit will be used instead of parsing the given source file.
+X\end{funcdesc}
+X
+X\begin{funcdesc}{new_module}{name}
+XReturn a new empty module object called \var{name}.  This object is
+X{\em not} inserted in \code{sys.modules}.
+X\end{funcdesc}
+X
+XThe following constants with integer values, defined in the module,
+Xare used to indicate the search result of \code{imp.find_module}.
+X
+X\begin{datadesc}{SEARCH_ERROR}
+XThe module was not found.
+X\end{datadesc}
+X
+X\begin{datadesc}{PY_SOURCE}
+XThe module was found as a source file.
+X\end{datadesc}
+X
+X\begin{datadesc}{PY_COMPILED}
+XThe module was found as a compiled code object file.
+X\end{datadesc}
+X
+X\begin{datadesc}{C_EXTENSION}
+XThe module was found as dynamically loadable shared library.
+X\end{datadesc}
+X
+X\subsection{Examples}
+XThe following function emulates the default import statement:
+X
+X\begin{verbatim}
+Ximport imp
+Xfrom sys import modules
+X
+Xdef __import__(name):
+X    # Fast path: let's see if it's already in sys.modules.
+X    # Two speed optimizations are worth mentioning:
+X    # - We use 'modules' instead of 'sys.modules'; this saves a
+X    #   dictionary look-up per call.
+X    # - It's also faster to use a try-except statement than
+X    #   to use modules.has_key(name) to check if it's there.
+X    try:
+X        return modules[name]
+X    except KeyError:
+X        pass
+X
+X    # See if it's a built-in module
+X    m = imp.init_builtin(name)
+X    if m:
+X        return m
+X
+X    # See if it's a frozen module
+X    m = imp.init_frozen(name)
+X    if m:
+X        return m
+X
+X    # Search the default path (i.e. sys.path).
+X    # If this raises an exception, the module is not found --
+X    # let the caller handle the exception.
+X    fp, pathname, (suffix, mode, type) = imp.find_module(name)
+X
+X    # See what we got.
+X    # Note that fp will be closed automatically when we return.
+X    if type == imp.C_EXTENSION:
+X        return imp.load_dynamic(name, pathname)
+X    if type == imp.PY_SOURCE:
+X        return imp.load_source(name, pathname, fp)
+X    if type == imp.PY_COMPILED:
+X        return imp.load_source(name, pathname, fp)
+X
+X    # Shouldn't get here at all.
+X    raise ImportError, '%s: unknown module type (%d)' % (name, type)
+X\end{verbatim}
+END_OF_FILE
+if test 7129 -ne `wc -c <'libimp.tex'`; then
+    echo shar: \"'libimp.tex'\" unpacked with wrong size!
+fi
+# end of 'libimp.tex'
+fi
+echo shar: End of archive 1 \(of 1\).
+cp /dev/null ark1isdone
+MISSING=""
+for I in 1 ; do
+    if test ! -f ark${I}isdone ; then
+	MISSING="${MISSING} ${I}"
+    fi
+done
+if test "${MISSING}" = "" ; then
+    echo You have the archive.
+    rm -f ark[1-9]isdone
+else
+    echo You still need to unpack the following archives:
+    echo "        " ${MISSING}
+fi
+##  End of shell archive.
+exit 0

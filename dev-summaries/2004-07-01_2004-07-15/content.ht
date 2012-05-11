@@ -1,0 +1,140 @@
+Title: python-dev Summary for 2004-07-01 through 2004-07-15
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2004-07-01 through 2004-07-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from July 01, 2004 through July 15, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the forty-forth summary written by Brett Cannon (wished he could be at
+OSCON to see Guido throw a pie).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-07-01_2004-07-15.html
+.. _original text file: http://www.python.org/dev/summary/2004-07-01_2004-07-15.ht
+
+
+
+Summary Announcements
+=====================
+I don't think my informal editors on python-dev often enough for their help.  In case you didn't know, I send a rough draft (read: first draft since I **hate** proof-reading) to python-dev before a summary out for general consumption to make sure I didn't totally get something wrong.  Luckily I tend not to screw stuff up that badly and it ends up being little grammatical errors here and there.  But if it wasn't for them the summaries would not be the level of quality that they are (read: wouldn't seem like they are written by some grad student with impeccable grammar but instead as if they are written by some grad student with decent grammar =).  Anyway, I just felt like I should give a public thanks to everyone who has ever sent me a fix.
+
+In case you didn't know, Python 2.4a1 was released in early July.  If you have not already please `download <http://www.python.org/2.4/>`__ it and run the `regression test suite <http://www.python.org/dev/doc/devel/lib/regrtest.html>`__.
+
+And it looks like Unicode will finally work in the Summaries!  Thanks for that goes to David Goodger for making that happen.
+
+Summaries
+=========
+------------------
+2.4a1 out the door
+------------------
+Thanks to Anthony Baxter, `Python 2.4a1`_ went out the door in early July.  If you have not downloaded it and run the regression test suite, please do (see the stdlib docs on the 'test' pacakge on how to run the tests and please check if you can that any failures you got were not already posted and possibly fixed in CVS).
+
+.. _Python 2.4a1: http://www.python.org/2.4/
+
+Contributing threads:
+  - `2.4a1 <http://mail.python.org/pipermail/python-dev/2004-July/045944.html>`__
+  - `RELEASED Python 2.4, alpha 1 <http://mail.python.org/pipermail/python-dev/2004-July/046013.html>`__
+
+--------------------------------
+MSI installer on Windows for 2.4
+--------------------------------
+Some discussion on Martin v. Löwis' MSI installer code took place on the list.  It seemed like Martin's installer was good and just needed some docs.
+
+Contributing threads:
+  - `VC 7.1 maintenance? <http://mail.python.org/pipermail/python-dev/2004-July/045815.html>`__
+  - `Windows installer for 2.4? <http://mail.python.org/pipermail/python-dev/2004-July/045954.html>`__
+
+---------------------------------------------------------------------------------
+Decimal is in the stdlib with defaults for people who don't have a "bot" nickname
+---------------------------------------------------------------------------------
+Since the Decimal package went in at the beginning of July, most of the discussions about Decimal revolved around making it easy to use out of the box for normal folk; "practicality beats purity".
+
+First discussion was over invalid constructor arguments.  Originally if you tried something like ``Decimal("Raymond")``, it would return NaN.  Obviously that ain't cool.  Turned out to be a misinterpretation of the IBM spec that Decimal is based on.  In the doc an exception being "signaled" is the same as it being raised in Python.  So that got clarified and now raises an exception.
+
+From there a discussion of what signals should be on by default ensued.  Michael Chermside sparked it with his list of what he thought would work.  Some other people posted theirs and all of them coagulated into a final list.  Those defaults have been added to CVS and will be available in 2.4a2 .
+
+Contributing threads:
+  - `decimal API <http://mail.python.org/pipermail/python-dev/2004-July/045859.html>`__
+  - `decimal.py signals & traps <http://mail.python.org/pipermail/python-dev/2004-July/045963.html>`__
+
+---------------------------------------------------------
+The second Python Bug Day stomped out some of the buggers
+---------------------------------------------------------
+AM Kuchling organized another Python Bug Day on July 10.  A couple of people, including yours truly, showed up on #python-dev and managed to close a bunch of patches and bugs; 18 and 15 of them to be exact.  Thanks to all that helped out, it was fun.
+
+The next one is tentatively scheduled for August 7th.
+
+Contributing threads:
+  - `Python Bug day this Saturday <http://mail.python.org/pipermail/python-dev/2004-July/045901.html>`__
+  - `Bug day outcome <http://mail.python.org/pipermail/python-dev/2004-July/046065.html>`__
+
+----------------------------------
+file()?  open()?  Paper?  Plastic?
+----------------------------------
+Guido had noticed someone had committed a patch that changed open() to file().  While some of us thought that using the file type's factory constructor was the proper way to open files, Guido set us straight.  Turns out he wants open() to be used for opening files.  Part of the reason is that open() might at some point develop the abilities to open other things such as URLs (think ``open`` on OS X). 
+
+Contributing threads:
+  - `file() or open()? <http://mail.python.org/pipermail/python-dev/2004-July/045921.html>`__
+
+---------------------------------------------------------------------------------------------
+What happens when you try to enter a new key in a dict that has another key considered equal?
+---------------------------------------------------------------------------------------------
+Michael Chermside wondered the same thing.  Tim Peters answered.  Turns out to be undefined, but currently implemented as to keep the original key and not the new key.
+
+Contributing threads:
+  - `Equal but different keys in dicts <http://mail.python.org/pipermail/python-dev/2004-July/046040.html>`__
+
+-------------------------------------------------------------------------------------
+New macro that decrefs and sets to NULL a value, all while spinning plates on sticks!
+-------------------------------------------------------------------------------------
+Jim Fulton added a new macro named Py_CLEAR() that takes in a variable, Py_DECREFs it, and then sets it to NULL.  The common use case is a field in a struct that can hold a PyObject but not always which is set to NULL when it doesn't.  It is in no way meant to signify the PyObject should be garbage collected immediately, just that the current variable no longer holds a reference to anything.
+
+Contributing threads:
+  - `Proposal: C API Macro to decref and set to NULL <http://mail.python.org/pipermail/python-dev/2004-July/046086.html>`__
+
+--------------------------------------
+Trying out tagged integers in the core
+--------------------------------------
+Result: can be faster, but people don't want the added complexity (and Guido had a bad experience while developing the ABC language).
+
+For those of you who don't know what tagged integers are, imagine all PyObjects being either an object or integer based on whether certain bits were flipped.  This has the perk of saving space and not having to do a memory fetch to get to the int value in an int object.  Problem is you now have to check constantly whether a PyObject is really a pointer or a tagged integer.
+
+Contributing threads:
+  - `Tagged integers <http://mail.python.org/pipermail/python-dev/2004-July/046139.html>`__
+
+------------------------------------------------------
+You are not getting proper tail recursion optimization
+------------------------------------------------------
+If you know what proper tail recursion is, skip this paragraph.  Still there? OK, on with the lesson.  Proper tail recursion is when a recursive call is made in which the callee does not need to return to the caller.  Think of a 'return' statement that makes a recursive function call only; you don't *have* to return through the call chain since you just want that return statement to get to the first point where you are going to perform calculations on it.  So if you have a recursive 'return' statement you can skip creating a bunch of frames that stick around by just having each subsequent tail recursive call just return to the beginning of the recursion.  Confused yet?  Use Scheme and you will know what I am talking about (this stuff is actually *required* by the Scheme specification).  I could explain it using continuations, but chances are more people know about tail recursion than continuations so I am not even go to bother melting your brains with continuations.  =)
+
+A patch to add proper tail recursion optimization was proposed, but Guido shot it down very strongly.  Guido has spoken and is not about to change his mind.  If you want to read the **long** thread on why then go ahead.  Basically, though, Guido said that if you are writing recursive code that is hitting the recursion limit you should probably change your algorithm.  There was also issues with how to handle tracebacks but that wasn't as entertaining.  =)
+
+Contributing threads:
+  - `Proper tail recursion <http://mail.python.org/pipermail/python-dev/2004-July/046150.html>`__

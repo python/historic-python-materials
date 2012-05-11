@@ -1,0 +1,703 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<TITLE>stackless</TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice/5.1 (Win32)">
+	<META NAME="CREATED" CONTENT="19991005;314975">
+	<META NAME="CHANGEDBY" CONTENT="Christian Tismer">
+	<META NAME="CHANGED" CONTENT="19991005;390158">
+	<META NAME="Version" CONTENT="8.0.3514">
+	<META NAME="Date" CONTENT="11/26/96">
+	<META NAME="Template" CONTENT="E:\PROGRAMME\Microsoft Office\Office\HTML.DOT">
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+	<STYLE>
+	<!--
+		H3 { font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 16pt; font-weight: medium }
+		H2 { font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 16pt; font-weight: medium }
+		TD P { font-family: "Arial", "Helvetica", sans-serif }
+		H1 { font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-weight: medium }
+		P { font-family: "Arial", "Helvetica", sans-serif }
+		PRE { font-family: "Courier New", "Courier", "mono" }
+		A:visited { color: #800080 }
+		A:link { color: #0000ff }
+		TT { font-family: "Courier New", "Courier", "mono" }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080" BGCOLOR="#ffffff">
+<H1>Stackless Python</H1>
+<P>Draft V.1.5, Christian Tismer 990612</P>
+<P>Updated for release 0.3 on 990712, but still needs more work to
+reflect all the changes. Please see also the file changelog.txt for
+the last update.</P>
+<P>Status of this paper: <BR>This is a draft in flux and still needs
+some work. The implementation seems to fulfil all of my needs so far.
+</P>
+<H3>Acknowledgements</H3>
+<P>I want to thank all people who helped me to turn this idea into
+reality. 
+</P>
+<P>Special thank applies to 
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Tim Peters for all his input and
+	involvement 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Sam Rushing for the inspiration
+	and the reason 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Axel Roepke for all the long and
+	constructive discussions 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Jean-Claude Wippler for helping to
+	get the final bits done 
+	</P>
+	<LI><P>Guido for the promised hug :-) 
+	</P>
+</UL>
+<H3>A little warning before</H3>
+<P>This paper might cause some damage to your brain. At least mine
+had to undergo a couple of changes before I was able to think
+stackless enough to write a stackless version of the interpreter. Not
+the code which I will describe is difficult, but the problem is by
+itself a brainteaser. 
+</P>
+<P>Fasten seatbelts and let me lead you through the whole story, on
+your own risk. <BR>The current source snapshot, together with a
+Python 1.5.2 compatible build of python15.dll is available at 
+</P>
+<P><A HREF="../anonftp/pub/stackless_990713.zip">ftp://ftp.pns.cc/pub/stackless_990713.zip</A>
+<BR><A HREF="../anonftp/pub/stackless_990713_win32.zip">ftp://ftp.pns.cc/pub/stackless_990713_win32.zip</A>
+</P>
+<H3>What does it mean to be stackless?</H3>
+<P>The standard Python interpreter is written in C. Every Python
+action is somehow performed by some C code. Whenever a piece of
+Python code is executed, a new incarnation of the interpreter loop is
+created and executed. 
+</P>
+<P>First of all, let's see what it means to have a C stack. 
+</P>
+<P>Consider a Python function a() which calls a Python function b()
+which calls a Python function c(). In the context of function c(),
+the C interpreters of all three functions are still alive. They are
+keeping their state on the C stack. When the Python functions come to
+an end or an exception is raised, the C functions are popped off the
+C stack. This is called &quot;unwinding the stack&quot;. 
+</P>
+<P>In that sense, Python is not so different from other C programs,
+which are usually all stack based. But this is not the full story,
+since Python does quite a lot more than using the C stack. 
+</P>
+<P>Every running piece of Python code also has an associated Frame
+object. A Frame object is something like a running instance of a code
+object. Frames are used to hold local and global variables, to
+maintain the value stack of the byte code interpreter, and some other
+housekeeping information. 
+</P>
+<P>These Frames are chained together in a last-in/first-out manner.
+They make up a stack by themselves. And they do this in a way quite
+similar to the C stack. 
+</P>
+<P>You might say &quot;well, fine, but why should I care?&quot; 
+</P>
+<P>I will try to explain why I believe that being stackless is
+relatively easy, and that it can make very much sense. 
+</P>
+<H2>Why I believe that the C stack should vanish</H2>
+<P>Just a few: 
+</P>
+<UL>
+	<LI><P>Recursion depth is limited by the C stack. <BR>The C stack
+	has a fixed size, and therefore the stack cannot grow infinitely.
+	The frame stack is not limited. I think it is good to keep recursion
+	depth limited, but not as a matter of an implementation detail. This
+	should be a user option. The C stack should be reserved for C
+	modules which really need it. 
+	</P>
+</UL>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">The C stack holds references to
+	objects. <BR>Well, eval_code is rather clean in this respect, but
+	other C functions may pile up on the stack as well. References to
+	function parameters are kept on the C stack until a function
+	returns. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">The C stack holds execution state.
+	<BR>Information of the frame's current program and stack counter is
+	hidden in variables on the C stack and cannot be modified. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Ergo: The C stack limits the order
+	of execution. <BR>You might not care about order of execution, as a
+	standard user <BR>But whenever you try to play with some special
+	concepts, like co-routines, generators, or even cooperative garbage
+	collection, then you always can find some rather easy implementation
+	in Python, but you cannot try it with C code. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Removing the C stack is cheap. <BR>As
+	I try to show in this paper, the implementation effort is much
+	smaller than one would think. Execution speed is nearly the same.
+	But the new possibilities of having an explicit stack are many, and
+	they cannot even tried in the moment. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Coroutines can be incredibly fast
+	<BR>As we will see in the following, by decoupling the frames from
+	the C stack, coroutines can be implemented so fast, that it might
+	become feasible to use them for quite a number of problems.
+	Switching between two coroutine frames needs just a builtin function
+	call which is much cheaper than calling a Python function. 
+	</P>
+	<LI><P>Last but not least: PERL has already no longer a C stack.
+	<BR>They will have some good reasons for this. Python has no reason
+	to be limited. 
+	</P>
+</UL>
+<P><BR>To conclude: I want to provide the same level of flexibility
+for the C API as we have already in Python, open Python for new,
+efficient algorithmic approaches, at low implementation and runtime
+cost. 
+</P>
+<H3>Goals of my implementation</H3>
+<TABLE WIDTH=637 BORDER=0 CELLPADDING=4 CELLSPACING=0>
+	<TR VALIGN=TOP>
+		<TD WIDTH=35%>
+			<P>Task</P>
+		</TD>
+		<TD WIDTH=65%>
+			<P>Details</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=35%>
+			<P>support for Sam Rushing</P>
+		</TD>
+		<TD WIDTH=65%>
+			<P>This was the initializer. Sam wants to try co-routines. I want
+			to help doing this in an efficient, platform independent way.</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=35%>
+			<P>get rid of the C stack</P>
+		</TD>
+		<TD WIDTH=65%>
+			<P>see above. The stack is in my way.</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=35%>
+			<P>allow for pluggable interpreters</P>
+		</TD>
+		<TD WIDTH=65%>
+			<P>This happened by chance. I realized that in order to make
+			stackless map, filter and reduce, it is necessary to build tiny
+			custom interpreters.</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=35%>
+			<P>do the minimum changes to the existing code</P>
+		</TD>
+		<TD WIDTH=65%>
+			<P>Python will change anyway. The less I write, the lesser I have
+			to change again, and it will be easier to compare.</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=35%>
+			<P>stay compatible to existing compiled extension modules</P>
+		</TD>
+		<TD WIDTH=65%>
+			<P>stackless Python should be a drop-in replacement. 
+			</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=35%>
+			<P>find out how to build stackless extension modules</P>
+		</TD>
+		<TD WIDTH=65%>
+			<P>stackless extension modules which call back into the
+			interpreter can be built rather easily. The proof is given by
+			stackless map.</P>
+		</TD>
+	</TR>
+</TABLE>
+<P>As a proof of concept, and to learn how this must work, I had to
+write a Python version which reaches all of the above goals. Let's
+see what came out of this. 
+</P>
+<H3>The Concept</H3>
+<P>The basic rules are simple: 
+</P>
+<OL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT FACE="Arial, Helvetica, sans-serif">Avoid
+	recursive calls into the interpreter. </FONT>
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT FACE="Arial, Helvetica, sans-serif">Store
+	all runtime information in frames. </FONT>
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT FACE="Arial, Helvetica, sans-serif">Allow
+	frames to be restarted. Just <B>add</B> to the frame structure,
+	don't break anything. </FONT>
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT FACE="Arial, Helvetica, sans-serif">Store
+	the interpreter function in the frames. </FONT>
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT FACE="Arial, Helvetica, sans-serif">Have
+	one central frame handler, make eval_code2 into just one interpreter
+	</FONT>
+	</P>
+	<LI><P><FONT FACE="Arial, Helvetica, sans-serif">Provide new
+	functions but keep backward compatible stub functions. </FONT>
+	</P>
+</OL>
+<P>Rule 1 is obvious but looks hard to fulfil. 
+</P>
+<P>Rule 2 is obvious, too. The frame chain becomes our true stack. No
+information should be hidden in the C stack while a Python function
+is being called. 
+</P>
+<P>Rule 3 is one of the key ideas. We come to it soon. 
+</P>
+<P>Rule 4 is just consequent. If a frame is to know everything about
+the running code, then it also should know which the interpreter is.
+As a side effect, frames can call each other at wilt, without having
+to know more than that this is just a runnable frame. 
+</P>
+<P>Rule 5 is again consequent. The central frame handler is the very
+minimum which we need. It does nothing more than juggling the frame
+calls and passing results. With a single concept of frames, we can
+run any kind of interpreters together, as long as they obey the
+Python Object Protocol. 
+</P>
+<P>Well, Rule 6 is clear. We want to be still standard python with
+the standard C API just extended. 
+</P>
+<H3>Problem analysis</H3>
+<P>Let's have a look into the code. The first file to look into is
+<B>ceval.c</B>. We compare the old and the new version. If you try to
+figure out what happens on a Python function call, you will first
+think it is impossible to do that without the C stack. 
+</P>
+<P>Have a look at function <B>eval_code2</B>, at the case
+<B>CALL_FUNCTION</B>. Many different cases are handled here, other
+functions are called, like <B>PyEval_CallObjectWithKeywords</B>.
+There, a number of decisions are made, which in turn cause other
+function calls, and finally, we end up somewhere deeply nested, with
+either a call to <B>call_builtin</B> or <B>call_function</B>. For
+getting a result, either a C function is called, or a new interpreter
+incarnation handles the call, finally via <B>eval_code2</B> again. 
+</P>
+<P>In order to do this call, the calling function somehow prepares
+parameters, keeps a reference to the parameters, lets the evaluation
+happen, releases the parameters and returns the result. 
+</P>
+<P>My biggest fear was that I would have to rewrite all of this. But
+this is not true. 
+</P>
+<H3>Problem solution</H3>
+<P>If we just avoid to do the final call to <B>eval_code2</B>, we are
+almost done. Look into the old version of <B>call_function</B>, and
+compare it to .... 
+</P>
+<PRE>    result = eval_code2(
+        (PyCodeObject *)PyFunction_GetCode(func),
+        PyFunction_GetGlobals(func), (PyObject *)NULL,
+        &amp;PyTuple_GET_ITEM(arg, 0), PyTuple_Size(arg),
+        k, nk,
+        d, nd,
+        class);
+
+    Py_DECREF(arg);
+    PyMem_XDEL(k);
+
+    return result;
+}</PRE><P>
+....the new version. Instead of calling the interpreter, we end up
+with this piece of code: 
+</P>
+<PRE>    f = eval_code2_setup(
+        (PyCodeObject *)PyFunction_GetCode(func),
+        PyFunction_GetGlobals(func), (PyObject *)NULL,
+        &amp;PyTuple_GET_ITEM(arg, 0), PyTuple_Size(arg),
+        k, nk,
+        d, nd,
+        class);
+    if (f != NULL) {
+        f-&gt;f_hold_ref = arg;    /* the decref will happen on frame disposal */
+        result = Py_UnwindToken;
+    }
+    else result = NULL;
+
+    PyMem_XDEL(k);
+    return result;
+}</PRE><P>
+<B>eval_code2_setup</B> is a function which just prepares a new
+frame, in order to be run later. The frame holds all references to
+parameters, and the new field f_hold_ref takes the role to keep a
+reference to arg. Instead of actually performing the call now,
+<B>call_function</B> returns a special object, <B>Py_UnwindToken</B>
+as its value. This value is passed as a result through the actual
+pile of invoked C functions until it is caught in the calling
+interpreter (yes, we are back at the <B>CALL_FUNCTION</B> opcode).
+The interpreter checks this value and knows that a call is pending,
+so the current frame must be left, and a new frame has been put onto
+the stack, which should be called now. 
+</P>
+<P>Why is this possible, and why does it appear to be so easy? 
+</P>
+<P>The reason is: <BR>Python is already nearly stackless. All the
+functions try to do nothing more than just to prepare for the next
+interpreter call, which will do the actual evaluation. After as code
+object and its parameters have been checked for errors, the runtime
+error checking is already deferred to the responsible interpreter.
+But this does not mean that we need to call the interpreter right now
+where we are! Got it? 
+</P>
+<P>In other words: Allmost all calls into the interpreter turn out to
+be tail recursive. After calling parameters have been checked, there
+is no need to actually call the next function. It is ok to generate a
+frame on the frame stack, which is ready to be run by the next
+interpreter involved, but there is no need to do this in the current
+pile of active C functions. 
+</P>
+<P>Now, this is a very central clue in this &quot;game&quot;:
+Whenever a function believes that it is done by running eval_code2
+and returning a value, it deferres all error handling to &quot;the&quot;
+interpreter. What I do is nothing more than to defer the whole call
+to just &quot;one&quot; interpreter, which has the same semantics. It
+is just a special form of tail recursion what happens here. It does
+not matter if a NULL value is treated as an exception right here, in
+the 25th recusion of some function call, or somewhere else, in a
+top-level interpreter incarnation. 
+</P>
+<P>By using this principle, it was possible to make stackless
+versions of all of the interpreter functions. The conversion works
+like this: 
+</P>
+<P>If an interpreter function (aka. a function which calls back into
+the interpreter) just tries to prepare a call to the interpreter, I
+changed this into the creation of a new runnable frame on the frame
+stack, together with a return value of <B>Py_UnwindToken.</B> This is
+a special object with the only purpose to tell an interpreter, that
+it should leave the interpreter loop and return immediately, since
+something special happened. 
+</P>
+<P STYLE="margin-bottom: 0cm">Another approach to explain this: <BR>The
+interpreter functions are (almost) all working with PyObjects. Return
+values can be NULL, or a proper PyObject. NULL has the semantics of
+an error which has to be handled, and it will cause the interpreters
+to unwind the stack by an exception. This gives us just a two-valued
+logic, encoded by return values being either PyObjects or NULL. By
+introducing th Py_UnwindToken, I extended this to three-valued logic.
+</P>
+<TABLE COLS=2 WIDTH=67% CELLPADDING=2 CELLSPACING=2>
+	<TR>
+		<TD>
+			<P>NULL</P>
+		</TD>
+		<TD>
+			<P>An error occoured</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD>
+			<P>Py_UnwindToken</P>
+		</TD>
+		<TD>
+			<P>please dispatch a frame</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD>
+			<P>any other PyObject</P>
+		</TD>
+		<TD>
+			<P>just a return value</P>
+		</TD>
+	</TR>
+</TABLE>
+<P>Since all these values can be passed through the existing
+interpreter functions, I saved a major rewrite and had just to take
+care to catch the right places to change. 
+</P>
+<P>If you are still with me, now the time has come to change your
+understanding of functions, stacks and return values. 
+</P>
+<H3>The Frame Dispatcher</H3>
+<P>Let's have a look into the new, central &quot;interpreter&quot;
+function in ceval.c Actually it is no interpreter, but a function
+which repeatedly evaluates the top of the frame stack, using that
+frame's interpreter. 
+</P>
+<PRE>static PyObject *
+PyEval_Frame_Dispatch()
+{
+    PyObject * result;
+    PyFrameObject *f;
+    PyThreadState *tstate = PyThreadState_GET();
+    void *self;
+
+    f = tstate-&gt;frame;
+    if (f==NULL) return NULL;
+    /* the initial frame should really belong to us */
+    f-&gt;f_signature = &amp;self;
+    result = NULL;
+
+    while (1) {
+        result = f-&gt;f_execute(f, result) ;
+        f = tstate-&gt;frame;
+        if (result == Py_UnwindToken) {
+            /* this is actually the topmost frame */
+            /* peel off an optional return value */
+            result = (PyObject *) f-&gt;f_signature;
+            /* and mark the frame as our own */
+            f-&gt;f_signature = &amp;self;
+        }
+        else if (f==NULL || f-&gt;f_signature != &amp;self) break;
+    }
+    return result;
+}</PRE><P>
+Just try to understand the central loop. The dispatcher picks the
+topmost frame, the current result, and calls the frame's <B>f_execute</B>
+function. This is the place where we always return to, regardless for
+what reason we ran a frame or why we left it. 
+</P>
+<P>This loop will continue to evaluate frames, until it reaches some
+endcondition. It doesn't care about the frame stack which might grow
+as Python functions are called, or shrink when Python functions
+return or raise exceptions. It will simply run the topmost frame,
+whatever is there, whatever interpreter it uses. 
+</P>
+<P>You might wonder about the <B>result</B> variable which looks a
+little funny. This is indeed the result which the execution of a
+frame came up with. We wouldn't even need to examine this variable,
+since the executing interpreters know wether they expect a result and
+how to handle it. The reason why we do check for a <B>Py_UnwindToken</B>
+is just to assign our ownership to a probably newly created frame,
+and to handle the special case of passing a return value. More on
+that later. 
+</P>
+<H3>Excursion: How to Implement Coroutines?</H3>
+<P>Let me put some refreshment into this dry code discussion. We have
+already come quite far by understanding the little frame dispatcher
+and the special unwinding token. The frame dispatcher runs whatever
+frame is there, the unwind token just returns from an interpreter, in
+order to let a different frame be executed. 
+</P>
+<P>If you read the last sentence twice, you will understand why I'm
+so keen on having this dispatcher. 
+</P>
+<P>The curent <U>use</U> is to return an unwind token in order to run
+a newly created frame. But there is much more, since it doesn't need
+to be a new frame, it might just be <U>any</U> frame! 
+</P>
+<P>As a quick example of this idea, let me sketch the pseudo-code of
+a coroutine-transfer. 
+</P>
+<P>Given two Python functions which want to act as coroutines, which
+means they can transfer control flow to each other. 
+</P>
+<P>XXX I want to insert one of Tim Peter's examples here. I looked
+into his 5 years old code which is pretty, but since he said that
+nowadays he would do this in a different way, I'll better wait for
+something new to appear? 
+</P>
+<P>As of 990712, I have a continuation module ready which will be
+published soon. This will give a good source of examples.<BR>XXX 
+</P>
+<P>The coroutine implementation needs to switch between two different
+execution states. In terms of our frame stack, this would just mean
+to swap the current frame chain with a different one. 
+</P>
+<P>Here the pseudocode: 
+</P>
+<PRE>PyObject *coroutine_transfer(controller, arg)
+    PyCoObject *controller;
+    PyObject *arg;
+{
+    PyFrameObject ffrom, fto;
+    PyThreadState *tstate = PyThreadState_Get();
+    ffrom = state-&gt;frame;
+    fto = controller-&gt;frame;
+    if (ffrom-&gt;f_signature != fto-&gt;f_signature) {
+        /* set some exception here */
+        return NULL;
+    }
+    controller-&gt;frame = ffrom;
+    tstate-&gt;frame = fto;
+    fto-&gt;f_signature = arg;
+    return Py_UnwindToken;
+}</PRE><P>
+The idea of swapping frame stacks is only limited by the rule, that
+the signatures of the swapped frames have to be the same. This is the
+whole thing to do, leading to an extremely efficient coroutine
+implementation. 
+</P>
+<H3>The New C API</H3>
+<P>In order to stay backward compatible, all the known recursive
+interpreter functions needed to be retained. To avoid duplicates of
+all the code, the following technique was applied: 
+</P>
+<P>The old function header was copied, the new function got an &quot;_nr&quot;
+appended to its name. The new function was changed to be
+non-recursive. If the old version was short enough or had to be
+changed anyway, code was indeed copied. An example for this is the
+well-known <B>eval_code</B>: 
+</P>
+<P><TT>/* Backward compatible interface */</TT> 
+</P>
+<PRE>PyObject * 
+   PyEval_EvalCode(co, globals, locals) 
+       PyCodeObject *co; 
+       PyObject *globals; 
+       PyObject *locals; 
+   { 
+       PyFrameObject *frame; 
+       frame=eval_code2_setup(co, 
+                        globals, locals, 
+                        (PyObject **)NULL, 0, 
+                        (PyObject **)NULL, 0, 
+                        (PyObject **)NULL, 0, 
+                        (PyObject *)NULL); 
+       if (frame != NULL) 
+           return PyEval_Frame_Dispatch();    
+       else 
+           return NULL; 
+   } 
+     
+PyObject * 
+   PyEval_EvalCode_nr(co, globals, locals) 
+       PyCodeObject *co; 
+       PyObject *globals; 
+       PyObject *locals; 
+   { 
+       PyFrameObject *frame; 
+       frame = eval_code2_setup(co, 
+                        globals, locals, 
+                        (PyObject **)NULL, 0, 
+                        (PyObject **)NULL, 0, 
+                        (PyObject **)NULL, 0, 
+                        (PyObject *)NULL); 
+       if (frame != NULL) 
+           return Py_UnwindToken; 
+       else 
+           return NULL; 
+   } </PRE><P>
+The difference is obvious: While the backward compatible version
+creates a ready-to-run frame (which is put onto the frame stack by
+<B>eval_code2_setup</B>) and runs it to the end by
+<B>PyEval_Frame_Dispatch</B>, the other just levaes that frame and
+returns <B>Py_UnwindToken</B>. 
+</P>
+<P>An example where the original version was expressed in terms of
+the new version, we have a look at <B>PyEval_CallObjectWithKeywords</B>:
+</P>
+<PRE>PyObject *
+   PyEval_CallObjectWithKeywords(func, arg, kw)
+       PyObject *func;
+       PyObject *arg;
+       PyObject *kw;
+   {
+       PyObject *retval = PyEval_CallObjectWithKeywords_nr(func,    arg, kw);
+       if (retval == Py_UnwindToken)
+           retval = PyEval_Frame_Dispatch();
+       return retval;
+   }
+   
+   PyObject *
+   PyEval_CallObjectWithKeywords_nr(func, arg, kw)
+       PyObject *func;
+       PyObject *arg;
+       PyObject *kw;
+   {
+       ternaryfunc call;
+       PyObject *result;
+   
+       if (arg == NULL)
+           arg = PyTuple_New(0);
+       else if (!PyTuple_Check(arg)) {
+           PyErr_SetString(PyExc_TypeError,
+                              &quot;argument list must be a tuple&quot;);
+           return NULL;
+       }
+       else
+       ...
+       ...</PRE><P>
+The old one was turned into a call to the new, followed by a
+dispatcher call. <BR>Note that in the case of
+<B>PyEval_CallObjectWithKeywords</B>, the &quot;new&quot; function is
+exactly the same code as the original one. The difference is just
+that the used internal functions of <B>ceval.c,</B> <B>call_builtin</B>
+and <B>call_function</B> have changed their semantics to be
+non-recursive versions. <B>PyEval_CallObjectWithKeywords_nr</B> does
+not know that it now can return something special, since an
+<B>Py_UnwindToken</B> is just a PyObject. So the &quot;new&quot;
+function in this case is the new version of
+<B>PyEval_CallObjectWithKeywords</B> which just takes care that no
+<B>Py_UnwindToken</B> can leak out to a C function which is not
+stackless-aware. 
+</P>
+<P>The backward compatible version has exactly the same semantics as
+in the original code. It runs some code and returns either a PyObject
+or a NULL, indicating an exception. <BR>Extension modules which wish
+to implement stackless C functions in a similar fashion as shown
+here, will use the new function instead. 
+</P>
+<P>New stackless functions in <B>ceval.c:</B> 
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm"><TT>PyEval_CallObjectWithKeywords_nr</TT>
+		</P>
+	<LI><P STYLE="margin-bottom: 0cm"><TT>PyEval_CallObject_nr</TT> 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><TT>PyEval_EvalCode_nr</TT> 
+	</P>
+	<LI><P><TT>PyEval_Frame_Dispatch</TT> 
+	</P>
+</UL>
+<P>New stackless functions in <B>pythonrun.c:</B> 
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm"><TT>PyRun_SimpleFile_nr</TT> 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><TT>PyRun_String_nr</TT> 
+	</P>
+	<LI><P><TT>PyRun_File_nr</TT> 
+	</P>
+</UL>
+<P>New stackless functions in <B>bltinmodule.c:</B> 
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm"><TT>builtin_map_nr <B>done</B></TT>
+		</P>
+	<LI><P STYLE="margin-bottom: 0cm"><TT>builtin_eval_nr todo</TT> 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><TT>builtin_filter_nr todo</TT> 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><TT>builtin_reduce_nr todo</TT> 
+	</P>
+	<LI><P><TT>builtin_apply_nr <B>done</B></TT> 
+	</P>
+</UL>
+<P>The builtin_ functions will finally replace their originals, since
+they are not used elsewhere. builtin_eval and builtin_apply are
+straight forward to implement and just not done yet. 
+</P>
+<P>The major problem are functions which cannot easily be converted
+since they are not tail recursive preparations of a singe eval_code
+call, but repetitive calls are performed. To obtain a stackless
+version of these, a number of actions was necessary, and I
+implemented this as a proof of concept just for <B>builtin_map</B>: 
+</P>
+<P>XXX Missing: <BR>Explaining interpreter-like functions like map_nr
+<BR>New fields in the frame structure <BR>Where to move from here 
+</P>
+<P>Christian Tismer who <A HREF="mailto:tismer@pns.cc">really needs
+feedback</A> :-) 
+</P>
+<P>&copy; 1999 by PNS - <A HREF="http://www.pns.cc/PNShome.htm">Professional
+Net Service</A> GmbH <BR>. 
+</P>
+</BODY>
+</HTML>

@@ -1,0 +1,487 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-03-16 through 2006-03-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-03-16_2006-03-31]
+
+
+
+=============
+Announcements
+=============
+
+-------------------
+Python 2.5 schedule
+-------------------
+
+Python 2.5 is moving forward along its release schedule.  A few issues still remain; check `PEP 356`_ for details.
+
+.. _PEP 356: http://www.python.org/dev/peps/pep-0356/
+
+Contributing thread:
+
+- `Python 2.5 Schedule <http://mail.python.org/pipermail/python-dev/2006-March/062560.html>`__
+
+-----------------------------
+Python 3000 gets its own list
+-----------------------------
+
+Serious work on Python 3000 has started now, with a new `python-3000 mailing list`_ for general discussion, and a `python-3000-checkins mailing list`_ for checkins to the p3yk branch.  Right now, Guido wants patches to focus mainly on ripping out old code (e.g. classic classes) and wants the discussion to focus primarily on formalizing the processes for introducing Python 3000.
+
+Note that processes is what's important right now
+
+.. _python-3000 mailing list: http://mail.python.org/mailman/listinfo/python-3000
+.. _python-3000-checkins mailing list: http://mail.python.org/mailman/listinfo/python-3000-checkins
+
+Contributing threads:
+
+- `Python 3000 Process <http://mail.python.org/pipermail/python-dev/2006-March/062644.html>`__
+- `svn checkins are now split <http://mail.python.org/pipermail/python-dev/2006-March/062734.html>`__
+- `Discussing the Great Library Reorganization <http://mail.python.org/pipermail/python-dev/2006-March/063052.html>`__
+
+-----------------------------------------------
+Buildbot warnings redirected to python-checkins
+-----------------------------------------------
+
+The buildbot warnings, which for a short time this month appeared on python-dev, have been redirected to the python-checkins list.
+
+Contributing thread:
+
+- `[Fwd: buildbot warnings in amd64 gentoo trunk] <http://mail.python.org/pipermail/python-dev/2006-March/062754.html>`__
+
+----------------------------------------------------------
+Checkins that change behavior must be accompanied by tests
+----------------------------------------------------------
+
+Though it's always been good practice to check in a test with any behavior-changing patch, Neal Norwitz has requested extra care in this area as we approach the release of Python 2.5.  From this point on, *any* checkin that could change behavior should be accompanied by a corresponding test.
+
+Contributing thread:
+
+- `improving quality <http://mail.python.org/pipermail/python-dev/2006-March/062904.html>`__
+
+--------------------------------------
+Email 4.0 merged into Python 2.5 trunk
+--------------------------------------
+
+Barry Warsaw has merged the Email 4.0 package into the Python 2.5 trunk. There's a minor incompatibility in that email.Parser is now a placeholder object instead of a module, but this should not affect the vast majority of users.
+
+Contributing thread:
+
+- `Merging email 4.0 to Python 2.5 svn trunk <http://mail.python.org/pipermail/python-dev/2006-March/062512.html>`__
+
+---------------------
+Python 2.4.3 released
+---------------------
+
+`Python 2.4.3`_ was released on March 30th. This fixes over 50 bugs in Python 2.4.2, so now's the time to upgrade.
+
+.. _Python 2.4.3: http://www.python.org/2.4.3/
+
+Contributing threads:
+
+- `release24-maint FREEZE for 2.4.3c1, this Thursday <http://mail.python.org/pipermail/python-dev/2006-March/062655.html>`__
+- `RELEASED Python 2.4.3, release candidate 1 <http://mail.python.org/pipermail/python-dev/2006-March/062772.html>`__
+- `release24-maint unfrozen, kinda <http://mail.python.org/pipermail/python-dev/2006-March/062774.html>`__
+- `BRANCH release24-maint FREEZE from 00:00 UTC on Wednesday 29th <http://mail.python.org/pipermail/python-dev/2006-March/062852.html>`__
+- `RELEASED Python 2.4.3, final. <http://mail.python.org/pipermail/python-dev/2006-March/063060.html>`__
+
+
+=========
+Summaries
+=========
+
+--------------------------------
+Including pysqlite in the stdlib
+--------------------------------
+
+Anthony Baxter asked if folks were still interested in including pysqlite_ in Python 2.5 and got a pretty positive response. Gerhard Häring said he could release pysqlite 2.2 and then merge that into Python SVN trunk.  In the future, he agreed to synchronize stable changes in the standalone release with the Python core sqlite module.  Accompanying these agreements was a long discussion about the pros and cons of including pysqlite, and of course an endless debate about what the new module should be named.  In the end, Guido approved the inclusion of pysqlite, and it was given the name sqlite3.
+
+.. _pysqlite: http://initd.org/tracker/pysqlite/
+
+Contributing thread:
+
+- `pysqlite for 2.5? <http://mail.python.org/pipermail/python-dev/2006-March/062905.html>`__
+
+-----------------------------
+Choosing a new tracker system
+-----------------------------
+
+After Guido noticed that SourceForge had stopped sending him emails when a patch was assigned to him, a number of people took up a discussion about how to replace the SourceForge tracker system. There was already an existing PSF committee in charge of finding such a replacement, and they were considering roundup_, trac_ and jira_, though Bugzilla_ and RT_ had already been vetoed.  There was already an instance of roundup running on python.org, and Python-Hosting and Atlassian had existing offers to host Python on Trac and Jira (respectively).  There was some discussion about setting up one of these for Python 3000, but Guido thought it was too early for this.
+
+Getting the data out of SourceForge seemed to be the current sticking point, and so Fredrik Lundh wrote up `some tools`_ to do this and posted the results to http://effbot.org/tracker-20060403.zip.  The discussion was then moved to the `infrastructure list`_.
+
+.. _bugzilla: http://www.bugzilla.org/
+.. _jira: http://www.atlassian.com/software/jira/
+.. _roundup: http://roundup.sourceforge.net/
+.. _rt: http://www.bestpractical.com/rt/
+.. _trac: http://www.edgewall.com/trac/
+.. _python-hosting: http://www.python-hosting.com/freetrac
+.. _some tools: http://effbot.python-hosting.com/browser/stuff/sandbox/sourceforge/
+.. _infrastructure list: http://mail.python.org/mailman/listinfo/infrastructure/
+
+Contributing threads:
+
+- `I'm not getting email from SF when assigned a bug/patch <http://mail.python.org/pipermail/python-dev/2006-March/062876.html>`__
+
+-------------------
+The C-level set API
+-------------------
+
+Barry Warsaw wanted to add PySet_Clear(), PySet_Update() and PySet_Next() to the C-level set API. Raymond Hettinger objected, saying that this functionality was already available through PyObject_CallMethod(s, "clear", NULL), PyObject_CallMethod(s, "update", "O", iterable) and PyObject_GetIter(s) respectively (with the last being notably safer too).  Barry said that he was hoping to get some static compiler checks and easier debugging that would be lost by using PyObject_CallMethod, and to get some speedups over PyObject_GetIter() in the same way that PyDict_Next() had.  Eventually, Raymond agreed to adding PySet_Clear() to the public API and to adding _PySet_Next() and _PySet_Update() to the private API.
+
+Contributing threads:
+
+- `PySet API <http://mail.python.org/pipermail/python-dev/2006-March/062601.html>`__
+- `PySet_Next (Was: PySet API) <http://mail.python.org/pipermail/python-dev/2006-March/062842.html>`__
+
+----------------
+Class decorators
+----------------
+
+Greg Ewing suggested a use-case for class decorators that could not be easily addressed with metaclasses: adding a class (but not its subclasses) to a registry.  After Phillip J. Eby explained the hack that PyProtocols currently uses to make something like class decorators available, Guido suggested that someone write a PEP to add class decorators to Python 2.6.  There was some discussion about moving decorators for classes inside the class for readability reasons, but Guido felt like this was too magical.  No PEP had yet been produced at the time of this summary.
+
+Contributing thread:
+
+- `Class decorators <http://mail.python.org/pipermail/python-dev/2006-March/062836.html>`__
+
+--------------------------------------
+Python 3.0: Exception hierarchy issues
+--------------------------------------
+
+A question from Nick Coghlan about where the new GeneratorExit exception should be placed sparked a new discussion about how the exception hierarchy should look.  Barry Warsaw suggested that Exception should be at the top of the hierarchy with KeyboardInterrupt, GeneratorExit, SystemExit, StopIteration, Error and Warning being the next level down.  All user defined errors would inherit from Error.  People seemed to like this idea, but it would break backwards compatibility as users have been told for a while that their exceptions should derive from Exception, not Error.  Guido voted for keeping the `PEP 352`_ semantics (with BaseException at the top of the hierarchy).
+
+Barry promised to address the hierarchy issue again on the Python 3000 list.
+
+.. _PEP 352: http://www.python.org/dev/peps/pep-0352/
+
+Contributing thread:
+
+- `GeneratorExit inheriting from Exception <http://mail.python.org/pipermail/python-dev/2006-March/062568.html>`__
+
+-------------------------------
+Python 3.0: Exception statement
+-------------------------------
+
+Greg Ewing asked if the except clause in Python 3.0 could be changed to::
+
+    except <type-or-tuple> as <value>:
+
+instead of the current::
+
+    except <type-or-tuple>, <value>:
+
+which can result in confusing behavior when you accidentally write::
+
+    except TypeError, ValueError:
+
+and have your TypeError instance bound to the name ValueError. Guido approved the proposal, and then the discussion veered off into the usual syntax debate, this time about whether to use "with" instead, whether to use commas or "or"s between the exception types, and whether or not to require parentheses around multiple types. Guido reiterated his support for the original proposal and shortly afterwards, the thread died.
+
+Contributing thread:
+
+- `Py3k: Except clause syntax <http://mail.python.org/pipermail/python-dev/2006-March/062446.html>`__
+
+-------------------------------------------------
+Adding an N-dimensional array interface to Python
+-------------------------------------------------
+
+Travis E. Oliphant asked about including Numpy's `N-dimensional array interface`_ in Python core by adding a __array_struct__ member to array.array that looks like::
+
+    typedef struct {
+        int version;          /* contains the integer 2 as a sanity check */
+        int nd;               /* number of dimensions */
+        char typekind;        /* kind in array --- character code of typestr */
+        int itemsize;         /* size of each element */
+        int flags;            /* flags indicating how the data should be interpreted */
+        Py_intptr_t *shape;   /* A length-nd array of shape information */
+        Py_intptr_t *strides; /* A length-nd array of stride information */
+        void *data;           /* A pointer to the first element of the array */
+    } PyArrayInterface;
+
+This struct is basically unchanged over Numpy's last 10 years of evolution and Travis was hoping to finally get the interface blessed by official inclusion in Python so that PIL, PyVox, WxPython, PyOpenGL, etc. could all start using the same interface.  Guido asked for a PEP, but no one seemed to feel comfortable taking the array interface definition and producing a PEP out of it.
+
+.. _N-dimensional array interface: http://numeric.scipy.org/array_interface.html
+
+Contributing thread:
+
+- `Expose the array interface in Python 2.5? <http://mail.python.org/pipermail/python-dev/2006-March/062501.html>`__
+
+------------------------------------------------
+Inconsistent behavior between += and .__iadd__()
+------------------------------------------------
+
+Travis Oliphant noticed that ``a.__iadd__(b)`` and ``a += b`` currently do different things depending on the type of their arguments::
+
+    a = range(5)
+    b = numpy.arange(5)
+    a.__iadd__(b)
+    assert a == [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
+    
+    a = range(5)
+    b = numpy.arange(5)
+    a += b
+    assert a == numpy.array([0, 2, 4, 6, 8])
+
+This apparently occurs because PyNumber_InPlaceAdd coerces ``a`` into a numeric type (a numpy.array object) before trying PySequence_InPlaceConcat.  Guido suggested that += (and \*=) should check both the numeric and sequence slots before trying to coerce either arguments.  Armin Rigo pointed out that this fix would require that ``listobject.__add__(intobject)`` would have to return NotImplemented instead of immediately raising an exception, but promised to provide the fix when he could.
+
+Contributing thread:
+
+- `INPLACE_ADD and INPLACE_MULTIPLY oddities in ceval.c <http://mail.python.org/pipermail/python-dev/2006-March/062885.html>`__
+
+-------------------
+Supported platforms
+-------------------
+
+A couple different threads asked about which of the lesser-known platforms Python is supported on.  Andrew MacIntyre verified that OS/2 is still being supported, Donn Cave and Francois Revol maintain the BeOS (a.k.a. Zeta OS) port, and Ralf W. Grosse-Kunstleve promised to make Tru64 machines available for testing Python if people needed them.
+
+Contributing threads:
+
+- `supported platforms OS2? <http://mail.python.org/pipermail/python-dev/2006-March/062685.html>`__
+- `r43214 - peps/trunk/pep-3000.txt <http://mail.python.org/pipermail/python-dev/2006-March/062741.html>`__
+- `[Fwd: Re: r43214 - peps/trunk/pep-3000.txt] <http://mail.python.org/pipermail/python-dev/2006-March/062792.html>`__
+
+----------------------------
+Definition of sys.executable
+----------------------------
+
+Fredrik Lundh pointed out that when Python is embedded, the documentation for sys.executable seems suggest that it should be pointed to the executable used to start the program, not Python itself.  Since this executable is no longer Python, you can no longer run sys.executable to start another Python instance.  At least py2exe and PyXPCOM both depend on the current behavior, so the implementation can't be changed.  Fredrik suggested adding sys.python_executable so that Python code would always be able to start another Python instance, even when embedded, but the discussion concluded without any final decisions.
+
+Contributing thread:
+
+- `towards a stricter definition of sys.executable <http://mail.python.org/pipermail/python-dev/2006-March/062453.html>`__
+
+----------------------------------------------------
+Location of modules for multi-architecture platforms
+----------------------------------------------------
+
+Neal Becker reported that on x86_64, the Twisted package gets split between an architecture independent directory and an architecture dependent one, and so when Python searches for the package, it finds only the first part of the installation. There was then some discussion about how multi-architecture platforms should be properly supported.  The conclusion seemed to be that the package should not be split; instead two versions of the package, one for each architecture, should be installed to two different directories.  But Martin v. Löwis indicated that if anyone thought they knew better how this should work, he would accept patches.
+
+Contributing thread:
+
+- `Problem with module loading on multi-arch? <http://mail.python.org/pipermail/python-dev/2006-March/062462.html>`__
+
+-----------------
+PEP 299: rejected
+-----------------
+
+Guido rejected `PEP 299`_, which would have encouraged the definition of a module-level __main__() function instead of the current::
+
+    if __name__ == '__main__':
+        ...
+
+The rejection came after it was clear that writing code to work both before and after the PEP was going to be difficult, that ``import __main__`` would have started raising TypeErrors, and that the proposal didn't particularly gain much over the status quo.
+
+.. _PEP 299: http://www.python.org/dev/peps/pep-0299/
+
+Contributing thread:
+
+- `What about PEP 299? <http://mail.python.org/pipermail/python-dev/2006-March/062951.html>`__
+
+--------------------------------------
+String exceptions in generator.throw()
+--------------------------------------
+
+In its implementation at the time, `PEP 342`_'s throw method on generators did not support string exceptions.  Phillip J. Eby wanted to add support for them, but suggested that string exceptions only be allowed if accompanied by a traceback so that string exceptions could only be passed on, not created.  Guido indicated that he'd rather keep things simple and just allow string exceptions regardless of the presence of a traceback.
+
+.. _PEP 342: http://www.python.org/dev/peps/pep-0342/
+
+Contributing thread:
+
+- `PEP 342 support for string exceptions in throw() <http://mail.python.org/pipermail/python-dev/2006-March/062798.html>`__
+
+----------------------
+Generator memory leaks
+----------------------
+
+With `PEP 342`_, generators need a __del__ method to raise the GeneratorExit exception in active generators. However, the __del__ method also means the generator cannot be cleaned up when it's part of a reference cycle.  Tim Peters suggested that the best solution was simply to add a special test for generators, and leave any generalizations of this idea until they're actually needed.
+
+Contributing threads:
+
+- `[Python-checkins] r43358 - python/trunk/Modules/itertoolsmodule.c <http://mail.python.org/pipermail/python-dev/2006-March/062870.html>`__
+- `Fwd: [Python-checkins] r43358 - python/trunk/Modules/itertoolsmodule.c <http://mail.python.org/pipermail/python-dev/2006-March/062972.html>`__
+
+-------------------------------------
+PyMem and PyObject freeing mismatches
+-------------------------------------
+
+When Python's small-object memory allocator was introduced, Python originally supported obtaining an object through PyObject_{New,NEW} and freeing it using any one of PyObject_{Free,FREE}, PyMem_{Del,DEL} or PyMem_{Free,FREE}.  The hacks to support the mismatched (PyMem_*) frees were pretty horrible, and since using such mismatched calls has been forbidden for years, Tim Peters started ripping out the support code.  Turns out that Python core itself had a number of mismatched calls, but Tim decided to leave the change checked in so that these kinds of issues could get fixed before the 2.5 release.  Adam DePrince promised to provide a patch to identify in a debug-build when an object was freed with a mismatched call.
+
+Contributing thread:
+
+- `Prevalence of low-level memory abuse? <http://mail.python.org/pipermail/python-dev/2006-March/062832.html>`__
+
+
+================
+Deferred Threads
+================
+- `reference leaks, __del__, and annotations <http://mail.python.org/pipermail/python-dev/2006-March/063213.html>`__
+- `New-style icons, .desktop file <http://mail.python.org/pipermail/python-dev/2006-March/063235.html>`__
+
+
+==================
+Previous Summaries
+==================
+- `Still looking for volunteer to run Windows buildbot <http://mail.python.org/pipermail/python-dev/2006-March/062445.html>`__
+- `Making staticmethod objects callable? <http://mail.python.org/pipermail/python-dev/2006-March/062450.html>`__
+- `Switch to MS VC++ 2005 ?! <http://mail.python.org/pipermail/python-dev/2006-March/062456.html>`__
+- `_bsddb.c ownership <http://mail.python.org/pipermail/python-dev/2006-March/063117.html>`__
+
+
+===============
+Skipped Threads
+===============
+- `[Python-checkins] r43041 - python/trunk/Modules/_ctypes/cfield.c <http://mail.python.org/pipermail/python-dev/2006-March/062444.html>`__
+- `open() mode is lax <http://mail.python.org/pipermail/python-dev/2006-March/062447.html>`__
+- `bytes thoughts <http://mail.python.org/pipermail/python-dev/2006-March/062455.html>`__
+- `Python Library Reference top page too long <http://mail.python.org/pipermail/python-dev/2006-March/062465.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-March/062496.html>`__
+- `Bug 1184112 still valid <http://mail.python.org/pipermail/python-dev/2006-March/062510.html>`__
+- `Making runpy.run_module *not* thread-safe <http://mail.python.org/pipermail/python-dev/2006-March/062517.html>`__
+- `Py3K thought: use external library for client-side HTTP <http://mail.python.org/pipermail/python-dev/2006-March/062543.html>`__
+- `dealing with decorators hiding metadata of decorated functions <http://mail.python.org/pipermail/python-dev/2006-March/062545.html>`__
+- `All green! <http://mail.python.org/pipermail/python-dev/2006-March/062551.html>`__
+- `Py_ssize_t backwards compatibility <http://mail.python.org/pipermail/python-dev/2006-March/062561.html>`__
+- `PY_SSIZE_T_CLEAN <http://mail.python.org/pipermail/python-dev/2006-March/062562.html>`__
+- `Patch or feature? Tix.Grid working for 2.5 <http://mail.python.org/pipermail/python-dev/2006-March/062577.html>`__
+- `__dict__ strangeness <http://mail.python.org/pipermail/python-dev/2006-March/062578.html>`__
+- `Two buildbot slaves wedged <http://mail.python.org/pipermail/python-dev/2006-March/062586.html>`__
+- `pyexpat namespace problem (Was: libbzip2 version?) <http://mail.python.org/pipermail/python-dev/2006-March/062598.html>`__
+- `buildbot failure in sparc solaris10 gcc trunk <http://mail.python.org/pipermail/python-dev/2006-March/062619.html>`__
+- `Test <http://mail.python.org/pipermail/python-dev/2006-March/062620.html>`__
+- `Py3K timescale and stdlib philosophy (was: Re: Py3K thought: use...) <http://mail.python.org/pipermail/python-dev/2006-March/062625.html>`__
+- `Py3K timescale and stdlib philosophy <http://mail.python.org/pipermail/python-dev/2006-March/062630.html>`__
+- `Long-time shy failure in test_socket_ssl <http://mail.python.org/pipermail/python-dev/2006-March/062634.html>`__
+- `Bug Day? <http://mail.python.org/pipermail/python-dev/2006-March/062646.html>`__
+- `Bug Day on Friday, 31st of March <http://mail.python.org/pipermail/python-dev/2006-March/062662.html>`__
+- `buildbot failure in x86 W2k trunk <http://mail.python.org/pipermail/python-dev/2006-March/062672.html>`__
+- `buildbot failure in x86 XP-2 trunk <http://mail.python.org/pipermail/python-dev/2006-March/062673.html>`__
+- `buildbot failure in x86 XP 2.4 <http://mail.python.org/pipermail/python-dev/2006-March/062676.html>`__
+- `Documenting the ssize_t Python C API changes <http://mail.python.org/pipermail/python-dev/2006-March/062688.html>`__
+- `r43041 - python/trunk/Modules/_ctypes/cfield.c <http://mail.python.org/pipermail/python-dev/2006-March/062689.html>`__
+- `buildbot warnings in x86 gentoo trunk <http://mail.python.org/pipermail/python-dev/2006-March/062694.html>`__
+- `segfaults on Mac (was Re: Long-time shy failure in test_socket_ssl)) <http://mail.python.org/pipermail/python-dev/2006-March/062701.html>`__
+- `buildbot warnings in amd64 gentoo trunk <http://mail.python.org/pipermail/python-dev/2006-March/062714.html>`__
+- `[Python-checkins] r43126 - in python/trunk: Doc/lib/libsocket.tex Lib/socket.py Lib/test/test_socket.py Misc/NEWS Modules/socketmodule.c <http://mail.python.org/pipermail/python-dev/2006-March/062723.html>`__
+- `buildbot warnings in x86 XP-2 trunk <http://mail.python.org/pipermail/python-dev/2006-March/062727.html>`__
+- `buildbot warnings in g4 osx.4 trunk <http://mail.python.org/pipermail/python-dev/2006-March/062730.html>`__
+- `buildbot warnings in sparc solaris10 gcc trunk <http://mail.python.org/pipermail/python-dev/2006-March/062749.html>`__
+- `Building Python for AMD64 (Windows) <http://mail.python.org/pipermail/python-dev/2006-March/062751.html>`__
+- `buildbot warnings in x86 W2k trunk <http://mail.python.org/pipermail/python-dev/2006-March/062777.html>`__
+- `buildbot warnings in x86 XP trunk <http://mail.python.org/pipermail/python-dev/2006-March/062778.html>`__
+- `Patch to add timestamp() method to datetime objects <http://mail.python.org/pipermail/python-dev/2006-March/062781.html>`__
+- `test_quopri, test_wait3, and test_popen2 <http://mail.python.org/pipermail/python-dev/2006-March/062783.html>`__
+- `[Python-3000] Iterators for dict keys, values, and items == annoying :) <http://mail.python.org/pipermail/python-dev/2006-March/062787.html>`__
+- `howto return malloc()ed memory from C -&gt; Python <http://mail.python.org/pipermail/python-dev/2006-March/062791.html>`__
+- `PEP 343: A messy contextmanager corner case <http://mail.python.org/pipermail/python-dev/2006-March/062797.html>`__
+- `Another PEP 343 contextmanager glitch <http://mail.python.org/pipermail/python-dev/2006-March/062800.html>`__
+- `Pickling problems are hard to debug <http://mail.python.org/pipermail/python-dev/2006-March/062828.html>`__
+- `daily releases? <http://mail.python.org/pipermail/python-dev/2006-March/062849.html>`__
+- `Changing -Q to warn for 2.5? <http://mail.python.org/pipermail/python-dev/2006-March/062850.html>`__
+- `TRUNK FREEZE for 2.5a1: 0000 UTC, Thursday 30th <http://mail.python.org/pipermail/python-dev/2006-March/062853.html>`__
+- `refleaks in 2.4 <http://mail.python.org/pipermail/python-dev/2006-March/062856.html>`__
+- `Inconsistency in 2.4.3 for __repr__() returning unicode <http://mail.python.org/pipermail/python-dev/2006-March/062857.html>`__
+- `Next PyPy Sprint: Tokyo 23/4 - 29/4 <http://mail.python.org/pipermail/python-dev/2006-March/062859.html>`__
+- `[Python-checkins] TRUNK FREEZE for 2.5a1: 0000 UTC, Thursday 30th <http://mail.python.org/pipermail/python-dev/2006-March/062867.html>`__
+- `Libref sections to put new modules under? <http://mail.python.org/pipermail/python-dev/2006-March/062871.html>`__
+- `[Python-checkins] Cancelled! TRUNK FREEZE for 2.5a1: 0000 UTC, Thursday 30th <http://mail.python.org/pipermail/python-dev/2006-March/062880.html>`__
+- `Error msgs for new-style division <http://mail.python.org/pipermail/python-dev/2006-March/062924.html>`__
+- `Reminder: Bug Day this Friday, 31st of March <http://mail.python.org/pipermail/python-dev/2006-March/062953.html>`__
+- `warnings in libffi <http://mail.python.org/pipermail/python-dev/2006-March/063079.html>`__
+- `Name for python package repository <http://mail.python.org/pipermail/python-dev/2006-March/063095.html>`__
+- `alpha problems -- need input <http://mail.python.org/pipermail/python-dev/2006-March/063116.html>`__
+- `unicode vs buffer (array) design issue can crash interpreter <http://mail.python.org/pipermail/python-dev/2006-March/063127.html>`__
+- `building sql queries in python <http://mail.python.org/pipermail/python-dev/2006-March/063138.html>`__
+- `Win64 AMD64 (aka x64) binaries available64 <http://mail.python.org/pipermail/python-dev/2006-March/063143.html>`__
+- `_xmlplus fixup for 2.5 <http://mail.python.org/pipermail/python-dev/2006-March/063159.html>`__
+- `(finally) getting around to killing __private names from stdlib <http://mail.python.org/pipermail/python-dev/2006-March/063161.html>`__
+- `new article - MapPoint and Python <http://mail.python.org/pipermail/python-dev/2006-March/063172.html>`__
+- `xmlrpclib.binary missing? <http://mail.python.org/pipermail/python-dev/2006-March/063195.html>`__
+- `Fwd: Python 2.5 update <http://mail.python.org/pipermail/python-dev/2006-March/063199.html>`__
+- `2.5 trunk built for Windows available? <http://mail.python.org/pipermail/python-dev/2006-March/063200.html>`__
+- `Nasty trunk test failures <http://mail.python.org/pipermail/python-dev/2006-March/063202.html>`__
+- `x86 trunk MSI preview <http://mail.python.org/pipermail/python-dev/2006-March/063242.html>`__
+- `[Python-checkins] Python Regression Test Failures all (1) <http://mail.python.org/pipermail/python-dev/2006-March/063243.html>`__
+- `gmane.comp.python.devel.3000 has disappeared <http://mail.python.org/pipermail/python-dev/2006-March/063251.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+March 16, 2006 through March 31, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 1st written by
+the python-dev summary slave,  Steve Bethard (Looks like I'm on my own now!).
+
+To contact me, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.  Unfortunately, even though reST is standardized, the
+wonders of programs that like to reformat text do not allow us to
+guarantee you will be able to run the text version of this summary
+through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _original text file: http://www.python.org/dev/summary/2006-03-16_2006-03-31.rst
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

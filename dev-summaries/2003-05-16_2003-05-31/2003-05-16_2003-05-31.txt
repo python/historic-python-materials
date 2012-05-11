@@ -1,0 +1,242 @@
+python-dev Summary for 2003-05-16 through 2003-05-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from May 16, 2003 through May 31, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have an archived summary of each thread started on the list.  To comment on anything mentioned here, just post to python-list@python.org or `comp.lang.python`_ with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the eighteenth summary written by Brett Cannon (has his own room with a door for the first time in over 22 years).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; its simple and is accepted for `PEP markup`__.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+__ http://www.python.org/peps/pep-0012.html
+
+The in-development version of the documentation for Python can be found at http://www.python.org/dev/doc/devel/ and should be used when wanting to look up any documentation on something mentioned here.  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+.. contents::
+
+
+.. _last summary: http://www.python.org/dev/summary/2003-05-01_2003-05-15.html
+
+
+
+
+======================
+Summary Announcements
+======================
+Sorry about the delay for this summary.  I was visiting my mother and that puts me out of my hacking groove.  I also had a roommate move out which means I got to move into his room.  And on top of all of that I just decided where I am going to go for grad school in computer science ( `Cal Poly San Luis Obispo`_ ).  Life just likes to dump everything on you at once, huh?
+
+
+.. _Cal Poly San Luis Obispo: http://www.calpoly.edu/
+
+====================================
+`Vacation; Python 2.2.3 release.`__
+====================================
+__ http://mail.python.org/pipermail/python-dev/2003-May/035642.html
+
+Related threads:
+    - `Preparing docs for Python 2.2.3`__
+    - `Python 2.2.3`__
+    - `One other 2.2.3 failure`__
+    - `RELEASED Python 2.2.3c1`__
+    - `_sre changes`__
+    - `Python bug 544473 - bugfix candidate - was it applied?`__
+    - `Plans for Python 2.2.3 final`__
+    - `Python 2.2.3 docs freeze`__
+    - `RELEASED Python 2.2.3 (final)`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-May/035796.html
+__ http://mail.python.org/pipermail/python-dev/2003-May/035797.html
+__ http://mail.python.org/pipermail/python-dev/2003-May/035801.html
+__ http://mail.python.org/pipermail/python-dev/2003-May/035807.html
+__ http://mail.python.org/pipermail/python-dev/2003-May/035835.html
+__ http://mail.python.org/pipermail/python-dev/2003-May/035851.html
+__ http://mail.python.org/pipermail/python-dev/2003-May/035856.html
+__ http://mail.python.org/pipermail/python-dev/2003-May/035872.html
+__ http://mail.python.org/pipermail/python-dev/2003-May/035905.html
+
+`Python 2.2.3`_ has gone out the door!
+
+.. _Python 2.2.3: http://www.python.org/2.2.3/
+
+
+===============================
+`C new-style classes and GC`__
+===============================
+__ http://mail.python.org/pipermail/python-dev/2003-May/035661.html
+
+Jim Fulton updated the tutorial for creating new C types to use new-style classes.  This led to the question of what the right way was for dealing with garbage collection.  In terms of the tp_dealloc slot, having it call obj->ob_type->tp_free is best since that works the best when the type is subclassed.
+
+This also led to a discussion about the magic of PyType_Ready and whether it should do more.  This wonderful function fills in tp_alloc and tp_free if tp_base and tp_bases are empty (they are set appropriately for PyBaseObject which is the C version of object).  What was changed was that now the function does the right thing if the object should be checked for cycles based on settings in tp_flags.
+
+Paul Moore was worried about the loss of the tutorial for classic types.  The response was that as long as they don't mess with there code it will continue to work, but if they decide to change something they should probably update.  Michael Hudson's Misc/pymemcompat.h file is also helpful since it allows you to use 2.3's memory API but macro-replaces the call with the proper code all the way back to 1.5.2 .  It was suggested adding a Misc/pyapipcompat.h for PyAPI_FUNC, PyAPI_DATA, and PyMODINIT_FUNC.
+
+
+=====================
+`Attribute lookup`__
+=====================
+__ http://mail.python.org/pipermail/python-dev/2003-May/035730.html
+
+For the last summary I asked for the help of python-dev to find out the exact algorithm used to do attribute lookup for new-style classes (I don't care about classic classes since they are sooo 2.1  =).  A bunch of people jumped in and made suggestions, but I am going to steal the explanation from Raymond Hettinger's explanation of descriptors which can be found at http://users.rcn.com/python/download/Descriptor.htm .  =)
+
+The attribute lookup order gives "data descriptors priority over instance variables, instance variables priority over non-data descriptors, and assigns lowest priority to __getattr__ if provided."  This is all is done by object.__getattribute__ .  If you define your own __getattribute__ none of this is done unless you  explicitly call object's implementation.  You have to worry about calling a descriptor's __get__ method yourself if you decide not to call object.__getattribute__ .
+
+Raymond's descriptor essay/explanation/(group of words put together in attempt to make a coherent idea which he does) explains the difference between a data descriptor and non-data descriptor, but instead of make you wait I will just tell you.  A data descriptor defines both a __get__ and __set__ method while a non-data descriptor defines only __get__.  This makes sense when you think about non-data-descriptors such as functions.  You have no need to assign to a function so not having a __set__ in no way harms the usage of a function plus it negates the need for any special flag or anything to define the difference between data and non-data descriptors.
+
+
+=================
+`Introduction`__
+=================
+__ http://mail.python.org/pipermail/python-dev/2003-May/035792.html
+
+Splinter threads:
+    - `Contracts PEP`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-May/035864.html
+
+What started off as Jeffrey Robert's introducing himself ended up becoming a short howto on how to get involved on python-dev.  It was suggested to work on pyPy_ (although that is not exactly python-dev but is still cool and you could learn a lot about Python on a more abstract level =).  Multiple people suggested working on bugs and patches.  I specifically suggested looking at patches in development to learn what they were doing to the code's semantics.  Mention of the AST branch and working on that was also brought up.
+
+Terrence Way then introduced himself and mentioned he had written a PEP about programming with contracts.  It led to, in the end, Guido saying that he wanted to wait and let more implementations get out there and be weeded out before he started pronouncing on PEPs on the subject.
+
+.. _pyPy: http://codespeak.net/pypy/index.cgi?home
+
+
+=========
+Quickies
+=========
+`test_urllibnet failing on Windows`__
+    os.fdopen does not work with sockets under Windows when fetching its argument from fileno .
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035655.html
+
+`[development doc updates]`__
+    Here is a simple intelligence test: what do you think this email was about based on its subject?  Get it right and you earned yourself a lollipop (on your own dime).
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035660.html
+
+`test_time fails with current CVS`__
+    A bug report has been filed.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035669.html
+
+`a strange case`__
+    Splinter threads:
+        `Unifying modules and classes?`__
+
+    Apparently the 2.2.x branch allows you to subclass a module.  This has been fixed in 2.3 .  And once again Guido stated that erasing the line separating classes and modules is not going to happen while his benevolently dictating body still has air in it (okay, he didn't say it that way, but I am sure he wouldn't object to a little artistic license to get his point across =).  But if you really feel the need to have a module be a class just stick an instance in sys.modules; just don't expect everything to play well with it, though.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035676.html
+__ http://mail.python.org/pipermail/python-dev/2003-May/035731.html
+
+`test_bsddb185 failing under OS X`__
+    Tests were failing for me under OS X.  After Skip Montanaro and I independently came up with a better way for the test to clean up after itself the tests passed from some odd reason.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035699.html
+
+`Need advice, maybe support`__
+    Christian Tismer was given two bits in tp_flags for Stackless_ to create Stackless-aware types that can identify recursive, indirect function calls in C.  The two bits will greatly simplify the implementation of Stackless 3.0.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035701.html
+.. _Stackless: http://www.stackless.com/
+
+`[Python-Dev] SF oddity`__
+    Remember folks, look out for horizontal scroll bars along with vertical ones.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035713.html
+
+Weekly Python Bug/Patch Summary
+    * Ending on `2003-05-18`__
+    * Ending on `2003-05-25`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-May/035716.html
+__ http://mail.python.org/pipermail/python-dev/2003-May/035834.html
+
+`doctest extensions`__
+    Jim Fulton came up with some possible additions for doctest.  You can see them at http://cvs.zope.org/Zope3/src/zope/testing/doctestunit.py?rev=HEAD&content-type=text/vnd.viewcvs-markup .  If you would like to see them added then speak up.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035718.html
+
+`+= on return of function call result`__
+    This is a continuation from `last summary`_.
+    Samuele Pedroni wrote a simple function that simulates what was originally desired.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035500.html
+
+`Using emacs' unexec to speed Python startup`__
+    Splinter threads:
+        - `portable undumper in xemacs`__
+
+    Some people tried  to speed up loading Python for `some editor`_ when what they should have been doing is learning how to use a `better editor`_.  =)
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035727.html
+__ http://mail.python.org/pipermail/python-dev/2003-May/035769.html
+
+.. _some editor: http://www.gnu.org/software/emacs/emacs.html
+.. _better editor: http://www.vim.org/
+
+`[debian build error]`__
+    Some issue with using Debian packages and Python 2.2 with gcc 3.3 and libstdc++5.  A Debian bug report has been filed.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035747.html
+
+`urllib2 proxy support broken?`__
+    Yes, but Gustavo Niemeyer found the bug and came up with a patch.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035764.html
+
+`Python Run-Time System and Extensions`__
+    Daniel Silva is writing a compiler for Python to `PLT Scheme`_ code.  He asked for suggestions on which of two ways to go for being able to run C extension code.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035773.html
+.. _PLT Scheme: http://www.plt-scheme.org/
+
+`Descriptor API`__
+    We all learned what the difference is between a data and non_data descriptor (which you can know too by reading the summary for `Attribute lookup`_ ).
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035788.html
+
+`Of what use is commands.getstatus()`__
+    Guido ended up saying the commmands module should be redesigned, probably put into shutil, and then have the old version deprecated.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035799.html
+
+`Change to ossaudiodev setparameters() method`__
+    Some day Greg Ward will get his ossaudiodev module to work on both Guido's home machine and work machine.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035840.html
+
+`RE: Decimal class`__
+    A Decimal class is currently being worked on in the CVS sandbox.  The question as to whether the values should be immutable was raised.  Everyone agreed that they should be immutable.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035844.html
+
+`install debian package`__
+    python-dev is not the right place to bring up issues with Debian packages.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035849.html
+
+`Release question`__
+    Branches in CVS for Python are pretty much only used for minor versions (the "3" in "2.3.x").  Since 2.3 is in beta that means no semantic changes to the code.  Any new features must wait for 2.4 development to start which occurs when 2.3 is out the door.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035873.html
+
+`Algoritmic Complexity Attack on Python`__
+    Someone tried to point out that Python was vulnerable to an attack if you naively took in user-supplied keys to a dictionary.  The big lesson is that Python's hash function can change between releases and that it will always be as fast as possible but can still be nailed by worst-case situations.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035874.html
+
+`KeyboardInterrupt on Windows`__
+    An optimization on the JUMP_ABSOLUTE opcode was not dealing with asynchronous exceptions since it was skipping the signal checks in the interpreter loop.  It has been fixed.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035890.html
+
+`more-precise instructions for "Python.h first"?`__
+    David Abrahams didn't like the restriction of having to put Python.h before all other headers in C/C++ code.  The problem is some key macro definitions are set in Python.h that are needed on some platforms.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035908.html

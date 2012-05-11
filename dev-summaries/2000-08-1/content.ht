@@ -1,0 +1,151 @@
+Title: Python-dev summary: 2000-08-01 to 2000-08-15
+
+<pre>
+Writing this summary was difficult, because there were no large themes
+in the last two weeks of discussion.  Instead there were lots and lots
+of small items; as the release date for 2.0b1 nears, people are
+concentrating on resolving outstanding patches, fixing bugs, and
+making last-minute tweaks.
+
+
+Python 1.6 progress
+===================
+
+Python 1.6b1 was released a few days into the month; the plan is to
+release 1.6final after a few weeks of testing.  GvR's announcement:
+       <a href="http://mail.python.org/pipermail/python-dev/2000-August/007937.html">http://mail.python.org/pipermail/python-dev/2000-August/007937.html</a>
+The 1.6 page on python.org:
+       <a href="http://www.python.org/1.6/">http://www.python.org/1.6/</a> 
+
+1.6 is the "Contractual Obligations" release of Python, containing all
+the work done while the Pythoneers were working at CNRI.  1.6 is worth
+trying out if you're interested in testing Python's new Unicode
+support.  Otherwise, unless you're CNRI's lawyer, you don't really
+care about this release, and can just wait for 2.0b1.  2.0 will
+contain all the features of 1.6 plus the additional work and bugfixes
+that have been made since May 2000, and the first beta release is
+scheduled for the end of August.  (Maintainers of Linux distributions
+also probably don't need to bother packaging 1.6.)
+
+
+Python 2.0 progress
+===================
+
+August 14 was the feature freeze date for Python 2.0; after that date,
+no new features can be proposed.  The freeze announcement:
+       <a href="http://mail.python.org/pipermail/python-dev/2000-August/008245.html">http://mail.python.org/pipermail/python-dev/2000-August/008245.html</a>
+The planned release schedule for 2.0:
+       <a href="http://python.sourceforge.net/peps/pep-0200.html">http://python.sourceforge.net/peps/pep-0200.html</a>
+
+List comprehensions (PEP 202) were finally checked into the main CVS
+tree, after existing as a separate patch for a long time, and as
+documented in this PEP:
+       <a href="http://python.sourceforge.net/peps/pep-0202.html">http://python.sourceforge.net/peps/pep-0202.html</a>
+
+
+Stackless Python
+================
+
+Christian Tismer's patches for Stackless Python came up as a
+discussion topic again.  They're available from:
+	<a href="http://www.stackless.com">http://www.stackless.com</a> 
+
+The Stackless patches make two major changes.
+
+	1) First, the main loop of the bytecode interpreter
+(Python/ceval.c in the source code) is modified so that calling a new
+Python function does not allocate a new frame on the C stack.  Right
+now an infinite Python recursion will fill up the C stack fairly
+quickly and segfault; in Stackless Python, the Python stack frames
+will be allocated from the heap and won't fill up the C stack.
+
+	2) Second, they add a module for creating continuations.
+Continuations are an idea most commonly seen in Scheme and ML, as
+summed up by Tim Peters:
+       <a href="http://mail.python.org/pipermail/python-dev/2000-August/008015.html">http://mail.python.org/pipermail/python-dev/2000-August/008015.html</a>
+
+Continuations allow storing the state of a running function and
+resuming its execution later; a stackless bytecode interpreter is
+required to make it possible to implement them at all.  Continuations
+are a fundamental building block in that other abstractions such as
+generators and coroutines can be built on top of them.  Having
+continuations can make some applications, such as writing network
+servers, much easier, but understanding continuations, and explaining
+them clearly can be difficult.  See Sam Rushing's notes on Python
+coroutines:
+       <a href="http://www.nightmare.com/~rushing/copython/">http://www.nightmare.com/~rushing/copython/</a>
+
+The first change simply makes an improved implementation of the
+interpreter; it introduces no changes visible to Python programmers
+and imposes no obligation upon the maintainers of other Python
+implementations.  The second change is the one that causes the most
+disagreement, because it adds new language features that are
+user-visible, and these features would be very difficult to add to
+JPython.  (Essentially you'd need to rewrite a Java VM to be
+stackless, and JPython would then require this VM to run.  I don't
+know if Microsoft's Common Language Runtime would make continuations
+easy or difficult.)
+
+The current plan is for Gordon McMillan to write PEP 219 describing the
+first part of this change, the stackless version of the CPython
+interpreter.  Continuations will be left to a separate proposal, PEP 220.
+       <a href="http://python.sourceforge.net/peps/pep-0219.html">http://python.sourceforge.net/peps/pep-0219.html</a>
+       <a href="http://python.sourceforge.net/peps/pep-0220.html">http://python.sourceforge.net/peps/pep-0220.html</a>
+
+
+The winreg module
+=================
+
+The winreg module was the subject of a squabble.  The original winreg
+was written by Mark Hammond and is part of PythonWin; it exactly wraps
+the Windows API for manipulating the registry.  Around the end of June
+Paul Prescod suggested writing an object-oriented wrapper on top of
+the low-level API:
+       <a href="http://mail.python.org/pipermail/python-dev/2000-June/004867.html">http://mail.python.org/pipermail/python-dev/2000-June/004867.html</a>
+
+Mark Hammond provisionally agreed with the idea:
+       <a href="http://mail.python.org/pipermail/python-dev/2000-June/004881.html">http://mail.python.org/pipermail/python-dev/2000-June/004881.html</a>
+
+Paul proceeded to write the module and check it in.  Later on Mark
+Hammond objected to the interface:
+       <a href="http://mail.python.org/pipermail/python-dev/2000-July/007570.html">http://mail.python.org/pipermail/python-dev/2000-July/007570.html</a>
+
+Paul explained his reasons for writing the new module:
+       <a href="http://mail.python.org/pipermail/python-dev/2000-August/007734.html">http://mail.python.org/pipermail/python-dev/2000-August/007734.html</a>
+       <a href="http://mail.python.org/pipermail/python-dev/2000-August/007747.html">http://mail.python.org/pipermail/python-dev/2000-August/007747.html</a>
+
+The opinion of most other people was that, yes, the Windows registry
+interface is ugly, but it's so infrequently used that it's not worth
+making it tidy.  Paul returned with a proposed interface
+specification:
+      <a href="http://mail.python.org/pipermail/python-dev/2000-August/008162.html">http://mail.python.org/pipermail/python-dev/2000-August/008162.html</a>
+
+No one has commented on this interface yet.  Windows-based Python
+programmers with an interest in the registry should take a look, and
+offer their opinions on this issue; most of the members of python-dev
+use some stripe of Unix.  Is a higher-level interface to the registry
+needed?  If yes, what do you think of Paul's proposal?
+
+
+Small matters
+=============
+
+Jeremy Hylton moved the bug database from Jitterbug running on
+python.org to the SourceForge bug tracker:
+       <a href="http://sourceforge.net/bugs/?group_id=5470">http://sourceforge.net/bugs/?group_id=5470</a>
+
+Peter Schneider-Kamp announced a fork of IDLE.  The goal is to speed
+up development of IDLE and ultimately merge the improved version back
+into the Python source tree:
+       <a href="http://idlefork.sourceforge.net">http://idlefork.sourceforge.net</a>
+       
+An odd little method was added to dictionaries after some discussion.
+.setdefault(key, default) behaves like .get(key, default), but also
+inserts the value of 'default' into the dictionary if 'key' wasn't
+found.  
+
+/F posted some benchmarks of SRE versus the old re module:
+       <a href="http://mail.python.org/pipermail/python-dev/2000-August/007797.html">http://mail.python.org/pipermail/python-dev/2000-August/007797.html</a>
+</pre>
+
+

@@ -1,0 +1,219 @@
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+python-dev Summary for 2003-03-16 through 2003-03-31
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+This is a summary of traffic on the `python-dev mailing list`_ from March 16, 2003 through March 31, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have an archived summary of each thread started on the list.  To comment on anything mentioned here, just post to python-list@python.org or `comp.lang.python`_ with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the fourteenth summary written by Brett Cannon (Managed to keep my sanity as long as A.M. Kuchling did before he stopped doing the Summaries =).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax); you can safely ignore it (although I suggest learning reST; its simple and is accepted for `PEP markup`__).  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+__ http://www.python.org/peps/pep-0012.html
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+.. contents::
+
+
+.. _last summary: http://www.python.org/dev/summary/2003-03-01_2003-03-15.html
+
+======================
+Summary Announcements
+======================
+PyCon is now over!  It was a wonderful experience.  Getting to meet people from python-dev in person was great.  The sprint was fun and productive (work on the AST branch, caching where something is found in an inheritance tree, and a new CALL_ATTR opcode were all worked on).  It was definitely worth attending; I am already looking forward to next year's conference.
+
+I am trying a new way of formatting the Quickies_ section.  I am trying non-inline implicit links instead of inlined ones.  I am hoping this will read better in the text version of the summary.  If you have an opinion on whether the new or old version is better let me know.  And remember, the last time I asked for an opinion Michael Chermside was the only person to respond and thus ended up making an executive decision.
+
+.. _PyCon: http://www.python.org/pycon/
+
+
+========================
+`Re: lists v. tuples`__
+========================
+__ http://mail.python.org/pipermail/python-dev/2003-March/034029.html
+
+Splinter threads:
+    - `Re: Re: lists v. tuples <http://mail.python.org/pipermail/python-dev/2003-March/034070.html>`__
+
+This developed from a thread from covered in the `last summary`_ that discussed the different uses of lists and tuples.  By the start date for this summary, though, it had turned into a discussion on comparisons.  This occured when sorting heterogeneous objects came up.  Guido commented that having anything beyond equality and non-equality tests for non-related objects does not make sense.  This also led Guido to comment that "TOOWTDI makes me want to get rid of __cmp__" (TOOWTDI is "There is Only One Way to Do It").
+
+Now before people start screaming bloody murder over the possible future loss of __cmp__() (which probably won't happen until Python 3), realize that all comparisons can be done using the six other rich comparisons (__lt__(), __eq__(), etc.).  There is some possible code elegance lost if you have to use two rich comparisons instead a single __cmp__() comparison, but it is nothing that will prevent you from doing something that you couldn't do before.  There can also be a performance penalty in sorting in some instances.
+
+This all led Guido to suggest introducing the function before().  This would be used for arbitrary ordering of objects.  Alex Martelli said it would "be very nice if before(x,y) were the same as x<y whenever the latter doesn't raise an exception, if feasible".  He also said that it should probably "define a total ordering, i.e. the implied equivalence being equality".
+
+
+================================
+`Fast access to __builtins__`__
+================================
+__ http://mail.python.org/pipermail/python-dev/2003-March/034243.html
+
+There has been rumblings on the list as of late of disallowing shadowing of built-ins.  Specifically, the idea of someone injecting something into a module's namespace that overrides a global (by doing something like ``socket.len = lambda x: 42`` from the socket module) is slightly nasty, rarely done, and prevents the core from optimizing for built-ins.
+
+Raymond Hettinger, in an effort to see how to speed up built-in access, came up with the idea of replacing opcode calls of LOAD_GLOBAL and replace them with LOAD_CONST after putting the built-in being called into the constants table.  This would leave shadowing of built-ins locally unaffected but prevent shadowing at the module.  Raymond suggested turning on this behavior for when running Python -O.
+
+The idea of turning this on when running with the -O option was shot down.  The main argument is that semantics are changed and thus is not acceptable for the -O flag.  It was mentioned that -OO can change semantics, but even that is questionable.
+
+So this led to some suggestions of how to turn this kind of feature on.  Someone suggested something like a pragma (think Perl) or some other mechanism at the module level.  Guido didn't like this idea since he does not want modules to be riddled with code to turn on module-level optimizations.
+
+But all of this was partially shot down when Guido stepped in and reiterated he just wanted to prevent outside code from shadowing built-ins for a module.  The idea is that if it can be proven that a module does not shadow a built-in it can output an opcode specific for that built-in, e.g. len() could output opcode for calling PyOject_Size() if the compiler can prove that len() is not shadowed in the module at any point.
+
+Neil Schemanauer suggested adding a warning for when this kind of shadowing is done.  Guido said fine as long as extension modules are exempt.  Now no matter how well the warning is coded, it would be *extremely* difficult to catch something like ``import X; d = X.__dict__; d["len"] = lambda x: 42``.  How do you deal with this?  By Guido saying he has not issue saying something like this "is always prohibited".  He said you could still do ``setattr(X, "len", lambda x: 42)``, though, and that might give you a warning.  Neil's patch can be found at http://www.python.org/sf/711448 .
+
+
+================================
+`capability-mediated modules`__
+================================
+__ http://mail.python.org/pipermail/python-dev/2003-March/034149.html
+
+Splinter threads:
+    - `Capabilities <http://mail.python.org/pipermail/python-dev/2003-March/034152.html>`__
+
+The thread that will not die (nor does it look like it will in the near future; Guido asked to postpone discussing it until he gets back from `Python UK`_ which will continue the discussion into the next summary.  I am ending up an expert at capabilities against my will.  =)
+
+In case you have not been following all of this, capabilities as being discussed here is the idea that security is based on passing around references to objects.  If you have a reference you can use it with no restrictions.  Security comes in by controlling who you give references to.  So I might ask for a reference to file(), but I won't necessarily get it.  I could, instead, be handed a reference to a restrictive version of file() that only opens files in an OSs temporary file directory.  So, in capabilities-land, executing ``open_file = file`` only works if you have the reference to 'file', otherwise the assignment fails and you just don't get access.  If that is not clear, read the `last summary`_ on this thread.  And now, on to the new stuff...
+
+There were also suggestions to add arguments to import statements to give a more fine-grained control over them.  But it was pointed out that classes fit this bill.
+
+The idea of limiting what modules are accessible by some code by not using a universally global scope (i.e., not using sys.modules) but by having a specific scope for each function was suggested.  As Greg Ewing put it, "it would be dynamic scoping of the import namespace".
+
+While trying to clarify things (which were at PyCon thanks to the Open Space discussion held there on this subject), a good distinction between a rexec_ world (as in the module) and a capabilities was made by Guido.  In capabilities, security is based on passing around references that have the amount of power you are willing for it to have.  In a rexec world, it is based on what powers the built-ins give you; there is no worry about passing around code.  Also, in the rexec world, you can have the idea of a "workspace" where __builtin__ has very specific definitions of built-ins that are used when executing untrusted code.
+
+It has been pointed out that rexec can be viewed as a specific implementation of capabilities.  Since you are restricting what references code by making only certain references available to the codes you are using capabilities, just more at a namespace level than on a per-reference level.
+
+Ka-Ping Yee wrote up an example of some code of what it would be like to code with capabilities (can be found at http://mail.python.org/pipermail/python-dev/2003-March/034287.html ).
+
+.. _Python UK: http://www.python-uk.org/
+.. _rexec: http://www.python.org/dev/doc/devel/lib/module-rexec.html
+
+=========
+Quickies
+=========
+
+`tzset`__
+    time.tzset() is going to be kept in Python, but only on UNIX.  The testing suite was also loosened so as to not throw as many false-negatives.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034062.html
+
+`Windows IO`__
+    stdin and stdout on Windows are TTYs.  You can get 3rd-party modules to get more control over the TTY.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034102.html
+
+`Who approved PyObject_GenericGetIter()???`__
+    Splinter threads: `Re: [Python-checkins] python/dist/src/Modules _hotshot.c,...`__; `PyObject_GenericGetIter()`__
+    Raymond Hettinger wrote a function called PyObject_GenericGetIter() that returned self for objects that were an iterator themselves.  Thomas Wouters didn't like the name and neither did Guido since it was generic at all; it worked specifically with objects that were iterators themselves.  Thus the function was renamed to PyObject_SelfIter().
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034107.html
+__ http://mail.python.org/pipermail/python-dev/2003-March/034103.html
+__ http://mail.python.org/pipermail/python-dev/2003-March/034110.html
+
+`test_posix failures?`__
+    A test for posix.getlogin() was failing for Barry Warsaw under XEmacs (that is what he gets for not using Vim_ =).  Thomas Wouters pointed out it only works when there is a utmp file somewhere.  Basically it was agreed the test that was failing should be removed.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034120.html
+.. _Vim: http://www.vim.org/
+
+`Shortcut bugfix`__
+    Raymond Hettinger reported that a change in `_tkinter.c`_ for a function led to it returning strings or ints which broke PMW_ (although having a function return two different things was disputed in the thread; I think it used to return a string and now returns an int).  The suggestion of making string.atoi() more lenient on its accepted arguments was made but shot down since it changes semantics.  If you want to keep old way of having everything in Tkinter return strings instead of more proper object types (such as ints where appropriate), you can put teh line ``Tkinter.wantobjects = 0`` before the first creation of a tkapp object.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034138.html
+.. __tkinter.c: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/_tkinter.c
+.. _PMW: http://pmw.sourceforge.net/
+
+`csv package ready for prime-time?`__
+    Related: `csv package stitched into CVS hierarchy`__
+    Skip Montanaro: Okay to move csv_ package from the sandbox into the stdlib?
+    Guido van Rossum: Yes.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034162.html
+__ http://mail.python.org/pipermail/python-dev/2003-March/034179.html
+.. _csv: http://www.python.org/dev/doc/devel/lib/module-csv.html
+
+`string.strip doc vs code mismatch`__
+    Neal Norwitz asked for someone to look at http://python.org/sf/697220 which updates string.strip() from the string_ module to take an optional second argument.  The patch is still open.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034167.html
+.. _string: http://www.python.org/dev/doc/devel/lib/module-string.html
+
+`Re: More int/long integration issues`__
+    The point was made that it would be nice if the statement ``if num in range(...): ...`` could be optimized by the compiler if range() was only the built-in by substituting it with something like xrange() and thus skip creating a huge list.  This would allow the removal of xrange() without issue.  Guido suggested a restartable iterator (generator would work wonderfully if you could just get everything else to make what range() returns look like the list it should be).
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034019.html
+
+`socket timeouts fail w/ makefile()`__
+    Skip Montanaro discovered that using the makefile() method on a socket cause the file-like object to not observe the new timeout facility introduced in Python 2.3.  He has since patched it so that it works properly and that sockets always have a makefile() (wasn't always the case before).
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034177.html
+
+`New Module? Tiger Hashsum`__
+    Tino Lange implemented a wrapper for the `Tiger hash sum`_ for Python and asked how he could get it added to the stdlib.  He was told that he would need community backing before his module could be added in order to make sure that there is enough demand to warrant the edition.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034191.html
+.. _Tiger hash sum: http://www.cs.technion.ac.il/~biham/Reports/Tiger/
+
+`Icon for Python RSS Feed?`__
+    Tino Lange asked if an XML RSS feed icon could be added at http://www.python.org/ for http://www.python.org/channews.rdf .  It has been added.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034196.html
+
+`How to suppress instance __dict__?`__
+    David Abrahams asked if there was an easy way to suppress an instance __dict__'s creation from a metaclass.  The answer turned out to be no.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034197.html
+
+`Weekly Python Bug/Patch Summary`__
+    Another summary can be found at http://mail.python.org/pipermail/python-dev/2003-March/034286.html
+    Skip Montanaro's weekly reminder how Python ain't perfect.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034200.html
+
+`[ot] offline`__
+    Samuele Pedroni is off relaxing is is going to be offline for two weeks starting March 23.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034204.html
+
+`funny leak`__
+    Christian Tismer discovered a memory leak in a funky def statement he came up with.  The leak has since been squashed (done at PyCon_ during the sprint, actually).
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034212.html
+
+`Checkins to Attic?`__
+    CVS_ uses something called the Attic to put files that are only in a branch but not the HEAD of a tree.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034230.html
+.. _CVS: http://www.cvshome.org/
+
+`ossaudiodev tweak needs testing`__
+   Greg Ward asked people who are running Linux or FreeBSD to execute ``Lib/test/regrtest.py -uaudio test_ossaudiodev`` so as to test his latest change to ossaudiodev_.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034233.html
+.. _ossaudiodev: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/ossaudiodev.c
+
+`cvs.python.sourceforge.net fouled up`__
+    Apparently when you get that nice message from SourceForge_ telling you that recv() has aborted because of server overloading you can rest assured that people with checkin rights get to continue to connect since they get priority.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034234.html
+.. _SF: 
+.. _SourceForge: http://www.sf.net/
+
+`Doc strings for typeslots?`__
+    You can't add custom docstrings to things stored in typeobject slots at the C level.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034239.html
+
+`Compiler treats None both as a constant and variable`__
+    As of now the compiler outputs opcode that treats None as both a global and a constant.  That will change as some point when assigning to None becomes an error instead of a warning as it is in Python 2.3; possibly 2.4 the change will be made.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034281.html
+
+`iconv codec`__
+    M.A. Lemburg stated that he questioned whether the iconv codec was ready for prime-time.  There have been multiple issues with it and most seem to stem from a platform's codec and not ones that come with Python.  This affects all u"".encode() calls when the codec does not come with Python.  Hye-Shik Chang said he would get his iconv codec NG patch up on SF in the next few days and that would be applied.
+
+__ http://mail.python.org/pipermail/python-dev/2003-March/034300.html

@@ -1,0 +1,65 @@
+<TITLE>Python customizations-mechanism proposal</TITLE>
+
+Part of the report on the <A HREF="sftwr-mgmt-report.html">NIST Python
+workshop software managmeent session</A><P>
+
+<ADDRESS>ken.manheimer@nist.gov, 301 975-3539</ADDRESS> <P>
+Original 20-Nov-1994, last mod 24-Nov-1994. <P>
+
+<A NAME="Customizations"><H2>Module Customizations Mechanism</H2></A>
+
+(The example code, <A HREF="custom.py">custom.py</A>, is a prototype
+implementation of the following proposal.) <P>
+
+The idea here is to provide a regular interface by which users
+register custom configurations for packages (module or groups of
+modules), and packages instantiate those customizations.  The
+customization registation process should not require loading of the
+package itself, and the instantiation process should be easy and
+automated, but still under control of the package. <P>
+
+I'd previously given some thought to this issue, and implemented a
+rough stab at dealing with it.  I've posted a prior version, and am
+including a revamped version, with explanation, as a basis for further
+dialogue on the subject... <P>
+
+Here is an excerpt from the code docs, describing the mechanism:
+
+<PRE>
+Module customizations mechanism.
+
+Regular interface by which users configure custom settings for modules, and
+modules implement those customizations at initialization time.
+
+$Id: custs-prop.html 4678 2002-02-28 16:45:09Z barry $
+Created by Ken.Manheimer@nist.gov,  16-Nov-1994
+
+The customization process does not depend on prior loading of the target
+module in order to register customizations.  The module, conversely, controls
+adoption of the customizations.
+
+Users employ the custom.config() routine to specify custom settings.  Modules
+use the custom.implement() routine to:
+  - register default values for vars, and
+  - to deploy the actual value for the var:
+      - the custom value, if one has been designated using custom.config(), 
+      - or else the default value, as specified in the custom.implement() call.
+
+custom.status() returns info about the status of specific customization vars,
+and custom.cancel() remove registration for a variable.`
+
+In order to enable special provisions for custom vars, modules can use
+custom.implement() to designate routines that implement the var's actual
+assignment.  The FUNCTION must take three values - module, variable name, and
+value.  It is responsible for actually assigning the variable, and should
+return the value assigned. 
+
+Custom vars with no designated assignment function actually use the 'assign'
+routine, below.  It simply assigns the value to the var within the module.
+
+(A few, trivial alternate assignment functions are also provided:
+  - 'loudassign', which does same thing as assign, but prints an informative
+    announcement about it, and
+  - 'ignore', which does not actually do the assignment.)"""
+
+</PRE>

@@ -1,0 +1,184 @@
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<meta name="generator" content="Adobe GoLive 4">
+		<title>Algorithm Education in Python</title>
+	</head>
+
+	<body bgcolor="white">
+		<h1 align="center">Algorithm Education in Python</h1>
+		<h6 align="center">Pai H. Chou<br>
+		<a href="http://www.ece.uci.edu/">Department of Electrical and Computer Engineering</a><br><a href="http://www.uci.edu/">University of California, Irvine</a>, CA 92697-2625 USA<br>
+		<a href="mailto:chou@ece.uci.edu">chou@ece.uci.edu</a></h6>
+		<h3>Abstract</h3>
+		<p>Design and analysis of algorithms are a fundamental topic in computer science and engineering education. Many algorithms courses include programming assignments to help students better understand the algorithms. Unfortunately, the use of traditional programming languages forces students to deal with details of data structures and supporting routines, rather than algorithm design. Python represents an <em>algorithm-oriented</em> language that has been sorely needed in education. The advantages of Python include its textbook-like syntax and interactivity that encourages experimentation. More importantly, we report our novel use of Python for representing aggregate data structures such as graphs and flow networks in a concise textual form, which not only encourages students to experiment with the algorithms but also dramatically cuts development time. These features have been implemented in a graduate level algorithms course with successful results.</p>
+		<h3>1. Introduction</h3>
+		<p>Algorithms are the single most important toolbox for anyone who must solve problems by writing computer programs. Algorithms are used not only by computer scientists and computer engineers, but also by many in other engineering and science disciplines. As a result, algorithm courses are taken by not only computer majors as a requirement, but also by students from other majors.</p>
+		<p>While it is possible to study algorithms just by reading textbooks and doing problem sets, students often do not really learn the algorithms until they actually try implementing them. As a result, it is not uncommon for algorithm courses to include programming assignments. Textbooks that include programming as an integral part of algorithm education have also been authored to meet this demand [<a href="#ref4">4</a>]. Virtually all courses and textbooks so far have asked students to program in a traditional language such as C or C++, and recently Java has gained popularity [<a href="#ref5">5</a>]. The argument for using these languages is mainly a practical one: students are probably already proficient in these languages; even if they are not, learning these languages would give them a practical skill.</p>
+		<h4>1.1 Programming vs. Algorithm Design</h4>
+		<p>Unfortunately, experiences have shown that programming assignments in algorithm classes may not always be pedagogically beneficial. Even though most algorithms are a few lines to half a page long in the textbook, their implementation often requires hundreds of lines in C or Java. One reason is that these languages require declaration of global variables, local variables, and parameters before they can be used. Another reason, more importantly, is that many data structures such as lists, linked data structures, and specialized arrays must be designed and implemented to support the algorithm, and the complexity of these exercises grows rapidly when aggregate data structures such as graphs or flow networks are involved. In fact, most object-oriented programmers spend the majority of their effort in designing the classes and interfaces, and spend relatively little time filling in the code for the methods. As a result, these programming assignments will force students to spend much of their time practicing <em>programming</em> issues, rather than <em>algorithm</em> issues. Students who are not computer majors tend to be put at a severe disadvantage.</p>
+		<p>Some instructors attempted to alleviate this burden by giving students library routines for the data structures. However, there are still many problems that are inherent to these traditional languages, including input/output and reuse. For example, a library might provide an API for building a tree or a graph before invoking the algorithm with the data structure. Students must either hardwire their test case, which makes successive calls to add one node at a time to a graph, or read a description of the graph from a file. The former approach can be awkward, because the source code does not resemble the data structure, but the meaning is tied to the API. The latter approach, which uses a custom language to represent a graph, may be more concise, but it requires parsing routines, which can diminish reuse and expandability. For example, consider the case where we initially defined an unweighted graph but later want a weighted graph. It may be easy to create a subclass for the weighted extension, but we also need to change the parser to handle the weighted or unweighted case. But suppose we want to extend the weights again to a tuple, a string, or an arbitrary set: the parser must be changed each time.</p>
+		<h4>1.2 The Python Edge</h4>
+		<p>Python addresses these problems and makes a compelling language for algorithms education. First, its indentation-based syntax is so similar to most textbooks that even students without much programming background have no trouble coding up algorithms just by following the book. Therefore, the popularity argument with other languages is moot, especially given the fact that its interactive mode encourages students to experiment with it without the long compilation cycle. Second, Python provides the fundamental data structures such as lists, tuples, and dictionaries that can be used directly by the algorithms. Even the more complex data structures such as trees and graphs can also be expressed in Python in a concise, human-readable form, without having to reinvent those data structures. For example, Section <a href="#sec5">5</a> will show a novel way of representing a weighted graph as a dictionary of vertices whose adjacency lists are represented by dictionaries of edge weights. There are several advantages: the test cases for the algorithms can be written directly in Python without having to call any data-structure-building API, and without having to rely on any custom parser. Moreover, it is infinitely extensible to arbitrary data types, as Python simply passes them along and does not interpret the data type until needed. At any time, the data structure can also be displayed in textual form that is readable to humans and by Python.</p>
+		<p>The rest of this paper reports our successful experience with deploying Python in a graduate level algorithms class. Our students have been not only receptive but also acquired a valuable tool to help them solve problems in their own field of study. The following sections illustrate how we teach algorithms in Python, in the same sequence as presented in class. We start with sorting algorithms and heapsort with priority queues to highlight memory management issues. Then, we use them to build binary trees and implement the Huffman compression algorithm. Finally, we show how Python can be used effectively for graph algorithms.</p>
+		<h3>2. Introductory Lesson: Sorting</h3>
+		<p>Most textbooks start with sorting as a way to introduce algorithms and complexity analysis. We use sorting algorithms to also introduce Python from the very first lesson. Our strategy is to display the algorithm side-by-side with Python code to show their similarity. We start with <tt>InsertionSort</tt>, which grows the sorted array one element at a time from the beginning of the array. Initially, <i>A</i>[1] (in text; <tt>A[0]</tt> in Python) is the only element in this subarray and is trivially sorted. Each iteration of the for-loop inserts the next new element into the sorted subarray so that the elements are sorted <i>relative</i> to each other; this is in contrast to BubbleSort, which puts a new element in its <i>absolute</i> sorted position per iteration.</p>
+		<blockquote>
+			Algorithm from textbook [<a href="#ref1">1</a>]
+			<p>Insertion-Sort(<i>A</i>)<br>
+			1 <b>for</b> <i>j</i> <tt>&lt;-</tt> 2 <b>to</b> length[<i>A</i>]<br>
+			2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>do</b> <i>key</i> <tt>&lt;-</tt> <i>A</i>[<i>j</i>]<br>
+			3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>i</i> <tt>&lt;-</tt> <i>j</i> <tt>-</tt> 1<br>
+			4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>while</b> <i>i</i> &gt; 0 and <i>A</i>[<i>i</i>] &gt; <i>key<br>
+			</i>5 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>do</b> <i>A</i>[<i>i</i>+1] <tt>&lt;-</tt> <i>A</i>[<i>i</i>]<br>
+			6 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>i</i> <tt>&lt;-</tt> <i>i</i> - 1<br>
+			7 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>A</i>[<i>i</i> + 1] <tt>&lt;-</tt> <i>key</i></p>
+			<p>Python code</p>
+			<p><tt><b>def</b> InsertionSort(A):<br>
+			&nbsp;&nbsp;&nbsp; <b>for</b> j <b>in</b> range(1, len(A)):<br>
+			&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; key = A[j]<br>
+			&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; i = j - 1<br>
+			&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <b>while</b> (i &gt;=0) <b>and</b> (A[i] &gt; key):<br>
+			&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; A[i+1] = A[i]<br>
+			&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; i = i - 1<br>
+			&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; A[i+1] = key</tt></p>
+		</blockquote>
+		<p>Once students see the similarity, most of their fear of programming simply disappears. It also helps to demonstrate the interactive nature of Python. We use a computer projector and actually type in the program, which is only 8 lines long. The best part is, we can test out the algorithm by simply typing in the test case in the form of a list:</p>
+		<blockquote>
+			<tt>&gt;&gt;&gt; x = [2,7,3,8,1] &nbsp;&nbsp;#</tt> <i>create test case</i><br>
+			<tt>&gt;&gt;&gt; InsertionSort(x) &nbsp;&nbsp;#</tt> <i>call routine </i><br>
+			<tt>&gt;&gt;&gt; x &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #</tt> <i>look at result</i><br>
+			<tt>[1, 2, 3, 7, 8]</tt></blockquote>
+		<p>In a sense, Python gives the textbook relevance because the algorithms presented in the textbook are no longer just pseudocode or steps of theoretical interest only; they can see how easy it is to actually execute the algorithms using data that they generate. In fact, we also show that the same code, without alteration, works just fine with other data types, including strings, tuples, etc. Sorting is a good starting example because not only do the constructs map directly without the complication with memory management (to be discussed later), but the parameter semantics also matches: scalars are passed by value, whereas arrays are passed by reference.</p>
+		<h3>3. Heap Sort and Priority Queues</h3>
+		<p>Our introduction continues with heap sort and priority queues. A heap is a data structure that represents a nearly balanced binary tree using an array <i>A</i>[1..<i>n</i>], where the left and right children of an element <i>A</i>[<i>i</i>] are located at <i>A</i>[2<i>i</i>], <i>A</i>[2<i>i</i>+1], respectively, and <i>A</i>[<i>i</i>] &gt;= <i>A</i>[2<i>i</i>], <i>A</i>[2<i>i</i>+1]. HeapSort builds the sorted subarray from the <i>back</i> of the array towards the front one element at a time by extracting the largest element from the front of the heap.  Initially the sorted portion is empty, and a call to <tt>BuildHeap</tt> turns <i>A</i>[1..n] into a heap. Since the heap part puts the largest element at <i>A</i>[1], in the first iteration we extract it and put it in <i>A</i>[<i>n</i>], which is its correct sorted position. The next iteration extracts the second largest element (from <i>A</i>[1] again) and puts it in <i>A</i>[<i>n</i>-1], etc, and it continues until all of <i>A</i> is sorted. Note that <tt>Heapify</tt> is called as part of each extraction step. This is because if we swap <i>A</i>[1] and <i>A</i>[<i>h</i>], then <i>A</i>[1..<i>h</i>-1] no longer satisfies the heap property, but since it is still &quot;almost&quot; a heap -- that is, all except the root position are still subheaps -- it can be fixed efficiently in O(lg <i>h</i>) time by calling <tt>Heapify</tt> without having to rebuild the heap in O(<i>h</i>) time.</p>
+		<p>One difference is that the algorithm in the textbook assumes 1-based array indices, whereas Python assumes 0-based arrays. To avoid errors due to index adjustment, we ask the students to simply pad their <tt>A[0]</tt> with <tt>None</tt> and use an array of size <tt>n+1</tt> instead. The Python code is</p>
+		<blockquote>
+			<p><tt><b>def</b> Parent(i): <b>return</b> i/2<br>
+			<b>def</b> Left(i): <b>return</b> 2*i<br>
+			<b>def</b> Right(i): <b>return</b> 2*i+1<br>
+			<br>
+			<b>def</b> Heapify(A, i, n): #</tt> <i>A is &quot;almost a heap&quot; (except root); fix it so all of A is a heap </i><tt><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;l = Left(i)<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;r = Right(i)<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;<b>if</b> l &lt;= n <b>and</b> A[l] &gt; A[i]: largest = l<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;<b>else</b>: largest = i<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;<b>if</b> r &lt;= n <b>and</b> A[r] &gt; A[largest]:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;largest = r<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;<b>if</b> largest != i:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A[i], A[largest] = A[largest], A[i]<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Heapify(A, largest, n)<br>
+			<br>
+			<b>def</b> HeapLength(A): <b>return</b> len(A)-1<br>
+			<b>def</b> BuildHeap(A): #</tt> <i>build a heap A from an unsorted array</i><tt><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;n = HeapLength(A)<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;<b>for</b> i <b>in</b> range(n/2,0,-1):<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Heapify(A,i,n)<br>
+			<br>
+			<b>def</b> HeapSort(A): #</tt> <i>use a heap to build sorted array from the end </i><tt><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;BuildHeap(A)<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;HeapSize=HeapLength(A)<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;<b>for</b> i <b>in</b> range(HeapSize,1,-1):<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A[1],A[i]=A[i],A[1] #</tt> <i>largest element is a root of heap, put it at the end of array</i><tt><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HeapSize=HeapSize-1 #</tt> <i>shrink heap size by 1 to get next largest element</i><tt><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Heapify(A,1,HeapSize)</tt></p>
+		</blockquote>
+		<p>Heaps and priority queues are closely related, since heaps can implement priority queues efficiently with O(lg <i>n</i>)-time insertion and extraction. One difference, though, is dynamic memory management: in heap sort, the size of the array remains the same, whereas in priority queues, the size of the queue grows and shrinks. We use this opportunity to introduce two constructs. First, we show that <tt>A.append()</tt> and <tt>A.pop()</tt> can be used to grow and shrink the list <tt>A</tt>, while <tt>len(A)</tt> returns the current length of the list. Second, in case of underflow (and overflow if desired), we show the students how to raise and catch an exception. These constructs might not be unique to Python, but Python makes it easy to experiment.</p>
+		<h3>4. Binary Trees and Huffman Encoding</h3>
+		<p>Once we have the priority queue, we enable students to quickly implement interesting algorithms, including Dijkstra's single-source shortest paths and Prim's min-spanning tree. Our next topic is greedy algorithms, and we ask the students to implement Huffman encoding in Python. To recall, the Huffman algorithm produces prefix-free, variable-length code words based on the frequency of each character. A frequently used letter will be encoded using a shorter bit string, whereas a less frequently used letter will be encoded using a longer bit string. The greedy algorithm uses a priority queue to extract two nodes (leaf or internal) with the lowest frequencies, allocates a new node whose weight is the sum of the two, and inserts the new node back into the priority queue. The algorithm terminates when the priority queue removes the last node, which becomes the root of the Huffman tree. The bit string for each letter can be produced by traversing the Huffman binary tree, where taking a left branch results in a `0', and a right branch results in a `1'.</p>
+		<p>For example, suppose our input character set with the associated frequencies is</p>
+		<ul>
+			<li><tt>'a'</tt>: 45%
+			<li><tt>'b'</tt>: 13%
+			<li><tt>'c'</tt>: 12%
+			<li><tt>'d'</tt>: 16%
+			<li><tt>'e'</tt>: &nbsp;&nbsp;9%
+			<li><tt>'f'</tt>: &nbsp;&nbsp;5%
+		</ul>
+		<p>The Huffman algorithm constructs a tree by repeatedly dequeuing two elements with the least frequencies, creating a new internal node whose frequency is equal to their sum, and enqueuing it in the priority queue. The result is a tree (<a href="#Fig-1">Fig. 1</a>) that defines the variable-length code for each character. The left branches are labeled 0, and right branches are labeled 1, and the Huffman code for a character is simply the string of path labels from the root to the leaf. For example, the encodings are</p>
+		<ul>
+			<li><tt>'a': 0</tt>
+			<li><tt>'b': 1 0 0</tt>
+			<li><tt>'c': 1 0 1</tt>
+			<li><tt>'d': 1 1 0</tt>
+			<li><tt>'e': 1 1 1 0</tt>
+			<li><tt>'f': 1 1 1 1</tt>
+		</ul>
+<center>
+		<p><img src="image15a.jpg" width="450"><br>
+		</p>
+		<h6><a name="Fig-1"></a>Fig.1 Example of Huffman tree</h6>
+</center>
+		<p>Since we already have the priority queue, what we are missing is a specialized binary tree. The requirements are</p>
+		<ul>
+			<li>A leaf node must be able to represent the letter being encoded and its frequency.
+			<li>An internal node must have two children, and it must also have a weight that is equal to the sum of its children.
+			<li>The priority queue must be able to enqueue and dequeue both leaves and internal nodes and compare them based on the weight
+		</ul>
+		<p>If we were to implement this with a traditional language like C or Java, we would have to teach students how to define a structure or a class with a field named <tt>weight</tt>; leaf nodes need a <tt>character</tt> field, while internal nodes require <tt>leftchild</tt> and <tt>rightchild</tt> fields. Because the priority queue must be able to compare them, it will be necessary to modify the priority queue to call the appropriate comparison method instead of using the built-in comparison operators, and both the leaves and internal nodes must either be in the same class or be subclasses of the same base class that implements the comparison method. Once defined, the student will want to able to check if they construct the Huffman tree correctly. However, no existing debugger has the knowledge to be able to automatically print the nodes together as a tree, and therefore the student has the burden of having to write the print routine, which may actually be rather tricky and be another major source of bugs. Similarly, for the students to specify the different test cases, they will either have to modify the hardwired data and recompile each time, or they will need to write additional parsing routines, which will be yet another source of errors.</p>
+		<p>A Python implementation can be done elegantly without having to write extra routines or defining a new class or a structure for the tree nodes. We ask students to represent binary trees using tuples in Python, in a spirit similar to Lisp:</p>
+		<ul>
+			<li>Leaf nodes are represented as (frequency, character) tuples:<br>
+			<tt>[(45, 'a'), (13, 'b'), (12, 'c'), (16, 'd'), (9, 'e'), (5, 'f')]</tt>.
+			<li>Internal nodes are represented as in-order 3-tuples: (frequency, left, right): For example, the lower-right subtree in <a href="#Fig-1">Fig. 1</a> can be represented as<br>
+			<tt>(14, (5, 'f'), (9, 'e'))</tt><br>
+			which represents an internal node whose weight is 14%, whose left child is <tt>(5, 'f')</tt>, and whose right child is <tt>(9, 'e')</tt>.
+		</ul>
+		<p>The tree is constructed functionally with tuple creation, without having to use any tree node data structure, and there is no need to manipulate the left/right child pointers. Moreover, it is readily usable with the existing priority queue data structure, without any modification! This is because tuples can be compared in lexicographical order using the same comparison operators. This way, internal nodes and leaves can be compared, even though they encode different information. The difference between them is that the <tt>len()</tt> = 2 for a leaf, and = 3 for an internal node.</p>
+		<p>To recap, with a slightly creative way to use Python, we achieve the ultimate reuse of algorithms and data structures. It also enables the students to textually describe a tree in Python syntax that is as concise and extensible as possible, without having to use a specialized parser.</p>
+		<h3><a name="sec5"></a>5. Graph Algorithms</h3>
+		<p>A graph is <i>G</i>(<i>V</i>,<i>E</i>), where <i>V</i> is a set of vertices, and <i>E</i>, as a subset of the cross product of <i>V</i> cross <i>V</i>, is a set of edges. A graph has multiple representations, and most algorithms assume either an <em>adjacency list</em> or an <em>adjacency matrix</em> representation. The former is good for sparse graphs where |<i>E</i>| is much closer to |<i>V</i>|, whereas the latter is good for dense graphs whose |<i>E</i>| is closer to |<i>V</i>|<sup>2</sup>.</p>
+		<p>To implement a graph in a traditional system programming language such as C or Java, one would first have to define data structures for the vertices, for the edges, and for the graph, which serves as a front-end to the creation and deletion of its vertices and edges. The design of such data structures can easily dominate the coding time and is not easily reusable, mainly because these data types must be designed as <em>containers</em>. Even though packages like LEDA [<a href="#ref3">3</a>] attempt to enhance reuse of object-oriented source code with C++ templates, they still require that the students adopt the entire package before they can start doing anything useful. Containers are often designed to circumvent the problems with strong, static typing, but doing so requires the reimplementation of dynamic type checking in end-user code. An even worse drawback is that the use of C-pointers or Java-references makes it awkward to view these objects. Even though a debugger can display these objects in some textual form, it either displays too much information or is not directly usable in the program.</p>
+		<p>Python offers many advantages as highlighted by the graph data structure. We use a very compact, dictionary-of-dictionaries (DD) implementation of the adjacency list representation of the graph. Basically a graph is represented as a Python dictionary, whose keys are the string names of the vertices, and each vertex name is mapped to its adjacency list. For example, consider the graph shown in <a href="#Fig-2">Fig. 2</a>:</p>
+<center>
+		<p><img src="image15b.jpg" width="125"><br>
+		</p>
+		<h6><a name="Fig-2"></a>Fig.2: Example of directed graph</h6>
+</center>
+		<p>It can be represented with the following Python code</p>
+		<blockquote>
+			<p><tt>H = {'A': ['C', 'D'], 'B': ['D', 'A'], 'C': ['D', 'E'],<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'D': ['E'], 'E': [] }</tt></p>
+		</blockquote>
+		<p>The above represents a simple, directed, unweighted graph. If a weighted graph such as <a href="#Fig-3">Fig. 3</a> is required, then we can simply replace the lists of adjacency vertices with dictionaries that map the adjacent vertices to their weights:</p>
+<center>
+		<p><img src="image15c.jpg" width="125"><br>
+		</p>
+		<h6><a name="Fig-3"></a>Fig. 3: Example of weighted graph</h6>
+</center>
+		<blockquote>
+			<tt>L = {'A': {'C':2, 'D':6}, 'B': {'D':8, 'A':3},<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'C': {'D':7, 'E':5}, 'D': {'E':-2}, 'E': {}}</tt></blockquote>
+		<p>The list of vertices <i>V</i> is simply <tt>H.keys()</tt> or <tt>L.keys()</tt>. The adjacency list is <tt>H[v]</tt> for unweighted graphs, and <tt>L[v].keys()</tt> for weighted graphs. The edge weight w(u,v) is <tt>L[u][v]</tt>. To facilitate programming, we can wrap the implementation details inside an object.</p>
+		<blockquote>
+			<tt>class Graph:<br>
+			&nbsp;&nbsp;&nbsp;def __init__(self, g):<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.g = g<br>
+			&nbsp;&nbsp;&nbsp;def V(self):<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return g.keys()<br>
+			&nbsp;&nbsp;&nbsp;def Adj(self,v):<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return self.g[v].keys()<br>
+			&nbsp;&nbsp;&nbsp;def w(self,u,v):<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return self.g[u][v]</tt>
+</blockquote>
+		<p>We can create a graph object with <tt>G = Graph(L)</tt>. The advantages with this approach include the compact textual format and extensibility. First, there is really no data structure to design. The textual representation of the graph is Python executable. The student can type in this structure interactively or in a text file without using any special graph editor. The data structure can be examined just by typing its name. It can then be cut/pasted to another Python interpreter window or to another Python program, without any syntactic modification.</p>
+		<p>More importantly, this representation is extremely extensible. Different algorithms make use of additional attributes, but they can be added as needed. For example, single-source shortest path algorithms or breadth-first/depth-first traversals require additional attributes such as the predecessor pointers. In Python, the algorithm can simply add the predecessor attribute to the graph object (as <tt>G.pred[v]</tt>), without having to define a subclass for each algorithm. These newly added attributes can also be examined and modified directly without requiring new routines.</p>
+		<h3>6. Student Evaluation</h3>
+		<p>As of this writing, we have offered the algorithm class twice with Python.  Overall, the results have been very positive, although there is still room for improvement. This section discusses both aspects with anecdotes.</p>
+		<p>On the successful side of the story, most students appeared receptive to Python, and most of the 35-40 students from each class were able to successfully complete the programming assignments without much difficulty. At least one student became a Python fan and switched from C++ to Python for his own research work after this course. Currently he not only uses Jython and TkInter to script user interface widgets but also uses Python for sockets programming, multithreading, and scripting native C code. What was more encouraging was that several students who were not experienced programmers became quite good at Python by the end of the quarter. They successfully implemented the Edmonds-Karp's max-flow algorithm, which was not fully given in the textbook, and tested it with several examples in as little as one hour. Another student, also without much prior programming background, spent a greater part of his weekend on the same assignment, but was eventually successful after some hints from the instructor. He remarked that part of the difficulty was with the copy and parameter passing semantics in Python, but the main problem was that he had not really understood the E-K algorithm. Once he really understood it, then coding it up was actually very simple. The most encouraging part was that more than a few students wanted to implement the algorithms that were not assigned as homework problems. The students said they wanted to see the algorithms run and test their own understanding. These anecdotes all served to validate our prediction and confirmed the reasons we incorporated Python in the course in the first place.</p>
+		<p>Not all students had a smooth experience with Python, though. One common complaint was the lack of a good debugger. The author responded to the students by asking them to write small routines and to test them thoroughly before writing more code, instead of writing a large program and expecting it to work on the first try. However, not all students were convinced. The copy semantics of composite data structures such as lists, dictionaries, and objects also caused some confusion, though we plan to correct this issue by including their explanation as part of the reading assignment. In some cases, it turned out that some of the students with more experience with C++ or Java had more trouble adjusting to Python. Some felt uneasy with the idea of loose typing, while others had trouble thinking about vertices as just a string that could be used as a hash key to different attribute dictionaries; instead, they wanted to think about vertices as objects. A few students did not follow the instructions for the graph or the Huffman tree data structures as presented above, and they effectively wrote Java or C++ style code in Python syntax by defining many classes and subclasses. One such program listing for Huffman was over 12 pages long, even though most other students did it in about one page. As predicted, most of the 12 pages of code dealt with manipulating data structures and printing the pointer-connected data structures in a textually meaningful way. This was not really a problem with Python, and in fact it is motivating us to introduce Python earlier in the curriculum.</p>
+		<h3>7. Conclusions and Future Educational Plans</h3>
+		<p>This paper reports our use of Python in an algorithms course in the past two years. As an algorithm-oriented language, Python enables our students to learn key concepts in algorithm design, instead of struggling with low-level, idiosyncratic features of conventional programming languages. The way Python handles data types represents a perfect match with the way textbooks present algorithms, and its interpretive nature encourages students to experiment with the language. Equally important is our novel use of data structures for trees and graphs, which are as compact as possible and yet human readable and is readily accepted by the Python interpreter. Graduate students who had little or no programming experience have been able to experiment with the algorithms at the level intended by the textbook, without being bogged down by many low-level programming issues.</p>
+		<p>We have adopted Python in not only our classrooms but also research projects as well, since research can benefit just as well from the same advantages. We are also encouraged by feedback from our former students who have adopted Python in their current work. We are currently revamping our undergraduate introductory programming series to include Python in a major way. As of this writing, this department just received the University's approval to replace C with Python in the first introductory programming class (ECE 12), starting Fall quarter 2002. We had to overcome some strong opposition from some non-computer engineering faculty members who had never heard of Python and were doubtful about our approach. We were criticized for trying to make programming &quot;too soft&quot; for engineering students, and we were asked &quot;if C ain't broke, why fix it?&quot; Our response was that we want to teach <i>problem solving</i> skills, not just <i>programming</i>, and we are confident that Python will be a much more effective way to introduce the fundamental concepts than C. The availability of CGI and graphics packages in Python through Jython and TkInter will also provide more compelling ideas for student projects than C or Java.</p>
+		<h3>References</h3>
+		<ol>
+			<li><a name="ref1"></a>Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein, <a href="http://mitpress.mit.edu/algorithms/"><i>Introduction to Algorithms</i></a>, Second Edition, McGraw-Hill Press, September 2001. ISBN 0-262-03293-7.
+			<li>Pai H. Chou, <i>ECE 235 Website</i>, University of California, Irvine, Fall 2000. <a href="http://e3.uci.edu/00f/15545/">http://e3.uci.edu/00f/15545/</a> See also Fall 2001 edition at <a href="http://e3.uci.edu/01f/15545/">http://e3.uci.edu/01f/15545/</a>.
+			<li><a name="ref3"></a>Algorithmic Solutions Software GmbH, homepage, <a href="http://www.algorithmic-solutions.com/">http://www.algorithmic-solutions.com/</a>, 2001.
+			<li><a name="ref4"></a>Sara Baase, Allen Van Gelder, <i>Computer Algorithms: Introduction to Design and Analysis</i>, Addison Wesley, 2000.
+			<li><a name="ref5"></a>Mark Allen Weiss, <i>Data Structures and Algorithm Analysis in JAVA</i>, Addison-Wesley, 1999.
+		</ol>
+	</body>
+
+</html>

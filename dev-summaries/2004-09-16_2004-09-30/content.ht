@@ -1,0 +1,141 @@
+Title: python-dev Summary for 2004-09-16 through 2004-09-30
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2004-09-16 through 2004-09-30
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from September 16, 2004 through September 30, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the forty-ninth summary written by Brett Cannon (Wow, my thesis gives an entire .5% speed-up on pystone at the moment; ain't that grand...).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-09-01_2004-09-15.html
+.. _original text file: http://www.python.org/dev/summary/2004-09-16_2004-09-30.ht
+
+
+
+=====================
+Summary Announcements
+=====================
+Wow.  This must have been the easiest summary I have ever done.  Why can't they all be like this?  I didn't even skip that much!
+
+This summary also marks the first instance of having a contributing writer (ignoring the time when Raymond Hettinger was guest writer and wrote the whole summary himself).  So thanks to Michael Chermside for writing up those summaries.  And this is open to anyone, so if you feel that one of the skipped threads is worth summarizing and you catch it on the draft I send out of the Summary please mail them to me and it will probably get included.
+
+
+=========
+Summaries
+=========
+------------------------------------------
+Assume nothing when mutability is possible
+------------------------------------------
+Tim Peters discovered a new way to create an infinite list thanks to generator expressions.  But what really came out of this whole discussion came about when someone else came up with an example that exposed a bug in list.extend().
+
+The first thing was that "you can't assume anything about a mutable object after potentially calling back into Python."  Basically you can't assume the state of any mutable object was not changed if you execute Python code from C.  While it might seem handy to store state while in a loop for instance, you can't count on things not changing by the time you get control back so you just have to do it the hard way and get state all over again.
+
+Second was that you need to be careful when dealing with iterators.  If you mutate an iterator while iterating you don't have a guarantee it won't explode in your face.  Unless you explicitly support it, document it, and take care to protect against it then just don't assume you can mutate an iterator while using it.
+
+Contributing threads:
+  - `A cute new way to get an infinite loop <http://mail.python.org/pipermail/python-dev/2004-September/049054.html>`__
+  - `More data points <http://mail.python.org/pipermail/python-dev/2004-September/049080.html>`__
+
+-----------------------------
+The fewer licenses the better
+-----------------------------
+The idea of copying some code from OpenSSH_ for better pty handling was proposed.  This was frowned upon since that becomes one more legal issue to keep track of.  Minimizing the licenses that Python must keep track of and make sure to comply with, no matter how friendly, is a good thing.
+
+.. _OpenSSH: http://www.openssh.org/
+
+Contributing threads:
+  - `using openssh's pty code <http://mail.python.org/pipermail/python-dev/2004-September/049085.html>`__
+
+-----------------------------------------------------------------------
+Trying to deal with the exception hierarchy in a backwards-friendly way
+-----------------------------------------------------------------------
+Nick Coghlan came up with the idea of having a tuple that contained all of the exceptions you normally would not want to catch in a blanket 'except' statement; KeyboardInterrupt, MemoryError, SystemExit, etc.).  This tuple was proposed to live in sys.special_exceptions with the intended usage of::
+
+ try:
+   pass # stuff...
+ except sys.special_exceptions:
+   raise # exceptions that you would not want to catch should keep propogating up the call chain
+ except:
+   pass # if you reach here the exception should not be a *huge* deal
+
+Obviously the best solution is to just clean up the exception hierarchy, but that breaks backwards-compatibility.  But this idea seemed to lose steam.
+
+Contributing threads:
+  - `Proposing a sys.special_exceptions tuple <http://mail.python.org/pipermail/python-dev/2004-September/049139.html>`__
+
+--------------
+Built on beer!
+--------------
+by Michael Chermside
+
+In this short thread Guido admits that Python *is* really built on
+beer: "...it's true! During the early days, when hacking on Python,
+I often lived on stroopwafels and beer."
+
+Contributing threads:
+   - `built on beer? <http://mail.python.org/pipermail/python-dev/2004-September/049032.html>`__
+
+-----------------------------------
+Docs still available in gzip format
+-----------------------------------
+by Michael Chermside
+
+Fred Drake suggested that we stop providing the Python
+documentation in gzip format. We offered the zip and bzip2 formats which have
+unique advantages (bzip2 compresses better and zip has a directory built in so
+individual files can be extracted) over gzip and he wanted to reduce the number
+of different formats offered. However, there was much dissention, so the
+final decision was to retain the format.
+
+Contributing threads:
+   - `Planning to drop gzip compression for future releases. <http://mail.python.org/pipermail/python-dev/2004-September/048987.html>`__
+
+---------------------------------------------------------
+Making running stdlib modules as scripts that much easier
+---------------------------------------------------------
+Nick Coghlan contributed a patch for a new command-line option, ``-m``, that will search sys.path for a module of that name and execute it as a ``__main__``.  This can be really handy for things such as checking the docstrings of a module (``python -m pydoc heapq``) and such.
+
+Currently, though, it only for top-level modules in sys.path and thus ignores packages.  If you want that functionality there is a recipe by Nick on the Python Cookbook at http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/307772 .  There is also discussions going on python-dev about how to possibly add this in the future.
+
+Contributing threads:
+  - `Running a module as a script <http://mail.python.org/pipermail/python-dev/2004-September/049138.html>`__
+
+
+===============
+Skipped Threads
+===============
+
+- Decimal, copyright and license
+- Noam's open regex requests
+- Socket/Asyncore bug needs attention
+- open('/dev/null').read() -> MemoryError
+- Finding the module from PyTypeObject?
+- Odd compile errors for bad genexps

@@ -1,0 +1,223 @@
+<TITLE>A Generic data collection system through WWW forms</TITLE>
+<BODY>
+
+<H1>A Generic data collection system through WWW forms, based on a
+Python OOD program. </H1>
+<HR>
+<A HREF = "abstract.html">[Abstract]</A>
+<A HREF = "introduction.html">[Introduction]</A>
+<A HREF = "methods.html">[Methods]</A>
+<A HREF = "discussion.html">[Discussion]</A>
+<A HREF = "references.html">[References]</A>
+
+<HR><HR>
+<H1>Methodology</H1>
+<P><P>
+
+<H2>Service classes.</H2>
+<UL>
+<LI> <H3>web</H3>
+	web is defined as a basic class which provides an easy interface
+	to generating HTML primitives. The various HTML primitives are
+	defined as methods of this class. Some of the primitives are very
+	simple, e.g. for invoking headers, anchors, figures and ordered or
+	unordered lists. Other methods perform somewhat more complex
+	invocation of form elements, e.g. predefined buttons, radio
+	buttons, checkboxes, data input fields and option lists 
+	(See <A HREF = "figure1.html">figure 1</A>).
+	
+	
+<LI> <H3>valids</H3>
+	valids is a general service object holding methods
+	that validate a given piece of information and returns a validity
+	code (i.e. 0 for non-valid and >= 1 for valid) (See 
+	<A HREF = "figure2.html">figure 2</A>). This class can be
+	used directly by invokation or as part of a multiple inheritance
+	invokation. The methods provide checking of information in various
+	levels of complexity. Some of the methods provide simple checks
+	such as ensuring that the information is safe and there is no
+	attempt to invoke a shell with the text entered, or ensuring that
+	an entry is only text or only numeric. Other
+	methods perform more specific tasks (e.g. ensuring an entry is a
+	valid nucleic acid sequence entry) or more complex (e.g. checking
+	the syntax of an email address and assuring that the domain
+	provided is a valid one)
+
+
+
+</UL>
+
+<H2>GFOD</H2>
+<STRONG>GFOD stands for Generic Forms Object Definition. It is a collection of the basic
+classes with their data fields and methods that together form the basis for a data submission
+process and to inheriting instances.</STRONG>
+<UL>
+<LI> <H3>item</H3>
+
+	This is the basic unit for implementation of any information item
+	to be obtained from the submitter. The basic elements of any item
+	class are the 'key' and the 'value'.  Various data fields provide
+	the item with characteristics that control it's visual
+	implementation in the form. An item class has the basic methods
+	which control it's validation and ability to report itself as
+	valid, the ability to store it's elements in a file (given the
+	open file handle). The item has an empty errors list. In case of a
+	failed validation, the error list is filled with the error
+	messages and is presented together with he item. The item has
+	three different presentation methods. When the item is presented
+	for the first time, or is non-valid, it is being presented in the
+	form as defined in it's 'present' method. When the item is valid
+	it uses the method 'present_hidden' to present itself in the form
+	as a hidden element. This is one concept of data hiding which is
+	practiced here, i.e. a valid data item should not be presented any
+	further in the form. The third method controls the way an item
+	present's itself in a special 'final validation' form (to be
+	discussed later). The actual implementations of the system use
+	classes that inherit 'item' and suit it for more specific needs.
+	Examples for such elements (See <A HREF = "figure3.html">
+	figure 3</A>) may be a hidden_item (allways valid, so allways
+	hidden), an email item, a radio cluster item that provides a
+	cluster of radion buttons for the same data field, an option list
+	item, items for mandatory text or numeric items etc.
+	
+<LI> <H3>form_obj</H3>
+
+	Each form in the sequence of submissions (Besides the form which
+	initiates the submission process and two specialized forms that
+	conclude the submission process) is an instance of a 'form_obj'
+	class. The form_obj owns and controls a list of 'item'  objects.
+	Each form_obj with it's items constitutes an integral entity in
+	the submission sequence. The form object has a special data
+	dictionary that maps the items. If the form_obj instance is
+	initiated with a data dictionary, it's items are initiated as
+	having the appropriate values (e.g. when restoring the form
+	contents from a file), otherwise, the form items are initiated
+	with their default values. Each form is identified by a 'level'
+	data field which is actually it's linear order in the  sequence of
+	forms of the whole submission process.<BR>
+
+	The form_obj class is equipped with methods that enable it to
+	store and retreive it's information to/from a temporary file. This
+	is important especially due to the fact that personal systems
+	and even more, WWW browsers are highly prone to crashing. The
+	form_obj validation process is a more complex one, controlled
+	three methods. The 'validate' method calls each of the items to
+	report their valid status. If any of the items is non-valid, the
+	form_obj is set to non-valid. Control is then handed over to a
+	virtual method more_validate. This empty method provides
+	inheriting classes with the opportunity to practice an extra step
+	of validation according to logical relations between various
+	items. To conclude, if the form_obj status is valid, the 
+	finally_validate method returns control to the calling object (the
+	session), but if the status is non-valid, the method takes control
+	and invokes the presentation of the form.<BR>
+
+	The form has two methods of presenting itself. The major one
+	'present_form' invokes the presentation of a WWW form and then
+	calls each 'item' instance's presentation  method to implant
+	itself according to it's validity status (i.e. if the item is
+	valid it is presented as hidden).  The other presentation method
+	enables the form_obj to present it's data in the special step of
+	final validation before concluding the submission.
+
+
+<LI> <H3>session</H3>
+
+	The whole submission process is owned and managed by the class
+	'session'. This class owns a list of 'form_obj' instances to
+	scroll through the submission process, calling each form in it's
+	turn. The process, which can be invoked by many users at the same
+	time is controlled with the aid of two identifiers. At the
+	begining of the submission process, the submission is being
+	assigned with a unique identifier which is implanted into each of
+	the forms. Each of the form objects is identified in the sequence
+	of submission by a 'level' which is actually it's position in the
+	objects list. There are also special levels according to the stage
+	of submission. The process which takes place for all the form_obj
+	(or it's inheriting) instances is a simulation of an event loop.
+	Initially, the form is set to non-valid and is displayed.
+	Following submission, the 'session' object identifies the current
+	level and accordingly calls the form's validation method. If the
+	form is valid the session invokes the display of the next form in
+	it's objects list. If the form is still non-valid, the form itself
+	takes control and displays itself. This contradicts the common
+	concept of an event handeling hierarchy, but is evidently a
+	consequence of the fact that server processes 
+	are killed every time a document is sent back to the client.<P>
+	
+	The session is equipped with an empty method called 
+	'expand_dynamic'. This method is called (even as an empty one) in
+	the appropriate places, to enable later implementations of a
+	dynamic expansion of the form_obj list. Thus, a user can select
+	adding more instances of a certain form_obj class according to the
+	need. An inheriting class that needs a dynamic expansion of forms
+	must encapsulate the expansion method in the 'expand_dynamic'
+	method, so it can allways be called when needed.
+	
+	When the last form in the 'session' object list is reported back
+	to be valid, the session invokes a special form for final
+	validation of the information. This is done by calling the 
+	'present_contents' method of each form. The resulting form has a
+	checkbox associated with each 'form_obj' instance. This form
+	produces a corrections list. When the form is submitted, it is
+	identified with a special 'level'. If it provides a non-empty 
+	corrections list, the session itterates again through the selected
+	forms by setting them as non-valid thus forcing them to present
+	themselves for corrections. When the corrections list is empty the
+	session 'produce_output' method is called to produce the output of
+	the submitted information. Following production of output, the
+	user is allowed to select forms that contain data to be used again
+	in a consecutive submission cycle. This is done by the session
+	class, which has a 'repeat_forms' list of allowed levels to be
+	repeated. After the user has selected the required form levels,
+	the session dumps a virtual memory file which contains the
+	appropriate key=value combinations for preservation of
+	information. Now, on invokation of each 'form_obj' instance, the
+	session will compose a data dictionary which is handed to the
+	form's 'init' method. When such a dictionary is present, the form
+	will invoke the 'item' instances with the appropriate values as
+	default.
+
+
+</UL>
+
+
+
+
+<HR>
+<CITE>Written by <A HREF = "http://www.ebi.ac.uk/ebi_docs/staff/benny.html">Benny shomer</A>, The EBI. <P>
+      <A HREF = "http://www.ebi.ac.uk/ebi_docs/staff/bennymail.html">bshomer@ebi.ac.uk</A>
+</CITE>
+<HR>
+</BODY>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

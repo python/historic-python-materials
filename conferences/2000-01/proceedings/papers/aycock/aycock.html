@@ -1,0 +1,1184 @@
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<META NAME="GENERATOR" CONTENT="TtH 2.56">
+                                                                           
+<title> Aggressive Type Inference</title>
+ 
+<H1 align="center"><b>Aggressive Type Inference</b> </H1>
+
+<p>
+
+<H3 align=center>John Aycock <br>
+<em>Department of Computer Science</em> <br>
+<em>University of Victoria</em> <br>
+<em>Victoria, B.C., Canada</em> <br>
+<em>aycock@csc.uvic.ca</em> </H3>
+
+<p>
+
+<H3 align=center> </H3>
+
+<p>
+ 
+<H2> Abstract</H2>
+Python is a ``dynamically typed'' language because, in general, the type
+of any variable is not known definitively until run-time.  This feature
+is known to be a major limiting factor in optimization of Python code,
+and is typically addressed by calls for optional static typing to be
+added to Python.  In this paper I describe an application for type
+inference unrelated to optimization, and present a new method for
+divining type information - aggressive type inference - which
+determines the types of variables in the absence of explicit cues.
+An empirical study of Python programs suggests that this might be a
+reasonable approach.
+<p>
+<p>
+        <H2><A NAME="tth_sEc1">
+1</A>&nbsp;&nbsp;Introduction</H2>
+
+<p>
+In talking with people at last year's Python Conference (IPC7), I
+mentioned the possibility of writing a Python compiler... in Python.
+Not content to stop there, I suggested that the idea could be taken
+further, to translate Python code into Perl&nbsp;[<a href="#perl" name="CITEperl">29</a>].
+
+<p>
+The idea of a Python-to-Perl translator has some merit.  In fact, many of
+the arguments in favor of JPython&nbsp;[<a href="#jpython" name="CITEjpython">11</a>] apply, particularly the ability
+to leverage Perl development.  (And supply an alternative
+for Python programmers who are forced to work exclusively with Perl!)
+
+<p>
+Internally, both Python and Perl compile programs into code for a
+language-specific virtual machine (VM).  This gives four avenues
+by which Python code may be translated into Perl, shown as dashed arrows in
+Figure&nbsp;<A href="#p2p">1</A>.  Some avenues are more promising than
+others, though.  Both languages' VMs are fully specified in terms
+of concrete operational semantics&nbsp;[<a href="#semantics" name="CITEsemantics">27</a>], a polite way
+of saying that their details
+are buried in source code and subject to change.  A translation involving
+either VM would result in unreadable and unmaintainable code.
+
+<p>
+
+<p><A NAME="tth_fIg1">
+</A> 
+<center><img src="p2p.gif" alt="p2p.gif"><br></center> <center>      Figure 1: Python to Perl translation.</center> <A NAME="p2p">
+</A>
+<p>
+<p>
+In contrast,
+a source-to-source translator would be ideal.  Figure&nbsp;<A href="#eg_simple">2</A>
+shows a possible Perl translation for a snippet of Python code.
+
+<p>
+
+<p><A NAME="tth_fIg2">
+</A> 
+<center>
+<TaBle>
+<tr><td>r
+ <br><table align="left" border="0"><tr><td width="125">
+
+
+<pre>
+a = 123
+b = [a, 456]
+c = {'yyj': a}
+print a,
+</pre>
+
+</td></tr></table><!--hbox--><br clear="all"> </td><td> <br><table align="left" border="0"><tr><td width="125">
+
+
+<pre>
+$a = 123;
+@b = ($a, 456);
+%c = ('yyj' =&#62; $a);
+print $a;
+</pre>
+
+</td></tr></table><!--hbox--><br clear="all"> </td></TaBle>
+
+</center>
+<p>
+ <center>      Figure 2: Translation example.</center> <A NAME="eg_simple">
+</A>
+<p>
+<p>
+What does this have to do with type inference?  The translated Perl
+code must have the <tt>$@%&amp;*</tt> type specifiers on all Perl variables.
+This tells Perl, for instance, that a variable is scalar (string, number),
+an array, or a hash.  Determining this type information is the task of
+type inference.
+
+<p>
+        <H2><A NAME="tth_sEc2">
+2</A>&nbsp;&nbsp;Type Inference</H2>
+
+<p>
+The process of inferring variables' types by looking at how they
+are used is called type inference.
+
+<p>
+Type inference has a long tradition in functional languages.
+Hindley[<a href="#hindley" name="CITEhindley">9</a>] and Milner&nbsp;[<a href="#milner" name="CITEmilner">19</a>] independently discovered
+a method for inferring types at compile-time.  Its most widely-known
+incarnation is in the language ML&nbsp;[<a href="#ml" name="CITEml">18</a>].
+
+<p>
+Type inference in functional languages is, in turn, based on work
+in the early 1960s on automatic theorem provers.  In particular,
+Robinson&nbsp;[<a href="#robinson" name="CITErobinson">21</a>] gave an algorithm for unifying logical
+expressions which was used later by Hindley and Milner for inferring types.
+
+<p>
+Algol-family languages&nbsp;[<a href="#sethi" name="CITEsethi">25</a>], by comparison, have relied primarily on
+explicit type information supplied by the programmer, although there
+have been some attempts to the contrary&nbsp;[<a href="#tp" name="CITEtp">10</a>].
+
+<p>
+These type inference systems are <em>conservative</em> in the sense that, given
+a variable X, they will always compute a superset of X's
+type&nbsp;[<a href="#aiken" name="CITEaiken">1</a>].
+
+<p>
+        <H2><A NAME="tth_sEc3">
+3</A>&nbsp;&nbsp;Aggressive Type Inference</H2> <A NAME="sect_ati">
+</A>
+
+<p>
+Python is a dynamically-typed language, meaning that the exact types of
+variables are not known until the program is run.  In Figure&nbsp;<A href="#eg_dynamic">3</A>,
+<tt>x</tt> is clearly an integer if S2 is executed, or a string if S3 is
+executed.  And at S4?  The exact type of <tt>x</tt> at S4 is indeterminate
+at compile-time, unless we know which part of the if-statement will be
+taken at run-time.  In this case, that requires knowledge of <tt>x</tt>'s value,
+which cannot generally be known at compile-time.
+
+<p>
+
+<p><A NAME="tth_fIg3">
+</A> 
+<center> <table align="left" border="0"><tr><td width="200">
+
+
+<pre>
+def foo(x):
+    print x       # S1
+    if x:
+        x = 123   # S2
+    else:
+        x = 'abc' # S3
+    print x       # S4
+</pre>
+
+</td></tr></table><!--hbox--><br clear="all">
+</center>
+<p>
+ <center>      Figure 3: Dynamic typing in action.</center> <A NAME="eg_dynamic">
+</A>
+<p>
+<p>
+Even more problematic is the type of <tt>x</tt> at S1.  If the program
+were to be analyzed in its entirety - whole-program analysis - we
+could attempt to locate all calls to <tt>foo</tt> and see what the possible
+types of <tt>x</tt> may be.  This is a nontrivial task in itself.
+Code like <tt>foo(17)</tt> is easy to locate; discovering that
+<tt>apply(functions[y+random()], (17,))</tt> calls <tt>foo</tt>
+is undecidable.
+
+<p>
+The final complication is that Python, like many other scripting and
+functional languages, allows new code to be generated and executed at
+run-time.  In the case of Python, this can be done directly with the
+<tt>exec</tt> statement, or more surreptitiously by creating a <tt>.py</tt>
+file on-the-fly and importing it.  Type information arising in this
+way is unobtainable at compile-time.
+
+<p>
+These problems are not unique to Python, and are known to implementors of other
+dynamically-typed programming languages.  Work on Tcl compilers, for example,
+has universally noted the difficulty of type
+inference&nbsp;[<a href="#lewis" name="CITElewis">14</a>,<a href="#rouse95" name="CITErouse95">22</a>,<a href="#rouse97" name="CITErouse97">23</a>].  (The benefits are equally well
+known.  Type information has been characterized as being critical
+to the efficient implementation of Smalltalk&nbsp;[<a href="#johnson" name="CITEjohnson">13</a>],
+SELF&nbsp;[<a href="#chambers" name="CITEchambers">5</a>], and APL&nbsp;[<a href="#miller" name="CITEmiller">17</a>].)
+
+<p>
+How can types of Python variables be determined at compile-time?  All
+proposed solutions to date involve (optional) static typing, which requires
+the programmer to explicitly insert type information.  Variations on
+this theme include&nbsp;[<a href="#masse" name="CITEmasse">16</a>,<a href="#riehl" name="CITEriehl">20</a>] and innumerable discussions on
+<tt>comp.lang.python</tt> and the Python Types-SIG.
+
+<p>
+I have taken a different approach with the idea of aggressive type
+inference (ATI).  The key idea underlying ATI is this:
+
+<p>
+
+<blockquote><em>Giving people a dynamically-typed language does not mean that
+	they write dynamically-typed programs.</em>
+</blockquote>
+<p>
+In other words, just because Python permits programmers to write code
+like that in Figure&nbsp;<A href="#eg_dynamic">3</A> doesn't mean that code like it
+is written frequently.  A similar conjecture<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> about usage of Tcl
+variables is made in&nbsp;[<a href="#lewis" name="CITElewis">14</a>]; empirical evidence for this ``type
+consistency'' is presented in&nbsp;[<a href="#walker" name="CITEwalker">28</a>], where
+they found about 80% of operators in a large sample of Icon
+programs maintained the same type.
+
+<p>
+ATI works according to two rules:
+
+<p>
+
+<OL type="1">
+<li> Flow-insensitivity.  This is a concept from data flow analysis.  To
+	quote Cooper and Kennedy&nbsp;[<a href="#cooper" name="CITEcooper">6</a>],
+	
+<blockquote>
+<p>
+	`Flow insensitive information describes data flow events which
+	occur on <em>at least one</em> path through a procedure...
+	By contrast, flow sensitive information describes data flow events
+	which occur on <em>every</em> path through a procedure.'
+	</blockquote>
+<p>
+	Effectively this means that control flow is ignored.
+	Applying this rule to Figure&nbsp;<A href="#eg_dynamic">3</A>, ATI would decide
+	that <tt>x</tt> has the type string <font face=symbol>È</font
+>number at S2, S3, and S4.
+
+<p>
+
+<li> Type consistency within a scope.  This second rule addresses the
+	problem of determining <tt>x</tt>'s type at S1.  If a variable has
+	a type T during its lifetime, then it has type T at <em>every</em>
+	point within the scope in which it is bound to a value.  In
+	Figure&nbsp;<A href="#eg_dynamic">3</A>, ATI infers <tt>x</tt>'s type at S1 to be
+	string <font face=symbol>È</font
+>number, because <tt>x</tt> has that type later in
+	the function.  Furthermore, ATI has reached this conclusion without
+	having to look beyond the code for <tt>foo</tt>.
+
+<p>
+	An analogy can be drawn between this second rule and the scope
+	rules in Pascal&nbsp;[<a href="#wirth" name="CITEwirth">12</a>], where an identifier's scope is the
+	entire block in which it is declared, not just from the declaration
+	point onwards.
+</OL>
+<p>
+ATI has apparently resulted in some rather useless type information:
+no single distinct type for <tt>x</tt> has been arrived at!  Now, suppose
+that a restriction is placed on Python programs.  For a program to be used
+with ATI, it must be written in such a way that ATI can infer an exact
+type for all variables.  Otherwise, a compile-time error will result.
+Figure&nbsp;<A href="#eg_dynamic">3</A> is an invalid program according to this restriction.
+
+<p>
+Of course, all Python programs do not adhere to this restriction, nor
+should they.  This
+restriction is certainly acceptable for my Python-to-Perl application,
+though.  It is in keeping with proposed ``high speed'' implementations
+of a Python subset, such as Swallow&nbsp;[<a href="#swallow" name="CITEswallow">7</a>] and Viper&nbsp;[<a href="#viper" name="CITEviper">24</a>].
+And it is a similar restriction to that which optional static typing requires.
+
+<p>
+The above two ATI rules alone are insufficient to infer types for some programs.
+In Figure&nbsp;<A href="#eg_class">4</A>, looking at <tt>c.set()</tt> or <tt>c.get()</tt> in
+isolation does not allow any type inferences to be made.  ATI can be
+used in conjunction with other sources of type information, as I describe
+in the next section.
+
+<p>
+
+<p><A NAME="tth_fIg4">
+</A> 
+<center> <table align="left" border="0"><tr><td width="200">
+
+
+<pre>
+class c:
+    def set(self, o):
+        self.o = o
+    def get(self):
+        return self.o
+</pre>
+
+</td></tr></table><!--hbox--><br clear="all">
+</center>
+<p>
+ <center>      Figure 4: Inference in isolation indeterminate.</center> <A NAME="eg_class">
+</A>
+<p>
+<p>
+        <H2><A NAME="tth_sEc4">
+4</A>&nbsp;&nbsp;ATI Implementation</H2>
+
+<p>
+I have developed a proof-of-concept implementation of ATI.  Approximately
+1200 lines of Python code, it operates in two phases (Figure&nbsp;<A href="#phases">5</A>):
+
+<p>
+
+<p><A NAME="tth_fIg5">
+</A> 
+<center><img src="phases.gif" alt="phases.gif"><br></center> <center>      Figure 5: ATI Phases.</center> <A NAME="phases">
+</A>
+<p>
+<p>
+
+<OL type="1">
+<li> The input Python program is scanned and parsed.  (No semantic
+	checks are performed; the input is assumed to be correct.)
+	All information relevant to ATI is distilled into summary
+	information and saved into a file with a <tt>.i</tt> suffix.
+	For example, if the code in Figure&nbsp;<A href="#eg_class">4</A> resided
+	in <tt>blarg.py</tt>, then its summary information would be
+	written to <tt>blarg.i</tt>, whose contents are shown in
+	Figure&nbsp;<A href="#summary">6</A>.
+
+<p>
+
+<p><A NAME="tth_fIg6">
+</A> 
+<center> <table align="left" border="0"><tr><td width="200">
+
+
+<pre>
+type c is class
+scope c begin
+    equ set.#1 = set.o
+    equ set.#0 = set.self
+    type set is func
+    scope set begin
+        assign #t4 = o
+        equ self = #t3
+        op #t4 is #t3 . o
+    scope set end
+    equ get.#0 = get.self
+    type get is func
+    scope get begin
+        return #t2
+        equ self = #t1
+        op #t2 is #t1 . o
+    scope get end
+scope c end
+</pre>
+
+</td></tr></table><!--hbox--><br clear="all">
+</center>
+<p>
+ <center>      Figure 6: Summary information (reformatted for legibility).</center>
+<A NAME="summary">
+</A>
+<p>
+<p>
+	All information about control flow, such as branches and
+	loops, is discarded.  Information that <em>is</em> kept includes:
+	
+<OL type="a">
+<p>
+	
+<li> The scope of classes, methods, and functions (<tt>scope</tt>).
+	
+<li> Variable assignments (<tt>assign</tt>).
+	
+<li> Operations on variables (<tt>op</tt>).
+	
+<li> Method/function return types (<tt>return</tt>).
+	
+<li> The types of names (<tt>type</tt>).
+	
+<li> Equivalences between names (<tt>equ</tt>).  In Figure&nbsp;<A href="#summary">6</A>,
+		for example, it is noted that the zero<sup>th</sup> parameter to
+		<tt>set</tt> is an alias for <tt>set</tt>'s local variable
+		<tt>self</tt>.
+	
+<li> Import statements (<tt>import</tt> - not shown).
+	
+<li> Global declarations (<tt>global</tt> - not shown).
+	</OL>
+<p>
+
+<li> The summary information is repeatedly examined in order to propagate
+	type information.  For example, given the summary information
+	
+<center>
+<p>
+	 <table align="left" border="0"><tr><td width="200">
+
+	
+<pre>
+	assign x = y
+	assign y = #t1
+	type #t1 is string
+	</pre>
+	
+</td></tr></table><!--hbox--><br clear="all">
+	</center>
+<p>
+	 ATI would discover on the first pass that there are
+	three names: <tt>x</tt>, <tt>y</tt>, and <tt>#t1</tt> (a temporary
+	name generated by phase 1).  It would also note that <tt>#t1</tt>
+	has the type <em>string</em>.  On the second pass, ATI would find
+	that <tt>y</tt> has the type <em>string</em> too.  Finally, ATI would
+	conclude on the third pass that <tt>x</tt> is a <em>string</em>.  (This
+	process can be made much more efficient!)
+
+<p>
+	The names of imported modules appear in a file's summary information.
+	When this is encountered in phase 2, an attempt is made to read a
+	<tt>.i</tt> file for the imported module.  It is not an error if such
+	a file is missing: in this way, ATI can be given either partial
+	or whole-program information, as appropriate.
+	
+<p>
+	As a general
+	rule, ATI will be more effective the more information it is given.
+	Taking the code from Figure&nbsp;<A href="#eg_class">4</A> as input, my ATI
+	implementation only decides that <tt>c</tt> is a <em>class</em>,
+	<tt>self</tt> is
+	an <em>instance</em>, and <tt>set</tt>/<tt>get</tt> are <em>method</em>s.
+	But given the
+	few extra lines of input highlighted in Figure&nbsp;<A href="#eg_class_plus">7</A>, the
+	correct types of all names in the input are inferred:
+
+<p>
+	
+<center>	
+<TaBle>
+<tr><td><tt>c</tt> </td><td>class </td>
+<tr><td><tt>c.set</tt> </td><td>method </td>
+<tr><td><tt>c.get</tt> </td><td>method </td>
+<tr><td><tt>c.set.self</tt> </td><td>instance </td>
+<tr><td><tt>c.get.self</tt> </td><td>instance </td>
+<tr><td><tt>c.set.self.o</tt> </td><td>number </td>
+<tr><td><tt>c.get.self.o</tt> </td><td>number </td>
+<tr><td><tt>x</tt> </td><td>instance </td>
+<tr><td><tt>y</tt> </td><td>number </td></TaBle>
+
+	</center>
+<p>
+
+<p><A NAME="tth_fIg7">
+</A> 
+<center> <table align="left" border="0"><tr><td width="200">
+
+<font color="#BFBFBF">
+
+<pre>
+class c:
+    def set(self, o):
+        self.o = o
+    def get(self):
+        return self.o
+</pre>
+</font>
+</td></tr></table><!--hbox--><br clear="all">
+&nbsp;<br>
+&nbsp;<br>
+ <br><table align="left" border="0"><tr><td width="200">
+
+
+<pre>
+x = c()
+x.set(123)
+y = x.get()
+</pre>
+
+</td></tr></table><!--hbox--><br clear="all">
+</center>
+<p>
+ <center>      Figure 7: More information, better inference.</center> <A NAME="eg_class_plus">
+</A>
+<p>
+<p>
+	Type information for Python's built-in functions
+	is automatically imported
+	from the file <tt>builtins.i</tt>.  An excerpt from its source file
+	is shown in Figure&nbsp;<A href="#builtins">8</A>; these functions are
+	defined skeletally because only type information is required.
+
+<p>
+
+<p><A NAME="tth_fIg8">
+</A> 
+<center> <table align="left" border="0"><tr><td width="200">
+
+
+<pre>
+def abs(N):
+    N = 123
+    return 123
+
+def dir(object=None):
+    return ['abc']
+
+def range(a1, a2=123, a3=123):
+    return [123]
+</pre>
+
+</td></tr></table><!--hbox--><br clear="all">
+</center>
+<p>
+ <center>      Figure 8: Some built-in function definitions.</center> <A NAME="builtins">
+</A>
+<p>
+<p>
+</OL>Both phases use the little language framework described in&nbsp;[<a href="#aycock" name="CITEaycock">2</a>].
+I am currently reworking the ATI implementation to overcome some design
+limitations in Phase&nbsp;2.  In particular, inference involving <em>list</em>s
+is incomplete, making full analysis of real programs troublesome.
+
+<p>
+        <H2><A NAME="tth_sEc5">
+5</A>&nbsp;&nbsp;On Being Wrong</H2>
+
+<p>
+ATI may arrive at a solution which appears to discover types for
+all variables, yet is incomplete in the sense that all possible
+types for variables have not been found.  Furthermore, it is not generally
+possible to detect this situation.  Consider the following cases:
+
+<p>
+
+<OL type="1">
+<li> Only partial information is given to ATI.  In this case, ATI can
+	obviously miss vital information.
+
+<p>
+
+<li> Code is generated at run-time.  Since ATI is done at compile-time,
+	it cannot be privy to run-time information.  This may be mitigated
+	to some extent by warning about uses of the <tt>exec</tt> statement,
+	and imported modules for which no information is available at
+	compile-time.
+
+<p>
+
+<li> The call graph is obscured.  By this I mean code where the flow of
+	control is unclear.  For example, function calls made
+	through an array of function pointers, or a class which dynamically
+	changes its superclass.
+</OL>
+<p>
+In these situations, the ``aggressive'' nature of ATI comes into
+play.  I assume that even though cases such as the above are possible,
+that they occur infrequently and thus may be ignored.
+
+<p>
+        <H2><A NAME="tth_sEc6">
+6</A>&nbsp;&nbsp;Applicability</H2> <A NAME="sect:appl">
+</A>
+
+<p>
+It is a rather bold claim to say that Python programs,
+overall, are not especially dynamic.  I have done some static and
+dynamic analysis of programs which suggest that there is some truth
+to this claim.  (Only the results are presented here; the details of
+the analyses are deferred to the Appendix.)
+
+<p>
+Seven bodies of Python code were chosen for this survey, a total of
+51,300 lines of code (LOC):
+
+<p>
+
+<OL type="1">
+<li> Idle 0.4, a graphical user interface for Python development
+	bundled with the Python&nbsp;1.5.2 distribution.
+
+<li> Gadfly 1.0, a relational database system&nbsp;[<a href="#gadfly" name="CITEgadfly">30</a>].
+
+<li> Grail 0.6, an Internet browser&nbsp;[<a href="#grail" name="CITEgrail">4</a>].
+
+<li> HTMLgen 2.2, a generator of HTML documents&nbsp;[<a href="#htmlgen" name="CITEhtmlgen">8</a>].
+
+<li> J--, a compiler for a subset of Java.
+
+<li> Lib, the Python&nbsp;1.5.2 library (sans subdirectories).
+
+<li> Pystone 1.1, a Dhrystone benchmark included in the
+	Python&nbsp;1.5.2 distribution.
+</OL>
+<p>
+The code was statically analyzed for indications of code being dynamically
+generated and executed: the <tt>exec</tt> statement, and uses of <tt>eval()</tt>,
+<tt>execfile()</tt>, and <tt>__import__()</tt>.  (These are cases
+where ATI will fail.)  The results are
+shown in Table&nbsp;<A href="#tbl:static">1</A>, broken down by individual constructs in
+addition to being taken as a total percentage of lines of code.
+<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
+
+<p>
+
+<p><A NAME="tth_tAb1">
+</A> 
+<center>
+<TaBle>
+<tr><td></td><td align="right"><tt>exec</tt> </td><td align="right"><tt>eval</tt> </td><td align="right"><tt>execfile</tt> </td><td align="right"><tt>__import__</tt> </td><td align="right">LOC </td><td align="right">% of LOC </td>
+<tr><td>Idle </td><td align="right">1 </td><td align="right">0 </td><td align="right">1 </td><td align="right">1 </td><td align="right">4449 </td><td align="right">0.07 </td>
+<tr><td>Gadfly </td><td align="right">0 </td><td align="right">2 </td><td align="right">0 </td><td align="right">1 </td><td align="right">10200 </td><td align="right">0.03 </td>
+<tr><td>Grail </td><td align="right">4 </td><td align="right">2 </td><td align="right">0 </td><td align="right">0 </td><td align="right">6419 </td><td align="right">0.09 </td>
+<tr><td>HTMLgen </td><td align="right">0 </td><td align="right">4 </td><td align="right">1 </td><td align="right">2 </td><td align="right">4794 </td><td align="right">0.2 </td>
+<tr><td>J-- </td><td align="right">0 </td><td align="right">0 </td><td align="right">0 </td><td align="right">0 </td><td align="right">1498 </td><td align="right">0.0 </td>
+<tr><td>Lib </td><td align="right">11 </td><td align="right">23 </td><td align="right">2 </td><td align="right">12 </td><td align="right">23754 </td><td align="right">0.2 </td>
+<tr><td>Pystone </td><td align="right">0 </td><td align="right">0 </td><td align="right">0 </td><td align="right">0 </td><td align="right">186 </td><td align="right">0.0 </td></TaBle>
+
+</center>
+<p>
+ <center>      Table 1: Static occurrence of dynamic constructs.</center> <A NAME="tbl:static">
+</A>
+<p>
+<p>
+Not surprisingly, the static occurrence of these four constructs is
+highest in Python's library code, where esoteric code would be expected.
+But even in the library, the frequency of these constructs is
+insignificant when compared to the number of lines of code.  However, as
+the Python library code is clearly atypical, and it is not obvious how
+to fairly test such disparate components, I excluded it from further direct
+analysis.
+
+<p>
+For dynamic analysis, each package was run using an instrumented
+Python interpreter.  This interpreter counted the dynamic occurrence
+of the same four constructs and the number of Python VM instructions
+executed.  These results are shown in Table&nbsp;<A href="#tbl:dynamic">2</A>.  Again,
+the results suggest that dynamic code generation facilities in Python
+are not heavily used.
+
+<p>
+
+<p><A NAME="tth_tAb2">
+</A> 
+<center>
+<TaBle>
+<tr><td></td><td align="right"><tt>exec</tt> </td><td align="right"><tt>eval</tt> </td><td align="right"><tt>execfile</tt> </td><td align="right"><tt>__import__</tt> </td><td align="right">Instructions </td><td align="right">% of Instructions </td>
+<tr><td>Idle </td><td align="right">1 </td><td align="right">0 </td><td align="right">0 </td><td align="right">12 </td><td align="right">346617 </td><td align="right">0.004 </td>
+<tr><td>Gadfly </td><td align="right">0 </td><td align="right">47 </td><td align="right">0 </td><td align="right">0 </td><td align="right">7957055 </td><td align="right">0.0005 </td>
+<tr><td>Grail </td><td align="right">214 </td><td align="right">6 </td><td align="right">0 </td><td align="right">0 </td><td align="right">4676698 </td><td align="right">0.005 </td>
+<tr><td>HTMLgen </td><td align="right">0 </td><td align="right">831 </td><td align="right">10 </td><td align="right">0 </td><td align="right">422496 </td><td align="right">0.2 </td>
+<tr><td>J-- </td><td align="right">0 </td><td align="right">0 </td><td align="right">0 </td><td align="right">0 </td><td align="right">8096543 </td><td align="right">0.0 </td>
+<tr><td>Pystone </td><td align="right">0 </td><td align="right">0 </td><td align="right">0 </td><td align="right">0 </td><td align="right">6702077 </td><td align="right">0.0 </td></TaBle>
+
+</center>
+<p>
+ <center>      Table 2: Dynamic occurrence of dynamic constructs.</center> <A NAME="tbl:dynamic">
+</A>
+<p>
+<p>
+Having few impediments to compile-time analysis of Python code is important;
+for ATI, having variables that don't change from one type to another is even
+more important.  Using the instrumented interpreter again, I tracked VM
+instructions that store values to local and global variables, classifying each
+instruction's effect on a variable's type into one of three categories:
+
+<p>
+
+<OL type="1">
+<li> T<sub><i>NULL</i></sub> <font face=symbol>-></font
+> T<sub>X</sub>.  No change of type, because
+	the variable has no prior value (this happens when a variable
+	hasn't been assigned to previously, or has been deleted with
+	<tt>del</tt>).
+
+<li> T<sub>X</sub> <font face=symbol>-></font
+> T<sub>X</sub>.  No change of type resulted.
+
+<li> T<sub>X</sub> <font face=symbol>-></font
+> T<sub>Y</sub>.  A change of type resulted.
+</OL>
+<p>
+
+<p><A NAME="tth_tAb3">
+</A> 
+<center>
+<TaBle>
+<tr><td></td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right">T<sub>X</sub> <font face=symbol>-></font
+> T<sub>Y</sub> (as </td>
+<tr><td></td><td align="right">T<sub><i>NULL</i></sub> <font face=symbol>-></font
+> T<sub>X</sub> </td><td align="right">T<sub>X</sub> <font face=symbol>-></font
+> T<sub>X</sub> </td><td align="right">T<sub>X</sub> <font face=symbol>-></font
+> T<sub>Y</sub> </td><td align="right">Stores </td><td align="right">% of Stores) </td>
+<tr><td>Idle </td><td align="right">12462 </td><td align="right">8827 </td><td align="right">1633 </td><td align="right">22922 </td><td align="right">7.1 </td>
+<tr><td>Gadfly </td><td align="right">482644 </td><td align="right">185353 </td><td align="right">7444 </td><td align="right">675441 </td><td align="right">1.1 </td>
+<tr><td>Grail </td><td align="right">107154 </td><td align="right">99651 </td><td align="right">8410 </td><td align="right">215215 </td><td align="right">3.9 </td>
+<tr><td>HTMLgen </td><td align="right">10755 </td><td align="right">11351 </td><td align="right">835 </td><td align="right">22941 </td><td align="right">3.6 </td>
+<tr><td>J-- </td><td align="right">67475 </td><td align="right">1238553 </td><td align="right">1820 </td><td align="right">1307848 </td><td align="right">0.1 </td>
+<tr><td>Pystone </td><td align="right">220247 </td><td align="right">290005 </td><td align="right">7 </td><td align="right">510259 </td><td align="right">0.001 </td></TaBle>
+
+</center>
+<p>
+ <center>      Table 3: Dynamic type consistency from VM store instructions.</center>
+<A NAME="tbl:store">
+</A>
+<p>
+<p>
+
+<p><A NAME="tth_tAb4">
+</A> 
+<center>
+<TaBle>
+<tr><td></td><td colspan="3" align="center"><em>Frame Objects</em> </td><td colspan="3" align="center"><em>Code Objects</em> </td>
+<tr><td></td><td align="right">Total </td><td align="right">T<sub>X</sub> <font face=symbol>-></font
+> T<sub>Y</sub> </td><td align="right">% </td><td align="right">Total </td><td align="right">T<sub>X</sub> <font face=symbol>-></font
+> T<sub>Y</sub> </td><td align="right">% </td>
+<tr><td>Idle </td><td align="right">6705 </td><td align="right">1285 </td><td align="right">19.2 </td><td align="right">369 </td><td align="right">28 </td><td align="right">7.6 </td>
+<tr><td>Gadfly </td><td align="right">164196 </td><td align="right">3261 </td><td align="right">2.0 </td><td align="right">792 </td><td align="right">61 </td><td align="right">7.7 </td>
+<tr><td>Grail </td><td align="right">78413 </td><td align="right">7472 </td><td align="right">9.5 </td><td align="right">1252 </td><td align="right">124 </td><td align="right">9.9 </td>
+<tr><td>HTMLgen </td><td align="right">11594 </td><td align="right">795 </td><td align="right">6.9 </td><td align="right">579 </td><td align="right">24 </td><td align="right">4.1 </td>
+<tr><td>J-- </td><td align="right">50174 </td><td align="right">1814 </td><td align="right">3.6 </td><td align="right">284 </td><td align="right">11 </td><td align="right">3.9 </td>
+<tr><td>Pystone </td><td align="right">170106 </td><td align="right">6 </td><td align="right">0.004 </td><td align="right">61 </td><td align="right">6 </td><td align="right">9.8 </td></TaBle>
+
+</center>
+<p>
+ <center>      Table 4: Localization of type changes.</center> <A NAME="tbl:localized">
+</A>
+<p>
+<p>
+Table&nbsp;<A href="#tbl:store">3</A> shows the results of this experiment.  Obviously, the
+vast majority of VM store instructions do not result in a type change.  This
+raises several questions.
+
+<p>
+<i>Are T<sub>X</sub> <font face=symbol>-></font
+> T<sub>Y</sub> localized?</i>
+In other words, are type changes made throughout the program, or are
+they confined to small portions of code?  Table&nbsp;<A href="#tbl:localized">4</A>
+shows that there are only a few culprits.  (Roughly speaking, frame
+objects correspond to function/method invocations, and code
+objects correspond to functions/methods in the program text.)
+
+<p>
+<i>What does this mean in terms of real variables?</i>
+The data in Table&nbsp;<A href="#tbl:store">3</A> does not tell the whole story in terms
+of variables in the program text.  For example, the code
+
+<center>
+<p>
+ <table align="left" border="0"><tr><td width="200">
+
+
+<pre>
+x = 123
+del x
+x = 'abc'
+</pre>
+
+</td></tr></table><!--hbox--><br clear="all">
+</center>
+<p>
+ would appear as two T<sub><i>NULL</i></sub> <font face=symbol>-></font
+> T<sub>X</sub> stores,
+rather than a T<sub>X</sub> <font face=symbol>-></font
+> T<sub>Y</sub>.  Another extreme case would be where
+every variable's type is changed once, then remains constant thereafter.
+Since ATI is dependent on the type consistency of variables in the
+program text, I used the same dynamic data to reconstruct the local variables
+in each code object.  As the results in Table&nbsp;<A href="#tbl:var">5</A> show, the numbers in
+Table&nbsp;<A href="#tbl:store">3</A> are not misleading.
+
+<p>
+
+<p><A NAME="tth_tAb5">
+</A> 
+<center>
+<TaBle>
+<tr><td></td><td align="right">Total Local </td><td align="right">Locals with </td><td align="right">% with </td>
+<tr><td></td><td align="right">Variables </td><td align="right"> &gt;  1 Type </td><td align="right"> &gt;  1 Type </td>
+<tr><td>Idle </td><td align="right">1801 </td><td align="right">20 </td><td align="right">1.1 </td>
+<tr><td>Gadfly </td><td align="right">3143 </td><td align="right">150 </td><td align="right">4.8 </td>
+<tr><td>Grail </td><td align="right">4668 </td><td align="right">91 </td><td align="right">1.9 </td>
+<tr><td>HTMLgen </td><td align="right">1581 </td><td align="right">15 </td><td align="right">0.9 </td>
+<tr><td>J-- </td><td align="right">801 </td><td align="right">2 </td><td align="right">0.2 </td>
+<tr><td>Pystone </td><td align="right">264 </td><td align="right">0 </td><td align="right">0.0 </td></TaBle>
+
+</center>
+<p>
+ <center>      Table 5: Dynamic type consistency of local variables.</center> <A NAME="tbl:var">
+</A>
+<p>
+<p>
+<i>Are certain type changes predominant?</i>
+The short answer: no.  This seemed to depend heavily on the particular
+application; in J--, for example, over 99% of the type changes were
+made from <tt>None</tt> to some other type.  This predominance was not true
+in general, however.
+
+<p>
+        <H2><A NAME="tth_sEc7">
+7</A>&nbsp;&nbsp;A Tale of Two Type Systems</H2>
+
+<p>
+The original motivation for ATI was Python-to-Perl conversion, determining
+the appropriate Perl type specifiers for converted Python variables.  How
+can ATI be applied?
+
+<p>
+In an apparent contradiction, Figure&nbsp;<A href="#eg_dynamic">3</A> would convert easily
+into Perl - the resulting program is shown in Figure&nbsp;<A href="#eg_dynamic_perl">9</A>.
+This, despite the assertion in Section&nbsp;<A href="#sect_ati">3</A> that ATI must infer
+an exact type for variables!  The catch is that Python-to-Perl conversion
+involves <em>two</em> type systems.  To be more precise, ATI must infer a
+type for each Python variable which has a mapping to a unique member of
+the type system of interest.
+
+<p>
+
+<p><A NAME="tth_fIg9">
+</A> 
+<center> <table align="left" border="0"><tr><td width="200">
+
+
+<pre>
+sub foo {
+    my ($x) = @_;
+    print "$x\n";   # S1
+    if ($x) {
+        $x = 123;   # S2
+    } else {
+        $x = 'abc'; # S3
+    }
+    print "$x\n";   # S4
+}
+</pre>
+
+</td></tr></table><!--hbox--><br clear="all">
+</center>
+<p>
+ <center>      Figure 9: Dynamic typing: the resulting Perl.</center> <A NAME="eg_dynamic_perl">
+</A>
+<p>
+<p>
+For example, Figure&nbsp;<A href="#perl_map">10</A> shows a mapping between ATI-inferred
+types and Perl types.  Figure&nbsp;<A href="#eg_dynamic">3</A>'s code is acceptable by this
+mapping because both Python strings and numbers map into Perl scalar
+variables.  (This particular mapping was used for a manual translation
+of some Python code into Perl.)
+
+<p>
+
+<p><A NAME="tth_fIg10">
+</A> 
+<center><img src="map.gif" alt="map.gif"><br></center> <center>      Figure 10: Mapping to Perl types.</center> <A NAME="perl_map">
+</A>
+<p>
+<p>
+Another example with two type systems would be a Python optimizer which would
+inline string operations, and would therefore want to locate all variables with
+a string type.  Here, the inferred types would have to map into
+the types <em>{string, not-string}</em>.
+
+<p>
+        <H2><A NAME="tth_sEc8">
+8</A>&nbsp;&nbsp;Future Work</H2>
+
+<p>
+There are many applications which can benefit from type information.
+Progress on a Python-to-Perl translator
+is now possible using the ATI information; type checkers and optimizers
+also rely on type information.
+A tool to convert legacy Python code to an optional static typing scheme
+might be interesting too.
+
+<p>
+ATI may benefit by embracing and extending type inference research done
+for other dynamically-typed languages.  This includes taking control flow
+into account&nbsp;[<a href="#shivers" name="CITEshivers">26</a>], and adding run-time
+checks to convert programs into a form that can be type-checked at
+compile-time&nbsp;[<a href="#cartwright" name="CITEcartwright">3</a>].
+
+<p>
+Dynamic ATI would be a logical variation of this work.  A modified Python
+interpreter could record type information as a program runs, over
+multiple runs, later inferring types of variables based on the run-time
+information.
+
+<p>
+I would also like to extend the empirical type
+analysis in Section&nbsp;<A href="#sect:appl">6</A>, using a wider sampling of
+Python programs.  This would further gauge the amount
+of type consistency present in Python programs, and
+would give a good indication of the general applicability
+of ATI.
+
+<p>
+        <H2><A NAME="tth_sEc9">
+9</A>&nbsp;&nbsp;Conclusion</H2>
+
+<p>
+Type inference is a difficult task for dynamically-typed languages
+such as Python.  The type information gathered, however, is essential for
+some applications, such as the Python-to-Perl translator I proposed.
+
+<p>
+By making aggressive assumptions about how programmers use variables in their
+programs - namely, that variables maintain a consistent type throughout -
+it is possible to make type inferences that would not be possible with
+a more conservative approach.
+
+<p>
+With aggressive type inference, I have demonstrated how type
+inference may be done in Python without requiring the programmer to
+supply explicit type information.
+
+<p>
+
+<H2>Acknowledgments</H2>
+
+<p>
+Shannon Jaeger and Jim Uhl proofread this paper and made many helpful
+suggestions, as did the anonymous referees
+and Jeremy Hylton.  Also, thanks to Roger Jaeger
+and the University of Calgary Department of
+Computer Science for use of their computer equipment while I was
+travelling.  Nigel Horspool suggested mapping store instructions
+to their corresponding variables.
+This work was supported in part by a grant from the National
+Sciences and Engineering Research Council of Canada.
+
+<p>
+
+<H2>Appendix</H2>
+
+<p>
+In this section, I present the methods used for static and dynamic
+analysis, so that the results are repeatable and may be extended or
+reinterpreted.
+
+<p>
+Static analysis of Python code was performed by a program which
+lexically analyzed all <tt>.py</tt> files in a package
+using the <tt>tokenize</tt> module.  Comments
+and blank lines were ignored, so the ``lines of code'' calculated for each
+package is accurate.
+
+<p>
+All <tt>NAME</tt> tokens reported by
+<tt>tokenize</tt> were examined for the names <tt>exec</tt>, <tt>eval</tt>,
+<tt>execfile</tt>, and <tt>__import__</tt>.  Conceivably, use of the
+latter three could be cloaked by assigning them another name, but this
+would be questionable programming practice and was deemed unlikely.  Another
+possible problem would be code which re-used the name of a built-in function
+for a different purpose; this would artificially inflate the static
+occurrence counts.  In fact, this is exactly what happened with Gadfly,
+which re-used the name <tt>eval</tt>, necessitating manual analysis.
+
+<p>
+Other program constructs could prove detrimental to compile-time analysis
+too, such as <tt>apply()</tt>, <tt>setattr()</tt>, and manipulations of
+<tt>__dict__</tt>.  A more sophisticated static analysis is
+required to determine if an occurrence of one of these other constructs would
+be problematic.
+
+<p>
+For dynamic analysis, a task was chosen for each package which was
+intended to exercise a reasonable subset of the package's code.  This
+proved difficult to gauge for graphical applications like Idle and Grail;
+a future study should employ code coverage tools.  The chosen tasks are
+shown in Table&nbsp;<A href="#tbl:tests">6</A>.
+
+<p>
+
+<p><A NAME="tth_tAb6">
+</A> 
+<center>
+<TaBle>
+<tr><td>Idle </td><td>Loading <tt>testcode.py</tt> </td>
+<tr><td>Gadfly </td><td>Running <tt>gftest.py</tt> </td>
+<tr><td>Grail </td><td>Loading <tt>http://www.python.org/</tt> </td>
+<tr><td>HTMLgen </td><td>Running <tt>HTMLtest.test()</tt> </td>
+<tr><td>J-- </td><td>Generating MIPS assembly for a </td>
+<tr><td></td><td>&nbsp;&nbsp; recursive-descent calculator </td>
+<tr><td>Pystone </td><td>Full execution </td></TaBle>
+
+</center>
+<p>
+ <center>      Table 6: Tasks for dynamic analysis.</center> <A NAME="tbl:tests">
+</A>
+<p>
+<p>
+The Python interpreter was modified to log a number of events, including:
+
+<p>
+
+<OL type="1">
+<li> Frame object allocation and deallocation, and their corresponding
+	code objects.
+
+<li> Calls to the built-in functions <tt>eval()</tt>, <tt>execfile()</tt>, and
+	<tt>__import__()</tt>.
+
+<li> Execution of the <tt>IMPORT_NAME</tt> instruction.  Since this
+	instruction calls <tt>__import__()</tt>, the data reported for
+	<tt>__import__</tt> in Table&nbsp;<A href="#tbl:dynamic">2</A> was adjusted
+	by the number of times <tt>IMPORT_NAME</tt> was executed.  This
+	way, only the explicit calls to <tt>__import__()</tt> are
+	significant.
+
+<li> Execution of the <tt>EXEC_STMT</tt> instruction.
+
+<li> Execution of the <tt>STORE_NAME</tt>, <tt>STORE_FAST</tt>, and
+	<tt>STORE_GLOBAL</tt> instructions, the target variable, and
+	the type of that variable before and after the instruction.
+
+<li> Instruction execution, for instruction counting.
+</OL>
+<p>
+The generated log files were later processed to produce the dynamic
+data reported in Section&nbsp;<A href="#sect:appl">6</A>.
+
+<p>
+<H2>References</H2>
+<DL compact>
+
+<p>
+<dt>[<a href="#CITEaiken" name="aiken">1</a>]</dt><dd> A. Aiken and B. Murphy.  Static type inference in a
+	dynamically typed language.  <em>Proceedings of the
+	18th ACM POPL</em>, 1991, pp. 279-290.
+
+<p>
+<dt>[<a href="#CITEaycock" name="aycock">2</a>]</dt><dd> J. Aycock.  Compiling Little Languages in Python.
+	<em>Proceedings of the 7th International Python Conference</em>, 1998,
+	pp. 69-77.
+
+<p>
+<dt>[<a href="#CITEcartwright" name="cartwright">3</a>]</dt><dd> R. Cartwright and M. Fagan.  Soft Typing.
+	<em>Proceedings of the ACM PLDI '91 Conference</em>, 1991, pp. 278-292.
+
+<p>
+<dt>[<a href="#CITEgrail" name="grail">4</a>]</dt><dd> Corporation for National Research Initiatives.  Grail.
+		<a href="http://grail.cnri.reston.va.us/grail/"><tt>http://grail.cnri.reston.va.us/grail/</tt></a>.
+
+<p>
+<dt>[<a href="#CITEchambers" name="chambers">5</a>]</dt><dd> C. Chambers.  <em>The Design and Implementation
+	of the SELF Compiler, an Optimizing Compiler for Object-Oriented
+	Programming Languages</em>, Ph.D. Dissertation, Stanford University, 1992.
+
+<p>
+<dt>[<a href="#CITEcooper" name="cooper">6</a>]</dt><dd> K. D. Cooper and K. Kennedy.  Efficient Computation of
+	Flow Insensitive Interprocedural Summary Information.
+	<em>SIGPLAN 19</em>, 6 (June 1984), pp. 247-258.
+
+<p>
+<dt>[<a href="#CITEswallow" name="swallow">7</a>]</dt><dd> M. Faassen.  Re: The way to a faster python [was Python IS
+	slow !]  Posting to <tt>comp.lang.python</tt>, May 1999.
+
+<p>
+<dt>[<a href="#CITEhtmlgen" name="htmlgen">8</a>]</dt><dd> R. Friedrich.  HTMLgen.
+		<a href="http://starship.python.net/crew/friedrich/HTMLgen/html/main.html"><tt>http://starship.python.net/crew/friedrich/HTMLgen/html/main.html</tt></a>.
+
+<p>
+<dt>[<a href="#CITEhindley" name="hindley">9</a>]</dt><dd> R. Hindley.  The Principal Type-Scheme of an Object in
+	Combinatory Logic.  <em>Transactions of the American Mathematical
+	Society 146</em> (December 1969), pp. 29-60.
+
+<p>
+<dt>[<a href="#CITEtp" name="tp">10</a>]</dt><dd> O. I. Hougaard, M. I. Schwartzbach, and H. Askari.  Type
+	Inference of Turbo Pascal.  <em>Software: Concepts and
+	Tools 16</em> (1995), pp. 160-169.
+
+<p>
+<dt>[<a href="#CITEjpython" name="jpython">11</a>]</dt><dd> J. Hugunin.  Python and Java: The Best of Both Worlds.
+	<em>Proceedings of the 6th International Python Conference</em>, 1997.
+
+<p>
+<dt>[<a href="#CITEwirth" name="wirth">12</a>]</dt><dd> K. Jensen, N. Wirth, A. B. Mickel, and J. F. Miner.
+	<em>Pascal User Manual and Report (Third Edition)</em>,
+	Springer-Verlag, 1985.
+
+<p>
+<dt>[<a href="#CITEjohnson" name="johnson">13</a>]</dt><dd> R. E. Johnson, J. O. Graver, and L. W. Zurawski.
+	TS: An Optimizing Compiler for Smalltalk.  <em>OOPSLA '88
+	Proceedings</em>, 1988, pp. 18-26.
+
+<p>
+<dt>[<a href="#CITElewis" name="lewis">14</a>]</dt><dd> B. T. Lewis.  An On-the-fly Bytecode Compiler for Tcl.
+	<em>Proceedings of the Fourth USENIX Tcl/Tk Workshop</em>, 1996.
+
+<p>
+<dt>[<a href="#CITEemail" name="email">15</a>]</dt><dd> B. T. Lewis.  Private communication.  September, 1999.
+
+<p>
+<dt>[<a href="#CITEmasse" name="masse">16</a>]</dt><dd> R. E. Masse.  Evolutionary Prototyping: ``Add Later''
+	Static Types for Python.  <em>Proceedings of the 7th International
+	Python Conference</em>, 1998, pp. 91-101.
+
+<p>
+<dt>[<a href="#CITEmiller" name="miller">17</a>]</dt><dd> T. C. Miller.  Type Checking in an Imperfect World.
+	<em>Proceedings of the Sixth ACM POPL</em>, 1979, pp. 237-243.
+
+<p>
+<dt>[<a href="#CITEml" name="ml">18</a>]</dt><dd> R. Milner, M. Tofte, and R. Harper.  <em>The Definition
+	of Standard ML</em>.  MIT Press, 1990.
+
+<p>
+<dt>[<a href="#CITEmilner" name="milner">19</a>]</dt><dd> R. Milner.  A Theory of Type Polymorphism in Programming.
+	<em>Journal of Computer and System Sciences 17</em> (1978),
+	pp. 348-375.
+
+<p>
+<dt>[<a href="#CITEriehl" name="riehl">20</a>]</dt><dd> J. Riehl.  PyFront: Conversion of Python to C Extension
+	Modules.  <em>Proceedings of the 7th International
+	Python Conference</em>, 1998, pp. 79-90.
+
+<p>
+<dt>[<a href="#CITErobinson" name="robinson">21</a>]</dt><dd> J. A. Robinson.  A Machine-Oriented Logic Based on the
+	Resolution Principle.  <em>Journal of the ACM 12</em>, 1 (January
+	1965), pp. 23-41.
+
+<p>
+<dt>[<a href="#CITErouse95" name="rouse95">22</a>]</dt><dd> F. R. Rouse and W. Christopher.  A Tcl to C Compiler.
+	<em>Proceedings of the Third USENIX Tcl/Tk Workshop</em>, 1995,
+	pp. 115-122.
+
+<p>
+<dt>[<a href="#CITErouse97" name="rouse97">23</a>]</dt><dd> F. R. Rouse and W. Christopher.  A Typing System for
+	an Optimizing Multiple-Backend Tcl Compiler.
+	<em>Proceedings of the Fifth USENIX Tcl/Tk Workshop</em>, 1997.
+
+<p>
+<dt>[<a href="#CITEviper" name="viper">24</a>]</dt><dd> J. M. Skaller.  RFC: Viper: yet another python
+	implementation.  Posting to <tt>comp.lang.python</tt>, August 1999.
+
+<p>
+<dt>[<a href="#CITEsethi" name="sethi">25</a>]</dt><dd> R. Sethi.  <em>Programming Languages: Concepts and
+	Constructs</em>.  Addison-Wesley, 1989.
+
+<p>
+<dt>[<a href="#CITEshivers" name="shivers">26</a>]</dt><dd> O. Shivers.  Data-Flow Analysis and Type Recovery in
+	Scheme.  In <em>Topics in Advanced Language Implementation</em>,
+	P. Lee, ed., MIT Press, 1991, pp. 47-87.
+
+<p>
+<dt>[<a href="#CITEsemantics" name="semantics">27</a>]</dt><dd> K. Slonneger and B. L. Kurtz.  <em>Formal Syntax
+	and Semantics of Programming Languages</em>.  Addison-Wesley, 1995.
+
+<p>
+<dt>[<a href="#CITEwalker" name="walker">28</a>]</dt><dd> K. Walker and R. E. Griswold.  Type Inference in the
+	Icon Programming Language.  TR&nbsp;93-32a, University of Arizona
+	Department of Computer Science, 1996.
+
+<p>
+<dt>[<a href="#CITEperl" name="perl">29</a>]</dt><dd> L. Wall, T. Christiansen, R. L. Schwartz, and S. Potter.
+	<em>Programming Perl (2nd Edition)</em>.  O'Reilly, 1996.
+
+<p>
+<dt>[<a href="#CITEgadfly" name="gadfly">30</a>]</dt><dd> A. Watters.  Gadfly.
+		<a href="http://www.chordate.com/gadfly.html"><tt>http://www.chordate.com/gadfly.html</tt></a>.
+
+<p>
+</DL><hr><H3>Footnotes:</H3>
+
+<p><a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Unfortunately,
+unconfirmed as of this writing [<a href="#email" name="CITEemail">15</a>].
+<p><a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>The <tt>eval()</tt> number for Gadfly was determined by
+manual inspection, for reasons discussed
+in the Appendix.
+<p><hr><small>File translated fromT<sub><font size="-1">E</font></sub>Xby <a href="http://hutchinson.belmont.ma.us/tth/">T<sub><font size="-1">T</font></sub>H</a>,version 2.56.<br>On 23 Nov 1999, 19:45.</small>
+</HTML>

@@ -1,0 +1,78 @@
+<TITLE>A Generic data collection system through WWW forms</TITLE>
+<BODY>
+<HR>
+<A HREF = "abstract.html">[Abstract]</A>
+<A HREF = "introduction.html">[Introduction]</A>
+<A HREF = "methods.html">[Methods]</A>
+<A HREF = "discussion.html">[Discussion]</A>
+<A HREF = "references.html">[References]</A>
+<HR>
+<STRONG>Figure 1.</STRONG><BR>
+<CITE>
+The class "web" - an example of the use of some of it's methods. <BR>
+<STRONG>1.</STRONG> The class instance is invoked.  
+<STRONG>2.</STRONG> Initialization of an HTML document.
+<STRONG>3.</STRONG> Anchoring of a URL.  
+<STRONG>4.</STRONG> Providing an image. The ALT and ALIGN fields have
+	defaults that can be altered.
+<STRONG>5.</STRONG> Initialization of a form. The method defaults to POST
+	and may be altered to GET by the invokation.
+<STRONG>6.</STRONG> Instant invokation of a submit button.
+<STRONG>7.</STRONG> Creating a line input of a form with a default text.
+<STRONG>8.</STRONG> Creating an options selection list with a pre-defined
+	selection.
+
+</CITE>
+
+<HR>
+<ADDRESS>Written by <A HREF = "http://www.ebi.ac.uk/ebi_docs/staff/benny.html">Benny shomer</A>, The EBI. <P>
+      <A HREF = "http://www.ebi.ac.uk/ebi_docs/staff/bennymail.html">bshomer@ebi.ac.uk</A>
+</ADDRESS>
+<HR>
+
+<Plaintext>
+1.
+>>> from WWW import web
+>>> w = web()
+
+2.
+>>> w.initialize('This is a test document')
+Content-type: text/html
+
+<HEADER>
+<TITLE>This is a test document</TITLE>
+</HEADER>
+ <BODY>
+
+3.
+>>> print w.anchor('http://www.ebi.ac.uk/','The EBI home page')
+<A HREF="http://www.ebi.ac.uk/">The EBI home page</A>
+
+4.
+>>> print w.fig('../icons/spam.gif')
+<IMG SRC="../icons/spam.gif" ALT="IMAGE" ALIGN="MIDDLE">
+
+5.
+>>> w.form('http://www.ebi.ac.uk/htbin/embl_subs.py')
+<FORM METHOD="POST" ACTION="http://www.ebi.ac.uk/htbin/embl_subs.py">
+
+6.
+>>> w.button_submit()
+<INPUT TYPE="submit" VALUE="Submit">
+
+7.
+>>> print w.lineinp('ADDRESS',40,'My default address.')
+<INPUT TYPE= "TEXT" NAME= "ADDRESS" SIZE= "40" MAXLENGTH= "20" 
+VALUE= "My default address.">
+
+8.
+>>> mylist=['hats','socks','shirts','pants','jackets','ties']
+>>> print w.option('clothing',mylist,3)
+<SELECT NAME = "clothing">
+<OPTION> hats
+<OPTION> socks
+<OPTION> shirts
+<OPTION SELECTED > pants
+<OPTION> jackets
+<OPTION> ties
+</SELECT>

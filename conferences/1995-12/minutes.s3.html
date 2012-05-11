@@ -1,0 +1,372 @@
+<html>
+<head>
+<title> Internet Tools Session </title>
+</head>
+<body>
+<h1> Internet Tools Session - Session Chair: Barry Warsaw </h1>
+<ul>
+   <li> Grail was developed at CNRI create a browser that allows
+        easy additions of protocols and other client side extensions
+   <li> Specifically grail was designed to support the CNRI URN scheme
+        "handles"
+   <li> support was suppose to be in Mosaic...  Because of their "fall from 
+        grace", we decide to (in addition to Mosaic) write a browser to 
+        support handles
+   <li> CNRI wants to deliver a browser in source code form that will 
+        remain free (for non-commercial use)
+</ul>
+<br>
+<a name="grail"><h1>Grail (Guido van Rossum) </h1>
+<ul>
+   <li> Complete internet browser
+   <li> Currently at 0.2 release
+   <li> support downloadable applets
+   <ul>
+      <li> code not bytecode is downloaded to client
+      <li> security is based on 'restricted python'
+      <li> security currently is 'loose'
+      <li> More complete security is planned for future release
+      <ul>
+         <li> little 'rooms' will be the default
+         <li> there will be ways to have applets cooperate
+         <li> sockets will be tough perhaps user authorization on
+              a per-connet basis (as longs as not too many dialog boxes)
+         <li> apps like the chat-room are nice and should be possible
+         <li> in the next version there will be better controls of
+              the module namespace (e.g.  To modules named the same from
+              different places currently are cached as the same module)
+      </ul>
+      <li> Mailing list for grail: <i> grail@python.org </i>
+      <li> Grail is extensible in many dimentions
+      <ul>
+         <li> HTML tags
+         <li> Protocols
+         <li> GUI elements (menu's - more in the future)
+      </ul>
+   </ul>
+   <li> Full HTML 2.0, http, ftp, mailto
+   <li> Printing
+   <li> Bookmarks
+   <li> We hope to evolve grail into an environment much like emacs
+        but much more platform independent
+   <ul>
+      <li> python better than elisp for configuration
+      <li> not restricted to UNIX
+      <li> eventually this could de-emphisize operating systems
+   </ul>
+   <li> portability of grail is dependent on John Osterhout's (and Sun's)
+        ability to deliver Tk ports to the Mac and Windows
+   <li> Grail is a bit slower than Netscape, mostly due to the HTML parser
+        being written in python
+   <li> Inclusion of Dan Connolly's W3C reference HTML parser (faster because
+        it is written in C) is possible in the future
+   <li> Can Grail interoperate with Java?  No.  No plans to incorporate
+   <li> Guido: 'I would prefer to keep the Python language pure, and
+        throw away all that Java s(tuff)'
+</ul>
+<a name="ssleay"><h1> The Python SSLeay interface (Andrew Kuchling) </h1>
+<ul>
+   <li> Problem: Credit card numbers in clear are bad
+   <li> lot's of proposed solutions proposed today
+   <li> Current leader is SSL by netscape
+   <li> client/server negotiate an algorthm and session key
+   <li> optionally, clients and servers can authenticate each other
+   <li> provides easy security
+   <li> SSL relys on the X.509 framework - certification authorities
+        Tree based (unlike PGP)
+   <li> SSLeay high level algorithm
+   <ul>
+      <li> Server only: generate and RSA key and keep it
+      <li> Call SSLeay.fromfd() to create and SSLeay object attached to socket
+      <li> Server only:
+           set a public key and certificate with appropriate functions
+      <li> call <i> connect </i> or <i>  accept </i>
+   </ul>
+   <li> SSLeay support was added to Grail in two hours (easy to use!)
+   <li> SSL makes it easy to gain security
+   <li> Python makes it easy to use SSLeay because of Polymorphism
+   <li> SSLeay is still in alpha state
+   <li> interfaces to other SSL implementation could be written
+   <li> because of RSA's RSAref toolkit, SSLeay can be used
+        without patten infringment.
+        Currently not a problem (especially abroad since patten law 
+        only applies in the US)
+</ul>
+<br>
+<a name="benny">
+<h1> A Generic data collection system through WWW forms (Benny Shomer) </h1>
+<ul>
+   <li> Benny's employer manages one of the worlds largest biological databases
+   <li> Problem: an efficient way of collecting data - and validating it
+   <li> Benny has written some tools to attempt to validate the data
+        on input using forms
+   <li> Classes
+   <ul>
+      <li> Generate HTML code - class: <i> WWW </i> - 75% complete to HTML 1.0
+      <li> Data container - class: <i> item </i> - stores key value pairs
+      <li> Form object - class: <i> formobj </i> - programatic presentation
+           of form
+      <li> Abstract class: <i> session </i> - tracks cronology, manages 
+           <i> formobj </i>, <i> item </i>, etc.
+   </ul>
+   <li> Debugging
+   <ul>
+      <li> a simple class that overrides printing - very primative
+      <li> using a file tracer - dump messages to a file
+      <li> bypassing the web server - call a script that dumps 
+           the calling parameters instead of calling you script
+   </ul>
+   <li> Future issues
+   <ul>
+      <li> Overcoming 23.5Kb limit in forms
+      <li> HTML standard for menus and pop-up menues
+      <li> ability to include files from the users system
+      <li> easy interface to data encription in both directions
+      <li> ability to include code libraries for data filtering and 
+           validation written by the server maintainer into the browser
+      <li> ability to provide simple data checking and validation
+   </ul>
+</ul>
+<br>
+<a name="mitre"><h1> Intelligent Interaction at Mitre </h1>
+<i> by: Samuel Bayer, Robyn Kozierok, Jeffrey Kurtz </i>
+<br>
+<ul>
+   <li>Evolution of interfaces - multimodal
+   <li>Interaction on the web
+   <ul>
+      <li>menus, text input, cgi, moble code
+   </ul>
+   <li>AIMI 
+   <ul>
+       <li>completely interpreted interface
+   </ul>
+   <li>IPP
+   <ul>
+       <li>Example - Intelligent Project Planner
+   </ul>
+   <li>Now experimenting with Grail-izing some existing code
+   <li>Outstanding Issues
+   <ul>
+      <li>Screen real-estate
+      <li>Security
+      <ul>
+         <li>sockets are a problem
+         <li>keyboard and screen are trusted devices
+         <li>other services are not
+         <li>Java strategy of trusted code
+         <li>standard for APIs for speech services are emerging
+      </ul>
+    </ul>
+    <li> Conclusion
+    <ul>
+       <li>web hosted multimodal solutions depend on other solutions
+       <ul>
+          <li>standard services (corba)
+          <li>trusted services
+       </ul>
+    </ul>
+</ul>
+<br>
+<a name="joel">
+<h1>Creating HTML documents in python (Joel Shprentz)</h1>
+<ul>
+   <li> Quick Review of HTML
+   <ul>
+      <li> Start with Text
+      <li> Add tags
+   </ul>
+   <li> Webs combine static and dynamic pages
+   <li> HTML document tree
+   <ul>
+      <li> Python code to generate HTML...
+      <pre>
+	def createHtml (partyList):
+	print "<H1>Hello World</H1>"
+      </pre>
+      <li> Problems
+      <ul>
+         <li> Bad HTML is not trapped right away
+         <li> Knowledge is not reusable
+         <li> Document is generated in a strict sequence
+         <li> Hard to change document style among many documents
+      </ul>
+      <li> A better way: use HTML documents structure as a paradigm for
+           code (as a tree)
+   </ul>
+   <li> Object Model
+   <ul>
+      <li> Each tag is modeled as an object
+      <li> Object attributes
+      <ul>
+         <li> Tag: string, Attributes: dictionary
+      </ul>
+      <li> Object methods
+      <ul>
+         <li> append, prepend, setAttribute, writeHTML
+      </ul>
+   </ul>
+   <li> Some simple python code...
+   <pre>
+   	body = HtmlElement("BODY")
+   	head = HtmlElement("H1")
+   	image = HtmlElement("IMG")
+   	body.writeStdout()
+   </pre>
+   <li> Improvement: Use a tag factory to create all tag object
+   <ul>
+      <li> tag factory knows correct HTML syntax
+      <li> tag factory sets the most used attibutes
+   </ul>
+   <li> Python code with tag factory...
+   <pre>
+	image = Tag.IMG("flag.gif")
+    	head = Tag.H1 ([image, " Politics"])
+  	body = Tag.BODY(head)
+	body.writeStdout()
+   </pre>
+   <li> Code can be nested
+   <li> HTML forms
+   <ul>
+      <li> implemented as tags
+      <li> a single field may have many tags
+      <li> forms are <i> HtmlElement</i> tag objects
+      <li> fields are special subclasses of <i> HtmlElement </i>
+      <li> fields can set their values from a CGI response dictionary
+   </ul>
+   <li> HTML documents need consistent style
+   <li> Abstract class <i> HtmlDocument </i>
+   <ul>
+      <li> contents, append, prepend, writeHtml
+   </ul>
+   <li> 
+   <li> Python library
+   <ul>
+      <li> <i> htmlDoc </i>
+      <li> 628 lines of python, 16 classes
+      <li> available from <i> www.python.org </i>
+   </ul>
+   <li> Work In Progress
+   <ul>
+      <li> HTML Upgrades, currently 2.0
+      <li> HTML Parsing - parse HTML into a tree of objects
+      <li> SGML Support - could be extended to support
+           (maybe code to generate a tag factory from a DTD)
+   </ul>
+   <li> Future Directions
+   <ul>
+      <li> Choose best way to store HTML text - pickles?
+      <li> Provide a better forms model
+      <ul>
+         <li> Present form (possibly with preset responses)
+         <li> validate input
+         <li> process request
+         <li> display results
+      </ul>
+      <li> paring down large lists into multiple selections
+   </ul>
+   <li> Conclusions
+   <ul>
+      <li> Python is excellent
+      <li> HTML tag classes guarantee correct tags
+      <li> Object tree matches tag structure
+      <li> HTML document classes consolidate style decisions in one place
+      <li> New HTML applications are small and easy to build
+   </ul>
+   <li>Q: (Scott Hassan) What about preserving asyncronous loading
+       of pages?  Doesn't buffering the entire page up till the end
+       break that?
+   <li>A: Most of the delay is in network delays, not in processing
+       the python
+   <li>Q: (Scott) What about if your python does an SQL query?
+   <li>A: Often I need to know how many hits I got to decide how to
+       display the page
+   <li>Q: (Scott) User needs to see *something* happening
+   <li>A: Yes that would be nice too
+</ul>
+<br>
+<a name="sylu">
+<h3>SYLU 1.0 - ILU runtime reimplemented in/for Python (Scott Hassan)</h3>
+<ul>
+   <li> What is ILU
+   <ul>
+      <li> Invented at Xerox PARC
+      <li> Distributed Objects
+      <li> ISL (Interface Specification Language) - language independent 
+           object specifier
+      <li> Every parameter is strongly typed
+      <li> Corba ORB (Object Request Broker)
+      <li> language independent
+      <li> transport independent (UDP, TCP, email)
+   </ul>
+   <li> SYLU
+   <ul>
+      <li> Scott's Yet another Language Unification
+      <li> Just the Python/ILU runtime reimlemented
+      <li> Under 4000 lines of code
+      <li> doesn't implement entire ILU 1.X - no courier protocol,
+           no singleton types, no garbage collection, no UDP 
+      <li> Future
+      <ul>
+         <li> ILU 2.0 support
+         <li> thread support for big time server programs
+         <li> support encryption that ILU supports (SSL, others)
+      </ul>
+      <li> Grail applications that use SYLU
+      <ul>
+         <li> Chat room
+         <li> Drawing room - everyone draws on the same page
+         <li> Four player Roulette game
+         <li> <i> http://www-db.standford.edu/~hassan/grailApps</i>
+      </ul>
+      <li> Performance - ILU will be faster than raw HTTP because
+           the connection stays open (adds 25% overhead to raw TCP)
+   </ul>
+</ul>
+<br>
+<a name="aaron">
+<h3>Security == Authentication == Encryption (Aaron Watters - Bell Labs)</h3>
+<ul>
+   <li> Sun is right - the network *is* the computer
+   <ul>
+      <li> Machine boundries are the most irritating
+   </ul>
+   <li> Sun is wrong - Java style security isn't enough
+   <ul>
+      <li> too complicated 
+      <li> requires bug free interpreter
+      <li> java specific
+      <li> one level of security
+   </ul>
+   <li> Netscape is right
+   <ul>
+      <li> Encryption protocols provide trustworthy security (e.g. SSL)
+      <li> Simple
+      <li> If the application has bugs it won't work *but* the priviledged
+           access will be maintained
+      <li> not specific to one language, os, hardware, chip, etc.
+      <li> Fully and easily configurable
+   </ul>
+   <li> Goal - define a protocol which provides...
+   <ul>
+      <li> configurable authorization
+      <li> configurable security
+   </ul>
+   <li> Constraints
+   <ul>
+      <li> don't want to know where the code is running
+   </ul>
+   <li> Proposal: encryption protected pseudo secure cell OS
+   <li> Q: Are we talking about two security issues 1) privacy
+        2) trojan horse?
+   <li> Secure Key distribution is still a major problem
+</ul>
+
+</body>
+</html>
+
+
+
+
+
+

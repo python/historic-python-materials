@@ -1,0 +1,157 @@
+Title: python-dev Summary for 2003-02-16 through 2003-02-28
+Sitemap-ignore: yes
+
+<div class="document" id="python-dev-summary-for-2003-02-16-through-2003-02-28">
+<h1 class="title">python-dev Summary for 2003-02-16 through 2003-02-28</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> from February 16, 2003 through February 28, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have an archived summary of each thread started on the list.  To comment on anything mentioned here, just post to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> or <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join python-dev!</p>
+<p>This is the twelfth summary written by Brett Cannon (yes, I am still sane even after seven months of this).</p>
+<p>All summaries are archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a> (else it is probably regular expression syntax); you can safely ignore it (although I suggest learning reST; its simple and is accepted for PEP markup).  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is unless it is from the original text file.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#summary-announcements" id="id5" name="id5">Summary Announcements</a></li>
+<li><a class="reference" href="#released-python-2-3a2" id="id6" name="id6">RELEASED: Python 2.3a2</a></li>
+<li><a class="reference" href="#new-format-codes-for-getargs-c" id="id7" name="id7">new format codes for getargs.c</a></li>
+<li><a class="reference" href="#assymetry-in-descriptor-behavior" id="id8" name="id8">assymetry in descriptor behavior</a></li>
+<li><a class="reference" href="#bytecode-analysis" id="id9" name="id9">Bytecode analysis</a></li>
+<li><a class="reference" href="#quickies" id="id10" name="id10">Quickies</a></li>
+</ul>
+</div>
+<div class="section" id="summary-announcements">
+<h1><a class="toc-backref" href="#id5" name="summary-announcements">Summary Announcements</a></h1>
+<p>Nothing specific about the Summary to mention.  I am starting to lean more and more towards starting summaries out in <a class="reference" href="#quickies">Quickies</a> and then making them a full-fledged summary when they end up requiring more than a short paragraph of explanation.  Helps me keep my sanity since I plan on sticking with having some summarization for every thread on python-dev.</p>
+<p>But this summary is on the lean side because traffic was lower than normal.  I am sure this is in reaction to what happened last month with the massive amount of emails and various negativity that sprung up around the list.  Made my life easier.  =)</p>
+<p><a class="reference" href="http://www.python.org/pycon/">PyCon</a> is moving forward!  Early-bird registration is over, but regular registration for $200 is still available.  If you come you can hear me make a fool of myself trying to teach the conference <a class="reference" href="http://docutils.sf.net/rst.html">reST</a>.  =)</p>
+<p>T-shirts are also available so even if you don't go to the conference you can buy a shirt at <a class="reference" href="http://www.cafeshops.com/pycon">http://www.cafeshops.com/pycon</a> and fool people into thinking your went.  =)</p>
+<p>As for the <a class="reference" href="http://www.python.org/cgi-bin/moinmoin/SprintPlan">pre-PyCon sprint</a>, that is also shaping up.  There is already a sprint for <a class="reference" href="http://www.zope.org/">Zope</a>, <a class="reference" href="http://twistedmatrix.com/">Twisted</a>, and <a class="reference" href="http://webware.sourceforge.net/">Webware</a>.  And now there is a sprint in the works for working on the Python core!  If you have an idea of what should be covered in the core sprint, please post it to the wiki at <a class="reference" href="http://www.python.org/cgi-bin/moinmoin/PyCoreSprint">http://www.python.org/cgi-bin/moinmoin/PyCoreSprint</a> (please no &quot;fix this bug on SF&quot; or other frivolous suggestions).</p>
+</div>
+<div class="section" id="released-python-2-3a2">
+<h1><a class="toc-backref" href="#id6" name="released-python-2-3a2"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033537.html">RELEASED: Python 2.3a2</a></a></h1>
+<p>Guido released <a class="reference" href="http://www.python.org/2.3/">Python 2.3a2</a> on Feb. 19.  Please download it, run the regression tests, and then test some of your own code.  The more bugs we can squash before we hit 2.3b1 the better.</p>
+</div>
+<div class="section" id="new-format-codes-for-getargs-c">
+<h1><a class="toc-backref" href="#id7" name="new-format-codes-for-getargs-c"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033579.html">new format codes for getargs.c</a></a></h1>
+<p>Thomas Heller implemented a new 'k' format code for <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Python/getargs.c">getargs.c</a> that ccepts integers or longs, does no range checking, and returns the lower bits in an unsigned long&quot;.  After Tim Peters said that tests should be added to <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/_testcapimodule.c">_testcapimodule.c</a> the conversation was moved over to <a class="reference" href="http://www.python.org/sf/595026">http://www.python.org/sf/595026</a> .</p>
+</div>
+<div class="section" id="assymetry-in-descriptor-behavior">
+<h1><a class="toc-backref" href="#id8" name="assymetry-in-descriptor-behavior"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033583.html">assymetry in descriptor behavior</a></a></h1>
+<p>This summary is going to assume you understand descriptor's.  If you don't read <a class="reference" href="http://www.python.org/doc/2.2.1/whatsnew/sect-rellinks.html#SECTION000320000000000000000">What's New in 2.2</a> for a nice, simple overview or <a class="reference" href="http://www.python.org/dev/peps/pep-0252">PEP 252</a> for the technical explanation (the initial email for this thread has simple code showing how descriptor's are used).  If you have ever been interested how property(), classmethod(), and staticmethod() work this will tell you.</p>
+<p>David Abrahams wondered why it was possible to invoke a descriptor's __get__() from either the class it is defined in or an instance of that class while __set__() for the same descriptor cannot be called from the class directly without having defined the descriptor a second time in the metaclass; David thought this was a little difficult.  He also asked about the arguments to the descriptor API methods.</p>
+<p>Guido responded by saying that it wasn't difficult considering you could do it and that Python was pulling something off with a single notation (by using '.' for class and instance accesses) that C++ uses two notations for ('.' and '::').  As for the arguments to the various methods, they are as follows:</p>
+<dl>
+<dt>__get__(self, obj, type)</dt>
+<dd>'self' gets bound to the descriptor instance.  When called for an class, obj = None while for an instance it is bound to the instance containing the descriptor.  'type' is set to the class that has the descriptor regardless of what context the descriptor is being called.  The duality is so that descriptors can be happy being called either just on an instance or just a class (such as classmethod()).</dd>
+<dt>__set__(self, obj, value)</dt>
+<dd>'self' is the descriptor, obj is the instance, and 'value' is what what the assignment is being passed.  As mentioned above, this only works with classes if you create the descriptor <em>twice</em>; once in the class and once in the class's metaclass.</dd>
+<dt>__delete__(self, obj)</dt>
+<dd>Guess what gets bound to these parameters?  =)  A historical note: Guido said &quot;In an early alpha release it was actually __del__, but that didn't work very well. :-)&quot; for obvious reasons.</dd>
+</dl>
+<p>David also submitted a doc patch for this so we are now one step closer to having new-style classes documented.  Still, there is work to be done and if you care to help please do so.</p>
+</div>
+<div class="section" id="bytecode-analysis">
+<h1><a class="toc-backref" href="#id9" name="bytecode-analysis"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033663.html">Bytecode analysis</a></a></h1>
+<dl>
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033693.html">Bytecode idea</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033692.html">Code Generation Idea</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033752.html">Dynamic bytecode analysis</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033775.html">new bytecode results</a></li>
+</ul>
+</dd>
+</dl>
+<p>Damien Morton posted some opcode statistics and tried to get better performance out of <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Python/ceval.c">ceval.c</a> by coming up with a way to do a LOAD_FAST_n call (LOAD_FAST pushes a variable on to the stack) and to cut back on the size of .pyc files.  Nothing panned out very much, though (all the benchmarking was done using <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Lib/test/pystone.py">Pystone</a>).</p>
+<p>Guido said that Christian Tismer's idea of changing some of the rarely-used opcodes to function calls and moving them out of the 'switch' statement might get some performance.</p>
+<p>Christian also thought that some work could be done to speed up calls that involve a <tt class="literal"><span class="pre">goto</span> <span class="pre">fast_next_opcode</span></tt> call.</p>
+<p>Changing ceval.c to using a jump table instead of a switch also did not pan out.</p>
+<p>Jeremy Hylton spoke to let people know that sometimes having an opcode call out to a function is not necessarily slower then having the code in the switch statement.  He said it depended on how much work the opcode had to do and &quot;lots of other hard-to-predict effects&quot; in terms of memory and generated machine code.</p>
+<p>Jeremey also reminded people that there is patch out there to use the Pentium's cycle counter to find out how many cycles is spent on each pass through the mainloop.</p>
+<p>Guido also said that &quot;If you really want fame and fortune, try designing a more representative benchmark&quot;.  AM Kuchling requested to be notified when someone decided to take on this project.</p>
+<p>Skip Montanaro pointed out that he has &quot;an XML-RPC server available to which applications can connect and upload their dynamic opcode frequencies&quot; at <a class="reference" href="http://manatee.mojam.com:7304">http://manatee.mojam.com:7304</a> .  Compile with &quot;DYNAMIC_EXCUTION_PROFILE and DXPAIRS defined&quot; and fetch the info from the <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Python/sysmodule.c">sys</a> module (it's undocumented, but it looks like you can get execution info from sys.getdxp()).  If you are interested in how to use Skip's server, see <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033767.html">http://mail.python.org/pipermail/python-dev/2003-February/033767.html</a> .</p>
+<p>Damien Morton made his modified source code available at <a class="reference" href="http://www.bitfurnace.com/python/modified-source.zip">http://www.bitfurnace.com/python/modified-source.zip</a> and asked people give it a try and report back to him their results.</p>
+<p>Dan Sugalski suggested putting opcode that tends to execute in pairs closer together so that they would have a better chance of being in the cache.  It seemed that doing any mass opcode adding made things slower since the switch got larger and thus made cache hits harder to come by.  Various ideas of how to rearrange things so that the switch was not as large were suggested and are most likely still being tested.</p>
+</div>
+<div class="section" id="quickies">
+<h1><a class="toc-backref" href="#id10" name="quickies">Quickies</a></h1>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033410.html">CALL_ATTR, A Method Proposal</a></dt>
+<dd>Finn Bock added one last comment to this thread from the <a class="reference" href="http://www.python.org/dev/summary/2003-02-01_2003-02-15.html">last summary</a> about how the proposed implementation of a CALL_ATTR bytecode was how <a class="reference" href="http://www.jython.org/">Jython</a> handled attribute calls.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033466.html">[Python-checkins] python/dist/src/Misc NEWS,1.660,1.661</a>: <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033467.html">Package Install Manager for Python</a></dt>
+<dd>We learn some people take offense to the word pimp (to the point of considering them rapists), while others think it is fine (&quot;a pretty respectable profession [in Amsterdam].  Definitely higher standing than a cab driver, somewhat on par with a coffeeshop owner&quot;).</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033469.html">incorrect regression tests</a></dt>
+<dd>Neal Norwitz discovered some regresssion tests that weren't being executed.  We also learn that it is best for regression test modules to define a test_main() function that executes all the tests then having the tests run as a side-effect of importation (prevents the import lock from being held).</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033470.html">non-binary operators</a></dt>
+<dd>Hold-over from the <a class="reference" href="http://www.python.org/dev/summary/2003-02-01_2003-02-15.html">last summary</a> when discussing whether the ternary operator could be just chained binary operators.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033436.html">Import lock knowledge required!</a></dt>
+<dd>Another hold-over from the <a class="reference" href="http://www.python.org/dev/summary/2003-02-01_2003-02-15.html">last summary</a>; Eric Jones says he wouldn't mind more fine-grained import locking.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033482.html">various unix platform build/test issues</a></dt>
+<dd>Neal Norwitz brought to the attention of python-dev some issues that were preventing Python from compiling on some platforms.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033484.html">308: the debate is petering out</a></dt>
+<dd>Samuele Pedroni posted some new stats on the <a class="reference" href="http://www.python.org/dev/peps/pep-0308">PEP 308</a> debate going on at <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a>.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033486.html">[rfc] map enhancement</a></dt>
+<dd>Ludovic Aubry proposed a change to map(), but his use-case was eliminated quickly when it was pointed out he could just rewrite his map() or use list comprehensions.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033489.html">Python 2.3a2 release today?</a></dt>
+<dd>Guido asked if anyone objected to releasing Python 2.3a2 on Feb. 18.  Jack Jansen asked if Guido could wait a day and he said yes.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033515.html">test_timeout fails on Win98SE</a></dt>
+<dd>The title of the thread states what the issue was and it got resolved.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033530.html">privacy in log files?</a></dt>
+<dd>Guido discovered a comment about not using <a class="reference" href="http://www.python.org/dev/doc/devel/api/exceptionHandling.html#l2h-92">PyErr_WarnExplicit()</a> because there was a worry of having code put into a log file.  Discussion seemed to end on the idea that it wasn't so much security but throwing a text editor for a loop because of possible non-ASCII getting put into a log file.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033539.html">What happened to fixed point?</a></dt>
+<dd>David LeBlanc asked about the status of <a class="reference" href="http://fixedpoint.sf.net/">FixedPoint</a> getting into the stdlib.  Raymond Hettinger said he would be getting to it until Tim Peters (who originally wrote FixedPoint) killed the idea.  Tim would rather wait until IBM's proposal has solidified and then come up with an implementation based on that.  IBM's proposal can be found at <a class="reference" href="http://www2.hursley.ibm.com/decimal/">http://www2.hursley.ibm.com/decimal/</a> .</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033541.html">test_posix, test_random failing</a></dt>
+<dd>I bet you can figure out what this thread is about.  Timing issues were the cause and have been solved.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033543.html">pickling of large arrays</a></dt>
+<dd>Ralf Grosse-Kunstle asked if there was a way to minimize the amount of buffering needed to buffer an array object.  It was pointed out that writing a __reduce__() method that used an iterator would prevent the need to do any major buffering.  The idea of having a custom append() method for objects to return was also suggested, but didn't get resolved.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033555.html">Cygwin build failing</a></dt>
+<dd>A problem with builing under Cygwin was fixed by rebasing the system.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033570.html">2.3a2 problem: iconv module raising RuntimeError</a></dt>
+<dd><a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/_iconv_codec.c?sortby=date">_iconv_codec.c</a> was raising RuntimeError when it was more proper to raise ImportError.  It's been fixed.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033575.html">SCO Open Server 5.0.x thread support</a></dt>
+<dd>Someone asked for help compiling on SCO with thread support.  He was redirected to <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> to get help.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033582.html">call for Windows developers</a></dt>
+<dd>Thomas Heller asked for help from some Windows experts with the goal of getting <a class="reference" href="http://starship.python.net/crew/theller/ctypes.html">ctypes</a> so that one can write ActiveX controls in Python.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033585.html">tuning up...</a></dt>
+<dd>Andrew MacIntyre sent some performance numbers for OS/2 EMX; about 10% performance improvement from Python 2.2 with -O compared to stock Python 2.3 (-O in 2.3 does not do much since the SET_LINENO opcode was removed entirely from Python).</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033586.html">Weekly Python Bug/Patch Summary</a></dt>
+<dd>Skip Montanaro's weekly reminder that Python is not perfect yet.  =)</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033590.html">Needed: regexp maintainer</a></dt>
+<dd>Guido asked for someone to step forward to take over for the <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-re.html">re</a> module.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033602.html">_iconv_codec</a></dt>
+<dd>Guido asking what that <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/_iconv_codec.c?sortby=date">_iconv_codec.c</a> module was for (answer: it's a wrapper for the iconv(3) POSIX module).</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033596.html">python/dist/src configure,1.279.6.17...</a></dt>
+<dd>Neil Schemenauer asked what the whitespace rules were for pre-processor directives (e.g., #include, #define, etc.).  Tim Peters (the residential C standards know-it-all) said that &quot;Spaces and horizontal tabs are fine before '#', and between '#' and the directive name&quot;.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033645.html">rename bsddbmodule.c to bsddb185.c</a></dt>
+<dd><a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/bsddbmodule.c">bsddbmodule.c</a> is now going to compile to the module bsddb185.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033651.html">Scheduled downtime for mail.python.org</a></dt>
+<dd>mail.python.org was scheduled to go down on 2003-02-26 at 10:00 EST which it did.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033607.html">Traceback problem</a></dt>
+<dd>Christian Tismer wanted a way to clear the traceback information stored by <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-sys.html">sys.exc_info()</a> to be cleared on-demand since it is kept around as long as the frame is alive.  Kevin Jacobs wrote a patch to implement this feature and named is sys.exc_clear().  And a word of warning to anyone who stores the info returned by sys.exc_info(); it creates a cycle with the frame and thus can create a huge chunk of memory to be held so make sure to delete the info when you are done with it.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033626.html">module extension search order - can it be changed?</a></dt>
+<dd>Skip Montanaro realized that most failed stat() calls occur because the extension search order goes C extension and then Python module; most modules are written in Python and thus the stat() call for a C extension of a module name tends to fail.  Guido said it is this way so that if the build of a C extension fails a same-named Python module can be installed instead.  This also lead to Skip possibly coming up with a build option of creating a zip archive of the stdlib at install time to minimize failed stat() calls.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033627.html">Writing a mutable object problem with __setattr__</a></dt>
+<dd>Aleksandor Totic asked about classes and an object-persistence setup he was designing.  You can learn about __setattr__() and how to find out whether an instance is new-style or classic based on whether it has a __class__ attribute (new-style has this).</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033634.html">Re: some preliminary timings</a></dt>
+<dd>Skip Montanaro discovering that importing <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-email.html">email</a> takes a while.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033657.html">GIL Pep commentary</a></dt>
+<dd>David Abrahams basically saying he likes <a class="reference" href="http://www.python.org/dev/peps/pep-0311">PEP 311</a>.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033668.html">test_re failing again on Mac OS X</a></dt>
+<dd>Someone thought <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Lib/test/test_re.py">test_re</a> was failing again on OS X when it turns out it was an isolated incident.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033756.html">Slowdown in Python CVS</a></dt>
+<dd>Someone thought that Python had slowed down for some reason; turned out to be a false alarm.  If you ever need to check out a CVS copy from a past date, execute <tt class="literal"><span class="pre">cvs</span> <span class="pre">update</span> <span class="pre">-D</span> <span class="pre">'24</span> <span class="pre">Feb</span> <span class="pre">2003'</span></tt> (with the proper date, of course).</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033699.html">Some questions about maintenance of the regular expression code.</a>: <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033735.html">New regex syntax?</a></dt>
+<dd>Gary Herron stepped up to say he was interested in taking over maintenance of the <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-re.html">re</a> module.  He asked, though, how to handle bug reports about <tt class="literal"><span class="pre">(.*)?</span></tt> and hitting the recursion limit (a patch materialized that solved the recursion issue for non-greedy quantifiers for the common case).  The suggestion of coming up with a new syntax for regexes came up but was stopped from forming on the list since that would take &quot;over all available bandwidth in python-dev&quot; as Guido pointed out.  Can still be discussed in other forums, though...</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033764.html">bug? classes whose metclass has __del__ are not collectible</a></dt>
+<dd>Answer: no.  Reason: &quot;The GC implementation has a good reason for this; someone else may be able to explain it&quot;.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033783.html">Introducing Python</a></dt>
+<dd>Gustavo Niemeyer sent a link to an mpeg promoting Python at <a class="reference" href="http://www.ibiblio.org/obp/pyBiblio/pythonvideo.php">http://www.ibiblio.org/obp/pyBiblio/pythonvideo.php</a> .  If you ever had any desire to see what some of the guys from PythonLabs look and sound like and you are not going to <a class="reference" href="http://www.python.org/pycon/">PyCon</a> you can now quench your curiosity.  It's a free download and is 24 minutes long.  Come on, you know you want to!</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/033800.html">syntax for funcion attributes</a></dt>
+<dd>Someone suggested a new syntax for being to access function attributes but was told that it didn't look like it would fly.</dd>
+</dl>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="2003-02-16_2003-02-28.txt">View document source</a>.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>

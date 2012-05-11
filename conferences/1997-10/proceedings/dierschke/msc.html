@@ -1,0 +1,947 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 3.0//EN">
+<!--Converted with LaTeX2HTML 96.1-h (September 30, 1996) by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds -->
+<HTML>
+<HEAD>
+<TITLE>A graphical MSC editor</TITLE>
+<META NAME="description" CONTENT="A graphical MSC editor">
+<META NAME="keywords" CONTENT="MSC python layout editor">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<LINK REL=STYLESHEET HREF="msc.css">
+</HEAD>
+<BODY BACKGROUND="../../../../pics/BlueLong.gif"
+      BGCOLOR="#FFFFFF"
+      TEXT="#000000"
+      LINK="#0000FF"
+      VLINK="#7070B0">
+
+<UL>
+<a href="index.html">Proceedings of the 6th International Python Conference</A>
+<HR SIZE="1" NOSHADE>
+ <H1 ALIGN=CENTER><BIG CLASS=XLARGE><B>A graphical MSC editor</BIG></B></H1>
+<P ALIGN=CENTER><STRONG>Marco Dierschke <BR> 
+<EM>Fachbereich Informatik</EM> <BR> 
+<EM>Humboldt-Universit&#228;t zu Berlin</EM><BR> 
+<EM>Axel-Springer-Stra&#223;e 54a</EM><BR> 
+<EM>Germany, 10117 Berlin</EM><BR> 
+<A HREF="mailto:dierschk@informatik.hu-berlin.de"><EM>dierschk@informatik.hu-berlin.de</EM></STRONG></A>
+</P><P>
+<P ALIGN=CENTER><STRONG></STRONG></P><P>
+<P>
+<H3 CLASS=ABSTRACT>Abstract:</H3>
+<P CLASS=ABSTRACT>For the development of a graphical editor for Message Sequence Charts (MSC)
+using Python, a flexible concept for message passing and distribution
+as well as two automatic layout libraries, one based on the ideas of InterViews
+[<A HREF="#iv92">5</A>] and one constraint-based, were developed and implemented.
+In the paper the author focuses on these libraries, their benefits and shortcomings
+for the development of the editor.
+Finally an evaluation of the runtime performance will be given.
+</P><P>
+<BR> <HR>
+<UL><A NAME="CHILD_LINKS">&#160;</A>
+<LI> <A NAME="tex2html8" HREF="#SECTION00010000000000000000">Introduction</A>
+<LI> <A NAME="tex2html9" HREF="#SECTION00020000000000000000">MSC</A>
+<LI> <A NAME="tex2html10" HREF="#SECTION00030000000000000000">MSC editor</A>
+<LI> <A NAME="tex2html11" HREF="#SECTION00040000000000000000">Model/View concept</A>
+<LI> <A NAME="tex2html12" HREF="#SECTION00050000000000000000">Layout</A>
+<LI> <A NAME="tex2html13" HREF="#SECTION00060000000000000000">Summary</A>
+<LI> <A NAME="tex2html14" HREF="#SECTION00070000000000000000">References</A>
+</UL>
+<BR> <HR>
+<H1><A NAME="SECTION00010000000000000000">Introduction</A></H1>
+<P>
+At Humboldt-Universit&#228;t an integrated tool environment SITE for the
+Specification and Description Language SDL[<A HREF="#Sarma91">2</A>] was developed.
+This tool environment includes among others editors for the language SDL as
+well as a compiler, a runtime library and a simulator.
+<P>
+To complete the library it was desired to display the output of the  simulator
+in a more intuitive way. Here the representation in form of an MSC was chosen
+to be appropriate.
+<P>
+<BR> <HR>
+<H1><A NAME="SECTION00020000000000000000">MSC</A></H1>
+<P>
+<P><A NAME="214">&#160;</A><IMG  ALIGN=BOTTOM ALT="Msc" SRC="Msc.gif"><BR>
+<STRONG>Figure 1:</STRONG> <A NAME="figMsc">&#160;</A>An example MSC<BR>
+<P>
+In <em>figure&nbsp;<A HREF="#figMsc">1</A></em> a small MSC is shown. It will be used as an example
+throughout this paper.
+For convenience the MSC in our example a legend has on the right side with
+the naming of the various symbols.
+This example does not cover the whole standard MSC/93, but the most important
+features are included.
+<P>
+An MSC describes a scenario in a distributed system. It displays each
+involved `party' and the communication between these parties.
+The involved parties - or instances, as they are called in MSCs - are the
+different program processes or might even be the user - just anything that
+may communicate with another part of the system.
+<P>
+Each instance is drawn as a simple line. On this line all actions are arranged
+that were performed by this instance.
+To distinguish instances, each one has a header, consisting of a box with the
+instance type inside and the name of the instance written above.
+<P>
+The end of an instance description is marked by a ruler at the bottom of the
+instance line.
+<P>
+The communication between the instances is shown by means of the messages sent
+or received by the instances. These messages may be simple signals - for
+instance the <em>`say_hello'</em> or the <em>`reply_hello'</em> in the example.
+The messages might even have arguments, like the <em>`say(something)'</em>, where
+<em>`say'</em> is the message and <em>`something'</em> is the argument, arbitrary
+text in our example.
+The messages passed between instances are represented as arrows, pointing from
+the sender to the receiver of the message. Name and optional parameters of the
+message are written above the arrow.
+<P>
+Furthermore an MSC can be used to show the condition (or state) of an
+instance. Conditions shared by more than one process are also possible.
+This allows to emphasize, that an instance has reached a certain state, or that
+a set of instances all are in a common state. The `Talking now' in the example
+is such a state, indicating that both guests are now talkative.
+These conditions are displayed as hexagonal boxes. The name or description
+of the condition is written inside the box.
+<P>
+An MSC can show actions performed by instances as well. An example for the
+actions is the <em>`think'</em>. It allows to make clear what instances are doing
+right now. Actions are displayed as simple boxes with a description of the actions
+taken inside.
+<P>
+The last feature used in the example are timeouts. This feature is commonly used
+in communication scenarios. A command is sent and the sender waits for the
+reply. However, if the message was lost, the sender would wait
+forever. Therefore timeouts a set. This starts a timer, that is associated with
+the timeout. When a certain amount of time has passed, a timeout message is sent
+to indicate the message was lost. Otherwise, e.g. after a successful reply, the
+timeout can be cleared. The setting of the timer for the timeout is shown by a
+square box aligned to the instance line. An arrow arising from the box points to
+the location where the timeout should be sent to. Along this arrow the name of
+the timer and the time until timeout is drawn.
+<P>
+<HR>
+<H1><A NAME="SECTION00030000000000000000">MSC editor</A></H1>
+<P>
+It was desired to create an MSC representation from the results of the
+simulation, and to have the possibility to edit the MSC afterwards.
+So an editor for MSCs had to be implemented.
+<P>
+As programming language Python was chosen. Some of the tools of SITE were
+already implemented in Python. Furthermore an interpreter language promised
+short turnaround times during the development. Thus Python was the choice for
+the editor, too.
+<P>
+It was a design goal that the editor takes care of the structure of the MSC
+while editing.
+This means that e.g. when an action box is moved, all elements should stay in
+the same temporal order and reasonably aligned.
+<P>
+Unfortunately for this approach a bunch of mutual dependencies within the MSC
+has to be taken into consideration.
+When editing one piece of the MSC, a lot of other items are affected as well -
+at least as long as we wish the MSC to stay consistent.
+What this means in detail will be shown in an example.
+<P>
+<A NAME="ExampleTheExample">&#160;</A>Let us edit the text inside the action box to make our
+<tt>guest2</tt> more thoughtful. He now thinks twice, so  we add a new line to
+the action box: `think again'. This means, the action box increases it's height.
+Unfortunately the box now would overlap the message arrow 
+<em>`reply(something)'</em>.
+So we shift the arrow down. Well, on the instance <tt>guest1</tt> now the message
+arrow would be lower than the timeout. We also have to shift the timeout down.
+When the timer name should appear precisely at the center of the vertical timeout
+line, it has to be rearranged, too.
+Last but not least the endings of the instances change and therefore the box
+around the MSC has to be resized.
+Even in this rather small example a pretty small change will effect half of the
+items of the MSC.
+<P>
+To deal with the complexity arising from this behavior I chose to split
+complexity in smaller pieces. Hence the editor was implemented using the
+model/view approach to separate at least the data model - the relationship of
+all items within the MSC - and the graphic appearance with the exact
+position of each item of the MSC.
+Furthermore a layout library was written to reduce each special case of item
+dependencies to a more general element, that is  implemented and tested only
+once, but can be used for multiple MSC items.
+Both approaches will be discussed in the following chapters.
+<P>
+<HR>
+<H1><A NAME="SECTION00040000000000000000">Model/View concept</A></H1>
+<P>
+The model/view - or rather the model/view/controller approach first appeared in
+the context of the programming environment Smalltalk [<A HREF="#Gol89">1</A>].
+<P>
+It addresses the logical separation of the part of a program, that stores the
+data, and the parts, that are responsible for the user interface, e.g. that
+display the data and allow the user to manipulate what he sees.
+In the Smalltalk framework the separation clearly distinguishes between 
+<DL ><DT><STRONG>the model,</STRONG>
+<DD> that is responsible for the data keeping and for loading
+                     and saving the data,
+    <DT><STRONG>the view,</STRONG>
+<DD> that presents the data to the user, usually as a graphical
+                     representation, and
+    <DT><STRONG>the controller,</STRONG>
+<DD> that, e.g. in form of a scrollbar, allows the user to
+                           manipulate the data.
+<P>
+</DL>
+<P>
+In todays user interface frameworks - e.g. Borlands OWL or Microsofts MFC -
+the strict distinction between these three parts is a bit loosed. Since view and
+controller often fuse to one functional unit, frequently it is only
+distinguished between the model on the one side, and the view/controller as one
+unit on the other side - this relaxed form is called the model/view concept.
+<P>
+This is the way I structured the editor. There is one class <tt>Msc</tt>,
+containing the model, and one <tt>MscGlyph</tt> class, that covers display and
+editing of the MSC.
+<P>
+Crucial to this approach is the message exchange.
+First each view has to inform the model, when its contents were changed by the
+user.  Since each view has only one model, whose data it displays, things are
+pretty easy. It simply can call a suitable method of the model class to apply
+the intended change.
+<P>
+The other direction is more complicated. The model usually has several views,
+that display the data in different perspectives or display different aspects of
+the model.
+Hence when the model is changed, <em>each</em> view that is just displaying some
+of the changed data, has to be informed what has changed and how.
+<P>
+For instance, in the MSC editor, when an new item is created, the view that
+displays the instance this item belongs to must be told, that an item was
+inserted. For performance reason it is futher desirable, that only those views
+are informed, that are really concerned by the data change.
+<P>
+Furthermore it should be signaled, what kind of change was performed.
+It might be inefficient to rebuild the view on each change, where it is
+possibly much easier to handle e.g. <em>insert</em>, <em>remove</em> and
+<em>replace</em> separately.
+On the other side, when a view only needs to now that something has been
+updated, it should be possible, that this view gets <em>insert</em> as well as
+<em>remove</em> and <em>replace</em> notifications.
+<P>
+Thus a special event propagation mechanism was implemented, that meets this
+requirements.
+<P>
+<H2><A NAME="SECTION00041000000000000000">Event propagation</A></H2>
+<P>
+The event propagation mechanism profits from the high-level data structures
+available in Python. It makes heavy use of lists and dictionaries.
+<P>
+In our event propagation concept we need three terms.
+These are the sender of an event, the receiver of the event and the event
+itself.
+<DL ><DT><STRONG>The sender,</STRONG>
+<DD> an object derived from base class <tt>Sender</tt>, is
+        responsible for distributing an event to each receiver who applied for
+        getting messages from this sender.
+   <DT><STRONG>The receiver,</STRONG>
+<DD> derived from <tt>Receiver</tt>, registers on 
+        <em>exactly one</em> sender and receives now all events sent by this
+        sender. It may distribute the events to handler methods,
+        e.g. according to the class of the event.
+   <DT><STRONG>The event,</STRONG>
+<DD> derived from <tt>Event</tt>, covers the message sent and
+        some information necessary to deliver the event.
+<P>
+</DL>
+<P><A NAME="161">&#160;</A>
+<A NAME="figEvent">&#160;</A>
+<IMG  ALIGN=BOTTOM ALT="Event structure" SRC="Event.gif"><BR>
+<STRONG>Figure 2a:</STRONG> Event structure<BR>
+<P>
+<P>
+There are two basic concepts concerned with the event mechanism.
+<P>
+First an event is distributed according to its path.
+Now the question arises what a path of an event is.
+Each event, as seen in <em>figure&nbsp;<A HREF="#figEvent">2(a)</A></em>, contains its sender and the path of
+the event.
+<P>
+<A NAME="EventPath">&#160;</A>The path you may imagine as the way the event passed until
+finally reaching the sender. 
+In our example the event <em>`we changed the action text'</em>
+would pass three hierarchy levels (refer <em>figure&nbsp;<A HREF="#figPath">2(b)</A></em>):
+<OL>
+<LI> the action item itself,
+<LI> the instance the action belongs to, and
+<LI> the whole MSC.
+</OL>
+<P>
+<P><A NAME="figPath">&#160;</A>
+<IMG  ALIGN=BOTTOM ALT="Event path" SRC="Path.gif"><BR>
+<STRONG>Figure 2b:</STRONG> Event path<BR>
+<P>
+<P>
+The resulting path of the event is the tuple (<I>MSC</I>, <I>instance</I>, <I>action</I>).
+Each receiver registers for that level of the hierarchy as represented in the
+path, whose events it wants to handle.
+The events are distributed from the bottom - as the most special - level of 
+the hierarchy to the top - as the most general level.
+On each level it is possible to signal whether an event was consumed or should
+be distributed to the next higher level.
+<P>
+The reason for introducing these paths is, that this concept was primarily
+introduced for the sake of the model/view approach.
+<P>
+We now have one sender for the model, that distributes the change events to
+all connected views and sub-views. 
+For each item and each instance of the MSC exists such a sub-view.
+<P>
+These sub-views feature an own receiver, that are tuned to their respective
+counterparts, this means the instance sub-view is tuned to its instance, an item
+sub-views is tuned to its item. This 'is tuned to' means, that they gets all
+events, that could by relevant to them.
+<P>
+Thus each view only gets the events it needs, nothing more or less. Events, that
+the sub-view cannot deal with directly are automatically redirected to the next,
+more general, level for handling.
+<P><A NAME="218">&#160;</A><IMG  ALIGN=BOTTOM ALT="Event hierarchy" SRC="Hierarchy.gif"><BR>
+<STRONG>Figure 3:</STRONG> <A NAME="figHierarchy">&#160;</A>Event hierarchy<BR>
+<P>
+The second concept of the event mechanism bases on a derivation of
+<tt>Receiver</tt> class, called <tt>CBReceiver</tt> (call-back receiver). This
+receiver filters events derived from  a specified class.
+While the general <tt>Receiver</tt> class has only one method called for each
+event delivered from this sender, in <tt>CBReceiver</tt> a call back function may
+be registered for a class of events.
+The call-back will now receive events of this class and all derived classes.
+<P>
+In <em>figure&nbsp;<A HREF="#figHierarchy">3</A></em>, that comes from the MSC editor, a call-back
+registered for <tt>Update</tt> would catch both <tt>Update</tt> events and 
+<tt>Insert</tt>, <tt>Remove</tt> events etc.
+<P>
+This proves particular useful when refining a view. In a first step it is
+possible to implement only a handler for the <tt>Update</tt> class.
+Though one gets a certain performance drawback, a working implementation is
+available and may be fine-tuned later - if necessary.
+<P>
+And, as already mentioned, not each view even needs the fine-grained events like
+<tt>Insert</tt>, <tt>Append</tt> etc. at all but only needs to know when it was updated.
+<P>
+In <em>program&nbsp;<A HREF="#prgSRuse">1</A></em> we have a program fragment that comes - slightly modified -
+from the MSC editor. This portion of code is responsible for the
+communication between the model <tt>MscInstance</tt> of an MSC instance and
+its view <tt>MscInstanceFigure</tt>.
+<P>
+The event flow goes from the raising <tt>MscInstance</tt> class to the sender
+<tt>model_sender</tt> that handles the whole MSC model. The path of the
+event is (<I>MSC</I>, <I>inst</I>), since its way to the sender goes from the instance via
+the MSC, that the instance belongs to.
+<P>
+The sender distributes the event to all receivers that applied for this event
+class or a base class of this event, and for a subject that is in the event
+path. In class <tt>MscInstanceFigure</tt> a receiver is created, that wants all
+<tt>EvUpdate</tt> events, that are sent from, or via, <tt>self.__inst</tt>,
+e.g. that have <tt>self.__inst</tt> in their path.
+<PP>
+<PP>
+<A NAME="SECTION00042000000000000000">
+<A NAME="#prgSRuse">
+<HR><PRE><b>class</b> MscInstance:
+  #<i>The model of the  instances</i>
+...
+  <b>def</b> remove(self, item):
+    #<i>This method removes an  item from the instance</i>
+    ...<i>doing the real work</i>...
+    #<i>signaling change to the views</i>
+    model_sender.send(
+      EvRemove(item, 
+               path=(self.msc(), self))
+<HR><b>class</b> MscInstanceFigure(...):
+  #<i>The view of the instances</i>
+<P>
+  <b>def</b> __init__(self, inst,
+               x=0, y=0,
+               w=0, h=0):
+    #<i>Doing some init</i>
+    self.__inst = inst
+    ...
+    #<i>Creating the receiver, 1st arg is the sender,</i>
+    #<i>2nd is the object, that created our event</i>
+    self.__rec = SendRec.CBReceiver(
+                   model_sender,
+                   self.__inst)
+    #<i>Adding callbacks for several events</i>
+    self.__rec.add(EvUpdate, 
+                   self.doUpdate)
+    #<i>Doing some more init</i>
+...
+  <b>def</b> doUpdate(self, Msg):
+    <i>Here everything is done for EvInsert, EvAppend,</i>
+    <i>EvRemove, EvReplace and EvUpdate events</i>
+<HR><STRONG>Program 1:</STRONG> <A NAME="prgSRuse">&#160;</A>Use of the event mechanism</PRE>
+<BR><P>
+The performance of the event passing mechanism is tested against a normal
+function call.
+In the test a function was called several times, via direct call and via event
+passing. The event object, sender and receiver were prepared prior to the
+measure. No event path (refer <A HREF="#EventPath">4.1</A>) was set. The body of the called
+function was empty.
+The times listed in <em>table&nbsp;<A HREF="#tabSRperf">1</A></em> were taken using the Python-profiler,
+therefore all times are CPU-seconds. The final relative time is the ratio
+between event pass and direct call time.
+<P>
+An empty loop was used to determine the overhead spent in the loop and the empty
+function body. The overhead was subtracted from the times listened in the table.
+<P><A NAME="470">&#160;</A><DIV ALIGN=CENTER><P ALIGN=CENTER><SMALL CLASS=SMALL>
+<P><TABLE COLS=13 BORDER FRAME=BOX RULES=GROUPS>
+<COLGROUP><COL ALIGN=RIGHT><COLGROUP><COL ALIGN=RIGHT><COL ALIGN=CENTER><COL ALIGN=LEFT><COL ALIGN=RIGHT><COL ALIGN=CENTER><COL ALIGN=LEFT><COL ALIGN=RIGHT><COL ALIGN=CENTER><COL ALIGN=LEFT><COLGROUP><COL ALIGN=RIGHT><COL ALIGN=CENTER><COL ALIGN=LEFT>
+<TBODY>
+<TR><TD VALIGN=BASELINE ALIGN=CENTER NOWRAP COLSPAN=5>
+    <B>Execution times</B><BR>
+    <SMALL CLASS=SMALL><I>on a Pentium P90, Linux&nbsp;2.0 and Python&nbsp;1.4</SMALL></I> </TD> </TR>
+</TBODY>
+<TBODY>
+<TR><TD VALIGN=BASELINE ALIGN=RIGHT><EM>Execution count</EM></TD>
+    <TD VALIGN=BASELINE ALIGN=CENTER COLSPAN=1><EM>Total time</EM></TD>
+    <TD VALIGN=BASELINE ALIGN=CENTER COLSPAN=1><EM>Direct call</EM></TD>
+    <TD VALIGN=BASELINE ALIGN=CENTER COLSPAN=1><EM>Event pass</EM></TD>
+    <TD VALIGN=BASELINE ALIGN=CENTER COLSPAN=1><EM>Relative time</EM></TD>
+</TR>
+</TBODY>
+<TBODY>
+<TR><TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP>  100</TD>
+    <TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP>   1.710</TD>
+    <TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP>   0.050</TD>
+    <TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP>   0.370</TD>
+    <TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP>   7.4</TD> </TR>
+<TR><TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP> 1000</TD>
+    <TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP>  16.050</TD>
+    <TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP>   0.400</TD>
+    <TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP>   3.790</TD>
+    <TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP>   9.47</TD> </TR>
+<TR><TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP>10000</TD>
+    <TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP> 159.490</TD>
+    <TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP>   3.990</TD>
+    <TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP>  37.800</TD>
+    <TD VALIGN=BASELINE ALIGN=RIGHT NOWRAP>   9.47</TD> </TR>
+</TBODY>
+<CAPTION ALIGN=BOTTOM><STRONG>Table 1:</STRONG> <A NAME="tabSRperf">&#160;</A>Timings</CAPTION></TABLE>
+	
+</SMALL>
+<P>
+      </P></DIV><P>
+A function call using the event passing mechanism is about 10 times slower than
+a direct function call - at least in the current implementation.
+Comparing the flexibility of direct call and event passing, this seems to be a
+reasonable tradeoff.
+<P>
+<H1><A NAME="SECTION00050000000000000000">Layout</A></H1>
+<P>
+As we have seen in example in section <A HREF="#ExampleTheExample">3</A>, there are a lot
+of interdependencies among the items of an MSC. When an MSC is edited, all
+of these dependencies have to be considered.
+<P>
+The Python module Tkinter does not handle such interdependencies. When a
+picture is drawn using Tkinter, not much of the information, which item depends
+on which, is left.
+<P>
+To deal with just these dependencies, a module featuring automatic layout of the
+items was written. It uses the canvas-Widget of Tk [<A HREF="#Ous95">6</A>] as the
+graphics base. But contrary to Tk, when an item is moved or resized, all
+items that depend on this item are updated, too.
+<P>
+The first approach applies the concept of InterViews [<A HREF="#iv92">5</A>], that itself
+took ideas from Donald&nbsp;E.&nbsp;Knuth's TeX-system [<A HREF="#Knuth86a">4</A>].
+<P>
+<H2><A NAME="SECTION00051000000000000000">Top-down Layout</A></H2>
+<P>
+<H3><A NAME="SECTION00051100000000000000">Introduction</A></H3>
+<P>
+In TeX or InterViews the final layout is assembled from nested  boxes, as shown in
+<em>figure&nbsp;<A HREF="#figGlyphs">4</A></em>. In accordance to InterViews these boxes are called glyphs.
+Each layout element is manifested in the form of a glyph. Might it be a text
+field, a framed box, layout container like rows or columns - all are glyphs.
+<P><A NAME="471">&#160;</A><IMG  ALIGN=BOTTOM ALT="Nested glyphs" SRC="Boxes.gif"><IMG ALIGN=BOTTOM ALT="Glyph hierarchy" SRC="GlyphFlow.gif"><BR>
+<STRONG>Figure 4:</STRONG> <A NAME="figGlyphs">&#160;</A>Nested glyphs and their hierarchy<BR>
+<P>
+When a glyph <tt>foo</tt> is contained in another glyph <tt>box</tt>, we call
+<tt>foo</tt> the <em>child</em> glyph of <tt>box</tt>.
+Vice versa <tt>box</tt> is the <em>parent</em> of <tt>foo</tt>.
+<P>
+<H3><A NAME="SECTION00051200000000000000">Description</A></H3>
+<P>
+The glyph approach uses indirect drawing - like most graphical user
+interfaces  systems. This means when a glyph changes, it does not simply draw
+itself, but signals a change and later is <em>asked</em> to draw itself.
+<P>
+Furthermore a glyph does not to store information on its position on the
+canvas. When it is up to display itself, the screen position is calculated ``on
+the fly''. This makes it possible to refer one and the same glyph on
+different positions on the screen. Again I refer to [<A HREF="#iv92">5</A>].
+<P>
+When a glyph is about to be displayed,
+<UL>
+<LI> the glyph is asked for its extent by calling the method
+   	 <tt>canvasRequest</tt> of the glyph,
+<LI> a possible allocation on the canvas - of the given extent - 
+         is calculated by the glyphs parent,
+<LI> the glyph is sent a <tt>canvasMap</tt> message with the calculated
+         allocation, and
+<LI> according to this allocation the glyph draws itself.
+</UL>
+<P>
+If the glyph wants it size to be changed, then
+<UL>
+<LI> the glyph sends its parent a <tt>resizeCanvas</tt> message,
+<LI> the glyph is asked for its new extent by the <tt>canvasRequest</tt>
+         message,
+<LI> the glyph receives a re-mapping request <tt>canvasRemap</tt> with
+         both the old and the new allocation, and
+<LI> according to the new allocation the glyph redraws itself.
+</UL>
+Finally an <em>canvasUnmap</em> request erases the glyph from the canvas.
+<P>
+When we imagine a glyph hierarchy, like the one  in our example from
+<em>figure&nbsp;<A HREF="#figGlyphs">4</A></em>, the root glyph <em>Canvas</em> - it represents the Tk
+canvas  object - is the only one, that determines the space available for
+the child glyphs. All other glyphs depend on this one.
+<P>
+To draw a glyph hierarchy, we send <em>canvas</em> a <tt>map</tt> message. This
+message instructs the canvas to draw its top-most glyph.
+Now a heavy message traffic starts.
+<P>
+A simplified implementation of some of the relevant methods is given in
+<em>program&nbsp;<A HREF="#prgGlyphLayout">2</A></em>.
+<HR><PRE><b>class</b> Canvas:
+...
+  <b>def</b> map(self, canvas):
+    #<i>Ask root glyph for its extent</i>
+    ext = self.__root.
+            canvasRequest(canvas)
+    #<i>Make allocation from the extent</i>
+    alloc = CanvasAllocation(
+              canvas, 
+              x=0, y=0,
+              width=ext.width(),
+              height=ext.height())
+    self.__root.canvasMap(alloc)
+<HR><b>class</b> Box(ContainerGlyph):
+...
+  <b>def</b> canvasRequest(self, canvas):
+    h = 0
+    w = 0
+    <em>foreach</em> <em>contained</em> <em>glyph</em> gl:
+      ext = gl.canvasRequest(canvas)
+      w = max(w, ext.width())
+      h = h + ext.height()
+    <b>return</b> CanvasRequisition(
+             height=h, 
+             width=w)
+<P>
+  <b>def</b> canvasMap(self, alloc):
+    <em>foreach</em> <em>contained</em> <em>glyph</em> gl:
+      ext = gl.canvasRequest(
+              alloc.canvas())
+      #<i>Calculate suballocation alloc from ext</i>
+      alloc=<em>suballocation</em>(alloc,ext)
+      gl.canvasMap(alloc)
+<HR><b>class</b> Text(Glyph):
+...
+  <b>def</b> canvasRequest(self, canvas):
+    #<i>Calculate width and height of the current</i>
+    #<i>text on the given canvas</i>
+    h, w = <em>textextent</em>
+             (canvas,self.__text)
+    <b>return</b> CanvasRequisition(
+             height=h,
+             width=w)
+<P>
+  <b>def</b> canvasMap(self, alloc):
+    canvas = alloc.canvas()
+    <i>Now draw the text, some params omitted</i>
+    canvas.create_text(
+      x=alloc.x(),
+      y=alloc.y(),
+      text=self.__text)
+<HR><STRONG>Program 2:</STRONG> <A NAME="prgGlyphLayout">&#160;</A>Simplified glyph implementations</PRE>
+<BR><P>
+First the system calls the <tt>canvasRequest</tt> of the outermost glyph
+<em>Box</em> to determine its preferred extent. Glyph <em>Box</em> is a
+container, that simple stacks all children in a row. So its extent completely
+depends on its two children.
+<P>
+So it asks <em>Frame</em> and <em>Foo</em> for their intentions. Glyph <em>Foo</em>
+- a simple rectangle - already knows its size and returns it to the parent
+<em>Box</em>.
+<P>
+The glyph <em>Frame</em> is a container, that draws a frame around its
+child. So it needs to know the child's - <em>Text</em>'s - extent.
+The glyph <em>Text</em> will be asked for its size and will return an extent
+large enough to contain the string ``Hello world'' in the chosen font size.
+<P>
+Now <em>Frame</em> got the size of the child <em>Text</em> and may return its own
+size to <em>Box</em>. Finally <em>Box</em> also got all necessary information to
+calculate its extent - by simple taking the maximum width and the sum of the
+heights of both children.
+<P>
+The extent necessary for <em>Box</em> - and therefore all glyphs included in
+<em>Box</em> -  can now be returned to the <em>Canvas</em>, that in turn allocates
+screen space with the extent given by <em>Box</em>.
+<P>
+So far only the measures for the glyphs were determined, but nothing appeared
+on screen. Each glyph somehow needs to be mapped on screen.
+This is done be traversing the glyph-tree again.
+<P>
+The glyph <em>Box</em> is first told to map itself with the calculated
+allocation by invoking its <tt>canvasMap</tt> method. Since <em>Box</em> is a
+container, it divides the allocation according to the extents or its
+child-glyphs. Therefore it needs to request the children's extents again - with the result that the children need to ask their children....
+Finally it asks the children to map themselves using the sub-allocations. This
+continues until the last glyph was mapped.
+<P>
+To make things even more complicated, when a glyph is asked for its extents,
+it does not return only one exact value for width or height.
+Instead three values for each ordinate are returned:
+<OL>
+<LI> the minimum extent allowed,
+<LI> the maximum extent, and
+<LI> the natural - preferred - extent.
+</OL>
+It is often impossible, or not desired, to return only one fixed extent.
+Consider an editor and a text of 20 lines with 60 characters in each line.
+The editor certainly would prefer an extent of (60 x 20), so that it
+can display the whole text at once. But of course it also could accept
+a size of 8 characters in 2 lines - by displaying scrollbars - or
+a much larger size than necessary for the text. So it might return a minimum
+extent of (8 x 2), a natural extent of (60 x 20) and a maximum
+of (<I>inf</I> x <I>inf</I>).
+<P>
+<H3><A NAME="SECTION00051300000000000000">Conclusion</A></H3>
+<P>
+As long as a design can be split up in a strict hierarchy of nested boxes,
+this concept is highly advantageous. It takes  care of changes by itself and
+rearranges the layout if necessary.
+<P>
+On the other hand there are some serious disadvantages - at least for the
+MSC editor.
+<P>
+First the layout algorithm is rather time consuming. As seen in our example the
+glyph-tree has to be traversed several times.
+<P>
+A great amount of time is spent in asking the glyphs for their extent.
+In general every time a container widget is asked, it asks each child and
+calculates afterwards its own extent from the children values.
+When a child itself is a container and represents a rather deep subtree of
+the glyph hierarchy, this may be rather time consuming.
+<P>
+The second disadvantage is much more important. The worst restriction of this
+layout concept is that it only can deal with strictly nested boxes. Though in an
+MSC are a lot of cross connections, e.g. messages, so this approach fails
+to handle the whole layout.
+<P>
+It suits fine for the basic elements - action boxes, messages arrows etc. -
+and is valuable for the MSC headings, footings and the frame around. But
+it does not cover the free positioning of the boxes and the crossing elements.
+<P>
+<A NAME="Patches">&#160;</A>At least the time problems may be relaxed. The creators of
+InterViews [<A HREF="#iv92">5</A>] already recognized this problem and created a `short-cut', the
+so called <em>patches</em>.
+<P>
+These <em>patch</em>-glyphs were adopted from InterViews.
+They sit on the top of a subtree, and cache the extent of the subtree, so no
+longer the whole subtree must traversed, when its extent is requested.
+Furthermore the <em>patches</em> take care of the change message to discard the
+cached extent when the subtree has changed its size. This makes their use
+transparent to the designer.
+<P>
+Using these <em>patches</em> an acceptable response time can be achieved. 
+Of course, there is a pay for the comfort of an automatic layout -  pure Tk
+is still a lot faster.
+<P>
+When developing this layout library I was hoping, that the `rest' is not
+that costly and can be programmed as a `glue' to the automatic layout.
+This did not come true. So a further layout system was developed to handle a
+more unstructured layout. It is introduced in the next chapter.
+<P>
+<H2><A NAME="SECTION00052000000000000000">Constraint-based Layout</A></H2>
+<P>
+<H3><A NAME="SECTION00052100000000000000">Introduction</A></H3>
+<P>
+In addition to the box oriented layout mechanism a constraint based layout
+was created.
+The following layout constraint were necessary for the editor:
+<DL ><DT><STRONG>same width:</STRONG>
+<DD> Some of the items shall have the same width. This is
+                     true for the items within one instance.
+   <DT><STRONG>same x:</STRONG>
+<DD> Some items have the same x-ordinate. This holds for all items
+                 of an instance.
+   <DT><STRONG>same y:</STRONG>
+<DD> Same for the y-ordinate.  This is used for global conditions.
+   <DT><STRONG>after <I>n</I> y:</STRONG>
+<DD> Item 2 starts <I>n</I> items after item 1. The end point of
+                      a message arrow should always be the same units lower
+                      than the starting point.
+<P>
+</DL>
+With these constraints an appropriate modeling of an MSC is possible.
+<P>
+<H3><A NAME="SECTION00052200000000000000">Description</A></H3>
+<P>
+In addition to the glyphs used for static layout a class <tt>Figure</tt> was 
+created.
+These figures - technically wrappers around glyphs - provide the means of
+constraint based layout.
+The constraints are incorporated by instances of a class <tt>Constraint</tt>.
+<P>
+Each figure may be attached to one or more constraints. On the other hand
+a <em>constraint</em> may include one or more figures. So an action item
+would be attached to a <em>same x</em>-constraint that in turn would include
+all items of the given instance.
+<P>
+The layout system is based on two different algorithms.
+The first one assumes, that the item obeys all constraints and assures that no
+constraint is broken by the position or extent change. This algorithm will be
+called <em>dynamic layout algorithm</em>, since it relies only on the difference
+between old and new position and/or extent.
+The second algorithm is used when an item is given a new constraint. It changes
+the whole system of items and constraints, so the item will <em>also</em> fit the
+new constraint. This will be referred as <em>static layout algorithm</em>, because
+it relies on the absolute position and extent of all items.
+<P>
+The principle of the dynamic layout algorithm was to be as simple as
+possible. It is an iterative algorithm that works intuitivly. When an item
+should be enlarged - e.g. its height should be increase by 20 units - we start
+at the old height and try to extend it until the final size is reached or we hit
+an obstacle. The obstacles in the algorithm are the constraints the figure must
+obey.
+<P>
+The algorithm may be sketched as follows
+<UL>
+<LI> If an item is asked to change its extent or position, it asks all
+	 attached constraints for the maximum possible change, and
+<LI> each constraint asked may in turn ask its attached items for the
+	 possible changes; e.g. a <em>same width</em> constraint asked for a
+	 width-change will ask all attached items for the widths acceptable to
+	 them and returns the minimum of all these widths.
+<LI> If a constraint can only accept a lesser value for any dimension,
+         the lesser value is adopted and all constraint are asked again using
+         the new, lesser values.
+<LI> This is continued, until all values could be accepted by all
+         constraint, e.g. when no values changes any longer.
+<LI> Thus, finally the minimum of all changes is accepted.
+</UL>
+The corresponding Python code is in <em>program&nbsp;<A HREF="#prgTradeLayout">3</A></em>. For completeness
+the code of an easy constraint is included, which ensures that all of its
+members have the same X&nbsp;ordinate.
+<HR><PRE><b>class</b> Figure:
+...
+  <b>def</b> change_layout(self, 
+                    dx, dy, dw, dh):
+    <b>if</b> self.isTagged():
+      #<i>if self is tagged, return last</i>
+      #<i>intermediate results</i>
+      <b>return</b> self.inter()
+    <b>else</b>:
+      <i>if there is any a change at all</i>
+      <b>if</b> (dx, dy, dw, dh)!=(0, 0, 0, 0):
+        self.tag()
+        changed = TRUE
+        <b>while</b> changed:
+          changed = FALSE
+          #<i>Save intermediate results</i>
+          self.set_inter(dx,dy,dw,dh)
+          <em>foreach</em> <em>constraint</em> cons:
+            #<i>Propagate change to constraint</i>
+            ndx, ndy, ndw, ndh = 
+              cons.change_layout(
+                dx, dy, dw, dh)
+            #<i>if any of the parameters dx, dy, dw or dh</i>
+            #<i> could not be accepted by the constraint,</i> 
+            #<i>so accept the less value and re-iterate</i>
+            <b>if</b> ndx &lt; dx:
+              dx = ndx
+              changed = TRUE
+            <b>if</b> ndy &lt; dy:
+              dy = ndy
+              changed = TRUE
+            <b>if</b> ndw &lt; dw:
+              dw = ndw
+              changed = TRUE
+            <b>if</b> ndh &lt; dh:
+              dh = ndh
+              changed = TRUE
+    <b>return</b> dx, dy, dw, dh
+<HR><b>class</b> SameXConstraint(PolyConstraint):
+...
+   <b>def</b> change_layout(self, 
+                     dx, dy, dw, dh):
+     <b>if</b> self.items():
+       changed = TRUE
+       <b>while</b> changed:
+         changed = FALSE
+         <em>foreach</em> <em>item</em> item <em>of</em> <em>self</em>:
+           #<i>Only need dx</i>
+           ndx = cons.change_layout(
+                   dx, dy, dw, dh)[0]
+           <b>if</b> ndx &lt; dx:
+             dx = ndx
+             changed = TRUE
+     <b>return</b> dx, dy, dw, dh
+<HR><STRONG>Program 3:</STRONG> <A NAME="prgTradeLayout">&#160;</A>Dynamic layout algorithm</PRE>
+<BR><P>
+Since constraints may ask items - possible the same item that asked the
+constraint - a marker is introduced to avoid infinite recursion. When an item
+is asked for its size for the first time, it sets the marker. Then it asks its
+constraints for the resize possibilities. When it knows the size change it can
+grant, it clears the mark and returns these sizes. Now when an item is asked and
+the items marker is set, this means the item was called via recursion. So it
+does not do anything but returning the last intermediate layout results.
+<P>
+To determine the initial position or to determine a new, valid position after a
+constraint was added is a bit trickier (or simply nastier). It is the field of
+the static layout algorithm.
+<P>
+Starting from an initial position it is tried to bend the new constraint as
+well as the items dimension to each other.
+This is repeated until the new constraint and the items dimensions fit, or until
+no further bend gives any successful result. In the later case the addition of
+the new constraint failed, and an exception is raised. 
+When this procedure was successful the item will fulfill all constraints -
+including the new one. This means it will meet the basic requirement of the
+dynamic reallocation algorithm mentioned before.
+The implementation is given in <em>program&nbsp;<A HREF="#prgAdviseLayout">4</A></em>.
+<HR><PRE><b>class</b> Figure:
+...
+  <b>def</b> trade_layout(self):
+    <em>foreach</em> <em>constraint</em> cons <em>of</em> <em>self</em>:
+      cons.advise(self)
+<HR><b>class</b> SameXConstraint(PolyConstraint):
+...
+  <b>def</b> advise(self, item):
+    <b>if</b> <em>there is at least one item</em>:
+      #<i>Get an item from the constraint</i>
+      #<i>for reference</i>
+      other = self.items()[0]
+      x = other.x()
+      dx = x - item.x()
+      <b>while</b> dx != 0:
+        delta = self.change_layout(
+                  dx, 0, 0, 0)
+        dx1 = delta[ 0]
+        dx = dx1 - dx
+        <b>if</b> dx != 0:
+          delta = item.change_layout(
+                    dx, 0, 0, 0)
+          dx2 = delta[ 0]
+          dx = dx2 - dx
+          <b>if</b> dx1 == 0 <b>and</b> dx2 == 0:
+            #<i>Nobody is flexible enough</i>
+            <b>raise</b> 
+              ConstraintResolveError(
+                self, item)
+<HR><STRONG>Program 4:</STRONG> <A NAME="prgAdviseLayout">&#160;</A>Static layout algorithm</PRE>
+<BR><P>
+While this paper is written the work on the program is still in progress. So
+there are only a few first stage results. According to this results an MSC
+like in <em>figure&nbsp;<A HREF="#figMsc">1</A></em> needs about one second to redisplay itself after a
+change was made, running on a Pentium&nbsp;90.
+<P>
+The reason for this - currently - poor runtime performance is, that the first,
+InterViews like layout algorithms tends to walk the entire glyph hierarchy several
+times, to determine the layout of the glyphs. Here some shortcuts have been
+inserted to avaoid this traversion, and I continue to introduce shortcuts on
+further points crucial for the runtime performance.
+<P>
+The performance of the contraint based layout system depends on the amount of
+items that depend on each other. The more items are connected via constraints,
+the more items have to considered on each change. Nevertheless, the worst case
+is the iterative arranging, when new items or new constraints are
+introduced. Once they have been inserted, simple position changes of items are
+calculated pretty fast.
+<P>
+<H1><A NAME="SECTION00060000000000000000">Summary</A></H1>
+<P>
+To write an editor for the MSC first seemed to be easy. The graphical
+structure was explained in detail in the ITU document [<A HREF="#Z.120-93">3</A>], so I
+expected this task to be really straight forward.
+It quickly turned out that it would be much more complicated. The complexity
+inherent to the various dependencies between heights, widths and positions of
+the items in an MSC, made things more difficult than planned.
+<P>
+To deal with this problem, three libraries were written.
+The first features a flexible event passing system. Python's support for high
+level data structures like <em>dictionaries</em> and <em>lists</em> greatly
+supported the writing of this library. It  provides satisfying features and
+execution speed.
+<P>
+The second library contains an automatic layout system, that bases on the ideas
+of InterViews [<A HREF="#iv92">5</A>]. It was first designed to solve the whole necessary
+layout, with a few `glue'-code attached. Unfortunately the library proved not to
+fulfill the requirement, neither in speed nor in functional respect.
+<P>
+The problem concerning the executing speed were softened using shortcuts, the so
+called <em>patches</em> (refer <A HREF="#Patches">5.1.3</A>).
+The functional insufficiency was tackled by creating an additional layout
+library.
+<P>
+This third library provides automatic layout using constraints to represent the
+dependencies among the items and the restrictions put on the layout from either
+the ITU&nbsp;standard or by esthetic reasons.
+This library provides the features missing at the original layout approach as
+realized in the second library. Nevertheless also this library has some severe
+performance problems.
+<P>
+It lies in the nature of automatic layout systems, that they must consider a lot
+of dependencies when a scene is set up or anything on the scene has
+changed. Thus they already tend to need a lot of processor power.
+When they are implemented in an interpreted languages like Python, all
+algorithms must therefore be tuned for maximum effiency to archive a good
+runtime performance. 
+The current implementation has still some potential for improvements, so I still
+spent my effort on making them faster.
+<P>
+Though the libraries were written to support the MSC editor, they are not
+restricted to this program. Their interfaces are defined to be independend from
+any special application, so they can be used whenever a flexible message passing
+system, or respectivly when an automatic layout system is needed.
+<P>
+The sources of both the editor and the libraries will soon be available at the
+homepage of the author at
+<A HREF=http://www.informatik.hu-berlin.de/~dierschk><em>http://www.informatik.hu-berlin.de/~dierschk</em></A>
+<P>
+<HR>
+<P><A NAME="SECTIONREF"><H2>References</H2></A><P>
+<DL COMPACT>
+<DT><A NAME="Gol89"><STRONG>1</STRONG></A><DD>
+Adele Goldberg and David Robson.
+<EM>Smalltalk 80 - the language</EM>.
+Addison-Wesley, Reading, MA, USA, 1989.
+<P>
+<DT><A NAME="Sarma91"><STRONG>2</STRONG></A><DD>
+Ferenc Belina, Dieter Hogrefe, and Amardeo Sarma.
+<EM>SDL with Applications from PROTOCOL SPECIFICATION</EM>.
+BCS Practitioner Series. Prentice Hall International (UK) Ltd.,
+  Hertfordshire, UK, 1991.
+<P>
+<DT><A NAME="Z.120-93"><STRONG>3</STRONG></A><DD>
+ITU-T.
+<EM>Message Sequence Charts (MSC), Recommendation Z.120</EM>, March
+  1993.
+<P>
+<DT><A NAME="Knuth86a"><STRONG>4</STRONG></A><DD>
+Donald&nbsp;E. Knuth.
+<EM>The TeXbook</EM>, volume&nbsp;A of <EM>Computers and Typesetting</EM>.
+Addison-Wesley, Reading, MA, USA, 1986.
+<P>
+<DT><A NAME="iv92"><STRONG>5</STRONG></A><DD>
+Mark A. Linton, Paul R. Calder, John A. Interrante, Steven Tang, and
+  John M. Vlissides.
+<EM>InterViews Reference Manual Version 3.1</EM>.
+Leland Stanford Junior University, 1992.
+<P>
+<DT><A NAME="Ous95"><STRONG>6</STRONG></A><DD>
+John&nbsp;K. Ousterhout.
+<EM>Tcl and the Tk toolkit</EM>.
+Addison-Wesley, Reading, MA, USA, 1994.
+</DL>
+<P><BR><P>
+</UL>
+</BODY>
+</HTML>

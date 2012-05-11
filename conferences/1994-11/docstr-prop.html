@@ -1,0 +1,108 @@
+<TITLE>Python intrinsic docstrings proposal</TITLE>
+
+Part of the report on the <A HREF="sftwr-mgmt-report.html">NIST Python
+workshop software managmeent session</A><P>
+
+<ADDRESS>ken.manheimer@nist.gov, 301 975-3539</ADDRESS> <P>
+Original 20-Nov-1994, <P>
+Last mod 14-Dec-1994 klm. <P>
+
+<H2>Intrinsic docs</H2>
+
+(As mentioned above, see <A HREF="custom.py">custom.py</A> for
+an example exhibiting the proposed feature.) <P>
+
+It was quickly agreed that python needs a mechanism by which textual
+descriptions can be associated with any python object.  We propose
+that any object can have an optional <KBD>__doc__</KBD> property,
+which would contain the documentation string for the object, if it has
+one.  The docstring could be assigned like any other attribute: <P>
+
+<PRE>
+	spam.__doc__ = 'oi dont loike spam'
+</PRE>
+
+We also propose that the definition syntax for callables (functions,
+methods, and classes) and modules include optional, formal slots for
+docstring declarations. <P>
+
+In trying to resolve the form and syntax for docstring, we started
+with GNU Emacs docstrings as a model, and went on to examine some
+prospective uses for these things:
+
+<UL>
+<LI> jog of memory about an objects' purpose
+<LI> more indepth review (online and hardcopy) of an objects' purpose
+<LI> apropos-style search for object, according to its description
+<LI> auto generation of manual, quick ref, finder; ~literate programming~
+<LI> log entries, overviews <P>
+</UL>
+
+There was some vigorous discussion over alternate formats and
+elaborations of the elisp docstring format.  One of the concerns was
+capturing structured info in the object doc.  We eventually agreed
+that: <P>
+
+<OL>
+<LI> in this case, simplest is both sufficient and best, and
+<LI> the ':' colons in the 'def' and 'class' syntax should come before
+the docstring, which would be on a separate line.
+</OL>
+
+(Re simplicity, some structuring can still be embedded in the
+docstring, even in such a simplistic docstring sytax.  Eg, conventions
+could dictate having the leading line of a docstring be complete unto
+itself, for a brief description, like in elisp.  We could also employ
+conventions to migrate towards accomodating html code in docstrings,
+for more elaborate and prettier descriptions...) <P>
+
+For callable (functions, methods, and classes) and module definitions,
+we suggest that when (and only when) the first executable statement is
+a string literal, that string becomes the value of the callable's
+__doc__ property. <P>
+
+For example: <P>
+
+<PRE>
+  def fondle(phrase):
+<B>      """Innocuous foreign phrase => arbitrary, vulgar english phrase.
+
+      Neither idempotent, commutative, nor associative, but
+      respects tv censorship constraints.""" </B>
+
+      code...
+</PRE>
+
+The docstrings should fall as a block at the indentation level of the
+code within the routine, so the nominal left margin of the docstring
+as a whole will be determined by the indentation column of the leading
+quote ("COTLQ").  In this way, subsequent lines can be indented
+further, but leading whitespace up to the COTLQ will be stripped.
+(The lines should be considered to start at the COTLQ or the first
+non-whitespace character on the line, to enable longer lines when
+necessary.) <P>
+
+Modules should also support an inherent doc string, as the first
+object in the module. <P>
+
+All formal docstring slots are optional - there need not be a string
+there, in which case the <KBD>__doc__</KBD> attribute will be left
+off of the resulting object, until it is explicitly assigned. <P>
+
+The intrinsic changes to the language syntax would entail parsing the
+implicit docstrings of callables and modules, and assigning them to
+the <KBD>__doc__</KBD> attributes.  No forwards <EM>or</EM> backwards
+incompatibilities with established python code is introduced. <P>
+
+(One small, incidental change that would also be nice is in utilities
+like the debugger, which should be made to ignore the initial
+docstring when tooling functions for debugging...) <P>
+
+It may be a useful to expose a hook in the language for processing
+docstrings as they're being parsed (or assigned?), so they can be
+systematically processed, eg to expand keyword references and/or
+register them in a central 'apropos' repository, etc. <P>
+
+In any case, this proposed feature leaves the door open for, but does
+not define, utilities which systematically build on and employ
+docstrings. <P>

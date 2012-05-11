@@ -1,0 +1,293 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-10-16 through 2006-10-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-10-16_2006-10-31]
+
+
+
+=============
+Announcements
+=============
+
+--------------------------------------
+Roundup to replace SourceForge tracker
+--------------------------------------
+
+Roundup_ has been named as the official replacement for the SourceForge_ issue tracker. Thanks go out to the new volunteer admins, Paul DuBois, Michael Twomey, Stefan Seefeld, and Erik Forsberg, and also to `Upfront Systems`_ who will be hosting the tracker. If you'd like to provide input on what the new tracker should do, please join the `tracker-discuss mailing list`_.
+
+.. _SourceForge: http://www.sourceforge.net/
+.. _Roundup: http://roundup.sourceforge.net/
+.. _Upfront Systems: http://www.upfrontsystems.co.za/
+.. _tracker-discuss mailing list: http://mail.python.org/mailman/listinfo/tracker-discuss
+
+Contributing threads:
+
+- `PSF Infrastructure has chosen Roundup as the issue tracker for Python development <http://mail.python.org/pipermail/python-dev/2006-October/069528.html>`__
+- `Status of new issue tracker <http://mail.python.org/pipermail/python-dev/2006-October/069658.html>`__
+
+
+=========
+Summaries
+=========
+
+---------------------------------------------------------------
+The buffer protocol and communicating binary format information
+---------------------------------------------------------------
+
+Travis E. Oliphant presented a pre-PEP for adding a standard way to describe the shape and intended types of binary-formatted data. It was accompanied by a pre-PEP for extending the buffer protocol to handle such shapes and types. Under the proposal, a new ``datatype`` object would describe binary-formatted data with an API like::
+
+    datatype((float, (3,2))
+    # describes a 3*2*8=48 byte block of memory that should be interpreted
+    # as 6 doubles laid out as arr[0,0], arr[0,1], ... a[2,0], a[1,2]
+
+    datatype([( ([1,2],'coords'), 'f4', (3,6)), ('address', 'S30')])
+    # describes the structure
+    #     float coords[3*6]   /* Has [1,2] associated with this field */
+    #     char  address[30]
+
+Alexander Belopolsky provided a nice example of why you might want to extend the buffer protocol along these lines. Currently, there's not much you can do with a basic buffer object. If you want to pass it to numpy_, you have to provide the type and shape information yourself::
+
+    >>> b = buffer(array('d', [1,2,3]))
+    >>> numpy.ndarray(shape=(3,), dtype=float, buffer=b)
+    array([ 1.,  2.,  3.])
+
+By extending the buffer protocol appropriately so that the necessary information can be provided, you should be able to pass the buffer directly to numpy_ and have it understand the format itself::
+
+    >>> numpy.array(b)
+
+People were uncomfortable with the many ``datatype`` variants -- the constructor accepted types, strings, lists or dicts, each of which could specify the structure in a different way. Also, a number of people questioned why the existing ``ctypes`` mechanisms for describing binary data couldn't be used instead, particularly since ``ctypes`` could already describe things like function pointers and recursive types, which the pre-PEP could not. Travis said he was looking for a way to unify the data formats of all the ``array``, ``struct``, ``numpy`` and ``ctypes`` modules, and felt like using the ``ctypes`` approach was too verbose for use in the other modules. In particular, he felt like the ``ctypes`` use of type objects as binary-format specifiers was problematic because type objects were harder to manipulate at the C level.
+
+The discussion continued on into the next fortnight.
+
+.. _numpy:
+
+
+Contributing threads:
+
+- `PEP: Adding data-type objects to Python <http://mail.python.org/pipermail/python-dev/2006-October/069602.html>`__
+- `PEP: Extending the buffer protocol to share array information. <http://mail.python.org/pipermail/python-dev/2006-October/069681.html>`__
+
+------------------------
+The "lazy strings" patch
+------------------------
+
+Discussion continued on Larry Hastings `lazy strings patch`_ that would have delayed until necessary the evaluation of some string operations, like concatenation and slicing. With his patch, repeated string concatenation could be used instead of the standard ``.join()`` idiom, and slices which were never used would never be rendered. Discussions of the patch showed that people were concerned about memory increases when a small slice of a very large string kept the large string around in memory. People also felt like a stronger motivation was necessary to justify complicating the string representation so much. Larry was pointed to some `code that his patch would break`_, which was using ``ob_sval`` directly instead of calling ``PyString_AS_STRING()`` like it was supposed to. He was also referred to the `Python 3000 list`_ where the recent discussions of `string views`_ would be relevant, and his proposal might have a better chance of acceptance.
+
+.. _lazy strings patch: http://bugs.python.org/1569040
+.. _code that his patch would break: http://www.google.com/codesearch?hl=en&lr=&q=ob_sval+-stringobject.%5Bhc%5D&btnG=Search
+.. _Python 3000 list: http://mail.python.org/mailman/listinfo/python-3000
+.. _string views: http://mail.python.org/pipermail/python-3000/2006-August/003280.html
+
+Contributing threads:
+
+- `PATCH submitted: Speed up + for string Re: PATCH submitted: Speed up + for string concatenation, now as fast as "".join(x) idiom <http://mail.python.org/pipermail/python-dev/2006-October/069459.html>`__
+- `Python-Dev Digest, Vol 39, Issue 54 <http://mail.python.org/pipermail/python-dev/2006-October/069468.html>`__
+- `Python-Dev Digest, Vol 39, Issue 55 <http://mail.python.org/pipermail/python-dev/2006-October/069485.html>`__
+- `The "lazy strings" patch [was: PATCH submitted: Speed up + for string concatenation, now as fast as "".join(x) idiom] <http://mail.python.org/pipermail/python-dev/2006-October/069506.html>`__
+- `The "lazy strings" patch <http://mail.python.org/pipermail/python-dev/2006-October/069509.html>`__
+
+--------------
+PEP 355 status
+--------------
+
+BJörn Lindqvist wanted to wrap up the loose ends of `PEP 355`_ and asked whether the problem was the specific path object of `PEP 355`_ or path objects in general. A number of people felt that some reorganization of the path-related functions could be helpful, but that trying to put everything into a single object was a mistake. Some important requirements for a reorganization of the path-related functions:
+
+* should divide the functions into coherent groups
+* should allow you to manipulate paths foreign to your OS
+
+There were a few suggestions of possible new APIs, but no concrete implementations. People seemed hopeful that the issue could be resurrected for Python 3K, but no one appeared to be taking the lead.
+
+Discussion has largely `moved to the python-3000 list`_, and there is a `partial implementation`_.
+
+[Thanks to Jim Jewett for an update to this summary]
+
+.. _PEP 355: http://www.python.org/dev/peps/pep-0355/
+.. _moved to the python-3000 list: http://mail.python.org/pipermail/python-3000/2006-November/004144.html
+.. _partial implementation: http://mail.python.org/pipermail/python-3000/2006-November/004183.html
+
+Contributing thread:
+
+- `PEP 355 status <http://mail.python.org/pipermail/python-dev/2006-October/069570.html>`__
+
+--------------------------------------------------
+Buildbots, configure changes and extension modules
+--------------------------------------------------
+
+Grig Gheorghiu, who's been taking care of the `Python Community Buildbots`_, noticed that the buildbots started failing after a checkin that made changes to ``configure``. Martin v. Löwis explained that even though a plain ``make`` will trigger a re-run of ``configure`` if it has changed, there is an issue with distutils not rebuilding when header files change, and so extension modules are sometimes not rebuilt. Contributions to fix that deficiency in distutils are welcome.
+
+Martin also pointed out a handy way of forcing a buildbot to start with a clean build: ask the buildbot to build a non-existing branch. This causes the checkouts to be deleted and the build to fail. The next regular build will then start from scratch.
+
+.. _Python Community Buildbots: http://www.pybots.org/
+
+Contributing thread:
+
+- `Python unit tests failing on Pybots farm <http://mail.python.org/pipermail/python-dev/2006-October/069479.html>`__
+
+---------------
+Sqlite versions
+---------------
+
+Skip Montanaro ran into some problems running ``test_sqlite`` on OSX where he was getting a bunch of ``ProgrammingError: library routine called out of sequence`` errors. These errors appeared reliably when ``test_sqlite`` was run immediately after ctypes' ``test_find``. When he started linking to sqlite 3.1.3 instead of sqlite 3.3.8, the problems went away. Barry Warsaw mentioned that he had run into similar troubles when he tried to upgrade from 3.2.1 to 3.2.8.
+
+Contributing thread:
+
+- `Massive test_sqlite failure on Mac OSX ... sometimes <http://mail.python.org/pipermail/python-dev/2006-October/069504.html>`__
+
+---------------------------------------------
+Threads, generators, exceptions and segfaults
+---------------------------------------------
+
+Mike Klaas managed to `provoke a segfault`_ in Python 2.5 using threads, generators and exceptions. Tim Peters was able to whittle Mike's problem down to a relatively simple test case, where a generator was created within a thread, and then the thread vanished before the generator had exited. The segfault was a result of Python's attempt to clean up the abandoned generator, during which it tried to access the generator's already free()'d thread state. No clear solution to this problem had been decided on at the time of this summary.
+
+.. _provoke a segfault: http://bugs.python.org/1579370
+
+Contributing thread:
+
+- `Segfault in python 2.5 <http://mail.python.org/pipermail/python-dev/2006-October/069464.html>`__
+
+----------------
+ctypes and win64
+----------------
+
+Previously, Thomas Heller had asked that ctypes be removed from the Python 2.5 win64 MSI installers since it did not work for that platform at the time. Since then, Thomas integrated some patches in the trunk so that _ctypes could be built for win64/AMD64. Backporting these fixes to Python 2.5 would have meant that, while the MSI installer would still not include it, _ctypes could be built from a source distribution on win64/AMD64. It was unclear whether this would constitute a bugfix (in which case the backport would be okay) or a feature (in which case it wouldn't).
+
+Contributing thread:
+
+- `ctypes and win64 <http://mail.python.org/pipermail/python-dev/2006-October/069495.html>`__
+
+------------------------------
+Python 2.3.X and 2.4.X retired
+------------------------------
+
+Anthony Baxter pushed out a Python 2.4.4 release and was pushing out the Python 2.3.6 source release as well. He indicated that once 2.3.6 was out, both of these branches could be officially retired.
+
+Contributing thread:
+
+- `state of the maintenance branches <http://mail.python.org/pipermail/python-dev/2006-October/069474.html>`__
+
+---------------------------------------
+Producing bytecode from Python 2.5 ASTs
+---------------------------------------
+
+Michael Spencer offered up his compiler2_ module, a rewrite of the compiler module which allows bytecode to be produced from ``_ast.AST`` objects. Currently, it produces almost identical output to ``__builtin__.compile`` for all the stdlib modules and their tests. He asked for feedback on what would be necessary to get it stdlib ready, but had no responses.
+
+.. _compiler2: http://svn.brownspencer.com/pycompiler/branches/new_ast/
+
+Contributing thread:
+
+- `Fwd: Re: ANN compiler2 : Produce bytecode from Python 2.5 AST <http://mail.python.org/pipermail/python-dev/2006-October/069589.html>`__
+
+
+==================
+Previous Summaries
+==================
+- `Python 2.5 performance <http://mail.python.org/pipermail/python-dev/2006-October/069438.html>`__
+- `Promoting PCbuild8 (Was: Python 2.5 performance) <http://mail.python.org/pipermail/python-dev/2006-October/069440.html>`__
+- `2.3.6 for the unicode buffer overrun <http://mail.python.org/pipermail/python-dev/2006-October/069442.html>`__
+- `2.4.4: backport classobject.c HAVE_WEAKREFS? <http://mail.python.org/pipermail/python-dev/2006-October/069494.html>`__
+
+
+===============
+Skipped Threads
+===============
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-October/069437.html>`__
+- `Problem building module against Mac Python 2.4 and Python 2.5 <http://mail.python.org/pipermail/python-dev/2006-October/069441.html>`__
+- `svn.python.org down <http://mail.python.org/pipermail/python-dev/2006-October/069447.html>`__
+- `BRANCH FREEZE release24-maint, Wed 18th Oct, 00:00UTC <http://mail.python.org/pipermail/python-dev/2006-October/069449.html>`__
+- `who is interested on being on a python-dev panel at PyCon? <http://mail.python.org/pipermail/python-dev/2006-October/069457.html>`__
+- `RELEASED Python 2.4.4, Final. <http://mail.python.org/pipermail/python-dev/2006-October/069472.html>`__
+- `Nondeterministic long-to-float coercion <http://mail.python.org/pipermail/python-dev/2006-October/069477.html>`__
+- `Promoting PCbuild8 <http://mail.python.org/pipermail/python-dev/2006-October/069490.html>`__
+- `OT: fdopen on Windows question <http://mail.python.org/pipermail/python-dev/2006-October/069503.html>`__
+- `Modulefinder <http://mail.python.org/pipermail/python-dev/2006-October/069518.html>`__
+- `Optional type checking/pluggable type systems for Python <http://mail.python.org/pipermail/python-dev/2006-October/069520.html>`__
+- `readlink and unicode strings (SF:1580674) Patch http://www.python.org/sf/1580674 fixes readlink's behaviour w.r.t. Unicode strings: without this patch this function uses the system default encoding instead of the filesystem encoding to convert Unicode objects to plain strings. Like os.listdir, os.readlink will now return a Unicode object when the argument is a Unicode object. What I'd like to know is if this can be backported to the 2.5 branch. The first part of this patch (use filesystem encoding instead of the system encoding) is IMHO a bugfix, the second part might break existing applications (that might not expect a unicode result from os.readlink). The reason I did this patch is that os.path.realpath currently breaks when the path is a unicode string with non-ascii characters and at least one element of the path is a symlink. Ronald <http://mail.python.org/pipermail/python-dev/2006-October/069524.html>`__
+- `readlink and unicode strings (SF:1580674) <http://mail.python.org/pipermail/python-dev/2006-October/069526.html>`__
+- `RELEASED Python 2.3.6, release candidate 1 <http://mail.python.org/pipermail/python-dev/2006-October/069553.html>`__
+- `__str__ bug? <http://mail.python.org/pipermail/python-dev/2006-October/069554.html>`__
+- `Hunting down configure script error <http://mail.python.org/pipermail/python-dev/2006-October/069558.html>`__
+- `Python 2.4.4 docs? <http://mail.python.org/pipermail/python-dev/2006-October/069571.html>`__
+- `DRAFT: python-dev summary for 2006-09-01 to 2006-09-15 <http://mail.python.org/pipermail/python-dev/2006-October/069598.html>`__
+- `DRAFT: python-dev summary for 2006-09-16 to 2006-09-30 <http://mail.python.org/pipermail/python-dev/2006-October/069603.html>`__
+- `[Python-checkins] r52482 - in python/branches/release25-maint: Lib/urllib.py Lib/urllib2.py Misc/NEWS <http://mail.python.org/pipermail/python-dev/2006-October/069605.html>`__
+- `Typo.pl scan of Python 2.5 source code <http://mail.python.org/pipermail/python-dev/2006-October/069608.html>`__
+- `build bots, log output <http://mail.python.org/pipermail/python-dev/2006-October/069617.html>`__
+- `PyCon: proposals due by Tuesday 10/31 <http://mail.python.org/pipermail/python-dev/2006-October/069647.html>`__
+- `test_codecs failures <http://mail.python.org/pipermail/python-dev/2006-October/069662.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+October 16, 2006 through October 31, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 15th written by 
+Steve Bethard. 
+
+To contact me, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

@@ -1,0 +1,105 @@
+NOTE - below is the pre-meeting prospectus.  See: <P>
+
+<A HREF="sftwr-mgmt-report.html"
+>NIST Python Workshop, Software Mgmt Session Report</A> <P>
+
+for the post-workshop report!  ken, 21-Nov-1994.
+
+
+<PLAINTEXT>
+Subject: Python Software Mgmt Session Prospectus
+From: ken.manheimer@nist.gov (Ken Manheimer)
+To: mclay@eeel.nist.gov, guido@eeel.nist.gov
+Date: Wed, 2 Nov 94 09:12:36 EST
+Organization: National Institute of Standards and Technology
+
+Python Software Mgmt Session Prospectus
+	Ken.Manheimer@nist.gov,  2-Nov-1994.
+
+Python has an extraordinary "dynamic range", as someone on the mailing
+list recently phrased it.  The language is well suited for
+implementation of large, elaborate systems, as well as small, simple
+scripts.  This session is aimed at identifying what python needs to
+fill out support for managing software, large scale and small, and how
+best to accomodate these needs.
+
+I think we should take the opportunity, at this early stage, to try to
+focus on what inherent features may be lacking, or need refinement, in
+the language foundation, looking for intrinsic hooks or features whose
+incorporation would provide the most leverage as a foundation for
+further development.  We may need to identify priorities for
+higher-level layers, in order to direct our focus on what is necessary
+at the primitive level...
+
+Here are some potential items:
+
+ 1: Modularity: faculties which promote large-grain  code modularity
+    (* at the file, not function, level) (import) 
+ 2: Intrinsic documentation: features which enable code assessment and
+    organization (e.g., doc-string-style annotation, topical
+    categorization, code finding tools), so that the language can
+    itself be employed to help assess and organize code 
+ 3: Programmer interface: more generally, the faculties necessary to
+    facilitate entering, editing, and controlling application of code
+    (emacs interface for editing and debugging, obj/env browsers,
+    refinements of the interpreter loop) 
+ 4: Package Customization Interface: facilities by which packages can
+    offer the user customization options, preferably without requiring
+    the user to load or edit the module itself. 
+ (: Ramifications of other sessions - eg., of persistent code objects;
+    compilation/optimizations; http widgets  for programmer interface,
+    etc.)
+
+[* Fine-grain function level scoping is more of a fundamental language
+issue than one of software mgmt.]
+
+
+Here are a few of my ideas on these subjects...
+
+
+1: Large-grain modularity - import
+
+I have on several occasions tripped over a constraint in import, which
+can be remedied by a small change, and guido has brought up an issue
+which suggests another change.
+
+I occasionally need to import a specific module from a specific
+directory, but import does not give me direct control over that.
+While i can adjust the sys.path value to target the specific file,
+that would require at least two distinct statements.  I think that
+path-specific import should be implemented as an atomic operation.
+
+Along a separate line, guido has pointed out that it would be useful
+to be able to affiliate and treat suites of related modules
+monolithically.  I have a proposal for a simple extension of the
+import function that would conform well with the current paradigms,
+and provide some aspects of association of groups of modules
+(including a common interface) without preventing them from being used
+separately.  I'll detail this separately.
+
+ 2: Intrinsic documentation: While much can be done with a
+discriminating code-browsing interface, purely on the basis of
+language (and comment) syntax,  some properties that can be 
+incorporated directly in objects would promote the benefits of
+applying the language, itself, to explore and handle python code. 
+
+ : Doc strings, as in emacs lisp, to enable meaningful apropos-style
+   (and better) searches; 
+ : Generally, hooks by which the language can be used to do the
+   manipulation - it may be appropriate to ask, "how do the language
+   structures need to be extended, if at all, to make internal object
+   features exposed to procedures of language itself?" 
+
+ 3: Programmer interface: I am referring to low-level hooks necessary
+for use by higher-level mechanisms, like the extensions guido added
+to enable the bdb and profiling interfaces. 
+ 
+It's important to pay attention here to the leverage we can get from
+existing (or prospective) tools.
+
+ - Eg, the emacs "Global Universal Debugger" (gud) interface is very
+   powerful, and it might not take much change to python, if any, to
+   enable hookup to it. 
+ - Similarly, what prospects in our GUI plans should we seek to
+   capitalize upon for programmer interfaces?  There's no point in
+   duplicating those efforts! 

@@ -1,0 +1,968 @@
+<!DOCTYPE HTML PUBLIC "-//SoftQuad//DTD HoTMetaL PRO 4.0::19970714::extensions to HTML 4.0//EN"
+ "hmpro4.dtd">
+
+<HTML>
+  
+  <HEAD>
+    <TITLE>Persistent Storage of Python Objects in Relational Databases</TITLE>
+  </HEAD>
+  
+<BODY BACKGROUND="../../../pics/BlueLong.gif"
+      BGCOLOR="#FFFFFF"
+      TEXT="#000000"
+      LINK="#0000FF"
+      VLINK="#7070B0">
+
+<UL>
+
+<a href="index.html">Proceedings of the 6th International Python Conference</A>
+<HR SIZE="1" NOSHADE>
+
+    
+    <H1 ALIGN="CENTER">Persistent Storage of Python Objects in Relational
+    Databases</H1>
+    
+    <H2 ALIGN="CENTER"><A HREF="mailto:shprentz@bdm.com" TARGET="">Joel
+      Shprentz</A></H2>
+    
+    <P ALIGN="CENTER"><I><A HREF="http://www.bdm.com/" TARGET="">BDM</A></I><BR><I>1501
+      BDM Way</I><BR><I>McLean, Virginia 22102</I></P>
+    <BLOCKQUOTE><STRONG>Abstract:</STRONG> Using the Persistent Storage
+      module, Python objects can store themselves in relational database
+      systems. The Persistent Storage module abstracts and hides the underlying
+      database interface, such as the Sybase Module and the newer Python
+      Database API. Persistent objects implement (through inheritance) data
+      management methods such as save and delete. Persistent data managers
+      provide behind-the-scenes support and offer public methods to retrieve
+      objects from the database. The Persistent Storage module minimizes
+      database activity by caching retrieved objects and by saving objects only
+      after their attributes change. To relieve code writing tedium and reduce
+      errors, a code generator takes a brief object description and creates a
+      Python module for a persistent version of that object.</BLOCKQUOTE>
+    
+    <H2>1. Introduction</H2>
+    
+    <P>Existing Python database interfaces force programmers to write many SQL
+      queries and translate retrieved rows into Python objects. These table- and
+      row-oriented interfaces do not mesh well with Python's classes and
+      objects.</P>
+    
+    <P>Using the Persistent Storage module, Python objects can store themselves
+      in relational database systems. The Persistent Storage module extends the
+      capabilities of Python's early database interface modules, such as the
+      Sybase Module, and the newer Python Database API. With the Persistent
+      Storage module, many database applications need no hand coded SQL queries.</P>
+    
+    <P>The Persistent Storage module abstracts and hides the underlying
+      database interface. Persistent objects implement (through inheritance)
+      data management methods such as save and delete. Persistent data managers
+      provide behind-the-scenes support and offer public methods to retrieve
+      objects from the database. The Persistent Storage module minimizes
+      database activity by caching retrieved objects and by saving objects only
+      after their attributes change.</P>
+    
+    <P>An example of a persistent object is a Department. Each Department
+      object has a name, an organization code, and other descriptive fields. In
+      addition, a Department object stores a reference to a manager (a Person
+      object) and to a list of employees (also Person objects). The Department
+      object has methods to get its name, its manager object, its list of
+      employee objects, and its other attributes. The database retrievals needed
+      to implement these methods are hidden from objects outside the Department
+      class.</P>
+    
+    <P>Unlike Python's built-in <CODE>pickle</CODE> and <CODE>shelve</CODE>
+      modules, the persistent storage module cannot support ad hoc requests to
+      store arbitrary Python objects. Object persistence requires planning,
+      database setup, and lots of boring Python code.</P>
+    
+    <P>To relieve the tedium and reduce errors, a code generator takes a brief
+      object description and writes a Python module for a persistent version of
+      that object. The generated module includes a data manager that can create
+      a relational database table, save objects into the table, and retrieve
+      objects from the table. The module also includes the persistent object
+      class, which has methods to get and update attribute values.</P>
+    
+    <P>The Persistent Storage module has been used in several large
+      applications. The Python code is available on the Internet.</P>
+    
+    <H2>2. Background</H2>
+    
+    <H3>2.1 Relational Databases</H3>
+    
+    <P>Relational database systems, based on the relational data model
+      introduced by <A HREF="#note1">Codd<SUP>1</SUP></A>, dominate the
+      commercial database world. In a relational database, data is organized in
+      <I>tables</I> containing <I>rows</I> (records) and <I>columns</I>
+      (fields or domains). For example, an employee table contains one row for
+      each employee and columns for first and last name, Social Security number,
+      birth date, salary, department code, etc. Commercial database systems can
+      efficiently handle hundreds of tables with millions of rows and dozens of
+      columns.</P>
+    
+    <P>The basic relational database operations are <I>selection,</I> choosing
+      some rows from a table; <I>projection,</I> choosing some columns from a
+      table; <I>union,</I> combining rows from similar tables; and <I>join,</I>
+      matching rows from different tables. Database queries typically require a
+      sequence of these operations. For example, to list names of employees in
+      the accounting department, a selection (department name = &quot;accounting&quot;)
+      would be followed by a join (match selected department codes with employee
+      department codes) and then by a projection (choose first and last name
+      columns).</P>
+    
+    <P>Although some early relational database systems exposed the basic
+      operations to programmers, most modern systems can be controlled with
+      <A HREF="#note2">SQL<SUP>2</SUP></A>, Structured Query Language. The
+      database management system parses each SQL query and chooses the sequence
+      of operations needed to retrieve the data. <A HREF="#listing1">Listing 1</A>
+      shows how the example query above could be written in SQL.</P>
+    <TABLE BORDER="1" ALIGN="CENTER" WIDTH="80%">
+      <TR>
+        <TD><PRE><A NAME="listing1">SELECT</A>  Employee.firstName, Employee.lastName
+FROM    Employee, Department
+WHERE   Department.name = &quot;Accounting&quot;
+AND     Department.deptCode = Employee.deptCode</PRE>
+        <P><EM>Listing 1. Implementation of this sample SQL query requires
+          project, join, and select operations.</EM></P></TD>
+      </TR>
+    </TABLE>
+    
+    <P>Relational database systems provide tools that allow users to enter SQL
+      queries and view results. Interactive query entry becomes inefficient when
+      large numbers of queries must be run. Similarly, interactive result
+      viewing becomes inefficient when results are voluminous or require further
+      processing. These inefficiencies are overcome by application programs that
+      create and submit SQL queries, and then retrieve and process the resulting
+      data. To provide application programs access to stored data, each database
+      system offers an API (application program interface), a collection of
+      functions to submit queries and retrieve data. Unfortunately database APIs
+      are not standardized and vary widely.</P>
+    
+    <H3>2.2 Python's Database Access</H3>
+    
+    <P>The Python contributed software FTP archive contains modules to
+      interface Python to about a dozen popular relational databases. Because
+      these modules expose each database vendor's unique API, they vary in their
+      approach, implementation, and interface. Code written with these
+      database-specific modules cannot easily be reused with another brand of
+      database.</P>
+    
+    <P>Last year the Special Interest Group on Tabular Databases in Python
+      agreed on a <A HREF="#note3">Python Database API<SUP>3</SUP></A>. The
+      API defines the Python interface to any relational database system by
+      specifying the Python classes and methods needed to open and close
+      database connections, submit queries, receive result descriptions, and
+      receive query results. As of July 1997, the SIG offered Python Database
+      API implementations for the ODBC, Oracle, Informix, and Solid.</P>
+    
+    <P>The Python Database API, like many database-specific modules, returns
+      retrieved data in a list of tuples, one tuple for each retrieved row. For
+      example, <A HREF="#listing2">Listing 2</A> shows a Python function that
+      retrieves a list of employee name tuples for employees in a selected
+      department. The function call <CODE>getDepartmentRoster (&quot;accounting&quot;,
+      db)</CODE> would produce the same results as the query in
+      <A HREF="#listing1">Listing 1</A>.</P>
+    <TABLE BORDER="1" ALIGN="CENTER" WIDTH="80%">
+      <TR>
+        <TD><PRE><A NAME="listing2">def</A> getDepartmentRoster (deptName, db):
+    &quot;&quot;&quot;Get a list of (first, last) name
+       tuples for department employees.&quot;&quot;&quot;
+    query = &quot;&quot;&quot;SELECT Employee.firstName, Employee.lastName
+        FROM Employee, Department
+        WHERE Department.name = &quot;%s&quot;
+        AND Department.deptCode = Employee.deptCode&quot;&quot;&quot;
+    db.execute (query % deptName)
+    return db.fetchall ()</PRE>
+        
+        <P><EM>Listing 2. This Python function uses the Python Database API to
+          return a list of employee name tuples for a named department.</EM></P></TD>
+      </TR>
+    </TABLE>
+    
+    <P>Although the Python Database API was successful at unifying the
+      interface to various database management systems, its retrieved list of
+      tuples provides little support for object-oriented programming. The
+      employee name tuples returned by the sample query are suitable for simple
+      listings and reports, but fall short of the functionality that could be
+      provided by objects from the Employee class.</P>
+    
+    <P>There are two principal problems with the list of tuples approach.
+      First, the tuples and the underlying SQL statement are application
+      specific, so the <CODE>getDepartmentRoster</CODE> function is not very
+      reusable. If another application needed to display both a name and phone
+      number, a programmer would have to write and debug a new function
+      containing another SQL statement. Second, the tuples support only tuple
+      methods, not methods on employees. Applications cannot ask tuples to
+      compute an employee's age, his tenure with the company, or his last salary
+      increase. Nor can applications ask a tuple to list the employee's
+      dependents or recent assignments. An Employee class could include methods
+      to respond to all of these requests.</P>
+    
+    <H3>2.3 Object Models for Persistent Storage</H3>
+    
+    <P><A HREF="#note4">Coad<SUP>4</SUP></A> provides a framework for
+      understanding the relationships between a database management system and
+      classes like Employee and Department. Coad's object modeling technique
+      also encompasses user interfaces (like reports, screens, and web pages)
+      and interfaces to hardware and external systems (like bar code readers and
+      credit card validations services).</P>
+    
+    <P>When constructing an object model, Coad focuses on objects in the
+      problem domain. He defers human interface, data management, and systems
+      integration objects until later in the design process. In the example, the
+      problem domain objects are employees and departments. (In a real
+      application, the model would include problem domain objects for
+      dependents, projects, locations, and many other things.)
+      <A HREF="#figure1">Figure 1</A> shows a simplified object model diagram.</P>
+    <TABLE WIDTH="80%" ALIGN="CENTER">
+      <TR>
+        <TD ALIGN="CENTER"><A NAME="figure1"><IMG SRC="shp-figure1.gif"
+        WIDTH="463" HEIGHT="153" ALIGN="BOTTOM" HSPACE="15" ALT="Figure 1"></A>
+        </TD>
+      </TR>
+      <TR>
+        <TD>
+        
+        <P><EM>Figure 1. A department contains 0-n employees in this simple
+          object model.</EM></P></TD>
+      </TR>
+    </TABLE>
+    
+    <P>Coad offers dozens of patterns and strategies for identifying objects,
+      choosing their attributes, defining their relationships, and assigning
+      their methods. For the example, note that a department contains zero or
+      more employees and that one employee is the department manager.</P>
+    
+    <P>Persistent problem domain objects have a few methods to support data
+      management operations. For example, persistent objects, like Department
+      and Employee objects, can save themselves in a database (typically after
+      an attribute changes). A Department object's <CODE>getRoster</CODE>
+      method returns a list of Employee objects retrieved from the database.
+      Similarly, its <CODE>getManager</CODE> method returns a single employee
+      object.</P>
+    
+    <P>Problem domain objects usually have additional problem domain methods.
+      For example, an employee object may have a birth date attribute, which
+      could be accessed by the <CODE>getBirthDate</CODE> method. Applications
+      more often need an employee's age in years; this could be computed by the
+      problem domain <CODE>getAgeInYears</CODE> method. (Applications need not
+      know which <CODE>get...</CODE> methods return stored attributes and which
+      compute results.)</P>
+    
+    <P>Each persistent object class has a corresponding data manager class with
+      a single instantiated object. The data managers share a database server
+      object, which presents a standardized interface to an underlying database
+      API object. These data management objects seldom appear in object model
+      diagrams, but are shown <A HREF="#listing1">Figure 2</A>.</P>
+    <TABLE WIDTH="80%" ALIGN="CENTER">
+      <TR>
+        <TD ALIGN="CENTER"><A NAME="figure2"><IMG SRC="shp-figure2.gif" WIDTH="483" HEIGHT="763" ALIGN="BOTTOM" HSPACE="15" ALT="Figure 2"></A>
+        </TD>
+      </TR>
+      <TR>
+        <TD>
+        
+        <P><EM>Figure 2. Every persistent object class uses an associated data
+          management class to access the database.</EM></P></TD>
+      </TR>
+    </TABLE>
+    
+    <P>Data management objects mediate between problem domain objects and the
+      database server object. All SQL queries are created by data management
+      objects. A data manager knows how to create a table, insert a new record,
+      delete a record, and update a record. A data manager also knows how to
+      retrieve records that meet various criteria and how to convert the
+      retrieved lists of tuples into objects. Each data manager specializes in
+      one persistent problem domain object.</P>
+    
+    <P>In the example object model shown in <A HREF="#figure2">Figure 2</A>,
+      the Department Data Manager, <CODE>DepartmentDM</CODE>, knows how to
+      create the department table and its indices, and how to insert, update,
+      and delete database records corresponding to Department objects. The
+      Department Data Manager also knows how to retrieve department records by
+      ID, by name, and by other criteria. Similarly, the Employee Data Manager,
+      <CODE>EmployeeDM</CODE>, knows how to create and work with the employee
+      database table. When a Department object needs to get a roster of
+      employees, it will ask the Employee Data Manager to retrieve employee
+      records by their department code.</P>
+    
+    <H2>3. Persistent Objects</H2>
+    
+    <P>Persistent objects are objects that can save their state between program
+      runs. Persistent object classes inherit attributes and methods from the
+      PersistentPD class. (PD stands for problem domain.) Persistent object
+      classes always include methods to get and save attribute values and
+      methods to save, delete, and refresh objects. Persistent objects' classes
+      also include methods to perform problem domain functions.</P>
+    
+    <H3>3.1 Storage Representation</H3>
+    
+    <P>Persistent objects and non-persistent objects both store information in
+      Python object attributes. Persistent objects differ from non-persistent
+      objects by storing an object ID number, by storing some types of data in
+      special ways, and by storing two status flags: <I>in database</I> and
+      <I>changed</I>.</P>
+    
+    <P>Each persistent object has a permanent object ID number assigned to it
+      by the database system. The object ID numbers are unique only within an
+      object class. For example, only one Department object can have ID number
+      1234, but an Employee object could also have ID number 1234.</P>
+    
+    <P>Within a Python program, persistent objects store numbers and text, the
+      most common attribute types, in ordinary Python object attributes.
+      Persistent objects store dates and times as <A HREF="#note5">Python time
+        tuples<SUP>5</SUP></A>. To accommodate Sybase's interface requirements,
+      persistent objects store long text and images as LongField objects, which
+      understand how to save and retrieve themselves. (Data types and their
+      storage strategy vary from one database system to another.) Persistent
+      objects store other persistent objects as a pair of values: the other
+      object and its ID number. Finally, persistent objects store lists of other
+      persistent objects as Python lists of other persistent objects.</P>
+    
+    <P>When persistent objects are stored in a relational database, each class
+      is assigned its own table with columns for object attributes. Each row in
+      a table holds one object. The common number and text attribute types are
+      stored in numeric columns (integer, float, currency, etc.) and character
+      columns (fixed or varying length). Dates are stored in long datetime
+      columns to avoid year 2000 problems. Sybase stores long text (over 255
+      characters) and image attributes in special column types.</P>
+    
+    <P>Persistent objects may have other attributes that are not persistent.
+      These could include computed values, such as an Employee's cumulative
+      salary, and runtime support, such as locks, GUI windows, and open files.</P>
+    
+    <H3>3.2 Object Creation</H3>
+    
+    <P>Applications can create new persistent objects and retrieve existing
+      persistent objects.</P>
+    
+    <P>Applications create new objects with a module's <CODE>new</CODE>
+      function rather than via a class name. The <CODE>new</CODE> function
+      creates a new persistent object with some initial attribute values, saves
+      the new object in the database, and notes its new object ID. For example,
+      to create a new Department object, an application could call the <CODE>new</CODE>
+      function in the <CODE>department</CODE> module: <CODE>department.new (&quot;Accounting&quot;)</CODE>.</P>
+    
+    <P>When an application retrieves existing persistent objects, a data
+      manager must convert retrieved row tuples into Python objects. The data
+      manager creates runtime persistent objects by passing initial attribute
+      values supplied from row tuples to the class name. This avoids the object
+      ID assignment and database save performed by the <CODE>new</CODE>
+      function. For example, when retrieving a department, the data manager
+      would create a persistent object by calling <CODE>Department (id, name)</CODE>.</P>
+    
+    <H3>3.3 Access to Attributes</H3>
+    
+    <P>With persistent objects, attribute access must be tightly controlled.
+      Objects maintain some attribute values in memory, but retrieve other
+      attribute values from the database only when they are needed. To hide this
+      complexity from applications, persistent object classes define methods to
+      get attribute values.</P>
+    
+    <P>For example, the Department class includes these methods to get its
+      attribute values: <CODE>getName</CODE>, <CODE>getManager</CODE>, <CODE>getEmployees</CODE>,
+      and <CODE>getMissionStatement</CODE>. The <CODE>getName</CODE> method
+      simply returns the <I>name</I> attribute. The <CODE>getManager</CODE>
+      method returns an Employee object, which may need to be retrieved from the
+      database. The <CODE>getEmployees</CODE> method returns a list of Employee
+      objects, which also may need to be retrieved from the database. The
+      <CODE>getMissionStatement</CODE> method returns a long text document,
+      which is stored in a text field that Sybase handles specially. The <CODE>getMissionStatement</CODE>
+      method may need to retrieve the text from the database.</P>
+    
+    <P>Persistent objects are also concerned when attribute values change.
+      Every new attribute value is compared with the old value to confirm that a
+      change is needed. If the new value is different, the object saves the new
+      attribute value and sets its <I>changed</I> flag. Later, when executing
+      its <CODE>save</CODE> method, the object will examine its <I>changed</I>
+      flag to decide whether the database copy of the object needs to be
+      updated. Continuing the example, the Department class includes these
+      methods to update its attribute values: <CODE>updateName</CODE>, <CODE>updateManager</CODE>,
+      <CODE>updateEmployees</CODE>, and <CODE>updateMissionStatement</CODE>.</P>
+    
+    <P>Some attributes require even more processing when they change. When an
+      object attribute changes, a new ID number must be saved along with the
+      object. For example, when updating a Department's <I>manager</I>
+      attribute with an Employee object for Mr. Smith, the Department object
+      must save both Mr. Smith's Employee object and that Employee object's ID
+      number. The <CODE>updateManager</CODE> method calls the inherited <CODE>updateObjectValue</CODE>
+      method to perform the update.</P>
+    
+    <P>The get and update attribute methods are not ideal solutions to
+      attribute access. They seem verbose and controlling when compared to
+      Python's open <I>object.attribute</I> notation. Simply calling these
+      methods imposes some computational burden beyond the processing they must
+      do. It appears possible eliminate the get and update attribute methods by
+      providing <CODE>__getattr__</CODE> and <CODE>__setattr__</CODE>
+      <A HREF="#note6">methods<SUP>6</SUP></A> that intercept Python's
+      attribute accesses and perform the necessary processing. However, this
+      would substantially complicate the internal object structure. Future
+      research should include a survey of Python application programmers to
+      study how they code attribute accesses.</P>
+    
+    <H3>3.4 Saving, Deleting, and Refreshing</H3>
+    
+    <P>Three methods inherited from PersistentPD, <CODE>save</CODE>, <CODE>delete</CODE>,
+      and <CODE>refresh</CODE>, control a persistent object's interaction with
+      its data manager. Each method simply calls its data manager's similarly
+      named method. The <CODE>save</CODE> method saves an object in the
+      database. The <CODE>delete</CODE> method deletes the object from the
+      database. The <CODE>refresh</CODE> method retrieves fresh attribute
+      values from the database to allow for changes by other programs.</P>
+    
+    <P>Persistent objects seldom save, delete, or refresh themselves because
+      they do not understand their own context. For example, an Employee object
+      cannot know whether to save itself after a change of the name attribute;
+      another attribute change may follow. An employee object does not know how
+      often to refresh itself from the database: some attributes, like birth
+      date, never change; other attributes, like name, change very infrequently;
+      still other attributes, like salary, change frequently; and other
+      attributes, like earned commission, change continuously. Programmers must
+      add <CODE>save</CODE>, <CODE>delete</CODE>, and <CODE>refresh</CODE>
+      operations to applications where they are appropriate.</P>
+    
+    <H2>4. Data Managers</H2>
+    
+    <P>Data managers implement interactions between persistent objects and
+      database systems. Data managers are responsible for retrieving and storing
+      objects, for caching objects, and for performing miscellaneous database
+      related tasks.</P>
+    
+    <H3>4.1 Locating Data Managers</H3>
+    
+    <P>Each persistent object class has a corresponding data manager class,
+      which is instantiated with a single instance. For example, the Department
+      class has a corresponding DepartmentDataManager class, which has a single
+      instance named DepartmentDM.</P>
+    
+    <P>Rather than require applications to know the names of all relevant data
+      managers, the database server object supports a data manager registry.
+      (This feature seemed more valuable when object persistence was hand coded
+      and data manager naming was irregular.) Every persistent object class
+      inherits the <CODE>getDataManagerForClass</CODE> method to get a data
+      manager for a class. For example, a persistent object can call <CODE>self.getDataManagerForClass
+      (&quot;Department&quot;)</CODE> to get the data manager for Department
+      objects.</P>
+    
+    <H3>4.2 Object Retrieval</H3>
+    
+    <P>Data managers offer various methods to retrieve objects from the
+      database. The <CODE>getBy...</CODE> methods retrieve the single object
+      meeting some criteria. The <CODE>getAllBy...</CODE> methods retrieve a
+      list of objects meeting some criteria.</P>
+    
+    <P>Every data manager inherits the <CODE>getByID</CODE> method, which
+      retrieves a single object from the database given its object ID. Most data
+      managers define other problem domain methods to retrieve single objects.
+      For example, the Department data manager could define a <CODE>getByDeptCode</CODE>
+      method.</P>
+    
+    <P>Every data manager implements the <CODE>getAllSortedForList</CODE>
+      method, which retrieves a list of all objects sorted in an order suitable
+      for a report or display list. Most data managers define other problem
+      domain methods to retrieve list of objects. For example, the Department
+      data manager could define a <CODE>getAllByManagerID</CODE> method to
+      return a list of all Departments managed by a specific Employee.</P>
+    
+    <P>Data managers inherit <CODE>getOne</CODE> and <CODE>getAll</CODE>
+      methods, which accept an SQL <CODE>where</CODE> clause and return a
+      single matching object and a list of matching objects, respectively. All
+      problem domain and application specific retrievals can be implemented with
+      these methods. Ideally, a data manager will implement enough <CODE>getBy...</CODE>
+      and<CODE>getAllBy...</CODE> methods so that application programmers need
+      never write SQL where clauses. </P>
+    
+    <H3>4.3 Object Conversion and Caching</H3>
+    
+    <P>Python database APIs return database query results in tuples, one for
+      each row. The data manager is responsible for converting each tuple into a
+      Python object. Every data manager implements a <CODE>rowToObject</CODE>
+      method, which converts a query result tuple into an object. This
+      conversion begins by unpacking the tuple and converting attribute data
+      formats as required. The <CODE>rowToObject</CODE> method also handles
+      retrieved null values.</P>
+    
+    <P>After converting a row to an object, a data manager will check its cache
+      for an existing object with the same object ID. If the cache contains a
+      matching object, the cached object is returned instead of the newly
+      retrieved object. If the cache has no matching object, the newly retrieved
+      object is stored in the cache.</P>
+    
+    <P>The cache serves two functions. It speeds execution of the <CODE>getByID</CODE>
+      method by avoiding many database queries. More importantly, it guarantees
+      that only one version of each object exists in memory. This ensures a
+      consistent view of each object throughout an application. Applications can
+      instruct a data manager to clear or disable the cache.</P>
+    
+    <H3>4.4 Object Inserts and Updates</H3>
+    
+    <P>Data managers inherit a <CODE>save</CODE> method, which is called by a
+      persistent object's <CODE>save</CODE> method. The <CODE>save</CODE>
+      method first checks on object's <I>changed</I> flag; only changed objects
+      should be saved in the database. Next, the <CODE>save</CODE> method
+      checks on object's <I>in database</I> flag. Objects already in the
+      database are saved with the data manager's <CODE>update</CODE> method.
+      New objects are saved with the <CODE>insert</CODE> method and added to
+      the cache.</P>
+    
+    <P>The <CODE>update</CODE> and <CODE>insert</CODE> methods use SQL
+      <CODE>update</CODE> and <CODE>insert</CODE> commands to save an object's
+      attributes in the database. A data manager does not store persistent
+      objects in their entirety. Instead, it stores only the attribute values
+      needed to reconstruct an object. For example, the Department manager is an
+      Employee object; only its Employee object ID is stored in the database.</P>
+    
+    <P>When the <CODE>insert</CODE> method adds a new object record to a
+      database table, it relies on the database management system to assign a
+      unique object ID. Most commercial database managers support this
+      operation. The implementation details are hidden in the database server's
+      <CODE>getIdentity</CODE> method.</P>
+    
+    <H3>4.5 Table and Index Creation</H3>
+    
+    <P>Database management systems provide wonderful interactive tools for
+      creating databases, tables, and indexes. The wonder ends when a database
+      administrator must recreate the same tables and indices again and again
+      during development, migration, or failure recovery.</P>
+    
+    <P>Data managers define a <CODE>createTable</CODE> method, which executes
+      the SQL statement needed to create a table for a persistent object class.
+      Most data managers also define a <CODE>createIndices</CODE> method, which
+      executes the SQL statements needed to create various indices for a table.
+      Table and index creation are in separate methods to allow an initial data
+      load before index creation, the strategy recommended by most database
+      management systems.</P>
+    
+    <P>A data manager could define other administrative methods, such as
+      trigger creation.</P>
+    
+    <H3>4.6 Database Server</H3>
+    
+    <P>Database server objects provide an interface between data managers and
+      database APIs. Each database API has a corresponding database server
+      class, with a single instance. Only one API and one database server class
+      are needed in any application. (Support for multiple databases could be
+      added in the future.)</P>
+    
+    <P>The database server passes SQL queries to the database API and handles
+      the returned rows. The database server hides the API details of functions
+      such as connecting and disconnecting, getting new row identities, and
+      selecting databases.</P>
+    
+    <P>The database server provides some additional support: It maintains a
+      registry of data managers. It provides a logging service, which logs SQL
+      queries for debugging purposes. It provides a locking service, which
+      prevents simultaneous database operations from different threads.</P>
+    
+    <P>The database server does not support record locking, two-phase commits,
+      or transactions. These features have not been needed, but will be added in
+      the future.</P>
+    
+    <H3>4.7 Loopholes</H3>
+    
+    <P>Despite all efforts to hide vendor specific database interface quirks,
+      some issues surface at various levels in the persistent storage module.</P>
+    
+    <P>The initial development of persistent object storage was done with the
+      Sybase module. Sybase's API contains special functions to store long text
+      and image fields (called binary large objects or BLOBs by some other
+      vendors). Storing these fields requires a Byzantine sequence of function
+      calls. Code to handle long text and image fields appears in the Sybase
+      API, the Sybase database server, data managers, and persistent object
+      classes. Fortunately, these details are hidden from applications that call
+      <CODE>get...</CODE> and <CODE>update...</CODE> methods of persistent
+      objects.</P>
+    
+    <P>This proved insufficient. Sybase, by default, retrieves only the first
+      32 Kb of long text and image fields. The Sybase API includes a function to
+      set a higher limit. Where should this function be invoked? With what
+      limit? In an audio storage application, the sound clip data manager's
+      <CODE>getLongFieldValue</CODE> method was modified to increase the limit
+      to about three times the largest sound clip stored to date.</P>
+    
+    <H2>5. Object Builder</H2>
+    
+    <P>Object persistence is more complex than passing an arbitrary object to
+      Python's built-in <CODE>pickle</CODE> and <CODE>shelve</CODE> modules.
+      Persistent objects and data managers require lots of dull code. An object
+      builder automates the code generation and frees programmers to focus on
+      the problem domain and application specific code. The object builder reads
+      a template file and generates persistent object and data manager classes.</P>
+    
+    <H3>5.1 Template Files</H3>
+    
+    <P>A template file names and describes an object's attributes. An attribute
+      description includes a database column name, a database data type, other
+      database information (such as null handling and default values), and a
+      comment explaining the attribute. Listing 3 shows the template file for a
+      Department class.</P>
+    <TABLE WIDTH="80%" BORDER="1" ALIGN="CENTER">
+      <TR>
+        <TD><PRE>DeptCode   int               ; department code
+name       varchar (50)      ; name
+mission    text null         ; mission statement
+manager    object Employee   ; manager
+roster     list Employee     ; employee roster</PRE>
+        <P><EM>Listing 3. This template file describes a Department class.</EM></P></TD>
+      </TR>
+    </TABLE>
+    
+    <P>The object builder processed this template file along with some command
+      line options, which specified object and table names. The
+      <A HREF="#appendix">appendix</A> shows the department module generated
+      from this template.</P>
+    
+    <H3>5.2 Development Cycle</H3>
+    
+    <P>A project's starting conditions determine the steps needed to implement
+      object persistence. Three situations commonly occur:</P>
+    <OL>
+      <LI><STRONG>Existing Database:</STRONG> Write template file, run object
+        builder to create object module, add problem domain methods.</LI>
+      <LI><STRONG>Existing Python Application:</STRONG> Write template file,
+        run object builder to create object module, merge persistence code into
+        existing Python code, create database.</LI>
+      <LI><STRONG>New Project:</STRONG> Write template file, run object
+        builder to create object module, add problem domain methods, create
+        database.</LI>
+    </OL>
+    
+    <P>As real world requirements change, data models must be revised. Changes
+      occur frequently: the post office replaced city zone numbers with 5-digit
+      zip codes and later with 9-digit zip codes.</P>
+    
+    <P>When an attribute definition is added, deleted, or changed, the template
+      file must be updated and the object builder rerun. Unfortunately, when the
+      object builder regenerates the object module, it discards any changes made
+      by programmers. Those changes must be reintroduced from a backup copy.
+      Good tools, such as a source code control system, a diff tool, and an
+      editor are vital here.</P>
+    
+    <P>Template revision implies a change to table structure. Database
+      management systems vary in their ability to alter existing tables. In the
+      worst case, the data would be saved somewhere, the table would be dropped
+      and rebuilt, and the data would be reloaded. The object builder provides
+      no support for this operation because it works only on the current
+      template and cannot tell what has changed.</P>
+    
+    <H3>5.3 Future Directions</H3>
+    
+    <P>The object builder has improved steadily as new capabilities have been
+      required. The next steps will be to preserve programmers' changes to the
+      code and to support data preservation during table restructuring. Both of
+      these features will require some sort of repository to store object and
+      table structure and to track code changes.</P>
+    
+    <P>The Unix tradition, exemplified by <CODE>lex</CODE> and <CODE>yacc</CODE>,
+      is to include the custom code in the template file. Two new sections could
+      be added to the template file: persistent object methods and data manager
+      methods. Every code change would require rerunning the object builder;
+      Unix's make utility can handle this chore. This approach solves most of
+      the code problem, but it does not address programmers' changes to
+      generated methods.</P>
+    
+    <P>Many software development environments use relational databases to track
+      changes to object structure and source code. This seems like a natural
+      solution because a relational database system will be available wherever
+      the persistent storage module is used. However, these systems are much
+      more complex than the present object builder.</P>
+    
+    <P><A HREF="#note7">Another approach<SUP>7</SUP></A> is to embed the
+      template information in the generated code as specially formatted
+      comments. The object builder can use these comments to recreate the
+      previous template and detect table structure changes. Once it has
+      cataloged the changes, the object builder can generate methods needed to
+      recreate the table and migrate the data to the new structure. In addition,
+      the object builder can use the old structure to recreate the previous
+      generated file and detect changes made by programmers. The changes can
+      then be propagated to the new generated object module.</P>
+    
+    <H2>6. Conclusions</H2>
+    
+    <P>The Persistent Storage module has been used successfully on a variety of
+      projects for over a year. Many of the applications have supported World
+      Wide Web servers through CGI scripts. The Persistent Storage approach is
+      ideal for web applications, which need to load a handful of objects from a
+      database, manipulate them, and display some result.</P>
+    
+    <P>The Persistent Storage module has improved Python code development by
+      reducing development time and improving code reliability. The object
+      builder generates the bulk of the code needed for a persistent object
+      class, allowing programmers to focus on the problem domain methods. As
+      programmers learn the structure of the code generated by the object
+      builder, their own code becomes more consistent.</P>
+    
+    <P>The Persistent Storage module has reduced SQL development time.
+      Programmers previously attempted to write complex SQL queries to aggregate
+      many tables. While these queries eventually worked, they were hard to
+      perfect and stressed the relational database system. With persistent
+      objects, the focus has changed. Now programmers rely on objects to perform
+      the aggregations.</P>
+    
+    <P>The Python source code for the Persistent Storage module is available
+      from the <A HREF="http://www.python.org/">http://www.python.org/</A> and
+      from <A HREF="http://starship.skyport.net/crew/shprentz/code/persObj/">http://starship.skyport.net/crew/shprentz/code/persObj/</A>.
+      The author may be contacted at <A HREF="mailto:shprentz@bdm.com">shprentz@bdm.com</A>.</P>
+    
+    <H2>References and Notes</H2>
+    <OL>
+      <LI><A NAME="note1">E. F. Codd.</A> &quot;A relational model of data for
+        large shared data banks.&quot; <CITE>Communications of the ACM,</CITE>
+        Vol. 13, No. 6, June 1970.</LI>
+      <LI><A NAME="note2">ANSI X3.135-1992,</A> &quot;Database Language SQL.&quot;</LI>
+      <LI><A NAME="note3">SIG on Tabular Databases in Python.</A> &quot;<A HREF="http://www.python.org/sigs/db-sig/DatabaseAPI.html">Python
+          Database API, Version 1.0</A>&quot; April 9, 1996.</LI>
+      <LI><A NAME="note4">Peter Coad.</A>
+        <A HREF="http://www.oi.com/om-book.html"><CITE>Object models:
+          strategies, patterns, and applications.</CITE></A> Yourdon Press,
+        Englewood Cliffs, N. J., 1995.</LI>
+      <LI><A NAME="note5">Guido van Rossum.</A>
+        <A HREF="http://www.python.org/doc/lib/lib.html"><CITE>Python Library
+          Reference, Release 1.4.</CITE></A> Corporation for National Research
+        Initiatives, Reston, Virginia, 1996.</LI>
+      <LI><A NAME="note6">Guido van Rossum.</A>
+        <A HREF="http://www.python.org/doc/ref/ref.book.html"><CITE>Python
+          Reference, Release 1.4.</CITE></A> Corporation for National Research
+        Initiatives, Reston, Virginia, 1996.</LI>
+      <LI><A NAME="note7">For example,</A> Together/C++ from
+        <A HREF="http://www.oi.com/">Object International</A>, Raleigh, North
+        Carolina.</LI>
+    </OL>
+    
+    <H2><A NAME="appendix">Appendix: Department Module</A></H2>
+
+<PRE>&quot;&quot;&quot;Persistent object and data manager for departments.
+
+Version: %A%&quot;&quot;&quot;
+
+import sybaseDataServer
+import persistentDM
+import persistentPD
+
+class Department (persistentPD.PersistentPD):
+    &quot;&quot;&quot;Persistent department.&quot;&quot;&quot;
+
+    def __init__ (self,
+                  departmentID = None,
+                  deptCode = None,
+                  name = None,
+                  managerID = None,
+                  inDatabase = 0, changed = 0):
+        &quot;&quot;&quot;Initialize a department with optional initial values.&quot;&quot;&quot;
+        self.departmentID = departmentID
+        self.deptCode = deptCode
+        self.name = name
+        self.mission = persistentPD.LongField (&quot;mission&quot;, self)
+        self.managerID = managerID
+        self.manager = None
+        self.roster = None
+        persistentPD.PersistentPD.__init__ (self, inDatabase, changed)
+
+    def getID (self):
+        &quot;&quot;&quot;Return a unique ID value.&quot;&quot;&quot;
+        return self.departmentID
+
+    def getDepartmentID (self):
+        &quot;&quot;&quot;Get the unique id.&quot;&quot;&quot;
+        return self.departmentID
+
+    def updateDeptCode (self, newValue):
+        &quot;&quot;&quot;Try to update the department code.&quot;&quot;&quot;
+        self.updateValue (&quot;deptCode&quot;, newValue)
+
+    def getDeptCode (self):
+        &quot;&quot;&quot;Get the department code.&quot;&quot;&quot;
+        return self.deptCode
+
+    def updateName (self, newValue):
+        &quot;&quot;&quot;Try to update the name.&quot;&quot;&quot;
+        self.updateValue (&quot;name&quot;, newValue)
+
+    def getName (self):
+        &quot;&quot;&quot;Get the name.&quot;&quot;&quot;
+        return self.name
+
+    def updateMission (self, newValue):
+        &quot;&quot;&quot;Try to update the mission statement.&quot;&quot;&quot;
+        self.mission.updateValue (newValue)
+
+    def getMission (self):
+        &quot;&quot;&quot;Get the mission statement.&quot;&quot;&quot;
+        return self.mission.getValue ()
+
+    def updateManager (self, newValue):
+        &quot;&quot;&quot;Try to update the manager.&quot;&quot;&quot;
+        self.updateObjectValue (&quot;manager&quot;, &quot;managerID&quot;, newValue)
+
+    def getManager (self):
+        &quot;&quot;&quot;Get the manager.&quot;&quot;&quot;
+        if self.manager == None and self.managerID != None:
+            dataManager = self.getDataManagerForClass (&quot;Employee&quot;)
+            self.manager = dataManager.getByID (self.managerID)
+        return self.manager
+
+    def getRoster (self):
+        &quot;&quot;&quot;Get the employee roster.&quot;&quot;&quot;
+        if self.roster == None:
+            dataManager = self.getDataManagerForClass (&quot;Employee&quot;)
+            self.roster = dataManager.getAllByDepartmentID (self.departmentID)
+        return self.roster
+
+    def addToRoster (self, theEmployee):
+        &quot;&quot;&quot;Add the Employee to the employee roster.&quot;&quot;&quot;
+        self.getRoster ().append (theEmployee)
+
+    def deleteFromRoster (self, theEmployee):
+        &quot;&quot;&quot;Delete the Employee from the employee roster.&quot;&quot;&quot;
+        self.getRoster ().remove (theEmployee)
+
+    def delete (self):
+        &quot;&quot;&quot;Delete myself and all my list items.&quot;&quot;&quot;
+        for anObject in getRoster ():
+            anObject.delete ()
+        persistentPD.PersistentPD.delete (self)
+
+    def refresh (self):
+        &quot;&quot;&quot;Refresh the a department with the latest values from the database.&quot;&quot;&quot;
+        if self.dataManager.refreshShortFields (self):
+            self.mission.refresh ()
+            self.roster = None
+            self.manager = None
+
+    def save (self):
+        &quot;&quot;&quot;Save the a department in the database.&quot;&quot;&quot;
+        self.dataManager.save (self)
+        self.mission.save ()
+
+def new (deptCode = None,
+        name = None,
+        managerID = None,
+        mission = None):
+    &quot;&quot;&quot;Create and save a department with optional initial values.&quot;&quot;&quot;
+    newDepartment = Department (None,
+                        deptCode,
+                        name,
+                        managerID, 0, 1)
+    newDepartment.updateMission (None)
+    newDepartment.save ()
+    newDepartment.updateMission (mission)
+    newDepartment.save ()
+    return newDepartment
+
+
+class DepartmentDataManager (persistentDM.DataManager):
+    &quot;&quot;&quot;Manager of departments in the database.&quot;&quot;&quot;
+
+    def createTable (self):
+        &quot;&quot;&quot;Create a database table to hold departments .&quot;&quot;&quot;
+        self.server.sql (&quot;&quot;&quot;create table Department (
+                departmentID numeric (8, 0) identity not null,
+                deptCode int,
+                name varchar (50),
+                mission text null,
+                managerID numeric (8, 0) null)&quot;&quot;&quot;)
+
+    def insert (self, anObject):
+        &quot;&quot;&quot;Insert a new department into the database.&quot;&quot;&quot;
+        lock = self.server.acquireLock ()
+        self.server.sql (&quot;&quot;&quot;insert Department (
+                        deptCode,
+                        name,
+                        managerID)
+                values (%s, %s, %s)&quot;&quot;&quot; % ( \
+                        self.sqlInt (anObject.deptCode),
+                        self.sqlString (anObject.name),
+                        self.sqlInt (anObject.managerID),
+                ))
+        anObject.departmentID = self.server.getIdentity ()
+        anObject.setInDatabase ()
+
+    def update (self, anObject):
+        &quot;&quot;&quot;Update an existing department in the database.&quot;&quot;&quot;
+        self.server.sql (&quot;&quot;&quot;update Department
+                set        deptCode = %s,
+                        name = %s,
+                        managerID = %s
+                where departmentID = %d&quot;&quot;&quot; \
+                % ( \
+                        self.sqlInt (anObject.deptCode),
+                        self.sqlString (anObject.name),
+                        self.sqlInt (anObject.managerID),
+                        anObject.departmentID
+                ))
+
+    def delete (self, anObject):
+        &quot;&quot;&quot;Delete a department from the database.&quot;&quot;&quot;
+        self.server.sql (&quot;&quot;&quot;delete Department where departmentID = %d&quot;&quot;&quot; % anObject.departmentID)
+
+    def refreshShortFields (self, anObject):
+        &quot;&quot;&quot;Refresh short fields of a department.&quot;&quot;&quot;
+        lock = self.server.acquireLock ()
+        self.server.sql (self.sqlSelect () + &quot;where departmentID = %d&quot; % anObject.departmentID)
+        rowTuple = self.server.resultRow ()
+        if not rowTuple:
+            return 0
+        ignoredIDfield, \
+            anObject.deptCode, \
+            anObject.name, \
+            anObject.managerID = rowTuple
+        if anObject.managerID != None:
+            anObject.managerID = int (anObject.managerID)
+        anObject.changed = 0
+        return 1
+
+    def getLongFieldValue (self, id, fieldName):
+        &quot;&quot;&quot;Get a long field value, given an id number.&quot;&quot;&quot;
+        lock = self.server.acquireLock ()
+        self.server.sql (&quot;&quot;&quot;select %s from Department where departmentID = %d&quot;&quot;&quot; % (fieldName, id))
+        value, = self.server.resultRow ()
+        return value
+
+    def saveLongFieldValue (self, id, fieldName, value):
+        &quot;&quot;&quot;Save a long field value, given an id number.&quot;&quot;&quot;
+        self.server.writeLong (&quot;Department&quot;, &quot;departmentID&quot;, id, fieldName, value)
+
+    def retrieveByID (self, id):
+        &quot;&quot;&quot;Get a department by its ID number.&quot;&quot;&quot;
+        return self.getOne (&quot;where departmentID = %d&quot; % id)
+
+    def getAllSortedBySample (self):
+        &quot;&quot;&quot;Get a list of all departments sorted by some fields.&quot;&quot;&quot;
+        return self.getAll (&quot;order by departmentID, deptCode, name&quot;)
+
+    def getAllSortedForList (self):
+        &quot;&quot;&quot;Get a list of all departments sorted for a selection list.&quot;&quot;&quot;
+        return self.getAllSortedBySample ()
+
+    def getAllByManagerID (self, managerID):
+        &quot;&quot;&quot;Get a list of all departments matching the manager ID.&quot;&quot;&quot;
+        return self.getAll (&quot;where managerID = %d&quot; % managerID)
+
+    def sqlSelect (self):
+        &quot;&quot;&quot;Return an SQL &quot;Select ... From ...&quot; clause for retrieving a department.&quot;&quot;&quot;
+        return &quot;&quot;&quot;select x.departmentID,
+                 x.deptCode,
+                 x.name,
+                 x.managerID from Department x &quot;&quot;&quot;
+
+    def rowToObject (self, rowTuple):
+        &quot;&quot;&quot;Convert a database row tuple to a department.&quot;&quot;&quot;
+        if rowTuple:
+            departmentID, \
+                deptCode, \
+                name, \
+                managerID = rowTuple
+            if managerID != None:
+                managerID = int (managerID)
+            newDepartment = Department (int (departmentID),
+                                        deptCode,
+                                        name,
+                                        managerID, 1, 0)
+            return self.cachedObject (newDepartment)
+        else:
+            return None
+
+DepartmentDM = DepartmentDataManager (sybaseDataServer.DMserver, Department)
+</PRE>
+</UL>
+  </BODY>
+</HTML>

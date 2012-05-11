@@ -1,0 +1,575 @@
+Title: python-dev Summary for 2005-09-01 through 2005-09-15
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2005-09-01 through 2005-09-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-09-01_2005-09-15.html]
+
+
+
+=============
+Announcements
+=============
+
+-----------------------------
+QOTF: Quotes of the Fortnight
+-----------------------------
+
+In the thread on the print statement, Charles Cazabon provided some nice imagery for Guido's Python 3.0 strategy.  Our first QOTF is his comment about the print statement:
+
+    It's an anomaly.  It stands out in the language as a sore thumb waiting for Guido's hammer.
+
+We also learned something important about the evolution of Python thanks to Paul Moore.  In the thread on the Python 3.0 executable name, Greg Ewing worried that if the Python 3.0 executable is named "py":
+
+    Python 4.0 is going to just be called "p", and by the time we get to Python 5.0, the name will have vanished altogether!
+
+Fortunately, as Paul Moore explains in our second QOTF, these naming conventions are exactly as we should expect them:
+
+    That's OK, by the time Python 5.0 comes out, it will have taken over the world and be the default language for everything. So omitting the name is exactly right :-)
+
+[SJB]
+
+Contributing threads:
+
+- `Replacement for print in Python 3.0 <http://mail.python.org/pipermail/python-dev/2005-September/055995.html>`__
+- `Python 3 executable name <http://mail.python.org/pipermail/python-dev/2005-September/056377.html>`__
+
+--------------------------------------------------
+The "Swiss Army Knife (...Not)" API design pattern
+--------------------------------------------------
+
+This fortnight saw a number of different discussions on what Guido's guiding principles are in making design decisions about Python. Guido introduced the "Swiss Army Knife (...Not)" API design pattern, which has been lauded by some as `the long-lost 20th principle from the Zen of Python`_. A direct quote from Guido:
+
+    [I]nstead of a single "swiss-army-knife" function with various options that choose different behavior variants, it's better to have different dedicated functions for each of the major functionality types.
+
+This principle is the basis for pairs like str.split() and str.rsplit() or str.find() and str.rfind().  The goal is to keep cognitive overhead down by associating with each use case a single function with a minimal number of parameters.
+
+[SJB]
+
+.. _the long-lost 20th principle from the Zen of Python: http://mail.python.org/pipermail/python-dev/2005-September/056228.html
+
+Contributing threads:
+
+- `Replacement for print in Python 3.0 <http://mail.python.org/pipermail/python-dev/2005-September/056202.html>`__
+- `Replacement for print in Python 3.0 <http://mail.python.org/pipermail/python-dev/2005-September/056228.html>`__
+
+------------------------
+A Python-to-C++ compiler
+------------------------
+
+Mark Dufour announced `Shed Skin`_, an experimental Python-to-C++ compiler, which can convert many Python programs into optimized C++ code, using static type inference techniques.  It works best for Python programs written in a relatively static C++-style; much work remains to be done, and Mark would like anyone interested in getting involved to contact him.  Shed Skin was one of the recent `Google`_ `Summer of Code`_ projects.
+ 
+.. _Shed Skin: http://shedskin.sourceforge.net 
+.. _Google: http://www.google.com
+.. _Summer of Code: http://code.google.com/summerofcode.html
+
+[TAM]
+
+Contributing thread:
+
+- `First release of Shed Skin, a Python-to-C++ compiler. <http://mail.python.org/pipermail/python-dev/2005-September/056356.html>`__
+
+--------------------------------------------------------------
+python-checkins followups now stay on the python-checkins list
+--------------------------------------------------------------
+
+In a follow-up to a `thread in early July`_, the python-checkins mailing list Reply-To header munging has been turned off.  Previously, follow-ups to python-checkins would be addressed to python-dev; now, follow-ups will stay on the python-checkins list by default.
+
+.. _thread in early July: http://www.python.org/dev/summary/2005-07-01_2005-07-15.html#behavior-of-sourceforge-when-replying-to-python-checkins
+
+[TAM]
+
+Contributing thread:
+
+- `python-checkins reply-to <http://mail.python.org/pipermail/python-dev/2005-September/056428.html>`__
+
+
+=========
+Summaries
+=========
+
+--------------------------------------------
+Converting print to a function in Python 3.0
+--------------------------------------------
+
+In Python 3.0, Guido wants to change print from a statement to a function.  Some of his motivation for this change:
+
+* Converting code that uses the print statement to instead use the logging package, a UI package, etc. is complicated because of the syntax.  Parentheses, commas and >>s all behave differently in the print statement than they would in a function call.
+* Having print as a statement makes the language harder to evolve.  For example, if it's determined that Python should gain printf behavior of some sort, adding this is harder -- as a statement, it would require the introduction of new syntax, as a function, it would feel like a second-class citizen compared to print.
+* Since the print statement always inserts spaces, code that doesn't want these spaces will often have to use a completely different style of formatting (e.g. using sys.stdout.write and/or string formatting)
+* Changing the behavior of statements is hard, while builtin functions can simply be replaced by setting an attribute of __builtin__.
+
+Guido's initial proposal suggested three methods to be adopted by all stream (file-like) objects::
+
+    stream.write(a1, a2, ...) equivalent to:
+        map(stream.write, map(str, [a1, a2, ...]))
+    stream.writeln(a1, a2, ...) equivalent to:
+        stream.write(a1, a2, ..., "\n")
+    stream.writef(fmt, a1, a2, ...) equivalent to:
+        stream.write(fmt % (a1, a2, ...))
+
+Additionally, three new builtins would appear, write(), writeln() and writef() which called the corresponding methods on sys.stdout.
+
+People had a number of problems with this initial proposal:
+
+* People make heavy use of the space-insertion behavior of the current print statement. With Guido's initial proposal, inserting spaces would require manually adding space characters, e.g. ``write(foo, " ", bar, " ", baz)``.
+* People want to keep the stream API simple.  With Guido's initial proposal, all file-like objects would probably need to support these three new methods.  (But see also `Deriving file-like object methods from read() and write()`_.)
+* People primarily (about 85% of the time) use the print statement to print complete lines.  With Guido's initial proposal, the function to do this, writeln(), has the longer name than the less-frequently needed write().
+
+There were a variety of proposals following Guido's that attempted to address the issues above, most of which were posted to the wiki_.  They generally all proposed a function something like::
+
+    def print(*args):
+        sys.stdout.write(' '.join(str(arg) for arg in args))
+        sys.stdout.write('\n')
+
+with support for a file= keyword parameter to specify a stream other than sys.stdout, and a sep= keyword parameter to specify a separator other than ' '.  There was some discussion about how the final newline could be suppressed, including a nl= keyword parameter and the usage of the Ellipsis object (e.g. so that ``print(foo, bar, ...)`` would not print the final newline).  There was also substantial support for a formatting variant like::
+
+    def printf(fmt, *args):
+        print(fmt % args)
+
+In the end, Guido seemed to be leaning towards supporting three printing variants:
+
+* print(...) would be much like the proposals above, calling str() on each argument and then printing them with spaces in between and a following newline
+
+* printraw(...) or printbare(...) would also call str() on each argument and print them, but with no intervening spaces and no final newline
+
+* printf(fmt, ...) would string-substitute the arguments into the format string and then write the format string
+
+Each of these functions would also accept a keyword parameter for specifying a stream other than sys.stdout.  Because ``print`` is a keyword, ``from __future__ import printing`` would be required to use the new print() function.
+
+At this point, the thread trailed off, and no final decisions were made.
+
+[SJB]
+
+.. _wiki: http://wiki.python.org/moin/PrintAsFunction
+
+Contributing threads:
+
+- `Python 3 design principles <http://mail.python.org/pipermail/python-dev/2005-September/055944.html>`__
+- `Replacement for print in Python 3.0 <http://mail.python.org/pipermail/python-dev/2005-September/055968.html>`__
+- `New Wiki page - PrintAsFunction <http://mail.python.org/pipermail/python-dev/2005-September/056081.html>`__
+- `Hacking print (was: Replacement for print in Python 3.0) <http://mail.python.org/pipermail/python-dev/2005-September/056125.html>`__
+- `Pascaloid print substitute (Replacement for print in Python 3.0) <http://mail.python.org/pipermail/python-dev/2005-September/056171.html>`__
+
+----------------------------------
+Making C code easier in Python 3.0
+----------------------------------
+
+Nick Jacobson asked whether reference counting would be replaced in Python 3.0.  Guido pointed out that the (CPython) implementation would have to be completely changed, and that isn't planned; many people also pointed out that reference counting is an implementation detail, not part of the language specification, and that there are other options that can be explored (e.g. `PyPy`_, `Jython`_, `IronPython`_).  
+
+Arising from this question was a suggestion from Greg Ewing to build something akin to `Pyrex`_ (which takes care of reference count/garbage collection issues automatically) into the standard Python distribution.  This suggestion was met with general enthusiasm; some general discussion about which cases were most appropriate for Pyrex use (e.g. extension modules, wrapping C libraries, modules implemented in C for performance reasons) also followed.
+
+.. _PyPy: http://codespeak.net/pypy/
+.. _Jython: http://www.jython.org/
+.. _IronPython: http://www.ironpython.com/
+.. _Pyrex: http://www.cosc.canterbury.ac.nz/~greg/python/Pyrex/
+
+[TAM]
+
+Contributing thread:
+
+ - `reference counting in Py3K <http://mail.python.org/pipermail/python-dev/2005-September/056215.html>`__
+
+--------------------------
+Multiple views of a string
+--------------------------
+
+Tim Delaney suggested that str.partition could return 'views' of a string, rather than new string objects, as the substrings, to avoid the time needed to create strings that are potentially unused.  Raymond Hettinger pointed out that the practical cost is unlikely to be significant, as the strings are likely to be empty, small, or used, and that all the pre-Python 2.5 methods would still be available for those times when they would be more appropriate.
+
+However, using string 'views' (objects that reference the 'parent' string, rather than copying the data) caught the imagination of several Python-dev'ers.  Discussion ensued about how this object could work (Skip Montanaro threw together a sample implementation); towards the end it was pointed out that buffer() objects, with some additional string methods, could provide this slice-like instance with low memory requirements.  Guido also mentioned `NSString`_, the NextStep string type used by `ObjC`_, which is fairly similar.
+
+.. _ObjC: http://en.wikipedia.org/wiki/Objc
+.. _NSString: http://developer.apple.com/documentation/Cocoa/Reference/Foundation/ObjC_classic/Classes/NSString.html
+
+[TAM]
+
+Contributing threads:
+
+ - `Proof of the pudding: str.partition() <http://mail.python.org/pipermail/python-dev/2005-September/055924.html>`__
+ - `String views (was: Re: Proof of the pudding: str.partition()) <http://mail.python.org/pipermail/python-dev/2005-September/055933.html>`__
+ - `String views <http://mail.python.org/pipermail/python-dev/2005-September/055947.html>`__
+
+-------------------------------
+String-formatting in Python 3.0
+-------------------------------
+
+Currently, using ``%`` for string formatting has a number of inconvenient consequences:
+
+* precedence issues: ``"a%sa" % "b"*4`` produces ``'abaabaabaaba'``, not ``'abbbba'``
+* special-cased tuples: ``"%s" % x`` produces a string representation of x *unless* x is a tuple (in which case it unpacks it, raising a TypeError if ``len(x) != 1``).
+* keyword formatting issues: a number of people have complained that ``%(myvar)s`` is much more complicated than it needs to be (hence string.Template's ``$myvar``).
+
+To address the first two issues, Raymond Hettinger proposed that string formatting become a builtin function, and others proposed that formatting become a method of str/unicode objects.  Guido definitely agreed with the move from ``%`` to a callable, but it was unclear as to his preference for function or method.
+
+Nick Coghlan tried to address the ``%(myvar)s`` issue by exploring a few extensions to string.Template formatting.  He produced a format() function where arguments could be specified either by position (e.g. $1, $2, etc.) or with keywords (e.g. $item, $quantity), and where the usual C-style format specifiers were still supported::
+
+    format("$item: $[0.2f]quantity", quantity=0.5, item='Bees')
+    format("$1: $[0.2f]2", 'Bees', 0.5)
+
+Nick also briefly explored format specifiers for expanding iterables, but Guido disliked the idea, explaining that adding or removing a print from a program should not drastically change the program's behavior (as it might if a print accidentally consumed an iterable that you weren't done with).
+
+There was also some high-level discussion about internationalization concerns, where format strings need to be easy for translators to read and reorganize.  Since word orders may change, having either keyword parameters or positional parameters (as in Nick's scheme) is crucial.
+
+Unfortunately, this discussion seemed to get lost in the massive `Converting print to a function in Python 3.0`_ discussion, and no decisions were made about either a formatting function or Nick's format specifier extensions.
+
+[SJB]
+
+Contributing threads:
+
+- `Replacement for print in Python 3.0 <http://mail.python.org/pipermail/python-dev/2005-September/055979.html>`__
+- `string formatting options and removing basestring.__mod__ (WAS: Replacement for print in Python 3.0) <http://mail.python.org/pipermail/python-dev/2005-September/056163.html>`__
+- `string formatting and i18n <http://mail.python.org/pipermail/python-dev/2005-September/056191.html>`__
+- `string.Template format enhancements (Re: Replacement for print in Python 3.0) <http://mail.python.org/pipermail/python-dev/2005-September/056231.html>`__
+
+
+---------------------------------------------------------
+Deriving file-like object methods from read() and write()
+---------------------------------------------------------
+
+A variety of methods on the file object, including  __iter__(), next(), readline(), readlines() and writelines(), are all derivable from the read() and write() methods. At least twice this fortnight, the issue was raised about making it easier for file-like objects to add the derivable methods if they've defined read() and write().
+
+One suggestion was to provide a FileMixin class (like the DictMixin of UserDict) that other types could inherit from. This has the problem that the creator of the file-like object must determine at the time that the class is defined that it should support the additional methods. It is also more difficult to use mixin classes in C code (because multiple inheritance requires dealing with the type's metaclass).
+
+Fredrik Lundh suggested that something along the lines of `PEP 246`_'s object adaptation might be appropriate, but there was still some disagreement on the issue.
+
+[SJB]
+
+.. _PEP 246: http://www.python.org/dev/peps/pep-0246
+
+Contributing threads:
+
+- `Mixin classes in the standard library <http://mail.python.org/pipermail/python-dev/2005-September/056135.html>`__
+- `Simplify the file-like-object interface (Replacement for print in Python 3.0) <http://mail.python.org/pipermail/python-dev/2005-September/056218.html>`__
+- `Simplify the file-like-object interface <http://mail.python.org/pipermail/python-dev/2005-September/056229.html>`__
+
+------------------------------------
+Making new-style classes the default
+------------------------------------
+
+Lisandro Dalcin proposed that something like::
+
+    from __future__ import new_style_classes
+
+be introduced to have newly defined classes implicitly derive from object. It was pointed out that this functionality is already available through the module-level statement::
+
+    __metaclass__ = type
+
+The argument was made that the __future__ version would be easier for non-experts to understand and to Google for, but Guido declared that the current syntax is fine -- there are much more important issues to be dealt with right now.
+
+[SJB]
+
+Contributing thread:
+
+- `PEP 3000 and new style classes <http://mail.python.org/pipermail/python-dev/2005-September/056305.html>`__
+
+--------------------------------------------------
+Using __future__ to have builtins return iterators
+--------------------------------------------------
+
+Lisandro Dalcin requested a __future__ import of some sort that would
+
+* make range() and zip() return iterators
+* remove xrange()
+* make the dict.keys(), dict.values(), dict.items() etc. methods return iterators
+
+Guido indicated that an alternate builtins module could be provided so that the first point could be covered with something like::
+
+    from future_builtins import zip, range
+
+However, there wasn't really a good way to change the dict methods.  Simply importing a new dict object from "future_builtins" wouldn't solve the problem because using anyone's module that used the old dict object would mean a mix of the two types in your module.  And since __future__ imports are intended to affect only the module which includes them, changing the builtin dict object globally would be inappropriate (as it would let an import in one module break code in another).
+
+[SJB]
+
+Contributing thread:
+
+- `PEP 3000 and iterators <http://mail.python.org/pipermail/python-dev/2005-September/056340.html>`__
+
+-------------------------------------------------------------
+Using compiled re methods vs. using module-level re functions
+-------------------------------------------------------------
+
+After Michael Chermside commented that users should be encouraged to use the methods on compiled re objects instead of the re functions available at the module level (and after Stephen J. Turnbull promised to look into supplying such a documentation patch), there was a brief discussion about how much of a difference using the compiled re objects really makes. As it turns out, in the CPython implementation, the module-level functions cache the first 100 patterns, so in many cases, the only additional cost of using the module-level functions is a dictionary lookup.
+
+[SJB]
+
+Contributing thread:
+
+- `Revising RE docs <http://mail.python.org/pipermail/python-dev/2005-September/055938.html>`__
+
+--------------------------------------
+urlparse and urls with too many '../'s
+--------------------------------------
+
+Fabien Schwob pointed out that urlparse.join() doesn't strip out any extraneous '..' directories (e.g. http://example.com/../index.html).  While Guido indicated that he found the current behaviour acceptable, Jeff Epler pointed out that `RFC 2396`_ states that invalid URIs like this may be handled by removing the ".." segments from the resolved path (although this is an implementation detail).  Armin Rigo indicated that, even if this is theoretically not a bug, a proposed patch with this motiviation would be welcome.
+
+.. _RFC 2396: http://www.faqs.org/rfcs/rfc2396.html
+
+[TAM]
+
+Contributing thread:
+
+ - `bug in urlparse <http://mail.python.org/pipermail/python-dev/2005-September/056144.html>`__
+
+-----------------------------------------------
+Using an iterator instead of a tuple for \*args
+-----------------------------------------------
+
+Nick Coghlan suggested that in Python 3.0, the \*args extended function call syntax should produce an iterator instead of a tuple as it currently does.  That would mean that code like::
+
+    output(*some_long_iterator)
+
+would not load the entire iterator into a memory before processing it.  I pointed him to a previous discussion Raymond Hettinger and I had about the subject that indicated that for \*args, sequences were preferable to iterators in a number of situations.  Guido agreed, indicating that \*args will continue to be sequences in Python 3.0.
+
+[SJB]
+
+Contributing thread:
+
+- `iterators and extended function call syntax (WAS: Replacement for print in Python 3.0) <http://mail.python.org/pipermail/python-dev/2005-September/056109.html>`__
+
+----------------------------------------
+Constructing traceback objects in Python
+----------------------------------------
+
+Contributing thread:
+
+ - `Asynchronous use of Traceback objects <http://mail.python.org/pipermail/python-dev/2005-September/056091.html>`__
+
+-------------------------------
+No dedent() methods for strings
+-------------------------------
+
+Contributing thread:
+
+ - `str.dedent <http://mail.python.org/pipermail/python-dev/2005-September/056412.html>`__
+
+------------------------
+Arguments vs. parameters
+------------------------
+
+ - `Term unification <http://mail.python.org/pipermail/python-dev/2005-September/056409.html>`__
+
+-----------------------------------------------------------------------
+Removing sequence support from the return value of stat() in Python 3.0
+-----------------------------------------------------------------------
+
+Terry J. Reedy proposed that, in Python 3.0, instead of os.stat() returning a
+sequence (where the order of the items is only of historical significance), a
+proper stat object be returned.  This was met with general support, and so
+seems likely to occur.  Skip Montanaro also proposed that the st\_ prefixes in the attribute names be removed, since there are no namespace issues to be concerned with, which met with some approval, but concern from Guido that the forms with the prefixes would be more familiar to users, and make Googling or grepping simpler.
+
+[TAM]
+
+Contributing thread:
+
+ - `stat() return value (was: Re: Proof of the pudding: str.partition()) <http://mail.python.org/pipermail/python-dev/2005-September/055931.html>`__
+
+--------------------------------------------------
+Making code in the Tools directory more accessible
+--------------------------------------------------
+
+Installation of Python typically doesn't include the Tools directory; combined with the lack of mention of these scripts in the documentation, this means that knowledge of these generally useful scripts is fairly limited.  Tim Peters noted that historically a Tools directory was only added to the Windows installer if it was specifically requested; as such, the audiopy, bgen, compiler, faqwiz, framer, modulator, msi, unicode, and world Tools directories are not currently included in the Windows installer.  Nick Coghlan added that Tools/README.txt isn't included in the Windows installer, so Windows users don't get a synopsis of the tools that are included; he also suggested that adding this readme to the "undocumented modules" section of the standard library would be a simple improvement.  Non-windows users typically don't get the Tools directory at all with an install.
+
+Remaining questions included how the directory should be documented (e.g. man pages for the scripts, a documentation page for them), where to install them on non-Windows installations (e.g. /usr/share/python, /usr/lib/pythonX.Y/Tools), and whether the Windows installer should include all of the directories.
+
+[TAM]
+
+Contributing thread:
+
+ - `Tools directory (Was RE: Replacement for print in Python 3.0) <http://mail.python.org/pipermail/python-dev/2005-September/056318.html>`__
+
+----------------------------------
+Responsiveness of IDLE development
+----------------------------------
+
+Noam Raphael posted a request for help getting a large patch to IDLE committed to CVS.  He was concerned that there hasn't been any IDLE development recently, and that patches are not being considered.  He indicated that his group was considering offering a fork of IDLE with the improvements, but that they would much prefer integrating the improvements into the core distribution.
+
+It was pointed out that a fork might be the best solution, for various reasons (e.g. the improvements may not be of general interest, the release time would be much quicker), and that this was how the current version of IDLE was developed.  However, later on it turned out that Kurt Kaiser had missed the python-dev message, and when it was brought to his attention he moved the discussion to idle-dev, and it seems that everything will end happily and fork-less.
+
+[TAM]
+
+Contributing thread:
+
+ - `IDLE development <http://mail.python.org/pipermail/python-dev/2005-September/056357.html>`__
+
+-----------------------------
+Speeding up list append calls
+-----------------------------
+
+A `comp.lang.python message from Tim Peters`_ prompted Neal Norwitz to
+investigate how the code that Tim posted could be sped up.  He hacked the code
+to replace var.append() with the LIST_APPEND opcode, and achieved a roughly
+200% speed increase.  Although this doesn't work in general, Neal wondered if
+it could be used as a peephole optimization when a variable is known to be a
+list.  Martin v. Loewis suggested that the code could simply check whether it was a list; Phillip J. Eby and Fredrik Lundh pointed out that this is similar to what various math operators do (e.g. speeding up int + int calls).
+
+.. _comp.lang.python message from Tim Peters: http://groups.google.com/group/comp.lang.python/msg/9075a3bc59c334c9 
+
+[TAM]
+
+Contributing thread:
+
+ - `speeding up list append calls <http://mail.python.org/pipermail/python-dev/2005-September/056396.html>`__
+
+------------------------------------
+Allowing str.strip to remove "words"
+------------------------------------
+
+Jonny Reichwald proposed an enhancement to str.strip().  In addition to its current form, where it takes a string of characters to strip, to take any iterable containing either character lists or string lists, so that is is possible to remove entire words from the stripped string.  For example::
+
+   #A char list gives the same result as the standard strip
+   >>> my_strip("abcdeed", "de")
+   'abc'
+
+   #A list of strings instead
+   >>> my_strip("abcdeed", ("ed",))
+   'abcde'
+
+   #The char order in the strings to be stripped are of importance
+   >>> my_strip("abcdeed", ("ad", "eb"))
+   'abcdeed'
+
+Raymond Hettinger queried whether there was actual demand for such a change, and whether such demand was sufficient to justify the added complexity; Josiah Carlson also pointed out that implementing this only requires a four-line function.  Judging from the lack of responses, it seems likely that there isn't enough demand.
+
+Contributing thread:
+
+ - `str.strip() enhancement <http://mail.python.org/pipermail/python-dev/2005-September/056119.html>`__
+
+================
+Deferred Threads
+================
+
+- `C coding experiment <http://mail.python.org/pipermail/python-dev/2005-September/055965.html>`__
+- `os.path.diff(path1, path2) <http://mail.python.org/pipermail/python-dev/2005-September/056391.html>`__
+
+
+===============
+Skipped Threads
+===============
+
+ - `import exceptions <http://mail.python.org/pipermail/python-dev/2005-September/055926.html>`__
+ - `[Python-checkins] python/dist/src/Lib/test test_re.py, 1.45.6.3, 1.45.6.4 <http://mail.python.org/pipermail/python-dev/2005-September/055927.html>`__
+ - `setdefault's second argument <http://mail.python.org/pipermail/python-dev/2005-September/055929.html>`__
+ - `Alternative imports (Re: Python 3 design principles) <http://mail.python.org/pipermail/python-dev/2005-September/055945.html>`__
+ - `python/dist/src/Lib/test test_re.py, 1.45.6.3, 1.45.6.4 <http://mail.python.org/pipermail/python-dev/2005-September/055963.html>`__
+ - `Status of PEP 328 <http://mail.python.org/pipermail/python-dev/2005-September/055969.html>`__
+ - `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-September/055978.html>`__
+ - `itertools.chain should take an iterable ? <http://mail.python.org/pipermail/python-dev/2005-September/055981.html>`__
+ - `partition() (was: Remove str.find in 3.0?) <http://mail.python.org/pipermail/python-dev/2005-September/055983.html>`__
+ - `gdbinit problem <http://mail.python.org/pipermail/python-dev/2005-September/056178.html>`__
+ - `Exception Reorg PEP checked in <http://mail.python.org/pipermail/python-dev/2005-September/056296.html>`__
+ - `international python <http://mail.python.org/pipermail/python-dev/2005-September/056326.html>`__
+ - `SIGPIPE =&gt; SIG_IGN? <http://mail.python.org/pipermail/python-dev/2005-September/056341.html>`__
+ - `[draft] python-dev Summary for 2005-08-16 through 2005-08-31 <http://mail.python.org/pipermail/python-dev/2005-September/056348.html>`__
+ - `[Python-checkins] python/dist/src/Lib urllib.py, 1.169, 1.170 <http://mail.python.org/pipermail/python-dev/2005-September/056349.html>`__
+ - `Wanting to learn <http://mail.python.org/pipermail/python-dev/2005-September/056350.html>`__
+ - `Python code.interact() and UTF-8 locale <http://mail.python.org/pipermail/python-dev/2005-September/056361.html>`__
+ - `pygettext() without newlines (Was: Re: Replacement for print in Python 3.0) <http://mail.python.org/pipermail/python-dev/2005-September/056368.html>`__
+ - `Python 3 executable name (was: Re: PEP 3000 and iterators) <http://mail.python.org/pipermail/python-dev/2005-September/056369.html>`__
+ - `Python 3 executable name <http://mail.python.org/pipermail/python-dev/2005-September/056371.html>`__
+ - `Skiping searching throw dictionaries of mro() members. <http://mail.python.org/pipermail/python-dev/2005-September/056403.html>`__
+ - `Fwd: [Python-checkins] python/dist/src/Misc NEWS, 1.1193.2.94, 1.1193.2.95 <http://mail.python.org/pipermail/python-dev/2005-September/056405.html>`__
+ - `[Python-checkins] python/dist/src/Lib/test regrtest.py, 1.171, 1.172 test_ioctl.py, 1.2, 1.3 <http://mail.python.org/pipermail/python-dev/2005-September/056406.html>`__
+ - `python/dist/src/Lib urllib.py, 1.165.2.1, 1.165.2.2 <http://mail.python.org/pipermail/python-dev/2005-September/056419.html>`__
+ - `Variant of removing GIL. <http://mail.python.org/pipermail/python-dev/2005-September/056423.html>`__
+ - `Compatibility between Python 2.3.x and Python 2.4.x <http://mail.python.org/pipermail/python-dev/2005-September/056431.html>`__
+ - `Example for "property" violates "Python is not a one pass compiler" <http://mail.python.org/pipermail/python-dev/2005-September/056190.html>`__
+ - `python optimization <http://mail.python.org/pipermail/python-dev/2005-September/056425.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+September 01, 2005 through September 15, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the 3rd summary written by the python-dev summary pairing of
+Steve Bethard and Tony Meyer (Tempus Fugit!).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/trunk/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  We do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow us to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-07-16_2005-07-31.html
+.. _original text file: http://www.python.org/dev/summary/2005-09-01_2005-09-15.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+
+

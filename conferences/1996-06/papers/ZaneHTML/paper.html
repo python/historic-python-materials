@@ -1,0 +1,237 @@
+<!DOCTYPE HTML PUBLIC "-//SQ//DTD HTML 2.0 HoTMetaL + extensions//EN">
+<HTML>
+<HEAD>
+<TITLE>Python Interface with Narcisse Graphics</TITLE>
+</HEAD> 
+<BODY><CENTER><H1>
+A Python Interface with Narcisse Graphics</H1></CENTER>
+<CENTER><H3><A
+HREF="http://www-phys.llnl.gov:80/X_Div/Profiles/ZaneMotteler.html">Zane C.
+Motteler</A></H3> 
+</CENTER>
+<CENTER><TABLE
+BORDER="1" CELLPADDING="1" CELLSPACING="1" WIDTH="100%" ALIGN="CENTER"><TR
+ALIGN="CENTER" VALIGN="MIDDLE"><TD COLSTART="1" ALIGN="CENTER" VALIGN="MIDDLE"><A
+HREF="#Narcisse">Narcisse</A></TD><TD COLSTART="2"><A HREF="#Curve">Curve,
+Surface and Mesh Objects</A></TD><TD COLSTART="3"><A HREF="#Graphics">Graph
+Objects</A></TD>
+<TD COLSTART="4"><A HREF="#Plotter">Plotter Class</A></TD><TD COLSTART="5"><A
+HREF="#nmodule">narcissemodule</A></TD><TD COLSTART="6"><A HREF="#Examples">Examples</A></TD></TR></TABLE></CENTER>
+<HR SIZE="3">
+<P><A NAME="Narcisse">
+</A></P>
+<H1>Narcisse</H1> 
+<P>
+Narcisse is a graphics package developed by our French colleagues at Centre
+d'Etudes de Limeil-Valenton of the Commissariat d'Energie Atomique. Narcisse is
+quite comprehensive; it can do two-, three-, and four-dimensional plots (the
+latter meaning that the surface is colored according to the values of an
+arbitrary function). One can open and send plots to a Narcisse window on a
+distant machine (handy if you want to show the boss a nice plot but you don't
+want to run over to her building with a hard copy).</P>
+<P>
+  Narcisse has a user-friendly graphical user interface (GUI) which, once a
+graph has appeared, allows the user to change its characteristics interactively.
+This enables one to find the best appearance for a particular plot without
+having to graph it repeatedly from the user program. Previously created files in
+various formats can also be imported directly into the Narcisse GUI and
+manipulated from there. 
+</P>
+<P>
+Unlike many graphics systems, whose functions are actually linked into one's
+program, Narcisse runs independently, as a graphics server. The user program
+communicates with Narcisse via Unix sockets. This communication is quite low
+level and very complex. The appearance of a plot is controlled by nearly 150
+parameters for determining such things as the color palette, type of shading,
+axis scales, curve and surface labels, titles, angle and distance of view (for
+three- and four-dimensional graphs), hidden line removal, etc. Most end users do
+not wish to spend time learning the tedious details of such interfaces; they
+would just like to specify data and ask to have it plotted.</P>
+<P>
+  This paper describes a high level, easy to use graphics interface which hides
+(as much as possible) the low level details of whatever graphics system is
+actually being used, so that the low level can be essentially ``plug-and-play.''
+Then, whenever a better system becomes available, it should only be necessary to
+change low level interface routines not normally accessed by ordinary users.
+Python, with its easy extendability, was ideally suited for this job.</P>
+<HR>
+<P><A NAME="Curve">
+</A></P>
+<H1>Curve, Surface, and Mesh objects</H1> 
+<P>Curve, Surface, and Mesh are three Python classes which abstract the
+geometric properties of the objects which we wish to graph. Each instantiation
+of one of these objects will contain the geometric specification of a single
+curve, surface, or mesh  respectively (coordinates, and physical data in the
+case of Surfaces and Meshes), as well as information about appearance (color,
+graph type, plotting options, etc.). Each of these classes has two member
+functions: set, which allows one or more of its characteristics to be changed;
+and new, which reinitializes the object.
+</P> 
+<P>A Surface is essentially a two-dimensional object viewed in
+three-dimensional space, while a Mesh is really a three-dimensional object.
+However, plotted with hidden lines removed, a closed surface and a solid
+realized as a mesh whose boundary is that surface may look exactly the same, and
+indeed, share many characteristics. The difference is that with a Surface, we
+are only interested in the outside, whereas with a Mesh, we may be interested in
+stripping away outside layers to see what is going on inside. In this way a Mesh
+can be considered a specialization of a Surface, and so in this implementation
+Mesh is a derived class of Surface.
+</P> 
+<HR>
+<P><A NAME="Graphics">
+</A></P>
+<H1>Graph objects: Graph2d and Graph3d</H1>
+<P>The context in which a graph of a geometric object actually appears has been
+abstracted into a base class called Graph; its derived classes Graph2d and
+Graph3d contain information peculiar to two and three dimensional plots,
+respectively. Graphs know about such things as axes (whether they appear, what
+they look like, their scales, etc.), titles and other text which may appear on
+the graph, and (for three dimensional plots) the angle and distance of the view
+point. A Graph is aware that a graphics engine is out there and knows how to
+interface with it via a class instance of a Plotter (see the next section for
+more details on Plotters).
+</P>
+<P>The interface to a Plotter is generic; it is only at the Plotter level of
+this interface, and the lower C interface level, that actual details of the
+graphics engine are known. A Graph can be asked to plot itself. If at this point
+the application program has not somehow been informed of the existence of a
+Plotter to use to plot itself, then it creates a generic Plotter which somehow
+connects to a graphics engine. In the case of Narcisse, a connection can easily
+be made if Narcisse is running on the same platform. The Plotter is able to
+communicate with this Narcisse via a socket, whose number it obtains from an
+environment variable PORT_SERVEUR. If Narcisse is running on a remote platform,
+the connection can be made if the DISPLAY variable is set for that platform and
+the environment variable DEST_SP3 is set to a string which encodes the platform
+name, Narcisse&#185;s socket number there, and the userid. Other graphics
+engines will work differently, but could still be fired up by the same generic
+call at the Graph level.
+</P>
+<P>The application program (or the user at the command line) can also specify
+one or more connections to graphics. This can be done by passing encoded strings
+(called &#179;filenames&#178;) or identifiers of open Plotters to the Graph
+object. In the case of Narcisse, a &#179;filename&#178; is encoded as described
+above; with other graphics engines, it might be a real filename, or a
+differently encoded set of directions to a remote graphics process. Since a
+Graph may be aware of more than one Plotter, it is capable of plotting itself &#179;simultaneously&#178;
+on more than one platform.
+</P>
+<P>One of the design decisions was exactly how to apportion the 150-some
+Narcisse parameters among geometric objects and the Graph objects. Generally I
+tried to keep all information intrinsic to a geometric abstraction (coordinates,
+color, appearance) with the geometric objects, and extrinsic information about
+the context of the plot (presence or absence of axes, point of view, size,
+particular Narcisse connection, etc.) within Graph objects. Such a clean
+division was not always possible. For example, two dimensional plots in Narcisse
+can have their colors chosen from exactly one palette. However, three and four
+dimensional objects can be linked in such a way that each can have a separate
+palette. Thus in the former case, a palette could be considered a Graph
+characteristic, while in the latter, it can be treated as a characteristic of an
+individual Surface. 
+</P>
+<HR>
+<P><A NAME="Plotter">
+</A></P>
+<H1>Nar.py: the Plotter class</H1>  
+<P>Nar.py, which embodies the definition of the Plotter class, is the low-level
+Python interface with the graphics engine, and as such is therefore acquainted
+with the graphics details. In our case a Plotter instantiation is aware of a
+connection to Narcisse, which is either handed to it by a Graph object or is
+created by default when it is instantiated. A Plotter has numerous somewhat
+higher level member functions which communicate with the lower level ones in the
+graphics interface. A Plotter object has two functionalities, namely:</P> 
+<UL><LI>It operates as a conduit through which Graphs can pass their geometric
+and graphical characteristics (color, label,...).</LI>
+<LI>It conveys information about aspects of the plot which are independent of
+the geometric abstractions being plotted, such as axis scales and limits, graph
+titles, existence or lack of a coordinate grid, etc., and for three dimensional
+plots, the angles and distance of the view point, etc.</LI>
+</UL> 
+<P>
+  The settings of the most common of the low level Narcisse parameters are
+controlled by functions with self-explanatory names, such as set_3d_grid_type,
+set_3d_options, set_axis_labels, set_curve_color, set_mask, and even
+set_language (the GUI can appear either in French or in English). Since most
+graphics packages offer similar functionality, I hope that these names are
+sufficiently generic to be usable regardless of the underlying graphics. Curve
+plotting and surface plotting are each controlled by a single function
+(plot_curve and plot_surface, respectively). This is possible because of the
+ability of Python to determine the number of arguments with which a function is
+called, and their types, sizes, and shapes. With this information, a Plotter can
+decide which of the several Narcisse functions is the appropriate one to call.
+Again, I hope that this will carry over to Plotter-type interfaces with other
+graphics packages.</P>
+<HR>
+<P><A NAME="nmodule">
+</A></P>
+<H1>narcissemodule</H1> 
+<P>This module, written in C and callable (of course) from Python, is really a
+low-level set of wrappers for the functions in Narcisse. It accepts Python
+argument lists, parses them (if possible) into data acceptable to Narcisse, and
+passes it on. There is a local data structure for storing up Narcisse keywords
+and their values (which are used mainly to control the appearance of the graph)
+until they are to be shipped to Narcisse. Normally a whole series of keywords
+will be specified and then accumulated to configure a graph, but not sent to
+Narcisse until it is actually ready to do a plot. (If keywords were sent to
+Narcisse as they were defined, then whatever data that had been last sent would
+be replotted using the new values, which is usually not the desired outcome.)
+Finally, there is a local translation table: since Narcisse recognizes only
+French keywords, we have supplied a table of English equivalents to make things
+easier for the low-level user (mainly us, to be sure).</P> 
+<P>
+Thus there are very few surprises in this module. It contains routines to open
+and close a connection to Narcisse, to query whether one exists, and to
+synchronize. There are routines to add keyword values to the local table, and
+one to send the final list to Narcisse. Two dimensional routines can plot one or
+several curves simultaneously. The curves can be colored and labeled, and drawn
+in various ways (continuously, as step functions, or just as points marked by
+various symbols).</P>
+<P>
+  Surface plotting routines are where Narcisse excels. It supports both three
+dimensional plots, where the surface is colored according to the value of the z
+coordinate, and four-dimensional plots, where the coloring is determined by a
+function defined at each of the plotted points. There are various coloring
+options, including wire grid, flat or face coloring, contour lines, and contour
+shading. The surface can be transparent, or there are three masking options of
+increasing complexity to remove hidden portions from the graph.</P>
+<P>
+  Finally, there are routines for doing three dimensional solids which have been
+decomposed into cells by means of both structured and nonstructured grids. These
+plots can be most enlightening when a portion of the surface is removed so that
+one can see the interior cells.</P>
+<HR>
+<P><A NAME="Examples">
+</A></P>
+<H1>Examples of Plots</H1>  
+<P>No paper on graphics is complete without a few sample graphs.</P> 
+<UL><LI><A HREF="http://www-phys.llnl.gov:80/X_Div/Python/Figure1.html">Figure
+1</A> shows a typical two dimensional graph.</LI>
+<LI><A HREF="http://www-phys.llnl.gov:80/X_Div/Python/Figure2.html">Figure 2</A>
+is a 3d surface plot.</LI>
+<LI><A HREF="http://www-phys.llnl.gov:80/X_Div/Python/Figure3.html">Figure 3</A>is
+a 4d plot of a sphere.</LI>
+<LI><A HREF="http://www-phys.llnl.gov:80/X_Div/Python/Figure4.html">Figure 4</A>
+is a 4d structured mesh graph.</LI>
+<LI><A HREF="http://www-phys.llnl.gov:80/X_Div/Python/Figure5.html">Figure 5</A>
+is a 4d unstructured mesh graph of an imploding sphere.</LI>
+</UL>
+<HR SIZE="3">
+<P>For more information, contact:
+</P>
+<P><A HREF="http://www-phys.llnl.gov:80/X_Div/Profiles/ZaneMotteler.html">Zane
+C. Motteler</A></P>
+<P>
+<A HREF="http://www-phys.llnl.gov/X_Div/"><IMG
+ALIGN="BOTTOM" SRC="http://www-phys.llnl.gov/GIFs/xdivbutton.gif" ALT="X Division" BORDER="0"></A>
+  <A HREF="http://www-phys.llnl.gov/pst.html"><IMG
+SRC="http://www-phys.llnl.gov/GIFs/lilpst.gif" ALT="Physics and Space Technology home page" BORDER="0"></A>
+  <A HREF="http://www.llnl.gov/"><IMG
+SRC="http://www-phys.llnl.gov/GIFs/lll.gif" ALT="LLNL home page" BORDER="0"></A>
+  <A HREF="http://www.llnl.gov/disclaimer.html"><IMG
+SRC="http://www-phys.llnl.gov/GIFs/gavel.gif" BORDER="0" ALT="LLNL Disclaimers"></A>
+</P>
+<P>
+<STRONG>
+UCRL-JC-124001</STRONG></P>
+<H5>Last Modified: 03:44pm PDT, April 15, 1996</H5>
+</BODY>
+</HTML>

@@ -1,0 +1,111 @@
+Title: Python-dev summary: 2000-12-16 to 2000-12-31
+
+<pre>
+The past two weeks turned out to be less quiet than expected, though
+most of the items were minor ones.
+
+
+2.1 release plans
+=================
+
+December 15 was the deadline for PEPs; no new PEPs will be considered
+for inclusion in 2.1, and PEPs not in the active list will not be
+considered either.  Martin von Loewis wondered if the timetable for
+Python 2.1 was realistic: "I think it is unrealistic to expect the
+same amount of commitment for the next release, especially if that
+release appears just a few months after the previous release (that is,
+one month from now)."
+
+GvR thought that the ideas being considered for Python 2.1 were much
+smaller than the changes that went into 2.0, and listed them:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-December/011069.html">http://mail.python.org/pipermail/python-dev/2000-December/011069.html</a>
+
+
+Module autoconfiguration
+========================
+
+Eric S. Raymond noted that the curses module isn't automatically
+built, and that in general more modules could be built without
+requiring explicit user intervention: "This is not good, as it may
+lead careless distribution builders to ship Python 2.0s that will not
+be able to support the curses front end in CML2."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-December/011194.html">http://mail.python.org/pipermail/python-dev/2000-December/011194.html</a>
+
+AMK has been working on PEP 229, a proposal to automatically configure
+and compile extension modules, and the accompanying patch.  This would
+replace the Module/Setup file and makesetup script, and fix ESR's
+problem.
+        <a href="http://python.sourceforge.net/peps/pep-0229.html">http://python.sourceforge.net/peps/pep-0229.html</a>
+The patch:
+        <a href="http://sourceforge.net/patch/?func=detailpatch&amp;patch_id=102588&amp;group_id=5470">http://sourceforge.net/patch/?func=detailpatch&amp;patch_id=102588&amp;group_id=5470</a>
+        
+On that note, a link was posted to the current version of the
+automatic setup.py script, asking for people to try it out on various
+platforms and offer corrections: "Is anything missing that should have
+been built?  Did an attempt at building a module fail?  These indicate
+problems autodetecting something, so if you can figure out how to find
+the required library or include file, let me know what to do."
+Instructions are in my post:
+        <a href="http://mail.python.org/pipermail/python-dev/2000-December/011231.html">http://mail.python.org/pipermail/python-dev/2000-December/011231.html</a>
+The setup script can be downloaded from:
+        <a href="http://www.amk.ca/files/python/setup.py">http://www.amk.ca/files/python/setup.py</a>
+Please give it a try.
+
+
+chomp()
+=======
+
+People have suggested adding a chomp() function that performs the same
+task as the Perl built-in: it removes the trailing newline from a
+string.  
+        <a href="http://sourceforge.net/patch/?func=detailpatch&amp;patch_id=103029&amp;group_id=5470">http://sourceforge.net/patch/?func=detailpatch&amp;patch_id=103029&amp;group_id=5470</a>
+
+Reaction was mixed: Moshe liked it, but others thought that the
+existing rstrip() method, which removes *all* whitespace from the end
+of a string, is sufficient.
+
+
+Calls for assistance
+====================
+
+Moshe Zadka noted that the FAQ is out of date, and that the FAQwizard
+on python.org had been down for some time without anyone noticing: "I
+think the FAQ-Wizard method has proven itself not very efficient (for
+example, apparently no one noticed until now that it's not working)."
+The FAQ should really be maintained by an editor; does anyone want to
+volunteer?
+        <a href="http://mail.python.org/pipermail/python-dev/2000-December/011240.html">http://mail.python.org/pipermail/python-dev/2000-December/011240.html</a>
+
+The PSA bookstore has been updated, rewritten, and resurrected as the
+Python bookstore.  Contributions of additional reviews, suggestions
+for titles, etc. are welcome.
+        <a href="http://www.amk.ca/bookstore/">http://www.amk.ca/bookstore/</a>
+
+
+
+Other stuff
+===========
+
+The mailing lists on python.org ran into trouble near the end of the
+month; list services were moved from a machine at CNRI to one at
+Digital Creations, the disk on mail.python.org filled up, Postfix on
+mail.python.org inserts a delay of some hours, and a bug in Mailman
+was found: "This is serious enough to warrant a Mailman 2.0.1 release,
+probably mid-next week."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-December/011242.html">http://mail.python.org/pipermail/python-dev/2000-December/011242.html</a>
+
+The changes to the curses module to export a C API, discussed in the
+previous python-dev summary, met with approval and were checked in.
+This meant that Thomas Gellekum's curses.panel module could also be
+added.  Anyone want to work on wrapping the form and/or menu libraries
+that come with ncurses?
+
+Python may avoid the need to argue over where to put the braces, but
+there's still the need to use a consistent style in Python's C code.
+Fred Drake suggested using 4-space indents, no tabs; this is different
+from GvR's preferred style, but according to Fred, the 4-space style
+is tolerated as an alternative.  GvR pronounced on this: "If 3rd party
+code is already written using a different style, it can stay that way,
+especially if it's a large volume that would be hard to reformat."
+        <a href="http://mail.python.org/pipermail/python-dev/2000-December/011195.html">http://mail.python.org/pipermail/python-dev/2000-December/011195.html</a>
+</pre>

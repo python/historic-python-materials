@@ -1,0 +1,319 @@
+++++++++++++++++++++++++++++++++++++++++++++++++++
+python-dev Summary, 2002-11-16 through 2002-11-30
+++++++++++++++++++++++++++++++++++++++++++++++++++
+
+This is a summary of traffic on the `python-dev mailing list`_ between November 16, 2002 and November 30, 2002 (inclusive).  It is intended to inform the wider Python community of on-going developments on the list that might interest the wider Python community.  To comment on anything mentioned here, just post to python-list@python.org or comp.lang.python in the usual way; give your posting a meaningful subject line, and if it's about a PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep iteration). All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join python-dev!
+
+This is the sixth summary written by Brett Cannon (back in my groove).
+
+All summaries are now archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_; you can safely ignore it (although I suggest learning reST; its simple and is accepted for PEP markup).  Also, because of the wonders of programs that like to reformat, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is.  If you want to do that, get an original copy of the text file.
+
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+======================
+Summary Announcements
+======================
+Nothing to report to speak of.  Uh, go to PyCon_ .  =)
+
+.. _PyCon: http://www.python.org/pycon/
+
+====================
+`bsddb3 imported`__
+====================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030247.html
+
+Martin v. Loewis merged bsddb3 3.4.0 into CVS under the name ``bsddb``.  The old ``bsddb`` module is now no longer compiled by default; if it  does get compiled, though, it ends up with the name ``bsddb185``.  Barry Warsaw also requested that the extensive testing suite be incorporated and "run it only with a regrtest -u option".
+
+Martin wasn't sure how Barry wanted them incorporated, though, since there are multiple files to the test and most testing suites in the stdlib are a single file.  Barry suggested that the testing files be put in a directory with the package and that test_bsddb.py just call the tests in that directory, much like how the email package does it.  They were integrated and some errors and warnings were found that are being dealt with.
+
+It was also agreed upon that development will be moved over to Python so as to keep the module in Python sync'ed up properly and to keep poor Martin from having to import the files into Python's CVS constantly.
+
+=======================
+`Licensing question`__
+=======================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030256.html
+
+David Abrahams asked about  a licensing issue with Boost.Python_ (it is a free library that "enables seamless interoperability between C++" and Python) and it's modified Python.h_ file that it uses.  Originally there was no license at the top of that file, but that does not work for some corporations using Boost.  So David stuck his own license at the top and asked if this is the right thing to do.
+
+Guido asked him to provide the PSF_ license_ at the top of the file and to mention what changes he made.  The copyright had been added to the file for Python 2.2.2.
+
+.. _Boost.Python: http://www.boost.org/libs/python/doc/
+.. _Python.h: 
+.. _PSF: http://www.python.org/psf/
+.. _license: http://www.python.org/2.2.2/license.html
+
+=========================
+`Re: PyNumber_Check()`__
+=========================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030236.html
+
+M.A. Lemburg noticed that PyNumber_Check()'s semantics on what will cause it to return had changed.  He  asked if it should check whether one of "nb_int, nb_long, nb_float is available (in addition to the tp_as_number slot)".  Guido responded that he would like to see it deprecated.  We got a history lesson of how PyNumber_Check() was written "when the presence or absence of the as_number "extension" to the type object was thought to be useful".  Regardless, Guido said that testing like this does  not prove something is a "number" and if you wanted to test this way you could do it yourself.
+
+In response, MAL said that perhaps PyNumber_Check() should be changed so that it  returned true for something that is "usable as input to float(), int() or long()".  Guido said that would be fine "as long as we all agree that that's *exactly* what they check for, and as long as we agree that there may be overlapping areas" for the various Py*_Check() functions.  Guido later said testing for nb_int, nb_long, and nb_float was fine.
+
+===================================================
+`Plea: can modulefinder.py move to the library?`__
+===================================================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030240.html
+
+Just van Rossum wanted to move Freeze's modulefinder.py_ into the stdlib so that  it can be distributed  with binary releases.  In case you don't know what modulefinder.py does, it attempts to find all pure Python module dependencies for a pure Python module.  In other words, it checks what the module imports and if it is a Python file, and if it is, records that; it repeats this for all modules it finds, creating a listing of modules needed for the module to run.
+
+Guido said that the module needed some work before it could be considered; it had ``print`` statements that were unneeded outside of Freeze and it had no documentation.  Just agreed that the documentation needed to be done.  As for the ``print`` statements, though, they only come out when ``debug`` is set to true; by default it  is  false.  Guido said that was fine and agreed with the removal of the Windows-specific ``print`` statements.
+
+Thomas Heller later said in `another thread`_ that `patch #643711`_ was opened primarily for him and Just to do work in but that everyone was invited to help out.
+
+.. _another thread: http://mail.python.org/pipermail/python-dev/2002-November/030445.html
+.. _modulefinder.py: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Tools/freeze/modulefinder.py
+.. _patch #643711: http://www.python.org/sf/643711
+
+============================
+`Dictionary Foolishness?`__
+============================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030282.html
+
+Raymond Hettinger suggested having "dictionaries support the repetition" to allow one to create a dictionary with enough space as specified by the repetition::
+
+	>>> [0] * n   # allocate an n-length list
+	>>> {} * n    # allocate an n-element dictionary
+	
+Aahz recalled that dictionaries are resized upon adding to a dictionary and they could theoretically grow smaller.  That would seem to possibly limit the usefulness of this idea.  Guido then voted -1 (practically a death wish for an idea unless people clamor for it) saying that it relied too much on "arbitrary magic by side effect".  He said  if people *really* wanted this a method could be proposed.
+
+=============================
+`dict() enhancement idea?`__
+=============================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030290.html
+
+Just van Rossum suggested overloading the dictionary constructor so that arguments that went to ``**kwargs`` would be used to create the dictionary (this can be seen in the "`Python Cookbook`_" as recipe 1.2 or online at http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52313).  This is desired because that means cleaner code for creating dicts::
+
+	>>> dict(pigs='!fly', birds='fly')
+	
+Barry commented that he  liked it and had something similar in his code for Mailman_ .  Thomas Heller voted +1 for it and also said that he used the idiom.  Raymond Hettinger and myself also voted +1 for it.
+
+.. _Python Cookbook: 
+.. _Mailman: 
+
+===========================================
+`Yet another string formatting proposal`__
+===========================================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030304.html
+
+Oren Tirosh proposed something (read the title to figure out what).  He proposed the following syntax::
+
+	>>> "\(a) + \(b) = \(a+b)\n" 
+   	>>> r"\(a) + \(b) = \(a+b)\n".cook()
+   	
+The advantages, according to Oren, are that it would not require introducing the use of a new symbol like ``$``, nor a new string prefix nor a new method.  The ``.cook()`` method would be used to evaluate raw strings at a later point; it would draw arguments from the local and global namespace.  The biggest drawback was unfamiliarity for programmers.
+
+Frederik Lundh pointed out that ``\(`` is "commonly used to escape parentheses in regular expression strings" (Effbot wrote re_ , so he should know).  Oren then said that curly braces could (and pretty will) be used instead.
+
+Michael Chermside likes this design idea, but  thinks the name for ``.cook()`` is not that great.  Oren was going for a name that tied into "raw".  Michael suggested the name ``.sub()`` to build off of the two PEPs already in existence covering string formatting (`PEP 215`_ and `PEP 292`_ ).
+
+.. _re: http://www.python.org/doc/current/lib/module-re.html
+.. _PEP 215: http://www.python.org/peps/pep-0215.html
+.. _PEP 292: http://www.python.org/peps/pep-0292.html
+
+=====================
+`Expect in python`__
+=====================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030313.html
+
+Eric Raymond proposed adding pexpect_ to the stdlib when it reaches version 1 (it is currently at 0.94).  His thought was that having functionality like Expect_ would be a boon for Python and use for system administration.  Eric said  he had been using the module and had no problems with it (Prabhu Ramachandran also said it had worked for him).
+
+David Ascher said that he would like to see a more abstract API to allow it work for things other than character streams.  He also would like to see something work better on Windows.  Eric said that he would not want to hold up this for hopes of getting something better since it already works well for what it does.
+
+But it appears that the creator of pexpect is more than willing to help maintain the module if it makes it into the stdlib.
+
+Zach Weinberg said that he would be willing to put some work into making the pty_ module more portable since pexpect does its thing using pty.
+
+.. _pexpect: http://pexpect.sf.net/
+.. _Expect: http://expect.nist.gov/
+.. _pty: http://www.python.org/doc/current/lib/module-pty.html
+
+===================================
+`PEP 288:  Generator Attributes`__
+===================================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030321.html
+
+Raymond Hettinger has revised `PEP 288`_ with a new proposal on how to pass things into a generator that has already started.  He has asked for comments on the changes, so let him know what you think.
+
+.. _PEP 288: http://www.python.org/peps/pep-0288.html
+
+===============================================
+`PyMem_MALLOC (was [Python-Dev] Snake farm)`__
+===============================================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030333.html
+
+Continuation of http://mail.python.org/pipermail/python-dev/2002-November/029853.html
+
+There was a possible issue with ``PyMem_MALLOC()`` that Marc Recht had discovered on FreeBSD.  It eventually was tracked down to FreeBSD-CURRENT's implementation of ``malloc()``: ``malloc(0)`` always return 0x800.  M.A. Lemburg suggested changing a test in the configure script to try to catch when a platform returned an address for ``malloc(0)`` and treat it just like when it  would return ``NULL`` (``NULL`` can't be blindly returned since that would signal a memory error; returning ``NULL`` in a C extension signals an error).  Marc came back with news that C99 says that this is legitimate behavior for ``malloc()`` so this could possibly affect other platforms.
+
+Marc suggested that ``PyMem_MALLOC()`` just be redefined to ``n ? malloc(n) : NULL``.  Problem is that the ``NULL`` issue mentioned above comes into play with this solution.  Tim Peters suggested either ``malloc(n || 1)`` or ``malloc(n ? n : 1)`` (the former being a Python idiom that doesn't cut it in C).  he does not want to mess with the configure scripts since they have "proven itself too brittle too many times".  Tim wanted a way to prevent ever calling the function with 0, but Guido couldn't see any way of doing that without an extra jump.
+
+The committed solution is ``malloc((n) ? (n) : 1)``.  Easier to just waste one byte then have to deal with the special casing of passing 0.  The extra test was not really a worry since no measurable performance reported by Tim.  Besides, Tim pointed out "this is ideal for a conditional-move instruction, and more architectures are growing that".
+
+====================================================
+`Half-baked proposal: * (and **?) in assignments`__
+====================================================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030349.html
+
+Gareth McCaughan suggested cutting down one of the separations between parameter passing and assignment by allowing assignment to use arbitrary argument lists::
+
+	>>> a,b,*c = 1,2,3,4,5  # c == (3, 4, 5)
+	>>> year, month, day, *dummy = time.localtime()
+	
+I argued that I didn't like the slightly cluttered look on the left-hand side (LHS) of the assignment.  Martin v. Loewis and I basically ended up saying we wanted to keep assignments clear and concise and that this would not help to keep that.  Steve Holden basically ended up agreeing.
+
+Brian Quinlin, Patrick O'Brien, Nathan Clegg and Timothy Delany liked the idea.  The biggest argument in support was that it would allow for a more functional programming style (and that obviously can be good or bad depending on your P.O.V.; I say bad  =)::
+
+	>>> car,*cdr = [head, t1, t2, t3]  # car == head, cdr == (t1, t2, t3)
+	
+In case you don't have functional programming (especially Lisp/Scheme) experience, the basic data structure in Lisp-like language is a list and the most common way to manipulate those lists is with the functions ``car`` and ``cdr``.  ``car`` returns the "head", or front, of the list; ``cdr`` returns the "tail", or everything but the head, of the list.  This allows for simple recursion since you just pass the ``cdr`` of a list on the recursive call after having dealt with the head of the list.
+
+There was also the suggestion of allowing the arbitrary assignment variable to be anywhere in the list of assignment variables::
+
+	>>> a,*b,c = 1,2,3,4,5  # a == 1, b == (2, 3, 4), c == 5
+	
+To prove that this was not really needed I wrote a function that took in an iterable and the number of variables to assign to and then returned the proper number iterations on the iterator and then the iterator as the last thing returned.  Alex Martelli of course improved upon it (and also continued to correct my slightly incorrect statements)::
+
+	def peel(iterable, arg_cnt=1):
+		"""Return ``arg_cnt`` values from iterator of ``iterable`` and then the iterator itself."""
+		iterator = iter(iterable)
+		for num in xrange(arg_cnt):
+			yield iterator.next()
+		yield iterator
+
+The idea of a module for the stdlib containing iterator helper functions was suggested by Alex.  One is in progress by Raymond Hettinger.
+
+Armin Rigo suggested having iterators become a type.  That was quickly shot down, although having the suggested iterator helper module contain a class that could be subclassed by iterators was received with positive comments.
+
+The thread ended very quickly after Guido said that he didn't think "that there's a sufficient need to add new syntax".
+
+===================================
+`from tuples to immutable dicts`__
+===================================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030358.html
+
+Armin Rigo said that he would like to have an immutable type that acted like a dictionary; basically like a struct from C.  Martin v. Loewis agreed on the need, but opposed the idea of adding another built-in type or syntax for such a type; that left something for the stdlib.  Martin suggested something like::
+
+	>>> struct_seq(name, doc, n_in_sequence, (fields))
+
+where ``field`` is a bunch of (name, doc) tuples.  What would be returned would be a "thing [that] would be similar to os.stat_result: you [can] call it with the mandatory fields in sequence, and can call it with the optional fields by keyword argument".
+
+Armin didn't like it since it went against his initial proposal "which was to have a lightweight and declaration-less way to build structures".  He basically ended up suggesting something along the lines of tuples with keyword arguments.  Martin didn't like it since he didn't see a great use for it.
+
+In the end Armin said to just drop the idea.
+
+============================================
+`urllib performance issue on FreeBSD 4.x`__
+============================================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030391.html
+
+Andrew MacIntyre brought a thread on python-list to python-dev's attention about urllib performance compared to wget  (wget is used to download web sites and files).  Apparently the used socket is unbuffered instead of using the system default (which was shown to be almost as fast as wget).  The question became why this was done.
+
+The answer (thanks to Martin v. Loewis) was to prevent deadlock.  Apparently under HTTP 1.1 a server can keep a connection open while waiting for the next command.  If the connection was buffered it would block until it read enough to fill the buffer which may never come.
+
+Frederik Lundh suggested that a subclass or option be available that allowed the choosing of unbuffered or not.  Andrew said he would put it on his todo list.
+
+=====================================
+`test failures on Debian unstable`__
+=====================================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030384.html
+
+Failures on the build of Debian's unstable version of Python led to a discussion about how modules are skipped in the testing suite.  `Lib/test/regrtest.py`_ keeps a list of tests that are expected to be skipped on various platforms.  Martin v. Loewis doesn't like it because tests such as for the bz2 module are attempted regardless of whether the bz2 library is even installed and yet it is expected to succeed on Linux.  Martin summarized that "For many of the tests that are somtimes skipped, knowing the system does not tell you whether the test will should rightfully be skipped, on that system" since tests are skipped often because a module was not there that needed to be imported for the test.
+
+Tim Peters, on the other hand, likes it.  Since he maintains the Windows distribution from PythonLabs he likes it since it lets him know when new things have been added to Python and might need to be excluded from the Windows distro.  Neil (who pointed out the Debian problems) was able to recognize that the tests that failed were meant to pass under Linux.  Tim admitted he only cared about keeping the mechanism for Windows; he could care less if it is removed for Linux.
+
+Patrick O'Brien chimed in (with Aahz supporting) that the feature is handy since you can easily find out libraries you are missing that you could potentially install.
+
+Guido stepped in and suggested setting up a mechanism that would allow an external table in a file to be used when present instead of the default list of tests to skip.  Don't think anyone has stepped up to implement this.
+
+.. _Lib/test/regrtest.py: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Lib/test/regrtest.py
+
+===================================================================
+`Currently baking idea for dict.sequpdate(iterable, value=True)`__
+===================================================================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030431.html
+
+Raymond Hettinger presented "a write-up for a proposed dictionary update method".  It basically took an iterable and added keys based on the values returned by the iterator with a value as passed in and used  for all new keys.  The rationale was to have a fast way to be able to do membership testing using dict's ``__contains__`` or removing duplicates by creating a dict and then outputting the keys using the aptly named ``.keys()``.
+
+
+Previous objecctions to something like this were about the dict constructor and the ``sets`` module.  The ones about the constructor are dealt with by making this a method.  The latter was argued against by saying that the ``sets`` module is slow.  Frederik Lundh brought up that we really don't need multiple ways of doing the same thing.  Just van Rossum agreed and said this killed the idea for him.  Guido chimed in and said that the ``sets`` module was to help solidify the sets API so that at some point it could be coded in C. 
+
+To address the speed complaint Guido suggested limiting the ``sets`` module initially to make it faster so that the type won't be held back or unutilized because of its speed.  Tim Peters spoke up, though, and said that the spambayes_ project used ``sets`` and he didn't have any complaints.  But when major membership testing was needed a dict was used.  And Tim pointed out that in order for any C sets code to be fast it would have to directly use dict's C ``__contains__`` code.
+
+What this method should return was brought up by Just.  Some thought ``None`` since ``.update()`` returns that.  Others said ``True``.  Guido said ``None`` since ``True`` should only be used  when something is explicitly true.
+
+Making it a class method was also suggested by Just as an easy way to make it like a constructor.  Raymond agreed and changed his proprosal as well as to have the method be named ``.fromseq()``.  But then Walter Dorwald said ``.fromkeyseq()`` should be used  since there "is another constructor that creates the dict from a sequence of items".  Guido voted +1 on that idea.
+
+.. _spambayes: http://spambayes.sf.net/
+
+======================================
+`Re: release22-maint branch broken`__
+======================================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030330.html
+
+Tim Rice discovered that trying to build Python from a directory other then where the source was did not work for the Python 2.2.* CVS.  It was all eventually solved and fixed in the CVS branch.  I am mentioning it here in case someone reading this had a similar issue.
+
+================================
+`Dictionary evaluation order`__
+================================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030458.html
+
+Gustavo Niemeyer asked about how to handle code like ``{f1():f2(), f3(): f4()}`` and its execution order as pointed out by `bug #448679`_ .  As it stood it evaluated in the order of f2, f1, f4, f3.  Apparently Guido once upon a time considered this a bug.
+
+But Guido mentioned that left-to-right evaluation is not always wanted since ``a = {}; a[f1()] = f2()`` would want f2 to evaluate first.  He asked what Jython did.
+
+Finn Bock said that Jython went f1, f2, f3, f4.  In that case Guido didn't see any reason to block the fix.  But Tim Peters brought up the point that the bug was more about the lack of specifics on this in the documentation.  Gustavo said he would make the code fix along with patches to the docs.
+
+.. _bug #448679: http://www.python.org/sf/448679
+
+.. Errata - Paragraph 3 was changed from "...Guido didn't see any reason to fix it" to "...Guido didn't see any reason to *block* the fix".
+
+===========================
+`int/long FutureWarning`__
+===========================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030520.html
+
+Mark Hammond asked how the upcoming change in Python 2.4 of hex/oct constants will affect his C extension code and something like ``PyArg_ParseTuple()`` (this function takes arguments passed to something and breaks it up into its individual parts since all arguments are passed as tuples in C code).  In case you don't know about the warnings, Python 2.3 warns you that code  like ``SOMETHING = 0x80000000`` could have a different meaning in Python 2.4; most likely it will be treated as a positive long.  You can currently get rid of the warnings by changing the constant into a long by tacking on a ``L`` to the end of the number.
+
+Martin v. Loewis that if Mark appended the ``L`` to his constants that it would not work for an ``i`` argument for ``PyArg_ParseTuple()``.  But Guido stepped up and said that there will be no issue since Python will be changed so that Mark's code will accept the constant as a positive long.  This caused Guido to wonder if the warning could be changed to some other warning that is not normally printed out.
+
+Guido then mentioned that he has "long promised a set of new format codes for PyArg_ParseTuple() to specify taking the lower N bits (for N in 8, 16, 32, 64) and throwing the rest away, without range checks".  "If
+someone else can get to this first, that would be great".  So someone be nice to Guido and do this for him.  =)
+
+Either way no specific resolution has been reached.  As of right now you can just  live with the warnings, supress the warnings, or change your  constants to longs and hope you are not passing into a C extension function that wants an int.
+
+==========================================
+`assigning to new-style-class.__name__`__
+==========================================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030475.html
+
+Michael Hudson has been working on `patch #635933`_ to allow for assignment to ``__name__`` and ``__bases__`` for new-style classes (this was all so that ``__name__`` would handle nested classes properly to allow for proper pickling; that thread was called `metaclass insanity`_ ).  He ran into a slight issue with dealing with assigning to ``__name__``.  To get it working, Michael wanted to treat heap and non-heap types differently.  For non-heap types Michael wanted to "everything in tp_name up to the first dot is __module__, the rest is __name__".  For non-heap types, he wanted to have ``__module__`` as "always __dict__['__module__'], __name__ is always tp_name (or rather ((etype*)type)->name)".  And as for the issue of if someone is crazy enough to delete the dict key of ``__module__``, Michael said Python wouldn't crash but you probably would not like the outcome of running code.  =)
+
+Guido responded saying that Michael's proposal was acceptable.
+
+But then there was an issue with ``.mro()`` after the bases had been rearranged.  Michael worried about what to do when there was a conflict down the intheritence tree.  He thought reverting back to the way things were if there was an issue was best.  This would require keeping around copies of the previous states until the changes propogated all the way through.
+
+Samuele Pedroni stepped in to try to answer this question (Samuele rewrote the MRO code recently and is directly mentioned in `C3 implementation`_ ).  He came up with a possible case where there could be a possible order disagreement if two of the bases of a class had the same bases but one had the order swapped compared to the other (so C has bases of (A, B) and D has bases of (A, B) as well and E had bases (C, D); if C's bases became (B, A), E now has an order disagreement).  He suggested that "the mros of the subclasses should be computed lazily when needed (e.g. on the first - after the changes - dispatch), although this may produce inconsistences and errors at odd times".
+
+Michael showed that his solution would catch the problem.  But he did not like the idea of lazily evaluating; he wanted a more restrictive solution since this is a new thing.  Michael stated that what he wanted this for was to "to swap out one class for another -- making instances of the old class instances of the new class, which was possible and making subclasses of the old subclasses of the new, which wasn't".  It also turned out neither  APL nor Dylan allow this kind of thing so Michael is breaking new ground.
+
+Samuele asked about when the classes had solid bases (i.e., only a single superclass such as ``object``).  Michael said it  would handled with no problem.
+
+.. _C3 implementation: http://mail.python.org/pipermail/python-dev/2002-October/029230.html
+.. _patch #635933: http://www.python.org/sf/635933
+.. _metaclass insanity: http://mail.python.org/pipermail/python-dev/2002-November/029872.html
+
+=====================
+`Classmethod Help`__
+=====================
+__ http://mail.python.org/pipermail/python-dev/2002-November/030452.html
+
+Raymond Hettinger emailed the list because  Guido said that the few people in the world who understand descriptors for C code are on the list.  The main reason I am mentioning the thread here, though, is because Armin Rigo gave the answer that "There are METH_CLASS and METH_STATIC flags that you can set in the tp_methods table".
+
+You also learn, thanks to Guido, that you should only use ``PyErr_BadInternalCall()`` when you know that a "bad argment must have been created by a broken piece of C code".

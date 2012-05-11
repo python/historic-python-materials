@@ -1,0 +1,186 @@
+python-dev Summary for 2003-08-01 through 2003-08-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from August 1, 2003 through August 15, 2003.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to python-list@python.org or `comp.lang.python`_ with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the twenty-third summary written by Brett Cannon (about to move for the umpteenth time).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; its simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+The in-development version of the documentation for Python can be found at http://www.python.org/dev/doc/devel/ and should be used when looking up any documentation on something mentioned here.  Python PEPs (Python Enhancement Proposals) are located at http://www.python.org/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+.. contents::
+
+
+.. _last summary: http://www.python.org/dev/summary/2003-07-01_2003-07-31.html
+
+
+=====================
+Summary Announcements
+=====================
+Well, Michael Chermside responded to my question from the last summary about whether the new format and style of the Summaries was good.  Once again a single person has led to how the summaries will be handled.  You guys need to speak up (although I like the side that won this time  =)!
+
+I am playing with layout once again.  This time I am changing how the "contributing threads" lists are formatted.  I know some of you hate inlined links in reST markup, but when these lists become huge it becomes really hard to keep track of the URIs when I have to list them away from the actual item on a separate line below the list of thread names.
+
+With `Python 2.3` out the door bug reports have started to come in.  Work on 2.3.1 has begun.  Please keep running the regression tests (easiest way is to run either ``make test`` or run regrtest.py in the test package; see the docs for the test package for help).
+
+On a personal note, if anyone knows of any Python users and such in the San Luis Obispo area of California, drop me a line at brett at python.org.
+
+
+=========
+Summaries
+=========
+
+-----------------------------------------
+Python user helping Parrot?  Treacherous!
+-----------------------------------------
+Michal Wallace decided to get AM Kuchling's `previous work <http://www.amk.ca/conceit/parrot.html>`__ on getting Python code to run on the Parrot_ virtual machine (which is what Perl 6 will use).  Well, the rather nutty fellow managed to get pretty damn far with it as shown at http://pirate.versionhost.com/viewcvs.cgi/pirate/ .  Michal was actually almost done with handling pure Python code and was getting ready to try to figure out how to get Parrot to handle C extension modules with that being the biggest sticking point.
+
+Since Parrot is not Python it does not have a parser for Python code; problem if your code has an exec statement.  This turned out to not be a worry, though, since there are pure Python parsers out there.
+
+All of this has direct relevance to python-dev because of the bet between Guido and Dan Sugalski, developer of Parrot.  The rules are outlined at http://www.sidhe.org/~dan/blog/archives/2003_07.html#000219 .  What is going to happen at OSCON 2004 is a benchmark program written in pure Python will be run using a CVS checkout of Python against a Parrot (after converting the bytecode to Parrot's own bytecode) checkout; slowest implementation's author gets a pie in the face, buy the winner's dev team a round of beer, and $10.
+
+So why have this bet?  This was discussed and basically came down to finding out whether Parrot really can run Python fast.  Parrot wants to be the VM for as many languages as possible, including Python.  This acts as a way to motivate people to see how feasible this is.
+
+And don't think that the CPython interpreter will disappear if Parrot wins.  Dan pointed out that even if he did win the bet that Guido would probably want to keep CPython around since that is under his control and allows testing out new language features much easier then having to deal with Parrot and an external dev team.  In other words, let other people worry about forcing a Python-shaped peg into a Parrot-sized hole.
+
+.. _Parrot: http://www.parrotcode.org/
+
+Contributing threads:
+  * `pirate (python+parrot) <http://mail.python.org/pipermail/python-dev/2003-August/037407.html>`__
+
+
+----------------------------------------------------
+python-mode gets its own SF project; Vim users laugh
+----------------------------------------------------
+Barry Warsaw, citing lack of time to "properly maintain python-mode.el", has created a SourceForge project for the Emacs mode at http://sf.net/projects/python-mode .  This means all bug reports, patches, etc. should be done at that project.
+
+Martin v. Lšwis suggested removing `python-mode.el`_ from Python itself and to get it distributed with Emacs_ and XEmacs_.  This way there does not have to be any synchronization between the new SF project and the Python CVS tree.  As of right now, though, python-mode.el is still in the Python CVS.
+
+And to give equal billing to Vim_, my code editor of choice, since it does not get as much coverage on python-dev as XEmacs does, here are some scripts you might want to check out:
+
+taglist.vim : http://vim.sourceforge.net/scripts/script.php?script_id=273
+    "provides an overview of the structure of source code files" by splitting the window.
+python_fold.vim : http://vim.sourceforge.net/scripts/script.php?script_id=515
+    "This script uses the expr fold-method to create folds for python source code."
+vimDebug : http://vim.sourceforge.net/scripts/script.php?script_id=663
+    " integrates your favorite debugger with vim."
+
+.. _python-mode.el: http://sf.net/projects/python-mode
+.. _Emacs: http://www.gnu.org/software/emacs/emacs.html
+.. _XEmacs: http://www.xemacs.org/
+.. _Vim: http://www.vim.org/
+
+Contributing threads:
+  * `New python-mode project at SourceForge <http://mail.python.org/pipermail/python-dev/2003-August/037410.html>`__
+  * New place for python-mode bug reports and patches <http://mail.python.org/pipermail/python-dev/2003-August/037451.html>`__
+
+
+--------------------
+Caching tuple hashes
+--------------------
+Raymond Hettinger asked if there was any reason why tuples, being immutable, didn't cache their hash values.  Strings cache their hashes and they are immutable, so it seem to make sense.
+
+It was pointed out, though, that tuples could contain an object that changed its hash value between hash calls.  Guido said, though, that it was the responsibility of the object and not tuples to worry about keeping a consistent hash value.
+
+Guido also explained why strings cache their hashes.  It turns out that since strings are used so often for keys in dicts that caching their hashes gave a large performance boost for almost any program, so the effort was felt justified.  But Guido did not see this same justification for tuples.  Thus tuples will not cache their hash values.
+
+Contributing threads:
+  * `Caching tuple hashes <http://mail.python.org/pipermail/python-dev/2003-August/037416.html>`__
+
+-------------------------------
+PyCon 2004 is under development
+-------------------------------
+Preparation for PyCon_ 2004 have now begun.  With us getting the ball rolling much earlier this conference should turn out to be even better than last year (which, in my opinion, was great)!  You can go to http://www.python.org/pycon/dc2004/ to find links to lists to get involved in organizing or just to be kept abreast of new developments.
+
+.. _PyCon: http://www.python.org/pycon/dc2004/
+
+Contributing threads:
+  * `PyCon DC 2004 Kickoff! <http://mail.python.org/pipermail/python-dev/2003-August/037437.html>`__
+
+----------------------------
+Let the fixing of 2.3 begin!
+----------------------------
+The maintenance branch of Python 2.3 (named release23-maint) has been created in CVS.  Several bugs have already been fixed.  For instructions on how to check out a copy of the branch, read http://www.python.org/dev/devfaq.html#c10 .
+
+Contributing threads:
+  * `Python 2.3 maintenance branch is now open <http://mail.python.org/pipermail/python-dev/2003-August/037440.html>`__
+
+
+------------------------------------
+When a void doesn't equal an integer
+------------------------------------
+After clearing up the confusing issue of the difference between a Python int and a Python Integer (the former is <type 'int'> while the latter is the union of <type 'int'> and <type 'long'> which is what Python is moving towards so that the distinction practically disappears), the discussion of how to handle a quirk of Win64 commenced.  It turns out that Win64 thinks that ``sizeof(void *) > sizeof(long)`` is a reasonable thing to do.  Well, all other platforms now and most likely for the rest of Tim Peter's life (at least according to Tim's guess) don't and won't hold this to be true.
+
+As of right now Python claims that a void pointer can be held in a Python int, but Win64 breaks that claim.  Do we muck around with Python's internals for this one strange exception that does not make sense, such as making Python ints use long long?  No, of course not.  Code would break, let alone the added complexity.  So the needed changes to the failing tests were dealt with and all seems to be fine with the world again ... well, Win64 is still thinking on crack, but that is someone else's problem.
+
+Contributing threads:
+  * `sizeof(long) != sizeof(void*) <http://mail.python.org/pipermail/python-dev/2003-August/037465.html>`__
+
+
+------------------------------------
+Where do I put all of my packages?!?
+------------------------------------
+As it stands now there are four places where packages can reside:
+
+1. standard library
+2. site-packages
+3. site-python (on UNIX this is the same directory where your python2.3 directory exists)
+4. PYTHONPATH environment variable
+
+It was pointed out that this does not necessarily give one all the options one might want.  The above covers the Python core easily, but there is not clear distinction for vendor packages, network-installed packages, system-wide packages or user-installed packages; they are covered by 2-4 above.  The suggestion was to make more distinct places available for installation and to make distutils aware of them.
+
+A good way to see how this would be useful is to look at how OS X's Panther will handle Python 2.3 .  It will have the standard library in the standard location of /usr/local/python2.4 .  In that directory, the site-packages directory is a symlink to a more system-aware location.  This is fine but what about a sysadmin who would rather avoid the possibility of breaking OS X by messing with the OS's Python installation?  What about a user on that system who does not have root but wants to have their own place to put their packages?  There is definitely room for adding more standard path locations for package installations.
+
+A PEP was being mentioned but appears to not have been written yet.
+
+Contributing threads:
+  * `Multiple levels of site-packages <http://mail.python.org/pipermail/python-dev/2003-August/037487.html>`__
+
+
+-------------------------
+Be careful with __slots__
+-------------------------
+Raymond Hettinger observed that using __slots__ or overriding __getattribute__ fails silently when mistakenly used with old-style classes.  This has bitten him and others in the bum so he wanted to add warning/error messages.  Guido recommended passing on the warnings because 1) those are "expert use only" tools, 2) PyChecker can already detect the issue, and 3) there are other new-style/classic issues cannot as readily be flagged.
+
+It should be known that "__slots__ is a terrible hack with nasty, hard-to-fathom side effects that should only be used by programmers at grandmaster and wizard levels".  So only use __slots__ if you can apply the label of "programmer at grandmaster or wizard level" to yourself without your programming peers laughting their bums off; you have been warned.
+
+Contributing threads:
+  * `Make it an error to use __slots__ with classic classes <http://mail.python.org/pipermail/python-dev/2003-August/037537.html>`__
+
+
+--------------
+Plugging leaks
+--------------
+Michael Hudson thought he had discovered a leak somewhere and went off on a little hunt.  It turned out to be a red herring more or less, but there was some discussion on the best way to find leaks through regression tests.
+
+The basic scheme that everyone seemed to use was to run the regression test once to get any caching out of the way and then run the test a set number of times and see if the reference counts seemed to grow.  Michael Hudson posted a diff to add such a testing feature to test/regrtest.py at http://mail.python.org/pipermail/python-dev/2003-August/037617.html .  Tim Peters also posted a link to Zope's test driver at http://cvs.zope.org/Zope3/test.py which includes a class named TrackRefs which can help keep track of the leaked references as well as leaked objects.
+
+Contributing threads:
+  * `CALL_ATTR patch <http://mail.python.org/pipermail/python-dev/2003-August/037485.html>`__
+  * `refleak hunting fun! <http://mail.python.org/pipermail/python-dev/2003-August/037617.html>`__
+
+
+-----------------------------------------
+Making the interpreter its own executable
+-----------------------------------------
+As it stands now the Python interpreter is distributed as a bunch of files mostly made up of the standard library.  But wouldn't it be nice if you could make the interpreter just a single executable that was easy to distribute with your code?  Well, that discussion cropped up on `comp.lang.python`_ at http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&safe=off&threadm=ptji8wgr.fsf%40python.net .  The idea was to somehow introduce a hook into Py_Main() that could harness the new zipimport facility.
+
+The idea came up of appending the stdlib to the end of the Python interpreter and to have a flag set to signal that the appending had occurred.  The problem is that this could cause unzipping problems.
+
+But setting the flag is not necessarily simple either.  One suggestion was to literally patch the interpreter to set the flag.  But there was some confusion over the use of the term "patch"; Thomas Heller thought more of "link with an object file defining this global variable".
+
+This thread was still going as of this writing and had not yet reached a clear solution.
+
+Contributing threads:
+  * `hook for standalone executable <http://mail.python.org/pipermail/python-dev/2003-August/037528.html>`__

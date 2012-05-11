@@ -1,0 +1,444 @@
+Title: python-dev Summary for 2005-12-01 through 2005-12-15
+Content-type: text/x-rst
+Encoding: latin1
+
+python-dev Summary for 2005-12-01 through 2005-12-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-12-01_2005-12-15.html]
+
+
+
+=============
+Announcements
+=============
+
+-----------------------------------------------------
+Reminder: plain text documentation fixes are accepted
+-----------------------------------------------------
+
+Want to help out with the Python documentation? Don't know LaTeX? No problem! Plain text or ReST fixes are also welcome. You won't be able to produce a diff file like with a normal patch, but comments that explain how to fix the docs are just as good. A form like "in section XXX right before the paragraph starting with YYY, the documentation should say ZZZ" will make it easy for the doc maintainers to apply your fix.
+
+Contributing thread:
+
+ - `c.l.p post on docs <http://mail.python.org/pipermail/python-dev/2005-December/058479.html>`__
+
+[SJB]
+
+--------------------------------------------
+New-style exceptions patch requesting review
+--------------------------------------------
+
+With `PEP 352`_ ready_ for Guido's pronouncement, Michael Hudson has asked for a few more developers to review his patch_ to make all exceptions new-style. It should be basically ready, but it would be nice to have a few eyes for sanity checks, documentation, and compilations on the various platforms.
+
+.. _PEP 352: http://www.python.org/dev/peps/pep-0352
+.. _ready: http://www.python.org/dev/summary/2005-10-16_2005-10-31.html#required-superclass-for-exceptions
+.. _patch: http://bugs.python.org/1104669
+
+Contributing threads:
+
+ - `New-style exceptions patch (was Re: PEP 8 updates/clarifications) <http://mail.python.org/pipermail/python-dev/2005-December/058542.html>`__
+ - `New-style exceptions patch <http://mail.python.org/pipermail/python-dev/2005-December/058543.html>`__
+
+[SJB]
+
+----------------------------------------
+Debugging lib available from ActiveState
+----------------------------------------
+
+Trent Mick confirmed that ActiveState do distribute a separate distribution of debug DLLs for each Python release.  These can be found by filling in the version number in the URL ftp://ftp.activestate.com/ActivePython/etc/ActivePython-<version>-win32-ix86-debug.zip
+
+Contributing thread:
+
+ - `Plea to distribute debugging lib <http://mail.python.org/pipermail/python-dev/2005-December/058446.html>`__
+
+[TAM]
+
+=========
+Summaries
+=========
+
+-------------------------------
+Updating the Python style guide
+-------------------------------
+
+Ian Bicking kicked off a lengthy discussion about updating various aspects of `PEP 8`_ (the Python code style guide), which resulted in a substantial revision of the PEP.
+
+PEP 8 stated that if a module defines a single exception raised for all sorts of conditions, it is generally called "error" or "Error".  Ian noted that other than some outlying cases (e.g. os.error, socket.error), CapWords are always used.  He also wondered if exceptions should have names that are relatively unique, or simply unique within their namespace.  Finally, he requested a position be taken on acronyms (e.g. HHTPRedirect or HttpRedirect).
+
+Barry Warsaw pointed out that since exceptions are now classes, the rules for naming classes should really apply; his preference is CapWordsEndingInError rather than Error or error.  He also suggested that acronym letters should be capitalised.  There was mostly consensus on this, although some prefer shorter exception class names.
+
+Guido wondered whether the function/method naming convention (lower_case, mixedCase, or CapWords) was so controversial that the PEP should not make a recommendation other than of consistency.  In the end, however, the status quo (lower_case except for consistency reasons) won out.  He was definite about module, package, and class names, however, which should be all-lowercase without underscores (modules/packages), or CapWords (class names).  (He noted that standard library modules such as StringIO.py and UserDict.py that break this rule should be changed).
+
+PEP 8 recommended appending an underscore rather than corrupted spelling when a name conflicts with a reserved word e.g. class\_ rather than klass).  Ian suggested that a specific recommendation for the class argument to classmethods be made; out of cls, klass and class\_ he preferred cls.  He further suggested that, as self is not used outside of the first argument of instance methods, whatever spelling of the class argument is used should not be used elsewhere (e.g. cls for the class argument, and class\_ elsewhere).  This was generally accepted.
+
+A further suggestion from Barry's `Mailman style guide`_ was also made, that from-imports should follow non-from imports, and dotted imports should follow non-dotted imports.  Non-dotted imports should be grouped by increasing length, while dotted imports should be grouped roughly alphabetically.  However, this was felt to be too prescriptive; users should follow their own aesthetic taste.
+
+Various other small modifications and improvements were suggested and made, such as:
+
+* PEP 8 stated that modules designed for use via "from M import \*" should prefix their globals, internal functions, and internal classes with an underscore.  Ian suggested that __all__ should be recommended over using a leading underscore, which was done.
+* PEP 8 was fairly dated in discussing inheritance and public/non-public methods.  Ian suggested that the language should be updated, and that property() should be discussed, and this was done.
+* PEP 8 recommended that class-based exceptions are used rather than string-based exceptions.  Ian suggested that language be changed to recommend more strongly against string-based exceptions, which was done.
+* To make the PEP more concise and succinct, references to Emacs were removed.
+
+There was also a sub-thread that considered when to use normal instance variables and when to use accessor methods.  Jim Fulton suggested that attributes should be used if the accessors are trivial, whereas Skip Montanaro preferred more frequent use of accessor methods, to avoid incorrect usage of classes.  Phillip J. Eby's opinion was that normal instance variables should be used, until there is a need to do something when they change, at which point properties should be introduced.  PEP 8 now recommends simple attribute access over accessors.
+
+One distinction is how people interpret "public" and "private".  Skip's opinion is that just because an attribute doesn't start with an underscore doesn't mean that it is implicitly declared public, and that people should familiarise themselves with the callable methods of an object and only use direct access if the necessary methods aren't provided.  Jim felt that the API should be documented, and people should use that API (he considered that prepending an underscore documents that the attribute is internal; although this does not cover the "subclassing API").
+
+Ian also brought up the section of PEP 8 that discussed private attributes and double leading underscores.  PEP 8 was unclear whether double leading attributes should only be used to avoid name conflicts when subclassing, or whether indicating that an attribute was meant to be private was a valid use.  This spun off a very long discussion about private variables.
+
+Several people spoke up against double-underscore prefixes.  On the other hand, Raymond Hettinger felt that the PEP should not dictate how variables should be named, especially for a convention with a long history and language support.  Jim Fulton went so far as to suggest that __private be deprecated, which gained some support.  However, Guido stated that he not only liked __private, he liked the current implementation.  Specifically, he felt that the typically-shallow class hierarchies found in Python reduces the likelihood of accidental reuse of class names (he also advocated that subclasses should not share names with parent classes), and he liked that the name-mangling algorithm was well-defined and simple (e.g. so that when in the debugger it is easy to manually mangle/unmangle names).  Interestingly, this is the main reason that Jeremy Hylton dislikes mangled names: because the debugger is unaware of the names and he can't remember how to type them, and also because it's annoying to have to change every instance of __var to _var if the intended usage changes (as compared to C++ private variables, where only the declaration of visibility must change).  He noted, though, that these are problems that tools (debuggers, editors, IDEs) could solve.
+
+Others felt that keeping mangling was fine, but that it should be changed so that collisions were harder (e.g. use a GUID instead of the class name).  However, this violates one of Guido's reasons for liking the current implementation (although it's possible that having better support for the feature in common tools would remove this necessity).
+
+Tim Peters gave a nice explanation of why the name mangling is provided::
+
+  If your utility or mixin base class `A` has a data member named `n`,
+  nobody deriving from `A` dare name one of their data members `n` too,
+  and it's unreasonable to expect everyone deriving from `A` to learn and
+  avoid all the names `A` uses internally.  It's even more unreasonable
+  for A's author to have to promise, after A's first release, never to
+  change the name of, or introduce any new, attribute (A's author dare
+  not, lest the new name conflict with a name someone else's subclass used).
+  If A's author names the attribute `__n` instead, all those problems go 
+  away, provided only that some subclass doesn't also name itself `A`.
+
+Contributing threads:
+
+ - `PEP 8 updates/clarifications <http://mail.python.org/pipermail/python-dev/2005-December/058532.html>`__
+ - `Deprecate __ private (was Re: PEP 8 updates/clarifications) <http://mail.python.org/pipermail/python-dev/2005-December/058555.html>`__
+ - `Import order (was Re: PEP 8 updates/clarifications) <http://mail.python.org/pipermail/python-dev/2005-December/058671.html>`__
+ - `Deprecate __ private (was Re: PEP 8updates/clarifications) <http://mail.python.org/pipermail/python-dev/2005-December/058694.html>`__
+ - `PEP 8 updates/clarifications, function/method style <http://mail.python.org/pipermail/python-dev/2005-December/058732.html>`__
+
+ .. _PEP 8: http://www.python.org/dev/peps/pep-0008
+ .. _Mailman style guide: http://barry.warsaw.us/software/STYLEGUIDE.txt
+
+[TAM]
+
+------------------------------------
+ElementTree in the Python 2.5 stdlib
+------------------------------------
+
+Skip Montanaro forwarded to python-dev a bit of a comp.lang.python thread asking why ElementTree wasn't part of the standard library. He and others argued that it was "best of breed" with a wide user base, and that it met the other requirements_ for stdlib inclusion like having an active maintainer, Fredrik Lundh. After a relatively brief discussion, Fredrik got the ball rolling, setting things up so that:
+
+* The ``external`` directory at the top of the SVN tree contains snapshots of his celementtree and elementtree packages
+* The ``etree`` subpackage of the ``xml`` module contains the ElementTree, cElementTree, ElementPath and ElementInclude modules
+
+Mike Brown started a brief follow-up thread concerned that the XML-SIG hadn't been consulted on this inclusion.  Martin v. Löwis and others indicated that sidestepping XML-SIG had not been intentional, but also that carrying the discussion on XML-SIG as well would not likely have changed the outcome due to the strong community support for ElementTree.
+
+As a side effect of this discussion, magic in ``xml/__init__`` was removed in favor of introducing an ``xmlcore`` package containing all the xml modules found in the basic standard library, and an ``xml`` module which imports things from ``xmlcore`` or PyXML if it's available. 
+
+.. _requirements: http://mail.python.org/pipermail/python-dev/2003-April/034881.html
+
+Contributing threads:
+
+ - `ElementTree - Why not part of the core? (fwd) <http://mail.python.org/pipermail/python-dev/2005-December/058512.html>`__
+ - `stupid package tricks <http://mail.python.org/pipermail/python-dev/2005-December/058622.html>`__
+ - `ElementTree in stdlib <http://mail.python.org/pipermail/python-dev/2005-December/058638.html>`__
+ - `Sharing expat instances <http://mail.python.org/pipermail/python-dev/2005-December/058692.html>`__
+ - `"xml"; package in standard library <http://mail.python.org/pipermail/python-dev/2005-December/058710.html>`__
+
+[SJB]
+
+--------------------
+More work on the AST
+--------------------
+
+This fortnight saw implementations for the two main models proposed for revamping the AST memory management. Martin v. Löwis created a branch_ that converted all AST objects to PyObjects and used the normal Python reference counting to manage them. This requires that AST code:
+
+* initialize all PyObjects to NULL
+* Py_XDECREF() each PyObject on exit
+* goto an error block for Py_DECREF()ing if there is a failure
+
+Jeremy Hylton worked up a separate version of the AST code using an arena API.  This requires that AST code:
+
+* call PyArena_AddPyObject() for any allocated PyObject
+* call PyArena_AddMallocPointer() for any malloc()ed memory
+
+The arena code was merged into the trunk, though it seemed that work on the PyObject branch would continue in order to be able to compare the final outcomes of both strategies.
+
+In a related issue, because the AST code is generated from Parser/asdl_c.py, and because subversion sets the timestamp for each file to the checkout time, trying to build the current trunk on a machine without Python installed failed even when the AST C files had been checked into subversion.  It looked like the best solution would be to introduce a separate make rule for generating the AST code.
+
+.. _branch: http://svn.python.org/projects/python/branches/ast-objects/
+
+Contributing threads:
+
+ - `ast-objects branch created <http://mail.python.org/pipermail/python-dev/2005-December/058433.html>`__
+ - `Memory management in the AST parser &amp; compiler <http://mail.python.org/pipermail/python-dev/2005-December/058434.html>`__
+ - `PyAST_FromNode returning PyTypeObject* ? <http://mail.python.org/pipermail/python-dev/2005-December/058440.html>`__
+ - `should I really have to install Python before I can build it ? <http://mail.python.org/pipermail/python-dev/2005-December/058608.html>`__
+ - `should I really have to install Python before Ican build it ? <http://mail.python.org/pipermail/python-dev/2005-December/058618.html>`__
+ - `should I really have to install Python before Icanbuild it ? <http://mail.python.org/pipermail/python-dev/2005-December/058625.html>`__
+
+[SJB]
+
+-------------------
+Python GC Refresher
+-------------------
+
+Gregoire Weber asked for a little more information on Python's garbage collector since the links in ``Modules/gcmodule.c`` were broken. Python's garbage collector is a combination of reference counting and the periodic invocation of a cyclic garbage collector. Python's reference counting means that each time an object P is referenced by another object, P's refcount is incremented, and each time one of the references to P is removed, P's refcount is decremented.  When P's refcount reaches zero, the interpreter pauses to reclaim P and all objects that were reachable only from P. In addition to this reference counting, Python's cyclic garbage collector means that after a large number of objects have been allocated (and not deallocated though reference counting), the interpreter will pause to try to clear out any unreferenced cycles.
+
+Contributing thread:
+
+ - `Documentation about Python's GC, python-dev list messages referenced in Modules/gcmodule.c not reachable anymore <http://mail.python.org/pipermail/python-dev/2005-December/058526.html>`__
+
+[SJB]
+
+-----------------------------------
+Improving the documentation process
+-----------------------------------
+
+Skip Montanaro suggested that, in order to lower the barrier for submitting documentation patches, it might be worth allowing anonymous bug reports. Guido was against this, indicating that he thought the problem was more the sourceforge sign-up hassle than the need to provide an email address, and suggested that it might be time to switch to roundup_. Martin v. Löwis was concerned about the transition process - whether or not roundup could properly import the sourceforge bug reports, and whether or not the python.org/sf/<sf bug id> redirect would continue to work. The discussion trailed off before any final decisions were made.
+
+.. _roundup: http://roundup.sourceforge.net/
+
+Contributing threads:
+
+ - `Tracker anonymity <http://mail.python.org/pipermail/python-dev/2005-December/058489.html>`__
+
+[SJB]
+
+------------------------
+hasattr() and properties
+------------------------
+
+Thomas Lotze noticed that when applied to a class instance (but not an object of that class), hasattr calls getattr and decides that the attribute doesn't exist if the call raises any exception.  For example::
+
+    >>> class Foo(object):
+    ...     def get(self):
+    ...         raise Exception
+    ...     bar = property(get)
+    ... 
+    >>> hasattr(Foo, "bar")
+    True
+    >>> hasattr(Foo(), "bar")
+    False
+
+He asked whether it would make more sense to only report a missing attribute if an AttributeError is raised.  Greg Ewing agreed that this would be an improvement, but felt that calling the property access code as a side effect of hasattr seems like a misfeature.
+
+Thomas also wondered whether it would make sense for properties to look up the attribute in the same way that getattr would rather than calling getattr.  Greg wondered if descriptors need a forth slot for hasattr customisation, removing the need to rely on catching exceptions, so that the logic would be::
+
+   if there is a descriptor for the attribute:
+     if the descriptor's hasattr slot is populated:
+       return the result of calling it
+     else:
+       return True
+   else:
+     look in the instance dict for the attribute
+
+Guido indicated that he believes that a property that has a side effect (other than caching, statistics, logging, and so forth) is a misfeature anyway, so he doesn't have a problem with hasattr() trying getattr() and reporting False if that raises an exception.  Discussion died out before anything was resolved.
+
+Contributing thread:
+
+ - `hasattr and properties <http://mail.python.org/pipermail/python-dev/2005-December/058498.html>`__
+
+[TAM]
+
+---------------------------------
+Supporting iterables in xmlrpclib
+---------------------------------
+
+Skip Montanaro `presented a patch`_ to allow all currently supported iterables (e.g. sets and arrays) to be marshalled as lists with xmlrpclib.  The goals are to extend the set of sequences that can be marshalled transparently, and keep the caller from caring as much about the limitations of the XML-RPC datatypes.  Guido felt that this was a bad idea, however; he feels that it's better to be aware of the limitations in what XML-RPC can handle and try to handle it.
+
+Contributing thread:
+
+ - `Broader iterable support for xmlrpclib <http://mail.python.org/pipermail/python-dev/2005-December/058474.html>`__
+
+.. _presented a patch: http://python.org/sf/1374063
+
+[TAM]
+
+-----------------------------------------
+Checking Jython support code into CPython
+-----------------------------------------
+
+Fredrik Lundh asked what the policy with respect to Jython-specific modules in the standard library was.  Guido felt that as long as it didn't do any harm (likely causing unit tests to fail) to CPython, it would be fine.  He noted that traditionally Jython-specific code has been checked into Jython's own source control, however, and Martin v. Löwis indicated that this is what he would prefer.
+
+Contributing thread:
+
+ - `Jython and CPython <http://mail.python.org/pipermail/python-dev/2005-December/058680.html>`__
+
+[TAM]
+
+-----------------------------------------
+Getting rid of __builtins__ in Python 3.0
+-----------------------------------------
+
+Neal Norwitz asked Guido whether improving the confusing system of having both __builtins__ and __builtin__ could be begun.  Guido clarified that having both is clearly a bad idea, that he's not sure that renaming builtin to __builtin__ was correct (and that perhaps it should be changed back), that __builtins__ always being a dict would simplify some code but need special handling of vars() in interactive mode, and that another alternative might be to merge the __builtin__ and __builtins__ functionality (under the __builtin__ name).
+
+Guido asked that people mull this over, but hasn't had any responses so far.
+
+Contributing thread:
+
+ - `__builtin__ vs __builtins__ <http://mail.python.org/pipermail/python-dev/2005-December/058652.html>`__
+
+[TAM]
+
+-------------------------------------
+Subject lines of python-commit emails
+-------------------------------------
+
+If you subscribe to python-checkins, you get email every time something is updated.  Most people don't care about every change; the subject lines were made a bit more useful for classification.
+
+Contributing thread:
+
+ - `Subject lines of commit email <http://mail.python.org/pipermail/python-dev/2005-December/058447.html>`__
+
+[Jim Jewett]
+
+-------------------------------------------
+Additional arguments for logging formatters
+-------------------------------------------
+
+People would like to pass additional arguments to the logging formatters.  Now they will be able to also pass a dict containing extra values.  There were a few questions on the API; particularly on what to do if the extra dict redefines some of the already documented variables.
+
+Contributing thread:
+
+ - `Proposed additional keyword argument in logging calls <http://mail.python.org/pipermail/python-dev/2005-December/058449.html>`__
+
+[Jim Jewett]
+
+-------------------------------------------------------
+Correct location for dynmically linked/shared libraries
+-------------------------------------------------------
+
+Since ElementTree is being added, so is cElementTree (not as good for
+subclassing, but faster).  This used a statically compiled expat, but
+there is already a statically compiled expat distributed with python.
+The two uses have been merged, and there was some discussion about where
+\*.so or \*.dll files should go if they represent only part of a package.
+
+Contributing thread:
+
+ - `Location of .so files (Was: Sharing expat instances) <http://mail.python.org/pipermail/python-dev/2005-December/058824.html>`__
+
+[Jim Jewett]
+
+================
+Deferred Threads
+================
+
+ - `Linked lists <http://mail.python.org/pipermail/python-dev/2005-December/058754.html>`__
+
+
+===============
+Skipped Threads
+===============
+
+ - `Python bug day this Sunday <http://mail.python.org/pipermail/python-dev/2005-December/058432.html>`__
+ - `os.normpath may change the meaning of the path if it contains symbolic links? <http://mail.python.org/pipermail/python-dev/2005-December/058452.html>`__
+ - `SVN backup? <http://mail.python.org/pipermail/python-dev/2005-December/058456.html>`__
+ - `svn problem - can't get log info for a specific revision <http://mail.python.org/pipermail/python-dev/2005-December/058462.html>`__
+ - `Patch reviews &amp; request for patch review <http://mail.python.org/pipermail/python-dev/2005-December/058470.html>`__
+ - `Dynamic Link Library <http://mail.python.org/pipermail/python-dev/2005-December/058472.html>`__
+ - `[Python-checkins] commit of r41586 - in python/trunk: Lib/SimpleXMLRPCServer.py Misc/NEWS <http://mail.python.org/pipermail/python-dev/2005-December/058476.html>`__
+ - `Short-circuiting iterators <http://mail.python.org/pipermail/python-dev/2005-December/058484.html>`__
+ - `Bug bz2.BZ2File(...).seek(0,2) + patch <http://mail.python.org/pipermail/python-dev/2005-December/058524.html>`__
+ - `imaplib module with IDLE implememted via threads <http://mail.python.org/pipermail/python-dev/2005-December/058531.html>`__
+ - `Exception type on handling closed files <http://mail.python.org/pipermail/python-dev/2005-December/058573.html>`__
+ - `A missing piece of information in weakref documentation <http://mail.python.org/pipermail/python-dev/2005-December/058585.html>`__
+ - `Directory for packages maintained outside the core (was Re: ElementTree - Why not part of the core?) <http://mail.python.org/pipermail/python-dev/2005-December/058592.html>`__
+ - `Incorporating external packages into Python's std distribution <http://mail.python.org/pipermail/python-dev/2005-December/058600.html>`__
+ - `On moving to new-style classes <http://mail.python.org/pipermail/python-dev/2005-December/058688.html>`__
+ - `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-December/058719.html>`__
+ - `Website cruft <http://mail.python.org/pipermail/python-dev/2005-December/058729.html>`__
+ - `Add timeout to subprocess.py? <http://mail.python.org/pipermail/python-dev/2005-December/058784.html>`__
+ - `patch tracker ping: cross compile and mingw support <http://mail.python.org/pipermail/python-dev/2005-December/058803.html>`__
+ - `Needed tester for patch in urllib.py module <http://mail.python.org/pipermail/python-dev/2005-December/058817.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+December 01, 2005 through December 15, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the 9th summary written by the python-dev summary gathering of
+Steve Bethard and Tony Meyer (more on its way).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo :); you can safely
+ignore it.  We do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow us to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-11-01_2005-11-15.html
+.. _original text file: http://www.python.org/dev/summary/2005-12-01_2005-12-15.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

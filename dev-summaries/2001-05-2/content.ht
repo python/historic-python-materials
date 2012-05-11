@@ -1,0 +1,190 @@
+Title: Python-dev summary: 2001-05-10 to 2001-05-24
+
+<pre>
+ This is a summary of traffic on the python-dev mailing list between
+ May 10 and May 24 (inclusive) 2001.  It is intended to inform the
+ wider Python community of ongoing developments.  To comment, just
+ post to python-list@python.org or comp.lang.python in the usual
+ way. Give your posting a meaningful subject line, and if it's about a
+ PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep
+ iteration) All python-dev members are interested in seeing ideas
+ discussed by the community, so don't hesitate to take a stance on a
+ PEP if you have an opinion.
+
+ This is the eighth summary written by Michael Hudson.
+ Summaries are archived at:
+
+  <a href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a>
+
+   Posting distribution (with apologies to mbm)
+
+   Number of articles in summary: 322
+
+       |                         [|]
+       |                         [|]
+    30 |                         [|]
+       |                     [|] [|] [|]                     [|]
+       |                     [|] [|] [|]                     [|]
+       |                 [|] [|] [|] [|]                     [|]
+       |                 [|] [|] [|] [|]                     [|]
+       |     [|]         [|] [|] [|] [|] [|]                 [|]
+    20 | [|] [|]         [|] [|] [|] [|] [|]                 [|]
+       | [|] [|]         [|] [|] [|] [|] [|]             [|] [|]
+       | [|] [|]     [|] [|] [|] [|] [|] [|]         [|] [|] [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|]         [|] [|] [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|]     [|] [|] [|] [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|]     [|] [|] [|] [|]
+    10 | [|] [|] [|] [|] [|] [|] [|] [|] [|]     [|] [|] [|] [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|]     [|] [|] [|] [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|]     [|] [|] [|] [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|]     [|] [|] [|] [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|]     [|] [|] [|] [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|]
+     0 +-023-025-017-018-028-031-036-032-025-002-015-018-020-032
+        Thu 10| Sat 12| Mon 14| Wed 16| Fri 18| Sun 20| Tue 22|
+            Fri 11  Sun 13  Tue 15  Thu 17  Sat 19  Mon 21  Wed 23
+
+ Pretty busy fortnight.  The above distribution may be somewhat skewed
+ because I changed my subscription address to python-dev and was
+ unsubscribed for a while.  Although any impact this had is probably
+ countered by ESR and Barry's discussion of "Puffy the Frog"...
+
+
+    * Type/class *
+
+ Paul Prescod has been keeping an eye on Guido's descr-branch work,
+ and posted concerns about when objects will have a __dict__:
+
+&lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014694.html">http://mail.python.org/pipermail/python-dev/2001-May/014694.html</a>&gt;
+
+ Then there was more technical discussion about subclassing builtin
+ types and Steven Majewski evangelising prototype-based OO languages
+ (though I'm not sure why!).
+
+
+    * Easy codec access *
+
+ Marc-Andre Lemburg checked in his decode string method patch, and
+ some new codecs so you can now do things like:
+
+    &gt;&gt;&gt; "abc".encode('zlib').encode('base64')
+    'eJxLTEoGAAJNASc=\n'
+    &gt;&gt;&gt; _.decode('base64').decode('zlib')
+    'abc'
+
+ There was a small discussion on what other codecs might be handy and
+ Guido added quoted-printable to check it was easy.
+
+
+    * Performance *
+
+ The big discussion(s) on python-dev over the past fourteen days has
+ centred on performance, especially on that of comparisons and the
+ related area of dict performance.  It all started with Tim Peters
+ running a simple test program on 2.0, 2.1 and current CVS:
+
+&lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014781.html">http://mail.python.org/pipermail/python-dev/2001-May/014781.html</a>&gt;
+
+ The discussion had an unusual &lt;wink&gt; flavour for one about
+ performance: a concentration on measuring performance numbers and
+ making sure that the optimizations being discussed actually improved
+ these numbers.  This is hard; everyone wants to speed the "typical
+ Python app" but of course there is no such thing; people have been
+ using, amongst others, pystone, pybench and the test suite, none of
+ which are particularly good candidates...
+
+ Tim posted the distribution of sizes of dicts in a run of the test
+ suite:
+
+&lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014890.html">http://mail.python.org/pipermail/python-dev/2001-May/014890.html</a>&gt;
+
+ which showed that small dicts are overwhelmingly the commonest.  Marc
+ piped up with an old optimization idea of his:
+
+&lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014891.html">http://mail.python.org/pipermail/python-dev/2001-May/014891.html</a>&gt;
+
+ He posted a patch to sourceforge, Tim rewrote it and checked it in,
+ so dicts should be a little faster in 2.2.
+
+ But as I said, the discussion was kicked off by the performance of
+ comparisons, especially strings.  Martin von Loewis posted some
+ statistics from an instrumented interpreter:
+
+&lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014808.html">http://mail.python.org/pipermail/python-dev/2001-May/014808.html</a>&gt;
+
+ The issue is that the rich comparisons of Python 2.1 have added a
+ layer of complexity to the comparisons code.  Although the rich
+ comparisons (might) provide an opportunity for faster code in some
+ circumstances, code that still uses old-style comparisons can and
+ does take a hit.  Strings still use the old-style comparisons and are
+ compared a *lot* (especially in dicts), so it seems "upgrading" them
+ to rich comparisons should be a win and Marc posted a patch to sf
+ that does this.
+
+ Marc also managed to promise &lt;wink&gt; to make a concerted effort to
+ find speed optimizations in the next few months:
+
+&lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014928.html">http://mail.python.org/pipermail/python-dev/2001-May/014928.html</a>&gt;
+
+ Finally, in a coda Jeremy noticed that Python spends an alarming
+ amount of time decoding those "Oi|s#" strings that get passed to
+ PyArg_ParseTuple:
+
+&lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014911.html">http://mail.python.org/pipermail/python-dev/2001-May/014911.html</a>&gt;
+
+ and Tim pointed out that optimizing "O" might be a win:
+
+&lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014924.html">http://mail.python.org/pipermail/python-dev/2001-May/014924.html</a>&gt;
+
+    * FP vs. tutorial *
+
+ Tim pointed out that the tutorial currently contains examples of
+ floating point output that is platform dependent, and that this is
+ bad.  He proposed changing the tutorial to only use fractions that
+ can be exactly represented as floats, and adding a discussion
+ (possibly in an appendix) of the reasons why
+
+    &gt;&gt;&gt; 0.1
+    0.10000000000000001
+
+ is not broken.  There was a discussion of how detailed the discussion
+ should be where the point was made that it's not really important to
+ explain precisely *why* this happens, but it suffices to convince the
+ newbie that floating point is more complicated than he or she thinks.
+ Lets hope that suitable text is composed soon, and that people
+ actually read it ... there have been two "floating point is broken"
+ bug reports on sourceforge in just the last week.
+
+
+    * unifying os.rename semantics across platforms *
+
+ Skip pointed out that os.rename behaves differently on Posix and
+ Windows platforms when the destination file exists:
+
+&lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014957.html">http://mail.python.org/pipermail/python-dev/2001-May/014957.html</a>&gt;
+
+ on Posix the destination is silently replaced in an atomic operation,
+ whereas on Windows an exception is raised.  Skip proposed enforcing
+ posix semantics everywhere, but this has two problems (a) it's
+ backwards incompatible (b) it's impossible (you can't avoid the race
+ condition on Windows).  So maybe we'll just settle for better
+ documentation.
+
+
+    * Python 2.1.1 *
+
+ Thomas Wouters started back-porting bug fixes to the 2,1-maint branch
+ in preparation for a 2.1.1 release.  There is as yet no firm - or
+ even vague - plans about release dates.
+
+
+    * Daily Python-URL on your Palm *
+
+ Marc-Andre Lemburg announced that you can now read Pythonware's Daily
+ Python-URL on your Palm Pilot as an AvantGo channel:
+
+&lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/014983.html">http://mail.python.org/pipermail/python-dev/2001-May/014983.html</a>&gt;
+
+Cheers,
+M.
+</pre>

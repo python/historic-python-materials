@@ -1,0 +1,51 @@
+<!-- Generated with CERN WebMaker 1.4 -->
+<HTML>
+<HEAD>
+<TITLE>1.  Introduction</TITLE>
+</HEAD>
+<BODY>
+<A NAME=HEADING1></A>
+<A HREF="BuiltInClasses_3.html">[Next] </A><A HREF="BuiltInClasses_1.html">[Previous] </A><A HREF="BuiltInClasses_1.html">[Top] </A><P>
+Deriving Built-In Classes in Python<P>
+<H2>1.  Introduction</H2>
+ Over a year ago I started work on a set of Python bindings to Xt and Motif. The goal of the project was to make programming Xt applications in Python both easy and familiar for anyone who already had experience with Xt. The initial results were very promising but there were a few problems. In particular:<P>
+<UL>
+<LI>It was difficult to bind to callback call data structures, 
+<LI>binding to all of the symbolic constants used by Xt and Motif was not very symbolic, and
+<LI>there was no standard way to represent the widget class hierarchy.
+</UL>
+ These problems could have been solved in a very straight forward way. All of the call data structures could have been bound simply as built-in types by using the struct member module. The symbolic constants could have been initialized by adding them to `.py' files created for that purpose. The widget class hierarchy could be represented by binding not just to the widgets, but also to the widget classes, with the widget class objects containing a pointer to the widget super class. Unfortunately, the first two of these straightforward solutions could not be considered adequate for a commercial application. The reasons for this are described below.<P>
+ The struct member module, as useful as it is, has many limitations. The most obvious one is that it only supports a small number of data types and is not generally extensible. Since many Motif call data structures contain members that are structures, pointers, unions, enums, and even arrays, the straight forward approach would not be able to give adequate coverage and most call data structures would have had to be tediously bound to by hand.<P>
+ Symbolic constants presented a different set of problems. Storing a set of symbolic constants as simple variables inside a module is subject to the user accidentally changing the value of what was intended to be a constant. It was also thought that users would expect a more symbolic treatment of symbolic constants from an interpreted environment. For example, <P>
+<PRE>
+&gt;&gt;&gt; print Xm.ALIGNMENT_CENTER
+1
+</PRE>
+ by itself is not all that bad, however it is much more likely that while developing or debugging a real application you would see something more like<P>
+<PRE>
+&gt;&gt;&gt; push_button.alignment = Xm.ALIGNMENT_CENTER
+...
+&gt;&gt;&gt; print push_button.alignment
+1
+</PRE>
+ Clearly, this does not tell you much about the alignment of the push button unless you happen to know that <CODE>Xm.ALIGNMENT_CENTER </CODE>has a value of 1. Something much more self explanatory would be<P>
+<PRE>
+&gt;&gt;&gt; print push_button.alignment
+Xm.Alignment.Center
+</PRE>
+ It became obvious that a more generic solution to the problem of symbolic constants was in order.<P>
+ More recently I have been involved in binding a very large C++ class library to Python. Again, the initial results were very promising but there were problems. The requirements for this set of bindings were very similar to those for the Xt bindings. A user who was familiar with the C++ class library should be able to apply their familiarity to the Python implementation. The technique that was chosen to implement the bindings was in many ways similar to the way the Xt bindings were implemented. One built-in object was implemented to represent instances of the class library and a second built-in object was implemented to represent the classes in the class library. The instance object needed to contain a reference to the object that it was to represent and a reference to its class object. Each class object contained a reference to its base class object and the bindings to all of the methods defined on the class but not already defined by any of its base classes. This provided a simple inheritance mechanism which made it unnecessary to re-implement bindings that had already been implemented.<P>
+ The fundamental problem with this implementation was its inability to allow the derivation, in Python, of new classes from those in the C++ class library. Since, unlike Xt, the C++ library was designed with derivation of new classes as the intended way of building applications, it was essential that a solution be found. The first attempt was straightforward. When binding to a class that has virtual functions, a derived class is created that implements the virtual function. Each virtual function was implemented by adding a Python object attribute to reference the Python function that was to act as the implementation of the virtual function. The binding to this derived class supports methods for setting and getting this attribute. The overall effect is very similar to a widget callback function in Xt. Then, to give the appearance of the ability to derive from the class binding, a Python class is created to act as a wrapper for the built-in class. The <CODE>__init__ </CODE>function of the wrapper class is responsible for checking if a virtual function was implemented in a derived class and for setting the callback functions appropriately. There are two obvious problems with this approach:<P>
+<UL>
+<LI>Library objects wrapped by Python classes did not know they were wrapped, and
+<LI>Migrating a class derived from a wrapper class to a built-in class would potentially cause problems for clients of the class.
+</UL>
+ The first problem shows itself when a wrapped object is either returned from a bound function or passed as a parameter to a virtual "callback" function. Thus it is necessary for the client of the class to know that the object is really just a wrapper around a built-in object. The design philosophy that we are suggesting to our users involves prototyping in Python and then re-implementing the critical components in C or C++. While still theoretically possible, these problems make this approach difficult to implement in practice since much of the code that uses the class would have to be rewritten to compensate for the changes.<P>
+ The remainder of this paper discusses the approach that was taken to solve the problems that were mentioned above and to support the derivation of built-in classes in Python. <P>
+
+<HR>
+<ADDRESS>Deriving Built-In Classes in Python - 22 DEC 94</ADDRESS>
+<A HREF="BuiltInClasses_3.html">[Next] </A><A HREF="BuiltInClasses_1.html">[Previous] </A><A HREF="BuiltInClasses_1.html">[Top] </A><P>
+Generated with <A HREF="AboutWebMaker.html">CERN WebMaker</A>
+</BODY>
+</HTML>

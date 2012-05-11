@@ -1,0 +1,245 @@
+Title: python-dev Summary for 2003-05-01 through 2003-05-15
+Sitemap-ignore: yes
+
+<div class="document" id="python-dev-summary-for-2003-05-01-through-2003-05-15">
+<h1 class="title">python-dev Summary for 2003-05-01 through 2003-05-15</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> from May 1, 2003 through May 15, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have an archived summary of each thread started on the list.  To comment on anything mentioned here, just post to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> or <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join <a class="reference" href="http://www.python.org/dev/">python-dev</a>!</p>
+<p>This is the seventeenth summary written by Brett Cannon (going to grad school, baby!).</p>
+<p>All summaries are archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a> (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; its simple and is accepted for <a class="reference" href="http://www.python.org/dev/peps/pep-0012">PEP markup</a>.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is unless it is from the original text file.</p>
+<p>The in-development version of the documentation for Python can be found at <a class="reference" href="http://www.python.org/dev/doc/devel/">http://www.python.org/dev/doc/devel/</a> .  To view files in the Python CVS online, go to <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/">http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/</a> .</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#summary-announcements" id="id47" name="id47">Summary Announcements</a></li>
+<li><a class="reference" href="#dictionary-sparseness" id="id48" name="id48">Dictionary sparseness</a></li>
+<li><a class="reference" href="#slots-and-default-values" id="id49" name="id49">__slots__ and default values</a></li>
+<li><a class="reference" href="#quickies" id="id50" name="id50">Quickies</a></li>
+</ul>
+</div>
+<div class="section" id="summary-announcements">
+<h1><a class="toc-backref" href="#id47" name="summary-announcements">Summary Announcements</a></h1>
+<p>So, to help keep my sanity longer than my predecessors I am no longer going to link to individual modules in the stdlib nor to files in CVS.  It sucks down a ton of time and at least Raymond Hettinger thinks it clutters the summaries.</p>
+<p>Along the lines of the look of the summaries, I am trying out a new layout for listing splinter threads.  If you have a preference in comparison to the old style or new style speak up and let me know.</p>
+</div>
+<div class="section" id="dictionary-sparseness">
+<h1><a class="toc-backref" href="#id48" name="dictionary-sparseness"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035295.html">Dictionary sparseness</a></a></h1>
+<dl>
+<dt>Splinter threads:</dt>
+<dd><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035340.html">Where'd my memory go?</a></dd>
+</dl>
+<p>After all the work Raymond Hettinger did on dictionaries he suggested two possible methods on dictionaries that would allow the programmer to control how sparse (at what point a dictionary doubles its size in order to lower collisions) a dictionary should be.  Both got shot down on the grounds that most people would not know how to properly use the methods and are more likely to shoot themselves in the foot than get any gain out of them.</p>
+<p>There was also a bunch of talk about the &quot;old days&quot; when computers were small and didn't measure the amount of RAM they had in megabytes unless they were supercomputers.</p>
+<p>But then the discussion changed to memory footprints.  There was some mention of the extra output one can get from a special build (all listed in Misc/SpecialBuilds.txt) such as Py_DEBUG.  But the issue at hand is that there  int, float, and frameobject free lists which keep alive any and all created constant values (although the frameobject is bounded in size).  This is why if you do <tt class="literal"><span class="pre">range(2000000)</span></tt> you won't get the memory allocated for all of those integers back until you shut down the interpreter.</p>
+<p>This led to the suggestion of just doing away with the free lists.  There would be a performance hit since numerical constants would have to be reallocated if they are constantly created deleted, and then created again.  It was also suggested to limit the size of the free lists and basically chop off the tail if they grew too large.  But it turns out that the memory is allocated in large blocks that are chopped up by intobject.c.  Thus there is no way to just get rid of a few entries without taking out a whole block of objects.</p>
+</div>
+<div class="section" id="slots-and-default-values">
+<h1><a class="toc-backref" href="#id49" name="slots-and-default-values"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035575.html">__slots__ and default values</a></a></h1>
+<p>Ever initialized a variable in a class that uses __slots__?  If you have you may have discovered that the variable becomes read-only:</p>
+<pre class="literal-block">
+class Parrot(object):
+    __ slots__ = [&quot;dead&quot;]
+    dead = True
+
+bought_bird = Parrot()
+bought_bird.dead = False
+</pre>
+<p>That raises an AttributeError saying that 'dead' is read-only.  This occurs because the class attribute &quot;overrides the descriptor created by __slots__&quot; and &quot;now appears read-only because there is no instance dict&quot; thanks to __slots__ suppressing the creation of one.</p>
+<p>But don't go using this trick!  If you want read-only attributes use a property with its set function set to raise an exception.  If you want to avoid this problem just do your initialization of attributes in the __init__ call.  You can also include __dict__ in __slots__ and then your instances will have a fully functioning instance __dict__ (new in 2.3).</p>
+<p>The key thing to come away with this twofold.  One is the resolution order of attribute lookup when __slots__ is used which class/type and then the instances __slots__ attributes only if the class/type hierarchy did not turn up a data descriptor.  The other is that __slots__ is meant purely to cut down on memory usage, nothing more.  Do not start abusing it with little tricks like the one mentioned above or Guido will pull it from the language.</p>
+</div>
+<div class="section" id="quickies">
+<h1><a class="toc-backref" href="#id50" name="quickies">Quickies</a></h1>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035246.html">Draft of dictnotes.txt</a></dt>
+<dd>After all the work Raymond Hettinger did to try to speed up dictionaries, he wrote a text file documenting everything he tried and learned.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035248.html">_socket efficiencies ideas</a></dt>
+<dd>This thread was first covered in the <a class="reference" href="http://www.python.org/dev/summary/2003-04-16_2003-04-30.html">last summary</a>.
+Guido discovered that the socket module used to special-case receiving a numeric address in order to skip any overhead in bother to resolve the IP address.  It has been put back into the code.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035252.html">Demos and Tools in binary distributions</a></dt>
+<dd>Jack Jansen asked where other platform-specific binary distributions of Python put the Demo and Tools directories.  The thread ended with the winning solution be putting them in /Applications/Python2.3/Extras/ so they are a level below the root directory to prevent newbies from getting overwhelmed by the code there since it is not all simple.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035257.html">updated notes about building bsddb185 module</a></dt>
+<dd><dl class="first">
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035409.html">bsddb185 module changes checked in</a></li>
+</ul>
+</dd>
+</dl>
+<p class="last">Someone wanted the bsddb185 module back.  Initially it was suggested to build that module as bsddb if the new bsddb3 module could not be built (since that module currently gets named bsddb).  The final outcome was that bsddb185 will get built under certain conditions and be named bsddb185.</p>
+</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035259.html">broke email date parsing</a></dt>
+<dd>... but it got fixed.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035230.html">New thread death in test_bsddb3</a></dt>
+<dd>This is a continuation from the <a class="reference" href="http://www.python.org/dev/summary/2003-04-16_2003-04-30.html">last summary</a>.
+You can create as many thread states as you like as long as you only use one at any given point.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035270.html">removing csv directory from nondist/sandbox - how?</a></dt>
+<dd>Joys of CVS.  You can never removed a directory unless you have direct access the the physical directory on the CVS root server.  The best you can do is to empty the directory (make sure to get files named &quot;.*&quot;) and assume people will do an <tt class="literal"><span class="pre">cvs</span> <span class="pre">update</span> <span class="pre">-dP</span></tt>.  You can also remove the empty directories locally by hand if you like.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035281.html">posixmodule.c patch to support forkpty</a></dt>
+<dd>A patch was sent to python-dev incorrectly that tries to get os.forkpty to work on more platforms.  It is now up on <a class="reference" href="http://www.sf.net/projects/python">SourceForge</a> and it is <a class="reference" href="http://www.python.org/sf/732401">patch #732401</a>.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035287.html">Timbot?</a></dt>
+<dd>There is a real Timbot robot out there: <a class="reference" href="http://www.cse.ogi.edu/~mpj/timbot/#Programming">http://www.cse.ogi.edu/~mpj/timbot/#Programming</a> .</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035288.html">optparse docs need proofreading</a></dt>
+<dd>What the 'subject' says.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035343.html">heaps</a></dt>
+<dd>This is a continuation of a thread from the <a class="reference" href="http://www.python.org/dev/summary/2003-04-16_2003-04-30.html">last summary</a>.
+Lots of talk about heaps, priority queues, and other theoretical algorithm talk.  It was felt that a more thorough API to allow for more fancy heap implementations would be helpful than what heapq provides.</dd>
+</dl>
+<dl>
+<dt>Weekly Python Bug/Patch Summary</dt>
+<dd>First one ended on <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035292.html">2003-05-04</a>.  The second one ended on <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035537.html">2003-05-11</a>.</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035293.html">Distutils using apply</a></dt>
+<dd>Since Distutils must be kept backwards-compatible (as stated in <a class="reference" href="http://www.python.org/dev/peps/pep-0291">PEP 291</a>), it still uses 'apply'.  This raises a PendingDeprecation warning which is normally silent unless you want all warnings raised.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035318.html">How to test this?</a></dt>
+<dd>Dummy files can be checked into Lib/test .</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035319.html">Windows installer request...</a></dt>
+<dd>Someone wanted the default drive on the Windows installer to be your boot drive and not C.  It has been fixed.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035326.html">Election of Todd Miller as head of numpy team</a></dt>
+<dd>What the 'subject' says.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035359.html">Startup time</a></dt>
+<dd>Guido noticed that although Python 2.3 is already faster than 2.2, its startup time is slower.  It looks like it is from failing stat calls.  Speeding this all up is still being worked on.  Prime suspects are the importation of codecs and re.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035362.html">testing with and without pyc files present</a></dt>
+<dd>Why does <tt class="literal"><span class="pre">make</span> <span class="pre">test</span></tt> delete all .pyc and .pyo files before running the regression tests?  To act as a large scale test of the marshaling code.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035366.html">pyconfig.h not regenerated by &quot;config.status --recheck&quot;</a></dt>
+<dd><tt class="literal"><span class="pre">./config.status</span> <span class="pre">--recheck</span></tt> doesn't work too well.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035369.html">Python Technical Lead, New York, NY - 80-85k</a></dt>
+<dd>Wrong place for a job announcement.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035386.html">RedHat 9 _random failure under -pg</a></dt>
+<dd>gcc ain't perfect.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035398.html">SF CVS offline</a></dt>
+<dd>... but it came back up.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035454.html">Microsoft speedup</a></dt>
+<dd>It was noticed that turning on more aggressive inlining for VC6 sped up pystone by 2.5% while upping the executable size by 13%.  Tim Peters noted that &quot;A couple employers ago, we disabled all magical inlining options, because sometimes they made critical loops faster, and sometimes slower, and you couldn't guess which as the code changed&quot;.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035465.html">Relying on ReST in the core?</a></dt>
+<dd>Although <a class="reference" href="http://docutils.sf.net/">docutils</a> is not in the core yet, it is being used more and more.  But is this safe?  As long as it's kept conservative and not required anywhere, yes.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035481.html">Make _strptime only time.strptime implementation?</a></dt>
+<dd>As long as no one complains to loudly by 2.3b2, _strptime.strptime will become the exclusive implementation of time.strptime.  _strptime.strptime also learned how to recognize UTC and GMT as timezones.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035485.html">Building Python with .NET 2003 SDK</a></dt>
+<dd>Logistix was nice enough to try to build Python on .NET 2003 and post notes on how he did it at <a class="reference" href="http://www.cathoderaymission.net/~logistix/python/buildingPythonWithDotNet.html">http://www.cathoderaymission.net/~logistix/python/buildingPythonWithDotNet.html</a> .</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035486.html">local import cost</a></dt>
+<dd>Trying to find out how the cost of doing imports in the local namespace costs compared to doing it at the global level.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035500.html">Subclassing int?</a></dt>
+<dd>This thread started <a class="reference" href="http://www.python.org/dev/summary/2003-04-01_2003-04-15.html">two summaries ago</a>.
+Subclassing int to make it mutable just doesn't work.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035538.html">patch 718286</a></dt>
+<dd>Originally this summary was just going to be &quot;The patch was applied&quot;.  But no!  Some of you actually want to know the patch is about.  Geez!  Isn't knowing that one more patch was closed enough for you people?!?  I guess not!  Well, the patch added support for the DESTDIR variable for auto-generated makefiles.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035540.html">Need some patches checked</a></dt>
+<dd>Some patches needed to be cleared by more senior members of python-dev since they were being handled by the young newbie of the group.  Jeremy Hylton also mentioned that a full-scale refactoring of urllib2 is needed and would allow the closure of some patches.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035546.html">os.path.walk() lacks 'depth first' option</a></dt>
+<dd><dl class="first">
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035574.html">os.walk() silently ignores errors</a></li>
+</ul>
+</dd>
+</dl>
+<p class="last">This thread started in the <a class="reference" href="http://www.python.org/dev/summary/2003-04-16_2003-04-30.html">last summary</a>.
+LookupError exists and subclasses both IndexError and KeyError.  Rather handy when you don't care whether you are dealing with a list or dictionary but do care if what you are looking for doesn't exist.
+os.walk also gained a parameter argument called onerror that takes a function that will be passed any exception raised by os.walk as it does its thing; previously os.walk ignored all errors.</p>
+</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035549.html">Random SF tracker ettiquete questions</a></dt>
+<dd>Does python-dev care about dealing with RFEs?  Sort of; it isn't a priority like patches and bugs, but cleaning them out once in a while doesn't hurt.  Is it okay to assign a tracker item to yourself even if it is already assigned to another person?  If the original person it was assigned to is not actively working on it, then yes.  When should someone be put into the Misc/ACKS file?  When they have done something that required some amount of brain power (yes, this includes one-line patches); some people, though, think it should take more.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035556.html">codeop: small details (Q); commit priv request</a></dt>
+<dd>Some issues with codec were worked out and Samuele Pedroni got commit privileges.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035560.html">Python 2.3b1 _XOPEN_SOURCE value from configure.in</a></dt>
+<dd>Python.h should always be included in extension modules first before any other header files.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035591.html">Inplace multiply</a></dt>
+<dd>Someone thought they had found a bug.  Michael Hudson thought it was an old bug that was fixed.  How did it end?  Beats the heck out of me.  =)</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035605.html">sf.net/708007: expectlib.py telnetlib.py split</a></dt>
+<dd><blockquote class="first">
+A request for people to look at <a class="reference" href="http://www.python.org/sf/708007">http://www.python.org/sf/708007</a> .</blockquote>
+</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035625.html">Simple dicts</a></dt>
+<dd>Tim Peters suggested that if someone wanted something to do they could try re-implementing dicts to using chaining instead of open addressing.  It turns out Damien Morton (who did a ton of work trying to optimize Python's bytecode) is  working on an immplementation.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035616.html">python/dist/src/Lib warnings.py,1.19,1.20</a></dt>
+<dd>As part of the attempts to speed up startup time, the attempted elimination of the required import of the re module came up.  This thread brought up the question as to whether it was desired to be able to pass a regexp as an argument for the -W command-line option for Python.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035640.html">[PEP] += on return of function call result</a></dt>
+<dd><blockquote class="first">
+You  can't assign on the return value of a method calls.</blockquote>
+</dd>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035642.html">Vacation; Python 2.2.3 release.</a></dt>
+<dd>Guido is going on vacation and won't be back until May 26.  He would like Python 2.2.3 to be out shortly after he gets back, although if it comes out while he is gone he definitely won't complain.  =)  You can get an anonymous CVS checkout of the 2.2 maintenance branch by executing <tt class="literal"><span class="pre">cvs</span> <span class="pre">-d</span> <span class="pre">:pserver:anonymous&#64;cvs.python.sourceforge.net:/cvsroot/python</span> <span class="pre">checkout</span> <span class="pre">-d</span> <span class="pre">&lt;dir</span> <span class="pre">to</span> <span class="pre">store</span> <span class="pre">in&gt;</span> <span class="pre">-r</span> <span class="pre">release22-maint</span> <span class="pre">python</span></tt> and changing the &lt;&gt; note to be the directory you want to put your CVS copy into.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-May/035375.html">MS VC 7 offer</a></dt>
+<dd><p class="first">At <a class="reference" href="http://www.python-uk.org/">Python UK</a> Guido was offered free copies of <a class="reference" href="http://msdn.microsoft.com/visualc/">Visual C++ 2003</a> by the project lead of VC, Nick Hodapp, for key developers (a free copy of the compiler is available at <a class="reference" href="http://www.msdn.microsoft.com/netframework/downloads/howtoget.aspx">http://www.msdn.microsoft.com/netframework/downloads/howtoget.aspx</a> ).  This instantly led to the discussion of whether Python's binary distribution for Windows should be moved off of VC 6 to 7.  The biggest issue is that apparently passing FILE * values across library boundaries breaks code.  The final decision seemed to be that Tim, Guido, and developers of major extensions should get free copies.  Then an end date of when Python will be moved off of VC 6 and over to 7 will be decided.  None of this will affect Python 2.3 .</p>
+<p class="last">This thread was 102 emails long.  I don't use Windows.  This was painful.</p>
+</dd>
+</dl>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="2003-05-01_2003-05-15.txt">View document source</a>.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>

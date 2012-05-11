@@ -1,0 +1,568 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-06-01 through 2006-06-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-06-01_2006-06-15]
+
+
+
+=============
+Announcements
+=============
+
+-------------------
+Python 2.5 schedule
+-------------------
+
+Python 2.5 is moving steadily towards its next release.  See `PEP 356`_ for more details and the full schedule.
+
+.. _PEP 356: http://www.python.org/dev/peps/pep-0356/
+
+Contributing threads:
+
+- `beta1 coming real soon <http://mail.python.org/pipermail/python-dev/2006-June/065729.html>`__
+- `2.5 issues need resolving in a few days <http://mail.python.org/pipermail/python-dev/2006-June/065730.html>`__
+
+-----------------------------------------------
+Request for Bug Trackers to replace SourceForge
+-----------------------------------------------
+
+The Python Software Foundation's Infrastructure committee asked for suggestions for tracker systems that could replace SourceForge. The minimum requirements are:
+
+* Can import SourceForge data
+* Can export data
+* Has an email interface 
+
+and if you'd like to suggest a particular tracker system all you need to do is:
+
+* Install a test tracker
+* Import the `SourceForge data dump`_    
+* Make the `Infrastructure committee members`_ administrators of the tracker
+* Add your tracker to the `wiki page`_
+* Email `the Infrastructure committee`_
+
+Be sure to check the `wiki page`_ for additional information.
+
+.. _SourceForge data dump: http://effbot.org/zone/sandbox-sourceforge.htm
+.. _Infrastructure committee members: /psf/committees#infrastructure-committee-ic
+.. _wiki page: http://wiki.python.org/moin/CallForTrackers
+.. _the Infrastructure committee: infrastructure@python.org
+
+Contributing thread:
+
+- `Request for trackers to evaluate as SF replacement for Python development <http://mail.python.org/pipermail/python-dev/2006-June/065597.html>`__
+
+
+=========
+Summaries
+=========
+
+--------------------------------------------
+Getting more comparable results from pybench
+--------------------------------------------
+
+Skip Montanaro mentioned that the NeedForSpeed_ folks had some trouble with the pybench_ string and unicode tests. In some discussions both on the checkins list and off-list, Fredrik Lundh had concluded that stringbench more reliably reported performance than pybench. There was then a long discussion about how to improve pybench including:
+
+* Using time.clock() on Windows and time.time() on Linux. This was accompanied by a long debate about whether to use wall-time or process time.  Both wall time and process time can see interference from other programs running at the same time; wall time because the time consumed by other programs running at the same time is also counted, and process time because it is sampled so that other processes can charge their time to the running process by using less than a full time slice. In general, the answer was to use the timer with the best resolution.
+
+* Using the minimum time rather than the average. Andrew Dalke explained that timing results do not have a Gaussian distribution (they have more of a gamma distribution) and provided some graphs generated on his machine to demonstrate this. Since the slower runs are typically caused by other things running at the same time (which is pretty much unpredictable), it's much better to report the fastest run, which should more consistently approximate the best possible time.
+
+* Making sure to use an appropriate warp factor. Marc-Andre Lemburg explained that each testing round of pybench is expected to take around 20-50 seconds. If rounds are much shorter than this, pybench's warp factor should be adjusted until they are long enough.
+
+At the end of the thread, Marc-Andre checked in pybench_ 2.0, which included the improvements suggested above.
+
+.. _NeedForSpeed: http://wiki.python.org/moin/NeedForSpeed
+.. _pybench: http://svn.python.org/view/python/trunk/Tools/pybench/
+.. _stringbench: http://svn.python.org/view/sandbox/trunk/stringbench/
+
+Contributing threads:
+
+- `Python Benchmarks <http://mail.python.org/pipermail/python-dev/2006-May/065480.html>`__
+- `Python Benchmarks <http://mail.python.org/pipermail/python-dev/2006-June/065525.html>`__
+
+---------------------------------------
+PEP 360: Externally Maintained Packages
+---------------------------------------
+
+After checking wsgiref into the Python repository, Phillip J. Eby requested in `PEP 360`_ that patches to wsgiref be passed to him before being committed on the trunk. After a number of changes were committed to the trunk and he had to go through a complicated two-way merge, he complained that people were not following the posted procedures. Guido suggested that `PEP 360`_ was a mistake, and that whenever possible, development for any module in the stdlib should be done in the Python trunk, not externally. He also requested that the PEP indicate that even for externally maintained modules, bugfixes and ordinary maintenance should be allowed on the trunk so that bugs in external modules don't hold up Python core development.
+
+A number of solutions were discussed for authors of code that is also distributed standalone. Using svn:externals is mostly undesirable because svn is much slower at checking whether or not an svn:externals directory is updated, and because upgrading to a newer version would require making sure that no changes made by Python developers were lost in the new version. Phillip suggested adding an "Externals" directory and modifying Python's setup to invoke all the ``Externals/*/setup.py`` scripts, though this would mean having some Python code that lives outside of the Lib/ subtree. Barry Warsaw explained that for the email package, he maintains a directory in the sandbox with all the distutils and documentation stuff needed for the standalone releases as well as the email package from the Python repository through svn:externals. This means having to create some extra directories (since svn:externals doesn't work with individual files) and having one checkout per version of Python supported, but seemed to work pretty well for Barry. People seemed to like Phillip's Externals idea (possibly renamed to Packages), but work on that was postponed for Python 2.6.
+
+One of the side benefits of these discussions was that Thomas Heller generously offered to move ctypes development fully into the Python repository.
+
+.. _PEP 360: http://www.python.org/dev/peps/pep-0360/
+
+Contributing threads:
+
+- `wsgiref documentation <http://mail.python.org/pipermail/python-dev/2006-June/065576.html>`__
+- `wsgiref doc draft; reviews/patches wanted <http://mail.python.org/pipermail/python-dev/2006-June/065647.html>`__
+- `[Web-SIG] wsgiref doc draft; reviews/patches wanted <http://mail.python.org/pipermail/python-dev/2006-June/065701.html>`__
+- `FYI: wsgiref is now checked in <http://mail.python.org/pipermail/python-dev/2006-June/065767.html>`__
+- `Please stop changing wsgiref on the trunk <http://mail.python.org/pipermail/python-dev/2006-June/065908.html>`__
+- `Dropping externally maintained packages (Was: Please stop changing wsgiref on the trunk) <http://mail.python.org/pipermail/python-dev/2006-June/065919.html>`__
+- `External Package Maintenance (was Re: Please stop changing wsgiref on the trunk) <http://mail.python.org/pipermail/python-dev/2006-June/065920.html>`__
+- `External Package Maintenance <http://mail.python.org/pipermail/python-dev/2006-June/065937.html>`__
+- `rewording PEP 360 <http://mail.python.org/pipermail/python-dev/2006-June/066001.html>`__
+- `Updating packages from external ? <http://mail.python.org/pipermail/python-dev/2006-June/066035.html>`__
+
+--------------------------------------
+Universally unique identifiers (UUIDs)
+--------------------------------------
+
+Ka-Ping Yee was looking to put his `uuid module`_ into Python 2.5. He addressed a number of requests from the last round of discussions, including making UUIDs immutable, removing curly braces from the UUID string and adding the necessary tests to the test suite. Then he asked about how best to address the fact that ``uuid1()`` required looking up a MAC address, a potentially slow procedure. At the suggestion of Fredrik Lundh, he changed the API to allow a MAC address to be passed in if it was already known. If a MAC address is not passed in to ``uuid1()``, the ``getnode()`` utility function is called, which searches for the MAC address through a variety of routes, including some quicker paths through ctypes that Thomas Heller and others helped Ka-Ping with. The code was checked into the Python trunk.
+
+.. _uuid module: http://zesty.ca/python/uuid.py
+
+Contributing thread:
+
+- `UUID module <http://mail.python.org/pipermail/python-dev/2006-June/065733.html>`__
+
+-------------------------------------
+PEP 275: Switching on Multiple Values
+-------------------------------------
+
+Thomas Lee offered up a `patch implementing the switch statement`_ from `PEP 275`_. People brought up a number of concerns with the implementation (and the switch statement in general). The implementation didn't allow for any way of allowing multiple values to be mapped to the same case (without repeating the code in the case). The implementation also made the switch statement essentially syntactic sugar for a series of if/elif/else statements, and people were concerned that just adding another way to write if/elif/else was not much of a gain for Python. The discussion continued on into the next fortnight.
+
+.. _patch implementing the switch statement: http://bugs.python.org/1504199
+.. _PEP 275: http://www.python.org/dev/peps/pep-0275/
+
+Contributing thread:
+
+- `Switch statement <http://mail.python.org/pipermail/python-dev/2006-June/065827.html>`__
+
+---------------------------------------------------------
+The period of the random module's random number generator
+---------------------------------------------------------
+
+Alex Martelli noticed a note in random.shuffle.__doc__ which said that most permutations of a long sequence would never be generated due to the short period of the random number generator. This turned out to be an artifact from back when Python used the Whichman-Hill generator instead of the Mersenne Twister generator it uses currently. There was some discussion as to whether the comment should be removed or updated, and Robert Kern pointed out that at sequence lengths of 2081 or greater, the comment was still true. Tim Peters decided it was best to just remove the comment, explaining that "anyone sophisticated enough to *understand* an accurate warning correctly would have no need to be warned".
+
+Contributing thread:
+
+- `a note in random.shuffle.__doc__ ... <http://mail.python.org/pipermail/python-dev/2006-June/065815.html>`__
+
+-------------------------------------------------------
+Pre-PEP: Allow Empty Subscript List Without Parentheses
+-------------------------------------------------------
+
+Noam Raphael presented a `pre-PEP for empty subscript lists`_ in getitem-style access to objects. This would allow zero-dimensional arrays to work in a similar manner to all other N dimensional arrays, and make all of the following equivalences hold::
+
+   x[i, j]     <-->  x[(i, j)]
+   x[i,]       <-->  x[(i,)]
+   x[i]        <-->  x[(i)]
+   x[]         <-->  x[()]
+
+Most people felt that zero-dimensional arrays were uncommon enough that either they could be replaced with simple names, e.g. ``x``, or could use the currently available syntax, i.e. ``x[()]``. Zero-dimensional arrays are even uncommon in numpy_ where, after `rehashing the issue`_ innumerable times, zero-dimensional arrays have been almost entirely replaced with scalars.
+
+.. _pre-PEP for empty subscript lists: http://wiki.python.org/moin/EmptySubscriptListPEP
+.. _numpy: http://numeric.scipy.org/
+.. _rehashing the issue: http://projects.scipy.org/scipy/numpy/wiki/ZeroRankArray
+
+Contributing thread:
+
+- `Pre-PEP: Allow Empty Subscript List Without Parentheses <http://mail.python.org/pipermail/python-dev/2006-June/065762.html>`__
+
+----------------------------------------------
+PEP 337: Logging Usage in the Standard Library
+----------------------------------------------
+
+For the `Google Summer of Code`_, Jackilyn Hoxworth has been working on implementing parts of `PEP 337`_ to use the logging module in parts of the stdlib. When Jim Jewett, who is mentoring her, brought up a few issues, people got concerned that this work was being done at all, being that `PEP 337`_ has not been approved. Jim and A.M. Kuchling clarified that the goal of Jackilyn's work is to both clarify the PEP (e.g. determine exactly which modules would benefit from logging) and to provide an implementation that can be tweaked as necessary if the PEP is accepted. For the first draft at least, it looked like Jackilyn would keep things simple -- using "py." + __name__ for the logger name, not adding any new logging messages, not changing any message formats, and generally aiming only to give stderr and stdout messages across different modules a common choke point.
+
+.. _Google Summer of Code: http://code.google.com/soc/
+.. _PEP 337: http://www.python.org/dev/peps/pep-0337/
+
+Contributing thread:
+
+- `Stdlib Logging questions (PEP 337 SoC) <http://mail.python.org/pipermail/python-dev/2006-June/065601.html>`__
+
+-------------------
+inspect.isgenerator
+-------------------
+
+Michele Simionato asked for a new function in the inspect module that would identify a function as being a generator function. Phillip J. Eby pointed out that any function can return a generator-iterator (though generator functions are of course guaranteed to do so) and suggested that the perceived need for this inspect function was misguided. Michele agreed and withdrew the proposal.
+
+Contributing threads:
+
+- `feature request: inspect.isgenerator <http://mail.python.org/pipermail/python-dev/2006-May/065334.html>`__
+- `feature request: inspect.isgenerator <http://mail.python.org/pipermail/python-dev/2006-June/065508.html>`__
+
+--------------------------------
+Unescaping entities with sgmllib
+--------------------------------
+
+Sam Ruby asked why sgmllib unescapes entities selectively, not all or nothing (which would be easier to work around), and Fred L. Drake, Jr. explained that sgmllib is really only intended as support for htmllib. Sam suggested isolating the code that attempts to resolve character references into a single method so that subclasses could override this behavior as needed. Martin v. Löwis agreed that this seemed reasonable, though he suggested two functions, one for character references and one for entity references. Sam implemented the suggested behavior and provided a `patch to sgmllib`_.
+
+.. _patch to sgmllib: http://bugs.python.org/1504676
+
+Contributing thread:
+
+- `sgmllib Comments <http://mail.python.org/pipermail/python-dev/2006-June/065861.html>`__
+
+-------------------------------------------------------------------------
+Scoping vs augmented assignment vs sets (Re: 'fast locals' in Python 2.5)
+-------------------------------------------------------------------------
+
+A bug in Python 2.5 that did not detect augmented assignment as creating a local name allowed code like the following to work::
+
+    >>> g = 1
+    >>> def f1():
+    ...     g += 1
+    ...
+    >>> f1()
+    >>> g
+    2
+
+This of course started the usual discussion about giving Python a way to rebind names in enclosing scopes. Boris Borcic in particular was hoping that the bug could be considered a feature, but Terry Reedy explained that Python was not willing to give up the near equivalence between ``x = x + 1`` and ``x += 1``. Since the former creates a local name, the latter ought to do the same thing. The thread seemed like it might drift on further until Guido cut it off, pronouncing that the behavior of augmented assignments creating local names was not going to change.
+
+Contributing threads:
+
+- `'fast locals' in Python 2.5 <http://mail.python.org/pipermail/python-dev/2006-June/065648.html>`__
+- `Scoping vs augmented assignment vs sets (Re: 'fast locals' in Python 2.5) <http://mail.python.org/pipermail/python-dev/2006-June/065902.html>`__
+- `Comparing closures and arguments (was Re: Scoping vs augmented assignment vs sets (Re: 'fast locals' in Python 2.5) <http://mail.python.org/pipermail/python-dev/2006-June/066064.html>`__
+- `The baby and the bathwater (Re: Scoping, augmented assignment, 'fast locals' - conclusion) <http://mail.python.org/pipermail/python-dev/2006-June/066080.html>`__
+
+---------------------------------------
+Checking out an older version of Python
+---------------------------------------
+
+Skip Montanaro asked about checking out a particular version of Python. Oleg Broytmann and Tim Peters explained that tags are just directories in Subversion, and you can view all the existing ones and their corresponding revision numbers at http://svn.python.org/projects/python/tags/. Oleg also explained that the difference between::
+
+    svn switch svn+ssh://pythondev@svn.python.org/python/tags/r242
+
+and noting that the r242 tag corresponds to revision 39619 and doing::
+
+    svn up -r 39619
+
+is that with the latter, commits will go to the trunk (assuming the update was performed on a trunk checkout), while with the former, updates will go to the appropriate tag or branch. Giovanni Bajo provided a nice explanation of this, describing Subversion's 2D coordinate system of [url, revision] and Skip added the explanation to the `Development FAQ`_.
+
+.. _Development FAQ: http://www.python.org/dev/faq/
+
+Contributing thread:
+
+- `Subversion repository question - back up to older versions <http://mail.python.org/pipermail/python-dev/2006-June/065709.html>`__
+
+--------------------
+Source control tools
+--------------------
+
+In the externally maintained packages discussion, Guido suggested offhand that some other version control project might make it easier to resolve some of the issues. Thomas Wouters put forward a number of considerations.  On the negative side of changing to one of the newer version control systems:
+
+* Workflow would have to change somewhat to use most of the new branch-oriented systems.
+* Everyone would have to download the whole repository (at least once) since with the newer systems everyone usually has their own repository.
+
+But on the positive side:
+
+* History can be preserved for merges of branches (unlike Subversion), which is a big gain for when the trunk is switched to 3.0.
+
+Thomas tried importing the Python repository into a number of different systems, and after playing around with them, concluded that in the short term, none of the other version control systems were quite ready yet, though he seemed optimistic for them in the next few years. He also promised to publish imports of the Python repository into Git, Darcs, Mercurial, Bazaar-NG and Monotone somewhere once he was able to successfully import them all.
+
+Contributing thread:
+
+- `Source control tools <http://mail.python.org/pipermail/python-dev/2006-June/065971.html>`__
+
+----------------------------------------------------
+Underscore assignment in the interactive interpreter
+----------------------------------------------------
+
+Raymond Hettinger noted that in the interactive interpreter, an expression that returns None not only suppresses the printing of that None, but also suppresses the assignment to ``_``. Raymond asked if this was intentional as it makes code like the following break::
+
+    >>> import re, string
+    >>> re.search('lmnop', string.letters)
+    <_sre.SRE_Match object at 0xb6f2c480>
+    >>> re.search('pycon', string.letters)
+    >>> if _ is not None:
+    ...     print _.group()
+    lmnop
+
+Fredrik Lundh pointed out that users just need to recognize that the ``_`` holds the most recently *printed* result. Guido pronounced that this would not change. Terry Reedy suggested adding some documentation for this behavior to either Language Reference 2.3.2 Reserved Classes of Identifiers and/or to Tutorial 2.1.2 Interactive Mode, but it was unclear if any doc changes were committed.
+
+Contributing thread:
+
+- `Is implicit underscore assignment buggy? <http://mail.python.org/pipermail/python-dev/2006-June/065679.html>`__
+
+-----------------------
+Removing MAC OS 9 cruft
+-----------------------
+
+A number of old MAC OS 9 bits and pieces that are no longer used were removed:
+
+* IDE scripts
+* MPW
+* Tools/IDE
+* Tools/macfreeze
+* Unsupported/mactcp/dnrglue.c
+* Wastemods
+
+This should solve some problems for Windows checkouts where files with trailing dots are not supported.
+
+Contributing threads:
+
+- `Removing Mac OS 9 cruft <http://mail.python.org/pipermail/python-dev/2006-June/065526.html>`__
+- `Mac/wastemodule build failing <http://mail.python.org/pipermail/python-dev/2006-June/065588.html>`__
+
+------------------------------------------
+Fixing buffer object's char buffer support
+------------------------------------------
+
+Brett Cannon found that ``import array; int(buffer(array.array('c')))`` caused the interpreter to segfault because buffer objects were redirecting tp_as_buffer->bf_getcharbuffer to the wrong tp_as_buffer slot. Brett fixed the bug and updated the docs a bit to clarify what was intended for the implementation, but kept changes pretty minimal as Python 3.0 will ditch buffer for the bytes type anyway.
+
+Contributing threads:
+
+- `How to fix the buffer object's broken char buffer support <http://mail.python.org/pipermail/python-dev/2006-June/065646.html>`__
+- `Is "t#" argument format meant to be char buffer, or just read-only? <http://mail.python.org/pipermail/python-dev/2006-June/065678.html>`__
+
+-------------------------------
+Importing subpackages in Jython
+-------------------------------
+
+In Jython 2.1, importing a module makes all subpackages beneath it available, unlike in regular Python, where subpackages must be imported separately. Samuele Pedroni explained that this was intentional so that imports in Jython would work like imports in Java do. Guido suggested that having imports work this way in Jython was fine as long as a Java package was being imported, but when a Python package was being imported, Jython should use the Python semantics.
+
+Contributing thread:
+
+- `Import semantics <http://mail.python.org/pipermail/python-dev/2006-June/065864.html>`__
+
+---------------------------------------------
+RFC 3986: Uniform Resource Identifiers (URIs)
+---------------------------------------------
+
+There was some continued discussion of Paul Jimenez's proposed `uriparse module`_ which more faithfully implements `RFC 3986`_ than the current urlparse module. Nick Coghlan submitted an `alternate implementation`_ that kept all parsed URIs as (scheme, authority, path, query, fragment) tuples by allowing some of these elements to be non-strings, e.g. authority could be a (user, password, host, port) tuple, and path could be a (user, host) tuple. People seemed to like Nick's implementation, but no final decision on the module was made.
+
+.. _uriparse module: http://bugs.python.org/1462525
+.. _RFC 3986: http://www.ietf.org/rfc/rfc3986.txt
+.. _alternate implementation: http://bugs.python.org/1500504
+
+Contributing thread:
+
+- `Some more comments re new uriparse module, patch 1462525 <http://mail.python.org/pipermail/python-dev/2006-June/065552.html>`__
+
+-----------------------------------------------------
+False instead of TypeError for frozenset.__contains__
+-----------------------------------------------------
+
+Collin Winter suggested that code like ``{} in frozenset([1, 2, 3])`` should return False instead of raising a TypeError. Guido didn't like the idea because he thought it would mask bugs where, say, a user-defined __hash__() method accidentally raised a TypeError.
+
+Contributing thread:
+
+- `Unhashable objects and __contains__() <http://mail.python.org/pipermail/python-dev/2006-June/065577.html>`__
+
+--------------------------------------------
+IOError or ValueError for invalid file modes
+--------------------------------------------
+
+Kristján V. Jónsson asked why open()/file() throws an IOError for an invalid mode string instead of a ValueError. Georg Brandl explained that either an IOError or a ValueError can be raised depending on whether the invalid mode was detected in Python's code or in the OS's fopen call. Guido suggested that this couldn't really be fixed until Python gets rid of its stdio-based implementation in Python 3.0.
+
+Contributing thread:
+
+- `file() <http://mail.python.org/pipermail/python-dev/2006-June/065903.html>`__
+
+-----------------------------
+Testing, unittest and py.test
+-----------------------------
+
+Martin Blais checked in un-unittestification of test_struct, and a number of people questioned whether that was a wise thing to do. Thomas Wouters suggested that unittest should merge as many features from py.test_ as possible. This would reduce some of the class-based boilerplate currently required, and also allow some nice additional features like test cases generated on the fly. He didn't get much of a response though, so it was unclear what the plans for Python 2.6 were.
+
+.. _py.test: http://codespeak.net/py/current/doc/test.html
+
+Contributing thread:
+
+- `[Python-checkins] r46603 - python/trunk/Lib/test/test_struct.py <http://mail.python.org/pipermail/python-dev/2006-June/065584.html>`__
+
+------------------------------------------------
+hex(), oct() and the 'L' suffix for long numbers
+------------------------------------------------
+
+Ka-Ping Yee asked why hex() and oct() still produced an 'L' suffix for long numbers even now that ints and longs have basically been unified. `PEP 237`_ had mentioned the removal of this suffix, but not given it a specific release for removal, so people decided it was best to wait until Python 3.0 when the 'L' suffix will also be removed from repr().
+
+.. _PEP 237: http://www.python.org/dev/peps/pep-0237/
+
+Contributing thread:
+
+- `Should hex() yield 'L' suffix for long numbers? <http://mail.python.org/pipermail/python-dev/2006-June/065870.html>`__
+
+---------------------------------
+Adding an index of Python symbols
+---------------------------------
+
+Terry Reedy suggested adding a page to the Python Language Reference index that would list each symbol in Python (e.g. ``()``, ``[]`` and ``@``) along with the places in the documentation where it was discussed. Terry promised to submit a plain-text version in time for the Python 2.5 release, so that someone could convert it to LaTeX and merge it into the docs.
+
+Contributing thread:
+
+- `Symbol page for Language Reference Manual Index <http://mail.python.org/pipermail/python-dev/2006-June/065681.html>`__
+
+------------------------------------------
+Behavior of searching for empty substrings
+------------------------------------------
+
+Fredrik Lundh resolved the issues discussed previously with searching for an empty substring at a position past the end of the string. The current behavior looks like::
+
+    >>> "ab".find("")
+    0
+    >>> "ab".find("", 1)
+    1
+    >>> "ab".find("", 2)
+    2
+    >>> "ab".find("", 3)
+    -1
+
+Both Tim Peters and Guido applauded the final resolution.
+
+Contributing thread:
+
+- `Search for empty substrings (was Re: Let's stop eating exceptions in dict lookup) <http://mail.python.org/pipermail/python-dev/2006-June/065500.html>`__
+
+-----------------
+subprocess.IGNORE
+-----------------
+
+Martin Blais asked about adding subprocess.IGNORE along the lines of subprocess.PIPE which would ignore the child's output without being susceptible to buffer deadlock problems. Under Unix, IGNORE could be implemented as ``open('/dev/null', 'w')``, and on Windows, ``open('nul:', 'w')``. People seemed to think this was a useful feature, but at the time of this summary, no patch had yet been provided.
+
+Contributing thread:
+
+- `subprocess.Popen(.... stdout=IGNORE, ...) <http://mail.python.org/pipermail/python-dev/2006-June/065868.html>`__
+
+
+================
+Deferred Threads
+================
+- `Improve error msgs? <http://mail.python.org/pipermail/python-dev/2006-June/066048.html>`__
+- `Keeping interned strings in a set <http://mail.python.org/pipermail/python-dev/2006-June/066084.html>`__
+- `Documentation enhancement: "MS free compiler"? <http://mail.python.org/pipermail/python-dev/2006-June/066182.html>`__
+- `Code coverage reporting. <http://mail.python.org/pipermail/python-dev/2006-June/066184.html>`__
+- `Numerical robustness, IEEE etc. <http://mail.python.org/pipermail/python-dev/2006-June/066186.html>`__
+
+
+==================
+Previous Summaries
+==================
+- `Let's stop eating exceptions in dict lookup <http://mail.python.org/pipermail/python-dev/2006-June/065499.html>`__
+- `ssize_t question: longs in header files <http://mail.python.org/pipermail/python-dev/2006-June/065574.html>`__
+- `ssize_t: ints in header files <http://mail.python.org/pipermail/python-dev/2006-June/065624.html>`__
+- `zlib module doesn't build - inflateCopy() not found <http://mail.python.org/pipermail/python-dev/2006-June/065706.html>`__
+
+
+===============
+Skipped Threads
+===============
+- `Segmentation fault of Python if build on Solaris 9 or10 with Sun Studio 11 <http://mail.python.org/pipermail/python-dev/2006-June/065495.html>`__
+- `Possible bug in complexobject.c (still in Python 2.5) <http://mail.python.org/pipermail/python-dev/2006-June/065496.html>`__
+- `[Python-checkins] r46300 - in python/trunk: Lib/socket.py Lib/test/test_socket.py Lib/test/test_struct.py Modules/_struct.c Modules/arraymodule.c Modules/socketmodule.c <http://mail.python.org/pipermail/python-dev/2006-June/065501.html>`__
+- `test_struct failure on 64 bit platforms <http://mail.python.org/pipermail/python-dev/2006-June/065506.html>`__
+- `string inconsistency <http://mail.python.org/pipermail/python-dev/2006-June/065507.html>`__
+- `S/390 buildbot URLs problematic <http://mail.python.org/pipermail/python-dev/2006-June/065517.html>`__
+- `SF patch #1473257: "Add a gi_code attr to generators" <http://mail.python.org/pipermail/python-dev/2006-June/065524.html>`__
+- `test_unicode failure on MIPS <http://mail.python.org/pipermail/python-dev/2006-June/065529.html>`__
+- `valgrind report <http://mail.python.org/pipermail/python-dev/2006-June/065532.html>`__
+- `test_ctypes failures on ppc64 debian <http://mail.python.org/pipermail/python-dev/2006-June/065544.html>`__
+- `Request for patch review <http://mail.python.org/pipermail/python-dev/2006-June/065581.html>`__
+- `patch #1454481 vs buildbot <http://mail.python.org/pipermail/python-dev/2006-June/065592.html>`__
+- `Seeking Core Developers for Vancouver Python Workshop <http://mail.python.org/pipermail/python-dev/2006-June/065600.html>`__
+- `[Python-checkins] Python Regression Test Failures refleak (1) <http://mail.python.org/pipermail/python-dev/2006-June/065613.html>`__
+- `Include/structmember.h, Py_ssize_t <http://mail.python.org/pipermail/python-dev/2006-June/065619.html>`__
+- `DC Python sprint on July 29th <http://mail.python.org/pipermail/python-dev/2006-June/065625.html>`__
+- `tarfile and unicode filenames in windows <http://mail.python.org/pipermail/python-dev/2006-June/065710.html>`__
+- `[Python-checkins] buildbot warnings in hppa Ubuntu dapper trunk <http://mail.python.org/pipermail/python-dev/2006-June/065719.html>`__
+- `-Wi working for anyone else? <http://mail.python.org/pipermail/python-dev/2006-June/065779.html>`__
+- `Inject some tracing ... <http://mail.python.org/pipermail/python-dev/2006-June/065781.html>`__
+- `Segmentation fault in collections.defaultdict <http://mail.python.org/pipermail/python-dev/2006-June/065828.html>`__
+- `Add pure python PNG writer module to stdlib? <http://mail.python.org/pipermail/python-dev/2006-June/065834.html>`__
+- `crash in dict on gc collect <http://mail.python.org/pipermail/python-dev/2006-June/065855.html>`__
+- `"can't unpack IEEE 754 special value on non-IEEE platform" <http://mail.python.org/pipermail/python-dev/2006-June/065957.html>`__
+- `socket._socketobject.close() doesn't really close sockets <http://mail.python.org/pipermail/python-dev/2006-June/065991.html>`__
+- `DRAFT: python-dev summary for 2006-04-16 to 2006-04-30 <http://mail.python.org/pipermail/python-dev/2006-June/066011.html>`__
+- `[Python-checkins] r46795 - in python/trunk: Doc/lib/libstdtypes.tex Lib/test/string_tests.py Misc/NEWS Objects/stringobject.c Objects/unicodeobject.c <http://mail.python.org/pipermail/python-dev/2006-June/066013.html>`__
+- `xrange vs. int.__getslice__ <http://mail.python.org/pipermail/python-dev/2006-June/066014.html>`__
+- `request for review: patch 1446489 (zip64 extensions in zipfile) <http://mail.python.org/pipermail/python-dev/2006-June/066018.html>`__
+- `DRAFT: python-dev summary for 2006-05-01 to 2006-05-15 <http://mail.python.org/pipermail/python-dev/2006-June/066020.html>`__
+- `pychecker warnings in Lib/encodings <http://mail.python.org/pipermail/python-dev/2006-June/066021.html>`__
+- `Moving PEP 343 to Final <http://mail.python.org/pipermail/python-dev/2006-June/066027.html>`__
+- `Python sprint at Google Aug. 21-24 <http://mail.python.org/pipermail/python-dev/2006-June/066043.html>`__
+- `Long options support <http://mail.python.org/pipermail/python-dev/2006-June/066049.html>`__
+- `High Level Virtual Machine <http://mail.python.org/pipermail/python-dev/2006-June/066053.html>`__
+- `sqlite3 test errors - was : Re: [Python-checkins] r46936 - in python/trunk: Lib/sqlite3/test/regression.py Lib/sqlite3/test/types.py Lib/sqlite3/test/userfunctions.py Modules/_sqlite/connection.c Modules/_sqlite/cursor.c Modules/_sqlite/module.c Modules/_sqlite/module.h <http://mail.python.org/pipermail/python-dev/2006-June/066055.html>`__
+- `[Python-checkins] sqlite3 test errors - was : Re: r46936 - in python/trunk: Lib/sqlite3/test/regression.py Lib/sqlite3/test/types.py Lib/sqlite3/test/userfunctions.py Modules/_sqlite/connection.c Modules/_sqlite/cursor.c Modules/_sqlite/module.c Modules/_sqlite/module.h <http://mail.python.org/pipermail/python-dev/2006-June/066056.html>`__
+- `[Python-checkins] sqlite3 test errors - was : Re: r46936 - in python/trunk: Lib/sqlite3/test/regression.py Lib/sqlite3/test/types.py Lib/sqlite3/test/userfunctions.py Modules/_sqlite/connection.c Modules/_sqlite/cursor.c Modules/_sqlite/module.c <http://mail.python.org/pipermail/python-dev/2006-June/066060.html>`__
+- `[Python-checkins] sqlite3 test errors - was : Re: r46936 - in python/trunk: Lib/sqlite3/test/regression.py Lib/sqlite3/test/types.py Lib/sqlite3/test/userfunctions.py Modules/_sqlite/connection.c Modules/_sqlite/cursor.c Modules/_sql <http://mail.python.org/pipermail/python-dev/2006-June/066068.html>`__
+- `Last-minute curses patch <http://mail.python.org/pipermail/python-dev/2006-June/066076.html>`__
+- `DRAFT: python-dev summary for 2006-05-16 to 2006-05-31 <http://mail.python.org/pipermail/python-dev/2006-June/066078.html>`__
+- `Bug: xml.dom.pulldom never gives you END_DOCUMENT events with an Expat parser <http://mail.python.org/pipermail/python-dev/2006-June/066179.html>`__
+- `Misleading error message from PyObject_GenericSetAttr <http://mail.python.org/pipermail/python-dev/2006-June/066183.html>`__
+- `About dynamic module loading <http://mail.python.org/pipermail/python-dev/2006-June/066185.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+June 01, 2006 through June 15, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 6th written by
+ Steve Bethard. (Please, ma, don't make me do the switch statement summary!)
+
+To contact me, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

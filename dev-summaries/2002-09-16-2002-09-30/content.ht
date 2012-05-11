@@ -1,0 +1,152 @@
+Title: python-dev Summary for 2002-09-16 through 2002-09-30
+Sitemap-ignore: yes
+
+<div class="document">
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> between September 16, 2002 and September 30, 2002 (inclusive).  It is intended to inform the wider Python community of ongoing developments on the list that might interest the wider Python community.  To comment on anything mentioned here, just post to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> or comp.lang.python in the usual way; give your posting a meaningful subject line, and if it's about a PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep iteration). All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on a PEP (or anything else for that matter) if you have an opinion.  And if all of this really interests you then get involved and join Python-dev!</p>
+<p>This is the third summary written by Brett Cannon (with no more wisdom teeth).</p>
+<dl>
+<dt>Summaries by me (2002-09-15 to ... when I burn out) are archived at:</dt>
+<dd><a class="reference" href="http://www.ocf.berkeley.edu/~bac/python-dev/summaries/index.php">http://www.ocf.berkeley.edu/~bac/python-dev/summaries/index.php</a></dd>
+<dt>You can find summaries by Michael Hudson (2002-02-01 to 2001-07-05) at:</dt>
+<dd><a class="reference" href="http://starship.python.net/crew/mwh/summaries/index.html">http://starship.python.net/crew/mwh/summaries/index.html</a></dd>
+<dt>Summaries by A.M. Kuchling (2000-12-01 to 2001-01-31) are at:</dt>
+<dd><a class="reference" href="http://www.amk.ca/python/dev/">http://www.amk.ca/python/dev/</a></dd>
+</dl>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sourceforge.net/rst.html">http://docutils.sourceforge.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for reST; you can safely ignore it (although I suggest learning reST; its nice and is accepted for PEP markup).  Also, because of the wonders of reformatting thanks to whatever you are using to read this, I cannot guarantee you will be able to run this text through DocUtils as-is.  If you want to do that, get the original text from the archive.</p>
+<p>Since not a single person sent me an email about my idea of compiling a list of nicknames of people on Python-dev I won't bother.</p>
+<div class="section" id="flextype-c-extended-type-system">
+<h1><a name="flextype-c-extended-type-system"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028736.html">flextype.c -- extended type system</a></a></h1>
+<p>(continuation from <a class="reference" href="http://www.ocf.berkeley.edu/~bac/python-dev/summaries/2002-09-01--2002-09-15.html">last summary</a>)</p>
+<p>To clarify what Christian Tismer's metatype patch basically implements, he said that his &quot;additions support a subset of C++ virtual methods&quot;.  And in response to a question from me about how this might affect magic methods, he said he &quot;<em>could</em> support any magic slot and put it into the extended type object with a Python name. And even better, this version could have full type checking, as my other methods have as well!&quot;</p>
+<p>Martin v. Loewis doesn't see the use of this because extensions in C are usually just wrappers and C++ extensions already have the functionality.  Thomas Heller, though, likes it because he wants a way &quot;to add additional C accessible structure fields to types&quot;.</p>
+<p>As an aside, a suggestion to David about having to put instance-specific info in __dict__, Thomas said &quot;You can (but you probably know this already) replace the type's tp_dict by a custom subclass of PyDict_Object, which adds additional fields.&quot;</p>
+</div>
+<div class="section" id="moratorium-on-changes-to-idle">
+<h1><a name="moratorium-on-changes-to-idle"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028776.html">Moratorium on changes to IDLE</a></a></h1>
+<p>Guido said that he would &quot;like to put a stop to all changes to the version of IDLE in the Python source tree (<a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Tools/idle/">Tools/idle/*</a> -- let's call it Python-idle)&quot;.  All changes should go through <a class="reference" href="http://idlefork.sf.net/">IDLEfork</a> .  It will then get merged into CVS before 2.3 is released.  Currently Idlefork is working with 2.2 and Guido would like to keep it that way so that more people use IDLE.</p>
+</div>
+<div class="section" id="weeding-out-obsolete-modules-and-demos">
+<h1><a name="weeding-out-obsolete-modules-and-demos"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028718.html">Weeding out obsolete modules and Demos</a></a></h1>
+<p>(continuation from <a class="reference" href="http://www.ocf.berkeley.edu/~bac/python-dev/summaries/2002-09-01--2002-09-15.html">last summary</a>)</p>
+<p>Guido removed the obsolete SGI demos from <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Demo/">Demo</a> as mentioned from the last summary.</p>
+<p>If anyone else out there has any demos that they think are no longer needed, submit a <a class="reference" href="http://sourceforge.net/tracker/group_id=5470&amp;atid=305470">SF patch</a> mentioning what you think should be removed and why.</p>
+</div>
+<div class="section" id="rest-ing-misc-news">
+<h1><a name="rest-ing-misc-news"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028799.html">ReST-ing Misc/NEWS</a></a></h1>
+<p>Skip changed <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Misc/NEWS">Misc/NEWS</a> into a reST document.  Hopefully this will end up somewhere on <a class="reference" href="http://www.python.org">http://www.python.org</a> so people can be kept very up-to-date on what changes have been made in <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/">CVS</a> .</p>
+</div>
+<div class="section" id="mysterious-hangs-in-socket-code">
+<h1><a name="mysterious-hangs-in-socket-code"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028555.html">mysterious hangs in socket code</a></a></h1>
+<p>(continued from <a class="reference" href="http://www.ocf.berkeley.edu/~bac/python-dev/summaries/2002-09-01--2002-09-15.html">last summary</a>)</p>
+<p>People are still trying to weed out issues with threaded code that seems to act single-threaded.  The suspect is still glibc's getaddrinfo() implementation; POSIX says it is supposed to be thread-safe but not everyone is believing that.</p>
+</div>
+<div class="section" id="attention-releasing-python-2-2-2-in-a-few-weeks">
+<h1><a name="attention-releasing-python-2-2-2-in-a-few-weeks"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028806.html">ATTENTION!  Releasing Python 2.2.2 in a few weeks</a></a></h1>
+<p>Guido announced that he would like to get Python 2.2.2 out the door by October 8.  PythonLabs is busy as it is and thus do not have time to thoroughly make sure everything gets done.  What can you do to help?  Glad you asked: &quot;the best thing you can do is take your favorite set of modules or core files and systematically backport anything that's clearly a bugfix and backports easily.  Or you could simply make sure that your favorite bugfix is backported&quot;.</p>
+<p>If you don't have checkin, either team up with someone who does or request checkin rights (decision will be based on reputation).</p>
+<p>SF should not be used for saying what should and shouldn't be backported.  This should all be done through Python-dev.  Michael McLay suggest a wiki to handle all of this (thank goodness; the amount of traffic this would have generated would have killed me).  Skip said he could set one up rather quickly and he did at <a class="reference" href="http://manatee.mojam.com/py222wiki/">http://manatee.mojam.com/py222wiki/</a> .</p>
+<p>Laura Creighton mentioned what she planned to do for Python-in-a-Tie (Py-tie).  Looks like the current plan is to make Python 2.2.2 the initial release and add in things from there based on developer feedback instead of taking future releases and removing what they don't need.  Perhaps Py-tie will end up taking the place of the elusive <a class="reference" href="http://www.python.org/dev/peps/pep-0206">Sumo distro</a>?</p>
+<p>Ralf W. Grosse-Kunstleve brought up how a bug report about C++ compatibility had not been handled yet.  Both Tim and Guido said that if he wanted a solution put in they would need a patch; neither of them are C++ users (Ralf subsequently provided a patch that Neal Norwitz has assgined to himself and will apply and backport at <a class="reference" href="http://www.python.org/sf/607253">http://www.python.org/sf/607253</a> ).  C++ uses should keep that in mind when trying to get C++ stuff into the core.</p>
+<p>Gustavo Niemeyer said that he has a script for adding moin pages using your favorite editor.  He also has a syntax highlight file for Vim.  All of this can be found at <a class="reference" href="http://moin.conectiva.com.br/EditMoin">http://moin.conectiva.com.br/EditMoin</a> .</p>
+</div>
+<div class="section" id="built-in-functions-kw-args">
+<h1><a name="built-in-functions-kw-args"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028811.html">Built-in functions, kw args</a></a></h1>
+<p>Jp Calderone brought up the question of whether ParseTupleAndKeywords should be used more often then ParseTuple in the core.</p>
+<p>Guido pointed out that ParseTupleAndKeywords did not exist since the beginning of time, it's slower, and much harder to use.  Guido basically ended up saying use it if you want, it isn't required.</p>
+</div>
+<div class="section" id="python-for-openvms">
+<h1><a name="python-for-openvms"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028814.html">Python for OpenVMS</a></a></h1>
+<p>Skip Montanaro announced that Jean-Francois Pieronne had ported Python 2.1.3 over to <a class="reference" href="http://www.openvms.org/">OpenVMS</a> .  Skip has also informed me that Jean-Francois has submitted some patches against the 2.3 tree.</p>
+</div>
+<div class="section" id="zcombreloc">
+<h1><a name="zcombreloc"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028822.html">-zcombreloc</a></a></h1>
+<p>In Andrew Koenig's continual quest to get Python to build with Binutils 2.13 under Solaris, Andrew discovered through discussions with the Binutils developers &quot;that -zcombreloc just plain doesn't work in any release of binutils&quot;.  Andrew thinks this will get fixed in Binutils 2.13.1 .</p>
+<p>But what about until then?  Well, you are out of luck on Solaris with Binutils 2.13 .  There is a test you can run to see if you will be affected by this bug in this email at <a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028822.html">http://mail.python.org/pipermail/python-dev/2002-September/028822.html</a> .</p>
+</div>
+<div class="section" id="need-advice-cloning-python-cvs-for-ce-project">
+<h1><a name="need-advice-cloning-python-cvs-for-ce-project"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028842.html">Need advice: cloning python cvs for CE project</a></a></h1>
+<p>Brad Clements of the &quot;python ce&quot; project asked for advice on how to &quot;maintain a single working directory that can be checked into two different CVS systems&quot;.  Guido said they could have a branch in the CVS tree if they were all Python developers &quot;or can be sworn in easily&quot;.  The other option Guido presented was for them to start their own SF project and do a vendor branch checking; this is how IDLE-fork does it.</p>
+<p>Martin gave some instructions on how to do this in an email which can be reached at <a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028852.html">http://mail.python.org/pipermail/python-dev/2002-September/028852.html</a> .</p>
+</div>
+<div class="section" id="assign-to-errno-allowed">
+<h1><a name="assign-to-errno-allowed"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028868.html">Assign to errno allowed?</a></a></h1>
+<p>Thomas Heller was patching <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/selectmodule.c">selectmodule.c</a> for Windows to deal with the fact that it does not set errno.  Thomas wondered if it would be okay to set errno himself.  Everyone in the end said it was fine (even the man page for errno).</p>
+<p>Through the discussion over whether not setting errno was proper, it was pointed out by Thomas that the entire reason he was fixing this was for <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Lib/asyncore.py">asyncore</a> to work; apparently it has always been broken on Windows.  Guido suggested a simple fix to the module to make it work.</p>
+<p>The other point that came up that Windows CE and NetWare don't allow for direct signing to errno; <tt class="literal"><span class="pre">errno</span> <span class="pre">=</span> <span class="pre">0</span></tt> is an error on those platforms.  Brad Clements submitted a patch to add a macro to Python for setting errno.  Well, Tim pointed out that it is an ISO C requirement that errno be assignable.  This led Guido to &quot;have a very strong urge to tell [Brad's patch] to go away&quot;.  Let me say that from my personal experience on Python-dev I have noticed that Python-dev does not like work-arounds for things that don't work because something does not follow a standard; this is especially true for anything dealing with ISO C.  So if you have a problem and it is because your platform is not standards-compliant, I would not expect to get much sympathy from Python-dev (unless it is a Windows desktop OS =).</p>
+<p>In the end it was suggested to the CE guys to just keep a branch of the CVS where they fixed the whole errno issue.  That way they can just sync with the core and not have to go through and change all of the errno lines every time they sync.</p>
+<p>This thread even split into another one entitled <a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028912.html">Reserved keywords in source</a> in which Brad Clements pointed out that <tt class="literal"><span class="pre">finally</span></tt> is a reserved word on Windows CE.  This, once again, flies in the face of ISO C.</p>
+</div>
+<div class="section" id="sorted">
+<h1><a name="sorted"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028925.html">sorted()</a></a></h1>
+<p>Francois Pinard brought up the point that most beginners don't realize that <tt class="literal"><span class="pre">.sort()</span></tt> does not return anything; the sorting is done in-place.  He thought that adding a <tt class="literal"><span class="pre">.sorted()</span></tt> method to lists that would work just like <tt class="literal"><span class="pre">.sort()</span></tt> but also return the list would be nice.  Would not only possibly simplify some code by allowing a sort method to be called in the header of a <tt class="literal"><span class="pre">for</span></tt> loop, but possibly prevent newbie errors as previously mentioned.</p>
+<p>Greg Ewing suggested a <tt class="literal"><span class="pre">sorted()</span></tt> function instead that would basically do what Francois wanted.  This causeed Timothy Delaney to suggest possible magic methods <tt class="literal"><span class="pre">__sort__</span></tt> and <tt class="literal"><span class="pre">__isort__</span></tt>.</p>
+<p>Guido responded saying that &quot;this is a problem that should not be addressed by changes to the language, builtins or library&quot;.  So there you go, the BDFL has spoken.</p>
+</div>
+<div class="section" id="lib-plat-xxxx-directories">
+<h1><a name="lib-plat-xxxx-directories"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028933.html">Lib/plat-xxxx directories</a></a></h1>
+<p>In case people are interested, the Lib/plat-xxx directories are &quot;for platform-specific modules&quot;.  Most of them, apparently, &quot;are collections of system constants generated by Tools/scripts/h2py.py&quot; .</p>
+</div>
+<div class="section" id="how-to-add-an-encoding-alias">
+<h1><a name="how-to-add-an-encoding-alias"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028936.html">How to add an encoding alias?</a></a></h1>
+<p>For the <a class="reference" href="http://spambayes.sf.net">spambayes</a> project, Guido asked how to add an encoding to <tt class="literal"><span class="pre">encodings.aliases</span></tt>.  He wondered if there was an official API or if:</p>
+<pre class="literal-block">import encodings.aliases
+encodings.aliases.aliases['ansi-x3-4-1968'] = 'ascii'  # This is wrong!  Read on for why...</pre>
+<p>was the way to do it.</p>
+<p>M.A. Lemburg pointed responded that the above-mentioned way is the only way to do it in 2.2 .  He also mentioned that hyphens must be changed to underscores for names.  MAL suggested that all non-alphanumeric characters be mapped to underscores before referring to the aliases dictionary.</p>
+<p>Guido voted +1 for the change and +1 to backporting to 2.2.2 .</p>
+</div>
+<div class="section" id="user-extendable-literal-modifiers">
+<h1><a name="user-extendable-literal-modifiers"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028945.html">User extendable literal modifiers?!</a></a></h1>
+<p>M.A. Lemburg asked what everyone thought of having the ability to add new literal modifiers (e.g. <tt class="literal"><span class="pre">L</span></tt> in <tt class="literal"><span class="pre">123L</span></tt>) to the interpreter.  Gareth McCaughan suggest &quot;uder-definable <em>prefixes</em>&quot;.  His example is of Common Lisp's ability to have you define something as <tt class="literal"><span class="pre">#&lt;character&gt;&lt;anything&gt;</span></tt> and then parse it based on &lt;character&gt;.  Alex Martelli liked the idea and suggested that <tt class="literal"><span class="pre">&#64;</span></tt> be the proposed symbol instead of <tt class="literal"><span class="pre">$</span></tt> as originally suggested.  Alex also said that being able to parse multiple tokens would be important.</p>
+<p>Jeff Epler pointed out that this could all be done right now with some ugly syntax:</p>
+<pre class="literal-block">class Dimension: ...
+
+class DimensionMaker:
+        def __call__(self, v):
+                return Dimension(v)
+                
+        def __add__(self, v):
+                return Dimension(v)
+                
+D = DimensionMaker()
+
+&gt;&gt;&gt; D+&quot;123&quot;  # Can be considered same as defining D&quot;123&quot;</pre>
+<p>Guido said that &quot;Given all the discussion, this will need a PEP&quot;.  He later pointed out that a possible problem is that if you are not very familiar with a program you might probably won't know what a specific prefix is.  With a function the worst would be having to look through a module that was imported with <tt class="literal"><span class="pre">from</span> <span class="pre">&lt;module&gt;</span> <span class="pre">import</span> <span class="pre">*</span></tt> (&quot;that's one reason to avoid these&quot; types of imports).  MAL said that Guido was &quot;probably right&quot; about this possible confusion.</p>
+</div>
+<div class="section" id="keyword-for-first-argument-of-methods">
+<h1><a name="keyword-for-first-argument-of-methods"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028960.html">Keyword for first argument of methods?</a></a></h1>
+<p>David Abrahams noticed that if he defined the code:</p>
+<pre class="literal-block">class X:
+        def foo(self, y): print y</pre>
+<p>that <tt class="literal"><span class="pre">X.foo(y=1,</span> <span class="pre">self=X())</span></tt> fails with a TypeError.</p>
+<p>Guido said that &quot;You can't pass in self to an unbound method as a keyword argument&quot;.  Best way to have an unbound method is with __call__ .  I think using something like the new staticmethod() or classmethod() functions in Python 2.2 would get  the job done.</p>
+</div>
+<div class="section" id="strange-bug-only-happens-with-python-2-2">
+<h1><a name="strange-bug-only-happens-with-python-2-2"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028966.html">Strange bug only happens with Python 2.2</a></a></h1>
+<p>Gerhard Haring discovered a funky bug dealing with an error saying that a custom object was a string and lacking a __bases__ attribute.  What is pertinent to this thread is not the bug (it got fixed in Python 2.3 and has been backported to 2.2.2), but what caused the bug.</p>
+<p>In abstract.c there was some code that forgot to call PyErr_Clear() .  When your extension code catches an error and you decide to either ignore it or go another direction, you must call this function in order to prevent the exception from propogating to the top when the call is finished and raising the exception in the end.</p>
+</div>
+<div class="section" id="builtins-instance-have-modifiable-class">
+<h1><a name="builtins-instance-have-modifiable-class"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028978.html">builtins instance have modifiable __class__?</a></a></h1>
+<p>Samuele Pedroni asked if being able to directly assigning to __class__ was allowed for builtins.  Guido said &quot;In 2.3, it's disallowed&quot;.  It is highly discouraged in 2.2.2 but  still doable.</p>
+<p>Guido clarified that &quot;setting __class__ for instances of user-defined new-style classes will be allowed (if the new __class__ value is compatible with the old)&quot; .</p>
+</div>
+<div class="section" id="why-are-useful-tools-omitted-from-the-win-bin-distro">
+<h1><a name="why-are-useful-tools-omitted-from-the-win-bin-distro"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028988.html">Why are useful tools omitted from the Win bin distro?</a></a></h1>
+<p>Alex Martelli asked why the Windows distribution lacked some of the Tools subdirectory.  Most of the scripts are left out since they are meant for developers. Since if you are using the pre-packaged Windows installer chances are you are not a developer since you would have compiled it. Thus these scripts are left out.</p>
+<p>Tim Peters (who maintains the WISE installer) said that in order to add a script he would have to add an individual line to the installer for each file; a definite PITA (Pain In The Ass) for Tim.</p>
+<p>There have been calls (which still stand) to document, fix, and clean out the <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Tools/">Tools</a> and <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Demo/">Demo</a> directories.  No one has ever really stepped up to take this on.  Any help, though, no matter how small, would be appreciated in cleaning these directories up.</p>
+</div>
+<div class="section" id="extension-module-difficulty-w-pgen">
+<h1><a name="extension-module-difficulty-w-pgen"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028976.html">Extension module difficulty w/pgen</a></a></h1>
+<p>Jonathan Riehl was having difficulty getting his extension module that exposes pgen to link properly.  He got it to work with a little command-line hack; that does not work for the official distro and thus he was searching for a more proper solution.  He discovered that if he put dummy calls into a global function that seemed to allow it to be linked.  Jonathan hoped there was a better solution.  Guido, unfortunately, destroyed that hope by stating &quot;AFAIK you have to create a dummy reference somewhere&quot;.  He suggested at the end of <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Python/pythonrun.c">Python/pythonrun.c</a> to Jonathan.</p>
+</div>
+<div class="section" id="new-logmerge-feature">
+<h1><a name="new-logmerge-feature"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/028998.html">New logmerge feature</a></a></h1>
+<p>Guido added a new feature to <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Tools/logmerge.py">Tools/logmerge.py</a> that &quot;restricts the output to a specific branch tag&quot;.  This is  useful if you are helping to sort through all of the commits to Python 2.3 to see what should go into 2.2.2 .</p>
+</div>
+<div class="section" id="snapshot-win32all-builds-of-interest">
+<h1><a name="snapshot-win32all-builds-of-interest"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-September/029005.html">Snapshot win32all builds of interest?</a></a></h1>
+<p>Mark Hammond was wondering if people would be interested in him &quot;making regular, basically untested win32all builds against the current Python CVS tree&quot;.  If you would like Mark to do this, let him know.</p>
+</div>
+</div>

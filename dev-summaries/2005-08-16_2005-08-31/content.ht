@@ -1,0 +1,408 @@
+Title: python-dev Summary for 2005-08-16 through 2005-08-31
+Content-type: text/x-rst
+Encoding: latin1
+
+python-dev Summary for 2005-08-16 through 2005-08-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-08-16_2005-08-31.html]
+
+
+
+=============
+Announcements
+=============
+
+------------------
+PyPy release 0.7.0
+------------------
+
+PyPy_ has a new release, 0.7.0, which is now a fully self-contained Python implementation. It includes whole-program type inference and translation to both C and LLVM, a choice of refcounting or Boehm garbage collectors, language-level compliancy with CPython 2.4.1 and much more. If you haven't already, now's the time to check it out!
+
+.. _PyPy: http://codespeak.net/pypy/
+
+Contributing thread:
+
+- `PyPy release 0.7.0 <http://mail.python.org/pipermail/python-dev/2005-August/055773.html>`__
+
+[SJB]
+
+------------------
+New mailbox module
+------------------
+
+Gregory K. Johnson, who's been working with A.M. Kuchling for Google's Summer of Code, has completed a new version of the mailbox module that allows the adding and removing of messages. It will be double-checked for code quality, complete documentation, and full backwards-compatibility and then hopefully checked in.
+
+Contributing thread:
+
+- `New mailbox module <http://mail.python.org/pipermail/python-dev/2005-August/055652.html>`__
+
+[SJB]
+
+=========
+Summaries
+=========
+
+--------
+str.find
+--------
+
+Terry Reedy suggested that str.find() be removed in Python 3.0, in favour of str.index(); the main issue with str.find() is that it returns -1 on failure, leading to the common "if s.find(sub):" bug (which should be "if sub in s:"); -1 is also a valid index into a string.  Guido agreed that removal would be a good idea, however Tim Peters pointed out that the requirement to use a try/except clause can lead to another kind of sloppy code.
+
+Raymond Hettinger suggested that the ideal solution would be to replace str.find() with new methods, str.partition() and str.rpartition(), which work like::
+
+    >>> s = ' http://www.python.org' 
+    >>> s.partition('://')
+    ('http', '://', 'www.python.org')
+    >>> s.rpartition('.')
+    (' http://www.python',  '.', 'org')
+    >>> s.partition('?')
+    ('' http://www.python.org',  '', '')
+
+Replacing str.find() with str.partition() in the standard library generally resulted in much cleaner and clearer code, without requiring the addition of try/except blocks.  Comments were overwhelmingly in favour of this new method.
+
+"part" and "cut" were suggested as alternative names to "partition", although Raymond is very attached to the "partition" name.
+
+Contributing threads:
+
+- `Remove str.find in 3.0? <http://mail.python.org/pipermail/python-dev/2005-August/055704.html>`__
+- `partition() (was: Remove str.find in 3.0?) <http://mail.python.org/pipermail/python-dev/2005-August/055786.html>`__
+- `Proof of the pudding: str.partition() <http://mail.python.org/pipermail/python-dev/2005-August/055781.html>`__
+- `partition() <http://mail.python.org/pipermail/python-dev/2005-August/055792.html>`__
+- `Alternative name for str.partition() <http://mail.python.org/pipermail/python-dev/2005-August/055788.html>`__
+
+[TAM]
+
+------------------------------------------------
+PEP 348: Exception Reorganization for Python 3.0
+------------------------------------------------
+
+This fortnight saw the final demise of `PEP 348`_. This began with `Guido's agreement`_ to remove bare "except:" from Python 3.0 entirely. Introducing a transition plan for this change in Python 3.0 proved problematic, however. To quote Michael Chermside, "no syntax will work in BOTH 2.5 and 3.0". For example, the proposed Python 3.0 code::
+
+    try:
+        my_result = call_some_library(my_data)
+    except Exception: # doesn't catch KeyboardInterrupt or SystemExit
+        report_nonterminal_error()
+
+would need to be written in Python 2.5 as::
+    
+    try:
+        my_result = call_some_library(my_data)
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except:
+        report_nonterminal_error()
+
+Note that the final ``except:`` in the 2.5 code can't be written as ``except Exception:`` - Python 2.5 will still allow exceptions that do not derive from Exception (e.g. string exceptions). Thus deprecating bare ``except:`` would mean that some code would produce warnings, and yet not have any way to be rewritten that would be upwards-compatible.
+
+As a result, Guido rejected the entire PEP.
+
+.. _PEP 348: http://www.python.org/dev/peps/pep-0348
+.. _Guido's agreement: http://mail.python.org/pipermail/python-dev/2005-August/055620.html
+
+Contributing threads:
+
+- `Bare except clauses in PEP 348 <http://mail.python.org/pipermail/python-dev/2005-August/055603.html>`__
+- `FW: Bare except clauses in PEP 348 <http://mail.python.org/pipermail/python-dev/2005-August/055622.html>`__
+- `rev. 1.9 of PEP 348: Raymond tested, Guido approved <http://mail.python.org/pipermail/python-dev/2005-August/055441.html>`__
+
+[SJB]
+
+-----------------------------------------------------------------
+PEP 347: Migrating the Python Subversion repository to Subversion
+-----------------------------------------------------------------
+
+Discussion about the conversion to subversion and subsequent move of the Python source repository to svn.python.org (outlined in `PEP  347`_) continued this fortnight.  Discussion particularly covered the means of authentication that would be used to access  svn.python.org, how names would appear in revision logs, and other minor details like that.  Martin has set up a test installation (for current Python developers; there is no anonymous access) on svn.python.org, to check that the system will work as described in the PEP.  Assuming that things go well with this test installation, it seems likely that the PEP will be accepted and the migration will take place at some point in the future.
+
+.. _PEP 347: http://www.python.org/dev/peps/pep-0347
+
+Contributing threads:
+
+- `PEP 347: Migration to Subversion <http://mail.python.org/pipermail/python-dev/2005-August/055437.html>`__
+- `Admin access using svn+ssh <http://mail.python.org/pipermail/python-dev/2005-August/055526.html>`__
+- `Collecting SSH keys <http://mail.python.org/pipermail/python-dev/2005-August/055529.html>`__
+- `On distributed vs centralised SCM for Python <http://mail.python.org/pipermail/python-dev/2005-August/055435.html>`__
+- `Fwd: Distributed RCS <http://mail.python.org/pipermail/python-dev/2005-August/055440.html>`__
+- `wush.net details <http://mail.python.org/pipermail/python-dev/2005-August/055527.html>`__
+- `Subversion instructions <http://mail.python.org/pipermail/python-dev/2005-August/055565.html>`__
+
+[TAM]
+
+--------------------------
+Partial method application
+--------------------------
+
+Ian Bicking suggested a partialmethod() function along the lines of the operator module's itemgetter() and attrgetter().  The partialmethod() function would allow the "self" argument of a method to be supplied later, e.g.::
+
+    lst = ['A', 'b', 'C']
+    lst.sort(key=partialmethod('lower'))
+
+Martin v. Löwis argued (convincing Guido at least) that a better style for delayed method calls would look something like::
+
+    lst.sort(key=virtual.lower)
+
+where the "virtual" object would serve as a virtual instance so that the "self" argument to the "lower" method could be supplied later.
+
+There was a brief discussion about consistency between this proposal and the operator module's itemgetter() and attrgetter() which, unlike Martin's proposal, use argument strings instead of attributes to determine the appropriate function to produce. Additionally, in Python 2.5, both itemgetter() and attrgetter() will allow multiple arguments, while none of the method-calling solutions above extended reasonably to multiple methods.  However, people seemed in general agreement that the use case was a single method call, and that supporting multiple method calls was unnecessary.
+
+The thread concluded without coming to a full resolution. For the moment at least, it seems that defining a regular Python function for the key= argument is still considered the best style.
+
+Contributing thread:
+
+- `PEP 309: Partial method application <http://mail.python.org/pipermail/python-dev/2005-August/055495.html>`__
+
+[SJB]
+
+-----------------------------
+Moving id() to the sys module
+-----------------------------
+
+Christian Robottom Reis suggested that the built-in function id() should be moved into the sys module, as "id" is a useful and common name, to avoid shadowing built-ins.  This is also list as one of `Guido's regrets`_.  He asked whether adding sys.id() would be possible in 2.5, and adding a deprecation warning to __builtins__.id() (to be removed in Python 3.0).
+
+This gathered quite a lot of support, and few comments against the proposal.  However, Anthony Baxter warned that using the warnings module is expensive, and so issuing a deprecation warning might not be a good idea.
+
+Interestingly, Guido's opinion (not universally shared) is that shadowing at least some built-in names is perfectly acceptable.  It wasn't clear whether this meant that he would be against the move, or that his reasons for the move were diferent (e.g. simply a more appropriate place, reducing the number of built-ins).  
+ 
+ .. _Guido's regrets: http://www.python.org/doc/essays/ppt/regrets/PythonRegrets.ppt 
+
+Contributing thread:
+
+ - `Deprecating builtin id (and moving it to sys()) <http://mail.python.org/pipermail/python-dev/2005-August/055472.html>`__
+
+[TAM]
+
+-----------------------------------------
+O(N**2) behavior in StreamReader.readline
+-----------------------------------------
+
+Keir Mierle reported a problem where _PyUnicodeUCS2_IsLinebreak was called excessively, resulting in a huge slowdown of a CGI script.   The code that caused the slowdown was adding the encoding line "# -*- coding: iso8859-1 -*-"; this is caused by changes to codecs in  2.4, which no longer rely on C's readline() to do line splitting, but use unicode.splitlines() instead, and also that  StreamReader.readline performs splitline on the entire input, only to fetch the first line, and also uses splitlines on a single line  to remove any trailing line breaks.  As a result, for a file with N lines, IsLinebreak is invoked up to N*N/2 times per character.
+
+Walter Dörwald and Martin v. Löwis worked on solutions to this problem.  Martin's `eventual solution`_ keeps the splitlines result and only invokes IsLinebreak once per character, and copies each character only one.  This should be much faster than the current code.
+
+.. _eventual solution: http://www.python.org/sf/1268314
+
+Contributing threads:
+
+- `51 Million calls to _PyUnicodeUCS2_IsLinebreak() (???) <http://mail.python.org/pipermail/python-dev/2005-August/055597.html>`__
+- `[Argon] Re: 51 Million calls to _PyUnicodeUCS2_IsLinebreak() (???) <http://mail.python.org/pipermail/python-dev/2005-August/055669.html>`__
+
+[TAM]
+
+----------------------------------------------
+PEP 349: Allow str() to return unicode strings
+----------------------------------------------
+
+Neil Schemenauer updated `PEP 349`_, which had previously proposed a text() builtin, to instead propose that str() be allowed to return unicode strings. The new str() would remove two types of UnicodeEncodeErrors that str() had previously raised:
+
+* No UnicodeEncodeError would be raised if the argument to str() is unicode. Instead, the unicode object would be returned unmodified.
+* No UnicodeEncodeError would be raised if the argument's __str__() method returns a unicode object. Instead, this returned object would be in turn returned from the str() call.
+
+In the following brief discussion, it was suggested that unicode.__str__ should be changed to return "self" instead of trying to encode itself into ascii. (Otherwise subclasses of unicode would likely get UnicodeEncodeErrors when their __str__() methods were called.)
+
+There was a little feedback on the proposal, with a few people wanting to go back to the text() builtin instead of changing str(), but no final decisions were made.
+
+.. _PEP 349: http://mail.python.org/pipermail/python-dev/2005-August/055557.html
+
+Contributing thread:
+
+- `Revised PEP 349: Allow str() to return unicode strings <http://mail.python.org/pipermail/python-dev/2005-August/055557.html>`__
+
+[SJB]
+
+---------------------------------
+One argument form of setdefault()
+---------------------------------
+
+Tim Peters asked if anyone remembered why setdefault's second argument is optional, given that it doesn't seem at all useful, and that he wasn't able to find any use cases outside of the test suite.  The likely explanation seemed that it was a result of setdefault()  following the behaviour of dict.get().  Tim suggested dropping the optional nature of the second argument for Python 3.0 - Raymond  upped this by suggesting that it could be done earlier (e.g. with a deprecation warning in 2.5 and gone in 2.6).
+
+Tim did later find a use (in Zope), but the author of the code, David Goodger, indicated that it would probably be better written in other ways, and that if dict.pop() could be used (it was introduced in Python 2.3) then that would be preferable, so it still seems likely that the second argument will be made mandatory.
+
+Contributing thread:
+
+- `setdefault's second argument <http://mail.python.org/pipermail/python-dev/2005-August/055829.html>`__
+
+[TAM]
+
+---------------------------
+dir() returning non-strings
+---------------------------
+
+As a result of a suggested patch by Michael Krasnyk, the question of whether dir() should only return strings was raised.  Guido's position was that dir() should hide non-strings, as these are not attributes if you use the definition that an attribute name is a valid parameter to a getattr() or setattr() call.  Guido suggested that a useful relationship (excluding where __getattr__ or __getattribute__ is overridden) is::
+
+  name in dir(x) <==> getattr(x, name) is valid
+
+Contributing threads:
+
+- `SWIG and rlcompleter <http://mail.python.org/pipermail/python-dev/2005-August/055438.html>`__
+
+[TAM]
+
+-----------------
+file.readblocks()
+-----------------
+
+Raymond Hettinger wanted to move away from the current empty-string API that file objects use for indicating that the end of the file has been reached. To cover at least some of the use-cases, he suggested a readblocks() method, so that code like::
+
+    while 1:
+        block = f.read(20)
+        if line == '':
+            break
+        ...
+
+could be instead written as::
+
+    for block in f.readblocks(20):
+        ...
+
+Guido couldn't see a use case for this though, and suggested that there were other issues with files/streams that were more important (e.g. buffering transparency and character set encodings) some of which he'd been working on in the sandbox_.
+
+.. _sandbox: http://cvs.sourceforge.net/viewcvs.py/python/python/nondist/sandbox/sio/
+
+Contributing thread:
+
+- `empty string api for files <http://mail.python.org/pipermail/python-dev/2005-August/055741.html>`__
+
+[SJB]
+
+----------------------------
+Python 3.0 design principles
+----------------------------
+
+Raymond Hettinger is planning to put together a draft list of Python design principles.  For example, "don't let the *type* of the return value depend on the *value* of the arguments".  These will complement the Zen of Python, and provide a document to refer people to when proposing new/changed features.
+
+Although in design principle discussion, there has been discussion about the Python 2.x->Python 3.0 transition, and whether it will be possible to write code that runs in both Python 2.x and 3.0.
+
+[TAM]
+
+Contributing threads:
+
+- `Design Principles <http://mail.python.org/pipermail/python-dev/2005-August/055912.html>`__
+- `Python 3 design principles <http://mail.python.org/pipermail/python-dev/2005-August/055914.html>`__
+
+
+===============
+Skipped Threads
+===============
+
+- `Extension to dl module to allow passing strings from native function <http://mail.python.org/pipermail/python-dev/2005-August/055443.html>`__
+- `implementation of copy standard lib <http://mail.python.org/pipermail/python-dev/2005-August/055451.html>`__
+- `dev listinfo page (was: Re: Python + Ping) <http://mail.python.org/pipermail/python-dev/2005-August/055453.html>`__
+- `remote debugging with pdb <http://mail.python.org/pipermail/python-dev/2005-August/055471.html>`__
+- `A testing challenge <http://mail.python.org/pipermail/python-dev/2005-August/055488.html>`__
+- `On decorators implementation <http://mail.python.org/pipermail/python-dev/2005-August/055524.html>`__
+- `[Python-checkins] python/dist/src setup.py, 1.219, 1.220 <http://mail.python.org/pipermail/python-dev/2005-August/055539.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-August/055556.html>`__
+- `[Python-checkins] python/dist/src/Modules _hashopenssl.c, NONE, 2.1 sha256module.c, NONE, 2.1 sha512module.c, NONE, 2.1 md5module.c, 2.35, 2.36 shamodule.c, 2.22, 2.23 <http://mail.python.org/pipermail/python-dev/2005-August/055569.html>`__
+- `PEP 342 Implementation <http://mail.python.org/pipermail/python-dev/2005-August/055571.html>`__
+- `Modules _hashopenssl, sha256, sha512 compile in MinGW, test_hmac.py passes <http://mail.python.org/pipermail/python-dev/2005-August/055583.html>`__
+- `python/dist/src/Doc/tut tut.tex,1.276,1.277 <http://mail.python.org/pipermail/python-dev/2005-August/055591.html>`__
+- `Docs/Pointer to Tools/scripts? <http://mail.python.org/pipermail/python-dev/2005-August/055637.html>`__
+- `python-dev Summary for 2005-08-01 through 2005-08-15 [draft] <http://mail.python.org/pipermail/python-dev/2005-August/055657.html>`__
+- `Style for raising exceptions (python-dev Summary for 2005-08-01 through 2005-08-15 [draft]) <http://mail.python.org/pipermail/python-dev/2005-August/055658.html>`__
+- `PEP 342: simple example, closure alternative <http://mail.python.org/pipermail/python-dev/2005-August/055682.html>`__
+- `operator.c for release24-maint and test_bz2 on Python 2.4.1 <http://mail.python.org/pipermail/python-dev/2005-August/055693.html>`__
+- `test_bz2 on Python 2.4.1 <http://mail.python.org/pipermail/python-dev/2005-August/055696.html>`__
+- `[Python-checkins] python/dist/src/Lib/test test_bz2.py, 1.18, 1.19 <http://mail.python.org/pipermail/python-dev/2005-August/055699.html>`__
+- `test_bz2 fails on Python 2.4.1 from CVS, passes on same from source archieve <http://mail.python.org/pipermail/python-dev/2005-August/055743.html>`__
+- `Python 3.0 blocks? <http://mail.python.org/pipermail/python-dev/2005-August/055750.html>`__
+- `Any detail list of change between version 2.1-2.2-2.3-2.4 of Python? <http://mail.python.org/pipermail/python-dev/2005-August/055756.html>`__
+- `info/advices about python readline implementation <http://mail.python.org/pipermail/python-dev/2005-August/055761.html>`__
+- `test_bz2 and Python 2.4.1 <http://mail.python.org/pipermail/python-dev/2005-August/055763.html>`__
+- `[Python-checkins] python/dist/src/Doc/whatsnew whatsnew25.tex, 1.18, 1.19 <http://mail.python.org/pipermail/python-dev/2005-August/055784.html>`__
+- `Revising RE docs (was: partition() (was: Remove str.find in 3.0?)) <http://mail.python.org/pipermail/python-dev/2005-August/055868.html>`__
+- `Switching re and sre <http://mail.python.org/pipermail/python-dev/2005-August/055901.html>`__
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+August 16, 2005 through August 31, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the 2nd summary written by the python-dev summarisers
+Steve Bethard and Tony Meyer.
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/trunk/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  We do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow us to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-10-01_2005-10-15.html
+.. _original text file: http://www.python.org/dev/summary/2005-08-16_2005-08-31.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

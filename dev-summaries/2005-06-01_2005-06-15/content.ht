@@ -1,0 +1,466 @@
+Title: python-dev Summary for 2005-06-01 through 2005-06-15
+Content-type: text/x-rst
+
+python-dev Summary for 2005-06-01 through 2005-06-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-06-01_2005-06-15.html]
+
+=====================
+Summary Announcements
+=====================
+
+---------------------------------
+Bug Day: Saturday, June 25th 2005
+---------------------------------
+
+AMK organized another `Python Bug Day`_ on Saturday, June 25th. Hope
+you got a chance to help out!
+
+.. _Python Bug Day: http://wiki.python.org/moin/PythonBugDay
+
+Contributing Threads:
+
+- `Bug day on the 25th? <http://mail.python.org/pipermail/python-dev/2005-June/054126.html>`__
+
+[SJB]
+
+
+----------------------------------------
+FishEye for Python Subversion repository
+----------------------------------------
+
+Peter Moore has kindly set up `Fish Eye for the Python Subversion repository repository`_.
+FishEye is a repository browsing,  searching, analysis and monitoring tool,
+with great features like RSS feeds, Synthetic changesets, Pretty ediffs and
+SQL like searches. Check it out!
+
+.. _Fish Eye for the Python Subversion repository repository: http://fisheye.cenqua.com/viewrep/python/
+
+Contributing Threads:
+
+- `FishEye on Python Subversion repository Repository <http://mail.python.org/pipermail/python-dev/2005-June/054127.html>`__
+
+[SJB]
+
+
+--------------------------------
+PyPy Sprint: July 1st - 7th 2005
+--------------------------------
+
+The next `PyPy`_ sprint is scheduled right after EuroPython 2005 in
+Gothenborg, Sweden. It will focus mainly on  translating PyPy to lower level
+backends, so as to move away from running PyPy on top of the CPython
+interpreter.  There will be newcomer-friendly introductions, and other
+topics are possible, so if you have any interest in PyPy,  now is the time
+to help out!
+
+.. _PyPy: http://codespeak.net/pypy
+
+Contributing Threads:
+
+- `Post-EuroPython 2005 PyPy Sprint 1st - 7th July 2005 <http://mail.python.org/pipermail/python-dev/2005- June/054162.html>`__
+
+[SJB]
+
+
+---------------------------------
+Reminder: Google's Summer of Code
+---------------------------------
+
+Just a reminder that the friendly folks at Python have set up a `wiki`_ and
+a `mailing list`_ for questions about  `Google's Summer of Code`_. For
+specific details on particular projects (e.g. what needs done to complete
+Python SSL  support) participants may also ask questions to the Python-Dev
+list.
+
+.. _wiki: http://wiki.python.org/moin/CodingProjectIdeas
+.. _mailing list: http://mail.python.org/mailman/listinfo/summerofcode
+.. _Google's Summer of Code: http://code.google.com/summerofcode.html
+
+[SJB]
+
+
+----------------------
+hashlib Review Request
+----------------------
+    
+
+Gregory P. Smith noted that he has finished up the hashlib work he started
+on a few months ago for patches `935454`_  and `1121611`_ (where the final
+patch is).  He feels that the patch is ready, and would like anyone
+interested to  review it; the patch incorporates both OpenSSL hash support
+and SHA256+SHA512 support in a single module.  `The  documentation`_ can be
+accessed separately, for convenience.
+
+
+.. _935454: http://python.org/sf/935454
+.. _1121611: http://python.org/sf/1121611
+.. _The documentation: http://electricrain.com/greg/hashlib-py25-doc/module-hashlib.html 
+
+Contributing Threads:
+
+- `hashlib - faster md5/sha, adds sha256/512 support <http://mail.python.org/pipermail/python-dev/2005- June/054156.html>`__
+
+[TAM]
+
+=========
+Summaries
+=========
+
+----------------
+PEP 343 Progress
+----------------
+
+The PEP 343 discussions were mostly concluded. Guido posted the newest
+version of the PEP to both Python-Dev and  Python-List and the discussions
+that followed were brief and mostly in agreement with the proposal.
+
+The PEP 343 syntax was modified slightly to require parentheses if VAR is a
+comma-separated list of variables.  This  made the proposal
+forward-compatible to extending the with-block for multiple resources. In
+the favored extension,  the with-block would take multiple expressions in a
+manner analogous to import statements::
+
+    with EXPR1 [as VAR1], EXPR2 [as VAR2], ...:
+        BLOCK
+
+However, if this extension becomes part of Python, it will likely enter
+some time after Python 2.5, once users have a better idea of what with-block
+use-cases look like.
+
+There were also some brief discussions about how with-blocks should behave
+in the presence of async exceptions like  the KeyboardInterrupt generated
+from a ^C. While it seemed like it would be a nice property for with-blocks
+to  guarantee that the __exit__ methods would still be called in the
+presence of async exceptions, making such a  guarantee proved to be too
+complicated.  Thus the final conclusion, as summarized by Nick Coghlan, was
+that "with  statements won't make any more guarantees about this than
+try/finally statements do".
+
+Contributing Threads:
+
+- `PEP 343 rewrite complete <http://mail.python.org/pipermail/python-dev/2005-June/054039.html>`__
+
+- `For review: PEP 343: Anonymous Block Redux and Generator Enhancements <http://mail.python.org/pipermail/python- dev/2005-June/054082.html>`__
+
+- `PEP 343 - next steps <http://mail.python.org/pipermail/python-dev/2005-June/054138.html>`__
+
+- `PEP 343 question <http://mail.python.org/pipermail/python-dev/2005-June/054230.html>`__
+
+[SJB]
+
+
+--------------
+Do-While Loops
+--------------
+
+Raymond Hettinger asked for a "dowhile" loop of the form::
+
+    dowhile <cond>:
+        <body>
+
+which would run <body> once before testing the <cond>, and then proceed as a
+normal while-loop. He was subsequently  referred to `PEP 315`_, which
+proposes a slightly different syntax for a similar purpose.
+
+The discussion expanded to not only do-while loops, but also loops with
+break conditions at locations other than the  beginning and the end of a
+loop. A variety of syntax proposals were suggested, but none seemed
+compellingly better  than the current syntax::
+
+    while True:
+        ...
+        if <cond>:
+            break
+        ...
+
+which supports putting the condition(s) at any location in the loop.
+
+.. _PEP 315: http://www.python.org/dev/peps/pep-0315
+        
+Contributing Threads:
+
+- `Wishlist: dowhile <http://mail.python.org/pipermail/python-dev/2005-June/054167.html>`__
+
+[SJB]
+
+
+------------------------------------
+Reference Counting in Module Globals
+------------------------------------
+
+Both Michael Hudson and Skip Montanaro noticed that Py_INCREFs appeared to
+be unnecessary when adding an object to a  module's globals. Armin Rigo
+explained that after a module is initialized, the import mechanism makes a
+"hidden"  copy of the module's dict so that the module can be reloaded. This
+means that objects added as module globals will  always have an extra
+reference count in this hidden dict.
+
+However, Armin Rigo agreed with Michael Hudson that this explanation was no
+longer applicable after an interpreter  shutdown. The best conclusion he
+could draw in this a situation: "it's all quite obscure".
+
+Contributing Threads:
+
+- `refcounting vs PyModule_AddObject <http://mail.python.org/pipermail/python-dev/2005-June/054232.html>`__
+- `[Python-checkins] python/dist/src/Modules _csv.c, 1.37, 1.38 <http://mail.python.org/pipermail/python-dev/2005- June/054239.html>`__
+
+[SJB]
+
+-----------------------------------------
+Reorganising the standard library (again)
+-----------------------------------------
+
+The ever-popular topic of reorganising the standard library came up again
+this fortnight, courtesy of Reinhold  Birkenfeld.  The questions posed
+included hierarchy (flat/nested), third party modules, size (batteries
+included or  not), and the standard GUI toolkit.
+
+As usual, there was a great deal of discussion, but not a great deal of
+consensus about any of these (other than  that including ElementTree in the
+standard library would be good), and given the amount of breakage this would
+involve (and that Guido didn't weigh in at all), it seems unlikely that much
+will change before Python 3000;  although Josiah Carlson indicated that he
+had a patch that would avoid a lot of breakage.
+    
+Contributing Threads:
+
+- `Thoughts on stdlib evolvement <http://mail.python.org/pipermail/python-dev/2005-June/054092.html>`__
+
+[TAM]
+
+--------------------------
+First Mac-tel, now Py-tel?
+--------------------------
+
+Guido mentioned that Intel has a free (as in beer) C `compiler for Linux`_,
+and that a friend of his (who is  involved in its production and marketing)
+would like to see how it performs with Python.  The compiler wasn't news  to
+some of the -dev crowd, though, with Martin v. Löwis pointing out a `bug
+report on the compiler`_, as well as a  `patch`_, and a `message indicating
+that some people had problems`_ with the resulting interpreter.
+
+Martin pointed out that there were some old (2002 and 2004) results
+indicating that the Intel compiler was slightly  faster, but couldn't find
+any results for the latest version.  Michael Hoffman gave summaries of more
+testing, which  gave a 16% speed increase.  He felt that, while this was
+significant, he wasted a lot of time dealing with resulting problems with
+extension modules, and so it doesn't use as much any more.
+    
+
+.. _compiler for Linux: http://www.intel.com/software/products/compilers/clin/index.htm
+.. _bug report on the compiler: http://python.org/sf/1162001
+.. _patch: http://python.org/sf/1162023
+.. _message indicating that some people had problems: http://mail.python.org/pipermail/python-list/2005-March/270672.html
+
+Contributing Threads:
+
+- `Compiling Python with Intel compiler? <http://mail.python.org/pipermail/python-dev/2005-June/054227.html>`__
+
+[TAM]
+
+------------------
+sys.path Behaviour
+------------------
+
+Reinhold Birkenfeld noticed that sys.path's first element is '' in
+interactive sessions, but the directory  containing the script otherwise,
+and wondered if this was intentional.  Guido clarified that he's always
+liked it  this way, so that if you use os.path.join to join it with a script
+name you don't get a spurious ".\" preprended.
+
+The "absolutizing" of sys.path entries, however, is reasonably new; Bob
+Ippolito pointed out that is also  `problematic with regards to path
+hooks`_.  He has a `patch to fix it`_, but hasn't had a chance to commit it;
+Phillip J. Eby noted that the patch doesn't fix completely fix it, however,
+and indicated that fixing site.py with  respect to `PEP 302`_ will be quite
+challenging.
+ 
+.. _problematic with regards to path hooks: http://mail.python.org/pipermail/python-dev/2005-April/052885.html
+.. _patch to fix it: http://python.org/sf/1174614
+.. _PEP 302: http://python.org/peps/pep-0302
+
+Contributing Threads:
+
+- `sys.path in interactive session <http://mail.python.org/pipermail/python-dev/2005-June/054077.html>`__
+
+[TAM]
+
+----------------
+More on old bugs
+----------------
+    
+The discussion about what to do with old bugs continued this fortnight.
+Against the concern about prematurely  closing old bugs, there was the
+suggestion that given that there are such a huge number of open bug reports,
+and  since closed bugs can be reopened, this wasn't such a problem.  It was
+suggested that the act of closing a bug might  trigger activity to get it
+fixed, if necessary.  The thread died off before a consensus was reached,
+unfortunately.
+
+
+Contributing Threads:
+
+- `Closing old bugs <http://mail.python.org/pipermail/python-dev/2005-June/054038.html>`__
+
+[TAM]
+
+---------------------------------
+Improved pseudo-switch statements
+---------------------------------
+
+Skip Montanaro has been playing around with getting the Python compiler to
+recognize switch-like statements and  generate O(1) code out of them.  The
+rules are that the object being compared ('x') can be any expression, but
+must  be precisely the same in each elif clause, the comparison operator
+must be "==", and the right-hand-side of the test  must evaluate to a simple
+hashable constant.  However, if evaluating 'x' has side-effects, then this
+would break  code.
+
+Various people felt that it was unwise to allow 'x' to be any expression;
+Anthony Baxter suggested that one could  allow any local object that didn't
+define a comparison operator.
+ 
+Contributing Threads:
+
+- `Multiple expression eval in compound if statement? <http://mail.python.org/pipermail/python-dev/2005- June/054164.html>`__
+
+[TAM]
+
+===============
+Skipped Threads
+===============
+
+- `Adventures with Decimal <http://mail.python.org/pipermail/python-dev/2005-June/054046.html>`__
+
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-June/054049.html>`__
+
+- `AST manipulation and source code generation <http://mail.python.org/pipermail/python-dev/2005- June/054052.html>`__
+
+- `Vestigial code in threadmodule? <http://mail.python.org/pipermail/python-dev/2005-June/054054.html>`__
+
+- `[Python-checkins] python/dist/src/Lib sre_compile.py, 1.57, 1.58 <http://mail.python.org/pipermail/python- dev/2005-June/054069.html>`__
+
+- `Split MIME headers into multiple lines near a space <http://mail.python.org/pipermail/python-dev/2005- June/054090.html>`__
+
+- `python running in several threads <http://mail.python.org/pipermail/python-dev/2005-June/054110.html>`__
+
+- `problem installing current cvs <http://mail.python.org/pipermail/python-dev/2005-June/054116.html>`__
+
+- `b32encode and NUL bytes <http://mail.python.org/pipermail/python-dev/2005-June/054130.html>`__
+
+- `Example workaround classes for using Unicode with csv module... <http://mail.python.org/pipermail/python- dev/2005-June/054129.html>`__
+
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-June/054128.html>`__
+
+- `[Python-checkins] python/dist/src/Doc/lib libtokenize.tex, 1.5, 1.6 <http://mail.python.org/pipermail/python- dev/2005-June/054131.html>`__
+
+- `Five patch reviews & patch request <http://mail.python.org/pipermail/python-dev/2005-June/054135.html>`__
+
+- `AIX 4.3, Python 2.4.1 fails in test_exceptions with a core dump <http://mail.python.org/pipermail/python- dev/2005-June/054197.html>`__
+
+- `PEP 342 - Enhanced Iterators <http://mail.python.org/pipermail/python-dev/2005-June/054201.html>`__
+
+- `A bug in pyconfig.h under Linux? <http://mail.python.org/pipermail/python-dev/2005-June/054214.html>`__
+
+- `Dynamic class inheritance && something else <http://mail.python.org/pipermail/python-dev/2005- June/054218.html>`__
+
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-June/054229.html>`__
+
+========
+Epilogue
+========
+
+------------
+Introduction
+------------
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+June 01, 2005 through June 15, 2005.
+
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.  You can
+also watch comp.lang.python or comp.lang.python.announce for new
+summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the fifth summary written by the python-dev summary cabal of
+Steve Bethard, Tim Lesher, and Tony Meyer.
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tim Lesher (tlesher at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list at python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/trunk/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.  Any
+unfamiliar punctuation is probably markup for reST_ (otherwise it is
+probably regular expression syntax or a typo =); you can safely ignore
+it.  I do suggest learning reST, though; it's simple and is accepted
+for `PEP markup`_ and can be turned into many different formats like
+HTML and LaTeX.  Unfortunately, even though reST is standardized, the
+wonders of programs that like to reformat text do not allow me to
+guarantee you will be able to run the text version of this summary
+through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/
+.. _original text file: http://www.python.org/dev/summary/2005-06-01_2005-06-15.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf

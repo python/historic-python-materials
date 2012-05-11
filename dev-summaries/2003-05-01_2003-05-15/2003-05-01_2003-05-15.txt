@@ -1,0 +1,302 @@
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+python-dev Summary for 2003-05-01 through 2003-05-15
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from May 1, 2003 through May 15, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have an archived summary of each thread started on the list.  To comment on anything mentioned here, just post to python-list@python.org or `comp.lang.python`_ with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the seventeenth summary written by Brett Cannon (going to grad school, baby!).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; its simple and is accepted for `PEP markup`__.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+__ http://www.python.org/peps/pep-0012.html
+
+The in-development version of the documentation for Python can be found at http://www.python.org/dev/doc/devel/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+.. contents::
+
+
+.. _last summary: http://www.python.org/dev/summary/2003-04-16_2003-04-30.html
+
+
+======================
+Summary Announcements
+======================
+So, to help keep my sanity longer than my predecessors I am no longer going to link to individual modules in the stdlib nor to files in CVS.  It sucks down a ton of time and at least Raymond Hettinger thinks it clutters the summaries.
+
+Along the lines of the look of the summaries, I am trying out a new layout for listing splinter threads.  If you have a preference in comparison to the old style or new style speak up and let me know.
+
+
+==========================
+`Dictionary sparseness`__
+==========================
+__ http://mail.python.org/pipermail/python-dev/2003-May/035295.html
+
+Splinter threads:
+    `Where'd my memory go?`__
+
+__ http://mail.python.org/pipermail/python-dev/2003-May/035340.html
+
+After all the work Raymond Hettinger did on dictionaries he suggested two possible methods on dictionaries that would allow the programmer to control how sparse (at what point a dictionary doubles its size in order to lower collisions) a dictionary should be.  Both got shot down on the grounds that most people would not know how to properly use the methods and are more likely to shoot themselves in the foot than get any gain out of them.
+
+There was also a bunch of talk about the "old days" when computers were small and didn't measure the amount of RAM they had in megabytes unless they were supercomputers.
+
+But then the discussion changed to memory footprints.  There was some mention of the extra output one can get from a special build (all listed in Misc/SpecialBuilds.txt) such as Py_DEBUG.  But the issue at hand is that there  int, float, and frameobject free lists which keep alive any and all created constant values (although the frameobject is bounded in size).  This is why if you do ``range(2000000)`` you won't get the memory allocated for all of those integers back until you shut down the interpreter.
+
+This led to the suggestion of just doing away with the free lists.  There would be a performance hit since numerical constants would have to be reallocated if they are constantly created deleted, and then created again.  It was also suggested to limit the size of the free lists and basically chop off the tail if they grew too large.  But it turns out that the memory is allocated in large blocks that are chopped up by intobject.c.  Thus there is no way to just get rid of a few entries without taking out a whole block of objects.
+
+
+=================================
+`__slots__ and default values`__
+=================================
+__ http://mail.python.org/pipermail/python-dev/2003-May/035575.html
+
+Ever initialized a variable in a class that uses __slots__?  If you have you may have discovered that the variable becomes read-only::
+
+    class Parrot(object):
+        __ slots__ = ["dead"]
+        dead = True
+
+    bought_bird = Parrot()
+    bought_bird.dead = False
+
+That raises an AttributeError saying that 'dead' is read-only.  This occurs because the class attribute "overrides the descriptor created by __slots__" and "now appears read-only because there is no instance dict" thanks to __slots__ suppressing the creation of one.
+
+But don't go using this trick!  If you want read-only attributes use a property with its set function set to raise an exception.  If you want to avoid this problem just do your initialization of attributes in the __init__ call.  You can also include __dict__ in __slots__ and then your instances will have a fully functioning instance __dict__ (new in 2.3).
+
+The key thing to come away with this twofold.  One is the resolution order of attribute lookup when __slots__ is used which class/type and then the instances __slots__ attributes only if the class/type hierarchy did not turn up a data descriptor.  The other is that __slots__ is meant purely to cut down on memory usage, nothing more.  Do not start abusing it with little tricks like the one mentioned above or Guido will pull it from the language.
+
+
+=========
+Quickies
+=========
+
+`Draft of dictnotes.txt`__
+    After all the work Raymond Hettinger did to try to speed up dictionaries, he wrote a text file documenting everything he tried and learned.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035246.html
+
+`_socket efficiencies ideas`__
+    This thread was first covered in the `last summary`_.
+    Guido discovered that the socket module used to special-case receiving a numeric address in order to skip any overhead in bother to resolve the IP address.  It has been put back into the code.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035248.html
+
+`Demos and Tools in binary distributions`__
+    Jack Jansen asked where other platform-specific binary distributions of Python put the Demo and Tools directories.  The thread ended with the winning solution be putting them in /Applications/Python2.3/Extras/ so they are a level below the root directory to prevent newbies from getting overwhelmed by the code there since it is not all simple.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035252.html
+
+`updated notes about building bsddb185 module`__
+    Splinter threads:
+      - `bsddb185 module changes checked in`__
+
+    Someone wanted the bsddb185 module back.  Initially it was suggested to build that module as bsddb if the new bsddb3 module could not be built (since that module currently gets named bsddb).  The final outcome was that bsddb185 will get built under certain conditions and be named bsddb185.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035257.html
+__ http://mail.python.org/pipermail/python-dev/2003-May/035409.html
+
+`broke email date parsing`__
+    ... but it got fixed.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035259.html
+
+`New thread death in test_bsddb3`__
+    This is a continuation from the `last summary`_.
+    You can create as many thread states as you like as long as you only use one at any given point.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035230.html
+
+`removing csv directory from nondist/sandbox - how?`__
+    Joys of CVS.  You can never removed a directory unless you have direct access the the physical directory on the CVS root server.  The best you can do is to empty the directory (make sure to get files named ".*") and assume people will do an ``cvs update -dP``.  You can also remove the empty directories locally by hand if you like.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035270.html
+
+`posixmodule.c patch to support forkpty`__
+    A patch was sent to python-dev incorrectly that tries to get os.forkpty to work on more platforms.  It is now up on SourceForge_ and it is `patch #732401 <http://www.python.org/sf/732401>`__.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035281.html
+.. _SourceForge: http://www.sf.net/projects/python
+
+`Timbot?`__
+    There is a real Timbot robot out there: http://www.cse.ogi.edu/~mpj/timbot/#Programming .
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035287.html
+
+`optparse docs need proofreading`__
+    What the 'subject' says.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035288.html
+
+`heaps`__
+    This is a continuation of a thread from the `last summary`_.
+    Lots of talk about heaps, priority queues, and other theoretical algorithm talk.  It was felt that a more thorough API to allow for more fancy heap implementations would be helpful than what heapq provides.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035343.html
+
+Weekly Python Bug/Patch Summary
+    First one ended on `2003-05-04 <http://mail.python.org/pipermail/python-dev/2003-May/035292.html>`__.  The second one ended on `2003-05-11 <http://mail.python.org/pipermail/python-dev/2003-May/035537.html>`__.
+
+`Distutils using apply`__
+    Since Distutils must be kept backwards-compatible (as stated in `PEP 291`_), it still uses 'apply'.  This raises a PendingDeprecation warning which is normally silent unless you want all warnings raised.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035293.html
+.. _PEP 291: http://www.python.org/peps/pep-0291.html
+
+`How to test this?`__
+    Dummy files can be checked into Lib/test .
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035318.html
+
+`Windows installer request...`__
+    Someone wanted the default drive on the Windows installer to be your boot drive and not C.  It has been fixed.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035319.html
+
+`Election of Todd Miller as head of numpy team`__
+    What the 'subject' says.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035326.html
+
+`Startup time`__
+    Guido noticed that although Python 2.3 is already faster than 2.2, its startup time is slower.  It looks like it is from failing stat calls.  Speeding this all up is still being worked on.  Prime suspects are the importation of codecs and re.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035359.html
+
+`testing with and without pyc files present`__
+    Why does ``make test`` delete all .pyc and .pyo files before running the regression tests?  To act as a large scale test of the marshaling code.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035362.html
+
+`pyconfig.h not regenerated by "config.status --recheck"`__
+    ``./config.status --recheck`` doesn't work too well.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035366.html
+
+`Python Technical Lead, New York, NY - 80-85k`__
+    Wrong place for a job announcement.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035369.html
+
+`RedHat 9 _random failure under -pg`__
+    gcc ain't perfect.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035386.html
+
+`SF CVS offline`__
+    ... but it came back up.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035398.html
+
+`Microsoft speedup`__
+    It was noticed that turning on more aggressive inlining for VC6 sped up pystone by 2.5% while upping the executable size by 13%.  Tim Peters noted that "A couple employers ago, we disabled all magical inlining options, because sometimes they made critical loops faster, and sometimes slower, and you couldn't guess which as the code changed".
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035454.html
+
+`Relying on ReST in the core?`__
+    Although docutils_ is not in the core yet, it is being used more and more.  But is this safe?  As long as it's kept conservative and not required anywhere, yes.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035465.html
+
+`Make _strptime only time.strptime implementation?`__
+    As long as no one complains to loudly by 2.3b2, _strptime.strptime will become the exclusive implementation of time.strptime.  _strptime.strptime also learned how to recognize UTC and GMT as timezones.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035481.html
+
+`Building Python with .NET 2003 SDK`__
+    Logistix was nice enough to try to build Python on .NET 2003 and post notes on how he did it at http://www.cathoderaymission.net/~logistix/python/buildingPythonWithDotNet.html .
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035485.html
+
+`local import cost`__
+    Trying to find out how the cost of doing imports in the local namespace costs compared to doing it at the global level.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035486.html
+
+`Subclassing int?`__
+    This thread started `two summaries ago <http://www.python.org/dev/summary/2003-04-01_2003-04-15.html>`__.
+    Subclassing int to make it mutable just doesn't work.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035500.html
+
+`patch 718286`__
+    Originally this summary was just going to be "The patch was applied".  But no!  Some of you actually want to know the patch is about.  Geez!  Isn't knowing that one more patch was closed enough for you people?!?  I guess not!  Well, the patch added support for the DESTDIR variable for auto-generated makefiles.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035538.html
+
+`Need some patches checked`__
+    Some patches needed to be cleared by more senior members of python-dev since they were being handled by the young newbie of the group.  Jeremy Hylton also mentioned that a full-scale refactoring of urllib2 is needed and would allow the closure of some patches.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035540.html
+
+`os.path.walk() lacks 'depth first' option`__
+    Splinter threads:
+      - `os.walk() silently ignores errors`__
+
+    This thread started in the `last summary`_.
+    LookupError exists and subclasses both IndexError and KeyError.  Rather handy when you don't care whether you are dealing with a list or dictionary but do care if what you are looking for doesn't exist.
+    os.walk also gained a parameter argument called onerror that takes a function that will be passed any exception raised by os.walk as it does its thing; previously os.walk ignored all errors.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035546.html
+__ http://mail.python.org/pipermail/python-dev/2003-May/035574.html
+
+`Random SF tracker ettiquete questions`__
+    Does python-dev care about dealing with RFEs?  Sort of; it isn't a priority like patches and bugs, but cleaning them out once in a while doesn't hurt.  Is it okay to assign a tracker item to yourself even if it is already assigned to another person?  If the original person it was assigned to is not actively working on it, then yes.  When should someone be put into the Misc/ACKS file?  When they have done something that required some amount of brain power (yes, this includes one-line patches); some people, though, think it should take more.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035549.html
+
+`codeop: small details (Q); commit priv request`__
+    Some issues with codec were worked out and Samuele Pedroni got commit privileges.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035556.html
+
+`Python 2.3b1 _XOPEN_SOURCE value from configure.in`__
+    Python.h should always be included in extension modules first before any other header files.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035560.html
+
+`Inplace multiply`__
+    Someone thought they had found a bug.  Michael Hudson thought it was an old bug that was fixed.  How did it end?  Beats the heck out of me.  =)
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035591.html
+
+`sf.net/708007: expectlib.py telnetlib.py split`__
+    A request for people to look at http://www.python.org/sf/708007 .
+
+  .. __: http://mail.python.org/pipermail/python-dev/2003-May/035605.html
+
+`Simple dicts`__
+    Tim Peters suggested that if someone wanted something to do they could try re-implementing dicts to using chaining instead of open addressing.  It turns out Damien Morton (who did a ton of work trying to optimize Python's bytecode) is  working on an immplementation.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035625.html
+
+`python/dist/src/Lib warnings.py,1.19,1.20`__
+    As part of the attempts to speed up startup time, the attempted elimination of the required import of the re module came up.  This thread brought up the question as to whether it was desired to be able to pass a regexp as an argument for the -W command-line option for Python.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035616.html
+
+`[PEP] += on return of function call result`__
+    You  can't assign on the return value of a method calls.
+
+  .. __: http://mail.python.org/pipermail/python-dev/2003-May/035640.html
+
+`Vacation; Python 2.2.3 release.`__
+    Guido is going on vacation and won't be back until May 26.  He would like Python 2.2.3 to be out shortly after he gets back, although if it comes out while he is gone he definitely won't complain.  =)  You can get an anonymous CVS checkout of the 2.2 maintenance branch by executing ``cvs -d :pserver:anonymous@cvs.python.sourceforge.net:/cvsroot/python checkout -d <dir to store in> -r release22-maint python`` and changing the <> note to be the directory you want to put your CVS copy into.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035642.html
+
+`MS VC 7 offer`__
+    At `Python UK`_ Guido was offered free copies of `Visual C++ 2003`_ by the project lead of VC, Nick Hodapp, for key developers (a free copy of the compiler is available at http://www.msdn.microsoft.com/netframework/downloads/howtoget.aspx ).  This instantly led to the discussion of whether Python's binary distribution for Windows should be moved off of VC 6 to 7.  The biggest issue is that apparently passing FILE * values across library boundaries breaks code.  The final decision seemed to be that Tim, Guido, and developers of major extensions should get free copies.  Then an end date of when Python will be moved off of VC 6 and over to 7 will be decided.  None of this will affect Python 2.3 .
+
+    This thread was 102 emails long.  I don't use Windows.  This was painful.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-May/035375.html
+.. _Python UK: http://www.python-uk.org/
+.. _Visual C++ 2003: http://msdn.microsoft.com/visualc/

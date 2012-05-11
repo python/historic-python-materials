@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN"
+            "http://www.w3.org/TR/REC-html40/strict.dtd"><HTML>
+<HEAD>
+<BASE HREF="http://www.foretec.com/python/workshops/1998-11/proceedings/posters/stajano/vck.html">
+
+<META NAME="Generator" CONTENT="Frank Stajano, by hand like real men do ;-)">
+<!-- Validated as correct HTML 4.0 by http://validator.w3.org/ -->
+<TITLE>VCK: the Visual Cryptography Kit</TITLE>
+</HEAD>
+<BODY>
+
+<H1>VCK: the Visual Cryptography Kit</H1>
+
+<P><a href="http://www.cl.cam.ac.uk/~fms27/">Frank Stajano</a><BR> <a
+href="http://www.orl.co.uk/">Olivetti Oracle Research Laboratory</a><BR>
+&amp; <a href="http://www.cam.ac.uk">University of Cambridge</a> <a
+href="http://www.cl.cam.ac.uk">Computer Laboratory</a>
+</P>
+
+<P>The idea of visual cryptography is a fascinating invention by Moni Naor
+and Adi Shamir (1994). See <a
+href="http://www.wisdom.weizmann.ac.il/~naor/PAPERS/vis.ps">http://www.wisdom.weizmann.ac.il/~naor/PAPERS/vis.ps</a>.</p>
+
+<P>In its simplest form, it implements an unbreakable (in the
+information-theoretical sense) cryptosystem, rather similar to the one-time
+pad, with the additional twist that decryption does not require any
+computing equipment. James Bond carries a special &quot;key&quot; which is
+in fact a transparency with lots of random dots on it; when M faxes Bond a
+secret message, it too consisting of lots of random dots, Bond simply
+places his transparency over the ciphertext and reads out the plaintext!
+The stroke of genius here is the technique, explained in the poster, by
+which the boolean operation of &quot;xor&quot; is implemented by means of a
+visual &quot;or&quot;. I decided to implement the system after seeing a
+demonstration of it at a brilliant talk by Adi Shamir himself. Since the
+point here was not so much using the cryptosystem but communicating to
+others the intellectual excitement of the invention, I wanted to be able to
+display all the intermediate results in graphical form.</P>
+
+<P>I decided to use the <I>netpbm</I> suite of graphical file formats
+converters and I wrote a collection of small C++ programs, each of which
+performed a specific atomic operation. The only problem with this was that,
+to actually generate the slides, the user had to perform half a dozen
+separate operations, invoking these executables on the command line and
+giving them filenames as arguments (piping couldn't always be used since
+some operations required two inputs, and besides it was necessary to go
+through files to be able to inspect the results). Gluing things together
+with a batch file or shell script was cumbersome, as well as not portable
+between Windows and Unix. And it still required to run a separate image
+viewer to display all these intermediate results.</P>
+
+<P>For a while I thought about writing a VCK extension to Python, so that I
+could use Python as the glue. But eventually I settled on Fredrik
+Lundh's <a
+href="http://www.pythonware.com/products/pil/">PIL</a>
+(Python Imaging Library) instead. A tiny Python-only module,
+<code>vck.py</code>, provides not only all the atomic operations but also
+the means to view any intermediate result in its own window with a single
+function call from within the driving script. Some example scripts and
+their outputs are shown on the poster. The greyscale variant has also been
+implemented: unlike in the C++ version, where I had to generate raw
+PostScript directly, here I could simply draw the figures on a Tk canvas
+and get the PostScript code for free.</P>
+
+<P>The significance of this work in the context of IPC7 is as another
+demonstrator of the language's suitability for immediate practical
+experimentation (<I>making ideas executable</I>), which I view as one of
+Python's greatest strengths. The Python rewrite of VCK took only a few
+days, including the time spent learning the basics of PIL, and, compared to
+its C++ predecessor, resulted in a much more versatile and practical system
+for the end user, firstly because a convenient preview facility was now
+available and secondly because the VCK primitives could now be easily
+composed together by scripting. As an additional benefit, the code is now
+much shorter, to the point that it is perfectly reasonable to show the
+source to the user in order to explain what the primitives do. With the
+previous version, this would have exposed lots of irrelevant code to do
+with low-level image manipulation details. With the building blocks
+provided by VCK, such as the &quot;bitmap&quot; class and the boolean
+operations that take bitmaps as arguments, it is a simple matter for anyone
+to add new primitives in Python to implement any of the many variants of
+the visual cryptography idea that the cryptological research papers keep
+bringing out.</P>
+
+<P>This code is totally un-optimised and has been written for the human
+reader rather than for the machine. The bitmap class exports methods to set
+and get the value of a pixel, and every other primitive of the toolkit goes
+through them. Most operations could be implemented much more efficiently at
+a lower level; but, given the purpose of this work, which is more about
+communicating ideas and enabling experimentation than providing a tool to
+perform actual encryption, this solution wins both for the time it took to
+develop it and for the advantage it offers of exposing the simplest
+possible source code.</P>
+
+<P>VCK is freely downloadable from <a
+href="http://www.cl.cam.ac.uk/~fms27/vck/">http://www.cl.cam.ac.uk/~fms27/vck/</a>.</P>
+
+</BODY>
+
+<SCRIPT language="Javascript">
+<!--
+
+// FILE ARCHIVED ON 20010414155606 AND RETRIEVED FROM THE
+// INTERNET ARCHIVE ON 20060504134759.
+// JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+// ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+// SECTION 108(a)(3)).
+
+   var sWayBackCGI = "http://web.archive.org/web/20010414155606/";
+
+   function xLateUrl(aCollection, sProp) {
+      var i = 0;
+      for(i = 0; i < aCollection.length; i++)
+         if (aCollection[i][sProp].indexOf("mailto:") == -1 &&
+             aCollection[i][sProp].indexOf("javascript:") == -1)
+            aCollection[i][sProp] = sWayBackCGI + aCollection[i][sProp];
+   }
+
+   if (document.links)  xLateUrl(document.links, "href");
+   if (document.images) xLateUrl(document.images, "src");
+   if (document.embeds) xLateUrl(document.embeds, "src");
+
+   if (document.body && document.body.background)
+      document.body.background = sWayBackCGI + document.body.background;
+
+//-->
+
+</SCRIPT>
+</HTML>
+

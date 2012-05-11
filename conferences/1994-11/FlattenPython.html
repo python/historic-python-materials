@@ -1,0 +1,309 @@
+<TITLE>Flattening Python Objects</TITLE>
+
+<H1> Flattening Python Objects </H1>
+
+<P> (Guido van Rossum, 14-17 November 1994)
+
+<P> (Revised: 1 December 1994)
+
+<H3> Origin of the name 'flattening' </H3>
+
+<P> Because I want to leave the original 'marshal' module alone, and
+Jim complained that 'serialization' also means something totally
+different that's actually relevant in the context of concurrent access
+to persistent objects, I'll use the term 'flattening' from now on.
+Monty Python fans can associate this with 16 ton weights, while snake
+lovers can think of a Python's favorite way to kill its dinner.  (The
+Modula-3 system uses the term 'pickled' data for this concept.  They
+have probably solved all problems already, and in a type-safe manner
+:-)
+
+<H3> File formats </H3>
+
+<P> While I intend to rewrite this code in C for efficiency, I will
+create a compatible prototype in Python first.  With the efficient
+version in mind, I would like to use a binary file format.  However,
+for debugging, it is much easier if the file format is ASCII.  I'm not
+sure what I'll do yet.  I expect that in either case it will be
+possible to gain a large factor in space by applying a general data
+compression algorithm such as gzip to the binary files -- just not as
+much as for flattening algorithms that generate Python source code
+(since source code is more voluminous than a specially-designed
+encoding).
+
+<H3> Security </H3>
+
+<P> The unflattener should not use Python's eval() function or exec
+statement.  If it does, it is vulnerable to attacks that present it
+with executable Python code that does something undesired.  A second
+kind of attack: if (like the marshal module) the flatten module could
+transfer code objects, and if (unlike the marshal module) it could
+also transfer function or method objects, an attacker might be able to
+smuggle an object into an unflattening program that has a method which
+is called implicitly by the interpreter, such as __repr__ or
+__getattr__.  This may be prevented by not flattening code, function
+or method objects at all.
+
+<H3> Abstract flatten/unflatten operations </H3>
+
+<P> The lowest level interface to the flatten module will support the
+following operations:
+
+<UL>
+
+<LI> initialize a flattener for writing to a stream
+
+<LI> flatten an object to the stream, recursively
+
+</UL>
+
+<UL>
+
+<LI> initialize an unflattener for reading from a stream
+
+<LI> unflatten an object from the stream, recursively
+
+</UL>
+
+</DL>
+
+<P> The flattening and unflattening algorithms are designed together
+since they must be each other's logical mirror image.  The flattening
+algorithm uses a dictionary mapping object id's to objects.  It uses
+recursion too.  The unflattening algorithm uses a similar dictionary
+and a stack.  This doesn't contradict the goal that they be mirror
+images: using a stack is equivalent to recursion.
+
+
+<H2>Instruction stream</H2>
+
+<P> The flattened data stream contains single-byte 'instructions' and
+multi-byte 'data items'.  In the debugging (prototype) version of the
+flattener, instructions and data items are printable ASCII strings and
+are delimited by newline characters.  A more efficient version may use
+binary encodings.  We will have to see whether this saves enough time
+and space to be worth the effort (and worth the resulting lack of
+debuggability of flattened objects).
+
+<P> The virtual machine interpreting the instruction stream uses two
+data structures: a stack and a dictionary.  The stack is used as
+intermediate storage; many instructions push data on the stack or pop
+it off.  When the instruction stream ends, the top of the stack
+contains the object of interest.  (There shouldn't be anything else
+left on the stack.)  The dictionary is used as a way to refer to
+objects by their 'local name'.
+
+<P> Local names are integers.  They are meaningful only within one
+flattened data stream.  Not all objects need to have a local name:
+numbers, for instance, may remain anonymous.  Objects that occur only
+once in the flattened object also needn't have a local name.  It is up
+to the flattener to decide whether to assign local names to objects --
+it may optimize for space by assigning local names sparingly.  It is
+also up to the flattener to choose a name for an object.  The
+prototype uses the object's id() but for the meaning of the flattened
+stream this is not important, as long as local names are unique.  Note
+that without local names, data sharing cannot be represented -- and a
+special case of data sharing is recursion.
+
+<P> We also define a way to refer to objects with global names.  These
+are not defined by the flatten module but by its caller.  Global names
+are strings.  The interpretation of global names is up to the caller.
+I propose that the following instructions be defined.  I will give
+them symbolic names, which makes it easier to reason about them.  Note
+that there are no flow control instructions -- the instruction stream
+is interpreted strictly sequentially.  This is done so that the
+instruction stream can be read off a network connection, for instance.
+
+<DL>
+
+<DT> PUT local_name
+
+<DD> Store the object on the stack top as 'local_name'; leave it on
+the stack.
+
+<DT> GET local_name
+
+<DD> Push the object 'local_name' onto the stack.
+
+<DT> PERSID persistent_id
+
+<DD> Push the object 'persistent_id' onto the stack.
+
+<DT> POP
+
+<DD> Discard the object on the stack top.
+
+<DT> DUP
+
+<DD> Push the object on the stack top onto the stack.
+
+<DT> NONE
+
+<DD> Push the object 'None' onto the stack.
+
+<DT> INT value
+
+<DD> Push the integer 'value' onto the stack.
+
+<DT> LONG value
+
+<DD> Push the long integer 'value' onto the stack.
+
+<DT> FLOAT value
+
+<DD> Push the floating point number 'value' onto the stack.
+
+<DT> STRING value
+
+<DD> Push the string 'value' onto the stack.
+
+<DT> MARK
+
+<DD> Push a unique 'marker' onto the stack.  Markers are used to
+create tuples, lists etc. without having to specify a count.
+
+<DT> TUPLE
+
+<DD> Create a tuple from the stack entries until the topmost marker
+(the deepest stack entry becomes the first tuple item).  Everything up
+to and including the marker is removed from the stack and the new
+tuple is pushed onto it.
+
+<DT> LIST
+
+<DD> Create a list from the stack entries until the topmost marker
+(the deepest stack entry becomes the first list item).  Everything up
+to and including the marker is removed from the stack and the new
+list is pushed onto it.
+
+<DT> DICT
+
+<DD> Create a dictionary from pairs of stack entries until the topmost
+marker (the deepest stack entry becomes the first dictionary key, the
+entry immediately above it the corresponding value, and so on).
+Everything up to and including the marker is removed from the stack
+and the new dictionary is pushed onto it.
+
+<DT> INST module_name class_name
+
+<DD> Create an argument list by taking the stack entries until the
+topmost marker.  Then instantiate class 'class_name' defined in module
+'module_name', passing these arguments to the constructore.
+Everything up to and including the marker is removed from the stack
+and the new instance is pushed onto it.
+
+<DD> Classes can define what arguments should be used by defining a
+discipline __getinitargs__ which should return a tuple.  The default
+argument list is an empty tuple.
+
+<DT> APPEND
+
+<DD> Append the object on the stack top to the list object immediately
+underneath it.  The stack top is popped, leaving the list object on
+top of the stack.
+
+<DT> SETITEM
+
+<DD> The object on the stack top is a value, the object immediately
+underneath it is a key, and the object underneath that is a
+dictionary.  Store the value in the dictionary under the key, popping
+the value and the key from the stack, leaving the dictionary object on
+top of the stack.
+
+<DT> BUILD
+
+<DD> The object on the stack top is an argument, the object
+immediately underneath it is a class instance.  If the instance's
+class defines a __setstate__ discipline, it is called with the
+argument as parameter.  if not, a default 'setstate' operation is
+invoked.  After the 'setstate' operation, the argument is popped off
+the stack, leaving the class instance on top of the stack.
+
+<DD> The default 'setstate' operation requires a dictionary as
+argument.  It takes the keys of the dictionary as slot names and for
+each key sets the instance slot to the correponding value in the
+dictionary.  I'm not sure if this should use setattr(inst, key, value)
+or inst.__dict__[key] = value (there is a difference if the class has
+a __setattr__ discipline!).
+
+<DD> Classes can define an __getstate__ discipline which should return
+an argument for the __setstate__ discipline.  The default 'setstate'
+operation returns the instance's __dict__ dictionary.
+
+</DL>
+
+
+<H2> Questions </H2>
+
+<UL>
+
+<LI> The discipline names __setstate__, __getstate__ and
+__getinitargs__ aren't very pretty.  Any better ideas?
+
+<LI> What to do about 64-bit integers?  If the flatten algorithm uses
+id() for local names, it will generate 64-bit local names when it runs
+on a 64-bit machine, since id() returns its argument's address cast to
+a (C long) integer.  Solution: on 64-bit machines, the flatten
+algorithm should not use id() directly for local names -- instead, it
+should assign local names sequentially starting at 0, 1, 2, ... and
+maintain a mapping from id() to local name.  This needn't be slow so
+we can do this on all architectures.  (Truncating to the lowest 31
+bits can't be done because two objects might map to the same local
+name.)  At least it saves us from the misundersanding that the local
+name would be unique per process!
+
+<LI> How should new built-in types allow themselves to be flattened
+and unflattened?  Maybe use the INST and BUILD instructions, with a
+'.'  for the module name and the type name for the class name.  These
+types can then be registered (presuming they have globally unique
+names).  Better: use the extension module name that defines the type,
+and let the extension module export a name that creates 'bare'
+instances.
+
+<LI> What about recursion amongst globally named objects?  We will
+need the ability to patch them in later!  Maybe use proxies at all
+times???  Or simply rule out recursion at this level?  (Does that make
+sense at all???)  (What does Jim Roskind's persistent module do?)
+
+<LI> The flattener must be able to find the module containing a class.
+A way to do this would be exhaustive search of all modules.  This is
+not as bad as it sounds, as it can be cached and shared between all
+flatteners:
+
+<PRE>
+import sys
+from types import *
+classes = {}
+for modname in sys.modules.keys():
+	mod = sys.modules[modname]
+	dict = vars(mod)
+	for varname in dict.keys():
+		var = dict[varname]
+		if type(var) is ClassType:
+			classes[var] = (modname, varname)
+# Now 'classes' is a mapping: class -&gt; (modname, classname)
+</PRE>
+
+</UL>
+
+
+<H2>Prototype</H2>
+
+<P> The following is a tentative implementation, the files
+'flatten.py' and 'pos.py'.  It doesn't do anything about persistent
+id's yet.  It finds a class's module name by scanning all modules for
+classes (and caching the results).
+
+<UL>
+
+<LI> <A HREF="flatten.py"> flatten.py </A>  -- The main algorithm.
+
+<LI> <A HREF="pos.py"> pos.py </A> -- Persistent objects on top of it.
+This emulates the interface for persistent objects implemented by <A
+HREF="http://www.gh.cs.su.oz.au/Users/anders/python/pos.html"> Anders
+Lindstrom </A>.
+
+<LI> <A HREF="copy.py"> copy.py </A> -- A deep copying algorithm that
+uses the __getinitargs__, __getstate__ and __setstate__ disciplines.
+
+</UL>

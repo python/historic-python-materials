@@ -1,0 +1,291 @@
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+python-dev Summary for 2003-01-01 through 2002-01-15
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+This is a summary of traffic on the `python-dev mailing list`_ between January 1, 2003 and January 15, 2003 (inclusive).  It is intended to inform the wider Python community of on-going developments on the list that might interest the wider Python community.  To comment on anything mentioned here, just post to python-list@python.org or comp.lang.python in the usual way; give your posting a meaningful subject line, and if it's about a PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep iteration). All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join python-dev!
+
+This is the ninth summary written by Brett Cannon (and fashionably late, no less!).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_; you can safely ignore it (although I suggest learning reST; its simple and is accepted for PEP markup).  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original itself.
+
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+.. contents::
+
+======================
+Summary Announcements
+======================
+
+This summary has been written in the first-person.  Aahz had suggested I write in third-person, but I just can't stand it.  =)
+
+A new project named `Minimal Python`_ whose goal is to write a Python interpreter using a minimal amount of C and maximizing the amount of code written in Python.  As of now it is just a mailing list but some interesting points have already been made and it has some major Python programmers involved with it so it will more than likely succeed.
+
+Leaving out `Broken strptime in Python 2.3a1 & CVS`_ for two reasons.  One, the only lesson in that thread is that when C does not give you a good standard, rewrite the code in Python and come up with one.  Two, since the whole thing revolves around my code I would be more biased than I normally am.  =)
+
+Also, some of the threads have notes with them mentioning how I could not find them in the Mailman archive.
+
+And go to PyCon_ (especially since I am going to be giving a tutorial on reST_)!
+
+.. _Minimal Python: http://codespeak.net/mailman/listinfo/pypy-dev
+.. _Broken strptime in Python 2.3a1 & CVS: http://mail.python.org/pipermail/python-dev/2003-January/031983.html
+.. _PyCon: http://www.python.org/pycon/
+
+===================================================
+`PEP 303: Extend divmod() for Multiple Divisors`__
+===================================================
+__ http://mail.python.org/pipermail/python-dev/2002-December/031511.html
+
+Splinter threads:
+
+	- map, filter, reduce, lambda (can't find thread in Mailman archive)
+
+As mentioned in the `last summary`_, this thread sparked a huge response to the built-ins in Python (if you don't remember what all the built-ins are, just execute ``dir(__builtins__)`` in the interpreter).  It started with Christian Tismer calling for  the deprecation of ``divmod()`` since he "found that divmod compared to / and % is at least 50 percent *slower* to compute", primarily because  ``divmod()``  is a function and the overhead that comes from being that.  Guido responded and agree that, in hindsight, "Maybe it wasn't such a good idea".  But since it isn't broken he is not for replacing it since "At this point, any change causes waste".  Besides, Tim Peters came up with the great compromise of removing " divmod() when [Tim's] dead.  Before then, it stays."
+
+Guido  would rather have the energy spent on adding the ability for the language to recognize that it "is a built-in so it can generate more efficient code".  This led to Christian suggesting changing Python so that built-ins like ``divmod()`` that can easily be  written in Python be done so and thus remove the C version without any backwards-compatibility issues.  Guido's response was to "first make some steps towards the better compiler [Guido] alluded to. Then we can start cutting."
+
+Tim in an email said that "If we have to drop a builtin, I never liked reduce <wink>".  This then led to Barry Warsaw saying he could stand to lose ``apply()``.  Then Raymond Hettinger  nominated ``buffer()`` and ``intern()`` as things that could stand to go away.  Michael Hudson suggested ``map()`` and  ``filter()``.
+
+Guido said ``apply()`` could stand getting a PendingDeprecationWarning since the new calling conventions (``fxn(*args, **kwargs)``) replace ``apply()``'s use.  He almost mentioned how he wanted something like ``foo(1, 2, 3, *args, 5, 6, 7, **kw)`` since the ``5, 6, 7`` is currently not supported.
+
+But the call for the removal of ``lambda`` is what really set things off.  People in support of the removal said that nested scoping removed a huge reason for having ``lambda``.  But functional programmers said that they wouldn't let ``lambda`` be taken away.  It was agreed it had its uses, but the name was not relevant to its use and its syntax is non-standard and should be changed in Python 3000.  Someone suggested renaming it ``def``, but Guido said no since "Python's parser is intentionally simple-minded and doesn't like having to look ahead more than one token" and using ``def`` for ``lambda`` would break that design.  Barry suggested ``anon`` which garnered some support.
+
+It was also suggested to have ``lambda`` use parentheses to hold its argument list like a good little function.
+
+And then all of this led to a discussion over features in Python that are not necessarily easy to read but are powerful.  Some said that features such as list comprehensions, the ``*/**`` calling syntax, etc., were not good since they are not syntactically obvious.  This was argued against by saying they are quite useful and are not needed for basic programming.
+
+.. _last summary: http://www.python.org/dev/summary/2002-12-16_2002-12-31.html
+
+==================
+`Holes in time`__
+==================
+__ http://mail.python.org/pipermail/python-dev/2003-January/031836.html
+
+Tim Peters brought up an inherent problem with the new datetime_ type and dealing with timezones and daylight savings.  Imagine when DST starts; the clock jumps from 1:59 to 3:00.  Now what happens if someone enters a time that does  not use DST?  The implementation has to handle the possibility of something inputting 2:00 and instantly pushing forward an hour.  But what is worse is when DST ends.  You go from 1:59 back to 1:00!  That means you pass over everything from 1:00 to 1:59 twice during that day.  Since it is flat-out impossible to tell, what should be done in this case?
+
+Originally ``datetime`` raised a ValueError.  It has now been changed to "go through 1:00am to 1:59am twice" according to Aahz.
+
+If you  want to read a paper on the history of time go to http://www.naggum.no/lugm-time.html as recommended by Neil Schemenauer.
+
+.. _datetime: http://www.python.org/dev/doc/devel/lib/module-datetime.html
+
+===========================================
+`no expected test output for test_sort?`__
+===========================================
+__ http://mail.python.org/pipermail/python-dev/2003-January/031889.html
+
+This thread was originally started by Skip Montanaro to try to figure out why ``test_sort`` was failing to catch an error when run through ``regrtest.py``.  But Skip quickly realized ``regrtest.py`` was using the wrong directories.
+
+What makes this thread worth mentioning is a question I posed about whether it was worth converting tests over to PyUnit.  Guido said not for the sake of converting, but if you were going to be improving upon the tests, then moving a testing suite over to PyUnit was a good idea.  It was also said that all new testing suites should use PyUnit (although doctest is still acceptable, just not preferred).  Walter Dšrwald started `patch #662807`_ to use for converting tests to PyUnit.  So give a hand if you care to.
+
+.. _patch #662807: http://www.python.org/sf/662807
+
+============
+binutils
+============
+(Can't find in Mailman archive) 
+
+Andrew Koenig told python-dev of a problem with binutils_ 2.13 way back in the `2002-089-16 through 2002-09-01 summary`_.  Well, it appears that 2.13.2 fixes the issues.
+
+.. _2002-089-16 through 2002-09-01 summary: http://www.python.org/dev/summary/2002-08-16-2002-09-01.html
+
+===========================
+The meaning of __all__
+===========================
+(Can't find in Mailman archive)
+
+Jack Jansen asked what the proper use of ``__all__``; a discussion on the PyObjC_ mailing list sparked this question.  The answer is that ``__all__`` is used for the public API of a module.
+
+.. _PyObjC: http://pyobjc.sourceforge.net/
+
+======================================
+PEP 301 implementation checked in
+======================================
+(Can't find in Mailman archive; http://mail.python.org/pipermail/python-list/2003-January/137270.html goes to python-list discussion)
+
+AM Kuchling announced that the `PEP 301`_ implementation by Richard Jones.  The web server handling everything is at `amk.ca`_ off of a DSL line so don't hit it too hard.  An example of how to change a Distutils ``setup.py`` file is given in the e-mail.
+
+.. _PEP 301: http://www.python.org/peps/pep-0301.html
+.. _amk.ca: http://www.amk.ca/cgi-bin/pypi.cgi
+
+=======================================
+bz2 problem deriving subclass in C
+=======================================
+(Can't find in Mailman archive) 
+
+This thread was originally about a patch by Neal Norwitz and how to properly deal with deallocating in C code.  Apparently this has nipped several people in the bum and has changed since the introduction of new-style classes.  It appears that if you are deallocating a base type, you call its ``tp_dealloc()`` function; if it is a new-style class, you call ``self->ob_type->tp_free()``.
+
+====================
+`Cross compiling`__
+====================
+__ http://mail.python.org/pipermail/python-dev/2003-January/031848.html
+
+(Link only part of thread; rest missing)
+
+Splinter threads:
+
+	- `Bastion too <http://mail.python.org/pipermail/python-dev/2003-January/031851.html>`__
+	- `What attempts at security should/can Python implement? <http://mail.python.org/pipermail/python-dev/2003-January/031871.html>`__
+	- `Whither rexec? <http://mail.python.org/pipermail/python-dev/2003-January/031842.html>`__
+	- `tainting <http://mail.python.org/pipermail/python-dev/2003-January/031960.html>`__
+
+Originally a thread about cross-compilation on OS X to Windows by Timothy Wood, this ended up changing into a thread about security in Python.
+
+As has come up multiple times before, rexec_'s lack of actual security for new-style classes came up.  This then led to a question of whether Bastion_ was secure as well.  The answer was no and have now been subsequently sabotaged on purpose by Guido; they now require you to manually edit the code to allow them to work.
+
+A discussion on how to make Python secure came up.  Various points were made such as how to deal with introspection and how people might try to get around being locked out of features.  Tainting was also mentioned for strings.
+
+If you need some security in your app, take a look at mxProxy_.  Its design is similar to how Zope3_ handles security.
+
+.. _rexec: http://www.python.org/doc/current/lib/module-rexec.html
+.. _Bastion: http://www.python.org/doc/current/lib/module-Bastion.html
+.. _mxProxy: http://www.egenix.com/files/python/mxProxy.html
+.. _Zope3: http://dev.zope.org/Wikis/DevSite/Projects/ComponentArchitecture/FrontPage
+
+===========================
+`tutor(function|module)`__
+===========================
+__ http://mail.python.org/pipermail/python-dev/2003-January/031893.html
+
+(Only part of thread; rest missing from archive)
+
+Christopher Blunk proposed the idea of having a built-in ``examples()`` function or something similar that would spit out example code on how to use something.  There was a discussion as to whether it was reasonable for Python to try to keep up a group of examples in the distribution.  It was agreed, though, that more code examples would be good to have *somewhere*.
+
+One place is in the Demo_ directory of the source distribution.  Problem with that is it is only available in the source distribution and it is not vigorously maintained.  Both of these are solvable, but it didn't look like anyone was taking the reigns to cause this to happen.
+
+Another was to push people to give to an online repository (such as the `Python Cookbook`_) to keep it centralized and accessible by anyone.  Problem with that is it creates a dependency on something outside of PythonLab's control.
+
+The last option was adding it to the module documentation.  This is the safest since it means it becomes permanent and everyone will have access to it.  But it has the same drawback as all of these other suggestions; you can't access it in the interpreter as easily as you can ``help()``.
+
+The thread ended with no conclusion beyond cleaning up the ``Demos`` directory and adding more examples to the official documentation would be nice.
+
+.. _Demo: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Demo/
+.. _Python Cookbook: http://aspn.activestate.com/ASPN/Python/Cookbook/
+
+=========================================
+`PEP 297: Support for System Upgrades`__
+=========================================
+__ http://mail.python.org/pipermail/python-dev/2003-January/031838.html
+
+MA Lemburg asked if Guido would be willing to let an implementation of `PEP 297`_ into Python 2.3.  He said yes and would also be willing to add it to 2.2.3 and even 2.1.4 if that version ever comes about.
+
+A discussion of how to handle the implementation began.  The agreed upon directory name became ``site-package-<Python-version>`` with ``<Python version>`` being the full version: major.minor.micro.  ``site.py`` will be modified so that if the current version of Python is different from the version of the directory that it won't add it to ``sys.path``.
+
+There was the brief idea of deleting the directory as soon as the version did not match, but that was thought of being harsh and unneeded.
+
+.. _PEP 297: http://www.python.org/peps/pep-0297.html
+
+================================
+`PyBuffer* vs. array.array()`__
+================================
+__ http://mail.python.org/pipermail/python-dev/2003-January/031841.html
+
+(Only part of thread; rest missing from archive)
+
+Splinter threads:
+	- `Slow String Repeat <http://mail.python.org/pipermail/python-dev/2003-January/031895.html>`__
+
+Bill Bumgarner asked whether ``PyBuffer*`` or ``array.array()`` was the proper thing to use because one is like a huge string and the other is unsigned ints.  Guido basically said to just use strings like everyone else for byte storage.  Bill said he would just live with the dichotomy.
+
+This thread also brought up a question of performance for the code ``array.array('B').fromlist([0 for x in range(0, width*height*3)])``.  Was cool to watch various people take stabs as speeding it up.  Written in Python, the fast way was to change it to ``array.array('B', [0])*width*height*3``; doing several decent-sized calls minimized ``memcpy()`` calls in the underlying C code.  Raymond Hettinger came up with a fast way to do it in C.
+
+==========================
+`new features for 2.3?`__
+==========================
+__ http://mail.python.org/pipermail/python-dev/2003-January/031837.html
+
+Neal Norwitz wanted to get the tarfile_ module into Python 2.3.  This led to Guido saying he wanted to get Docutils_ and better pickling for new-style classes in as well.
+
+The Docutils idea was shot down because it was stated it currently is not ready for inclusion.  2.4 is probably the version being shot for.
+
+The pickle idea raised security ideas (this is becoming a trend for some reason on the list lately).  In case you didn't know, you shouldn't run pickled code you don't trust.
+
+.. _tarfile: http://python.org/sf/651082
+
+================
+`sys.path[0]`__
+================
+__ http://mail.python.org/pipermail/python-dev/2003-January/031896.html
+
+Thomas Heller had a question about the documented handling of ``sys.path[0]``.  This quickly led to the point that the value, when specified and not the empty string, is a relative path; not necessarily the desired result.  And so `patch #664376`_ was opened to make it be absolute.
+
+.. _patch #664376: http://www.python.org/sf/664376
+
+===================
+`Misc. warnings`__
+===================
+__ http://mail.python.org/pipermail/python-dev/2003-January/031884.html
+
+MA Lemburg noticed that ``test_ossaudiodev`` and ``test_bsddb3`` were not expected skips on his Linux box.  He wondered why they were not exepected to be skipped on his platform.  This led to a discussion over the expected skip set and how it is decided what is going to be skipped (experts on the various OSs make the call).
+
+==============================
+`Raising string exceptions`__
+==============================
+__ http://mail.python.org/pipermail/python-dev/2003-January/031907.html
+
+It looks like string exceptions are going to raise PendingDeprecationWarning; you have been warned.
+
+======================
+`PEP 290 revisited`__
+======================
+__ http://mail.python.org/pipermail/python-dev/2003-January/032003.html
+
+Kevin Altis was cleaning up wxPython_ and all the references to the ``string`` module and pointed out that the stdlib probably could stand to have a similar cleaning as well.  Guido said, though, that it is better to choose a module you are familiar with and do a complete style clean-up instead of doing a library-wide clean-up of a single thing.
+
+.. _wxPython: http://www.wxpython.org/
+
+============================
+`Assignment to __class__`__
+============================
+__ http://mail.python.org/pipermail/python-dev/2003-January/032016.html
+
+Kevin Jacobs got bitten by the change to non-heap objects that prevents the assigning to ``__class__`` (it was recently backported to the 2.2 branch).  He asked if there was any way to bring it back; Guido said no because of various layout issues in the C struct and such.
+
+=================================
+`Parallel pyc construction`__
+=================================
+__ http://mail.python.org/pipermail/python-dev/2003-January/032060.html
+
+Paul Dubois ran into an problem on a 384 processor system with .pyc file corruption.  He wanted a way to just skip the creation of .pyc files entirely since his programs run for so long that initial start-up times are inconsequential and that is the point of .pyc files.  Neal Norwitz is working on `patch #602345`_ to implement a command-line option.
+
+.. _patch #602345: http://www.python.org/sf/602345
+
+==============================================
+`Extension modules, Threading, and the GIL`__
+==============================================
+__ http://mail.python.org/pipermail/python-dev/2003-January/032017.html
+
+This thread was briefly mentioned in the `last summary`_.  But it had changed into a discussion of Python external thread API.  Mark Hammond commented how he had bumped up against its limitations in multiple contexts.  Mark thought it would be useful to define an API where one wanted the ability to say "I'm calling out to/in from an external API".  This would be a large project, though, and so Mark was not up to doing it on his own.  David Abrahams, though, stepped up and said he was willing to help.  So did Anthony Baxter.
+
+Tim Peters had his own twist by wanting to be able to call from a thread into a Python thread without knowing a single thing about that state of Python at that point, e.g. don't even know that that interpreter is done initializing.  Mark saw the way to go about solving all of this by writing a PEP, write a new C API to solve this issue that is optional and used by extension modules wanting to use the new features, and then define a new TLS (Thread Local Storage; thank you acronymfinder.com).  Mark thought the TLS would only be needed for thread-state.  Someone suggested ACE_ as a TSS (Thread State Storage) implementation which can cover all the platforms that Python needs covered.  But Mark suggested coming up with a "pluggable TLS" design.
+
+.. _ACE: http://doc.ece.uci.edu/Doxygen/Beta/html/ace/classACE__TSS.html
+
+============================================
+`Interop between datetime and mxDateTime`__
+============================================
+__ http://mail.python.org/pipermail/python-dev/2003-January/032100.html
+
+MA Lemburg expressed interest in trying to get mxDateTime_ to play nice with datetime_.  The idea of having a base type like the new basestring in Python 2.3 was suggested.  But there was pickling issues with datetime, MA wanting to keep mxDateTime compatible with Python 1.5.2, and getting everyone to work in a consistent way through the base type.  Another instance where interfaces would be handy.
+
+.. _mxDateTime: http://www.lemburg.com/files/python/mxDateTime.html
+
+===========================
+`properties on modules?`__
+===========================
+__ http://mail.python.org/pipermail/python-dev/2003-January/032106.html
+
+Neil Schemenauer wanted to be able to make module variables be properties.  Samuele Pedroni stepped up and said the issue for this to work was "about instance-level property apart the module thing details".  He also pointed out that it would mean you could directly import a property which would cause unexpected results, thus killing the idea.  Guido was disappointed he didn't get to wield his BDFL pronouncement stick and smack the idea down <wink>.
+
+======================================
+`Fwd: Re: PEP 267 improvement idea`__
+======================================
+__ http://mail.python.org/pipermail/python-dev/2003-January/032165.html
+
+Oren Tirosh forwarded an e-mail from python-list@python.org to python-dev about `PEP 267`_ and various strategies.  One was using negative keys for signaling guaranteed key lookup failure.  Oren also played with inlining.  He also said that since interned strings are now out of Python as of 2.3 (thanks to Oren) that the namespace could "have only interned strings as entry keys and avoid the need for a second search pass on first failed lookup".  He even considered creating a special dict type for namespaces.
+
+.. _PEP 267: http://www.python.org/peps/pep-0267.html

@@ -1,0 +1,205 @@
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+python-dev Summary for 2003-03-01 through 2003-03-15
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+This is a summary of traffic on the `python-dev mailing list`_ from March 1, 2003 through March 15, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have an archived summary of each thread started on the list.  To comment on anything mentioned here, just post to python-list@python.org or `comp.lang.python`_ with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join python-dev!
+
+This is the thirteenth summary written by Brett Cannon (same number as my predecessor, Michael Hudson  =).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (else it is probably regular expression syntax); you can safely ignore it (although I suggest learning reST; its simple and is accepted for PEP markup).  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _last summary: http://www.python.org/dev/summary/2003-02-16_2003-02-28.html
+
+.. contents::
+
+======================
+Summary Announcements
+======================
+As I am sure most readers of this summary know by now, I am going to PyCon_.  This means that I will be occupied the whole last week of this month.  I suspect python-dev traffic will be light since I believe most of PythonLabs will be at Pycon and thus not working.  =)  But still, I will be occupied myself and thus won't have a chance to work on the summary until I come home.  This means you should expect the next summary to be rather late.  I will get to it, though, at some point.
+
+And in case you haven't yet, register for PyCon_.
+
+.. _PyCon: http://www.python.org/pycon/
+
+===============================
+`Ridiculously minor tweaks?`__
+===============================
+__ http://mail.python.org/pipermail/python-dev/2003-March/033962.html
+
+Splinter threads:
+    - `How long is your shopping tuple? <http://mail.python.org/pipermail/python-dev/2003-March/033996.html>`__
+    - `Tuples vs lists <http://mail.python.org/pipermail/python-dev/2003-March/033981.html>`__
+    - `Re: lists v. tuples <http://mail.python.org/pipermail/python-dev/2003-March/034029.html>`__
+    - `mutability <http://mail.python.org/pipermail/python-dev/2003-March/034057.html>`__
+
+The original point of this thread was Jeremy Fincher finding out if patches changing lists to tuples where the list was not mutated would be accepted for a miniscule performance boost (the answer was no).  But this wasn't the interesting knowledge that came out of this thread.  This thread led to Guido stating his intended uses of tuples and lists.
+
+And you might be going, "lists are for mutable sequences of objects while tuples are for immutable sequences of objects".  Well, that is not what Guido thinks of lists and tuples (and don't feel bad if you thought otherwise; Christian Tismer didn't even know what Guido had in mind and Python does not exactly require you to agree with Guido on this).  Turns out that tuples, in Guido's view of the world, are "for heterogeneous data" and "list[s] are for homogeneous data"; "Tuples are *not* read-only lists".
+
+Guido spelled out his thinking on this in a later email.  He basically said that he viewed lists as "a sequence of items of type X" while tuples are more like "a sequence of length N with items of type X1, X2, X3, ..."  This makes sense since lists can be sorted while tuples can't; sorting on different types don't necessarily result in a sequence sorted the way you think about it.
+
+And if you are still having issues of wrapping your head around this, just view tuples as structs and lists as arrays as in C.
+
+This thread then led to another topic of comparisons_ in Python.  Guido ended up mentioning how he wished == and != worked on all types (with disparate types always being !=) while all of the other comparisons only worked on similar types for the interpreter's default comparison abilities.
+
+This then led to Guido saying how he wished the __cmp__() magic method and the cmp() built-in didn't exist.  This is because there are currently two ways to do comparisons; __cmp__(), and then all of the other rich comparison magic methods.  You can implement the same functionality as __cmp__() using just __lt__() and __eq__().  There can also be an unneeded performance penalty for __cmp__() since (using the previously mentioned way of re-implementing __cmp__()) you might have to do some unneeded comparisons when all you need is __eq__().
+
+This discussion is still going on.
+
+.. _comparisons: http://www.python.org/dev/doc/devel/ref/customization.html#l2h-91
+
+
+===========================
+`Capabilities in Python`__
+===========================
+__ http://mail.python.org/pipermail/python-dev/2003-March/033820.html
+
+Splinter threads:
+    - `Capabilities <http://mail.python.org/pipermail/python-dev/2003-March/033854.html>`__
+    - `about candy <http://mail.python.org/pipermail/python-dev/2003-March/033986.html>`__
+
+This is a continuation of a discussion covered in the `last summary`_.
+
+This was *definitely* the thread from hell for this summary.  =)  It is very long and there was confusion at multiple points over terminology.  You have been warned.
+
+Three things were constantly being discussed in this thread; restricted execution, capabilities, and proxies.  We discuss them in this order.
+
+Restricted execution basically cuts out access to certain objects at execution time.  Currently, if you replace the global __builtins__ with something other then what __builtin__.__dict__ has then you enable restricted execution in Python.  This cuts off access to built-in objects so as to prevent you from circumventing security code by, for instance, importing the sys_ module so you can replace a module's code in sys.modules.  Both capabilities and proxies are worthless without restricted execution since they could be circumvented without it.
+
+Capabilities can be viewed as references or bound methods (but not both at the same time, necessarily).  Security with capabilities is done based on possession; if you hold a reference to an object you can use that object without issue.  The distribution of capabilities becomes the issue with this system.
+
+Proxies are a wrapper around objects that restrict access to the object.  This restriction extends all the way to the core; even core code such as built-ins can't get access to parts of a proxied object that it doesn't want any object to get a hold of.  The trick with proxies is making them secure on their own since they get passed around without worrying who gets it since it is the proxy that provides security, not possession like with capabilities.  Two examples of proxies are `Zope proxies`_ and mxProxy_.
+
+There was talk of a PEP on all of this but one has not appeared yet; it is currently being worked on by Ben Laurie, though.
+
+.. _sys: http://www.python.org/dev/doc/devel/lib/module-sys.html
+.. _Zope proxies: http://dev.zope.org/Wikis/DevSite/Projects/ComponentArchitecture/TransitionToSecurityProxies
+.. _mxProxy: http://www.egenix.com/files/python/mxProxy.html
+
+
+=========
+Quickies
+=========
+
+`Codec registry <http://mail.python.org/pipermail/python-dev/2003-March/033805.html>`__
+    Gustavo Niemeyer asked someone to review a patch.
+
+`Changes to logging in CVS <http://mail.python.org/pipermail/python-dev/2003-March/033811.html>`__
+    Vinay Sajip if someone checked-in changes to the logging_ package could be rolled back since it broke compatibility with Python 1.5.2 which the logging package tries to keep (as mentioned in `PEP 291`_).  The changes were removed.
+
+.. _logging: http://www.python.org/dev/doc/devel/lib/module-logging.html
+.. _PEP 291: http://www.python.org/peps/pep-0291.html
+
+`__slots__ for metatypes <http://mail.python.org/pipermail/python-dev/2003-March/033815.html>`__
+    Christian Tismer asked Guido and the list to take a look at a patch that would allow meta-types to have a __slots__.  The patch was accepted and applied.
+
+`new bytecode results <http://mail.python.org/pipermail/python-dev/2003-March/033817.html>`__
+    Damien Morton continues on his quest to get performance boosts from fiddling with the eval loop contained in `ceval.c`_ and trying out various opcode ideas.  It was pointed out that pystone_ is a good indicator of how Zope_ will perform on a new box.  It was also stated by Tim Peters that since it is such an atypical test that it helps to make sure any improvements you make *really* do make an improvement.  Damien also requested more people contribute statistical information to Skip Montanaro's stat server (more info at http://manatee.mojam.com/~skip/python/ ).
+
+.. ceval.c: 
+.. _pystone: 
+.. _Zope: http://www.zope.org/
+
+`module extension search order - can it be changed? <http://mail.python.org/pipermail/python-dev/2003-March/033826.html>`__
+    This was discussed in the `last summary`_.  Tim Peters mentioned how he doesn't use linecache_ often and that it's printing out of date info is not of any great use for tracebacks.
+
+.. _linecache: http://www.python.org/dev/doc/devel/lib/module-linecache.html
+
+`JUMP_IF_X opcodes <http://mail.python.org/pipermail/python-dev/2003-March/033823.html>`__
+    Damien Morton, still on the prowl for better opcodes, suggested introducing opcodes that combined branching opcodes and POP_TOP (which pops the top of the interpreter stack) and did the pop based on the truth value of what was being tested.  Neal Norwitz suggested that instead the branching instructions just always pop the stack.  But then Raymond Hettinger came up with prediction macros that give a great speed boost to loops and conditionals by checking if the next opcode is one that normally follows the current opcode.  If it does, it skips going through the eval loop for the next opcode, thus saving on overhead.
+    If all of this cool opcode stuff that Damien keeps doing interests you, you will want to read `opcode.h`_, `ceval.c`_, and learn how to use the dis_ module.
+
+.. _opcode.h: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Include/opcode.h
+.. _ceval.c: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Python/ceval.c
+.. _dis: http://www.python.org/dev/doc/devel/lib/module-dis.html
+
+`Fun with timeit.py <http://mail.python.org/pipermail/python-dev/2003-March/033826.html>`__
+    A new module named timeit_ was added to the stdlib at the request of Jim Fulton.  The module times the execution of code snippets.  Guido timed the execution of going through a 'for' loop a million times with interpreters from Python 1.3 up to the current CVS (2.3a2 with patches up to that point).  The result was that CVS was the fastest by a large margin.
+
+.. _timeit: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Lib/timeit.py
+
+`Pre-PyCon sprint ideas <http://mail.python.org/pipermail/python-dev/2003-March/033827.html>`__
+    I asked the list to suggest ideas to sprint on at PyCon_.
+
+`More Zen <http://mail.python.org/pipermail/python-dev/2003-March/033828.html>`__
+    Words of wisdom from Raymond Hettinger that everyone should read.  And if you have never read Raymond's `School of Hard Knocks`_ email you owe yourself to stop whatever you are doing and read it **now**.  I can personally vouch that email is right on the money; I have experienced (or suffered, depending on your view =) every single thing on that list sans writing a PEP (although writing the Summary is starting to be enough writing to be equal =) .
+
+.. _School of Hard Knocks: http://mail.python.org/pipermail/python-dev/2002-September/028725.html
+
+`xmlrpclib <http://mail.python.org/pipermail/python-dev/2003-March/033837.html>`__ : `xmlrpclib: Apology <http://mail.python.org/pipermail/python-dev/2003-March/033847.html>`__
+    Bill Bumgarner, the "hillbilly from the midwest of the US", asked if the xmlrpclib_ module was being maintained.  The lesson was also learned to not call Fredrick Lundh "Fred" on the list since Fred L. Drake, Jr. tends to be associated with the name.  =)
+
+.. _xmlrpclib: http://www.python.org/dev/doc/devel/lib/module-xmlrpclib.html
+
+`httplib SSLFile broken in CVS <http://mail.python.org/pipermail/python-dev/2003-March/033832.html>`__
+    Something got broken and fixed.
+
+`super() bug (?) <http://mail.python.org/pipermail/python-dev/2003-March/033846.html>`__
+    Samuele Pedroni thought he may have found a bug with super() but turned out it wasn't.
+
+`test_popen broken on Win2K <http://mail.python.org/pipermail/python-dev/2003-March/033857.html>`__
+    Win2k does not like quoting of commands when there is no space in the command as Tim Peters discovered.  There were discussions on how to deal with this.  The suggestion of coming up with an sh-like syntax that works on all platforms (like what tcl's exec command has) was suggsted.
+
+`Change in int() behavior <http://mail.python.org/pipermail/python-dev/2003-March/033863.html>`__
+    David Abrahams rediscovered the joys of the road to which leads to int/long unification when he noticed that ``isinstance(int(sys.maxint*2), int)`` returns False.  This will not be an issue once we are farther down this road.
+
+`acceptability of asm in python code? <http://mail.python.org/pipermail/python-dev/2003-March/033868.html>`__
+    Damien Morton popped his optimizing head back up on python-dev asking if assembly code was acceptable in the core.  As of right now there is none, but Tim Peters stated that if there was some that had "a huge speedup, on all programs" then it would be considered, although "on the weak end of maybe".  Christian Tismer (who plays with assembly in Stackless_) warned against it because it could cause a compiler to not use optimizations.
+
+.. _Stackless: http://www.stackless.com/
+
+`Internationalizing domain names <http://mail.python.org/pipermail/python-dev/2003-March/033869.html>`__
+    Martin v. Löwis asked someone to look over his patches to implement IDNA (International Domain Names in Applications) which allows non-ASCII characters in domain names.
+
+`VERSION in getpath.c <http://mail.python.org/pipermail/python-dev/2003-March/033882.html>`__
+    Guido explains to someone what compile variables are used to generate some compile-based search paths.
+
+`Where is OSS used? <http://mail.python.org/pipermail/python-dev/2003-March/033905.html>`__
+    Greg Ward asked what OSs use OSS_.
+
+.. _OSS: http://www.opensound.com/ossfree/
+
+`Audio devices <http://mail.python.org/pipermail/python-dev/2003-March/033947.html>`__
+    Greg Ward asked for opinions on some API issues for ossaudiodev_.
+
+.. _ossaudiodev: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/ossaudiodev.c
+
+`bsddb3 test errors - are these expected? <http://mail.python.org/pipermail/python-dev/2003-March/033961.html>`__
+    Skip Montanaro asked if some errors from the testing of bsddb3_ on OS X were expected.
+
+.. _bsddb3: http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/_bsddb.c
+
+`os.path.dirname misleading? <http://mail.python.org/pipermail/python-dev/2003-March/033980.html>`__
+    Kevin Altis was surprised to discover that `os.path.dirname`_ would return the tail end of a directory instead of an empty string when the argument to the function was just a directory name.
+
+.. _os.path.dirname: http://www.python.org/dev/doc/devel/lib/module-os.path.html#l2h-1443
+
+`Care to sprint on the core at PyCon? <http://mail.python.org/pipermail/python-dev/2003-March/033999.html>`__
+    Me asking the world if they wanted to sprint on the core at the pre-PyCon sprint (if you do, read the email for details).
+
+`Iterable sockets? <http://mail.python.org/pipermail/python-dev/2003-March/034038.html>`__
+    Andrew McNamara wished that socket objects were iterable on a per-line basis without having to call makefile().  Guido said he would rather come up with a better abstraction for Python 3 and prototype it in Python 2.4 or later.
+
+`More int/long integration issues <http://mail.python.org/pipermail/python-dev/2003-March/034019.html>`__
+    David Abrahams noticed that range() and xrange() couldn't accept a long.  It basically led to Guido stating he considers xrange() a mistake and wished it didn't exist now that we have iterators.  But since getting rid of it would break code he can at least prevent it from gaining abilities.  It also led to Guido mentioning again how he would like to prohibit shadowing of built-ins.
+
+`tzset <http://mail.python.org/pipermail/python-dev/2003-March/034062.html>`__
+    A new function, time.tzset(), was added to Python and the tests had failed under Windows.  The tests and the ./configure check were changed as needed.
+
+`PyObject_New vs PyObject_NEW <http://mail.python.org/pipermail/python-dev/2003-March/033970.html>`__
+    Lesson of the thread: PyObject_NEW is only to be used in the core; use `PyObject_New()`_ for extension modules.
+
+.. _PyObject_New(): http://www.python.org/dev/doc/devel/api/allocating-objects.html
+
+`are NULL checks in Objects/abstract.c really needed? <http://mail.python.org/pipermail/python-dev/2003-March/034011.html>`__
+    ... They are not required, but they are there to protect you against poorly written extensions.  Skip Montanaro subsequently suggested a --without-null-checks compile option.
+
+`PyEval_GetFrame() revisited <http://mail.python.org/pipermail/python-dev/2003-March/034052.html>`__
+    A possible API for manipulating the current frame was still being discussed.

@@ -1,0 +1,258 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Introduction</TITLE>
+</HEAD>
+<BODY BACKGROUND="../../../pics/BlueLong.gif"
+      BGCOLOR="#FFFFFF"
+      TEXT="#000000"
+      LINK="#0000FF"
+      VLINK="#7070B0">
+
+<UL>
+
+<a href="index.html">Proceedings of the 6th International Python Conference</A>
+<HR SIZE="1" NOSHADE>
+
+<B><FONT FACE="Palatino" SIZE=5><P ALIGN="CENTER">Experiences with Extension Programming <BR>
+and Scripting in Python</P>
+</B></FONT><I><P ALIGN="CENTER">Charles Anderson</P>
+</I><FONT SIZE=2><P ALIGN="CENTER">IEOR Department, UC Berkeley</P>
+<P ALIGN="CENTER">&nbsp;</P>
+</FONT><B><FONT FACE="Arial" SIZE=4><P>Abstract</P>
+</B></FONT><FONT SIZE=2><P>Our experiences interfacing Python with optimization software are presented.  The same work was done using extension programming and scripting.  For our application and the software we are interfacing to, scripting was found to be the better solution.</P>
+</FONT><B><FONT FACE="Arial" SIZE=4><P>Introduction</P>
+</B></FONT><FONT SIZE=2><P>We are developing a toolbox or workbench for researchers in the field of Operations Research.  We are using Python to create an easy-to-use environment in which users can experiment with a variety of optimization tools from different sources.  The ultimate goal is to allow researchers to spend more time solving optimization problems and less time battling with the software.</P>
+</FONT><B><I><FONT FACE="Arial"><P>Background</P>
+</B></I></FONT><FONT SIZE=2><P>Our main work is in the field of combinatorial optimization.  Our particular area of research is known as <I>Network Flows </I>[AMO93].  The basic problems to be solved are fairly easy to explain, especially to people with even the most basic knowledge of graph theory.  For example, a maximum flow problem involves a network or graph of nodes connected with arcs.  Each arc has a maximum capacity.  The objective is to push as much flow from a source node through the network to a sink node without exceeding the capacity constraints and without leaving any surpluses  or deficits at any nodes.   A physical example would be moving fluid or gas from one location to another through a network of pipelines.  Sometimes we may work with sub-problems of network flows, and other times we may use more general techniques such as linear programming.</P>
+<P>For network flow research, we have the following entities:</P>
+
+<UL>
+
+<UL>
+<LI>Problem Instances are instances of problems we wish to solve</LI>
+<LI>Problem Generators are used to create random instances to test with</LI>
+<LI>Solvers are the optimization software used to solve instances</LI>
+<LI>Translators  transform an instance from one format to another</LI>
+<LI>Solutions are the result of a solver working on an instance</LI></UL>
+</UL>
+
+
+<UL>
+
+<UL>
+<LI>Validators are code to compare solutions or to validate that solutions are correct</LI></UL>
+</UL>
+
+<P>The figure below shows the relationships between these entities.</P>
+<P ALIGN="CENTER"><IMG SRC="anderson-image1.gif" WIDTH=614 HEIGHT=359></P>
+<P ALIGN="CENTER">&nbsp;</P>
+<B><P ALIGN="CENTER">Figure 1: Entities in the Toolbox</P>
+</B><P ALIGN="CENTER">&nbsp;</P>
+<P>We may wish to solve real instances of problems such as the pipeline example above.  Other times we wish to try multiple algorithms to compare solutions or performance.  The algorithms would be run on the same instance, but the instance may be in different formats for the different solvers.  Regardless, a problem instance is typically read from a file into memory, the solver computes a result and the solution is written to another file.</P>
+</FONT><B><I><FONT FACE="Arial"><P>Problems Facing Researchers</P>
+</B></I></FONT><FONT SIZE=2><P>There are many commercial and public domain software packages to solve such problems. New algorithms are published and often implemented by researchers.  The first problem is that often the implementations are not particularly high quality, especially compared to commercial software packages.  Another problem is that although there are some standard formats for problem instances, many tools have their own input and output formats, as well as strange and sometimes non-obvious usage.  The problems can be compounded by ‘real world’ applications where the initial data is not in a standard format used by any of the tools.  Basically, we lack a uniform, high quality set of software tools.</P>
+<P>This Tower of Babel problem is exacerbated by steep learning curves for some tools.  Often users are required to write C code to use the tools, and few researchers are particularly proficient in C.  All of these obstacles discourage users, force them into using only one tool because it’s all they know, or cause them to walk away from a given problem out of a feeling of frustration.</P>
+<P>We want a simple environment that can be used by researchers that does not require programming in C.  It should be possible to add new tools to the toolbox with little or no C programming.  We need to support new file formats easily.  Ideally, we would also like to make this available with multiple user interfaces: script files, command line, WWW, window systems such as X-Windows.</P>
+<P>Obviously, Python is a good choice.  The syntax is easy to learn.  There are a large number of existing libraries.  It can be easily extended to add new functionality written in C or Python.  The interpreted nature makes for very rapid development, and programmers are freed from low-level, error-prone details such as memory management.</P>
+</FONT><B><I><FONT FACE="Arial"><P>Solutions</P>
+</B></I></FONT><FONT SIZE=2><P>Given that these solver codes must be written in C (or Fortran) for performance, our first impulse was to use extension programming where we added a Python interface to existing C code via some C-language glue.  We tried this, and although it worked, we encountered some problems that made this a less than ideal solution.</P>
+<P>Our second implementation was based on simpler ideas of creating Python wrappers around existing applications and files.  At the core, these are like more traditional scripts like shell scripts; they execute programs to read and write files.  However, we encapsulate these details to create a friendlier, object-oriented environment.</P>
+<P>Our contribution is an experiment in which we integrated tools using both extension and script programming.  Due to the nature of the software we were working with, we found scripting to be more effective than extension programming.</P>
+</FONT><B><I><FONT FACE="Arial"><P>Related Work</P>
+</B></I></FONT><FONT SIZE=2><P>We first became aware of the concept of extension programming in the context of Tcl [Oust94].  There are many examples of extension programming projects.  Dubois has been providing extensions to existing physics codes with a custom language [Dub94] as well as with Python [YDM96].  Commercial products such as Matlab also provide a high-level script language to high performance implementations of matrix manipulation code.  Matlab can be extended by writing scripts or linking in C or Fortran code.</P>
+<P>Shell scripts [Prat85] are an old idea to coordinate the execution of programs and link their input and output streams together.  The beauty of command pipelines is often held up as an example of software reuse technology that actually works [Cox86].  Our work creates higher level abstractions on top of programs and files. </P>
+<P>The Expect extension [Lib90] to Tcl provides a useful facility to control interactive programs from extended Tcl scripts. The tools we use are not usually interactive, but in some cases we may need to use such a tool, in which case we can use the Python version of Expect to interface with the tool.</P>
+<P>TkMan [Phel95] is an example of using an external C program to perform compute-intensive tasks instead of using extension programming.  This is very much like what we do, but we wish to create a framework in which we can plug in many such programs rather than just one or two that perform specific tasks.</P>
+<P>Another way to view this work is in terms of wrapping ‘legacy applications’ for use in new systems.  Our applications are not necessarily old, but they do share some common traits: existing code that cannot be re-written to conform to a new environment, the desire to maintain an arms-length relationship with the code, and possibly even code that must run on dedicated hardware.</P>
+</FONT><B><FONT FACE="Arial" SIZE=4><P>Extension Programming</P>
+</B></FONT><FONT SIZE=2><P>The initial project planned to put a Python front-end onto libraries of existing code.  This would allow researchers to create or convert problem instances using the higher level tools available to the Python programmer and then invoke a solver written in C.  The solution could then be analyzed or saved from the Python environment.  A casual user would never have to write C code, and someone wishing to extend the toolkit would have to write a minimum of glue-code in C, but this code would only have to be written once.</P>
+<P>We wanted to move the I/O functions from C code to Python where it can be much easier to read and write various strange file formats.  Given <I>M</I> solvers and <I>N</I> file formats, we wanted to change the problem of supporting all file formats for all solvers from <I>MN</I> software tasks to <I>M+N</I> tasks.</P>
+<P>It seemed the key was to develop a common representation of problems (i.e. networks) to be shared between the Python code and the solvers.  We considered the idea of some kind of least common denominator representation for graphs that would be shared by all solvers.  This was quickly discarded because no one data structure can be all things to all solvers, this would only work in cases where we had the source code for the solver, and it would involve significant modification to the algorithms.</P>
+<P>Our second idea was to use the common representation at a layer above the solver codes.  The Python code would manipulate the common representation, the glue logic would translate from the common representation to the ‘native’ representation used by the solver, and the solver would continue to use its original/native representation.  Similarly, results (output) would be translated from the native representation to the common representation where they would be available to the Python code.</P>
+<P>These two philosophies are shown below:</P>
+<P ALIGN="CENTER">&nbsp;</P>
+<P><IMG SRC="anderson-image2.gif" WIDTH=718 HEIGHT=245></P>
+<B><P ALIGN="CENTER">Figure 2: Where to locate the common data structure</P>
+</B><P>This common data structure was designed to be simple.  The objective was to make it easy to translate between the common structure and the various native formats.  It was never a requirement that this representation be particularly efficient for implementing algorithms.  Therefore, we did not consider using more sophisticated data structures such as the <I>kjBuckets</I> package from Arron Waters [PyContrib], but rather we created a simple representation with an array of nodes and an array of arcs.  The simple interface is shown below:<BR>
+</P></FONT>
+<P ALIGN="CENTER"><CENTER><TABLE BORDER CELLSPACING=1 CELLPADDING=9 WIDTH=667>
+<TR><TD WIDTH="33%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="CENTER">CgGraph()</FONT></TD>
+<TD WIDTH="67%" VALIGN="TOP">
+<FONT SIZE=2><P>Create a new, empty graph</FONT></TD>
+</TR>
+<TR><TD WIDTH="33%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="CENTER">getSource/setSource</FONT></TD>
+<TD WIDTH="67%" VALIGN="TOP">
+<FONT SIZE=2><P>Get or set the source node in the graph</FONT></TD>
+</TR>
+<TR><TD WIDTH="33%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="CENTER">getSink/setSink</FONT></TD>
+<TD WIDTH="67%" VALIGN="TOP">
+<FONT SIZE=2><P>Get or set the sink node in the graph</FONT></TD>
+</TR>
+<TR><TD WIDTH="33%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="CENTER">addArc/getArc/numArcs</FONT></TD>
+<TD WIDTH="67%" VALIGN="TOP">
+<FONT SIZE=2><P>Add an arc, get an arc, or get the number of arcs in the graph</FONT></TD>
+</TR>
+<TR><TD WIDTH="33%" VALIGN="TOP">
+<FONT SIZE=2><P ALIGN="CENTER">getNode/setNode/numNodes</FONT></TD>
+<TD WIDTH="67%" VALIGN="TOP">
+<FONT SIZE=2><P>Add a node, get a node, or get the number of nodes in the graph</FONT></TD>
+</TR>
+</TABLE>
+</CENTER></P>
+
+<FONT SIZE=2><P>Notice that the interface lacks methods to get all the arcs into or out of a node or to get all of the neighbors of a node.  Those are the types of operations that a graph data structure used for a solver would need, but since this structure is not used directly by the solvers, we do not have such operations.</P>
+<P>We implemented the common graph representation and adapted an existing maximum flow solver (called GOLD [Bad91]) to work as a Python extension module.  Basically, the work involved replacing the file I/O routines in the standalone version of GOLD with fairly simple glue code to translate the common graph representation. With this extended Python interpreter, we were able to define graphs from Python by adding nodes and arcs, and compute the maximum flow for a network.</P>
+<P>Although this worked for simple test cases, we found some problems during testing and made some observations based on the implementation.</P>
+
+<UL>
+
+<UL>
+<LI>When the code was ported from FreeBSD to SunOS, the Python interpreter began crashing mysteriously, especially when instances of the common graph were deleted after the solver was run.  After some effort (without the benefit of Purify), we found that the GOLD solver contained a number of small bugs and one major off-by-one array bounds error.   This was corrupting the heap in such a way that SunOS crashed, but FreeBSD didn’t.</LI>
+<LI>This scheme requires two representations of the graph be present in memory at the same time – i.e. it doubles memory usage.   During a translation phase, both representations may be accessed simultaneously meaning that we cannot assume one representation would be paged out.  This would lead to virtual memory thrashing much sooner than if we only had a single copy in memory.</LI>
+<LI>In the longer term, if we were to add more solvers, it would become increasingly likely to have name space collisions.  Although we can work around this in cases where we have source code, it would be very difficult to fix in cases where we only have a binary library.</LI>
+<LI>Although the C programming was fairly easy once we became familiar with extension programming for Python, it still appeared that it would be rather daunting for novice programmers who wanted to add a new solver to the toolkit, especially since the translation code cannot be automated with tools like SWIG [Beaz96].</LI></UL>
+</UL>
+
+<P>Basically, although this scheme worked for a single solver (once the memory bugs were fixed), it seemed that we would continue to have problems as we added new solvers.</P>
+</FONT><B><FONT FACE="Arial" SIZE=4><P>Wrapping and Scripting</P>
+</B></FONT><FONT SIZE=2><P>We then began to look at using Python more as a shell-scripting language.  We would leave the solvers as standalone programs and allow them to read and write their own native file formats on disk.  Then we could use Python to develop file conversion filters and as a tool for coordinating the activities. </P>
+<P>We created a framework of base classes in Python to represent solvers, instances, solutions, etc.  These classes interact to solve user problems.  In addition to base classes, there are sub-classes for particular solver or file types. There are common operations and attributes for base classes as well as specific operations and attributes for the sub-classes.  For example, solvers all have a </FONT><FONT FACE="Courier" SIZE=2>solve</FONT><FONT SIZE=2> method that works on an instance and creates a solution.  A sub-class might have an attribute to control the verbosity of the output generated in the solution, whereas others might not.  Similarly, the output of a solver, a solution instance, may contain data specific to the algorithm that generated it in addition to the information that would be common to all solutions.</P>
+<P>The Python classes we developed for the sub-classes are user-friendly ‘handles’ to the real instances that are typically represented in the file system.    They provide a uniform look-and-feel for the disparate tools and objects.  We have a common graph representation written in Python to facilitate translations.  To convert from one file format to another, the user can write Python code to read the input format and build the graph in memory.  Then the internal representation can be written out via more Python code into a file in another format.  Therefore, we only need to write <I>M+N</I> translators rather than <I>MN</I> translators.</P>
+<P>At the moment, the classes are completely implemented in Python without any use of extensions.  To add a new solver to the toolbox, a user writes Python code to sub-class an existing solver class and adds the particular methods and attributes for the new solver.  If we found a solver that was reliable (and free of memory bugs), and if there were some strong reason to include it into an extended Python interpreter, there is nothing in this architecture that precludes that.  Like any extension, it would be pretty seamless when viewed from the Python code.</P>
+<P>Obviously, external solvers imply the need to create a new process to run the solver.  Since most of our problems are fairly large and require tens of seconds, tens of minutes, or more to solve, the overhead of a new process is minimal.</P>
+<P>Below is an example script to solve an instance stored on disk:</P><DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Courier" SIZE=1><P>import ProbInstance</P>
+<P>import Solver</P>
+<P>problem = ProbInstance.getInstance(‘mesh-4-4.max’)</P>
+<P>dinics = Solver.Dinics()</P>
+<P>dinics.setVerbose(1)</P>
+<P>solution = dinics.solve(problem)</P>
+<P>print ‘max flow value is’, solution.flowValue</P>
+</FONT><FONT SIZE=2><P>&nbsp;</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+<P>The corresponding shell commands might look like:</P><DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Courier" SIZE=1><P>prf_df 2 &lt; mesh-4-4.max &gt; mesh-4.4.flow</P>
+<P>grep value mesh-4-4.flow</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT SIZE=2><P>Note, the usage of this particular solver really is this primitive: it takes a single numeric value to control verbosity, and it only reads standard input and writes standard output.</P>
+</FONT><B><FONT FACE="Arial" SIZE=4><P>Conclusions</P>
+</B></FONT><FONT SIZE=2><P>We have used Python to create a toolbox to bring together many existing optimization solver programs.    We first tried extension programming but met with limited success.  We encountered a number of problems mostly related to the type of software we were attempting to interface with. </P>
+<P>Fundamentally, there is nothing wrong with extension programming, but it appeared that it would not scale for our application. The problems are mostly related to the eclectic collection of software we are trying to use:</P>
+
+<UL>
+
+<UL>
+<LI>There is no common architecture to the software tools – they are not a simple collection of APIs in a well-designed library.</LI>
+<LI>The software comes from many sources, which can lead to integration problems.</LI>
+<LI>We are attempting to interface to non-professional software that may be buggy, and it is more apt to have integration problems.  </LI>
+<LI> The creation of C-language interface logic cannot be automated via tools like SWIG.</LI></UL>
+</UL>
+
+<P>Therefore, we fell back to more traditional shell-script-like programming wherein the solvers are standalone programs that are invoked to read and write problem and solution data on disk.  We created Python object wrappers around these tools to provide an easy to use interface.</P>
+</FONT><B><FONT FACE="Arial" SIZE=4><P>Future Work</P>
+</B></FONT><FONT SIZE=2><P>Our current prototype uses a tty-based interface built from components in [Lutz96].  We plan to develop a GUI, probably using <I>TkInter</I> to allow browsing objects and tools.  Using the toolbox from the Web will require writing translators read and write HTML – i.e. new sub-classes of Instance and Solution.</P>
+<P>Since the Python wrappers provide an arms-length connection to the objects and tools, we plan to investigate accessing tools and objects remotely over a network.   We are considering ILU [JS96] to control remote tools and instances via a Python/ILU server running on the remote machine and an ILU client process on the local machine. This will allow a researcher to use the workbench on a personal workstation to control solvers running on ‘big iron’ machines or an entire network of workstations (NOW) supercomputer cluster.</P>
+<P>Since some researchers start with problem instances in Excel or wish to post-process solutions with Excel, we would like to use the OLE/COM [Brock95] support in <I>PythonWin</I> to build a bridge between Excel and the solver workbench.</P>
+<P>In a way, we can regard files on disk (instances, solutions, or solver executables) as persistent versions of the Python objects.  Theoretically, we could regard the system as an object oriented DBMS (OODBMS) and use the system via </FONT><FONT FACE="Courier" SIZE=2>pickle</FONT><FONT SIZE=2> by overriding the </FONT><FONT FACE="Courier" SIZE=2>__getstate__</FONT><FONT SIZE=2> and </FONT><FONT FACE="Courier" SIZE=2>__setstate__</FONT><FONT SIZE=2> methods.  Browsing through the collection of solvers and instances would then involve navigating through the OODBMS. We are considering the possibilities of this OODBMS-oriented view of the system, but at the moment they mostly seem to have ‘gee-whiz’ value rather than being particularly practical for our research.</P>
+</FONT><B><I><FONT FACE="Arial"><P>Acknowledgements</P>
+</B></I></FONT><FONT SIZE=2><P>Thanks to Eli Olinick whose travails were the initial seeds of this project.  Thanks to Mark Lutz for his Python examples that hammered home the concepts of a framework.  And of course, thanks to Guido for Python, without which this would probably have been a Tcl project.</P>
+</FONT><B><FONT FACE="Arial" SIZE=4><P>&nbsp;</P>
+<P>References</P></B></FONT>
+<P ALIGN="RIGHT"><TABLE CELLSPACING=0 BORDER=0 CELLPADDING=9 WIDTH=684>
+<TR><TD WIDTH="19%" VALIGN="TOP">
+<FONT SIZE=2><P>AMO</FONT></TD>
+<TD WIDTH="81%" VALIGN="TOP">
+<FONT SIZE=2><P>Ahuja, Ravidra, Magnati, Thomas, and  Orlin, James.  <I>Network Flows: Theory, Algorithms, and Applications</I>.  Prentice-Hall, 1993.</FONT></TD>
+</TR>
+<TR><TD WIDTH="19%" VALIGN="TOP">
+<FONT SIZE=2><P>Bad91</FONT></TD>
+<TD WIDTH="81%" VALIGN="TOP">
+<FONT SIZE=2><P>Badics, Tamas.  An implementation of Goldberg’s push-relabel algorithm.  Source code available at: </FONT><FONT FACE="Courier" SIZE=2>ftp://dimacs.rutgers.edu/pub/netflow/maxflow/solver-5</FONT></TD>
+</TR>
+<TR><TD WIDTH="19%" VALIGN="TOP">
+<FONT SIZE=2><P>Beaz96</FONT></TD>
+<TD WIDTH="81%" VALIGN="TOP">
+<FONT SIZE=2><P>Beazley, David, Using SWIG to Control, Prototype, and Debug C Programs with Python.  In <I>Proceedings of the  Fourth International Python Conference</I>. 1996.</FONT></TD>
+</TR>
+<TR><TD WIDTH="19%" VALIGN="TOP">
+<FONT SIZE=2><P>Brock95</FONT></TD>
+<TD WIDTH="81%" VALIGN="TOP">
+<FONT SIZE=2><P>Brockschmidt, Kraig.  <I>Inside OLE: Second Edition</I>.  Microsoft Press, 1995.</FONT></TD>
+</TR>
+<TR><TD WIDTH="19%" VALIGN="TOP">
+<FONT SIZE=2><P>Cox86</FONT></TD>
+<TD WIDTH="81%" VALIGN="TOP">
+<FONT SIZE=2><P>Cox, Brad.  <I>Objected Oriented Programming: an Evolutionary Approach</I>.  Addison-Wesley, 1986.</FONT></TD>
+</TR>
+<TR><TD WIDTH="19%" VALIGN="TOP">
+<FONT SIZE=2><P>Dub94</FONT></TD>
+<TD WIDTH="81%" VALIGN="TOP">
+<FONT SIZE=2><P>Dubois, Paul. Making Applications Programmable.  <I>Computers in Physics</I>, 11 (1) 1994, pp. 70.</FONT></TD>
+</TR>
+<TR><TD WIDTH="19%" VALIGN="TOP">
+<FONT SIZE=2><P>JS96</FONT></TD>
+<TD WIDTH="81%" VALIGN="TOP">
+<FONT SIZE=2><P>Janssen, Bill and Spreitzer, Mike.. <I>ILU 2.0aplha8 Reference Manual</I>. XEROX Palo Alto Research Center, March 1996</FONT></TD>
+</TR>
+<TR><TD WIDTH="19%" VALIGN="TOP">
+<FONT SIZE=2><P>Lib90</FONT></TD>
+<TD WIDTH="81%" VALIGN="TOP">
+<FONT SIZE=2><P>Libes, Don, &quot;expect: Curing Those Uncontrollable Fits of Interaction&quot;.  In <I>Proceedings of the Summer Usenix Conference</I>, pp. 183-192.</FONT></TD>
+</TR>
+<TR><TD WIDTH="19%" VALIGN="TOP">
+<FONT SIZE=2><P>Lutz</FONT></TD>
+<TD WIDTH="81%" VALIGN="TOP">
+<FONT SIZE=2><P>Lutz, Mark.  <I>Programming Python</I>.  O’Reilly and Associates, 1996.</FONT></TD>
+</TR>
+<TR><TD WIDTH="19%" VALIGN="TOP">
+<FONT SIZE=2><P>Oust94</FONT></TD>
+<TD WIDTH="81%" VALIGN="TOP">
+<FONT SIZE=2><P>Ousterhout, John.  <I>Tcl and the Tk Toolkit</I>.  Addison-Wesley, 1994.</FONT></TD>
+</TR>
+<TR><TD WIDTH="19%" VALIGN="TOP">
+<FONT SIZE=2><P>Phel95</FONT></TD>
+<TD WIDTH="81%" VALIGN="TOP">
+<FONT SIZE=2><P>Phelps, Thomas.  &quot;Two Years with TkMan: Lessions and Innovation, Or Everythin I Needed to Know about Tcl/Tk I Learned from TkMan&quot;, 1995 Tcl/Tk Workshop, Usenix Association.</FONT></TD>
+</TR>
+<TR><TD WIDTH="19%" VALIGN="TOP">
+<FONT SIZE=2><P>Prat85</FONT></TD>
+<TD WIDTH="81%" VALIGN="TOP">
+<FONT SIZE=2><P>Prata, Stephen. <I>Advanced Unix – A Programmer’s Guide</I>.  Howard W. Sams &amp; Co., Inc, 1985.</FONT></TD>
+</TR>
+<TR><TD WIDTH="19%" VALIGN="TOP">
+<FONT SIZE=2><P>PyContrib</FONT></TD>
+<TD WIDTH="81%" VALIGN="TOP">
+<FONT SIZE=2><P>Contributed Python software available from </FONT><FONT FACE="Courier" SIZE=2>http://www.python.org</FONT><FONT SIZE=2>.</FONT></TD>
+</TR>
+<TR><TD WIDTH="19%" VALIGN="TOP">
+<FONT SIZE=2><P>YDM96</FONT></TD>
+<TD WIDTH="81%" VALIGN="TOP">
+<FONT SIZE=2><P>Yang, Tser-Yuan, Dubois, Paul, and Motteler, Zane.  Building a Programmable Interface for Phusics Codes Using Numeric Python. In <I>Proceedings of the Fourth International Python Conference</I>. 1996</FONT></TD>
+</TR>
+</TABLE>
+</P>
+
+<FONT SIZE=2><P>&nbsp;</P></FONT>
+</UL>
+</BODY>
+</HTML>

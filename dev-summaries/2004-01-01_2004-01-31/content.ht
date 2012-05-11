@@ -1,0 +1,259 @@
+Title: python-dev Summary for 2004-01-01 through 2004-01-31
+Content-type: text/x-rst
+
+python-dev Summary for 2004-01-01 through 2004-01-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from January 1, 2004 through January 31, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the thirty-third and -fourth summaries written by Brett Cannon (who is rather fed up with being sick recently).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at http://www.python.org/dev/doc/devel/ and should be used when looking up any documentation on something mentioned here.  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2003-12-01_2003-12-31.html
+
+
+=====================
+Summary Announcements
+=====================
+Quick personal announcement/plea: I am looking for a summer job/internship.  If you happen to have a position at your company or happen to know of one somewhere **please** let me know at brett@python.org .  I obviously know Python rather well, but I do know other languages.  I am quite willing to send you my resume and answer any questions you might have about experience, etc.  I would truly appreciate any help anyone can provide me in finding something for the summer.  I do have housing handled in the Los Angeles area and the Seattle/Bellevue area on top of the San Luis Obispo area, although I am willing to relocate for the summer.
+
+Sorry about the lateness of this summary.  I realize this is going out when another one is already due.  Unfortunately, on top of needing to secure a summer job/internship and trying to get that dealt with, I also got strep throat that was rather horrid.  It was not fun to only be officially over pneumonia for a couple of weeks before I got sick again.  Rather frustrating since I haven't been this ill so often since I was a little kid.  And having to deal with school on top of being sick did not help matters.
+
+In actual Python-related news, PyCon_ is still open for registration.  If you haven't yet, go to http://pycon.org/dc2004/register/ and register!  Last year was a blast and I expect no less from this year (I am actually spending my Spring Break at PyCon I enjoyed myself so much last year).  Papers have been selected and it looks like we are going to have a great line-up of talks that cover the gamut of interests.  In other words I highly recommend attending if you can.
+
+And even if you can't attend, if you are in the D.C. area, consider at least attending the first two days of the sprints which are the weekend preceding the conference (March 20-21).  More info on the sprints can be found at http://www.python.org/cgi-bin/moinmoin/SprintPlan2004 .
+
+And now, on with the juicy stuff...
+
+.. _PyCon: http://www.pycon.org/
+
+=========
+Summaries
+=========
+
+---------------------
+Benchmarking is a go!
+---------------------
+After Guido committed the parrotbench code to CVS, various people began to run the benchmark and post their scores.  If you are curious to see how your machine compares take a look at the contributing threads.
+
+Contributing threadds:
+  - `Pie-thon benchmark code ready <http://mail.python.org/pipermail/python-dev/2004-January/041551.html>`__
+  - `Re: Are we collecting benchmark results across machines <http://mail.python.org/pipermail/python-dev/2004-January/041553.html>`__
+
+
+-----------------------------------
+Windows compilation moved to VC.NET
+-----------------------------------
+Martin v. Löwis converted the project files and anything else needed so that Python can now be compiled using VC.NET .  All of the previous files needed for compiling under VC 6 has been moved to PC/VC6 .
+
+Contributing threads:
+  - `Switch to VC.NET 7.1 completed <http://mail.python.org/pipermail/python-dev/2004-January/041600.html>`__
+
+
+--------------------------
+Shutting Unicode errors up
+--------------------------
+Enough people have asked for the ability to silence Unicode errors that Martin v. Löwis suggested adding a module attribute in sys to specify whether Unicode errors should be ignored or not.  M.A. Lemburg, though, thought it was a bad idea and suggested instead that people use a custom codec that relaxed the error-handling.
+
+the thread seemed to end with no changes planned.
+
+Contributing threads:
+  ` Relaxing Unicode error handling <http://mail.python.org/pipermail/python-dev/2004-January/041605.html>`__
+
+
+---------------------------------------------------------------------------------------
+new PEPs (sorry, nothing witty came to me about PEPs that was not excruciatingly corny)
+---------------------------------------------------------------------------------------
+In all cases, ignore the Created date in terms of posting date; click on the Last Modified link if you care to see when the PEP was officially added.
+
+`PEP 324`_ proposes a new module named popen5.  As suggested by the name, it hopes to come up with a unified module for process creation.  To see Guido's initial response to the PEP and what he thinks is a "category killer" and why any new additions to the stdlib must be one, read http://mail.python.org/pipermail/python-dev/2004-January/041698.html .
+
+`PEP 325`_ proposes a 'close' method for generators so as to handle what normally would be handled in a try/finally block (such as closing files and such).
+
+`PEP 326`_ wants to add maximum and minimum singletons.  Guido rejected the PEP.  There is a complete implementation, though, with the PEP.
+
+`PEP 327`_ is the long-awaited decimal type PEP that has been in the process of being refined for quite a while.  Development in the sandbox has been moving forward.
+
+`PEP 328`_ is the 'import' PEP in terms of multi-line imports and dealing with relative imports.
+
+.. _PEP 324: http://python.org/dev/peps/pep-0324
+.. _PEP 325: http://python.org/dev/peps/pep-0325
+.. _PEP 326: http://python.org/dev/peps/pep-0326
+.. _PEP 327: http://python.org/dev/peps/pep-0327
+.. _PEP 328: http://python.org/dev/peps/pep-0328
+
+Contributing threads:
+  - `PEP 324: popen5 - New POSIX process module <http://mail.python.org/pipermail/python-dev/2004-January/041606.html>`__
+  - `New version of installer <http://mail.python.org/pipermail/python-dev/2004-January/041672.html>`__
+  - `prePEP "Decimal data type" v0.2 <http://mail.python.org/pipermail/python-dev/2004-January/041691.html>`__
+  - `PEP 326 (quick location possibility) <http://mail.python.org/pipermail/python-dev/2004-January/042303.html>`__
+  - `PEP 327: Decimal Data Type <http://mail.python.org/pipermail/python-dev/2004-January/042347.html>`__
+
+
+-------------------------------------
+Making Python and HP-UX friends again
+-------------------------------------
+Cameron Laird said he wanted to try to spear-head an attempt to get Python to compiled on HP-UX correctly.  In the past threading support has been out of the question and getting Tkinter to go has been an issue as well along with curses.  Cameron said he would like to get Python working for HP-UX as far back as version 10.20, although he said he would also be fine with the current 11.x versions.
+
+Most of it seems to have to do with requiring tweaks to Configure.in, Modules/Setup, and setup.py .  As of this exact second no patches have been added to SourceForge_.  You can get a version of Python 2.3.3 compiled for HP-UX at http://hpux.cs.utah.edu/hppd/hpux/Languages/python-2.3.3/ .
+
+This also led to a slight discussion of how slightly crufty Configure.in is.  Any help bringing it up-to-date or cleaning up would be appreciated.
+
+Contributing threads:
+  - `HP-UX clean-up <http://mail.python.org/pipermail/python-dev/2004-January/041607.html>`__
+
+
+----------------------------
+msi installer for Python 2.4
+----------------------------
+Going for the record of the person mentioned the largest number times in a single Summary who is not labeled a BDFL, Martin v. Löwis updated his msi installer for Python 2.4 .  It can be found at http://www.dcl.hpi.uni-potsdam.de/home/loewis/python2.4.0.12421.msi along with info on the installer at http://www.dcl.hpi.uni-potsdam.de/home/loewis/msipackage.html .
+
+Contributing threads:
+  - `New version of installer <http://mail.python.org/pipermail/python-dev/2004-January/041661.html>`__
+  - `Python MSI <http://mail.python.org/pipermail/python-dev/2004-January/041921.html>`__
+
+
+----------------------
+New collections module
+----------------------
+Raymond Hettinger has created a new module called 'collections'.  It primary purpose is to be home to "high-performance container datatypes".  To start, it only has an implementation of deques.
+
+Contributing threads:
+  - `collections module <http://mail.python.org/pipermail/python-dev/2004-January/041829.html>`__
+  - `collections module (correction) <http://mail.python.org/pipermail/python-dev/2004-January/041899.html>`__
+  - `Collections <http://mail.python.org/pipermail/python-dev/2004-January/042270.html>`__
+
+
+----------------
+CJKCodecs in 2.4
+----------------
+A perk of having Hye-Shik Chang an official developer of Python is getting his CJKCodecs integrated into Python 2.4 .
+
+Contributing threads:
+  - `CJKCodecs integration into Python <http://mail.python.org/pipermail/python-dev/2004-January/041836.html>`__
+  - `Oodles of warnings in cjkcodecs <http://mail.python.org/pipermail/python-dev/2004-January/042203.html>`__
+
+
+---------------
+Statistics talk
+---------------
+Raymond Hettinger asked for some suggestions on a statistics module he was working on.  A whole bunch of stuff from names to algorithms to include came up.  There is now a module in the sandbox being worked on to implement what was discussed.
+
+Contributing threads:
+  - `Accumulation module <http://mail.python.org/pipermail/python-dev/2004-January/041988.html>`__
+
+
+------------------------------------
+Installer problems for MacPython-OS9
+------------------------------------
+Jack Jansen told python-dev how he has not been able to distribute a version of MacPython-OS9 for Python 2.3.3 because the free license for the installer expired.  It was suggested that the PSF_ pay for a license.  If you think this is a good idea and you are a PSF member consider bringing the topic up at the general meeting to be held at PyCon_.
+
+Contributing threads:
+  - `No more releases of MacPython-OS9? <http://mail.python.org/pipermail/python-dev/2004-January/042022.html>`__
+
+
+--------------------------------------
+Anyone want to maintain MacPython-OS9?
+--------------------------------------
+If anyone would like to take over maintenance of MacPython-OS9 so that it continues to exist beyond the 2.3 branch then contact Jack Jansen.
+
+Contributing threads:
+  - `PEP 11 mistake? <http://mail.python.org/pipermail/python-dev/2004-January/042036.html>`__
+
+
+--------------
+Python in 2003
+--------------
+Go to http://python.org/topics/2003.html to read AM Kuchling's report on what happened to Python in 2003.
+
+Contributing threads:
+  - `Python in 2003 summary <http://mail.python.org/pipermail/python-dev/2004-January/042049.html>`__
+
+
+---------------------------------
+Compiling using the free .NET SDK
+---------------------------------
+If you wish to compile Python using the free .NET SDK then read the first email in the contributing thread thanks to someone named Garth.
+
+Contributing threads:
+  - `Compiling python with the free .NET SDK <http://mail.python.org/pipermail/python-dev/2004-January/042053.html>`__
+
+
+--------------------------
+No dict.addlist() for you!
+--------------------------
+The idea of adding a method to dict called 'addlist(k,v)' that would act like ``d.setdefault(k, []).append(v)``.  It was eventually agreed upon that the perk of having it as a part of dict was not justified since the idiom it was implementing is simple enough so as to not really require adding the method.
+
+Contributing threads:
+  - `dict.addlist() <http://mail.python.org/pipermail/python-dev/2004-January/042114.html>`__
+
+
+--------------------------------------------------------
+Want to be able to change Python's name at compile time?
+--------------------------------------------------------
+Jack Jansen asked what people thought of adding the ability of being able to specify the name of Python through 'configure' and have the permeate throughout the code.  The main reason for this is to allow people on OS X to be able to have other framework builds of Python that don't interfere with the installed version on OS X 10.3 .
+
+The thread ended with no definitive decision as to whether to move ahead or not.
+
+Contributing threads:
+  - `Configure option to change Python's name? <http://mail.python.org/pipermail/python-dev/2004-January/042153.html>`__
+
+
+---------------------------------
+You think you are a Hotshot, huh?
+---------------------------------
+Sparked by a question about where the development of the Hotshot profiler was, a new file was added to the scripts directory for making it easier to launch Hotshot for profiling.
+
+Contributing threads:
+  - `Hotshot <http://mail.python.org/pipermail/python-dev/2004-January/042222.html>`__
+
+
+-------------------------------------------------
+Happy patch/bug statistics days are back again...
+-------------------------------------------------
+Kurt Kaiser has taken over for Skip Montanaro (thanks to both for continuing and starting this weekly email, respectively) for sending out the "Weekly Python Patch/Bug Summary" email.
+
+Contributing threads:
+  - `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2004-January/042244.html>`__
+
+
+---------------------------------------------------
+Change in posting rules to python-dev (but barely!)
+---------------------------------------------------
+The posting rules to python-dev have changed so that emails from non-subscribers must be ok'ed by moderators.  But joining python-dev is still open to the public and requires no clearance from anyone so it is not a big hurdle to overcome to post to the list.
+
+You can always subscribe and turn mail delivery off if you like to.  This is needed if you send mail to the list from multiple accounts such as yours truly.
+
+Contributing threads:
+  - `Proposed: change to posting rules for python-dev <http://mail.python.org/pipermail/python-dev/2004-January/042358.html>`__
+
+
+-----------------------------------
+GPL code in Python core is not okay
+-----------------------------------
+Although the question was specific to python-mode.el, the general answer is that GPL code is not allowed into Python.  The clash of the GPL with the PSF license since the latter is BSD-style.
+
+Contributing threads:
+  - `Would GPL on python-mode.el be a problem? <http://mail.python.org/pipermail/python-dev/2004-January/042311.html>`__

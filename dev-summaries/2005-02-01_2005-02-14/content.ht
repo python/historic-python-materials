@@ -1,0 +1,334 @@
+Title: python-dev Summary for 2005-02-01 through 2005-02-14
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2005-02-01 through 2005-02-14
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-02-01_2005-02-14.html]
+
+
+
+=====================
+Summary Announcements
+=====================
+
+--------------------------
+Giving myself a gold watch
+--------------------------
+
+As some of you may have already heard or read, I am retiring from writing the python-dev Summaries after sending out the March 16 - 31 summary.  It has been a long time coming and it required a kick in the ass (graciously supplied by Steve Holden) to finally make me let go of doing this and let someone else take over.
+
+The joy of the Summaries has dwindled over the 2.5 years I have been doing this.  I was only doing them to be helpful.  But now I would rather put my time and effort I have for Python into coding work rather than the Summaries.  I would like to think I can be more productive and helpful as a programmer than a writer.  And so there will only be three more regular Summaries after this written by yours truly.
+
+But do not worry about the Summaries dying!  When I announced this (see http://mail.python.org/pipermail/python-dev/2005-March/051823.html for the thread that led to this), three individuals stepped forward to pick up the work once I step down.  Steven Bethard, Tony Meyer, and Tim Lesher are being considered for picking up where I left off.  There is the possibility that they will actually write the Summaries together as a team.
+
+As for my last Summary, expect a more expository one with my random thoughts on PyCon, Python, and anything else that comes to mind that I feel like using this space to abuse.  You have Scott David Daniels to thank for that format idea for my final hurrah.
+
+
+------------
+Go to PyCon!
+------------
+
+I just booked my hotel room for PyCon_.  You going to be there so I can shake your hand, thanking you for supporting Python?
+
+.. _PyCon: http://www.pycon.org/
+
+
+=========
+Summaries
+=========
+
+-------------------------------------
+Python Security Response Team founded
+-------------------------------------
+For those of you who don't know, a security hole was found in XML-RPC servers in the stdlib that use register_instance; details at http://www.python.org/security/PSF-2005-001/ .
+
+In response to this, Guido has now formed the 'Python Security Response Team`_.  This group's job is to respond to any and all security issues that come up as quickly as possible and to issue a patch in a timely fashion.
+
+.. _Python Security Response Team: http://www.python.org/security/
+
+Contributing threads:
+  - `Wanted: members for Python Security Response Team <http://mail.python.org/pipermail/python-dev/2005-February/051414.html>`__
+
+
+------------------------------
+Licensing issues in the stdlib
+------------------------------
+It was reported to python-dev that 'profiler' and 'md5 do not conform to the Debian Free Software Guidelines.  The specific issue was derived works using Python.  This is obviously not a good thing.
+
+Things are in the works, though.  The hope is to get the copyrights signed over and all of this cleared up.  At worst the modules will be replaced with code licensed to the Python Software Foundation.  If you care to accelerate this by writing replacements please do so.
+
+Contributing threads:
+  - `license issues with profiler.py and md5.h/md5c.c <http://mail.python.org/pipermail/python-dev/2005-February/051450.html>`__
+
+
+---------------------------------------------------
+Replacing list of constants with tuple of constants
+---------------------------------------------------
+note: written by Tim Lesher
+
+Skip Montanaro noticed that Raymond Hettinger had made a number of
+library checkins replacing lists with tuples in constructs like ``for
+a in [1, 2, 3]:`` and ``if a in [1, 2, 3]:``.  He agreed with the
+motivation (the peephole optimizer can convert a tuple of constants
+into a single constant, eliminating construction time), but questioned
+hardcoding the optimization.  Instead, he suggested teaching the
+optimizer about "throwaway" lists in ``for`` and ``if`` statements.
+
+Guido agreed with the sentiment.  Raymond accepted the suggestion, and
+checked in code to implement it.  There were some issues, though, but those will be covered in the next Summary.
+
+Contributing threads:
+  - `list of constants -> tuple of constants <http://mail.python.org/pipermail/python-dev/2005-February/051442.html>`__
+
+-------------------
+Complex I/O problem
+-------------------
+note: written by Tim Lesher
+
+Neal Becker asked why the result of printing a complex number is not an
+acceptable input to constructing a complex.  For example, ``print
+complex(2,2)`` yields ``'(2+2j)'``; but ``complex('(2+2j)')`` throws a
+ValueError.
+
+A. M. Kuchling responded that many types, including 'str' and
+'file' share this behavior, and that in any event, parsing string
+representations is a job more suited to 'eval' than to classes
+themselves.
+
+Guido `reiterated the rules`_ for str() (used by 'print') and
+repr(). Since both complex.__str__ and complex.__repr__
+pass the eval() test, he pronounced it fine.
+
+.. _reiterated the rules: http://mail.python.org/pipermail/python-dev/2005-February/051390.html
+
+Contributing threads:
+  - `complex I/O problem <http://mail.python.org/pipermail/python-dev/2005-February/051388.html>`__
+
+
+-----------------------------
+2.3.5 and 2.4.1 release plans
+-----------------------------
+note: written by Steve Bethard
+
+Anthony Baxter, Alex Martelli and Tim Peters squelched a bug where
+deepcopy failed on instances of types that lacked an ``__mro__``
+attribute.
+
+The patch was pretty straight-forward (use inspect.getmro instead
+of cls.__mro__), but coming up with a test case was hard --
+creating a Python object that doesn't have an __mro__ takes some
+complicated C code like that of Zope's ExtensionClass.  Fortunately,
+John Lenton's c.l.py_ suggestion to simply raise an AttributeError for
+__mro__ in __getattribute__ properly tickled the bug, and 2.3.5
+was cleared for release.
+
+Contributing Threads:
+- `2.3.5 and 2.4.1 release plans <http://mail.python.org/pipermail/python-dev/2005-February/thread.html>`__
+
+
+-------------------------------------------------------------------------------------
+Clarification sought about including a multidimensional array object into Python core
+-------------------------------------------------------------------------------------
+note: written by Steve Bethard
+
+Travis Oliphant and others looked into the issues of including an
+array object (like that of Numeric or numarray) in Python core.
+
+Guido seemed hesitant, concerned that as Numeric_ and numarray_ continue
+to co-exist, the array object wouldn't be the "best of breed" (one of
+the requirements for inclusion in Python core).  Travis explained that
+most of the disagreements are over ufunc objects, not the basic array
+object itself, so it wouldn't be unreasonable to include the array
+object without the ufunc object if necessary.  There was also some
+suggestion that, at least for basic arithmetic operations, Numeric and
+numarray mostly agree, so a stripped-down ufunc object for these
+operations might also be inclusion-worthy.
+
+In an aside that grew decidedly un-aside-ish, Paul F. Dubois, Guido
+and David Ascher explained why matrix should not inherit from
+arrayobject -- this would complicate __new__ and cause confusion when
+mixed operands (arrays and matrices) are given to a binary op like
+multiplication.
+
+.. _Numeric: http://numeric.scipy.org/
+.. _numarray: http://www.stsci.edu/resources/software_hardware/numarray
+
+Contributing Threads:
+  - `Clarification sought about including a multidimensional array object into Python core <http://mail.python.org/pipermail/python-dev/2005-February/051474.html>`__
+  - `Numeric life as I see it <http://mail.python.org/pipermail/python-dev/2005-February/051493.html>`__
+
+
+--------------------------------------
+More licensing issues - redistribution
+--------------------------------------
+note:: written by Tony Meyer
+
+As most people know, one of the major changes between the Windows builds of
+Python 2.3 and 2.4 is that 2.4 is built with VC7, rather than VC6.  One of
+the consequences of this change is that 2.4 links with the Microsoft DLL
+msvcr71.dll, which only some people have, rather than msvcr.dll, which
+pretty much all Windows users have.
+
+The Windows Python 2.4 distribution installs msvcr71.dll, so it's there when
+needed.  However, those building frozen applications (e.g. with py2exe) need
+to ensure that their users have msvcr71.dll.
+
+After going through the EULA's for both the commercial and free-to-use
+Microsoft compilers, it seems that redistributing mscvr71.dll is acceptable,
+if the re-distributor owns a copy of the commercial (not free) compiler,
+includes an EULA agreement in one of various forms (e.g. 'click-wrap'), and
+follows various other minor conditions (note that just about every message
+in this thread contains "IANAL, but").
+
+This leaves those without VC7 unable to redistribute msvcr71.dll, unless, as
+some suggested, distributing a frozen Python application can be considered
+as redistributing Python (and the various other minor conditions are
+followed).
+
+In an interesting twist, it appears that the official Windows Python 2.4
+distribution is in breach of the EULA, as a 'click-wrap' license is
+required, and is not present.  This element of the thread died without
+reaching a conclusion, however.
+
+If you *are* a lawyer (with expertise in this area), and would like to
+comment, then please do!
+
+Contributing threads:
+   - `Is msvcr71.dll re-redistributable? <http://mail.python.org/pipermail/python-dev/2005-February/051393.html>`__
+
+
+----------------------------------
+Avoiding signs in memory addresses
+----------------------------------
+note:: written by Tony Meyer
+
+Troels Walsted Hansen pointed out that builtin_id() can return a negative
+number in Python 2.4 (and can generate a warning in 2.3).  Some 2.3 modules
+(but no 2.4 ones) have code to work around this, but Troels suggested that a
+better solution would be to simply have builtin_id() return an unsigned long
+integer.  The consensus was that this would be a good idea, although nothing
+has been checked in yet, and so this will probably stagnate without someone
+submitting a patch (or at least a bug report).
+
+Contributing threads: 
+   - `builtin_id() returns negative numbers <http://mail.python.org/pipermail/python-dev/2005-February/051559.html>`__
+
+
+
+===============
+Skipped Threads
+===============
++ Son of PEP 246, redux
++ Re: PEP 246: LiskovViolation as a name
++ Re: [Python-checkins] python/dist/src/Python future.c, 2.14, 2.15
++ Other library updates
++ Re: python/dist/src/Lib rfc822.py,1.78,1.79
++ Patch review: [ 1098732 ] Enhance tracebacks and stack traces with vars
++ Re: [Python-checkins] python/dist/src/Python compile.c, 2.343, 2.344
++ Re: [Python-checkins] python/dist/src/Lib xmlrpclib.py, 1.38, 1.39
++ ViewCVS on SourceForge is broken
+
+
+
+
+
+========
+Epilogue
+========
+
+------------
+Introduction
+------------
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+February 01, 2005 through February 14, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the fifty-eighth summary written by Brett Cannon (3 more after this one).
+
+To contact me, please send email to brett at python.org.  Do *not*
+post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+If you are looking for a way to expand your knowledge of Python's
+development and inner-workings, consider writing the python-dev
+Summaries yourself!  I am willing to hand over the reins to someone
+who is willing to do a comparable or better job of writing the
+Summaries.  If you are interested, please email me at
+brett at python.org.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python CVS online, go to
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  I do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow me to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-01-16_2005-01-31.html
+.. _original text file: http://www.python.org/dev/summary/2005-02-01_2005-02-14.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

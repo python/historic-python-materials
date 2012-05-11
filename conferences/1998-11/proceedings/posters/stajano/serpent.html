@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN"
+            "http://www.w3.org/TR/REC-html40/strict.dtd"><HTML>
+<HEAD>
+<BASE HREF="http://www.foretec.com/python/workshops/1998-11/proceedings/posters/stajano/serpent.html">
+
+<META NAME="Generator" CONTENT="Frank Stajano, by hand like real men do ;-)">
+<!-- Validated as correct HTML 4.0 by http://validator.w3.org/ -->
+<TITLE>Nothing better than a Python to write a Serpent</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Nothing better than a Python to write a Serpent</H1>
+
+<P><a href="http://www.cl.cam.ac.uk/~fms27/">Frank Stajano</a><BR> <a
+href="http://www.orl.co.uk/">Olivetti Oracle Research Laboratory</a><BR>
+&amp; <a href="http://www.cam.ac.uk">University of Cambridge</a> <a
+href="http://www.cl.cam.ac.uk">Computer Laboratory</a>
+</P>
+
+<P>Serpent is a 128-bit block cipher designed by <a
+HREF="http://www.cl.cam.ac.uk/~rja14/">Ross Anderson</a>, <a
+HREF="http://www.cs.technion.ac.il/~biham">Eli Biham</a> and <a
+HREF="http://www.ii.uib.no/~larsr/">Lars Knudsen</a> as a candidate for the
+<a HREF="http://www.nist.gov/aes">Advanced Encryption Standard</a>, a
+competition sponsored by the National Institute of Standards and Technology
+to define a successor to DES. Serpent is designed to be faster than DES and
+more secure than triple-DES. It is in the public domain and there are no
+restrictions on its use: the full AES submission package, including the
+full specification of the cipher, a reference implementation in C, several
+test suites, and optimised versions in C and Java, is available from <a
+href="http://www.cl.cam.ac.uk/~rja14/serpent.html">http://www.cl.cam.ac.uk/~rja14/serpent.html</a></P>
+
+<P>The authors of Serpent had a preliminary C implementation and wanted to
+cross-check it with an independently developed one. I started from the
+paper defining Serpent and implemented the algorithm from scratch. My only
+concerns were correctness and readability, with the view that
+&quot;premature optimisation is the root of all evil&quot;. For this reason
+I chose Python, and I represented bit strings simply as little-endian
+strings of the characters &quot;0&quot; and &quot;1&quot;. This gave me a
+&quot;virtual processor&quot; with words of arbitrary length. I could now
+easily XOR, rotate, extract bit 103 and so on, as well as assigning a block
+or key to a variable and inspecting it (even interactively) simply by
+printing it out.</P>
+
+<P>It must be realised that implementing a cryptographic primitive such as
+a block cipher from scratch is very much an open-loop operation, in that
+there is no obvious feedback on whether the output is correct or not. After
+all, the whole point of a block cipher is to transform the plaintext into
+something that resembles random garbage as closely as possible -- so how
+is one supposed to know whether the garbage that comes out is
+&quot;good&quot; garbage or the outcome of some internal bugs? Compare this
+with the much easier closed-loop task of writing a new implementation after
+a known-good reference implementation is available: bugs are immediately
+identified by the fact that the output is different from that of the
+reference, and by tracing back the intermediate results one is quickly led
+to the point of divergence and thus to the probable cause of the bug.</P>
+
+<P>Short of going all the way to formal verification methods, a good
+solution seems to be that of making the code as clear and simple as
+possible, aiming for a one-to-one correspondence between the code and the
+formulae describing the algorithm in its specification. A very high-level
+language such as Python, with its &quot;executable pseudocode&quot;
+flavour, was found to be great for this task.</P>
+
+<P>The Python version was instrumental in finding a couple of bugs in the C
+code that, while conceptually trivial, were still of course affecting the
+workings of the cipher. The absolutely unoptimised Python code, while it
+ran at the appalling speed of about one block per second (the C code was 4
+to 5 orders of magnitude faster), was the first implementation to produce
+the correct results. I later had to rewrite an unoptimised reference
+version in C, since that's what the call for algorithms required, but
+this task was made much more pleasant (and closed-loop) by being able to
+rely on the existing Python one.</P>
+
+<P>If there is a moral to this story, it must be that the level of
+abstraction of Python makes it a good language for expressing ideas without
+getting too bogged down in machine-level details, and that &quot;ideas in
+executable form&quot; are a good complement to the formal specification of
+an algorithm.</P>
+
+<P>The Python reference implementation of Serpent is freely available from
+<a
+href="http://www.cl.cam.ac.uk/~fms27/serpent/">http://www.cl.cam.ac.uk/~fms27/serpent/</a></P>
+
+</BODY>
+
+<SCRIPT language="Javascript">
+<!--
+
+// FILE ARCHIVED ON 20010702162301 AND RETRIEVED FROM THE
+// INTERNET ARCHIVE ON 20060504134757.
+// JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+// ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+// SECTION 108(a)(3)).
+
+   var sWayBackCGI = "http://web.archive.org/web/20010702162301/";
+
+   function xLateUrl(aCollection, sProp) {
+      var i = 0;
+      for(i = 0; i < aCollection.length; i++)
+         if (aCollection[i][sProp].indexOf("mailto:") == -1 &&
+             aCollection[i][sProp].indexOf("javascript:") == -1)
+            aCollection[i][sProp] = sWayBackCGI + aCollection[i][sProp];
+   }
+
+   if (document.links)  xLateUrl(document.links, "href");
+   if (document.images) xLateUrl(document.images, "src");
+   if (document.embeds) xLateUrl(document.embeds, "src");
+
+   if (document.body && document.body.background)
+      document.body.background = sWayBackCGI + document.body.background;
+
+//-->
+
+</SCRIPT>
+</HTML>

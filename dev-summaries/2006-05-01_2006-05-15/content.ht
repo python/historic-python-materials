@@ -1,0 +1,368 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-05-01 through 2006-05-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-05-01_2006-05-15]
+
+
+
+=============
+Announcements
+=============
+
+-------------------
+Python 2.5 progress
+-------------------
+
+Python 2.5 is moving steadily towards its first beta release.  See `PEP 356`_ for more details and the full schedule.
+
+.. _PEP 356: http://www.python.org/dev/peps/pep-0356/
+
+Contributing threads:
+
+- `2.5 open issues <http://mail.python.org/pipermail/python-dev/2006-May/064965.html>`__
+- `nag, nag -- 2.5 open issues <http://mail.python.org/pipermail/python-dev/2006-May/064966.html>`__
+
+----------------------------------------------------------
+Experimental wiki for editing the Python library reference
+----------------------------------------------------------
+
+Fredrik Lundh introduced his `pyref wiki`_ which allows wiki-style editing of the Python Library Reference.  In addition to providing useful links, like unique URLs for all keywords, types and special methods, the project aims to make cleaning up and rewriting parts of the Python documentation as easy as editing a wiki.  If you'd like to help out, let `Fredrik`_ know your infogami user name and he can add you to the group.
+
+.. _pyref wiki: http://pyref.infogami.com/
+.. _Fredrik: fredrik@effbot.org
+
+Contributing threads:
+
+- `introducing the experimental pyref wiki <http://mail.python.org/pipermail/python-dev/2006-April/064591.html>`__
+- `introducing the experimental pyref wiki <http://mail.python.org/pipermail/python-dev/2006-May/064720.html>`__
+- `more pyref: continue in finally statements <http://mail.python.org/pipermail/python-dev/2006-May/064726.html>`__
+- `more pyref: a better term for "string conversion" <http://mail.python.org/pipermail/python-dev/2006-May/064746.html>`__
+- `more pyref: comparison precedence <http://mail.python.org/pipermail/python-dev/2006-May/064754.html>`__
+- `context guards, context entry values, context managers, context contexts <http://mail.python.org/pipermail/python-dev/2006-May/064853.html>`__
+
+-----------------------------------------------
+Assigning a SourceForge group to a tracker item
+-----------------------------------------------
+
+When opening a new patch on the SourceForge tracker, you should set "Group" to the earliest still-maintained Python version to which it applies.  Currently, that means if it's a candidate for backporting, you should set the "Group" to 2.4.
+
+Contributing thread:
+
+- `Assigning "Group" on SF tracker? <http://mail.python.org/pipermail/python-dev/2006-May/064760.html>`__
+
+
+=========
+Summaries
+=========
+
+--------------------------------
+PEP 3102: Keyword-only arguments
+--------------------------------
+
+This fortnight continued discussion from the last on Talin's PEP for keyword-only arguments.  Mainly the discussion focused on the second half of his proposal which would allow positional arguments and keyword-only arguments at the same time with syntax like::
+
+      def compare(a, b, *, key=None):
+
+The arguments for it included:
+
+* It allows function APIs to be more strict initially to allow API evolution without breaking existing code.
+* It provides better documentation for functions that currently would have to take a \*\*kwargs.
+
+Still, a lot of people felt uncomfortable with the idea that the writer of a function could force the callee to use keyword arguments even if the callee found positional arguments to be simpler.
+
+Contributing thread:
+
+- `PEP 3102: Keyword-only arguments <http://mail.python.org/pipermail/python-dev/2006-May/064656.html>`__
+
+----------------------------------
+Alternative to PEP 355 path object
+----------------------------------
+
+Noam Raphael suggested an alternative to the path object suggested by `PEP 355`_ which makes paths more like tuples than strings.  The ensuing discussion considered a variety of options, which would have allowed code something like::
+
+    pth = Path("~/foo/bar/baz.tar.gz"):
+    assert pth.basepath == HOMEDIR
+    assert pth.dirparts == ('foo', 'bar')
+    assert pth.nameparts == ('baz', 'tar', 'gz')
+    assert pth.prefix == str(pth.basepath)
+    assert pth.dir == os.sep.join(pth.dirparts + ('',))
+    assert pth.name == os.extsep.join(pth.nameparts)
+
+Most of the ideas were also posted to the wiki under `AlternativePathClass`_ or `AlternativePathDiscussion`_, and a number of people asked for a PEP, but none was available at the time of this summary.
+
+.. _PEP 355: http://www.python.org/dev/peps/pep-0355/
+.. _AlternativePathClass: http://wiki.python.org/moin/AlternativePathClass
+.. _AlternativePathDiscussion: http://wiki.python.org/moin/AlternativePathDiscussion
+
+Contributing thread:
+
+- `Alternative path suggestion <http://mail.python.org/pipermail/python-dev/2006-May/064802.html>`__
+
+----------------------------
+Mechanics for Python sprints
+----------------------------
+
+Tim Peters started a discussion about the best way to handle SVN commits during a sprint.  After discussing a number of heavier-handed solutions, like trying to grant commit privileges for a single branch, in the end it seemed easiest to just add all the sprinters as committers, warn them to be careful about their commits, and have folks keep an eye on python-checkins.
+
+Contributing thread:
+
+- `Python sprint mechanics <http://mail.python.org/pipermail/python-dev/2006-May/064861.html>`__
+
+-------------------------
+Methods of the bytes type
+-------------------------
+
+Josiah Carlson asked about which str/unicode methods would still be available in Python 3000's bytes type.  Guido asked for the thread to be moved to the `Python-3000 list`_ but then also suggested that "startswith", "endswith", "index", "rindex", "find", "rfind", "split", "rsplit", "join", "count", "replace", and "translate" might all be candidate methods.  Josiah brought up some concerns about the bytes type not being hashable, but then Guido stepped in to ask that the debate be put on hold until the Python 3000 branch is more complete and some of these usability issues can be tested out there.
+
+.. _Python-3000 list: http://mail.python.org/mailman/listinfo/python-3000
+
+Contributing threads:
+
+- `methods on the bytes object <http://mail.python.org/pipermail/python-dev/2006-April/064613.html>`__
+- `methods on the bytes object <http://mail.python.org/pipermail/python-dev/2006-May/064663.html>`__
+- `methods on the bytes object (was: Crazy idea for str.join) <http://mail.python.org/pipermail/python-dev/2006-May/064700.html>`__
+
+------------------------------------
+PEP 3101: Advanced String Formatting
+------------------------------------
+
+Talin presented an updated `PEP 3101`_, and Edward Loper brought up an issue with the current escaping strategy -- code like ``'Foo\\%s' % x`` could not be written with the new string formatting since ``'Foo\\{0}'.format(x)`` would read the first brace as being escaped.
+
+.. _PEP 3101: http://www.python.org/dev/peps/pep-3101/
+
+Contributing threads:
+
+- `PEP 3101: Advanced String Formatting <http://mail.python.org/pipermail/python-dev/2006-May/064655.html>`__
+- `PEP 3101 Update <http://mail.python.org/pipermail/python-dev/2006-May/064921.html>`__
+
+--------------------------------------------
+Additional support for Py_ssize_t formatting
+--------------------------------------------
+
+Georg Brandl asked about formatting unsigned Py_ssize_t values with PyString_FromFormat.  To support this, Tim Peters added %u, %lu, and %zu to PyString_FromFormat, PyErr_Format, and PyString_FromFormatV.
+
+Contributing thread:
+
+- `Py_ssize_t formatting <http://mail.python.org/pipermail/python-dev/2006-May/064997.html>`__
+
+---------------------------------------------
+Supporting long options: --help and --version
+---------------------------------------------
+
+Heiko Wundram provided a `patch to support long options`_ for the Python interpreter in order to support --version and --help on Unix and -?, /?, /version and /help on Windows.  No one seemed opposed to the idea, but at the time of this summary, the patch was still open.
+
+.. _patch to support long options: http://bugs.python.org/1481112
+
+Contributing thread:
+
+- `Python long command line options <http://mail.python.org/pipermail/python-dev/2006-May/064820.html>`__
+
+----------------------
+Error codes on Windows
+----------------------
+
+Martin v. Löwis and Marc-Andre Lemburg discussed how to include both DOS and WIN32 error codes on WindowsError objects.  As part of the solution, they discussed making the Win32 error code for a specific exception available as a .winerror attribute and making all the Windows error codes available through a winerror module.
+
+Contributing thread:
+
+- `[Python-checkins] r45925 - in python/trunk: Lib/tempfile.py Lib/test/test_os.py Misc/NEWS Modules/posixmodule.c <http://mail.python.org/pipermail/python-dev/2006-May/064962.html>`__
+
+-------------------------------
+Signature objects for functions
+-------------------------------
+
+Brett Cannon asked for some discussion of signature objects that would accompany functions and describe what kind of arguments they take.  In particular, he wanted to know:
+
+* should signature objects be automatically generated, or only created at the request of a user?
+* should there be a function somewhere that can determine if a particular set of arguments are valid for a function?
+
+Some people wanted signature objects to always be available, but with the current C API, that isn't possible because functions declared in C can't be guaranteed to have the information necessary for determining a signature.  Others suggested that since the signature object was only useful for introspection, it should only be available through, say, ``inspect.getsignature()``.  No PEP was available at the time of this summary.
+
+Contributing thread:
+
+- `signature object issues (to discuss while I am out of contact) <http://mail.python.org/pipermail/python-dev/2006-May/064718.html>`__
+
+-------------------------
+Set complement operations
+-------------------------
+
+Terry Jones asked about adding efficient set complement operations to Python's builtin sets so that, say, the complement of a 999,999 element set in a 1,000,000 element universe would take up the space of 1 element, not 999,999.  Most folks thought it would be better to implement this as a standalone module first before there were any considerations about adding it to the stdlib.
+
+Contributing thread:
+
+- `Efficient set complement and operation on large/infinite sets. <http://mail.python.org/pipermail/python-dev/2006-May/064977.html>`__
+
+------------------------------------------------------------------
+Getting the weakref objects out of weakref.Weak*Dictionary objects
+------------------------------------------------------------------
+
+Fred L. Drake, Jr. presented a `patch to let users get the weakref objects out`_ of weakref.Weak*Dictionary objects.  There was a brief discussion about trying to allow iteration over such dictionaries, but it looked like the patch was pretty reasonable and would soon be applied.
+
+.. _patch to let users get the weakref objects out: http://bugs.python.org/1479988
+
+Contributing thread:
+
+- `New methods for weakref.Weak*Dictionary types <http://mail.python.org/pipermail/python-dev/2006-May/064744.html>`__
+
+-----------------------------
+Python support for Windows CE
+-----------------------------
+
+Luke Dunstan offered to maintain the port of Python to Windows CE.  He got some clarifications about a number of issues, in particular that, although #ifdefs are occasionally removed to ease Python's maintenance, if they are accompanied by a record of what system and version needs them, they will not be dropped while there is an appropriate maintainer.
+
+Contributing thread:
+
+- `Python for Windows CE <http://mail.python.org/pipermail/python-dev/2006-May/064812.html>`__
+
+---------------------------------
+Universal binaries for Python 2.4
+---------------------------------
+
+Ronald Oussoren asked about backporting to Python 2.4 the universal binary patches he applied to 2.5, mainly in order to avoid Apple picking up a recent copy of Python and shipping with a broken universal build like it did for python 2.3.  While 2.4.4 isn't planned until after 2.5.0 (so if Apple picks up the newest version, they won't get the 2.4 line anyway), people seemed happy with the plan, and so there should be universal binary support in both Python 2.4.4 and 2.5.0.
+
+Contributing thread:
+
+- `python 2.4 and universal binaries <http://mail.python.org/pipermail/python-dev/2006-May/064970.html>`__
+
+
+================
+Deferred Threads
+================
+- `pthreads, fork, import, and execvp <http://mail.python.org/pipermail/python-dev/2006-May/064983.html>`__
+
+
+==================
+Previous Summaries
+==================
+- `Adding functools.decorator <http://mail.python.org/pipermail/python-dev/2006-May/064653.html>`__
+- `More on contextlib - adding back a contextmanager decorator <http://mail.python.org/pipermail/python-dev/2006-May/064654.html>`__
+- `Tkinter lockups. <http://mail.python.org/pipermail/python-dev/2006-May/064667.html>`__
+- `Visual studio 2005 express now free <http://mail.python.org/pipermail/python-dev/2006-May/064941.html>`__
+
+
+===============
+Skipped Threads
+===============
+- `unittest argv <http://mail.python.org/pipermail/python-dev/2006-May/064657.html>`__
+- `speeding up function calls <http://mail.python.org/pipermail/python-dev/2006-May/064668.html>`__
+- `elimination of scope bleeding of iteration variables <http://mail.python.org/pipermail/python-dev/2006-May/064673.html>`__
+- `global variable modification in functions [Re: elimination of scope bleeding of iteration variables] <http://mail.python.org/pipermail/python-dev/2006-May/064677.html>`__
+- `python syntax additions to support indentation insensitivity/generated code <http://mail.python.org/pipermail/python-dev/2006-May/064678.html>`__
+- `socket module recvmsg/sendmsg <http://mail.python.org/pipermail/python-dev/2006-May/064699.html>`__
+- `__getslice__ usage in sre_parse <http://mail.python.org/pipermail/python-dev/2006-May/064723.html>`__
+- `More Path comments (PEP 355) <http://mail.python.org/pipermail/python-dev/2006-May/064745.html>`__
+- `Path.ancestor() <http://mail.python.org/pipermail/python-dev/2006-May/064749.html>`__
+- `[Python-checkins] r45850 - in python/trunk: Doc/lib/libfuncs.tex Lib/test/test_subprocess.py Misc/NEWS Objects/fileobject.c Python/bltinmodule.c <http://mail.python.org/pipermail/python-dev/2006-May/064766.html>`__
+- `Reminder: call for proposals "Python Language and Libraries Track" for Europython 2006 <http://mail.python.org/pipermail/python-dev/2006-May/064772.html>`__
+- `Date for DC-area Python sprint? <http://mail.python.org/pipermail/python-dev/2006-May/064782.html>`__
+- `test failures in test_ctypes (HEAD) <http://mail.python.org/pipermail/python-dev/2006-May/064789.html>`__
+- `Positional-only Arguments <http://mail.python.org/pipermail/python-dev/2006-May/064790.html>`__
+- `Any reason that any()/all() do not take a predicate argument? <http://mail.python.org/pipermail/python-dev/2006-May/064792.html>`__
+- `mail to talin is bouncing <http://mail.python.org/pipermail/python-dev/2006-May/064800.html>`__
+- `Seeking students for the Summer of Code <http://mail.python.org/pipermail/python-dev/2006-May/064808.html>`__
+- `binary trees. Review obmalloc.c <http://mail.python.org/pipermail/python-dev/2006-May/064809.html>`__
+- `Shared libs on Linux (Was: test failures in test_ctypes (HEAD)) <http://mail.python.org/pipermail/python-dev/2006-May/064813.html>`__
+- `lambda in Python <http://mail.python.org/pipermail/python-dev/2006-May/064817.html>`__
+- `Time since the epoch <http://mail.python.org/pipermail/python-dev/2006-May/064833.html>`__
+- `[Python-checkins] r45898 - in python/trunk: Lib/test/test_os.py Lib/test/test_shutil.py Misc/NEWS Modules/posixmodule.c <http://mail.python.org/pipermail/python-dev/2006-May/064848.html>`__
+- `Confirmed: DC-area sprint on Sat. June 3rd <http://mail.python.org/pipermail/python-dev/2006-May/064850.html>`__
+- `A critic of Guido's blog on Python's lambda <http://mail.python.org/pipermail/python-dev/2006-May/064892.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-May/064893.html>`__
+- `binary trees. <http://mail.python.org/pipermail/python-dev/2006-May/064904.html>`__
+- `Yet another type system -- request for comments on a SoC proposal <http://mail.python.org/pipermail/python-dev/2006-May/064912.html>`__
+- `possible use of __decorates__ in functools.decorator <http://mail.python.org/pipermail/python-dev/2006-May/064928.html>`__
+- `total ordering. <http://mail.python.org/pipermail/python-dev/2006-May/064942.html>`__
+- `rest2latex - pydoc writer - tables <http://mail.python.org/pipermail/python-dev/2006-May/064943.html>`__
+- `[Python-checkins] Python Regression Test Failures basics (1) <http://mail.python.org/pipermail/python-dev/2006-May/064949.html>`__
+- `PyThreadState_SetAsyncExc, PyErr_Clear and native extensions <http://mail.python.org/pipermail/python-dev/2006-May/064984.html>`__
+- `[Python-3000] Questions on optional type annotations <http://mail.python.org/pipermail/python-dev/2006-May/064988.html>`__
+- `Status: sqlite3 module docs <http://mail.python.org/pipermail/python-dev/2006-May/064992.html>`__
+- `cleaned windows icons <http://mail.python.org/pipermail/python-dev/2006-May/065000.html>`__
+- `correction of a bug <http://mail.python.org/pipermail/python-dev/2006-May/065007.html>`__
+- `Building with VS 2003 .NET <http://mail.python.org/pipermail/python-dev/2006-May/065013.html>`__
+- `[Python-checkins] r46005 - in python/trunk: Lib/tarfile.py Lib/test/test_tarfile.py Misc/NEWS <http://mail.python.org/pipermail/python-dev/2006-May/065016.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+May 01, 2006 through May 15, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 4th written by
+the python-dev summary drone,  Steve Bethard. (Look ma!  No hundred-message threads!)
+
+To contact me, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.  Unfortunately, even though reST is standardized, the
+wonders of programs that like to reformat text do not allow us to
+guarantee you will be able to run the text version of this summary
+through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _original text file: http://www.python.org/dev/summary/2006-05-01_2006-05-15.rst
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

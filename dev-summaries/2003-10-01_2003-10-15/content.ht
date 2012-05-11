@@ -1,0 +1,117 @@
+Title: python-dev Summary for 2003-10-01 through 2003-10-15
+Sitemap-ignore: yes
+
+<div class="document" id="python-dev-summary-for-2003-10-01-through-2003-10-15">
+<h1 class="title">python-dev Summary for 2003-10-01 through 2003-10-15</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> from October 1, 2003 through October 15, 2003.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> (or email <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join <a class="reference" href="http://www.python.org/dev/">python-dev</a>!</p>
+<p>This is the twenty-seventh summary written by Brett Cannon (about to turn a quarter century old; so young yet so wise =).</p>
+<p>All summaries are archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a> (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for <a class="reference" href="http://www.python.org/dev/peps/pep-0012">PEP markup</a> and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is unless it is from the original text file.</p>
+<p>The in-development version of the documentation for Python can be found at <a class="reference" href="http://www.python.org/dev/doc/devel/">http://www.python.org/dev/doc/devel/</a> and should be used when looking up any documentation on something mentioned here.  PEPs (Python Enhancement Proposals) are located at <a class="reference" href="http://www.python.org/dev/peps/">http://www.python.org/dev/peps/</a> .  To view files in the Python CVS online, go to <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/">http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/</a> .  Reported bugs and suggested patches can be found at the <a class="reference" href="http://sourceforge.net/tracker/?group_id=5470">SourceForge</a> project page.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#summary-announcements" id="id3" name="id3">Summary Announcements</a></li>
+<li><a class="reference" href="#summaries" id="id4" name="id4">Summaries</a><ul>
+<li><a class="reference" href="#i-gave-a-talk-at-pycon-2004-and-all-i-got-was-respect-and-admiration" id="id5" name="id5">I gave a talk at PyCon 2004 and all I got was respect and admiration</a></li>
+<li><a class="reference" href="#web-sig-started" id="id6" name="id6">Web-SIG started</a></li>
+<li><a class="reference" href="#i-have-seen-the-future-and-it-includes-2-3-3" id="id7" name="id7">I have seen the future and it includes 2.3.3</a></li>
+<li><a class="reference" href="#helping-you-help-us" id="id8" name="id8">Helping you help us</a></li>
+<li><a class="reference" href="#making-dlls-fatter-for-lower-file-dependency" id="id9" name="id9">Making DLLs fatter for lower file dependency</a></li>
+<li><a class="reference" href="#decorate-sort-undecorate-eye-for-the-list-sort-guy" id="id10" name="id10">Decorate-sort-undecorate eye for the list.sort guy</a></li>
+<li><a class="reference" href="#new-python-2-3-2-windows-binary" id="id11" name="id11">New Python 2.3.2 Windows binary</a></li>
+<li><a class="reference" href="#a-call-for-cool-itertools-additions" id="id12" name="id12">A call for cool itertools additions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="summary-announcements">
+<h1><a class="toc-backref" href="#id3" name="summary-announcements">Summary Announcements</a></h1>
+<p>Python-dev had a major explosion in emails thanks to some proposed changes to list.sort (summarized in <a class="reference" href="#decorate-sort-undecorate-eye-for-the-list-sort-guy">Decorate-sort-undecorate eye for the list.sort guy</a>).  That got covered.  Some behind-the-scenes stuff that would not interest the general Python community was left out for my personal sanity.</p>
+<p>It looks like I will not have major issues continuing writing the Summaries in terms of school interfering.  The only big issue will be how long past their closure date does it take me to get them out.  In other words, unless my schoolwork load suddenly becomes heavy continuously I should be able to keep doing the Summaries until my personal sanity gives out.</p>
+<p>This summary is brought to you by the songs &quot;<a class="reference" href="http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewAlbum?playlistId=1760071&amp;selectedItemId=1759480">Insanity</a>&quot; by <a class="reference" href="http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewArtist?artistId=22707">Liz Phair</a> and &quot;<a class="reference" href="http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewAlbum?playlistId=1798612&amp;selectedItemId=1798604">Harder to Breathe</a>&quot; by <a class="reference" href="http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewArtist?artistId=1798556">Maroon 5</a> (note these links require <a class="reference" href="http://www.apple.com/itunes/">iTunes</a> to be installed; now available on Windows!).</p>
+</div>
+<div class="section" id="summaries">
+<h1><a class="toc-backref" href="#id4" name="summaries">Summaries</a></h1>
+<div class="section" id="i-gave-a-talk-at-pycon-2004-and-all-i-got-was-respect-and-admiration">
+<h2><a class="toc-backref" href="#id5" name="i-gave-a-talk-at-pycon-2004-and-all-i-got-was-respect-and-admiration">I gave a talk at PyCon 2004 and all I got was respect and admiration</a></h2>
+<p>I summarized this last month, but this is important so I am doing it again (and will continue to mention it until no more proposals are being accepted).  <a class="reference" href="http://www.python.org/pycon/dc2004/">PyCon</a>
+is ramping up for 2004 and is putting out a <a class="reference" href="http://www.python.org/pycon/dc2004/cfp.html">Call for Proposals</a>.  Since PyCon is meant to be very broad-reaching you can propose anything from a scientific paper to a tutorial.</p>
+<p>If you have any inkling to give a talk please send in a proposal.  It can be rough; the key is that what you want to discuss can be understood from the proposal.  So take a look at the link and consider coming to PyCon as a speaker and not just a attendee.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038502.html">PyCon DC 2004: Call for Proposals</a></dd>
+</dl>
+</div>
+<div class="section" id="web-sig-started">
+<h2><a class="toc-backref" href="#id6" name="web-sig-started">Web-SIG started</a></h2>
+<p>As stated on the SIGs page, &quot;The Python <a class="reference" href="http://www.python.org/sigs/web-sig/">Web SIG</a> is dedicated to improving Python's support for interacting with World Wide Web services and clients.&quot;  If there is some web-related functionality that you think Python should, this is the place to discuss it.  If you think an existing Python module could stand a redesign then this is the proper forum for your ideas.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038519.html">Any movement on a SIG for web lib enchancements?</a></dd>
+</dl>
+</div>
+<div class="section" id="i-have-seen-the-future-and-it-includes-2-3-3">
+<h2><a class="toc-backref" href="#id7" name="i-have-seen-the-future-and-it-includes-2-3-3">I have seen the future and it includes 2.3.3</a></h2>
+<p>Anthony Baxter, release manager for Python <a class="reference" href="http://www.python.org/2.3.1/">2.3.1</a> and <a class="reference" href="http://www.python.org/2.3.2/">2.3.2</a>, is already planning a 2.3.3 release in about three months time.  He initially suggested that the goal of this release should be to have Python build on as many platforms as possible.</p>
+<p>Michael Hudson listed &quot;HPUX/ia64, various oddities on Irix&quot; as the major troublemakers.  He suggested that a sustained push to fix these build problems happen instead of trying to do it last-minute.  Michael also thought it would be a good idea to try to find experts on the trouble platforms instead of having someone getting access to some machine and floundering since they don't know the OS.</p>
+<p>Skip Montanaro quickly chimed in with <a class="reference" href="http://www.python.org/cgi-bin/moinmoin/PythonTesters">http://www.python.org/cgi-bin/moinmoin/PythonTesters</a> which is a wiki page that lists people who are available to help with testing on various OSs.  Please have a look and if you think you could help out on an OS add yourself.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038527.html">2.3.3 plans</a></dd>
+</dl>
+</div>
+<div class="section" id="helping-you-help-us">
+<h2><a class="toc-backref" href="#id8" name="helping-you-help-us">Helping you help us</a></h2>
+<p>In response to Martin v. Löwis' email on how to handle patches, Michael Bartl expressed his disappointment that nothing had happened to his patches.  It was explained to him that because of time restraints on python-dev that it can take time for people to get to all of the patches, but that his work was greatly appreciated and would eventually be looked at.  Since the email Martin has managed to take a look at them (even accepted one).</p>
+<p>The question of searching on <a class="reference" href="http://sourceforge.net/tracker/?group_id=5470">SourceForge</a> through the tracker items also came up.  There is a search box on the left side of the page, but it is not extensive.  Better than nothing.</p>
+<p>I also posted an essay I wrote that is meant to act as a guide to how Python is developed and how anyone can help with the development regardless of abilities.  You can look at the email below in the &quot;Draft of an essay on Python development&quot; thread referenced below in &quot;Contributing threads&quot;.  Hopefully it will end up on python.org once it is in its final form.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038621.html">Patches &amp; Bug help revisited</a>
+<a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038677.html">Draft of an essay on Python development (and how to  help)</a></dd>
+</dl>
+</div>
+<div class="section" id="making-dlls-fatter-for-lower-file-dependency">
+<h2><a class="toc-backref" href="#id9" name="making-dlls-fatter-for-lower-file-dependency">Making DLLs fatter for lower file dependency</a></h2>
+<p>Thomas Heller suggested adding more modules to the Windows DLL as built-in so as to cut back on the number of files required to get Python to run (<a class="reference" href="http://py2exe.sf.net/">py2exe</a> stands to benefit from this).  The issue of having a larger DLL to have to load into memory was brought up, but Martin v. Löwis said that DLLs only load into memory what is needed to run and not the entire DLL.</p>
+<p>The issue of making the overall DLL larger in terms of disk space was brought up, but the worry was partially minimized when the list of modules to add was limited to small modules that do not have external dependencies.</p>
+<p>But zlib might break that last rule in order to allow importation from compressed zip files.  The idea of integrating the zlib source into the Python tree was brought up, but shot down for licensing issues on top of keeping the code synchronized.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038622.html">buildin vs. shared modules</a></dd>
+</dl>
+</div>
+<div class="section" id="decorate-sort-undecorate-eye-for-the-list-sort-guy">
+<h2><a class="toc-backref" href="#id10" name="decorate-sort-undecorate-eye-for-the-list-sort-guy">Decorate-sort-undecorate eye for the list.sort guy</a></h2>
+<p>Raymond Hettinger suggested adding built-in support for the decorate-sort-undecorate (DSU) sorting idiom to list.sort (see the Python Cookbook recipe at <a class="reference" href="http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52234">http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52234</a> which is recipe 2.3 in the dead tree version or Tim Peters' intro to chapter 2 for details on the idiom).  After a long discussion on the technical merits of various ways to do this, list.sort gained the keyword arguments 'key' and 'reverse'.</p>
+<p>'key' takes in a function that accepts one argument and returns what the item should be sorted based on.  So running <tt class="literal"><span class="pre">[(0,0),</span> <span class="pre">(0,2),</span> <span class="pre">(0,1)].sort(key=lambda</span> <span class="pre">x:</span> <span class="pre">x[1])</span></tt> will sort the list based on the second item in each tuple.  Technically the sort algorithm just runs the item it is currently looking at through the function and then handles the sorting.  This avoids having to actually allocate another list.  If 'key' and 'cmp' are both provided then 'key' is called on the items to be sorted and the function's return values are then passed to 'cmp'.</p>
+<p>'reverse' does what it sounds like based on whether its argument is true or false.</p>
+<p>list.sort also became guaranteed to be stable (this include 'reverse').</p>
+<p>A discussion of whether list.sort should return self came up and was <em>very</em> quickly squashed by Guido.  The idea of having a second method, though, that did sort and returned a copy of the sorted list is still being considered.</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038652.html">decorate-sort-undecorate</a>
+<a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038772.html">list.sort</a></dd>
+</dl>
+</div>
+<div class="section" id="new-python-2-3-2-windows-binary">
+<h2><a class="toc-backref" href="#id11" name="new-python-2-3-2-windows-binary">New Python 2.3.2 Windows binary</a></h2>
+<p>Some invalid DLLs made it into the 2.3.2 Windows binary distribution by accident.  It seems to mostly affect Windows 98 and NT 4 users.  The binary has been fixed and put up online.  You can tell if you downloaded the fixed version by checking the filename; the new one is named Python-2.3.2-1.exe (notice the &quot;-1&quot;).</p>
+<dl>
+<dt>Contributing threads:</dt>
+<dd><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038746.html">Python-2.3.2 windows binary screwed</a></dd>
+</dl>
+</div>
+<div class="section" id="a-call-for-cool-itertools-additions">
+<h2><a class="toc-backref" href="#id12" name="a-call-for-cool-itertools-additions">A call for cool itertools additions</a></h2>
+<p>Have an idea for something that should be added to itertools?  Read <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-October/038916.html">http://mail.python.org/pipermail/python-dev/2003-October/038916.html</a> and see if it matches the criteria.  If it does send it off to Raymond Hettinger.</p>
+</div>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="2003-10-01_2003-10-15.txt">View document source</a>.
+Generated on: 2003-10-24 21:21 UTC.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>

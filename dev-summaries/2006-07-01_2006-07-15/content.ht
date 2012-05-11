@@ -1,0 +1,406 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-07-01 through 2006-07-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-07-01_2006-07-15]
+
+
+
+=============
+Announcements
+=============
+
+-------------------
+Python 2.5 schedule
+-------------------
+
+Python continues to make progress towards Python 2.5 final. See `PEP 356`_ for more details and the full schedule.
+
+.. _PEP 356: http://www.python.org/dev/peps/pep-0356/
+
+Contributing threads:
+
+- `TRUNK FREEZE for 2.5b2, tomorrow Tuesday 11th, 00:00 UTC <http://mail.python.org/pipermail/python-dev/2006-July/067189.html>`__
+- `Subject: RELEASED Python 2.5 (beta 2) <http://mail.python.org/pipermail/python-dev/2006-July/067255.html>`__
+- `TRUNK is UNFROZEN. <http://mail.python.org/pipermail/python-dev/2006-July/067259.html>`__
+
+--------------------------
+ctypes in the Python trunk
+--------------------------
+
+Martin v. Löwis successfully imported the ctypes history into the Python trunk, so ctypes now shares its repository with the rest of Python. Thanks everyone for your hard work!
+
+Contributing threads:
+
+- `Moving the ctypes repository to python.org <http://mail.python.org/pipermail/python-dev/2006-July/066962.html>`__
+- `Subversion outage Friday 15:00 GMT <http://mail.python.org/pipermail/python-dev/2006-July/067101.html>`__
+- `SVN write access is back <http://mail.python.org/pipermail/python-dev/2006-July/067125.html>`__
+- `Extended Subversion outage: Friday 16:40 GMT <http://mail.python.org/pipermail/python-dev/2006-July/067127.html>`__
+
+
+=========
+Summaries
+=========
+
+-------------------------
+Rebinding non-local names
+-------------------------
+
+A bug in the Python trunk that allowed augmented assignment to rebind names in outer scopes initiated a new discussion about how to allow Python code to rebind non-local names, e.g.::
+
+    def counter(n=0):
+        def increment(i=1):
+            n += i # change the n in counter
+            return n
+        return increment
+
+Guido definitely didn't like the idea of introducing a new rebinding operator, e.g. ``:=`` or ``.=``. Phillip J. Eby suggested that a dot prefix to the name could indicate rebinding, e.g.::
+
+    def counter(n=0):
+        def increment(i=1):
+            .n += i
+            return .n
+        return increment
+
+Guido felt uncomfortable with this proposal because it would mean that in referencing a value the only difference between ``.NAME`` and ``NAME`` was whether or not the name was assigned to at another place in the same function. This ambiguity could be avoided by requiring all references to names in outer scopes to be prefixed by the dot, but that seemed like too large of a change for Python.
+
+There was also some discussion of trying to reuse the global keyword, but most folks felt that ``outer`` or ``nonlocal`` was a better name::
+
+    def counter(n=0):
+        def increment(i=1):
+            nonlocal n
+            n += i
+            return n
+        return increment
+
+Guido requested a PEP on the subject, but at the time of this summary, none was available.
+
+Contributing threads:
+
+- `2.5 and beyond <http://mail.python.org/pipermail/python-dev/2006-July/066857.html>`__
+- `Lexical scoping in Python 3k <http://mail.python.org/pipermail/python-dev/2006-July/066862.html>`__
+- `Explicit Lexical Scoping (pre-PEP?) <http://mail.python.org/pipermail/python-dev/2006-July/066978.html>`__
+
+--------------------------------------
+Python and backwards incompatibilities
+--------------------------------------
+
+A `complaint by Greg Black`_ about Python introducing backward incompatibilities started a long discussion about how Python developers could stay in better touch with existing user code. Greg Black's code had relied on undocumented behavior in time.strftime() that had allowed zeros to be passed in as default values. When that behavior changed in Python 2.4, Greg's code (along with a number of other people's code) was broken. Python core didn't have any unittests for the behavior, so no tests started failing when the change was made.
+
+Glyph suggested adding a mechanism so that user projects could submit buildslaves to run their test suites when changes are made to Python. The goal here would be to identify any de facto coding standards that weren't tested for in Python's test suite. If a change to Python caused major projects like Twisted or Zope to start failing dramatically, that change should be reconsidered even if it didn't break any documented behavior. People generally thought this was a great idea, particularly since it might catch some of these changes earlier than alpha or beta releases.
+
+There was also some concern that the Python 2.5 release cycle had been sped up too much and users hadn't had enough time to report errors. However, adding more beta releases (which seemed to be the major suggestion) also adds more work for release managers and requires more schedule coordination so that all the release managers can be available.
+
+People also had the mistaken impression that the trunk of Python was not so stable, particularly because they had assumed that non-green buildbots meant an unusable Python. In general, non-green buildbots typically mean that some part of the test suite is failing, not that the interpreter could not be built. A.M. Kuchling suggested adding some of the `checkin policies discussion`_ to the release announcements to make this more obvious.
+
+.. _complaint by Greg Black: http://www.gbch.net/gjb/blog/software/discuss/python-sucks.html
+.. _checkin policies discussion: http://www.python.org/dev/tools/
+
+Contributing threads:
+
+- `User's complaints <http://mail.python.org/pipermail/python-dev/2006-July/066993.html>`__
+- `changing time.strftime() to accept 0s (was: User's complaints) <http://mail.python.org/pipermail/python-dev/2006-July/067297.html>`__
+- `Community buildbots (was Re: User's complaints) <http://mail.python.org/pipermail/python-dev/2006-July/067366.html>`__
+- `Community buildbots <http://mail.python.org/pipermail/python-dev/2006-July/067367.html>`__
+
+------------------------------
+Restricted execution in Python
+------------------------------
+
+Discussion continued on Brett Cannon's PhD thesis aimed at adding restricted execution to Python. Instead of trying to cripple objects like ``file``, a number of people suggested making ``file()`` and ``open()`` return different objects in restricted mode. This would require separating out some capabilities, so that, for example, a file-like object could be returned that didn't support writing. Michael Chermside suggested implementing a new type in C that stores its data privately, and requires the user to provide access-checking functions in order to make the private data visible. That way you could implement new access restrictions from pure Python code, by simply creating appropriate instances of the new type. Ka-Ping Yee asked about protecting one piece of Python code from another, but Guido and Brett suggested that the virtual machine probably couldn't provide such barriers.
+
+Brett's current progress is available in the bcannon-sandboxing branch.
+
+Contributing threads:
+
+- `For sandboxing: alternative to crippling file() <http://mail.python.org/pipermail/python-dev/2006-July/066858.html>`__
+- `doc for new restricted execution design for Python <http://mail.python.org/pipermail/python-dev/2006-July/066881.html>`__
+- `branch for sandox work created: bcannon-sandboxing <http://mail.python.org/pipermail/python-dev/2006-July/067046.html>`__
+- `In defense of Capabilities [was: doc for new restricted execution design for Python] <http://mail.python.org/pipermail/python-dev/2006-July/067048.html>`__
+- `what can we do to hide the 'file' type? <http://mail.python.org/pipermail/python-dev/2006-July/067051.html>`__
+- `Restricted execution: what's the threat model? <http://mail.python.org/pipermail/python-dev/2006-July/067072.html>`__
+- `Capabilities / Restricted Execution <http://mail.python.org/pipermail/python-dev/2006-July/067240.html>`__
+- `second draft of sandboxing design doc <http://mail.python.org/pipermail/python-dev/2006-July/067291.html>`__
+
+---------------------------------
+Getting the current thread frames
+---------------------------------
+
+Tim Peters snuck in a late feature, ``sys._current_frames()`` which returns a dict mapping each thread's id to that thread's current Python frame. Some people wanted to expose ``head_mutex`` instead to avoid introducing a new function, but that may not exist, depending on the build type. Given that Zope had been trying to emulate something like this for a while, it's impossible to do correctly in an extension module because the appropriate internals are not available, and it's essential for debugging deadlocks, the feature was eventually approved and checked in.
+
+Contributing thread:
+
+- `"Missing" 2.5 feature <http://mail.python.org/pipermail/python-dev/2006-July/067160.html>`__
+
+--------------------
+Time-out in URL Open
+--------------------
+
+Facundo Batista asked about adding a timeout argument to ``urllib2.urlopen()``.  People generally liked the idea, but since it would be a new feature, it would have to wait until Python 2.6.  There was an `existing patch` modifying httplib, ftplib, telnetllib, poplib and smtplib in this way, but it needed updating for Python 2.6.
+
+.. _existing patch: http://bugs.python.org/723312 
+
+Contributing thread:
+
+- `Time-out in URL Open <http://mail.python.org/pipermail/python-dev/2006-July/066965.html>`__
+
+-------------------------------------------
+zlib module build failure on Mac OSX 10.4.7
+-------------------------------------------
+
+Skip Montanaro had some trouble building the zlib module from Python trunk on Mac OSX. Turns out he had an old static libz.a on the path, and that was getting found instead of the newer dynamic library. Ronald Oussoren checked in a patch to configure that should correctly set HAVE_ZLIB_COPY even if there is an old static library sitting around. At the same time, he suggested that maybe '-Wl,-search_path_first' should be added to the default LDFLAGS on OSX so that the OSX linker doesn't look for a dylib anywhere on the path before looking for a static library.
+
+Contributing thread:
+
+- `zlib module build failure on Mac OSX 10.4.7 <http://mail.python.org/pipermail/python-dev/2006-July/066880.html>`__
+
+--------------------------------
+Command line args in Python 3000
+--------------------------------
+
+Greg Ewing suggested that ``sys.argv`` could be split into the program name (``sys.argv[0]``) and the arguments (``sys.argv[1:]``). People liked this idea, and pointed out that it would be handy when there's no real program name, e.g. when exec is used with an inode number as is possible on some Unices.
+
+This was also accompanied by a discussion about splitting sys into more coherent subsets, e.g. immutable and mutable objects. Guido asked for people to hold off on this discussion until Brett had a clearer idea what pieces would need to be split off for restricted execution.
+
+Contributing thread:
+
+- `Handling of sys.args (Re: User's complaints) <http://mail.python.org/pipermail/python-dev/2006-July/067339.html>`__
+
+--------------------------
+Import semantics in Jython
+--------------------------
+
+Jython had been following the Java convention that sub-packages were imported when their parent package was imported. Guido had suggested that at least Python packages in Jython should import with the standard Python semantics. During this fortnight, Guido checked back in with the Jython folks to see if they'd made their mind up about this. Frank Wierzbicki, the new maintainer for Jython, said that he won't have a chance to fix this until after Jython 2.3 is out, but both he and Samuele Pedroni suggested that it was a change that needed to be made.
+
+Contributing thread:
+
+- `Import semantics <http://mail.python.org/pipermail/python-dev/2006-July/066999.html>`__
+
+-----------------------------------------------
+ImportWarnings for directories without __init__
+-----------------------------------------------
+
+After the substantial discussion last fortnight on whether or not warnings should be issued if a directory was not imported because it was missing an __init__.py file, Anthony Baxter suggested that the best course of action was to suppress the ImportWarning by default, and allow users to unsuppress it in their sitecustomize.py file.
+
+Contributing threads:
+
+- `ImportWarning flood <http://mail.python.org/pipermail/python-dev/2006-July/066879.html>`__
+- `ImportWarning decision <http://mail.python.org/pipermail/python-dev/2006-July/067058.html>`__
+
+-----------------------------------
+Putting doctest code into footnotes
+-----------------------------------
+
+Benji York posted a `patch for doctest`_ that teaches doctest about ReST-style footnotes so that you can write documentation like::
+
+    After initializing the system [#init]_ it is possible to retrieve
+    status information:
+    
+        >>> system.status()
+        'good to go'
+    
+    [snip some of the doctest]
+    
+    .. [#init] Initialize the system:
+        >>> system = System()
+        >>> system.init()
+
+People liked the idea, and Benji promised to update the patch for the 2.5 version of doctest.
+
+.. _patch for doctest: http://tinyurl.com/nekam
+
+Contributing thread:
+
+- `Doctest and Footnotes <http://mail.python.org/pipermail/python-dev/2006-July/067223.html>`__
+
+-------------------------------
+Using urllib.quote with unicode
+-------------------------------
+
+Stefan Rank pointed out that ``urllib.quote()`` fails with a strange KeyError on unicode stings. He suggested either raising a TypeError or automatically encoding to UTF-8 as suggested in http://www.w3.org/International/O-URL-code.html. John J Lee pointed questioned whether this was generally accepted as the Right Thing, given `RFC 2617`_, `RFC 2616`_ and the recent discussion about a `uriparse module`_. In the end, people seemed to agree that the safest thing would be to raise an exception.
+
+.. _RFC 2617: http://www.ietf.org/rfc/rfc2617.txt
+.. _RFC 2616: http://www.ietf.org/rfc/rfc2616.txt
+.. _uriparse module: http://www.python.org/dev/summary/2006-06-01_2006-06-15/#rfc-3986-uniform-resource-identifiers-uris
+
+Contributing thread:
+
+- `urllib.quote and unicode bug resuscitation attempt <http://mail.python.org/pipermail/python-dev/2006-July/067248.html>`__
+
+-----------------------------------
+Borderline cases for ints and longs
+-----------------------------------
+
+Neil Schemenauer asked if -2147483648 (``-sys.maxint - 1``)should be an int or a long.  In Python 2.4 it was an int, but in the trunk, it was a long. Tim Peters explained that -2147483648 is not actually an int literal -- it is a long literal with a unary minus.  Nonetheless, practicality beat purity, and Neal Norwitz and Neil Schemenauer put together a fix to make it an int again. You can still defeat the patch with something like ``eval('-(%s)' % str(-sys.maxint - 1)[1:])``, but no one seemed too worried about that.
+
+Contributing thread:
+
+- `Unary minus bug <http://mail.python.org/pipermail/python-dev/2006-July/067176.html>`__
+
+---------------------------------
+Adding list.get() and tuple.get()
+---------------------------------
+
+Russell E. Owen asked about adding a ``.get()`` method to lists and tuples that would return a default value if the index was out of range. Most people seemed to think that wanting such a method was a bad code smell and Raymond Hettinger suggested that it could be replaced in Python 2.5 with a simple ``seq[i] if len(seq) > i else default``.
+
+Contributing thread:
+
+- `get for lists and tuples? <http://mail.python.org/pipermail/python-dev/2006-July/067263.html>`__
+
+-----------------------------
+Adding a __dir__ magic method
+-----------------------------
+
+Tomer Filiba suggested adding a ``__dir__()`` magic method that would be called by ``dir()``. The default one on ``object`` would do the normal search through ``__dict__`` and the superclasses, and subclasses of ``object`` could override this to add attributes that are harder to find, e.g. pseudo-attributed implemented through ``__getattr__``. Everyone liked the idea and Guido said it could be added for Python 2.6.
+
+Contributing thread:
+
+- `introducing __dir__? <http://mail.python.org/pipermail/python-dev/2006-July/067095.html>`__
+
+-----------------------------------------------------
+pydoc support for attributes defined with PyGetSetDef
+-----------------------------------------------------
+
+Barry Warsaw pointed out that pydoc couldn't handle attributes defined with PyGetSetDef because there was no corresponding type in the types module. He found a similar problem with "member_descriptor" types like ``datetime.timedelta.days``. The latter was particularly a problem because the datetime module was not importable in the types module because the types module is imported before the platform-specific extension module directory is on sys.path. He suggested a `fix for pydoc`_ that would introduce a _types module coded in C that could make the appropriate types available.
+
+.. _fix for pydoc: http://bugs.python.org/1520294
+
+Contributing thread:
+
+- `Support for PyGetSetDefs in pydoc <http://mail.python.org/pipermail/python-dev/2006-July/067219.html>`__
+
+
+================
+Deferred Threads
+================
+- `Python Style Sheets ? Re: User's complaints <http://mail.python.org/pipermail/python-dev/2006-July/067432.html>`__
+
+
+==================
+Previous Summaries
+==================
+- `Cleanup of test harness for Python <http://mail.python.org/pipermail/python-dev/2006-July/066898.html>`__
+- `PEP 328 and PEP 338, redux <http://mail.python.org/pipermail/python-dev/2006-July/066904.html>`__
+- `Empty Subscript PEP on Wiki - keep or toss? <http://mail.python.org/pipermail/python-dev/2006-July/066922.html>`__
+- `More Switch: Explicit freezing <http://mail.python.org/pipermail/python-dev/2006-July/066925.html>`__
+- `Proposal to eliminate PySet_Fini <http://mail.python.org/pipermail/python-dev/2006-July/066952.html>`__
+- `Switch and static, redux <http://mail.python.org/pipermail/python-dev/2006-July/067117.html>`__
+
+
+===============
+Skipped Threads
+===============
+- `traceback regression <http://mail.python.org/pipermail/python-dev/2006-July/066859.html>`__
+- `sys.settrace() in Python 2.3 vs. 2.4 <http://mail.python.org/pipermail/python-dev/2006-July/066899.html>`__
+- `Bug in stringobject? <http://mail.python.org/pipermail/python-dev/2006-July/066901.html>`__
+- `weakattr <http://mail.python.org/pipermail/python-dev/2006-July/066905.html>`__
+- `how long to wait for expat to incorporate a fix to prevent a crasher? <http://mail.python.org/pipermail/python-dev/2006-July/066932.html>`__
+- `LOAD_CONST POP_TOP <http://mail.python.org/pipermail/python-dev/2006-July/066937.html>`__
+- `Another 2.5 bug candidate? <http://mail.python.org/pipermail/python-dev/2006-July/066940.html>`__
+- `DRAFT: python-dev summary for 2006-06-01 to 2006-06-15 <http://mail.python.org/pipermail/python-dev/2006-July/066948.html>`__
+- `Proposed beta 2 changes (Q for Anthony/Neal) <http://mail.python.org/pipermail/python-dev/2006-July/066982.html>`__
+- `2.5b1 Windows install <http://mail.python.org/pipermail/python-dev/2006-July/066994.html>`__
+- `Patch for commands.py to provide callback <http://mail.python.org/pipermail/python-dev/2006-July/067019.html>`__
+- `import screwiness <http://mail.python.org/pipermail/python-dev/2006-July/067062.html>`__
+- `zipfile.ZipFile('foo.zip', 'a'): file not found -> create? <http://mail.python.org/pipermail/python-dev/2006-July/067079.html>`__
+- `Musings on concurrency and scoping ("replacing" Javascript) <http://mail.python.org/pipermail/python-dev/2006-July/067103.html>`__
+- `About a month until PSF call for test trackers closes! <http://mail.python.org/pipermail/python-dev/2006-July/067104.html>`__
+- `test_ctypes failure on Mac OS X/PowerPC 10.3.9 (Panther) <http://mail.python.org/pipermail/python-dev/2006-July/067126.html>`__
+- `[slighly OT] Native speakers and hurting brains <http://mail.python.org/pipermail/python-dev/2006-July/067132.html>`__
+- `exception too expensive? <http://mail.python.org/pipermail/python-dev/2006-July/067157.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-July/067175.html>`__
+- `xml issue in 2.5 <http://mail.python.org/pipermail/python-dev/2006-July/067187.html>`__
+- `Fix for Lib/test/leakers/test_gestalt.py <http://mail.python.org/pipermail/python-dev/2006-July/067195.html>`__
+- `Discussion on Lib/test/crashers/ <http://mail.python.org/pipermail/python-dev/2006-July/067197.html>`__
+- `Add new PyErr_WarnEx() to 2.5? <http://mail.python.org/pipermail/python-dev/2006-July/067198.html>`__
+- `Klocwork analysis of source if we want it <http://mail.python.org/pipermail/python-dev/2006-July/067210.html>`__
+- `easy_install <http://mail.python.org/pipermail/python-dev/2006-July/067232.html>`__
+- `subprocess.CalledProcessError.errno (#1223937) <http://mail.python.org/pipermail/python-dev/2006-July/067234.html>`__
+- `Minor: Unix icons for 2.5? <http://mail.python.org/pipermail/python-dev/2006-July/067260.html>`__
+- `PEP 356: python.org/sf/1515343 resolution <http://mail.python.org/pipermail/python-dev/2006-July/067284.html>`__
+- `Autoloading? (Making Queue.Queue easier to use) <http://mail.python.org/pipermail/python-dev/2006-July/067292.html>`__
+- `Long options support <http://mail.python.org/pipermail/python-dev/2006-July/067309.html>`__
+- `Behavior change in subprocess.py <http://mail.python.org/pipermail/python-dev/2006-July/067311.html>`__
+- `Proposal: Add Sudoku Solver To The "this" Module <http://mail.python.org/pipermail/python-dev/2006-July/067342.html>`__
+- `The buffer() function <http://mail.python.org/pipermail/python-dev/2006-July/067360.html>`__
+- `Partial support for dlmodule.c in 64-bits OSes <http://mail.python.org/pipermail/python-dev/2006-July/067378.html>`__
+- `IDLE - firewall warning <http://mail.python.org/pipermail/python-dev/2006-July/067420.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+July 01, 2006 through July 15, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 8th written by Steve Bethard. 
+
+To contact me, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

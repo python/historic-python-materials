@@ -1,0 +1,1355 @@
+<html>
+
+<!--------------------------------------------------------------->
+<!--     AUTHOR:   Ivan Van Laningham                          -->
+<!--     E-MAIL:   ivanlan@callware.com                        -->
+<!--------------------------------------------------------------->
+
+<head>
+<BASE HREF="http://www.foretec.com/python/workshops/1998-11/proceedings/papers/laningham/laningham.html">
+
+<title>Python Vuh</title>
+</head>
+
+<body>
+<br>
+<br>
+<br>
+<h3 ALIGN=center><i>Python Vuh</i>:
+Mayan Calendrical Mathematics with Python</h3>
+<p align=center>
+Ivan Van Laningham (ivanlan@callware.com)<br>
+<i>Callware Technologies, Inc.</i>
+</p>
+<hr>
+<font size=3>
+<p align=right>
+<image src="S_plumed-serpent.gif" alt="God P, the Sovereign Plumed Serpent" align=right>
+<font size=4>
+<i>
+In the beginning, there was nothing but sky.
+Sovereign Plumed Serpent, God L, and other
+Creator Gods were sitting in the ocean-sky,
+smoking their cigars and drinking pulque.
+Whatever might yet be was simply not there: no animals, no people, no rocks, nothing
+but white noise, nothing but boredom.  Sovereign Plumed Serpent and his
+friends talked and thought and worried, then they joined their thoughts and
+words, then they agreed.  They knew what to do:  they
+conceived the growth of trees, of bushes, of the growth of life, of
+humankind, there in the blackness, in the early dawn.
+They invented the universe, those great knowers,
+those great thinkers in their very being.
+<br><br>
+--</i>Suggested by the <i>Popol Vuh</i></font><font size=3><a href="#fn1" name="plume"><sup>1</sup></a>
+<br clear=all>
+<hr>
+<p align=center><font size=3>
+<blockquote>
+<h3>Abstract</h3>
+The Mayan calendar is well suited to computer calculation, but existing programs
+are not extensible and are generally written in compiled languages, which limits
+their portability.  Python is portable, extensible, and has built in features that
+make processing dates in the Mayan calendar reasonably straightforward.  A basic
+introduction to the Mayan calendar is presented, followed by discussion of some
+of the problems encountered using conventional languages, and some alternative approaches
+using Python are given.  The areas of computerized parsing and special class methods
+in Python are covered.  A discussion of recovering dates from partial inscriptions
+follows, including highlights of a CGI program to allow users to enter such
+partial dates and receive a list of possible solutions.  Future directions for
+Mayan calendrical research with Python are suggested.  The conclusion suggests
+that archaeologists and epigraphers in the field could use Python to help them
+pin down otherwise indeterminate dates in the Mayan inscriptions.
+</blockquote>
+</font></p>
+<font size=3></font>
+<h3>1  Introduction</h3>
+<p>
+When I told my wife that I was going to write a paper for the Python Conference
+in Houston, she asked what I was going to write about, and I said,
+``The Mayan calendar.''  Not being familiar with Pythonists, she said
+``I thought that they wanted articles about <i>practical</i> applications for Python?''
+<p>
+While many people would not think of arcane calendars as
+a practical application for a tool, the Mayan calendar lends itself
+rather well to computer calculation, and there are some Mayanists out there
+now who know enough about computers to write programs; there are even more that
+are able to use the software once it exists.
+<p>
+My guess is that there are around 1000 people
+worldwide who consider themselves Mayanists; of these, perhaps half are
+``field archaeologists,'' scientists not directly concerned with epigraphy
+or the calendar, except insofar as such collateral information helps date
+an excavation or dig.
+Of the 500 or so left, perhaps 20-50 are able to make their living in
+the field of epigraphy; another one or two hundred professionals' lives are
+affected by advances in epigraphy; while the remainder are either students or,
+like myself, enthusiastic (sometimes obsessive) amateurs.
+Epigraphers are concerned not with the
+quotidian phenomena that interest field archaeologists, but with the texts the
+Mayans left us.
+Since so many of the inscriptions
+contain dates referring to contemporary elite persons, to cosmology or to gods
+in that cosmology, the study of the Mayan writing system is intertwined with and
+inextricable from the study of their calendar.
+<p>
+Many epigraphers study Mayan political history and the ways in
+which the Mayan elite legitimized their temporal, secular power through the use of
+spiritual, sacred, location (Culbert, 1991; Schele, Grube and Martin, 1998).
+One of the ways the elite did this was to contrive
+large numbers representing time passed and then state on public monuments that
+such-and-such a ruler acquired great power because he was born exactly so
+many days after a particular deity was born, which just happened to be a nice round
+number of several sacred cycles (Lounsbury, 1978; Schele and Freidel, 1990; Schele and Mathews, 1998).
+Given such a world view, it is not surprising that
+calendrical statements permeate the monuments and codices.  Familiarity with the Mayan
+calendar, therefore, is a prerequisite for epigraphic study.
+<p>
+While many epigraphers can use programs, and some can write them,
+most of these programs aren't very convenient.
+They have been written in conventional languages
+like <b>C</b>, <b>C++</b>, Pascal or Visual Basic, and such languages have little or
+no support for the multitrillion year calculations that can be commonplace
+in Mayan calendrical mathematics.  Additionally, since these are all compiled
+languages, and since compilers differ drastically between platforms, many
+routines are ``write once, rewrite forever.''  It can be nearly impossible to get
+the algorithms to behave properly on a new platform.
+<p>
+I spent years (and I don't really want to admit <i>how</i> many years)
+writing libraries of <b>C</b> routines useful in working with
+the Mayan calendar.  Among other fun tasks, I had to track down a multiprecision
+arithmetic library and then port it to my current Unix platform.  Since it
+wasn't written very well, I spent a lot of time fixing bugs.  When I moved
+to different Unices, I spent even more time porting the library.  I am reminded of
+the time in high school when I bought a 59-cent ship model that came with
+no detailing:  it was maybe 4 inches long, and I decided to add full rigging.  I spent the
+<i>entire</i> summer rebuilding that thing, and I ended up with a 59-cent model ship 
+with $2000 rigging.
+<p>
+In the same way, the <b>C</b> libraries I wrote for my Mayan calendar programs
+provided an interesting project for a very long time, but have
+fulfilled their purpose.
+The math functions provide a place to start, but they are
+only a starting point; it usually makes more sense to reevaluate what I'm trying 
+to do and write something new in Python, which generally forces a cleaner,
+and almost always more accurate, solution.
+<p>
+The source code for Mayan dates (class <i>mayanum</i>), which is the Python
+replacement for and improvement of the <b>C</b> libraries, can be found
+at my website, along with some documentation:
+<a href="ftp://www.pauahtun.org/pub/mayalib.zip">mayalib.zip</a>.
+<p>
+Before I can give examples of the benefits of using Python for the
+calculation of Mayan dates,
+some basic principles of Mayan calendrical mathematics need to 
+be explained.  In the interests of economy, I do
+not give a complete description here:
+for (many) more details, you may wish to refer to
+<a href="http://www.pauahtun.org/basic.html">An Introduction to the Mayan Calendar</a> and
+<a href="http://www.pauahtun.org/calround.html">The Calendar Round</a>
+on my website.  Other websites are linked from there; however,
+the best references remain the original sources.  I cite some of these sources
+below and in the two pages just mentioned.
+
+<h3>2  Basics of the Mayan Calendar</h3>
+<h4>2.0  An Example Date</h4>
+<p>
+An example of a Mayan date is ``<b>12.19.5.5.0 8 'Ahaw 13 Sots</b>''.
+This date is shown in Mayan hieroglyphic writing in <b>Table 1</b>.
+<p>
+<center>
+<table border=1>
+  <caption align=bottom>
+    <center>
+      <b>Table 1:  A Mayan Date</b>
+    </center>
+  </caption>
+  <tr align=center>
+    <th colspan=5>
+      The Long Count
+    </th>
+    <th colspan=4>
+      The Calendar Round
+    </th>
+  </tr>
+  <tr align=center>
+    <td>
+       <img src="Gxii_1_x.gif"><img src="baktunax_1.gif">
+    </td>
+    <td>
+       <img src="Gxix_1_x.gif"><img src="katunax_1.gif">
+    </td>
+    <td>
+       <img src="Gv_1_x.gif"><img src="tunax_1.gif">
+    </td>
+    <td>
+       <img src="Gv_1_x.gif"><img src="uinalax_1.gif">
+    </td>
+    <td>
+       <img src="G0c_1_x.gif"><img src="kinax_1.gif">
+    </td>
+    <td>
+       <img src="Gviii_1_x.gif">
+    </td>
+    <td>
+       <img src="ahau_x_1.gif">
+    </td>
+    <td>
+       <img src="Gxiii_1_x.gif">
+    </td>
+    <td>
+       <img src="zotz_x_1.gif">
+    </td>
+  </tr>
+  <tr align=center>
+    <th colspan=5>
+      12.19.5.5.0
+    </th>
+    <th colspan=4>
+      8 'Ahaw 13 Sots
+    </th>
+  </tr>
+</table>
+</center>
+<p>
+<h4>2.1  The Long Count</h4>
+<p>
+The ``<b>12.19.5.5.0</b>'' part (the first 10 glyphs in the diagram above)
+is known as the <b>Long Count</b> (<b>LC</b>).
+The Long Count is known as such because it is a linear count of days
+from a base date, which is usually
+taken to be Wednesday, August 13, -3,113 in our calendar, the Gregorian.
+There is some debate about the exact correlation date between the two calendars,
+but a majority of Mayanists prefer this one.  Of the first ten glyphs above,
+the five that look like pictures are glyphs that stand for periods of time,
+and the bar-and-dot symbols are numbers.  A dot is one, a bar is five, and the
+lobed symbol is zero.  Mayan numbers are base (<i>radix</i>), 20, and
+are read either left-to-right as are our numbers, or from top to bottom when
+numbers appear vertically.
+Mayan <i>dates</i>, however, modify the pure base 20 convention by using base 18
+in the second position.  Apparently, the motivation for this was to make certain
+calendrical calculations simpler, as it means that each unit of the third place
+had a value of 360 days instead of the expected 400, thus giving an approximation
+of the solar year.
+<p>
+Formulae ordinarily treat the Long Count positions as numbered
+from left to right starting at one, but it makes more sense,
+computationally, to begin
+numbering these positions at the right and to begin with an index of zero,
+as in <b>Table 2</b>, which shows the glyphs for the time
+periods as well as their names.
+<p>
+<center>
+<table border=1>
+  <caption align=bottom>
+    <center>
+      <b>Table 2:  The Long Count</b>
+    </center>
+  </caption>
+  <tr>
+    <th align=center>
+      LC Digit
+    </th>
+    <th align=center>
+      Mayan Digit
+    </th>
+    <th align=center>
+      LC Position
+    </th>
+    <th align=center>
+      Name
+    </th>
+    <th align=center>
+      Glyph
+    </th>
+    <th align=center>
+      Radix
+    </th>
+    <th align=center>
+      Number of Days
+    </th>
+    <th align=center>
+      Years
+    </th>
+  </tr>
+  <tr align=center>
+    <td>
+      0
+    </td>
+    <td>
+       <img src="G0c_1_x.gif">
+    </td>
+    <td>
+      0
+    </td>
+    <td>
+      <i>k'in</i>
+    </td>
+    <td>
+       <img src="kinax_1.gif">
+    </td>
+    <td>
+      20
+    </td>
+    <td>
+      1
+    </td>
+    <td>
+      --
+    </td>
+  </tr>
+  <tr align=center>
+    <td>
+      5
+    </td>
+    <td>
+       <img src="Gv_1_x.gif">
+    </td>
+    <td>
+      1
+    </td>
+    <td>
+      <i>winal</i>
+    </td>
+    <td>
+       <img src="uinalax_1.gif">
+    </td>
+    <td>
+      18
+    </td>
+    <td>
+      20
+    </td>
+    <td>
+      --
+    </td>
+  </tr>
+  <tr align=center>
+    <td>
+      5
+    </td>
+    <td>
+       <img src="Gv_1_x.gif">
+    </td>
+    <td>
+      2
+    </td>
+    <td>
+      <i>tun</i>
+    </td>
+    <td>
+       <img src="tunax_1.gif">
+    </td>
+    <td>
+      20
+    </td>
+    <td>
+      360
+    </td>
+    <td>
+      ~1
+    </td>
+  </tr>
+  <tr align=center>
+    <td>
+      19
+    </td>
+    <td>
+       <img src="Gxix_1_x.gif">
+    </td>
+    <td>
+      3
+    </td>
+    <td>
+      <i>k'atun</i>
+    </td>
+    <td>
+       <img src="katunax_1.gif">
+    </td>
+    <td>
+      20
+    </td>
+    <td>
+      7200
+    </td>
+    <td>
+      ~20
+    </td>
+  </tr>
+  <tr align=center>
+    <td>
+      12
+    </td>
+    <td>
+       <img src="Gxii_1_x.gif">
+    </td>
+    <td>
+      4
+    </td>
+    <td>
+      <i>bak'tun</i><a href="#fn2" name="baktun"><sup>2</sup></a>
+    </td>
+    <td>
+       <img src="baktunax_1.gif">
+    </td>
+    <td>
+      20
+    </td>
+    <td>
+      144000
+    </td>
+    <td>
+      ~400
+    </td>
+  </tr>
+</table>
+</center>
+
+<p>
+<h4>2.2  The Calendar Round</h4>
+<p>
+The ``<b>8 'Ahaw 13 Sots</b>'' part of the date shown in <b>Table 1</b>
+is called the <b>Calendar Round</b> (<b>CR</b>), and the various parts are
+shown in <b>Table 3</b>.
+It is a cycle of 18,980 days, about 52 years; its use was
+widespread throughout Mesoamerica, in many different forms.
+For a sweeping review of these many other calendars, see Edmonson, 1988.
+<p>
+<center>
+<table border=1>
+  <caption align=bottom>
+    <center>
+      <b>Table 3:  The Calendar Round</b>
+    </center>
+  </caption>
+  <tr align=center>
+    <th colspan=2>
+      The <i>Tzolk'in</i>
+    </th>
+    <th colspan=2>
+      The <i>Haab</i>
+    </th>
+  </tr>
+  <tr align=center>
+    <th>
+      The <i>Trecena</i>
+    </th>
+    <th>
+      The <i>Veintena</i>
+    </th>
+    <th>
+      The <i>Haab</i> Day
+    </th>
+    <th>
+      The <i>Haab</i> Month
+    </th>
+  </tr>
+  <tr align=center>
+    <td>
+       <img src="Gviii_1_x.gif">
+    </td>
+    <td>
+       <img src="ahau_x_1.gif">
+    </td>
+    <td>
+       <img src="Gxiii_1_x.gif">
+    </td>
+    <td>
+       <img src="zotz_x_1.gif">
+    </td>
+  </tr>
+  <tr align=center>
+    <th colspan=4>
+      Value Ranges
+    </th>
+  </tr>
+  <tr align=center>
+    <th>
+      1-13<br>(<i>8</i> shown)
+    </th>
+    <th>
+      0-19<br>(<i>0</i> shown)
+    </th>
+    <th>
+      0-19, or 0-4<br>(<i>13</i> shown)
+    </th>
+    <th>
+      0-18<br>(<i>3</i> shown)
+    </th>
+  </tr>
+</table>
+</center>
+<p>
+While the Long Count is a strictly linear count from a base date,
+which is ordinarily written as ``<b>0.0.0.0.0  4 'Ahaw 8 Kumk'u</b>,''
+arithmetic for computations involving the Calendar Round is
+mostly <i>modular</i>, that is, the four parts of the Calendar Round
+are not all positional numbers similar to what is used in the Gregorian calendar
+(or any ordinary numbers in everyday use),
+but represent <i>remainders that result from the division of a number</i>.
+The closest thing we have in the Gregorian calendar is the 7-day cycle of
+the days of the week.  The four units that make up the Calendar Round are
+called the coordinates of the Calendar Round.
+<p>
+The Calendar Round consists of two cycles, one of 260 days (the <i>tzolk'in</i>) and
+another of 365 days (the <i>haab</i>).
+While 260 &middot; 365 is 94,900,
+260 and 365 have a <i>greatest common divisor</i> of 5, which means that
+you can divide either 260 or 365 by 5 and multiply the answer times the
+other number.  That is, the length of the Calendar Round is 18,980 days,
+since 260 &middot; 73 <i>and</i> 365 &middot; 52 both equal 18,980.
+<p>
+The <i>tzolk'in</i>
+is made up of a cycle of 13 day <i>numbers</i>, called the <i>trecena</i>, and
+a cycle of 20 day <i>names</i>, called the <i>veintena</i>.
+The <i>tzolk'in</i> and its constituent parts, the <i>trecena</i> and the <i>veintena</i>,
+are shown in <b>Table 3</b> in the leftmost half.
+The <i>haab</i> contains 18 named months, each of which has 20 days,
+numbered from 0 to 19.  The last month, <i>Wayeb</i>, has only 5 days numbered 0-4.
+The <i>tzolk'in</i> is a <i>modular</i>, <i>reentrant</i> cycle, while the <i>haab</i> is an
+ordinary linear <i>cycle</i>, just like our year.
+<p>
+A cycle that is modular and reentrant is a cycle in which it is never necessary
+to resort to summing terms in order to find the position in the cycle, as one
+must for a linear cycle.  For example, to find the number of the day of the year
+in the Gregorian calendar, you have to know the lengths of all the months in
+the year, add up all the whole months before the current month, and then add
+the number of the current day in the current month.  In the <i>haab</i>, while
+we have to do basically the same thing, it is a little easier because all months
+are the same length, except the last.  To find the a position in the <i>tzolk'in</i>,
+we do not have to add; this position may always be recovered by the application
+of a <i>modular arithmetic formula</i>.  This is discussed in more detail in section
+<b>2.4</b>, below.
+<p>
+Whereas we stuff extra days into our years
+now and then, the length of the Mayan <i>haab</i> never changed.
+Since the <i>haab</i> drifts through the seasons in a 1460 year cycle, it is
+sometimes referred to as the ``vague year,'' because it has only a vague
+connection to the tropical year. 
+The <i>haab</i> and its parts, the <i>haab day</i> and the <i>haab month</i>,
+are shown in the rightmost half of <b>Table 3</b>.
+<p>
+If we know all four coordinates of the Calendar Round, there are several pieces
+of information we can derive from them.
+<p>
+<ol>
+  <li> Numeric values representing each coordinate; once we have these, we can determine
+  <li> The numeric position in the <i>tzolk'in</i>, and
+  <li> The numeric position in the <i>haab</i>, and from those two positions,
+  <li> The numeric position in the Calendar Round.
+</ol>
+<h4>2.3 Conversion of Calendar Round Coordinates into Their Mathematical Equivalents</h4>
+<p>
+In Mayan calendrical mathematics as practiced by Mayanists today,
+the names of the <i>veintena</i> days and the names of the <i>haab months</i>
+are to be converted to their numeric
+equivalents;  ``'Ahaw'' is, mathematically, 0; the day name occupying position
+1 is ``'Imix.''  A complete list of <i>veintena</i> day names is available on
+my website.  The <i>trecena</i>, ``8,'' is directly usable as a number.
+The <i>haab</i> components are just as simple; ``13'' is just 13,
+while ``Sots'' is the fourth month of the vague year.  ``Pohp'' is month 0, so Sots
+is, numerically, 3.  A complete list of the <i>haab</i> month names is also available
+on my website.
+<p>
+Conversion of our sample Calendar Round into its mathematical equivalent, then, gives
+us (in Pythonic terms) <b>(8, 0, 13, 3)</b>.  In the downloadable code, the function
+<i>parsecrt()</i> will convert any reasonable Calendar Round string into a 4-tuple;
+the <i>parsecr()</i> function takes the process further, and converts the 4-tuple into
+a position in the Calendar Round.
+</p>
+<h4>2.4 Finding the Position in the <i>Tzolk'in</i></h4>
+<p>
+Given the <i>tzolk'in</i> coordinates <i>(8, 0)</i> from section <b>2.3</b>, we can
+determine the numerical position they refer to.  
+What we're doing here is recovering a <i>positional</i> number from two <i>remainders</i>
+obtained by dividing by two <i>moduli</i>; Knuth (1998) has a full discussion.
+Floyd Lounsbury (n.d.) provided several widely used formulae for working with the Mayan
+calendar; all the formulae here in section <b>2</b> are Python translations of these.
+<p>
+<pre>
+def p260l(tr, v):
+  return((40*((tr - 1)-(v - 1)))+(v - 1))%260
+</pre>
+</p>
+For the example <i>(8, 0)</i>:
+<p align=center>
+tz = ((40 &middot; ((tr - 1)-(v - 1))) + (v - 1))%260<br>
+tz = ((40 &middot; ((8 - 1)-(0 - 1))) + (0 - 1))%260<br>
+tz = 59
+</p>
+<p>
+Thus, converting ``8 'Ahaw'' to its mathematical equivalent gives us 59, our
+position in the <i>tzolk'in</i>.
+</p>
+<h4>2.5 Finding the Position in the <i>Haab</i></h4>
+<p>
+With the <i>haab</i> coordinates <i>(13, 3)</i> obtained in section <b>2.3</b>,
+we can likewise determine the position in the <i>haab</i>, but with a
+simpler formula (again taken from Lounsbury, n.d.):
+<p>
+<pre>
+def phaabl(hd, hm):
+  return (hm*20)+hd
+</pre>
+For the example <i>(13, 3)</i>:
+<p align=center>
+h = (hm &middot; 20) + hd<br>
+h = (3 &middot; 20) + 13<br>
+h = 73
+</p>
+<h4>2.6 Finding the Position in the Calendar Round</h4>
+<p>
+There are two steps in this process, the first of which involves
+finding the minimum number of 365-day units that separate the
+day we are interested in (8 'Ahaw 13 Sots) and the day that begins
+the Calendar Round:  this is the <i>number of whole haabs</i> (<b>nH</b>).
+Finding nH requires the coordinates we deterimined in the previous
+two steps, the position in the <i>tzolk'in</i> (<b>tz</b>) and the position
+in the <i>haab</i> (<b>h</b>):  <i>(59, 73)</i>.
+<p>
+<pre>
+def nHl(tz, h):
+  return (tz - h)%52
+</pre>
+For the example <i>(59, 73)</i>:
+<p align=center>
+nH = (tz - h) % 52<br>
+nH = (59 - 73) % 52<br>
+nH = 38<br>
+</p>
+<p>
+The second step requires only two of the answers from the previous steps,
+the number of whole <i>haab</i>s and the position in the <i>haab</i>:
+<p>
+<pre>
+def pCRl(tz, h):
+  nH = nHl(tz, h)
+  return (365*nH)+h
+</pre>
+For the example <i>(38, 73)</i>:
+<p align=center>
+cr = (365 &middot; nH) + h<br>
+cr = (365 &middot; 38) + 73<br>
+cr = 13943
+</p>
+<p>
+Thus, the day ``8 'Ahaw 13 Sots'' is
+equivalent to position 13943 in the 18980-day Calendar Round.
+It is also quite important to realize that the Calendar Round is locked to the Long Count
+in a particular way.  Day 0 of the Long Count, ``0.0.0.0.0,'' is set to
+day ``4 'Ahaw 8 Kumk'u'' of the Calendar Round, which is
+position 7283.  As each day goes by <i>both</i>
+the Long Count <i>and</i> the Calendar Round advance by one.
+More details are available on my website.
+<p>
+Moreover, since the Mayan calendar is rivaled in complexity only by the Gregorian
+(did you ever study epacts<a href="#fn3" name="epact"><sup>3</sup></a>?),
+it can have many more cycles and periods than I have described here (Carlson, 1981).
+I will mention just two additional cycles which are sometimes useful in determining
+a precise Mayan date:
+<ol>
+  <li> The nine-day Lord of the Night cycle, which operates much
+    like the 7 days of the Gregorian week (Thompson, 1929); and
+  <li> The 819-day cycle, containing 7 coordinates:  four Calendar
+    Round coordinates and a three-digit backward count of days
+    (Thompson, 1943; Van Laningham, forthcoming).
+</ol>
+  
+
+<h3>3  Representation and Conversion of Mayan Dates</h3>
+<p>
+Mayan dates, then, are composed of two major parts; a <i>mixed-radix</i> portion
+(the Long Count) and a <i>modular</i> portion (the Calendar Round).
+For use in computer programs, we need to convert
+user friendly (or at least Mayanist friendly) strings such as ``12.19.5.5.0''
+and ``8 'Ahaw 13 Sots'' into
+arrays, lists, structs or classes, and we need to be able to add, subtract,
+occasionally multiply, convert to Gregorian, and perform other functions
+on the resulting objects.
+Computer representation of these Mayan date objects is not simple--in <b>C</b>
+we could use structs; in <b>C++</b>, classes.  In either one, converting from a string
+representation would require parsing the ``12.19.5.5.0'' input string,
+allocating memory and/or creating an instance of the struct
+or class, and filling in the appropriate fields in the struct/class
+from parsed values found in the string.
+While it is possible to create a class constructor in <b>C++</b> such that one could say<br>
+<pre>
+    m = new mayanum("12.19.5.5.0");
+</pre>
+and one could even extend the notation to the natural<br>
+<pre>
+    m = m + "1.0.0";
+</pre>
+but the equally natural
+<pre>
+    m = "1.0.0" + m ;
+</pre>
+is illegal, because the rules for operator overloading in <b>C++</b>
+do not allow the first argument to be anything but the class for which
+the operator is defined.
+In Python the special class method mechanism invites such intuitive usage, and
+the algorithms become simple to implement.
+Converting the Calendar Round string ``8 'Ahaw 13 Sots'' is not quite as simple, but is
+certainly far easier than the equivalent method from <b>C</b>.
+Strings can be used as dictionary keys, so it is easy to
+allow users to type in names in several variant spellings and still
+be able to convert the names to numbers; the functions <i>matchveintena()</i> and
+<i>matchhaabmonth()</i> in the supplied code do exactly this.
+<p>
+Although most Mayan dates encountered have only 5 places, as seen above,
+these dates are essentially unbounded.
+One example, from Coba<a href="#fn4" name="coba"><sup>4</sup></a>,
+is ``<b>13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.0.0.0.0</b>;''
+this represents about 28 octillion years.  (This date used to break nearly all PC programs;
+with Python, calculation is not difficult because of the built in support for long
+integers.)
+<p>
+In <b>C</b>, we could declare an array to store 5 places:
+(<samp><b>int x[5];</b></samp>);
+then, when parsing the input string given above, just ensure that we store
+the final "0" in <samp><b>x[0]</b></samp>.  Not too difficult, but what about times when
+we have to evaluate a string like the date from Coba?  Or one even longer?
+During parsing, we would have to figure out how many places, allocate
+the appropriate memory, and so on.  If we added two such dates,
+then some routine would have to reallocate memory somewhere.
+Making sure that all the bases (pun intended)
+are covered isn't easy--except in Python.
+Parsing and conversion of unlimited Long Count strings can be accomplished
+with very few lines of code:
+<p>
+<pre>
+def stringtomaya(s):
+  list = string.splitfields(s, '.')
+  lcl = map(string.atoi, list)
+  lcl.reverse()
+  return lcl  # Put <i>k'in</i> in slot 0
+</pre>
+</p>
+<p>
+In the supplied code, <i>stringtomaya()</i> is a class method.
+In order to deal with negative Mayan dates, the method
+is slightly longer than shown here.
+</p>
+<h3>4  Special Class Methods for Mayan Dates</h3>
+<p>
+Because Python has special class methods (``<samp><b>__add__</b></samp>,'' etc.),
+it is almost trivial to implement the methods required to convert
+various representations to Mayan dates, and little more work
+to implement the actual addition, subtraction and multiplication methods
+that automatically convert those representations to the required
+Mayan dates and perform the appropriate functions.
+For example, one way addition could be built is to first convert Mayan dates
+to the equivalent <samp><b>long</b></samp>:
+<p>
+<pre>
+def mayatolong(m): # Reversed list
+  n = long(0)
+  bs = 20
+  i = 0
+  j = len(m)
+  while i &lt; j:
+    if i == 1:
+      bs = 18
+    else:
+      bs = 20
+    n = n+(m[i]*bs)
+  return n
+</pre>
+<p>
+and then just add the two <samp><b>long</b></samp>s:
+<p>
+<pre>
+def addmaya(n, m):
+  n1 = mayatolong(n)
+  m1 = mayatolong(m)
+  return n1 + m1
+</pre>
+<p>
+This would certainly work, but what if we wanted to perform the addition using
+something like the methods employed by Mayans?  We know perfectly well that
+they did not convert their mixed radix numbers to base 10; we also know
+that they were more than capable of adding and subtracting
+huge, multiplace numbers without error, casting forward and backward
+enormous distances in time.  In the following discussion, I will
+going to ignore complications like signs and negative numbers; Mayans could
+and did deal with negative numbers, but not the way we would.  What they usually did
+was to say ``count backwards so many days from a date, and you will arrive at
+a Calendar Round with coordinates so-and-so.''  This is somewhat like saying,
+``count backwards 100 digits from +10, and the place you get to has a final digit of 0.''
+The actual location reached, -90, would never be written down that way,
+but it would be quite obvious that that was
+indeed the value we meant.  Given that the Mayans seemed to view the integers as gods, referring
+to negative values without ever writing down their names appears quite logical.
+<p>
+>From various indications (Thompson, 1936; Justeson, 1989), we can infer that Mayan
+methods for adding were not too different from our own.  That is, you write the
+two numbers down, one above the other, and add each column.  If the total is more
+than the maximum value for that column, depending on the radix, then simply carry
+to the next column.  A simple implementation might look like this:
+<p>
+<pre>
+def addmaya(lcl, plus):  # lcl and plus are both reversed Long Count lists
+  t = []
+  bs = 20
+  carry = 0
+  j = 0
+  for i in lcl:
+    n = i+plus[j]+carry
+    carry = 0
+    if j == 1:
+      bs = 18
+    else:
+      bs = 20
+    if n &gt; (bs - 1):
+      carry = n/bs
+      n = n%bs
+    j = j+1
+    t.insert(0, n)
+  while carry &gt; 0:
+    if j == 1:
+      bs = 18
+    else:
+      bs = 20
+    t.insert(0, carry%bs)
+    carry = carry/bs
+    j = j+1
+  return t
+</pre>
+<p>
+If we put this implementation into a class, then we can build a <samp><b>__coerce__</b></samp> method into
+it, and automatically have the ability to perform
+<p>
+<pre>
+    n = n + "1.0.0.0"
+</pre>
+and
+<pre>
+    n = n + 18980
+</pre>
+<p>
+which are both things Mayanists find themselves frequently having to do.  Mayan monuments (``<i>stelae</i>'')
+usually start off by establishing a base date, known as the ``Initial Series,'' and then using what
+are called ``Distance Numbers'' to count from the Initial Series date, or from any of the secondary dates
+reached by counting from the Initial Series date.  Often, these Distance Numbers will count backwards, so our class
+needs to support subtraction; sometimes the dates reached by these Distance Numbers will be before the
+zero day (0.0.0.0.0 4 'Ahaw 8 Kumk'u).
+A Mayan date class must support negative numbers and therefore signs, along with other
+attendant baggage.  To fully support addition, we can rewrite our <samp><b>__add__</b></samp> method
+to support signed addition.  With a little forethought, we can determine the circumstances
+under which signed subtraction becomes a signed addition, and a signed addition becomes
+a signed subtraction.  As long as simple addition is always supported by the <samp><b>__add__</b></samp> method
+and simple subtraction is always supported by the <samp><b>__sub__</b></samp> method, we do not have to worry
+about recursion, and can implement parts of each method in terms of the other.
+The full implementation of both <samp><b>__add__</b></samp> and <samp><b>__sub__</b></samp> can be found in the downloadable
+code.
+<p>
+There are some details you will find in that code that I haven't talked about
+here.  For instance, there's a class member, <i>sign</i>, which is
+the sign of the number; it is either 1 or -1.
+There are <i>grow()</i> and <i>shrink()</i> methods,
+which are used to ensure that numbers subtracted or added have the same number
+of places in them.  A <i>radix</i> member 
+allows us to treat Mayan Long Counts (modified base 20) differently from Mayan <i>numbers</i>
+(unmodified base 20) automatically.  The method <i>iszero()</i> lets us ensure
+that we do not end up with something silly like ``-0.''  
+There are several other special class methods provided, 
+such as <samp><b>__abs__</b></samp>, <samp><b>__coerce__</b></samp>, <samp><b>__radd__</b></samp>,
+<samp><b>__mul__</b></samp> and <samp><b>__cmp__</b></samp>.
+<p>
+Multiplication by a single integer can be done for mixed radix numbers without
+much trouble; it is much like addition, requiring the same
+attention to signs and carrying.
+However, you cannot multiply two mixed radix numbers directly.
+The only way it can be done is to convert both numbers to integer equivalents
+or to their equivalents in uniform radix notation; <i>e.g.</i>, to multiply 1.0.0 times
+2.7.9, we need to convert either to integers (360 &middot; 869) or to pure base 20 (18.0 &middot; 2.3.9).
+I believe that the Mayans had some way to perform multiplication, whatever the multiplier,
+so there is no reason we can't multipy 2.7.9 &middot; 360.
+Mayanists have been surprised, many times over, by the sophistication of the Mayans'
+numeric toolbox.
+<p>
+Using a <samp><b>__coerce__</b></samp> method, we can ensure
+that <samp><b>__mul__</b></samp> never sees numbers, or Mayan dates, it can't deal with.  We can also define
+a <samp><b>__div__</b></samp> method that works the same way, <i>i.e.</i>, changes the divisor to a single
+integer or converts both the divisor and dividend to pure base 20.  While these implementations
+are nontrivial, I won't describe here; they too are in the downloadable code.
+<p>
+Further mathematical operations could be defined, such as a <samp><b>__pow__</b></samp> method, but since I'm only
+barely convinced of the utility of the <samp><b>__mul__</b></samp> and <samp><b>__div__</b></samp> methods, I have not done so.
+The most useful methods when dealing with simple Mayan dates are
+<samp><b>__add__</b></samp>, <samp><b>__sub__</b></samp>, <samp><b>__cmp__</b></samp>
+(and their corresponding <samp><b>__r*</b></samp> forms), and <samp><b>__coerce__</b></samp>
+although I have occasionally found use for <samp><b>__lshift__</b></samp>.
+None of these methods, however, requires the coordinates of the Calendar Round to be either
+calculated or known for the arithmetic to work properly.  We can supply a <i>calculate()</i> method
+which, given a Long Count date, can easily provide matching Calendar Rounds.  This method
+can be found in the downloadable code.
+Another extremely useful method is <i>gregorian()</i>, which does exactly what it says:
+Mayan dates can calculate the Gregorian calendar equivalent of themselves.
+Since there is still much debate over the exact correlation of Mayan dates and our own, Gregorian,
+calendar (Thompson, 1937), a means is provided to change the correlation date.
+All of these methods are quite useful when most or all of the various cycles and componenents are
+known, but it is an unfortunate truth that very many Mayan dates from the <i>stelae</i>
+have partially eradicated or unreadable dates, in which one can discern only parts of the Long Count
+and/or parts of the Calendar Round.  What would be useful, then, is a set of methods
+and non-class functions designed specifically to deal with partial Long Counts and Calendar Rounds.
+This is something I always wanted to build, but could not with <b>C</b>, as the amount of work
+required in such a low level language was overwhelming.  Using Python convinced me that the
+project could be easily managed, and so it proved.
+</p>
+<h3>5  The Recovery of Partial Mayan Dates</h3>
+<p>
+Lounsbury (n.d. and 1978) has described formulae for determining a set of Long Count dates
+from any given Calendar Round coordinates; since the Calendar Round recurs every 52 years, though,
+the formulae expect the user to have at least some idea of the bak'tun:
+this is a not unreasonable expectation, since the vast majority of Mayan dates recorded
+on the stelae are within the 9th bak'tun (435-830 CE), with some few in the 8th
+(41-435 CE) and some also in the 10th (830-1224 CE).
+Once you have such a list of Long Count dates, additional factors can help to determine
+the exact match for any given monument, the most notable factor being 
+the nine-day cycle of Lords of the Night, referred to by ``G numbers''
+(G9, G1, G2 and so on), since we do not know the names of these gods.
+If a Calendar Round, a bak'tun <i>and</i> a Lord of the Night are known,
+the exact Long Count date can be precisely determined with 8000 years.
+<p>
+However, the condition of some monuments can reduce the amount of information available.
+Sometimes, a full Long Count and a full Calendar Round are not known. Most such loss
+of information is due to erosion or recent vandalism and looting.  The Mayans would sometimes
+deface public monuments in such a way that faces and name glyphs of public personages
+became unreadable, but never, to my knowledge, deliberately obscured date glyphs.
+So I started to think about the recovery of such dates;
+what is needed is a blank template into which users
+could insert all the items of information about a date that they could find on a particular
+monument, submit that, and get back a list of possible candidates.  This should
+apply to any component of a Mayan Date, not just to the Calendar Round coordinates and a bak'tun.
+I thought about the template a little more,
+and realized that if people were allowed to input just one number
+or day name, for example, the possible candidates would be infinite without some restrictions;
+and even with restrictions, the candidate list could be extremely large, even though technically
+finite.  I then realized that the number of items in the candidate list could easily be
+precomputed; the user could submit possibilites iteratively until the potential list
+became sufficiently limited to be comprehensible, and then choose, if possible, among
+the short list of choices.
+The problem is not one of finding <i>the</i> ``correct'' answer, but one of being
+overwhelmed with too many possibly correct answers.
+<p>
+I have implemented such a multistep interactive CGI program at
+<p align=center>
+<a href="http://www.pauahtun.org/cgi-bin/possible.py">http://www.pauahtun.org/cgi-bin/possible.py</a>.
+<p>
+It allows users to fill in a template which is then used to precalculate the number of
+possible answers; if there are not too many possibilities, it allows users to view a list
+of candidates and request more information on interesting dates.
+The program only provides for the standard five places of the Long Count, however.
+<p>
+One of Python's more useful features is run-time typing;
+this allowed me to build the input templates with a menu system that
+lets a user specify ``wild cards'' as digits in Mayan dates.
+When querying the user entries, the
+program just checks to see if any digits have been entered as
+``<samp><b>None</b></samp>.''  Those entries
+are wild cards, while digits
+actually entered come back as numbers.  For example, a user might enter a Long Count as <samp><b>12.16.13.None.None</b></samp>;
+a Python function to calculate the number of possibilities inherent in this Long Count is actually fairly simple.
+You just multiply the possible values in each digit together; the maximum number of possibilities in
+each place is the same as the radix in that place.  If a digit is present, then there is only one
+possibility for that place.  For the given example, the total is:
+<p align=center>
+<pre>
+    p = 1 &middot; 1 &middot; 1 &middot; 18 &middot; 20
+    p = 360
+</pre>
+<p>
+For Mayan Long Counts in the normal range (1-5 places), the maximum possibilities number 2,880,000,
+although since Long Counts are essentially unlimited in length, these maxima increase
+greatly with each addition of a digit.  However, while these maxima are easily calculated for Long Counts,
+the Calendar Round is another story.  Since
+the maximum radix is 18980, and there are only four components making up the Calendar Round, it turned out
+that the fastest and simplest way to determine maxima was to empirically determine all possible combinations
+and use a big <samp><b>if</b></samp> statement--there are only 24 different values that need to be returned.
+For example, if the user enters something like <b>4 'Ahaw 8 None</b>, then we know that there are only
+18 possible dates in the entire 18980-day Calendar Round.  This is because Calendar Round dates with the
+three coordinates ``4 'Ahaw 8'' (<samp><b>(4, 0, 8)</b></samp>)
+can occur in each month of the <i>haab</i>, and there are 18 months.
+Again, we have a relatively simple procedure that can be implemented in not too many lines of Python.
+A method for the calculation of the <i>combined</i> number of possibilities,
+however, was not (and still is not) obvious to me.
+<p>
+Once we have the functions to calculate the number of possibilities, we need functions to actually
+build lists.  These turn out to be somewhat harder, although the function for the Calendar Round
+is not too difficult; since there are only four components to the Calendar Round, the function can be written
+as four nested <samp><b>for</b></samp> loops.  The complicating factors are:
+<ol>
+  <li> the days of the <i>veintena</i> are legal, because of the mathematics,
+  only on certain days of the <i>haab</i> month; and
+  <li> the last month of the <i>haab</i> has only five days.
+</ol>
+Thus, most of the code to return a list of possible Calendar Round positions is occupied with input verification.
+<p>
+The Long Count function appears deceptively simple:
+just cruise through the places, and, any time a
+<samp><b>None</b></samp> is found instead of a digit, use a <samp><b>for</b></samp> loop.
+But since the length of the Long Count
+component is essentially unlimited, it is somewhat harder than that.  The only way that I think
+such a function could be written in <b>C</b>/<b>C++</b> would be to use recursion,
+since those languages cannot compile and execute code they have written.  Python
+can, and this proved to be the ideal solution.  Two functions were required, though, not just one;
+one to look through the Long Count list and generate the Python code that changes
+for each selection depending on which places are wild cards, and another one to execute the
+written code which returns a list of Mayan dates that represent the possibilities.
+<p>
+Since I was not able to see a means to compute the number of possibilities using
+lists of possibilities from both Long Count and Calendar Round functions, I decided that the best
+way to determine the final list was to:
+<ol>
+  <li> Use a two-step CGI program to precalculate LC possibilities of 8000 or less<a href="#fn5" name="lots"><sup>5</sup></a>
+  and CR possibilities to 949 or less, then
+  <li> determine the actual list of CR possibilities;
+  <li> pass the CR list to the LC function that writes Python code, which
+  <li> uses the CR list to eliminate Mayan dates from the final LC list, and
+  <li> executes the Python code to produce a final short list of Mayan dates,
+  from which the user can obtain detailed information using another CGI
+  program, by clicking on the desired date.
+</ol>
+The final version of the Long Count function calculates Mayan dates for all possibilities
+in the submitted Long Count list, but each time it does so it checks the list of Calendar Round possibilities
+to see if the calculated Mayan date can legally occur on any of the given Calendar Rounds;
+impossible Long Count/Calendar Round combinations are ignored.
+In <b>mayalib.py</b>, the function <i>newwritethecode(llc, crlist)</i>
+takes care of writing code from a supplied Long Count (<samp>llc</samp>) and passing
+through a Calendar Round list (<samp>crlist</samp>).
+Here is the function it wrote to run through all five of the normal positions in the Long Count
+(<b>[None,None,None,None,None]</b>):
+<br>
+<pre>
+from mayalib import *
+tls = []
+for s0 in range(20):
+  for s1 in range(20):
+    for s2 in range(20):
+      for s3 in range(18):
+        for s4 in range(20):
+          ls = [s0, s1, s2, s3, s4,]
+          tmp = mayanum(ls)
+          tmp.calculate()
+          if tmp.CR in crlist:
+            tls.append(tmp)
+
+</pre>
+<p>
+The function would change ranges if any <b>None</b> were replaced
+with a number.  In the function to execute the above code, <samp>llc</samp>
+is the Long Count list and <samp>tcr</samp> is the Calendar
+Round list, and these variables are placed in the namespace of the <b>exec</b>'d code:
+<p>
+<pre>
+def execthecode(str, llc):
+  xx = [str]
+  code = []
+  for stmt in xx:
+    code.append(compile(stmt, "(execthecode)", "exec"))
+  ns = {"llc":llc} # make a namespace...
+  for stmt in code:
+    exec stmt in ns, ns
+  tls = ns['tls']
+  return tls
+</pre>
+<br>
+<p>
+In <b>mayalib.py</b>, look for the function <i>listactuals()</i>
+to see how the actual lists are generated.
+</p>
+<h3>6  Future Directions</h3>
+<p>
+Knuth (1997) discusses permutations, which might
+be a fruitful area of study.  Some means is needed to precalculate
+a final list of date possibilities from multiple input lists
+without generating all possible Long Count dates and rejecting some
+(or most).  Such brute force approaches do not take advantage
+of the real power of Python.
+<p>
+The function that writes a function could easily be improved
+by adding more optional arguments, such as
+a list of possibilities for the Lords of
+the Night G series and another for the 819-day count.
+There are many more cycles which could be incorporated, but it is not really necessary.
+The Long Count, Calendar Round, Lords of the Night and the 819-day count
+are the major cycles found on the monuments, and they are sufficient
+(without going into further detail<a href="#fn6" name="detail"><sup>6</sup></a>) to fix any Mayan date precisely within
+<p align=center>
+<b>9305547427296816673725170526315789473684210526315789473684210526315789473684210526315789473682240000</b><br>
+days, or about<br>
+<b>25494650485744703215685398702235039653929343907714491708723864455659697188175919250180245133376000</b><br>
+years.
+<p>
+That should do for a while.
+</p>
+<h3>7  Conclusion</h3>
+I've described some new methods of Mayan date calculation in this paper; given access to a computer,
+and some training in the use of Python, many Mayanists may be able to make further discoveries on
+their own.  With sufficient computing power in a laptop, some of the programs and Python functions
+described here
+may someday help epigraphers in the field to pinpoint the date of a newly discovered
+Mayan monument.
+<p>
+If that ever happens, I would like them to be able to say, ``I couldn't have done it without Python.''
+Or maybe, ``... not without the Sovereign Plumed Serpent.''
+</p>
+<!-- XXX -->
+<h3>8  Notes</h3>
+<ol type="1">
+  <li> <a href="#plume" name = "fn1">The Plumed Serpent:</a> I have paraphrased a section here
+  from Dennis Tedlock's outstanding translation of the <i>Popol Vuh</i> (Tedlock, 1996: pp. 64-65);
+  without the proper context, isolated quotations from this Mayan creation story can sound
+  distressingly new age, which is about as far from the <i>Popol Vuh</i> as you can get.
+  <i>Popol</i> means ``council'' and ``vuh'' is ``book.''  Just as
+  <i>Popol Vuh</i> means ``Council Book,'' <i>Python Vuh</i> means ``Serpent Book.''
+  In Classic Mayan religion, as near as we can determine, the Plumed Serpent is the Milky Way, and
+  the <i>Popol Vuh</i> is a sky map in words (Schele, 1992).  <i>Python Vuh</i>, then,
+  is a serpent map in words.
+  <p>
+  Thanks are due to Lloyd Anderson, who helped me keep some of my estimates honest,
+  and to Karl Taube, who kindly gave his permission to use the drawing of
+  the Plumed Serpent (other drawings are my own).
+  I would also like to acknowledge the assistance of Jeremy Hylton
+  and Audrey Thompson, who suggested many improvements.
+
+  <li> <a href="#baktun" name="fn2">Bak'tun:</a>  While the other terms shown in the table are attested
+  to and used by Mayans, <i>bak'tun</i> seems to be an invention of Mayanists rather than Mayans.  Recent
+  advances in translation have shown that the glyph for the 144,000-day period should most probably
+  be translated as <i>pi</i> or <i>pih</i>, a term meaning ``bundle.''  None of the terms
+  for periods greater than 144,000 days (of which there are many) are attested.
+  They should be recognized for what they
+  are:  terms invented for the convenience of Western anthropologists, archaeologists and epigraphers.
+  See any of the recent <i>Workbooks</i> by Linda Schele for a detailed discussion.
+
+  <li> <a href="#epact" name="fn3">Epacts</a> are tables used in the calculation of Easter
+  in the Gregorian calendar.
+  The rules for the use of the tables are fiendishly difficult; even Karl Friedrich Gauss
+  (1777-1855), one of the greatest mathematicions who ever lived,
+  was not able to produce an algorithm for the determination of Easter that
+  was accurate past the year 4200 (later mathematicians have done so, however).
+
+  <li> <a href="#coba" name="fn4">Coba</a> is a ruin in northeastern Yucatan, near Tulum, sixty miles or so from
+  Chich&eacute;n Itza; during Classic times, it was the largest city in the area (Hunter, 1986).
+
+  <li> <a href="#lots" name="fn5">While 8000</a> possibilities might seem like a fairly
+  large list to go through,
+  the process finishes in acceptable time even on my 100MHZ home Unix system.
+  Limiting users to less than 8000 LC and 949 CR possibilities still allows for an <i>extremely</i>
+  wide range of possible candidates for the date(s) in question; users requiring longer lists
+  can request them in two or more steps.
+
+  <li> <a href="#detail" name="fn6">Details:</a>  It turns out that the 819-day cycle is much actually much larger than
+  819 days.  The complete length of the cycle when you look at all the factors is 1,195,740 days, or around 3273 years
+  (Van Laningham, forthcoming).
+  When this is combined with the Long Count, Calendar Round and Lord of the Night cycle, the repetition frequency
+  of any given date is this very, very large number.  In Mayan representation, this means that:
+  <pre>
+    <b>0.0.0.0.0  4 'Ahaw  8 Kumk'u G9  CR = 7283 819 = 3</b>
+    <br>is the same as<br>
+    <b>13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.\
+    13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.\
+    13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.13.\
+    0.0.0.0.0  4 'Ahaw  8 Kumk'u G9  CR = 7283 819 = 3</b>
+  </pre>
+  (there are 72 13s).
+  That is, dates where 5 places of the Long Count are zero, the Calendar Round position
+  is 7283, the Lord of the Night is G9 and the 819-day position is three take a long,
+  <i>long</i> time to repeat.
+</ol>
+<h3>9  References</h3>
+<p>
+<ul>
+  <li> Carlson, John B.
+  <a href="http://www.pauahtun.org/carlson_table.html">``Numerology and the Astronomy of the Maya.''</a>
+  In <i>Archaeoastronomy in the Americas</i>,
+  edited by Ray A. Williamson (pp. 205-214).
+  College Park, MD:  Center for Archaeoastronomy, 1981.
+
+  <li> Culbert, T. Patrick, ed.
+  <i>Classic Maya Political History:
+  Hieroglyphic and Archaeological Evidence</i>.
+  Cambridge:  Cambridge University Press, 1991.
+
+  <li> Edmonson, Munro S.
+  <i>The Book of the Year:
+  Middle American Calendrical Systems</i>.
+  Salt Lake City: University of Utah Press, 1988.
+
+  <li> Hunter, C. Bruce.
+  <i>A Guide to Ancient Maya Ruins</i>,
+  Second edition.
+  Norman:  University of Oklahoma, 1986 [first edition 1974].
+
+  <li> Justeson, John S.
+  ``Ancient Maya Ethnoastronomy:
+  An Overview of Hieroglyphic Sources.''
+  In <i>World Archaeoastronomy</i>,
+  edited by A. F. Aveni (pp. 76-129).
+  Cambridge: University of Cambridge Press, 1989.
+
+  <li> Knuth, Donald E.
+  <i>The Art of Computer Programming</i>, Volume 1,
+  <i>Fundamental Algorithms</i>, Third Edition.
+  Reading, MA:  Addison-Wesley, 1997.
+
+  <li> Knuth, Donald E.
+  <i>The Art of Computer Programming</i>, Volume 2,
+  <i>Seminumerical Algorithms</i>, Third Edition.
+  Reading, MA:  Addison-Wesley, 1998.
+
+  <li> Lounsbury, F. G.
+  ``Formulae for Maya Calendrical Computations.''
+  Austin, TX: Kinko's, n.d.  Maya File 124.
+
+  <li> Lounsbury, Floyd G.
+  ``Maya Numeration, Computation, and Calendrical Astronomy.''
+  In <i>Dictionary of Scientific Biography</i>,
+  Vol. 15, Supplement 1,
+  edited by Charles Coulston Gillespie.
+  New York:  Scribners, 1978.  Maya File 316e.
+
+  <li> Lutz, Mark.
+  <cite>Programming Python</cite>.
+  Sebastopol, CA:
+  O'Reilly &amp; Associates, Inc., 1996.
+
+  <li> Schele, Linda and David Freidel.
+  <i>A Forest of Kings:
+  The Untold Story of the Ancient Maya</i>,
+  New York:
+  William Morrow, 1990.
+
+  <li> Schele, Linda.
+  <i>Workbook for XVIth Maya Hieroglyphic Workshop at Texas:
+  Origins</i>.
+  Austin, TX:
+  Department of Art and Art History and The Institute of Latin
+  American Studies, University of Texas, 1992.
+
+  <li> Schele, Linda, Nikolai Grube and Simon Martin.
+  <i>Notebook for the XXIIst Maya Hieroglyphic Forum:
+  Deciphering Maya Politics</i>.
+  Austin, TX:
+  Department of Art and Art History, The College of Fine Arts,
+  and The Institute of the Latin American Studies,
+  University of Texas, 1998.
+
+  <li> Schele, Linda and Peter Mathews.
+  <i>The Code of Kings:
+  The Language of Seven Sacred Maya Temples and Tombs</i>.
+  New York:  Scribners, 1998.
+
+  <li> Taube, Karl Andreas.
+  <i>The Major Gods of Ancient Yucatan</i>
+  (Studies in Pre-Columbian Art &amp; Archaeology Number Thirty-Two).
+  Washington, DC:
+  Dumbarton Oaks Research Library and Collection, 1992.
+  
+  <li> Tedlock, Dennis.
+  <i>Popol Vuh:
+  The Definitive Edition of the Mayan Book of the Dawn
+  of Life and the Glories of Gods and Kings</i>,
+  Revised and Expanded.
+  New York:
+  Simon and Schuster, 1996.
+
+  <li> Thompson, J. Eric.
+  ``Maya Chronology:  Glyph G of the Lunar Series.''
+  <i>American Anthropologist</i> n. s., 31,
+  1929:  223-31.
+
+  <li> Thompson, J. Eric.
+  ``Maya Chronology:  The Correlation Question.''
+  <i>Contributions to American Archaeology</i>,
+  Volume III, Nos. 13-19; No. 14 (pp. 51-104).
+  Washington, DC:
+  Carnegie Institution of Washington, 1937.
+
+  <li> Thompson, J. Eric S.
+  ``Maya Arithmetic.''
+  <i>Contributions to American Archaeology</i>, Volume VII, No. 36 (pp. 34-67).
+  Washington, DC:
+  Carnegie Institution of Washington, 1941.
+
+  <LI> Thompson, J. Eric S.
+  ``Maya Epigraphy:  A Cycle of 819 Days.''
+  <i>Notes on Middle American Archaeology and Ethnology</i> No. 22,
+  October 30, 1943.
+
+  <li> Thompson, J. Eric S.
+  <i>Maya Hieroglyphic Writing:  An Introduction</i>,
+  Third edition.
+  Norman:
+  University of Oklahoma Press, 1971.
+
+  <li> Van Laningham, Ivan.
+  ``Somewhere in Time:
+  New Mathematical Methods for the 819-Day Count.''
+  Forthcoming in <i>U Mut Maya VII</i>,
+  edited by Tom and Carolyn Jones.
+  Arcata, CA:
+  Humboldt State University Press.
+
+  <li> Watters, Aaron, Guido van Rossum and James Ahlstrom.
+  <cite>Internet Programming with Python</cite>.
+  New York:
+  MIS Press/Henry Holt, 1996.
+</ul>
+<p>
+The notation ``Maya File'' indicates that the paper so marked is available for
+a nominal fee at Kinko's, 2901-C Medical Arts Boulevard, Austin, TX (512-476-3242).
+<p>
+Those reading this paper in hardcopy may have difficulty clicking on the links.   These are:
+<ul>
+  <li>An Introduction to the Mayan Calendar: 
+  <a href="http://www.pauahtun.org/basic.html">http://www.pauahtun.org/basic.html</a>
+  <li>The Calendar Round:
+  <a href="http://www.pauahtun.org/calround.html">http://www.pauahtun.org/calround.html</a>
+  <li>The downloadable code: 
+  <a href="ftp://www.pauahtun.org/pub/mayalib.zip">ftp://www.pauahtun.org/pub/mayalib.zip</a>
+  <li>Numerology and the Astronomy of the Maya:
+  <a href="http://www.pauahtun.org/carlson_table.html">http://www.pauahtun.org/carlson_table.html</a>
+  <li>Interactive CR and LC Guessing program:
+  <a href="http://www.pauahtun.org/cgi-bin/possible.py">http://www.pauahtun.org/cgi-bin/possible.py</a>
+  <li>Other Python-powered cgi tools:
+  <a href="http://www.pauahtun.org/tools.html">http://www.pauahtun.org/tools.html</a>
+  <li>The home page for the site is:
+  <a href="http://www.pauahtun.org/Default.htm">http://www.pauahtun.org/Default.htm</a>
+</ul>
+<p align=center>
+<font size=2>Copyright &copy; 1998 Ivan Van Laningham<br>
+All rights reserved.
+</p>
+</body>
+
+<SCRIPT language="Javascript">
+<!--
+
+// FILE ARCHIVED ON 20010414043334 AND RETRIEVED FROM THE
+// INTERNET ARCHIVE ON 20060504134716.
+// JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+// ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+// SECTION 108(a)(3)).
+
+   var sWayBackCGI = "http://web.archive.org/web/20010414043334/";
+
+   function xLateUrl(aCollection, sProp) {
+      var i = 0;
+      for(i = 0; i < aCollection.length; i++)
+         if (aCollection[i][sProp].indexOf("mailto:") == -1 &&
+             aCollection[i][sProp].indexOf("javascript:") == -1)
+            aCollection[i][sProp] = sWayBackCGI + aCollection[i][sProp];
+   }
+
+   if (document.links)  xLateUrl(document.links, "href");
+   if (document.images) xLateUrl(document.images, "src");
+   if (document.embeds) xLateUrl(document.embeds, "src");
+
+   if (document.body && document.body.background)
+      document.body.background = sWayBackCGI + document.body.background;
+
+//-->
+
+</SCRIPT>
+</html>

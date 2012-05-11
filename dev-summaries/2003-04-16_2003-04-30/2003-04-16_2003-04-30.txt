@@ -1,0 +1,444 @@
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+python-dev Summary for 2003-04-16 through 2003-04-30
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+This is a summary of traffic on the `python-dev mailing list`_ from April 16, 2003 through April 30, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have an archived summary of each thread started on the list.  To comment on anything mentioned here, just post to python-list@python.org or `comp.lang.python`_ with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the sixteenth summary written by Brett Cannon (writing history the way I see fit  =).
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; its simple and is accepted for `PEP markup`__.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the original text file.
+
+__ http://www.python.org/peps/pep-0012.html
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+
+.. contents::
+
+
+.. _last summary: http://www.python.org/dev/summary/2003-04-01_2003-04-15.html
+
+======================
+Summary Announcements
+======================
+So no one responded to my question last time about whether anyone cared if I stopped linking to files in the Python CVS online through ViewCVS.  So silence equals what ever answer makes my life easier, so I won't link to files anymore.
+
+.. _ViewCVS: http://viewcvs.sf.net/
+
+==================
+`2.3b1 release`__
+==================
+__ http://mail.python.org/pipermail/python-dev/2003-April/034682.html
+
+Splinter threads:
+    - `Masks in getargs.c <http://mail.python.org/pipermail/python-dev/2003-April/034693.html>`__
+    - `CALL_ATTR patch <http://mail.python.org/pipermail/python-dev/2003-April/034712.html>`__
+    - `Built-in functions as methods <http://mail.python.org/pipermail/python-dev/2003-April/034749.html>`__
+    - `Tagging the tree <http://mail.python.org/pipermail/python-dev/2003-April/035069.html>`__
+    - `RELEASED: Python 2.3b1 <http://mail.python.org/pipermail/python-dev/2003-April/035093.html>`__
+
+Guido announced he wanted to get `Python 2.3b1`_ out the door by Friday, April 25 (which he did).  He also said if something urgently needed to get in before then to set the priority on the item to 7.
+
+The rules for betas is you can apply bug fixes (it is the point of the releases).  New unit tests can also be added as long as the entire regression testing suite passes with them in there; since this is a beta any bugs found should be patched along with adding the tests.
+
+This led to some patches to come up that some people would like to see get into b1.  One is Thomas Heller and his patch at http://www.python.org/sf/595026 which adds new argument masks for PyArg_ParseTuple().  Thomas' patch adds two new masks ('k' and 'K') and modifies some others so that their range checking (if they kept any) were more reasonable.
+
+This is when Jack Jansen chimed in saying that he didn't notice any mask that worked between 2.2 and 2.3 that converts 32 bit values without throwing a fit.  Basically the changes to the 'h' mask left all of the Mac modules broken.  The change was backed out, though, and the issue was solved.
+
+Martin v. Löwis wanted to get IDNA (International Domain Names in Applications) in (which he did).
+
+UnixWare was (and as of this writing still is) broken.  It's being worked on, though, by Tim Rice.
+
+The CALL_ATTR patch that Thomas Wouters and I worked on at PyCon came up.  We were trying to come up with an opcode to replace the common ``LOAD_ATTR; CALL_FUNCTION`` opcode pair that happens whenever you call a method.  The hope was to short-circuit the pushing on to the stack the method object since it gets popped off immediately by CALL_FUNCTION.  Initially the patch only worked for classic classes but Thomas has since cleaned it up and added support for new-style classes.
+
+To help out Thomas, Guido gave an overview of new-style classes and how descriptors work.  Basically a descriptor is what exists in a class' __dict__ and "primarily affects instance attribute lookup".  When the attribute lookup finds the descriptor it wants, it calls its __get__ method (tp_descrget slot for C types).  The lookup then "binds" this to the instance; this is what separates a bound method from a function since functions are also descriptors.  Properties are just descriptors whose __get__ calls whatever you passed for the fget argument.  Class attribute lookup also calls __get__ but the instance attribute is made None (or NULL for C code).  __set__ is called on a descriptor for instance attribute assignment but not for class attribute assignment.
+
+Guido clarified this later somewhat by the example having a descriptor f that when ``f.__get__(obj)`` is called it returns a function g which acts like a curried function (read the Python Cookbook if you don't know what currying_ is).  Now when you call ``g(arg1, ...)`` you are basically doing ``f(obj, arg1, ...)``; so this all turns into ``f.__get__(obj)(arg1, ...)``.
+
+The problem with the CALL_ATTR patch is that there is turning out to be zero benefit from it beyond from having a nicer opcode for a common operation when the code for working with new-style classes in the code.  This could be from cache misses because of the increased size of the interpreter loop or just too many branches to possibly take.  As of now the patch is still on SF and has not been applied.
+
+.. _Python 2.3b1: http://www.python.org/2.3/
+.. _currying: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52549
+
+
+
+=========================
+`Super and properties`__
+=========================
+__ http://mail.python.org/pipermail/python-dev/2003-April/034338.html
+
+This thread was initially covered in the `last summary`_.
+
+Guido ended up explaining why super() does not work for properties.  super() does not stop on the first hit of finding something when that "something" is a data descriptor; it ignores it and just keeps on looking.  Now super() does this so that it doesn't end up looking like something it isn't.  Think of the case of __class__; if it returned what object's __class__ returned it would cause super to look like something it isn't.  Guido figured people wouldn't want to override data descriptors anyway, so this made sense.
+
+But now there is a use case for this, so Guido is changing this for Python 2.3 so that data descriptors are properly hit in the inheritance chain by super().
+
+
+======================
+`Final PEP 311 run`__
+======================
+__ http://mail.python.org/pipermail/python-dev/2003-April/034705.html
+
+Mark Hammond's `PEP 311`_ has now been implemented!  What Mark has done is implement two functions in C; PyGILState_Ensure() and PyGILState_Restore().  Call the first one to get control of the GIL, without having to know its current state, to allow you to use the Python API safely.  The second releases the GIL when you are done making calls out to Python.  This is a much simpler interface than what was previously needed when you did not need a very fancy threading interface with Python and just needed to hold the GIL.
+
+As always, read the PEP to get the full details.
+
+.. _PEP 311: http://www.python.org/peps/pep-0311.html
+
+================================================
+`summing a bunch of numbers (or "whatevers")`__
+================================================
+__ http://mail.python.org/pipermail/python-dev/2003-April/034767.html
+
+Splinter threads:
+    - `stats.py <http://mail.python.org/pipermail/python-dev/2003-April/034840.html>`__
+    - `''.join() again <http://mail.python.org/pipermail/python-dev/2003-April/034857.html>`__
+
+How would use sum a list of numbers?  Traditionally there have been two answers.  One is to use the operator module and 'reduce' in the idiomatic ``reduce(operator.add, list_of_numbers)``.  The other is to do a simple loop::
+
+  running_sum = 0
+  for num in iterable_producing_numbers:
+      running_sum += num
+
+Common complaints against the 'reduce' solution are that is just is ugly.  People don't like the loop solution because it is long for such a simple operation.  And a knock against both is that new users of Python do not necessarily think of either solution initially.  So, what to do?
+
+Well, Alex Martelli to the rescue.  Alex proposed adding a new built-in, 'sum', that would take a list of numbers and return the sum of those numbers.  Originally Alex also wanted to special-case the handling of a list of strings so as to prevent having to tell new Python programmers that ``"".join(list_of_strings)`` is the best way to concatenate a bunch of strings and that looping over them is *really* bad (the amount of I/O done in the loop kills performance).  But this special-casing was shot down because it seemed rather magical and can still be taught to beginners easily enough ('reduce' tends to require an understanding of functional programming).
+
+But the function still got added for numbers.  So, as of Python 2.3b1, there is a built-in named 'sum' that has the parameter list "sum(iterable_producing_numbers [, start=0]) -> sum of the numbers given by iterable_producing_numbers".  The 'start' parameter allows you to specify an initial value.  And since this is a function with a very specific use it is the fastest way you can sum a list of numbers.
+
+The question of adding a statistics module came up during this discussion.  The thought was presented to come up with a good, basic stats module to have in the stdlib.    The arguments against this is that there are already several good stats modules out there so why bother with including one with Python?  It would cause some overshadowing of any 3rd-party stats modules.  Eventually the "nays" had it and the idea was dropped.
+
+And for all his work Alex got CVS commit privileges.  Python, the gift that keeps on giving you more responsibility.  =)
+
+===================================
+`When is it okay to cvs remove?`__
+===================================
+__ http://mail.python.org/pipermail/python-dev/2003-April/035011.html
+
+Related threads:
+    - `Rules of a beta release? <http://mail.python.org/pipermail/python-dev/2003-April/035092.html>`__
+
+Being probably the most inexperienced person with CVS commit privileges on Python, I am continuing with my newbie questions in terms of applying patches to the CVS tree (and since I control the Summary I am going to document the answers I get here so I don't have to write them down somewhere else  =).  This time I asked about when it was appropriate to use ``cvs remove``, specifically if it was reasonable if a file was completely rewritten. 
+
+The answer was to not bother with it unless you are actually removing the file forever; don't bother if you are just rewriting the file.  Also, don't bother with changing the version number when doing a complete rewrite; just make sure to mention in the CVS commit message that it is a rewrite.
+
+I also learned that the basic guideline to follow in terms of whether a patch should be put up on SF_ or just committed directly is that if you are unsure about the usefulness or correctness then you should post it on SF.  But if you don't think there is anyone who can answer it on SF it will just languish there for eternity.
+
+Also learned the rules of a beta release.  Basically no changes that would cause someone's code to not work the same way as when the beta was released can be checked in.  New tests are okay, though.
+
+.. _SF: http://www.sf.net/
+
+=========
+Quickies
+=========
+`3-way result of PyObject_IsTrue() considered PITA`__
+    Raymond Hettinger discovered that PyObject_IsTrue() promises that there is never an error from running the function, which is not how the function performs.  Raymond fixed the docs to match the code.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034658.html
+
+`Python dies upon printing UNICODE using UTF-8`__
+    Windows NT 4's support of UTF-8 is broken.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034666.html
+
+`shellwords`__
+    Gustavo Niemeyer asked if there was any chance of getting shellwords_ into the stdlib so as to be able to have POSIX command line word parsing.  The basic response was that shlex_ should be enhanced to do what Gustavo wanted.  He has since written `patch #722686`_ that implements the features he wanted.  It was also discovered that distutils.util.split_quoted comes close.  If someone wants to document Distutils utilities it would be greatly appreciated.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034670.html
+.. _shellwords: http://www.crazy-compilers.com/py-lib/shellwords.html
+.. _shlex: http://www.python.org/dev/doc/devel/lib/module-shlex.html
+.. _patch #722686: http://www.python.org/sf/722686
+
+`Changes to gettext.py for Python 2.3`__
+    This thread was originally covered in the `last summary`_.  Barry Warsaw and Martin v. Löwis discussed the gettext_ and whether there should be a way to coerce strings to other encodings.  They ended up agreeing on defaulting on Unicode for storing the strings and having .gettext() coerce to an 8-bit string while .ugettext() returns the original Unicode string.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034511.html
+.. _gettext: http://www.python.org/dev/doc/devel/lib/module-gettext.html
+
+`Stackless 3.0 alpha 1 at blinding speed`__
+    Christian Tismer has done it again; he improved Stackless_ and now has managed to have merged the abilities of Stackless 1 with 2 which has led to 3a.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034708.html
+.. _Stackless: http://www.stackless.com
+
+`Build errors under RH9`__
+    Python was not building under Red Hat 9, but Martin v. Löwis checked in a fix.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034724.html
+
+`Wrappers and keywords`__
+    Matt LeBlanc asked why there wasn't a nice syntax for doing properties staticmethods and classmethods.  The answer is that it was felt it was more important to get the ability to use those new descriptors out there instead of letting a syntax debate hold them up.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034715.html
+
+`Startup overhead due to codec usage`__
+    MA Lemburg and Martin v. Löwis discussed startup time taken up by seeing what encoding is used by the local filesystem.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034742.html
+
+`test_pwd failing`__
+    Initially covered in the `last summary`_.  test_grp was failing for the same reasons test_pwd was failing.  It has been fixed.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034626.html
+
+`Evil setattr hack`__
+    Someone found a way to set an attribute on a type which is a no-no.  The lesson learned here was don't mess with an instance's __dict__ directly; we will let you but if you get burned its your own fault.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034633.html
+
+`heapq`__
+    Splinter threads:
+      - `FIFO data structure? <http://mail.python.org/pipermail/python-dev/2003-April/034790.html>`__
+      - `heaps <http://mail.python.org/pipermail/python-dev/2003-April/035004.html>`__
+
+    The idea of turning the heapq_ module into a class came up, and later led to the idea of having a more proper FIFO (First In, First Out) data structure.  Both ideas were shot down.  The reason for this was that the stdlib does not need to try to grow every single possible data structure in programming.  Guido's design philosophy is to have a few very powerful data structures that other ones can be built off of.  This is why the bisect_ and heapq modules just work on standard lists instead of defining a new class.  Queue_ is an exception, but it is designed to mediate messages between threads instead of being a general implementation of a queue.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034768.html
+.. _heapq: http://www.python.org/dev/doc/devel/lib/module-heapq.html
+.. _bisect: http://www.python.org/dev/doc/devel/lib/module-bisect.html
+.. _Queue: http://www.python.org/dev/doc/devel/lib/module-Queue.html
+
+`New re failures on Windows`__
+    Splinter threads:
+      - `sre vs gcc <http://mail.python.org/pipermail/python-dev/2003-April/034895.html>`__
+
+    The re_ module was failing after some changes were made to it.  The pain of it all was that it was failing only on certain platforms running gcc_.  Initial attempts were to make it "just work", but then it was stressed that it is more important to find the offending C code and figure out why gcc on certain platforms was compiling bad assembly.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034776.html
+.. _re: http://www.python.org/dev/doc/devel/lib/module-re.html
+.. _gcc: http://gcc.gnu.org/
+
+`os.path.walk() lacks 'depth first' option`__
+    Someone requested that os.path.walk support breadth-first walking (yes, the title of the thread is wrong).  The request was deemed not important enough to bother implementing, but Tim Peters did implement a new function named os.walk that is a much improved replacement for os.path.walk and lets you control which direction the traversl goes (top-down or bottom-up).
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034792.html
+
+`Weekly Python Bug/Patch Summary`__
+    Skip Montanaro's weekly reminder that there is work to be done!  Summary for week 2 can be found `here <http://mail.python.org/pipermail/python-dev/2003-April/035125.html>`__.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034797.html
+
+`Hook Extension Module Import?`__
+    Want to do something that requires a special import hook in C?  Then override the __import__ built-in with what you need.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034804.html
+
+`Bug/feature/patch policy for optparse.py`__
+    Greg Ward asked if it would be okay to keep the official version of optparse_ at http://optik.sf.net/ (Optik is the project name for optparse).  Guido said sure.  The justification for this is that Greg wants Optik to be available to people for use in earlier versions of Python.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034833.html
+.. _optparse: http://www.python.org/dev/doc/devel/lib/module-optparse.html
+
+`LynxOS4 dynamic loading with dlopen() and -ldl`__
+    LynxOS4 does not like dynamic linking.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034878.html
+
+`Embedded python on Win2K, import failures`__
+    I don't like Windows.  And no, this has nothing to do with this single email that is a short continuation of one covered in the `last summary`_.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034506.html
+
+`New thread death in test_bsddb3`__
+    After Mark Hammond's new thread code got checked in the bsddb module broke.  Mark went in, though, and using the wonders that is the C preprocessor and NEW_PYGILSTATE_API_EXISTS, Mark fixed the code to use the new PyGILState API as covered in `PEP 311`_ when possible and to use the old solution when needed.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034901.html
+
+`Magic number needs upgrade`__
+    Guido noticed that the PYC magic number needed to be incremented to handle Raymond Hettinger's new bytecode optimizations.  But then Guido questioned the need of Raymond's changes.  Basically Raymond's changes didn't speed anything up but cleaned up the emitted bytecode.  Guido didn't like the idea of adding more code without an actual speed improvement.  Since neither this code nor any of the other proposed speedup changes (CALL_ATTR and caching attribute lookup results) are panning out, Guido questioned why Raymond's should get in.  Guido suggested rewriting the interpreter from scratch since all new changes seem to be breaking some delicate balance that has developed in it.  He also thought putting effort into other things like pysco_.  Eventually Raymond's changes were backed out.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034905.html
+.. _pysco: http://psyco.sf.net/
+
+`draft PEP: Trace and Profile Support for Threads`__
+    Jeremy Hylton has a draft PEP on how to add hooks for profile and trace code in threads.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034909.html
+
+`Data Descriptors on module objects`__
+    Never going to happen.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035025.html
+
+`Metatype conflict among bases?`__
+    "The metaclass [of a class] must be a subclass of the metaclass of all the bases" of that class.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034910.html
+
+`okay to beef up tests on the maintenance branch?`__
+    Answer: yes!
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034939.html
+
+`Cryptographic stuff for 2.3`__
+    AM Kuchling wanted to add an implementation of the AES_ encryption algorithm to the stdlib.  After a long discussion the idea was shot down because having crypto that strong in the stdlib would cause export issues for Python.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034957.html
+.. _AES: http://csrc.nist.gov/encryption/aes/
+
+`vacation`__
+    Neal Norwitz is on vacation from April 26 till May 6.  He pointed out some nagging errors coming up from the `Snake Farm`_ that could use some working on.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034942.html
+.. _Snake Farm: http://www.lysator.liu.se/xenofarm/python/latest.html
+
+`test_getargs2 failures`__
+    Not anymore.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034944.html
+
+`Democracy`__
+    Guido pointed out a paper on democracy (in the ancient Athenian sense) and the organization of groups at http://www.acm.org/ubiquity/interviews/b_manville_1.html that was interesting.  Sparked some discussion on proper comparisons to open source projects and such.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034946.html
+
+`Updating PEP 246 for type/class unification, 2.2+, etc.`__
+    Phillip Eby proposed some changes to `PEP 246`_.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034955.html
+.. _PEP 246: http://www.python.org/peps/pep-0246.html
+
+`why is test_socketserver in expected skips?`__
+    Skip Montanaro noticed that socketserver was listed as an expected test to be skipped on all platforms sans os2emx even though it works on all platforms with networking (basically all of them).  So it was removed from the expected skip list.  Skip also tweaked test_support.requires to always pass when the caller is __main__.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034973.html
+
+`netrc.py`__
+    Bram Moolenaar, author of the `greatest editor in the world`_ and AAP_, requested a changed to netrc_ that got implemented.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034983.html
+.. _greatest editor in the world: http://www.vim.org/
+.. _AAP: http://www.a-a-p.org/
+.. _netrc: http://www.python.org/dev/doc/devel/lib/module-netrc.html
+
+`PyRun_* functions`__
+    They take FILE* arguments and it is going to stay that way.  Just make sure the files are opened with the same library as being built against.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034990.html
+
+`Python Developers`__
+    Related threads:
+      - `Getting mouse position interms of canvas unit. <http://mail.python.org/pipermail/python-dev/2003-April/035149.html>`__
+      - `2.3b1, and object() <http://mail.python.org/pipermail/python-dev/2003-April/035210.html>`__
+
+    Posted to the wrong email list.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/034969.html
+
+`New test failure on Windows`__
+    re_ was failing but got fixed.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035009.html
+
+`More new Windos test failures`__
+    Just before `Python 2.3b1`_ got pushed out the door, some last-minute test failures cropped up (some of them were my fault).  But they got fixed.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035047.html
+
+`should sre.Scanner be exposed through re and documented?`__
+    re.Scanner shall remain undocumented.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035066.html
+
+`LynxOS4 port: need pre-ncurses curses!`__
+    The LynxOS is hoping curses will go away.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035052.html
+
+`test_s?re merge`__
+    test_re and test_sre have been merged and moved over to unittest_ thanks to Skip Montanaro.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035067.html
+.. _unittest: http://www.python.org/dev/doc/devel/lib/module-unittest.html
+
+`test_ossaudiodev hanging again`__
+    Some people are still having issues with ossaudiodev tests hanging.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035056.html
+
+`bz2 module fails to compile on Solaris 8`__
+    The joys of being cross-platform.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035068.html
+
+`test_logging hangs on Solaris 8`__
+    Splinter threads:
+      - `test_logging hangs on OS X <http://mail.python.org/pipermail/python-dev/2003-April/035135.html>`__
+      - `test_logging hangs on Solaris 8 (and 9) <http://mail.python.org/pipermail/python-dev/2003-April/035100.html>`__
+
+    The joys of threading and trying to avoid deadlock.  A fix has been checked in that seems to fix this on OS X; don't know about Solaris yet.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035065.html
+
+`Python 2.3b1 documentation`__
+    Fred L. Drake, Jr. posted the documentation for Python 2.3b1.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035064.html
+
+`Accepted PEPs?`__
+    Splinter threads:
+      - `Reminder to PEP authors <http://mail.python.org/pipermail/python-dev/2003-April/035109.html>`__
+      - `proposed amendments to PEP 1 <http://mail.python.org/pipermail/python-dev/2003-April/035161.html>`__
+
+    The status of some PEPs got updated along with some proposed changes to `PEP 1`_.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035104.html
+.. _PEP 1: http://www.python.org/peps/pep-0001.html
+
+`Problems w/ Python 2.2-maint and Redhat 9`__
+    Dealing with some issues of Python 2.2-maint and linking against a dbm.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035120.html
+
+`Why doesn't the uu module give you the filename?`__
+     Someone wanted the uu_ module to let you know what the name of the encoded file is.  Was told to post a patch.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035129.html
+.. _uu: http://www.python.org/dev/doc/devel/lib/module-uu.html
+
+`Antigen found CorruptedCompressedUuencodeFile virus`__
+    The joys of having to watch out for viruses in emails and get false positives.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035130.html
+
+`Python 2.3b1 has 20% slower networking?`__
+    Splinter threads:
+      - `Python-Dev digest, Vol 1 #3221 - 4 msgs <http://mail.python.org/pipermail/python-dev/2003-April/035153.html>`__
+
+    Networking throughput did not have as high of a max when in a loop as before.  Has been fixed, though.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035132.html
+
+`cvs socketmodule.c and IPV6 disabled`__
+    Discovered some code that couldn't compile because a test for a specific C function was not specific enough.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035146.html
+
+`Introduction :)`__
+    Someone else with the first name of Brett introduced themselves to the list (Brett Kelly).  You can tell us apart because I am taller.  =)
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035162.html
+
+`Dictionary tuning`__
+    Splinter threads:
+      - `Dictionary tuning upto 100,000 entries <http://mail.python.org/pipermail/python-dev/2003-April/035194.html>`__
+
+    Raymond Hettinger did a bunch of attempted tuning of dictionary accesses and came up with one solution that managed to be beneficial for large dictionaries and not detrimental for small ones.  He basically just caused dictionary sizes to grow by a factor of 4 instead of 2 so as to lower the number of collisions.  The objection that came up was that some dictionaries would be larger than they were previously.  It looks like it would be applied, but Raymond's notes on everything will most likely end up as a text file in Python.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035151.html
+
+`Thoughts on -O`__
+    It was suggested to change what the -O and -OO command-line switches did since at this moment they don't do much (Guido has even suggested eliminating -O).  But the discussion has been partially put on hold until development for Python 2.4 starts.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035165.html
+
+`Initialization hook for extenders`__
+    It has been suggested to add a Py_AtInit() hook to Python to be symmetric with Py_AtExit().  The debate over this is still going.
+
+.. __: http://mail.python.org/pipermail/python-dev/2003-April/035226.html

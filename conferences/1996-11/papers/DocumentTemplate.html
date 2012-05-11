@@ -1,0 +1,815 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>Using Document Template</TITLE>
+   <META NAME="Author" CONTENT="Digital Creations - Scott Cropper">
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.0Gold (WinNT; I) [Netscape]">
+   <META NAME="Description" CONTENT="Document Template Python Module Description and Use Paper.">
+</HEAD>
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000EE" VLINK="#551A8B" ALINK="#FF0000">
+
+<CENTER><P><B><FONT SIZE=+3>DocumentTemplate</FONT></B></P></CENTER>
+
+<CENTER><P><A HREF="mailto:scott.cropper@digicool.com">Scott Cropper</A></P></CENTER>
+
+<CENTER><P><A HREF="http://www.digicool.com">Digital Creations, L.C.<BR>
+</A>910 Princess Anne Street Suite 300<BR>
+Fredericksburg, VA 22401</P></CENTER>
+
+<P><B><FONT SIZE=+2>Abstract</FONT></B></P>
+
+<UL>
+<P>Many Web based applications must provide the capability for customers
+to be able to edit the look and feel of the application's Web pages. Futhermore,
+our experience has been that mixing Python and Hypertext Markup Language
+(HTML) together makes both less readable. We have developed a Python module
+named DocumentTemplate that allows documents to be created with embedded
+markup that causes data from Python objects to be inserted into documents
+when they are output from an application. The data insertion goes beyond
+simple insertion of data with C-language formats to include:</P>
+
+<UL>
+<LI>Insertion of data with application-defined formats, such as date-time
+formats,</LI>
+
+<LI>Automatic evaluation of python functions and methods,</LI>
+
+<LI>Nested documented templates, </LI>
+
+<LI>Conditional insertion,</LI>
+
+<LI>Iterative insertion, by iterating over python sequences, including
+support for browse by batch, and</LI>
+
+<LI>Automatic computation of summary statistics when iterating over sequences.</LI>
+</UL>
+
+<P>Two source formats are supported: extended Python format strings, and
+HTML with markup that uses server-side-include syntax. HTML document templates
+provide a web interface that supports through-the-web editing and management
+of document source. </P>
+</UL>
+
+<P><B><FONT SIZE=+2>Background</FONT></B></P>
+
+<UL>
+<P>To make programmatically-created HTML pages easily editable, Digital
+Creations needed a way to separate them from the code. This would also
+allow users who are unfamiliar with Python to edit the page headers, footers
+and layout without compromising the reliability of the software.</P>
+
+<P>Our first solution was called pyHTML which basically was a custom tag
+embedded into an HTML document that was read into a Python script, parsed
+and then sent to the user with all expressions evaluated. Initially pyHTML
+did the things we wanted it to, but after some use we found it had some
+security and standard compatibility problems. pyHTML allowed the evalution
+of arbitrary Python expressions and access to any variable in the present
+name space. These posed serious security problems that could allow the
+creation of malicious pyHTML that could execute functions from the os module
+and/or output values the programmer didn't intend to be displayed. Furthermore,
+pyHTML did not follow any HTML or Python guidelines and therefore, for
+lack of a better term, was ugly.</P>
+
+<P>DocumentTemplate was designed to have the functionality we wanted but
+to solve the security and compatibility problems of pyHTML. DocumentTemplate
+will not allow arbitrary Python expressions to be evaluated or executed
+and only variables passed to the template by the programmer can be displayed.
+The syntax is also much easier to understand and blends into HTML better
+than the previous solution. </P>
+</UL>
+
+<P><B><FONT SIZE=+2>Benefits</FONT></B></P>
+
+<UL>
+<P>The following are a few reasons to use DocumentTemplate:</P>
+
+<UL>
+<LI>Easily allows programmer to use HTML inside or separate from code.</LI>
+
+<LI>It provides methods for custom data formatting, conditional insertion
+and sequence insertion.</LI>
+</UL>
+</UL>
+
+<P><B><FONT SIZE=+2>Example</FONT></B></P>
+
+<UL>
+<P>Here is a small example using DocumentTemplate:</P>
+
+<UL>
+<P><TT><FONT SIZE=-1>form = DocumentTemplate.HTML(</FONT></TT></P>
+
+<UL>
+<P><TT><FONT SIZE=-1>'&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;Title&lt;/TITLE&gt;&lt;/HEAD&gt;\n'</FONT></TT></P>
+
+<P><TT><FONT SIZE=-1>'&lt;BODY&gt;\n'</FONT></TT></P>
+
+<P><TT><FONT SIZE=-1>'&lt;!--#var Param1--&gt; &lt;!--#var Param2--&gt;\n'</FONT></TT></P>
+
+<P><TT><FONT SIZE=-1>'&lt;/BODY&gt;&lt;/HTML')</FONT></TT></P>
+</UL>
+
+<P><TT><FONT SIZE=-1>Param1 = &quot;Spam&quot;</FONT></TT></P>
+
+<P><TT><FONT SIZE=-1>Param2 = &quot;is good for you.&quot;</FONT></TT></P>
+
+<P><TT><FONT SIZE=-1>return form(Param1=Param1,Param2=Param2)</FONT></TT></P>
+</UL>
+
+<P>The user will receive:</P>
+
+<UL>
+<P><TT><FONT SIZE=-1>&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;Title&lt;/TITLE&gt;&lt;/HEAD&gt;</FONT></TT></P>
+
+<P><TT><FONT SIZE=-1>&lt;BODY&gt;</FONT></TT></P>
+
+<P><TT><FONT SIZE=-1>Spam is good for you.</FONT></TT></P>
+
+<P><TT><FONT SIZE=-1>&lt;/BODY&gt;</FONT></TT></P>
+
+<P><TT><FONT SIZE=-1>&lt;/HTML&gt;</FONT></TT></P>
+<TT><FONT SIZE=-1></FONT></TT></UL>
+</UL>
+
+<P><B><FONT SIZE=+2>Features</FONT></B></P>
+
+<P>DocumentTemplate provides for creation of textual documents, such as
+HTML pages, from template source by inserting data from Python objects
+and name-spaces. DocumentTemplate is especially useful when it is desirable
+to separate template text from Python program source. For example, HTML
+templates may be edited by people who know HTML but don't know Python,
+while associated Python code may be edited by people who know Python but
+not HTML.</P>
+
+<P>When a document template is created, a collection of default values
+to be inserted may be specified with a mapping object and with keyword
+arguments.</P>
+
+<P>DocumentTemplate may be called to create a document with values inserted.
+When called, an instance, a mapping object, and keyword arguments may be
+specified to provide values to be inserted. If an instance is provided,
+the document template will try to look up values in the instance using
+getattr, so inheritence of values is supported. If an inserted value is
+a function, method, or class, then an attempt will be made to call the
+object to obtain values. This allows instance methods to be included in
+documents.</P>
+
+<P>DocumentTemplates masquerade as functions, so the <A HREF="PythonObjectPublisher.html">Python
+Object Publisher</A> (Bobo) will call templates that are stored as instances
+of published objects. Bobo will pass the object the template was found
+in and the HTTP request object.</P>
+
+<DL>
+<P><B>Two source formats are supported:</B></P>
+
+<DL>
+<P><B>Extended Python format strings (EPFS)</B></P>
+
+<DL>
+<P>This format is based on the insertion by name format strings of Python
+with additional format characters, <TT>[</TT> and <TT>]</TT> to indicate
+block boundaries. In addition, parameters may be used within formats to
+control how insertion is done.</P>
+
+<P>For example:</P>
+
+<DL>
+<P><TT>%(date fmt=DayOfWeek upper)s </TT></P>
+</DL>
+
+<P>causes the contents of variable <TT>date</TT> to be inserted using custom
+format <TT>DayOfWeek</TT> and with all lower case letters converted to
+upper case.</P>
+</DL>
+
+<P><B>HTML</B></P>
+
+<DL>
+<P>This format uses HTML server-side-include syntax with commands for inserting
+text. Parameters may be included to customize the operation of a command.</P>
+
+<P>For example:</P>
+
+<DL>
+<P><TT>&lt;!--#var total fmt=12.2f--&gt; </TT></P>
+</DL>
+
+<P>is used to insert the variable <TT>total</TT> with the C format <TT>12.2f</TT>.
+</P>
+</DL>
+</DL>
+
+<P><B>Variable insertion parameters:</B></P>
+
+<P>When inserting variables, parameters may be specified to control how
+the data will be formatted. In HTML source, the <TT>fmt</TT> parameter
+is used to specify a C-style or custom format to be used when inserting
+an object. In EPFS source, the <TT>fmt</TT> parameter is only used for
+custom formats, a C-style format is specified after the closing parenthesis.</P>
+
+<DL>
+<P><B>Custom formats</B></P>
+
+<DL>
+<P>A custom format is used when outputting user-defined objects. The value
+of a custom format is a method name to be invoked on the object being inserted.
+The method should return an object that, when converted to a string, yields
+the desired text. For example, the HTML source:</P>
+
+<DL>
+<P><TT>&lt;!--#var date fmt=DayOfWeek--&gt; </TT></P>
+</DL>
+
+<P>Inserts the result of calling the method <TT>DayOfWeek</TT> of the object
+bound to the variable <TT>date</TT>, with no arguments.</P>
+
+<P>In addition to object methods, serveral additional custom formats are
+available:</P>
+
+<DL>
+<P>html-quote</P>
+
+<DL>
+<P>Convert characters that have special meaning in HTML to HTML character
+entities. </P>
+</DL>
+
+<P>url-quote</P>
+
+<DL>
+<P>Convert characters that have special meaning in URLS to HTML character
+entities using decimal values. </P>
+</DL>
+
+<P>multi-line</P>
+
+<DL>
+<P>Convert newlines and carriage-return and newline combinations to break
+tags.</P>
+</DL>
+
+<P>whole-dollars</P>
+
+<DL>
+<P>Show a numeric value with a dollar symbol.</P>
+</DL>
+
+<P>dollar-with-commas</P>
+
+<DL>
+<P>Show a numeric value with a dollar symbol and commas showing thousands,
+millions, and so on.</P>
+</DL>
+
+<P>dollars-and-cents</P>
+
+<DL>
+<P>Show a numeric value with a dollar symbol and two decimal places.</P>
+</DL>
+
+<P>dollar-and-cents-with-commas</P>
+
+<DL>
+<P>Show a numeric value with a dollar symbol and two decimal places and
+commas showing thousands, millions, and so on.</P>
+</DL>
+</DL>
+
+<P>Note that when using the EPFS source format, both a C-style and a custom
+format may be provided. In this case, the C-Style format is applied to
+the result of calling the custom formatting method.</P>
+</DL>
+
+<P><B>Null values</B></P>
+
+<UL>
+<P>In some applications, and especially in database applications, data
+variables may alternate between &quot;good&quot; and &quot;null&quot; or
+&quot;missing&quot; values. A format that is used for good values may be
+inappropriate for null values. For this reason, the <TT>null</TT> parameter
+can be used to specify text to be used for null values. Null values are
+defined as values that:</P>
+
+<UL>
+<LI>Cannot be formatted with the specified format</LI>
+
+<LI>Are either the special Python value None or yield an empty string when
+converted to a string.</LI>
+</UL>
+
+<P>For example, when showing a monitary value retrieved from a database
+that is either a number or a missing value, the following variable insertion
+might be used:</P>
+
+<UL>
+<P><TT>&lt;!--#var cost fmt=&quot;$%.2d&quot; null='n/a'--&gt; </TT></P>
+</UL>
+</UL>
+
+<P><B>String manipulation</B></P>
+
+<DL>
+<P>The parameters <TT>lower</TT> and <TT>upper</TT> may be provided to
+cause the case of the inserted text to be changed.</P>
+
+<P>The parameter <TT>capitalize</TT> may be provided to cause the first
+character of the inserted value to be converted to upper case.</P>
+
+<P>The parameter <TT>spacify</TT> may be provided to cause underscores
+in the inserted value to be converted to spaces.</P>
+</DL>
+</DL>
+
+<P><B>DocumentTemplate supports conditional and sequence insertion</B></P>
+
+<P>DocumentTemplates extend Python string substitition rules with a mechanism
+that allows conditional insertion of template text and that allows sequences
+to be inserted with element-wise insertion of template text.</P>
+
+<DL>
+<P><B>Conditional insertion</B></P>
+
+<DL>
+<P>Conditional insertion is performed using <TT>if</TT> and <TT>else</TT>
+commands.</P>
+
+<P>To include text when an object is true using the EPFS format, use:</P>
+
+<DL>
+<P><TT>%(if name)[ <BR>
+text <BR>
+%(if name)] </TT></P>
+</DL>
+
+<P>To include text when an object is true using the HTML format, use: </P>
+
+<DL>
+<P>&lt;!--#if name--&gt;<BR>
+text <BR>
+&lt;!--#/if name--&gt; </P>
+</DL>
+
+<P>where <TT>name</TT> is the name bound to the object. </P>
+
+<P>To include text when an object is false using the EPFS format, use:</P>
+
+<DL>
+<P><TT>%(else name)[<BR>
+text<BR>
+%(else name)]</TT></P>
+</DL>
+
+<P>To include text when an object is false using the HTML format, use:</P>
+
+<DL>
+<P><TT>&lt;!--#else name--&gt; <BR>
+text <BR>
+&lt;!--#/else name--&gt; </TT></P>
+</DL>
+
+<P>To include text when an object is true and to include different text
+when the object is false using the EPFS format, use:</P>
+
+<DL>
+<P><TT>%(if name)[<BR>
+true text<BR>
+%(if name)]<BR>
+%(else name)[<BR>
+false text<BR>
+%(else name)] </TT></P>
+</DL>
+
+<P>To include text when an object is true and to include different text
+when the object is false using the HTML format, use:</P>
+
+<DL>
+<P><TT>&lt;!--#if name--&gt;<BR>
+true text<BR>
+&lt;!--#else name--&gt;<BR>
+false text<BR>
+&lt;!--#/if name--&gt; </TT></P>
+</DL>
+</DL>
+
+<P><B>Sequence insertion</B> </P>
+
+<DL>
+<P>A sequence may be inserted using an <TT>in</TT> command. The <TT>in</TT>
+command specifies the name of a sequence object and text to be inserted
+for each element in the sequence. </P>
+
+<P>The EPFS syntax for the in command is:</P>
+
+<DL>
+<P><TT>%(in name)[ <BR>
+text <BR>
+%(in name)] </TT></P>
+</DL>
+
+<P>The HTML syntax for the in command is:</P>
+
+<DL>
+<P><TT>&lt;!--#in name--&gt;<BR>
+text <BR>
+&lt;!--#/in name--&gt;</TT> </P>
+</DL>
+
+<P>See the example below that shows how <TT>if, else,</TT> and <TT>in</TT>
+commands may be combined to display a possibly empty list of objects.</P>
+
+<P>The text included within an <TT>in</TT> command will be refered to as
+an <TT>in</TT> block.</P>
+
+<P>Within an <TT>in</TT> block, variables are substituted from the elements
+of the iteration. The elements may be either instance or mapping objects.
+In addition, the variables below are defined for each element:</P>
+
+<DL>
+<P>sequence-item</P>
+
+<DL>
+<P>The element.</P>
+</DL>
+
+<P>sequence-index</P>
+
+<DL>
+<P>The index, starting from 0, of the element within the sequence.</P>
+</DL>
+
+<P>sequence-number</P>
+
+<DL>
+<P>The index, starting from 1, of the element within the sequence.</P>
+</DL>
+
+<P>sequence-letter</P>
+
+<DL>
+<P>The index, starting from <TT>a</TT>, of the element within the sequence.</P>
+</DL>
+
+<P>sequence-Letter</P>
+
+<DL>
+<P>The index, starting from <TT>A</TT>, of the element within the sequence.</P>
+</DL>
+
+<P>sequence-roman</P>
+
+<DL>
+<P>The index, starting from <TT>i</TT>, of the element within the sequence.</P>
+</DL>
+
+<P>sequence-Roman</P>
+
+<DL>
+<P>The index, starting from <TT>I</TT>, of the element within the sequence.</P>
+</DL>
+
+<P>sequence-start</P>
+
+<DL>
+<P>A variable that is true if the element being displayed is the first
+of the displayed elements, and false otherwise.</P>
+</DL>
+
+<P>sequence-end</P>
+
+<DL>
+<P>A variable that is true if the element being displayed is the last of
+the displayed elements, and false otherwise.</P>
+</DL>
+</DL>
+
+<P>Normally, <TT>in</TT> blocks are used to iterate over sequences of instances.
+If the optional parameter <TT>mapping</TT> is specified after the sequence
+name, then the elements of the sequence will be treated as mapping objects.</P>
+
+<P>An <TT>in</TT> command may be used to iterate over a sequence of dictionary
+items. If the elements of the iteration are two-element tuples, then then
+the template code given in the <TT>in</TT> block will be applied to the
+second element of each tuple and may use a variable, <TT>sequence-key</TT>
+to access the first element in each tuple.</P>
+</DL>
+
+<P><B>Batch sequence insertion</B></P>
+
+<DL>
+<P>When displaying a large number of objects, it is sometimes desireable
+to display just a sub-sequence of the data. An <TT>in</TT> command may
+have optional parameters, as in:</P>
+
+<DL>
+<P><TT>&lt;!--#in values start=start_var size=7--&gt;</TT> </P>
+</DL>
+
+<P>The parameter values may be either integer literals or variable names.</P>
+
+<P>Up to five parameters may be set:</P>
+
+<DL>
+<P>start </P>
+
+<DL>
+<P>The number of the first element to be shown, where elements are numbered
+from 1.</P>
+</DL>
+
+<P>end </P>
+
+<DL>
+<P>The number of the last element to be shown, where elements are numbered
+from 1.</P>
+</DL>
+
+<P>size </P>
+
+<DL>
+<P>The desired number of elements to be shown at once.</P>
+</DL>
+
+<P>orphan </P>
+
+<DL>
+<P>The desired minimum number of objects to be displayed. The default value
+for this parameter is 3.</P>
+</DL>
+
+<P>overlap</P>
+
+<DL>
+<P>The desired overlap between batches. The default is no overlap. </P>
+</DL>
+</DL>
+
+<P>Typically, only <TT>start</TT> and <TT>size</TT> will be specified.</P>
+
+<P>When batch insertion is used, several additional variables are defined
+for use within the sequence insertion text:</P>
+
+<DL>
+<P>sequence-step-size</P>
+
+<DL>
+<P>The batch size used.</P>
+</DL>
+
+<P>previous-sequence</P>
+
+<DL>
+<P>This variable will be true when the first element is displayed and when
+the first element displayed is not the first element in the sequence.</P>
+</DL>
+
+<P>previous-sequence-start-index</P>
+
+<DL>
+<P>The index, starting from 0, of the start of the batch previous to the
+current batch.</P>
+</DL>
+
+<P>previous-sequence-end-index</P>
+
+<DL>
+<P>The index, starting from 0, of the end of the batch previous to the
+current batch.</P>
+</DL>
+
+<P>previous-sequence-size</P>
+
+<DL>
+<P>The size of the batch previous to the current batch.</P>
+</DL>
+
+<P>previous-batches</P>
+
+<DL>
+<P>A sequence of mapping objects containing information about all of the
+batches prior to the batch being displayed.</P>
+
+<P>Each of these mapping objects include the following variables:</P>
+
+<DL>
+<P>batch-start-index</P>
+
+<DL>
+<P>The index, starting from 0, of the beginning of the batch.</P>
+</DL>
+
+<P>batch-end-index</P>
+
+<DL>
+<P>The index, starting from 0, of the end of the batch.</P>
+</DL>
+
+<P>batch-end-index</P>
+
+<DL>
+<P>The size of the batch.</P>
+</DL>
+</DL>
+</DL>
+
+<P>next-sequence</P>
+
+<DL>
+<P>This variable will be true when the last element is displayed and when
+the last element displayed is not the last element in the sequence.</P>
+</DL>
+
+<P>next-sequence-start-index</P>
+
+<DL>
+<P>The index, starting from 0, of the start of the batch after the current
+batch.</P>
+</DL>
+
+<P>next-sequence-end-index</P>
+
+<DL>
+<P>The index, starting from 0, of the end of the batch after the current
+batch.</P>
+</DL>
+
+<P>next-sequence-size</P>
+
+<DL>
+<P>The size of the batch after the current batch.</P>
+</DL>
+
+<P>next-batches</P>
+
+<DL>
+<P>A sequence of mapping objects containing information about all of the
+batches after the batch being displayed.</P>
+
+<P>Each of these mapping objects include the following variables:</P>
+
+<DL>
+<P>batch-start-index</P>
+
+<DL>
+<P>The index, starting from 0, of the beginning of the batch.</P>
+</DL>
+
+<P>batch-end-index</P>
+
+<DL>
+<P>The index, starting from 0, of the end of the batch.</P>
+</DL>
+
+<P>batch-end-index</P>
+
+<DL>
+<P>The size of the batch.</P>
+</DL>
+</DL>
+</DL>
+</DL>
+
+<P>For each of the variables listed above with names ending in &quot;-index&quot;,
+there are variables with names ending in &quot;-number&quot;, &quot;-roman&quot;,
+&quot;-Roman&quot;, &quot;-letter&quot;, and &quot;-Letter&quot; that are
+indexed from 1, &quot;i&quot;, &quot;I&quot;, &quot;a&quot;, and &quot;A&quot;,
+respectively. In addition, for every one of these variables there are variables
+with names ending in &quot;-var-xxx&quot;, where &quot;xxx&quot; is an
+element attribute name or key.</P>
+</DL>
+
+<P><B>Summary statistics</B></P>
+
+<DL>
+<P>When performing sequence insertion, special variables may be used to
+obtain summary statistics. To obtain a summary statistic for a variable,
+use the variable name: <TT>statistic-name</TT>, where <TT>statistic</TT>
+is a statistic name and <TT>name</TT> is the name of a data variable.</P>
+
+<P>Currently supported statistic names are:</P>
+
+<DL>
+<P>total</P>
+
+<DL>
+<P>The total of numeric values.</P>
+</DL>
+
+<P>count</P>
+
+<DL>
+<P>The total number of non-missing values.</P>
+</DL>
+
+<P>min</P>
+
+<DL>
+<P>The minimum of non-missing values.</P>
+</DL>
+
+<P>max</P>
+
+<DL>
+<P>The maximum of non-missing values.</P>
+</DL>
+
+<P>median</P>
+
+<DL>
+<P>The median of non-missing values.</P>
+</DL>
+
+<P>mean</P>
+
+<DL>
+<P>The mean of numeric values values.</P>
+</DL>
+
+<P>variance</P>
+
+<DL>
+<P>The variance of numeric values computed with a degrees of freedom qeual
+to the count - 1.</P>
+</DL>
+
+<P>variance-n</P>
+
+<DL>
+<P>The variance of numeric values computed with a degrees of freedom qeual
+to the count.</P>
+</DL>
+
+<P>standard-deviation</P>
+
+<DL>
+<P>The standard deviation of numeric values computed with a degrees of
+freedom qeual to the count - 1.</P>
+</DL>
+
+<P>standard-deviation-n</P>
+
+<DL>
+<P>The standard deviation of numeric values computed with a degrees of
+freedom qeual to the count.</P>
+</DL>
+</DL>
+
+<P>Missing values are either <TT>None</TT> or the attribute <TT>Value</TT>
+of the module <TT>Missing</TT>, if present.</P>
+</DL>
+</DL>
+</DL>
+
+<P><B><FONT SIZE=+2>Implementation Mechanisms</FONT></B></P>
+
+<UL>
+<P>A DocumentTemplate may be created using any of these four methods:</P>
+
+<UL>
+<P>DocumentTemplate.String</P>
+
+<UL>
+<P>Creates a DocumentTemplate from a string using an extended form of Python
+string formatting.</P>
+</UL>
+
+<P>DocumentTemplate.File</P>
+
+<UL>
+<P>Creates a DocumentTemplate bound to a named file using an extended form
+of Python string formatting. If the object is pickled, the file name, rather
+than the file contents is pickled. When the object is unpickled, then the
+file will be re-read to obtain the string. Note that the file will not
+be read until the document template is used the first time.</P>
+</UL>
+
+<P>DocumentTemplate.HTML</P>
+
+<UL>
+<P>Creates a DocumentTemplate from a string using HTML server-side-include
+rather than Python-format-string syntax.</P>
+</UL>
+
+<P>DocumentTemplate.HTMLFile</P>
+
+<UL>
+<P>Creates an HTML DocumentTemplate from a named file.</P>
+</UL>
+</UL>
+</UL>
+
+<P><B><FONT SIZE=+2>Issues</FONT></B></P>
+
+<UL>
+<P>The following lists some issues concerning future modifications to DocumentTemplate:</P>
+
+<UL>
+<LI>What precautions should be taken if access to parent object values
+was made available?</LI>
+
+<LI>What other variable formatting methods are needed?</LI>
+</UL>
+</UL>
+
+
+</BODY>
+</HTML>

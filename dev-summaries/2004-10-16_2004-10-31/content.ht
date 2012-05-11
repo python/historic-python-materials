@@ -1,0 +1,124 @@
+Title: python-dev Summary for 2004-10-16 through 2004-10-31
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2004-10-16 through 2004-10-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from October 16, 2004 through October 31, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the fifty-first summary written by Brett Cannon (I *will* be caught up on summaries soon).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-10-01_2004-10-15.html
+.. _original text file: http://www.python.org/dev/summary/2004-10-16_2004-10-31.ht
+
+
+
+=====================
+Summary Announcements
+=====================
+`Python 2.4`_ final is now out!
+
+As I mentioned in the last summary my school schedule this past quarter has been insane.  But now I am on Winter Break and will hopefully be able to catch up on my Summary backlog.
+
+.. _Python 2.4: http://www.python.org/2.4/
+
+=========
+Summaries
+=========
+--------------------------------------------------------
+Specifying main functions and calling packages with '-m'
+--------------------------------------------------------
+In my opinion, the new '-m' command line option in Python 2.4 is really handy.  But wouldn't it be even handier if you could execute modules in a package?  That exact question came up.  The reason this kind of thing didn't just go directly into 2.4 was that the semantics are not as obvious nor is it as simple.  `PEP 338`_ goes over all of this and also points to a recipe that implements it all now.
+
+This also brought up the discussion of being able to specify a 'main' function to take the place of the good old ``if __name__ == "__main__"`` idiom.  Some liked the idea of allowing one to define a function named 'main', others '__main__'.  `PEP 299`_ discusses all of this.
+
+.. _PEP 299: http://www.python.org/dev/peps/pep-0299
+.. _PEP 338: http://www.python.org/dev/peps/pep-0338
+
+Contributing threads:
+  - `python-dev Summary for 2004-09-16 through 2004-09-30 [draft] <http://mail.python.org/pipermail/python-dev/2004-October/049406.html>`__
+  - `Magic main functions <http://mail.python.org/pipermail/python-dev/2004-October/049419.html>`__
+  - `Supporting packages on the command line <http://mail.python.org/pipermail/python-dev/2004-October/049418.html>`__
+
+----------------------------
+ConfigParser shootout begins
+----------------------------
+As mentioned in the `last summary`_, a desire for a replacement for ConfigParser has come into being.  It seems the ideas are being hashed out in the wiki at http://wiki.python.org/moin/ConfigParserShootout .
+
+Contributing threads:
+  - `ConfigParser shootout, preliminary entry <http://mail.python.org/pipermail/python-dev/2004-October/049454.html>`__
+  - `What are the goals for ConfigParser 3000? <http://mail.python.org/pipermail/python-dev/2004-October/049527.html>`__
+
+----------------------------------------------------
+Making pymalloc friendlier to long running processes
+----------------------------------------------------
+Pymalloc, when a small chunk of memory is requested that is less than 256 bytes, fetches the memory from a pool of previously used memory that is now available.  While this speeds up memory allocation since it does not directly involve calling the OS to free up the memory, it does cause issues for long running processes that have at some point requested a large portion of memory.  The example in the OP for this whole topic was an app that needs 1GB for about five minutes, but the amount of allocated memory stays at 1 GB since pymalloc does not free it to the OS.
+
+This was brought up back in June and is summarized at http://www.python.org/dev/summary/2004-06-01_2004-06-15.html#id17 .
+
+No code has been checked in at the moment to change the behavior partially thanks to the difficulty of the problem.
+
+Contributing threads:
+  - `Changing pymalloc behaviour for long running processes <http://mail.python.org/pipermail/python-dev/2004-October/049480.html>`__
+  - `Re: Python-Dev Digest, Vol 15, Issue 46 <http://mail.python.org/pipermail/python-dev/2004-October/049482.html>`__
+
+----------------------------
+How to get a patch looked at
+----------------------------
+Often times people have a specific patch that they want reviewed/applied to solve a specific problem they are having.  Unfortunately the Python developers have limited time; we just can't get to every patch there in a timely fashion.  This can be a problem who *really* need to get a patch in.
+
+Enter Martin v. Löwis and his deal to review a specific patch:
+
+1. Review 10 other patches on SF
+2. Send an email to python-dev listing the 10 patches that you reviewed and the one patch you want to be reviewed
+3. Your specific patch gets reviewed by Martin
+
+You can see the exact details of Martin's requirements at http://mail.python.org/pipermail/python-dev/2004-October/049495.html and can also read http://www.python.org/dev/dev_intro.html for ideas on what to do for reviewing.
+
+Contributing threads:
+  - `Patches <http://mail.python.org/pipermail/python-dev/2004-October/049490.html>`__
+
+===============
+Skipped Threads
+===============
+- Python 2.4b1 on win32 installer bug?
+- test_subprocess 2.4b1 fails on FreeBSD 5.2
+- adding Py{String|Unicode}_{Lower|Upper} and fixing CreateProcess in _subprocess.pyd and PyWin32
+- IPv6 bug in 2.3.4??
+- logging needs better documentation
+- bsddb todo for someone - auto-upgrade db format
+- Tests broken on Windows
+- import w/options
+- Adding a developer
+      People are only added as a developer if they ask for it and have shown they are going to stick around
+- audiotest.au and possible copyright issues?
+- Re: [Python-checkins]	python/dist/src/Pythoncompile.c, 2.330, 2.331
+- Bug [ 959379 ] Implicit close() should check for errors
+- weakref callback vs gc vs threads

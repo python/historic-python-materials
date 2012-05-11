@@ -1,0 +1,296 @@
+<html><head>
+<!-- This document was created from RTF source by rtftohtml version 2.7.5 -->
+<title>Creating HTML Documents with Python</title></head><body><h1>
+<a name="RTFToC1">Creating HTML Documents with Python</a></h1>
+<p>Joel Shprentz<br><A HREF="mailto:shprentz@bdm.com">shprentz@bdm.com</A><br>
+BDM Federal, Inc.<br>1501 BDM Way, McLean, VA 22102<HR>
+<H2>Abstract</H2>
+<BLOCKQUOTE>A group of Python classes model HTML formatted documents and their contents.
+Mimicking the hierarchical structure of HTML tags, content objects form a
+treelike representation of an HTML document. A tag factory object creates each
+node in the tree, typically a tagged element, which may include attributes and
+initial contents. Additional contents--text and other tags--can be added later.
+The HtmlDocument class provides an overall structure for HTML documents.
+Application-specific subclasses override default methods that create the start,
+body, and end of a document. Often a complete HTML document can be created by
+instantiating an HtmlDocument subclass with a few parameterized values, such as
+document title. When a document is completely built, it can be written to any
+output stream, such as a file, pipe, or socket. Individual tags can also be
+written to output streams. The HTML classes provide more functionality
+and greater reusability than the simple Python output statements often used.</BLOCKQUOTE><HR>
+<H2>Table of Contents</H2>
+<OL><li><a href="#RTFToC2">Introduction</a>
+<li><a href="#RTFToC3">HTML Document Structure</a>
+<OL><LI><A HREF="#Sec1">HTML Objects</A>
+<LI><A HREF="#Sec2">Nonsequential Construction</A>
+<LI><A HREF="#Sec3">Writing HTML Output</A></OL>
+<li><a href="#RTFToC4">HTML Documents</a>
+<li><a href="#RTFToC5">Conclusions</a></OL>
+This document is available as a <A HREF="html_python.ps">postscript file</A>.
+The Python <A HREF="htmlDoc.py">source code</A> is also available.
+<HR>
+<h2><a name="RTFToC2">1. Introduction</a></h2>
+<P>A common problem at World Wide Web sites is the automatic creation of HTML
+documents. Whether the documents are created on the fly by a CGI script or in
+advance by a batch production system, the most common approach is to execute a
+sequence of print statements that create the HTML document one line at a time.
+This strategy works with any programming language. For example, here is a Unix
+shell script to generate a simple HTML document.<p>
+<pre>    #!/bin/sh
+    echo '&lt;HTML&gt;&lt;HEAD&gt;'
+    echo '&lt;TITLE&gt;Hello World&lt;/TITLE&gt;&lt;/HEAD&gt;'
+    echo '&lt;BODY&gt;&lt;H1&gt;Hello World&lt;/H1&gt;'
+    echo '&lt;P&gt;Program with'
+    echo '&lt;A HREF="http://www.python.org/"'
+    echo '&gt;Python&lt;/A&gt; today&lt;/BODY&gt;&lt;/HTML&gt;'</pre>
+<p>In actual documents, the body is created based on some calculation,
+model, or information retrieval, often in response to user input. As the
+complexity of the documents grows, programmers migrate from simple scripting
+languages to more complex interpreted languages, like TCL and Perl, and then to
+compiled languages, like C. Object oriented languages are also available:
+interpreted languages like Python and compiled languages like C++.<p>
+The interpreted Python language<a href="#fn1">[1]</a> combines the
+benefits of object oriented development with the rapid application development
+environment of interpreted languages. The Python class
+library<a href="#fn2">[2]</a> contains a
+rich collection of tools including an HTML parser and a CGI interface, but it
+does not include any classes for constructing HTML documents. Thus, despite all
+of Pythons capabilities, the Python program to generate a simple HTML document
+is almost identical to the shell script:
+<pre>    print '&lt;HTML&gt;&lt;HEAD&gt;'
+    print '&lt;TITLE&gt;Hello World&lt;/TITLE&gt;&lt;/HEAD&gt;'
+    print '&lt;BODY&gt;&lt;H1&gt;Hello World&lt;/H1&gt;'
+    print '&lt;P&gt;Program with'
+    print '&lt;A HREF="http://www.python.org/"'
+    print '&gt;Python&lt;/A&gt; today&lt;/BODY&gt;&lt;/HTML&gt;'</pre><p>
+There are several potential problems with this approach:
+<UL><LI><i>The HTML may be incorrect.</i> Tag and attribute names may be
+mistyped. Closing tags may be misplaced or omitted. Nested tags, like list
+elements, may be improperly structured.
+<LI><i>The software is not reusable.</i> The only way to reuse part of a
+program like this is to copy the code with a text editor.
+<LI><i>The HTML document is generated in sequential order.</i> This
+precludes placing summary information at the top or varying the presentation
+based on content. It is also hard to recover from processing errors.</UL>
+<h2><a name="RTFToC3">2. HTML Document Structure</a></h2>
+<P>The tagged text elements of HTML<a href="#fn3">[3]</A> documents are
+organized in a treelike structure, with each tag potentially containing text
+intermingled with one or more other tags. The tags in the example document have
+this tree structure:<p>
+<A HREF="tree.gif"><IMG SRC="tree.gif" width=180 height=200
+ALT="tree structure of HTML document"></A>
+<H3><A NAME="Sec1">2.1 HTML Objects</A></H3><p>
+This tree structured hierarchy is similar to the composite
+pattern<a href="#fn4">[4]</A> from
+object oriented design. Following this pattern, an abstract class,
+HtmlContents, declares common operations, most notably writeHtml, which writes
+the HTML contents to a file. Subclasses of HtmlContents implement these
+operations for specific types of HTML document contents: tags, text, and space.
+Tag objects, called HtmlElement, implement additional methods to modify
+contents and attributes. Preformatted elements, like the &lt;PRE&gt; tag, are
+represented by a subclass of HtmlElement. The object structure is shown below
+in Coad notation<a href="#fn5">[5]</A>:<p>
+<A HREF="diag.gif"><IMG SRC="diagtiny.gif" ALT="object model diagram"
+WIDTH=235 HEIGHT=220></A><p>
+There are many tags in the HTML 2.0 specification, so another class,
+HtmlTagFactory, defines methods to create a valid HtmlElement object for each
+possible tag. As HTML evolves, the HtmlTagFactory class can be extended and
+revised to accommodate new tags. There is only one instance of HtmlTagFactory.
+It is named Tag.<p>
+HtmlElement objects can be created with or without initial contents. The
+initial contents can be text, HtmlElement objects, or lists. List elements can
+also be text, HtmlElement objects, or lists. For example,
+<pre>    document = Tag.HTML ()
+    docTitle = Tag.TITLE ("Sample document")
+    docHead = Tag.HEAD (docTitle)
+    docBody = Tag.BODY ([Tag.P ("Some text), Tag.P ("More text")])</pre><p>
+The same text, HtmlElement objects, and lists can be appended or
+prepended to any HtmlElement objects.  For example, to complete the sample
+document,
+<pre>    document.append ([docHead, docBody])</pre><p>
+This capability is often used within a loop to construct a list. For
+example, this code constructs an ordered list of words:
+<pre>    words = ["red", "yellow", "green", "blue", "orange"]
+    wordList = Tag.OL ()
+    for word in words:
+        wordList.append (Tag.LI (word))</pre><p>
+Many HTML tags have attributes. These can be specified when the
+HtmlElement object is created or set later. An anchor tag with an HREF
+attribute would look like this:
+<pre>    Tag.A ("click here", "http://www.python.org/")</pre><p>
+Forms and form fields are other types of HTML tags. As HTML is
+defined, there are many variations of INPUT tag (text, check boxes, etc.). Each
+variation of the INPUT tag is implemented by a different subclass of
+HtmlElement. The tag factory understands all of these forms. For example, to
+create a text field to hold a 5-digit zipcode with no default value,
+<pre>    Tag.inputText (None, "zipcode", 5, 5)</pre><p>
+Form field objects have a unique capability: When the value dictionary
+returned by Python's CGI class is passed to a tag tree, each form field in the
+tree will lookup its value in that dictionary and use the value when generating
+the HTML document. This makes it easy to preset a form based on a user's
+responses.<p>
+All subclasses of HtmlContents respond to the writeHtml method by writing their
+HTML representation to a specified file. The sample document created above
+could be written to standard output as follows:
+<pre>    from sys import stdout
+    document.writeHtml (stdout)</pre>
+
+<H3><A NAME="Sec2">2.2 Nonsequential Construction</A></H3>
+<P>The various tag objects support nonsequential construction of
+HTML documents. This is essential when related information is distributed
+throughout a document. For example, a table of contents at the beginning
+of the document should list only the sections actually included in that document.
+The "print a statement at a time" strategy cannot easily create such documents.
+Consider this pseudocode for a document:
+</P><PRE><I>    print heading
+    print table of contents
+    if condition 1 then print section 1
+    if condition 2 then print section 2
+    print footing</I></PRE>
+<P>When the table of contents is being printed, this code has not yet
+evaluated the conditions nor decided which sections to include. The
+conditions are often of the form, "did the query return any results," so
+it is inconvenient to evaluate them except when printing the section based
+on the query results. A possible solution is to first print the sections to
+a temporary file and then merge that file into the final file.</P><P>
+Tag objects offer a better solution. The tag hierarchy need not be created
+sequentially, but can be augmented as needed. The sectioned document can be
+created with this pseudocode:
+</P><PRE><I>    body = Tag.BODY ()
+    body.append (heading)
+    toc = table of contents
+    body.append (toc) 
+    if condition 1 then
+        toc.append ("Section 1")
+        body.append (Section 1) 
+    if condition 2 then
+        toc.append ("Section 2")
+        body.append (Section 2) 
+    body.append (footing)</I></PRE>
+<P>Each section adds its own entry to the table of contents, which is already
+correctly positioned in the document. Similar techniques can be used to place
+summary information near the front of a document (e. g., average values or
+counts of search results).</P>
+<P>This technique for document construction is possible because
+today's computer
+memories are guaranteed to be large enough to hold the tree representation of
+an HTML document. It is more effective to manipulate the entire document in
+memory then to repeatedly process and output small amounts of information.</P>
+<H3><A NAME="Sec3">2.3 Writing HTML Output</A></H3><p>
+The HTML output includes all tags and attributes, replaces special
+characters (e.g., &amp;) with their HTML representation, suppresses redundant
+spaces, breaks text into lines of about 70 characters, and adds line breaks
+after major tags (e.g., H1 and P). Some of these steps require tracking the
+capacity and spacing status of each output line, a capability not present in
+Python's file class. Although the tracking features could be implemented by
+subclassing the file class, this would preclude using sockets and other
+file-like objects.<p>
+The implementation chosen relies on HtmlFile, a wrapper class for Python files.
+HtmlFile tracks spacing, character count, newlines, and preformatted text for a
+given file. The two principal public methods are write (for text) and writeAsIs
+(for tags and attribute values). HtmlFile makes the implementation of writeHtml
+trivial in the HtmlContents class:
+<pre>    def writeHtml (self, outfile)
+        self.writeToHtml (HtmlFile (outfile))</pre><p>
+Each subclass of HtmlContents must implement writeToHtml. The HtmlText
+objects convert special characters before writing the text:
+<pre>    def writeToHtml (self, outfile)
+        pieces = splitfields (self.text, "&amp;")
+        outText = joinfields (pieces, "&amp;amp;")
+        . . .
+        outfile.write (outText)</pre><p>
+The HtmlElement objects must write a starting tag, which might include
+attributes; the contents, which are found on a list containing text and other
+elements; an optional ending tag; and an optional line break. Here is the
+definition:
+<pre>    def writeToHtml (self, outfile)
+        self.writeStartTag (outfile)
+        self.writeContents (outfile)
+        if self.needEndTag:
+            outfile.write ("&lt;/%s&gt;" % self.tag)
+        if self.tagEndsLine:
+            outfile.writeNewline ()</pre>
+<h2><a name="RTFToC4">3. HTML Documents</a></h2>
+<p>A typical web application will contain several types of pages, each produced by
+a different program. Examples include query forms, result pages, and indices.
+Graphic designers<a href="#fn6">[6]</a> recommend that these pages
+share common design elements, such as logos, banners, feedback links,
+modification date, and navigation aids. These common elements typically appear
+at the top and bottom of each page.<p>
+An abstract class, HtmlDocument, provides a framework for implementing
+documents with common design elements. HtmlDocument is similar to HtmlElement
+in that it responds to append and prepend methods to add elements to the
+document body. It also responds to writeHtml to write to a file and printHtml
+to write to standard output. However, when implementing writeHtml, HtmlDocument
+will call three methods to create common design elements: head, startBody, and
+endBody.<p>
+A web application will implement head, startBody, and endBody in a subclass of
+HtmlDocument.
+<pre>    class SampleHtmlDocument (HtmlDocument):</pre><p>
+Consider a page design for a typical application. At the top of each
+page, there is a banner logo, then a title and subtitle. The SampleHtmlDocument
+startBody method could look like this:
+<pre>    def startBody (self):
+        return [self.banner (), self.pageTitles ()]</pre><p>
+The two methods used to construct the list must also be defined. This
+method builds the page titles.
+<pre>    def pageTitles (self):
+        titles = []
+        if self.title:
+            titles.append (Tag.H1 (self.title))
+        if self.subtitle:
+            titles.append (Tag.H2 (self.subtitle))
+        titles.append (Tag.HR ())
+        return titles</pre><p>
+Once the basic page design is established for an application, other
+subclasses can add additional design elements required by particular page
+types, such as query forms.<p>
+There are some advantages to this approach:
+<UL><LI>All pages have the same design look.
+<LI>The design can be changed in a single source file.
+<LI>Programmers can focus their attention on the document body.</UL>
+<h2><a name="RTFToC5">4. Conclusions</a></h2><p>
+The code and design described have been used on several recent internal
+projects. Earlier projects were implemented with the sequential print method
+described in the introduction.<p>
+The first improvement noticed was that the HTML produced is correct. There were
+no missing tags or improperly nested elements. These errors are now unlikely to
+occur because the document structure is reflected in the Python code and
+because the HTML output is generated by well tested code. <p>
+Sharing a common page design among several applications has been a great
+benefit. With the print statement method, a design change required
+modifications to each program that produced a different type of page. With the
+object-oriented approach, only one file needs to be changed.<p>
+Programmers no longer work at the raw HTML level. Instead, they treat HTML
+document bodies as trees of tags. These HTML element, tag, and document classes
+match the level of abstraction provided by many other classes in the Python
+library.<p>
+<H2>References</H2>
+<OL><LI><a name="fn1">van Rossum, Guido.</a> <i>Python
+Reference Manual, Release 1.2.</i> CWI, Amsterdam, 1995.
+Available from <A HREF="http://www.python.org/doc/">&lt;http://www.python.org/doc/&gt;</A>.
+<LI><a name="fn2">van Rossum, Guido.</a>
+<i>Python Library Reference, Release 1.2.</i>
+CWI, Amsterdam, 1995. Available from
+<A HREF="http://www.python.org/doc/">&lt;http://www.python.org/doc/&gt;</A>.
+<LI><a name="fn3">Berners-Lee, T. and D. Connolly.</a>
+<i>Hypertext Markup Language--2.0.</i>
+RFC 1866, November 1995. Available from
+<A HREF="ftp://ds.internic.net/rfc/rfc1866.txt"
+TITLE="RFC 1866: Hypertext Markup Language--2.0">&lt;ftp://ds.internic.net/rfc/rfc1866.txt&gt;</A>.
+<LI><a name="fn4">Gamma, Erich, et. al.</a>
+<i>Design Patterns: Elements of Reusable
+Object-Oriented Software</i>. Addison-Wesley, Reading, Mass.,
+1994.
+<LI><a name="fn5">Coad, Peter.</a>
+<i>Object Models: Strategies, Patterns, and
+Applications.</i>
+Yourdon Press, Englewood Cliffs, N. J.,
+1995.
+<LI><a name="fn6">Lynch, Patrick J.</a>
+<i>Web Style Manual.</i>
+Yale Center
+for Advanced Instructional Media, 1995. Available from
+<A HREF="http://info.med.yale.edu/caim/StyleManual_Top.HTML">&lt;http://info.med.yale.edu/caim/StyleManual_Top.HTML&gt;</A>.
+</OL></body></html>
+

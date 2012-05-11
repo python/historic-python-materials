@@ -1,0 +1,216 @@
+<html>
+<head>
+<title> Python Progress Report Session </title>
+</head>
+<body>
+<h1> Python Progress Report Session </h1>
+<i> Session Chair: Roger Masse </i>
+<br>
+<a name="guido>
+<h3> Guido's report on Python changes and plans </h3>
+<ul>
+   <li> Review of the last workshop promises
+   <ul>
+      <li> New HTTP server in the library
+      <li> remote import
+      <ul>
+         <li> facilities are there but not redily available
+         <li> used in grail
+         <li> security is still an issue
+      </ul>
+      <li> Distributed Computing
+      <ul>
+         <li> RPC framework - obsoleted by ILU
+         <li> remote filesystem access - RCS and CVS
+         <li> CNRI handle server interface 
+         <ul>
+            <li> distributed as part of grail
+            <li> will become part of the standard distribution
+         </ul>
+      </ul>
+      <li> Changes to the python core
+      <ul>
+         <li> great renaming - still not done :-(
+         <li> new generic object API - part of 1.3 as <i> abstract.[ch]</i>
+         <li> optimizations - ideas from Jim Roskins
+         <li> C trace for exceptions - forgot about it :-(
+         <li> Packages - part of 1.3 as module <i> ni </i>
+      </ul>
+      <li> Futurism
+      <ul>
+         <li> Getting the current exception - not yet
+         <li> third argument to raise (add this stack to the 
+              beginning of the exception stack)
+         <li> explicit interpreter state - see code mobility
+         <li> move C stack out of the way - ditto
+         <li> restricted execution - part of grail
+         <li> keyword parameters - done
+         <li> assignment operators - if i ever get more time :-(
+         <ul>
+            <li> += operator planned for limited use
+         </ul>
+      </ul>
+      <li> No-no's
+      <ul>
+         <li> Garbage collection - Jim Fulton offered to spend time here
+         <li> (Requiring) universal thread support
+         <ul>
+            <li> Leveraging on John Osterhout's paper (something like:
+                 <i> threads are bad </i>) soon to be presented
+            <li> For those who want threads, it *is* available,
+                 but let's not *require* thread support from the 
+                 underlying OS
+            <li> The interpreter isn't really written to take advantage
+                 of multiple threads running on different CPU's
+            <li> There is a good oportunity to take advantage of this
+                 in a library (e.g. matrix)
+         </ul>
+         <li> Python compiler - could be built using the new
+              <i> parser </i> module
+         <li> translating to other languages - ditto (<i> parser </i>)
+         <li> the <i> access </i> statement - almost gone - it tuned out
+              not to be the right tool for security architectures - something
+              else in the future will be hopfully better
+      </ul>
+   </ul>
+   <li> Spam-3 What's cooking?
+   <ul>
+      <li> explosive growth of the python community
+      <li> windows platform gaining popularity
+      <li> upcoming Python Book (O'Reilly) probably April 96
+   </ul>
+   <li> what have I been doing
+   <ul>
+      <li> Grail
+      <li> security work
+      <ul>
+         <li> grail applets
+         <li> restricted CGI scripts for WWW providers - give users a
+              opportunity to set up their own home page *complete* with CGI
+              in a safe way
+      </ul>
+      <li> code mobility work
+      <ul>
+         <li> <i> pickling </i> the stack and other hidden interpreter state
+         <li> requires rewrite of interpreter main loop - alot of work
+         <li> Q: preformance?
+         <li> Q: hopfully better
+      </ul>
+      <li> pedestrian work - with alittle help from my friends
+      <ul>
+         <li> Tkinter port to the MAC
+         <li> Next Python distribution 1.3.1
+         <ul>
+            <li> bugfix for 1.3
+            <li> new versions of modules required for Grail
+            <li> no date planned yet (probably early 1996)
+         </ul>
+         <li> The great renaming - any volunteers?
+         <li> configuration and setup - automate selection of modules
+              and should the be in shared libraries and putting them there
+      </ul>
+   </ul>
+</ul>
+<br>
+<a name="panel">
+<h3> Panel Discussion on <i> "What's Next" </i> </h3>
+<i>Panel: Ted Strollo, Mark Hammond, Jim Ahlstrom, Mike Mclay, Paul Everitt</i>
+<p>
+<i> Moderator: Barry Warsaw </i>
+<br>
+<ul>
+   <li> Panelists stories:
+   <ul> 
+      <li> Paul: uses python for development on a contract basis
+      <li> Mark: uses python purely for windows - high volume
+           not really interesting in anything that's not native l&f
+      <li> Jim: started using python to interface to lagacy code to
+           windows.  A way of using more modern data storage
+      <li> Ted: CNRI's interest in python.  Knowbot project (code
+           mobility) and we just love the language
+      <li> Mike: pushing the <i> STEP? </i> standard which is a
+           product exchange standard.  let's try using a tool as
+           the mechanism for standard interfacing.  (e.g. a printed
+           circuit board as a python constructor)
+      <ul>
+         <li> build in usage protection and royalty collection into 
+              download protocol
+         <li> PSA formed out of the LEOMA (Laser and Electro-optics
+              Manf. Association) model 
+         <li> PSA as a quality control monitor
+         <
+      </ul>
+   </ul>
+   <li> Let's turn it around: "What can we do?"
+   <li> Question and Answer
+   <ul>
+      <li> Q: what's being done on the convergence of DLL's for the 
+           various python ports for windows?
+      <li> A: for the python core it's 99% there
+      <li> Q: Do you develop on NT or 95?
+      <li> A: NT and compile 95 binaries
+      <li> Mark: the native look and feel issue is the most important
+           thing to gain acceptance in the windows market
+      <li> Jim: There is no good 3.11 port for python win32s is 
+           slow even with alot of memory, so a native 16bit app is 
+           the only *real* way to go, then you have all the addressing
+           problems
+      <li> The DLL for core python *may* get done if slight differences
+           in console input/output can be addressed
+      <li> Q: From a language issue, is there anything missing?
+      <li> Paul: the <i> language </i> should not be a topic for the panel
+      <li> Barry: A nice addition to the core library would be ILU or SYLU
+      <li> Assertion: if we had a native l&f module that worked on every
+           platform, we'd be better than *any* other language
+      <li> Ken: last workshop's GUI session agreed that a base-line GUI
+           (runs everywhere) in addition to the full blown platform 
+           dependant issues
+      <li> Q: what are perceived impediments
+      <li> Assertion: a common Object class like objective-C with methods
+           like <i> super </i> for all objects
+      <li> Response <i> super </i> can't be done with MI
+      <li> Licencing Issues: Q: Is the fact that Grail downloads source
+           a hinderince to commercial ventures?
+      <li> Mark: Yes but so is cost (why Java is both good and bad)
+           good that it obfuscates the source, bad cause it costs
+           I'd like grail to grok pyc files, cause that's how I'd like 
+           to distribute software
+      <li> SGI has taken python and changed it's name to <i> momba? </i>
+           but that have contributed there plans back to the PSA but
+           did not give credit to python or Guido... but (on the other
+           hand) it was a very small research
+      <li> Infoseek uses python, has enhance python performance, and gives
+           alot of publicity to python
+      <li> Proposal: GNU copyleft for Grail?  CWI copyright for Python?
+      <li> There have been quite a few companys that have been successful
+           basing their products on gnu
+      <li> Ted: Grail licencing.  We did not want the likes of Microsoft
+           or some other big organization with deep pockets to
+           <i> take over </i> grail.  At the same time, Bob is 
+           sensitive to commercial requirment for use of Grail
+      <li> Proposal: require contributed software to have a certain
+           copyright structure
+      <li> Paul: what can the PSA do better?, documenting things?
+      <li> Jim Fulton: I think we should have more contact with USENIX
+      <li> On <i> python.org </i> having a very visible todo list
+           to facilitate more voluteer work
+      <li> reorganize the ftp sight (e.g contrib directory)
+      <li> Ted: Bob Kahn wants to "pull the stops out" and really grow the
+           PSA 
+      <li> Problem: the matrix folks are getting code from the matrix sight
+           not <i> python.org </i>
+      <li> Q: would you like my contributed NEXTSTEP Quad-fat binary for
+           python?  Does that screw with the pyc files?
+      <li> Yes to 1) and No to 2)
+      <li> Paul: We are doing more in the PSA and this third workshop 
+           went quite well!
+   </ul>
+</ul>
+
+<h3> Python Workshop Feedback Session </h3>
+<li> Workshop Wrapup
+<li> Discussion of Workshop as a Forum
+
+</body>
+</html>
+

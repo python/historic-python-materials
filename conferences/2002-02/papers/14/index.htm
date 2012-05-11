@@ -1,0 +1,891 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>A Qualitative Analysis of the Usability of Three Contemporary Scripting
+Languages</title>
+</head>
+
+<body>
+
+<h1 align="center" style="text-align:center;line-height:150%">A Qualitative
+Analysis of the Usability of Perl,
+Python, and Tcl</h1>
+<h6 align="center" style="margin-top: 0; margin-bottom: 0">Lingyun Wang</h6>
+<h6 align="center" style="margin-top: 0; margin-bottom: 0">Siemens Energy and
+Automation</h6>
+<h6 align="center" style="margin-top: 0; margin-bottom: 0">Princeton, N.J.</h6>
+<h6 align="center" style="margin-top: 0; margin-bottom: 0"><a href="whope@yahoo.com">whope@yahoo.com</a></h6>
+<h6 align="center" style="margin-bottom: 0">Phil Pfeiffer</h6>
+<h6 align="center" style="margin-top: 0; margin-bottom: 0">East Tennessee State
+University</h6>
+<h6 align="center" style="margin-top: 0; margin-bottom: 0">Johnson City, TN</h6>
+<h6 align="center" style="margin-top: 0; margin-bottom: 0"><a href="mailto:phil@etsu.edu">phil@etsu.edu</a></h6>
+<p style="line-height: 100%; margin-bottom: 10"><b><i>Abstract</i>:</b> This paper describes an
+empirical study of the relative usability of
+Perl, Python, and Tcl for
+object-oriented (OO) development.&nbsp; The
+paper's first author specified and designed two representative programs: a paint program and a chat
+server.&nbsp; He then implemented these programs in Perl, Python, and Tcl, using
+PSP to collect data on the work of program development.&nbsp; This data, when
+analyzed, showed that Python was the easiest of the three languages to use, with Perl the most
+    difficult, and Tcl somewhere in between.&nbsp; In particular,&nbsp;&nbsp;</p>
+<p><ul style="line-height: 100%; margin-top: 0; margin-bottom: 0">
+  <li >Python's
+    elementary language constructs were the easiest to learn and to use. Perl's
+    were the hardest. Tcl's were closer to Python's.</li>
+  <li>
+    Python's
+    and Tcl's constructs for OO development were much easier to learn than Perl's.</li>
+  <li>
+   Python's Tk
+    libraries were easier to use than Perl's and Tcl's. Tcl's [Incr Widget] (megawidgets)
+    library was by far the hardest, thanks in part to the need to mix
+    raw Tk widgets with [incr Tk] megawidgets.&nbsp;</li>
+  <li>
+    Python's and Tcl's I/O and
+    socket libraries were much easier to use than Perl's, thanks largely to
+    Perl's failure to support socket descriptors as hashable data objects.</li>
+</ul></p>
+<p style="line-height: 100%; margin-top: 0; margin-bottom: 10">Areas where Tcl
+and Perl proved superior to Python included Tcl's built-in support for an event loop mechanism,
+and the Perl community's support for the CPAN database.&nbsp; Recommendations
+for improvements that emerge from this study include revising the Tcl megawidget
+library to support OO interfaces for raw Tk widgets; adding event loop
+mechanisms to Tcl and Perl; implementing CPAN-like support for Tcl and Perl; and
+creating new dialects of Perl and Tcl that support OO programming as an integral
+part of these languages.
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0"><b><i>Keywords</i>:</b> Perl;
+Python; Tcl/Tk; Tk widgets; TCL megawidgets; Personal Software Process (PSP);
+object-oriented software development; sockets.</p>
+<h3 style="line-height: 150%">1.&nbsp; Introduction</h3>
+
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">This paper describes an empirical
+study of the relative usability of Perl, Python, and Tcl for object-oriented (OO) program
+development.&nbsp; Perl, Python, and Tcl were originally developed as&nbsp;<i>scripting languages</i>: languages
+that support rapid application development through the &quot;gluing&quot; of smaller applications
+[Oust98].&nbsp;
+Perl, Python, and Tcl have since evolved beyond mere glue languages, adding extensive
+runtime libraries and—for Perl and Tcl—constructs for OO programming.</p>
+<p class="MsoNormal" style="line-height: 100%; word-spacing: 0; margin-top: 0; margin-bottom: 6">The
+key question addressed by this study is the extent to which the choice of Perl,
+Python, or Tcl could influence programmer productivity.&nbsp; Our interest in
+this question stemmed from the following five considerations.&nbsp; One was the
+current emphasis on OO strategies for software development, particularly with regard to large applications.&nbsp;
+A second was the claim that large increases
+in programmer productivity can be obtained from using scripting languages in
+place of 3GLs (e.g., C, C++) for software development [Oust98].&nbsp; A third
+was the current popularity of Perl, Python, and
+Tcl.&nbsp; A fourth was the presence of mechanisms in Perl, Python, and Tcl for
+supporting OO development.&nbsp; A final consideration was a perception that
+inherent differences
+in language design could influence how effectively these languages were
+used.&nbsp; Specifically:</p><p>
+<ul style="margin-top: 0; margin-bottom: 6">
+  <li>
+    Perl was
+    originally designed for text file
+    processing [Perl5].&nbsp; Perl,
+    an array-centric language, supports three basic data types: scalars, arrays, and hashes.&nbsp; Support for OO programming in Perl is
+    provided by an array, @ISA, that supports inheritance,
+    together with one built-in function, <i>bless</i>, that relates objects to their
+    classes. OO in Perl is accomplished by constructing classes from packages;
+    by constructing objects from hashes; and by specifying method-inheritance relations
+    with the ISA array.</li>
+  <li>
+    Python was designed to support common programming language
+    methodologies, including data-structure-based algorithm
+    implementation and OO programming [Py2.0].&nbsp; Python's basic unit of data
+    abstraction is the object: all Python core language and internal and external libraries
+    have consistent object-oriented interfaces.</li>
+  <li>
+    Tcl
+    was originally designed as an embeddable command language for integrated circuits [Scriptics].&nbsp; Tcl supports one basic data type,
+    string, and one basic
+    instruction type, command.&nbsp; Support for OO programming in Tcl
+    is provided by an extension to basic Tcl, [incr Tcl]. [incr Tcl] is
+    modeled after C++.&nbsp; [incr Tcl]'s OO constructs include classes; objects;
+    methods; attributes; constructors; destructors; inheritance; and
+    support for public,
+    private, and protected access of methods and attributes.</li>
+</ul></p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">We
+chose, in this investigation, to equate a language's support for programmer
+productivity with that language's <i>usability</i>.&nbsp; The
+International Standards Organization defines usability as “the effectiveness, efficiency, and satisfaction with which specified users
+achieve specified goals in particular environments” [DFAB98].&nbsp; Here,
+usability was assessed by determining how well Perl, Python, and Tcl supported the implementation of
+a paint program and a
+chat program.&nbsp; These applications were deemed complex enough to test the languages'
+overall usability; general enough to avoid favoring any one language;
+comprehensive enough
+to test the usability of the languages as well as their
+run-time libraries; and distinct enough to
+reduce biases that might result from implementing one application alone.</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">This
+study was conducted as
+follows.&nbsp; The first author developed specifications and designs for the
+paint and chat programs, following an OO approach to program design (cf. §2.1).&nbsp; He implemented these programs in the current version of each
+platform (cf. §2.2), using Watts Humphrey's Personal
+Software Process (PSP) to track development time and defect data (cf.
+§2.4).&nbsp; Finally, the data gathered from PSP (cf. §3) were analyzed, relative to that author's
+prior programming experience (cf. §2.3), to assess the relative usability of Perl, Python, and
+Tcl (cf. §4).</p>
+<h3 style="line-height: 100%">2.&nbsp; Methodology</h3>
+
+<h4 style="line-height: 100%">2.1&nbsp; Program Specifications and Design</h4>
+
+<h5 style="line-height: 100%">2.1.1&nbsp; Paint Program</h5>
+
+<p style="line-height: 100%"><img border="0" src="figure14a.png" width="503" height="454" align="center"></p>
+
+<p style="text-indent: 0; line-height: 100%; margin-top: 0; margin-bottom: 10">The
+first of the two sample applications that formed the basis of our study—the paint
+program—was an interactive
+graphical editor similar to the Windows Paint utility. This paint program can be
+used to
+create drawings composed of lines, rectangles, circles, and ovals.&nbsp; Users
+may select a color for each drawing object, and an interior
+(fill) color for rectangles, circles, and ovals with colors.&nbsp; Lines and shapes
+are created by pressing the left mouse button, which defines a start point in the drawing box; dragging the mouse cursor,
+which displays a tentative shape for the object being drawn; and releasing the button, which completes the
+draw operation. Users can also select objects in
+the drawing edit box and move and delete them.</p>
+
+<p style="line-height: 100%; margin-top: 0; margin-bottom: 10">Internally, the paint program is organized as three
+packages: a GUI library package, which includes all
+classes contained in the implementation language's native
+GUI library (e.g., menu, frame, canvas); a drawing functionality package, which
+includes all classes that implement the program's drawing functions; and a
+program interface package, which includes all classes built
+specifically to manage the program's interface.&nbsp; The drawing functionality
+package
+uses the GUI library package to implement the draw commands.&nbsp; The program
+interface package obtains user inputs from the drawing functionality package
+(e.g., drawing command and selected color).</p>
+<p style="line-height: 100%; margin-top: 0; margin-bottom: 10">
+The paint program's class diagram is shown below.&nbsp; The design assumes that the implementation language provides a
+well-defined GUI library.</p>
+<p style="line-height: 100%; margin-top: 0; margin-bottom: 0"><img border="0" src="figure14b.png" width="524" height="423"></p>
+<h5 style="line-height: 150%">2.1.2&nbsp; Chat Program</h5>
+
+<h4 style="line-height: 150%"><img border="0" src="figure14c.png" width="546" height="318" align="center"></h4>
+
+<p style="line-height: 100%; text-indent: 0; margin-top: 0; margin-bottom: 10">The
+second sample application, a chat application, consisted of a
+server and a client program.&nbsp; The server program supports concurrent
+communications among multiple connected clients.&nbsp; It implements six client commands: help; show current users;
+shutdown this connection, shutdown the
+server; broadcast message to all users, and send
+message to one client.&nbsp; The chat client transmits requests to the
+chat server, and receives and
+displays responses and other server messages.&nbsp; The chat client accepts user inputs at any time,
+independently of the receiving and displaying of server messages.<o:p>
+&nbsp;</p>
+<p style="line-height: 100%; text-indent: 0; margin-top: 0; margin-bottom: 10">Internally,
+client and server are
+organized as three packages: a socket library package, consisting of classes
+from the implementation language's native socket library; an I/O Package, which
+includes classes from the language's native I/O library, and a main package, which implements
+the chat application's basic functions.&nbsp; The main package accesses classes in the
+socket and I/O packages.</p>
+<p style="line-height: 100%; text-indent: 0; margin-top: 0; margin-bottom: 10">
+The chat program's class diagram is shown below.&nbsp; The design assumes that the implementation language provides
+well-defined I/O and socket libraries.</p>
+<h4 style="line-height: 150%"><img border="0" src="figure14d.png" width="491" height="532"></h4>
+
+<h4 style="line-height: 100%; margin-bottom: 10">2.2&nbsp; Languages, Libraries,
+and Tools</h4>
+
+<p style="line-height: 100%; margin-bottom: 10">The paint and chat applications were
+implemented using those versions of Perl, Python,
+and Tcl/Tk that were current and stable in December 2000: ActivePerl 5.6, ActivePython 2.0, and
+Tcl/Tk 8.2 (iTcl/iTk 3.1).&nbsp;
+All programs were implemented under Microsoft Windows 98.&nbsp;
+Data on the work of program implementation were gathered in accordance with Watts Humphrey's' Personal Software Process (PSP).&nbsp;
+PSP is a measurement-driven
+strategy for self-assessment that uses data on coding times, defect
+types, and defect removal times to identify areas for&nbsp;programmer self-improvement.&nbsp;
+PSP data is typically collected using tools for tracking program development time by
+task, and for logging defects by type.&nbsp; The first of the two PSP-related tools used
+in this study,
+PPLog Control, is a GUI application for recording time and defect data.&nbsp;
+The second, evalpsp, is a Perl script for summarizing PPLog-Control-generated log
+files. Both were downloaded from
+the University of Karlsruhe (cf. <a href="http://wwwipd.ira.uka.de/PSP/">http://wwwipd.ira.uka.de/PSP/</a>).</p>
+
+<h4 style="line-height: 100%; margin-bottom: 10">2.3&nbsp; Sample Population</h4>
+
+<p class="MsoNormal" style="text-indent: 0; line-height: 100%; margin-top: 0; margin-bottom: 10">This study's
+conclusions
+are based on a sample population of one.&nbsp; At the start of this study, our subject, the first
+author, was a second-year graduate student in computer science with an undergraduate degree in computer
+science.&nbsp; His prior programming experience included the development of GUI and socket
+applications; procedural and OO program design and implementation; and limited professional experience with
+C and C++.&nbsp; His prior knowledge of scripting
+languages was limited to bash, csh, and a classroom exercise involving a short
+Perl script.</p>
+
+<h4 style="line-height: 100%">2.4&nbsp; Methodology for Data Collection</h4>
+
+<p class="MsoNormal" style="text-indent: 0; line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0; margin-bottom: 0">The
+following is a detailed synopsis of how the study was conducted:</p><p>
+<ul style="margin-top: 6; margin-bottom: 6">
+  <li>
+    A
+    detailed set of requirements for the paint program was developed (cf.
+    §2.1).</li>
+  <li>
+    The
+    paint program was designed from these requirements, using an OO design
+    methodology. Rational Rose and UML were used to develop the application's class, sequence, and
+    package diagrams.</li>
+  <li>
+    The
+    paint program was implemented three times: first in Python, then in Perl,
+    and finally in Tcl. The first author learned each language's syntax and GUI libraries while doing the
+    implementations.&nbsp; All three implementations strictly followed the design.&nbsp; PSP,
+    a tool for monitoring software development [3], was used to record defect data
+    for each implementation.</li>
+  <li>
+    A
+    detailed set of requirements for the chat program was developed (cf.
+    §2.1).</li>
+  <li>
+    The
+    chat program was designed from the requirements, using an OO design
+    methodology. Rational Rose and UML were used to develop the application's class, sequence, and
+    package diagrams.</li>
+  <li>
+    The
+    chat program was implemented three times: first in Perl, then in Tcl, and
+    finally in Python.&nbsp; The first author learned each language's I/O and
+Socket libraries while doing the implementations.&nbsp; All three
+    implementations strictly followed the design.&nbsp; PSP was used to
+    record defect data for each implementation.</li>
+  <li>
+    Data
+    from the paint and chat programs were compiled and analyzed, to assess what features of the Perl, Python, and Tcl languages and libraries helped and
+    hindered implementation.</li>
+</ul></p>
+<p class="MsoNormal" style="line-height: 100%; tab-stops: list .75in; text-indent: 0; margin-top: 0">Standard
+PSP defect types, as identified by Chillarge&nbsp; [4], were
+<i>not</i> used to classify defects.&nbsp; Some PSP defect
+types, such as syntax and interface defects, were too general to identify
+specific problem areas in programming languages.<o:p>&nbsp;Others, like
+documentation errors, were irrelevant to this study.</p>
+<p class="MsoNormal" style="line-height: 100%; tab-stops: list .75in; text-indent: 0"><img border="0" src="image14a.gif" width="550" height="245"></p>
+<p class="MsoNormal" style="line-height: 100%; tab-stops: list .75in; text-indent: 0; margin-top: 0; margin-bottom: 10">
+Our strategy for defect classification used three distinct categories of defects:
+defects arising from misuse of the language’s basic, non-OO constructs (LBC); 
+misuse of the language’s OO constructs (OO);
+and misuse of the language’s libraries
+(LIB).&nbsp; Defects arising from OO constructs were given their own category because
+of the distinctiveness of OO syntax, and the belated incorporation of OO into Perl and Tcl.&nbsp; Library-related defects were treated
+separately because libraries are typically used as sources of
+finished components, rather than as codes whose internals must be mastered
+and revised.</p>
+<p class="MsoNormal" style="line-height: 100%; tab-stops: list .75in; text-indent: 0; margin-top: 0; margin-bottom: 10">Within
+these three categories of defects, fifteen specific types of defects were
+tracked:</p><p>
+<ul style="margin-top: 6; margin-bottom: 6">
+  <li>
+    Nine
+    language-basic-construct-related (LBC) defects: defects related to built-in data structures
+    including hashes and lists (BDS); strings (STR); expressions (EXP); variables (VAR); control structures (CON); 
+    code block delimiters (CBD); module import/export (MIE); scopes (SCO); and functions (FUN);</li>
+  <li>
+   Three
+    OO-related defects: defects related to constructing a class (OO_CAC); using a user-created class (OO_UAC); 
+    and using the language’s support for inheritance (OO_INH); and</li>
+  <li>
+    Three
+    library-related (LIB) defects: defects related to the Tk/GUI libraries (TK);
+    I/O libraries (IO); and socket libraries (SOC).</li>
+</ul></p>
+<p class="MsoNormal" style="text-indent: 0; line-height: 100%; margin-top: 0; margin-bottom: 10">The
+OO defect types used here are based on work by Chidamber and Kemerer [4].&nbsp;
+The UAC type shows the difficulties created by coupling between classes.&nbsp; The INH type shows the difficulties of
+inheritance between classes. The CAC type
+shows the difficulties created by using a language's OO syntax to build classes,
+objects, methods and data members.&nbsp;</p>
+<p class="MsoNormal" style="text-indent: 0; line-height: 100%; margin-top: 0; margin-bottom: 10">The
+three categories of defects are largely independent.&nbsp; Defects in one pair
+of overlapping categories, those arising from the
+misuse of OO libraries, were counted as library-related (LIB) defects.&nbsp; The
+possibility that LIB defects may be caused by an imperfectly designed OO
+library or an inconsistent interface between the library and
+the core language is addressed in
+the recommendations.</p>
+<p class="MsoNormal" style="text-indent: 0; line-height: 100%; margin-top: 0; margin-bottom: 10">Requirement
+defects and design defects were not tracked.&nbsp; Requirement and design defects
+were usually common to all
+three implementations, and the first implementation usually exposed these defects.&nbsp; Discounting these defects also reduced order-related bias.</p>
+
+<h3 style="line-height: 150%">3.&nbsp; Data</h3>
+
+<p class="MsoNormal" style="line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0; margin-bottom: 10">This
+section presents implementation times, defect counts, and fix times for the paint and chat
+programs.&nbsp; These data are analyzed relative to the effort needed to implement
+each application; the change in implementation effort over the course of the
+study; and the types and relative severity of the problems
+encountered.&nbsp; All times below are given in minutes.&nbsp; All implementation and fix times
+exclude time spent on the largely language-independent work of specification and
+design.</p>
+<p class="MsoNormal" style="line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0; margin-bottom: 10">The
+balance of this section is divided into four subsections.</p>
+<p class="MsoNormal" style="line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0; margin-bottom: 10">Section
+3.1 summarizes the time-to-implement data from the paint and chat
+programs.&nbsp; Section 3.1's key point—i.e., that fix times for
+language-related defects were largely responsible for the discrepancies in
+effort among the three implementations—suggests that <b><i> ease of use was strongly correlated with
+ease of defect repair</i></b>.&nbsp; This observation,
+in turn, motivates the focus on defect data in Sections 3.2, 3.3, and 3.4.</p>
+<p class="MsoNormal" style="line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0; margin-bottom: 10">Section
+3.2 presents defect data and conclusions drawn from the
+paint program part of the study.&nbsp;</p>
+<p class="MsoNormal" style="line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0; margin-bottom: 10"> Section
+3.3 presents defect data and conclusions drawn from the chat program part of the study.&nbsp;</p>
+<p class="MsoNormal" style="line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0; margin-bottom: 10"> Section
+3.4
+generalizes the findings in Sections 3.2 and 3.3 by analyzing the combined
+defect data from the paint and chat program studies.&nbsp;</p>
+<h4 style="line-height: 100%">3.1&nbsp; Time-to-Implement Data: Paint
+and Chat Programs</h4>
+
+<p class="MsoNormal" align="left" style="word-spacing: 0; margin-top: 0; margin-bottom: 0">
+ <img border="0" src="image14b.gif" width="325" height="290">
+</p>
+<p class="MsoBodyTextIndent3" style="word-spacing: 0; margin-top: 0; margin-bottom: 10">The
+total development time for the Perl and Tcl paint
+implementations were close.&nbsp; Both were far more than Python’s.<o:p>&nbsp;
+The Perl, Python, and Tcl versions of the paint programs required about 900,
+800, and 1000 minutes to develop, respectively, exclusive of fix times (cf.
+§3.2).<o:p></o:p>
+</p>
+<p class="MsoNormal" align="left" style="margin-top: 0; margin-bottom: 0">
+ <img border="0" src="image14c.gif" width="309" height="309">
+</p>
+<p class="MsoBodyTextIndent3" style="word-spacing: 0; line-height: 100%; margin-top: 0; margin-bottom: 10">The
+total development time of Python’s and Tcl’s
+chat implementations were close.&nbsp; Both were far less than Perl’s.&nbsp; The Perl,
+Python, and Tcl versions of the chat programs required about 850, 800, and 850
+minutes to develop, respectively, exclusive of fix times (cf. §3.3).</p>
+<h4 style="line-height: 100%">3.2&nbsp; Paint Program Data</h4>
+
+<p class="MsoNormal" style="text-indent: 0; line-height: 100%; margin-bottom: 6.0pt">This
+section describes data obtained from implementing the paint program.&nbsp;
+Fix-times and number of defects are given thrice: first by implementation, then
+by defect category, and finally by defect type within category.<u><o:p></o:p>
+</u></p>
+<p style="line-height: 100%; word-spacing: 0; margin-top: 0; margin-bottom: 0" align="left">
+<img border="0" src="image14d.gif" width="327" height="214">
+</p>
+
+<p style="line-height: 100%; margin-top: 0; margin-bottom: 6">The Python paint program took a little less than
+half the time to repair as the Perl program and about 2/3 the time of the Tcl
+program.</p>
+
+<p style="line-height: 100%; margin-top: 0; margin-bottom: 0" align="left">
+<img border="0" src="image14e.gif" width="325" height="220">
+</p>
+
+<p style="line-height: 100%; margin-top: 0; margin-bottom: 10">
+The number of defects in each program was roughly proportional to time to fix each program.&nbsp;
+Tcl generated more
+defects than Perl and Python. Subsequent figures show that Tcl’s Tk libraries
+were responsible for the increased number of defects.</p>
+
+<p style="line-height: 100%; word-spacing: 0; margin-top: 0; margin-bottom: 0">
+<img border="0" src="image14f.gif" width="327" height="276">
+</p>
+
+<p style="line-height: 100%; margin-top: 0; margin-bottom: 10">Python defects were the easiest (i.e., fastest) to
+fix. Perl had the highest fix times for basic language and OO-related defects.&nbsp;
+Tcl had the highest fix times for Tk library defects.&nbsp;
+This last result is surprising because the Tk library is native to Tcl.</p>
+
+<p style="line-height: 100%; margin-top: 0; margin-bottom: 0">
+<img border="0" src="image14g.gif" width="325" height="276">
+</p>
+
+<p style="line-height: 100%; margin-top: 0; margin-bottom: 10">Perl’s basic syntax and operators accounted for
+most of the disparity between Perl and Python defect counts.&nbsp;
+Perl yielded more than three times as many basic defects as Python. Tcl
+yielded more OO-related defects than Perl, even though Tcl has the most complete
+support for OO (in [incr Tcl]).</p>
+
+<h4 style="line-height: 100%; margin-top: 0; margin-bottom: 0">
+<img border="0" src="image14h.gif" width="328" height="295">
+</h4>
+
+<p class="MsoBodyTextIndent3" style="text-indent: 0in; mso-text-indent-alt: .5in; mso-list: none; mso-list-ins: Unknown 19000000T0000; word-spacing: 0; margin-top: 0; margin-bottom: 10">Because Perl
+lacks a megawidgets library, the Perl Paint program was built from the PerlTk library,
+which provides Perl Tk basic widgets. Therefore, the total fix time in the
+LIB_TK category was counted only on the TK Basic Widgets category.</p>
+<p class="MsoBodyTextIndent3" style="text-indent: 0in; mso-text-indent-alt: .5in; mso-list: none; mso-list-ins: Unknown 19000000T0000; line-height: 100%; word-spacing: 0; margin-top: 0; margin-bottom: 10">Tcl’s
+Tk, which provides the basic Widgets support for Tcl, yielded the fewest defects
+of the graphical support libraries.&nbsp; However, defects involving Tcl's [incr
+Widgets] library, Tcl's library for supporting megawidgets, took far more time to
+repair than defects involving Python’s megawidgets library, Pmw.&nbsp;
+Problems with Tcl’s [incr Widgets] included the following:</p><p>
+<ul style="margin-top: 0; margin-bottom: 6">
+  <li>
+    [incr
+    Widgets] was missing one important megawidget, balloon.&nbsp; Implementing
+    this widget produced multiple defects.</li>
+  <li>
+    [incr
+    Widgets] provides all of its megawidgets as [incr Tcl] classes. Raw Tk widgets,
+    however, are implemented as Tcl commands. The mixed use of [incr Tcl]
+    widget classes and Tcl raw widgets yielded multiple defects, due to stylistic
+    inconsistencies between Tcl commands and widget classes.</li>
+  <li>
+   Programmers
+    must master two [incr Tcl] packages, [incr Tk] and [incr Widgets], to use and build Tcl megawidgets. The steeper learning curve yields
+    multiple defects.</li>
+</ul></p>
+<p class="MsoBodyTextIndent3" style="line-height: 100%; margin-top: 0; margin-bottom: 6">Reasons that
+Perl's fix times were longer than Python’s were as follows:</p><p>
+<ul style="margin-top: 0; margin-bottom: 6">
+  <li>
+    The
+    PerlTk library does not support megawidgets such as statusbar and menubar.&nbsp;
+    Implementing these widgets produced multiple defects.</li>
+  <li>
+    Certain
+    PerlTk basic widgets lack functionality that these widgets should
+    provide. For example, Perl’s Scrolled Canvas widget lacks methods
+    for&nbsp; auto-adjusting coordinates when a drawing is out of the canvas’s
+    original range.</li>
+  <li>
+    PerlTk
+    lacks good documentation.</li>
+</ul></p>
+<p class="MsoBodyTextIndent3" style="word-spacing: 0; margin-top: 0; margin-bottom: 6">Reasons
+for Python’s good fix times are as follows:</p><p>
+<ul style="margin-top: 0">
+  <li>
+    Python
+    has Pmw as its megawidgets support.&nbsp; Pmw is more complete, in that it
+    supports balloon and statusbar megawidgets.</li>
+  <li>
+    Python’s
+    Tkinter provides the basic Tk widgets as Python objects.&nbsp; Because Pmw is
+    built upon Tkinter, Python’s Pmw megawidgets and Tkinter basic widgets
+    exhibit strong interface consistency.</li>
+</ul></p>
+<p class="MsoBodyTextIndent3" style="margin-top: 0; margin-bottom: 0"><img border="0" src="image14i.gif" width="325" height="296"></p>
+<p class="MsoBodyTextIndent3" style="margin-top: 0; margin-bottom: 10">Total defects are roughly proportional to the time
+consumed by defect fixes. Again, Tcl megawidgets were the major source of
+problems.&nbsp; Note that megawidget defects cost more time to fix
+than basic widget defects.</p>
+<p class="MsoBodyTextIndent3" style="margin-top: 0; margin-bottom: 0"><img border="0" src="image14j.gif" width="327" height="316"></p>
+<p class="MsoBodyTextIndent3" style="line-height: 100%; margin-top: 0; margin-bottom: 10">Defects related to class
+construction were the most expensive of all OO defects. Class
+construction and inheritance defects were much more expensive to fix in Perl
+than Python and Tcl. One reason for Perl's poorer usability is Perl’s limited support for OO.
+Perl programmers must build most basic OO constructs from scratch. A second is that programmers have to handle object references
+carefully to build class methods.</p>
+<p class="MsoBodyTextIndent3" style="margin-top: 0; margin-bottom: 10">Reasons that [incr Tcl] performs worse than
+Python are as follows:</p><p>
+<ul style="margin-top: 0; margin-bottom: 6">
+  <li>
+    [incr
+    Tk] classes introduce rules for managing OO objects that differ from
+    classic strategies for supporting OO. These new rules include the use of
+    options as attributes and techniques for referencing and initializing
+    options.</li>
+  <li>
+     Tcl’s Array (Hash) construct
+    is awkward to use from within [incr
+    Tcl] classes. For example, array data members cannot be initialized in a
+    class’s variable declaration section.</li>
+</ul></p>
+<p class="MsoBodyTextIndent3" style="margin-top: 0; margin-bottom: 10"> Python’s
+good performance is attributable to the language's emphasis on OO
+development.&nbsp; Python’s
+    OO support is internal to the interpreter. The basic language constructs, OO
+    constructs and libraries exhibit a consistency that helped to prevent defects.</p>
+<h4 style="line-height: 100%; word-spacing: 0; margin-top: 0; margin-bottom: 0"><img border="0" src="image14k.gif" width="325" height="271"></h4>
+
+<p style="line-height: 100%; word-spacing: 0; margin-top: 0; margin-bottom: 10">Although
+the number of defects was approximately the same
+across all three programs, Perl OO-related defects typically required
+more time to fix. Perl yielded more OO inheritance-related defects due to Perl’s
+weak support for inheritance:&nbsp; e.g., Perl's failure to support attribute
+inheritance, and its requirement that explicit references to parent classes be used
+when accessing inherited methods.</p>
+
+<p style="line-height: 100%; word-spacing: 0; margin-top: 0; margin-bottom: 0"><img border="0" src="image14l.gif" width="327" height="350"></p>
+
+<p style="line-height: 100%; word-spacing: 0; margin-top: 0; margin-bottom: 6">Of
+the 10
+subcategories of defects in the BASICS category, five—strings (STR), basic
+data structures (BDS), expressions (EXP), code block delimiters (CBD), and
+variables (VAR)—accounted for 4/5 of
+the basic defect repair time for each language.</p>
+<p class="MsoBodyTextIndent3" style="line-height: 100%; word-spacing: 0; margin-top: 0; margin-bottom: 6">Perl’s
+    basic data structures were its major source of trouble.&nbsp; Arrays of references and hashed references created significant
+problems. The many ways of constructing a Perl array or a hash were
+often confusing.&nbsp; Passing
+        array and hash arguments to classes, methods, or functions yielded
+        multiple defects.</p>
+<p class="MsoNormal" style="line-height: 100%; mso-list: l52 level1 lfo54; mso-list-change: %1\:1\:0\:\. phil 20010420T0315; tab-stops: list .75in; margin-left: 0; margin-right: 0in; margin-top: 0in; margin-bottom: 6.0pt">Perl
+    and Tcl identifier syntax caused more problems than Python’s. Perl, the
+worst, was complicated by the excess of symbols like @, $, / and %.&nbsp; Perl's use of init symbols to define and reference data
+types was a second source of trouble.&nbsp; Tcl's use of $ to reference, but not to define,
+variables was also confusing.<p class="MsoNormal" style="line-height: 100%; mso-list: l52 level1 lfo54; mso-list-change: %1\:1\:0\:\. phil 20010420T0315; tab-stops: list .75in; margin-left: 0; margin-right: 0in; margin-top: 0in; margin-bottom: 6.0pt">Expression
+manipulation was a problem in all three languages.<p class="MsoNormal" style="line-height: 100%; mso-list: l52 level1 lfo54; mso-list-change: %1\:1\:0\:\. phil 20010420T0315; tab-stops: list .75in; margin-left: 0; margin-right: 0in; margin-top: 0in; margin-bottom: 6.0pt">Block
+delimiters were less of a problem in Perl, due to their similarity to
+delimiters in languages that the author
+        already knew.&nbsp; Python's use of tabs—and non-use of blanks—as
+block delimiters leads to codes that appear OK, but may actually be erroneous.&nbsp; Tcl’s block
+        delimiters were the worst: the need to use ‘\’ as line connectors,
+        semicolons as line terminators, and # as comments accounted for most of
+these Tcl
+        defects.
+        <p class="MsoNormal" style="line-height: 100%; mso-list: l52 level1 lfo54; mso-list-change: %1\:1\:0\:\. phil 20010420T0315; tab-stops: list .75in; word-spacing: 0; margin-left: 0; margin-right: 0in; margin-top: 0in; margin-bottom: 0" align="left"><img border="0" src="image14m.gif" width="325" height="324">
+
+<p class="MsoBodyTextIndent3" style="word-spacing: 0; line-height: 100%; margin-top: 0; margin-bottom: 0">Tcl yielded far more EXP and CBD defects than
+Perl and Python.&nbsp; Perl yielded far more VAR defects than Tcl and
+Python.&nbsp; These defects, however, were easy to detect and
+fix.</p>
+
+<h4 style="line-height: 100%">3.3&nbsp; Chat Program Data</h4>
+
+<p style="line-height: 100%; word-spacing: 0; margin-top: 0; margin-bottom: 10">This
+section describes data obtained from implementing the chat program.&nbsp;
+Fix-times and number of defects are given thrice: first by implementation, then
+by defect category, and finally by defect type within category.</p>
+
+<p class="MsoNormal" align="left" style="word-spacing: 0; margin-top: 0; margin-bottom: 0">
+ <img border="0" src="image14n.gif" width="328" height="250">
+</p>
+<p class="MsoNormal" style="word-spacing: 0; margin-top: 0; margin-bottom: 10">
+The Perl and Tcl chat projects required about 1 1/2 times and 2 1/2 times as
+much time to repair as the Python project, respectively.
+<p class="MsoNormal" align="left" style="word-spacing: 0; margin-top: 0; margin-bottom: 0">
+ <img border="0" src="image14o.gif" width="326" height="232">
+</p>
+<p style="word-spacing: 0; margin-top: 0; margin-bottom: 10">The differences among the numbers of defects in these three languages
+were not
+as great, implying that an average Perl defect was
+harder (i.e., slower) to fix than an average Python or Tcl defect.<o:p>
+</o:p>
+</p>
+<p class="MsoNormal" align="left" style="word-spacing: 0; margin-top: 0; margin-bottom: 0">
+ <img border="0" src="image14p.gif" width="428" height="308">
+</p>
+<p style="word-spacing: 0; margin-top: 0; margin-bottom: 10">Perl’s I/O library- and Socket library-related defects accounted for most
+of the time on defect repair. Each program incurred a small amount of
+repair time on OO-related defects, although the chat program was fully OO. Tcl’s OO-related defects took more time than
+Perl’s and Python’s. Again, Perl’s basic language defects took far more
+time to repair than Python’s and Tcl’s.<o:p>
+
+</p>
+<p style="word-spacing: 0; margin-top: 0; margin-bottom: 10"><img border="0" src="image14q.gif" width="427" height="305">
+</p>
+<p class="MsoNormal" align="left" style="word-spacing: 0; margin-top: 0; margin-bottom: 10">
+For all three languages, I/O-related and
+Socket-related defects took far more time to fix than defects in other two
+categories: OO and BASICS. Tcl yielded almost twice as many OO-related defects as
+Python and Perl.<o:p>
+</o:p>
+</p>
+<p style="word-spacing: 0; margin-top: 0; margin-bottom: 0"><img border="0" src="image14r.gif" width="343" height="318"></o:p>
+</p>
+<p class="MsoNormal" align="left" style="tab-stops: 13.5pt; word-spacing: 0; line-height: 100%; margin-top: 0; margin-bottom: 10">Perl’s
+I/O- and socket-related defects took approximately four times as long to
+fix as Python’s and three times as Tcl’s.&nbsp;
+</p>
+<p class="MsoNormal" align="left" style="tab-stops: 13.5pt; word-spacing: 0; line-height: 100%; margin-top: 0; margin-bottom: 10"> The two factors that made Perl's
+I/O library difficult to use were its lack of support for non-blocking I/O, and
+its weak support for managing line delimiters.&nbsp; The
+    ReadKey module, which provides non-blocking IO support for Perl, is not part
+of the Perl standard library: programmers must download and install
+    ReadKey for themselves.
+    ReadKey was also not well maintained: some functions were not working on Windows
+platforms at the time when this study was conducted.
+</p>
+    <p class="MsoNormal" style="line-height: 100%; word-spacing: 0; tab-stops: 13.5pt; margin-top: 0; margin-bottom: 10" align="left">Perl’s
+        I/O functions fail to manipulate line delimiters (EOLs) on a program's
+    behalf.&nbsp; Perl programmers must explicitly use chomp() or chop() to
+    delete EOLs and resolve cross-platform differences in line
+        delimiters. Perl’s weak support for line delimiter manipulation yields
+        a significant number of defects, and these defects are usually hard to
+        detect. Both Python and Tcl automatically delete EOLs in their implementations of their I/O functions.
+        <p class="MsoNormal" style="tab-stops: 13.5pt; word-spacing: 0; line-height: 100%; margin-top: 0; margin-bottom: 10" align="left">Perl’s
+        socket library, like Perl’s I/O library, lacks built-in mechanisms for
+        managing EOLs.&nbsp; The
+        mixed use of non-OO socket methods and OO socket objects in Perl’s
+        IO::Socket module was a second source of trouble.
+<p style="word-spacing: 0; margin-top: 0; margin-bottom: 0">
+<img border="0" src="image14s.gif" width="374" height="309">
+</p>
+<p class="MsoBodyTextIndent3" style="word-spacing: 0; margin-top: 0; margin-bottom: 10">The previous figure groups Tcl’s IO- and
+Socket-related defects by underlying software component.&nbsp;
+Tcl uses a single, built-in event loop mechanism to handle all I/O-related
+tasks, including socket I/O.&nbsp; The
+event loop component yielded multiple defects that took some time to fix.&nbsp;
+However, Tcl’s event loop mechanism reduced I/O-related and
+Socket-related defects significantly by providing an easy and consistent
+event-driven model for non-blocking IO and Sockets.</p>
+<p class="MsoNormal" style="line-height: 100%; word-spacing: 0; margin-top: 0; margin-bottom: 0"><img border="0" src="image14t.gif" width="342" height="337">
+</p>
+<p class="MsoBodyTextIndent3" style="word-spacing: 0; margin-top: 0; margin-bottom: 10">The number of I/O-related and Socket-related
+defects was almost the same among these three languages, which means that
+Perl’s defects took far more time to repair than Python’s and Tcl’s.</p>
+<p class="MsoNormal" align="left" style="word-spacing: 0; margin-top: 0; margin-bottom: 0">
+ <img border="0" src="image14u.gif" width="376" height="337">
+</p>
+<p style="word-spacing: 0; margin-top: 0; margin-bottom: 0">
+<img border="0" src="image14v.gif" width="375" height="334">
+<p class="MsoNormal" style="word-spacing: 0; line-height: 100%; margin-top: 0; margin-bottom: 10">Tcl
+yielded more OO-related defects, which took
+more time to repair than Python’s and Perl’s.&nbsp; These defects were due to Tcl’s idioms for supporting calls to base-class
+constructors and destructors, which were challenging to master.&nbsp; The passing of arguments
+from child class constructor to parent class constructor yielded an especially high number of
+hard-to-fix defects.&nbsp;
+</p>
+<p class="MsoNormal" align="left" style="word-spacing: 0; margin-top: 0; margin-bottom: 0">
+<img border="0" src="image14w.gif" width="370" height="350">
+</p>
+<p class="MsoNormal" align="left" style="word-spacing: 0; margin-top: 0; margin-bottom: 0"><img border="0" src="image14x.gif" width="372" height="424">
+</p>
+<p class="MsoBodyTextIndent3" style="word-spacing: 0; line-height: 100%; margin-top: 0; margin-bottom: 10"> Tcl’s string
+manipulation routines took the least time to fix.&nbsp; Perl’s basic data
+structure defects needed far more fix time than Python’s and Tcl’s.&nbsp;
+References to hashes and lists, though flexible, accounted for many of Perl's defects.&nbsp; Objects containing hash data structures required the manipulation of hashes of hashes,
+which was still more
+    difficult and yielded more defects.&nbsp; Finally, constructing
+    a table of sockets proved difficult in Perl.&nbsp; Perl uses a special data
+    structure to represent sockets and file handles.&nbsp; This data structure cannot
+    act as a key for Perl’s hash data.&nbsp; Accordingly, a more complex structure
+    with related functions had to be implemented, which yielded many defects.</p>
+<h4 style="line-height: 100%">3.4&nbsp; Analysis of the Combined Defect Data: Paint and Chat
+Programs</h4>
+<p class="MsoBodyTextIndent3" style="line-height: 100%; margin-top: 0; margin-bottom: 10">For both programs, Perl
+yielded more defects than Python.&nbsp; Perl defects took 2 to 3 times as long to
+fix as Python’s defects. Tcl was somewhere in-between.</p>
+<p class="MsoBodyTextIndent3" style="line-height: 100%; margin-top: 0; margin-bottom: 10">For all three languages,
+the number and fix times of OO-related defects decreased significantly between
+the first and second programs.&nbsp; This result suggests that programmers can adjust to
+each language's style of OO development.&nbsp; Still, stylistic inconsistencies between
+a language's libraries and its idioms for supporting OO may yield defects with each
+new attempt to use an unfamiliar library.&nbsp; Such
+problems can be viewed as hidden OO defects that may be attributed to the
+libraries rather than the language's internal inconsistencies.&nbsp; Examples of problem libraries include
+Tcl’s [incr Tcl] library and Perl’s PerlTk library.&nbsp; Python’s consistent and
+thorough approach to
+supporting OO significantly reduces these defects.</p>
+<p class="MsoNormal" style="text-indent: 0; line-height: 100%; word-spacing: 0; margin-top: 0; margin-bottom: 0">The
+data suggest the following conclusions about defects resulting from basic
+syntax:</p><p>
+<ul style="margin-top: 6">
+  <li style="margin-top: 6">
+    Python
+    was the easiest of the three languages to use.</li>
+  <li>
+    The
+    number and time-to-fix of variable-symbol-related (VAR) defects for all
+    three languages decreased significantly with experience.</li>
+  <li>
+    Although
+    the number of defects created by Perl's basic data syntax decreased in the second program, these defects still took far
+    more time to fix than in Python and Tcl.</li>
+  <li>
+    Perl’s
+    expression-related defects and code-block-delimiters defects did not improve
+    significantly over the course of the study. Python and Tcl proved much
+    easier to master over time than Perl. Furthermore, Python’s and Tcl’s
+    simple syntax may continue to yield less number and time-to-fix of defects
+    on these two categories than Perl, once programmers master the syntax of all
+    three languages.</li>
+  <li>
+    Tcl’s
+    string-manipulation constructs yielded fewer defects than Python’s and
+    Perl’s, relative to both programs.</li>
+</ul></p>
+<h3>4.&nbsp; Conclusions</h3>
+
+<h4 style="line-height: 100%">4.1&nbsp; Conclusions Regarding the Relative
+Usability of Perl, Python, and Tcl<u></o:p>
+</u></h4>
+<p style="line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0; margin-bottom: 10" class="MsoNormal"><b><i>Perl.</i></b>&nbsp;
+Perl is poorly suited for OO programming, especially for new users.&nbsp; Perl's
+support for OO suffers from four basic deficiencies.&nbsp; Perl lacks a class data type: Perl objects must be constructed explicitly by using hashes.&nbsp;
+Perl lacks support for inherited attributes.&nbsp; Perl lacks support for object address management: users must specify object
+addresses in the course of creating class methods.&nbsp; Finally, the internals of at least some of
+Perl's object-oriented
+libraries—here, IO::Socket and Perl/Tk—must be mastered as a precondition for their
+effective use.</p>
+<p style="line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0; margin-bottom: 10" class="MsoNormal">Perl's
+run-time libraries suffer from various problems.&nbsp; Perl/Tk lacks clear documentation;
+fails to support megawidgets like statusbar and menubar; and lacks support
+for other useful graphic objects, like balloons.&nbsp; Perl's I/O library lacks
+support for non-blocking I/O.&nbsp; Perl's I/O and
+socket libraries fail to support the use of file handles in hashes, and provide weak support for
+managing line delimiters.</p>
+<p style="line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0; margin-bottom: 10" class="MsoNormal">Perl's
+usability is further compromised by its use of special symbols to represent
+different data types.&nbsp; Perl's references are flexible and convenient, but
+difficult for novices to use in conjunction with hashes and lists.</p>
+<p style="line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0; margin-bottom: 10" class="MsoNormal">Positive
+aspects of the Perl environment included PPM and CPAN.&nbsp; PPM is Active
+Perl's Perl Package Manager, a command-line tool that downloads and installs
+Perl modules from the Internet.&nbsp; CPAN, the Comprehensive Perl Archive
+Network, provides users with many well-organized Perl modules.</p>
+<p class="MsoNormal" style="line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0; margin-bottom: 10"><b><i>Tcl.
+</i></b>[incr Tcl] offers the
+most complete support for OO, including the
+use of Private, Protected, and Public attributes for data members, and the
+automatic, hierarchically based invocation of constructors and destructors.&nbsp;
+Other positive aspects of Tcl include Tcl's minimal syntax, and Tcl’s
+event loop mechanism, which provides an easy and consistent event-driven model
+for non-blocking IO and Sockets.</p>
+<p class="MsoNormal" style="line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0; margin-bottom: 10">[incr
+Tcl] and [incr Widgets], however, suffer from deficiencies.&nbsp; [incr
+Tcl] uses non-standard strategies for supporting OO, including unusual idioms for supporting calls to base-class constructors and
+destructors.&nbsp; Tcl's Array (Hash) construct is awkward to use from
+within [incr Tcl] classes.&nbsp; [incr Tcl]'s approach to memory management,
+which requires the explicit allocation and release of memory, differs from the
+standard Tcl approach to memory management.&nbsp; [incr Widgets] is missing
+one important megawidget: balloon.&nbsp; And coding is complicated by stylistic
+inconsistencies between raw Tk widgets&nbsp; and [incr
+Widgets] objects.</p>
+<p class="MsoNormal" style="line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0; margin-bottom: 10">Tcl’s
+standard library does not support the UDP protocol—a final area of
+weakness.</p>
+<p class="MsoNormal" style="line-height: 100%; mso-list: none; mso-list-ins: Unknown 19000000T0000; margin-top: 0"><i><b>Python.
+</b></i>Python performed best in this study, in terms of the number of defects
+incurred during program development and the time needed to fix these defects.
+Python's strengths include its support for standard OO constructs and its
+extensive collection of OO supporting libraries.&nbsp; Problems with Python
+included the language's failure to treat tabs and blanks in a uniform way, and
+failure to support a platform-independent module for non-blocking I/O.</p>
+<h4 style="text-align: justify; line-height: 100%">4.2&nbsp; Recommendations
+</h4>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10"><b><i>Perl</i></b>.&nbsp;
+Perl should provide better support for OO programming, including a Class data
+type and constructs for hiding object implementation and inheritance
+relationships.&nbsp; This improved support could be obtained by splitting the
+Perl standard: i.e., by defining a pure OO version of Perl for large
+software development, and a totally non-OO Perl for classic hacking.</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">Perl/Tk's use as a de facto
+standard for creating GUIs implies a need to include Perl/Tk in the standard
+Perl distribution; to provide complete support for Tk functionality; and to
+improve PerlTk's documentation.</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">Perl should provide a mechanism
+to handle line delimiters automatically for I/O or Socket programming, or at
+least provide programmers with an option to do so.</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">
+Perl should provide a mechanism like Tcl’s event loop to simplify event-driven
+programming.</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10"><i><b>Tcl.</b></i>
+Tcl, like Perl, was retrofitted with OO
+extensions.&nbsp; OO development in Tcl, like OO development in Perl, would
+benefit from a split standard that produced a second, pure OO version of
+Tcl.&nbsp; Tk basic widgets should be
+reimplemented in [Incr Widgets], using [Incr Tk] as a starting point for this
+implementation.&nbsp; Finally, the Tcl user community should
+study the CPAN model of module distribution as a basis for software development.</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10"><b><i>Python. </i></b>Python should provide a mechanism like Tcl’s event loop to simplify
+event-driven programming.&nbsp; The Python user community should
+study the CPAN model of module distribution as a basis for software
+development.</p>
+<h3 style="line-height: 150%">5.&nbsp; Related Work and Recommendations for
+Future Study</h3>
+
+<p style="line-height: 100%; word-spacing: 0; margin-top: 0; margin-bottom: 10">This
+study is apparently one of a
+very few systematic attempts to assess the usability of Perl, Python,
+and Tcl.&nbsp; Other comparisons of scripting languages that we have seen are
+much less formal.&nbsp; For example, Udell, writing
+for byte.com, describes some of the concerns raised here: Perl's support for
+multiple ways of doing a common task, which Udall regards as a plus; Perl's unsuitability as a first
+language for new programmers; and
+the need for a CPAN-like
+    model of software distribution for the Python language community [Udell00].&nbsp;
+Udell, however, offers only anecdotal data to support his claims.&nbsp; Stajano,
+in a similar vein, cites reasons for preferring Python over Tcl, including Python's
+libraries
+and support for OO development [Staj97].</p>
+
+<p style="line-height: 100%; margin-top: 0; margin-bottom: 10">A partial analysis of the relative usability of scripting
+languages has been done in the context of function point measurement.&nbsp; A <i>function
+point</i> is an abstract metric that represents a level of observable program
+functionality [Jones97].&nbsp; One approach to assessing a language's usability is to equate
+usability with expressiveness, and to measure that language's expressiveness by
+the average number of source
+lines of code (SLOC) required to implement a &quot;typical&quot; function point.&nbsp; In one
+SLOC-based study of expressiveness, Jones
+reported average SLOCs per function point of 21 and 64 for Perl and Tcl,
+respectively [Jones96].&nbsp; By way of comparison, VB 5.0, Java, and macro-less assembly
+languages required an average of 39, 53, and 320 SLOCs per function point, respectively.&nbsp;
+Jones's study,
+however, provides no data on Python, and fails to address
+specific areas of language design—including the suitability of
+Perl, Python, and Tcl for
+OO development.</p>
+
+<p style="line-height: 100%; margin-top: 0; margin-bottom: 10">A second contribution of this
+work lies in is its approach to assessing usability.&nbsp; Traditionally, PSP has been used
+as a tool for improving programmer productivity through self-assessment.&nbsp; Here, PSP was used
+in an apparently novel and practical way: i.e., to assess the relative usability of
+programming languages.&nbsp;</p>
+
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">The study presented here could
+be improved in at least three obvious ways.&nbsp; The study should be repeated with a larger
+population of programmers; expanded to
+include additional scripting languages, including Ruby (cf. <a href="http://www.ruby-lang.org">http://www.ruby-lang.org</a>)
+and VBscript; and enhanced with at least one sample program that highlights
+Tcl's support for the automatic, hierarchical invocation
+of constructors and destructors.</p>
+<h3 style="line-height: 100%"> Acknowledgements</h3>
+
+<p style="line-height: 100%">The authors gratefully acknowledge the help of John
+Chenoweth and Don Gotterbarn with this research.</p>
+
+<h3 style="line-height: 100%">References</h3>
+
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">[DFAB98] Alan Dix, Janet Finlay,
+Gregory Abowd, Russell Beale. <u>Human Computer Interaction</u>. Prentice Hall,
+1998.</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">[GiLu98] David Gillibrand, Kecheng
+Liu. <i>Quality Metrics for Object-Oriented Design</i>. JOOP, January 1998.</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">[Hump01] Humphrey, W. S<i>.,
+The
+Personal Software Process</i>: <i>Overview, Practice, and Results</i>. Carnegie Mellon
+Univ. Software Eng. Institute, Pittsburgh, PA.Last modified 21 March
+2001. cf. <a href="http://www.sei.cmu.edu/pub/documents/articles/pdf/psp.over.prac.res.pdf">http://www.sei.cmu.edu/pub/documents/articles/pdf/psp.over.prac.res.pdf</a>
+[ref. 26 Sept. 2001]</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">[Hump96] Humphrey, W. S., <u>Introduction to the Personal Software
+Process</u><i>.</i> Reading, MA. Addison-Wesley-Longman, 1996</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">[Jones96] Jones, C., <i>Programming
+Languages Table, Release 8.2, </i>March 1996. cf.<a href="http://www.spr.com/library/0langtbl.htm">http://www.spr.com/library/0langtbl.htm</a>
+[ref. 24 Sept. 2001]</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">[Jones97] Jones, C., <i>What
+are Function Points?, </i>1997. cf.<a href="http://www.spr.com/library/0langtbl.htm">http://www.spr.com/library/0funcmet.htm</a>
+[ref. 24 Sept. 2001]</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">[Oust98] Ousterhout, J., <u>Scripting: Higher Level Programming for the
+21st Century</u>. March 1998, IEEE Computer.</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">[Perl5] Perl5 Manuals. <a href="http://www.perl.com/pub/q/documentation">http://www.perl.com/pub/q/documentation</a> [ref. 24
+Sept. 2001]</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">[Py2.0] Python2.0 Manuals. <a href="http://www.python.org/doc/">http://www.python.org/doc/</a></p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">[Scriptics] Tcl Manuals. <a href="http://www.scriptics.com/man/">http://www.scriptics.com/man/</a></p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">[Staj97] Stajano, F., <i>Implementing
+the SMS server, or why I switched from Tcl to Python, </i>7th International
+Python Conference, Nov. 10-13, 1998. cf. <a href="http://www.foretec.com/python/workshops/1998-11/proceedings/papers/stajano/stajano.html">http://www.foretec.com/python/workshops/1998-11/proceedings/papers/stajano/stajano.html</a> [ref.
+26 Sept. 2001]</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0; margin-bottom: 10">[Udell00] Udell, J, <i>A Perl
+Hacker in the Land of Python</i>, BYTE.com, 1 February 2000. cf. <a href="http://www.byte.com/documents/s=284/byt20000201s0001/index.htm">http://www.byte.com/documents/s=284/byt20000201s0001/index.htm</a>
+[ref. 26 September 2001]</p>
+<p class="MsoNormal" style="line-height: 100%; margin-top: 0">[Welch99] Brent Welch. <i>Practical
+Programming in Tcl and Tk</i>. Prentice Hall, 1999. 3rd Ed.</p>
+
+</body>
+
+</html>

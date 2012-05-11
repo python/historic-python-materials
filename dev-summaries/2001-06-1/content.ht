@@ -1,0 +1,202 @@
+Title: Python-dev summary: 2001-05-24 to 2001-06-07
+
+<pre>
+ This is a summary of traffic on the python-dev mailing list between
+ May 24 and Jun 7 (inclusive) 2001.  It is intended to inform the
+ wider Python community of ongoing developments.  To comment, just
+ post to python-list@python.org or comp.lang.python in the usual
+ way. Give your posting a meaningful subject line, and if it's about a
+ PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep
+ iteration) All python-dev members are interested in seeing ideas
+ discussed by the community, so don't hesitate to take a stance on a
+ PEP if you have an opinion.
+
+ This is the ninth summary written by Michael Hudson.
+ Summaries are archived at:
+
+  <a href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a>
+
+   Posting distribution (with apologies to mbm)
+
+   Number of articles in summary: 305
+
+    50 |                                                 [|]
+       |                                                 [|]
+       |                                                 [|]
+       |                                                 [|]
+    40 |                                                 [|]
+       |                                                 [|]
+       |                                                 [|]
+       |                         [|] [|]                 [|]
+    30 |                         [|] [|] [|]             [|]
+       |                         [|] [|] [|]             [|]
+       |                         [|] [|] [|]             [|]
+       |                         [|] [|] [|]             [|]
+    20 |                         [|] [|] [|]             [|]
+       | [|]             [|] [|] [|] [|] [|]         [|] [|]
+       | [|]             [|] [|] [|] [|] [|]         [|] [|]
+       | [|] [|]     [|] [|] [|] [|] [|] [|] [|]     [|] [|] [|]
+    10 | [|] [|] [|] [|] [|] [|] [|] [|] [|] [|]     [|] [|] [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|]
+       | [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|] [|]
+     0 +-018-014-011-014-020-019-034-035-032-014-008-020-051-015
+        Thu 24| Sat 26| Mon 28| Wed 30| Fri 01| Sun 03| Tue 05|
+            Fri 25  Sun 27  Tue 29  Thu 31  Sat 02  Mon 04  Wed 06
+
+ Another busy-ish fortnight.  I've been in Exam Hell(tm) and am
+ writing this when hungover, this so summary might be a bit sketchier
+ than normal.  Apologies in advance.
+
+
+    * strop vs. string *
+
+ Greg Stein leapt up to defend the slated-to-be-deprecated strop
+ module by pointing out that it's functions work on any object that
+ supports the buffer API, whereas the 1.6-era string.py only works
+ with objects that sprout the right methods:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/015001.html">http://mail.python.org/pipermail/python-dev/2001-May/015001.html</a>&gt;
+
+ The discussion quickly degenerated into the usual griping about the
+ fact that the buffer API is flawed and undocumented and not really
+ well understood by many people.
+
+
+    * Special-casing "O" *
+
+ As a followup to the discussion mentioned in the last summary, Martin
+ von Loewis posted a patch to sf enabling functions written in C that
+ expect zero or one object arguments to dispense with the time wasting
+ call to PyArg_ParseTuple:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/015020.html">http://mail.python.org/pipermail/python-dev/2001-May/015020.html</a>&gt;
+
+ The first version of the patch was criticized for being overly
+ general, and for not being general enough &lt;wink&gt;.  It seems the
+ forces of simplicity have won, but I don't think the patch has been
+ checked in yet.
+
+
+    * the late, unlamented, yearly list.append panic *
+
+ Tim Peters posted
+
+    c.l.py has rediscovered the quadratic-time worst-case behavior of
+    list.append().
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/015027.html">http://mail.python.org/pipermail/python-dev/2001-May/015027.html</a>&gt;
+
+ And then ameliorated the worst-case behaviour.  So that one was easy.
+
+
+    * making dicts ... *
+
+ You might think that as dictionaries are so central to Python that
+ their implementation would be bulletproof and one the areas of the
+ source that would be least likely to change.
+
+ This might be true *now*; Tim Peters seems to have spent most of the
+ last fortnight implementing performance improvements one after the
+ other and fixing core-dumping holes in the implementation pointed out
+ by Michael Hudson.
+
+ The first improvement was to "using polynomial division instead of
+ multiplication for generating the probe sequence, as a way to get all
+ the bits of the hash code into play."
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/015045.html">http://mail.python.org/pipermail/python-dev/2001-May/015045.html</a>&gt;
+
+ If you don't understand what that means, ignore it because Tim came
+ up with a more radical rewrite:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/015130.html">http://mail.python.org/pipermail/python-dev/2001-May/015130.html</a>&gt;
+
+ which seems to be a win, but sadly removes the shock of finding
+ comments about Galois theory in dictobject.c...  Most of the
+ discussion in the thread following Tim's patch was about whether we
+ need 128-bit floats or ints, which is another way of saying everyone
+ liked it :-)  This one hasn't been checked in either.
+
+
+    * ... and breaking dicts *
+
+ Inspired by a post to comp.lang.python by Wolfgang Lipp and driven
+ slightly insane by revision, Michael Hudson posted a short program
+ that used a hole in the dict implementation to trigger a core dump:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-June/015173.html">http://mail.python.org/pipermail/python-dev/2001-June/015173.html</a>&gt;
+
+ This got fixed, so he did it again:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-June/015208.html">http://mail.python.org/pipermail/python-dev/2001-June/015208.html</a>&gt;
+
+ The cause of both problems was C code assuming things about
+ dictionaries remained the same across calls to code that ended up
+ executing arbitrary Python code, which could mutate the dict exactly
+ as much as it pleased, which in turn caused pointers to dangle.  This
+ problem has a history in Python; the .sort() method on lists has to
+ fight the same issues.
+
+ These holes have been plugged, although it is still possible to crash
+ Python with exceptionally contrived code:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-June/015239.html">http://mail.python.org/pipermail/python-dev/2001-June/015239.html</a>&gt;
+
+ There's another approach, which is was the .sort() method uses:
+
+    &gt;&gt;&gt; list = range(10)
+    &gt;&gt;&gt; def c(x,y):
+    ...     del list[:]
+    ...     return cmp(x, y)
+    ...
+    &gt;&gt;&gt; list.sort(c)
+    Traceback (most recent call last):
+    File "&lt;stdin&gt;", line 1, in ?
+    File "&lt;stdin&gt;", line 2, in c
+    TypeError: a list cannot be modified while it is being sorted
+
+ The .sort() method magically changes the type of the list being
+ sorted to one that doesn't support mutation while it's sorting the
+ list.  This approach would have some merit to use with dictionaries
+ too; for one thing we could lose all the contrived code in
+ dictobject.c protecting against this sort of silliness...
+
+
+    * arbitrary radix formatting *
+
+ Greg Wilson made a plea for the addition of a "%b" formatting
+ operator to display integers in binary, e.g:
+
+    &gt;&gt;&gt; print "%d %x %o %b"%(10,10,10,10)
+    10 a 12 1010
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-May/015111.html">http://mail.python.org/pipermail/python-dev/2001-May/015111.html</a>&gt;
+
+ There was general support for the idea, but Tim Peters and Greg Ewing
+ pointed out that it would be neater to invent a general format code
+ that would enable one to format an integer into an arbitrary base, so
+ that
+
+    &gt;&gt;&gt;&gt; int("1111", 7)
+    400
+
+ has an inverse at long last.  But no-one could think of a spelling
+ that wasn't in general use, and the discussion died :-(.
+
+
+    * quick poll *
+
+ Guido asked if anyone would object violently to the builtin
+ conversion functions becoming type objects on the descr-branch:
+
+  &lt;<a href="http://mail.python.org/pipermail/python-dev/2001-June/015256.html">http://mail.python.org/pipermail/python-dev/2001-June/015256.html</a>&gt;
+
+ in analogy to class objects.  There was general support and only a
+ few concerns, and the changes have begun to hit descr-branch.  I'm
+ sure I'm not the only one who wishes they had the time to understand
+ what is going on in there...
+
+Cheers,
+M.
+</pre>

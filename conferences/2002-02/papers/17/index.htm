@@ -1,0 +1,176 @@
+<HTML>
+<HEAD>
+<TITLE>  </TITLE>
+
+</HEAD>
+<BODY>
+<h1 align="center">Using Python as PDF Editing and Processing Framework</h1>
+
+<h6 align="center">Jyh-Yuan Deng and Shang-Kang Deng<br>
+<a href="mailto:eric_deng@yahoo.com">eric_deng@yahoo.com</a></h6>
+<h3>Abstract </h3>
+   <p> In this paper we describe a PDF editing and processing application framework based on Python. This framework provides a layer of foundation classes similar to the Cos layer in AcrobatSDK [3]. Based on this set of classes, most functions available in [3] can be easily implemented. Also by the power of Python, the framework can be extended layer by layer to a complete PDF processing library. Unlike Ghostscript[7], which targets RIP (Raster Image Processor), this proposed framework is more flexible and can be applied to not only PDF generation but also PDF post-processing, editing, digital signature, and even a rendering tool.</p>
+
+
+<h3>1. Introduction</h3><p>
+Most well known applications [5] about PDF using Python are limited to generation tools, which generate documents in PDF page description and flush into files. Those do not demonstrate the full power of Python. With an adequate parsing module in Python, we can build a set of functions recognizing what PDF files represent. With the built-in smart pointers, flexible data structures, fully run-time representation of Python, an efficient PDF processing framework is simply there.</p>
+<p>
+Like the famous ReportLab's Lib [5], which provides an object-oriented way to let developers easily generate PDF documents, most systems don't take care of parsing the PDF, modifying existing PDF, nor checking the PDF. What they do is just generating the descriptions following PDF specification. On the contrast, our application targets to develop a processing framework which provides the capability of reading PDF documents, modifying them, interpreting them, and outputting them in customized ways.
+</p><p>
+The inherent similarity between PDF and Python makes us choose Python to implement the framework rather than other candidates. People surveying PDF specification will find that PDF file is composed of objects including dictionary, array, number, boolean, string, or stream, which are almost native types of Python. With a little syntax extension by subclassing, we find it is easy and natural to manipulate these objects in Python programs. After investigating Acrobat SDK API[3], we find that a lot of APIs for PDF are just doing dictionary manipulation and can be implemented in Python in a quite straightforward way. Most operations will be the same as native map and list objects operations.
+</p>
+<h3>2. Architecture </h3>
+<p>The implementation in Python consists of three basic parts. The first is a parser and lexer for the PDF grammar. As mentioned in the last paragraph, PDF objects are simple and similar to Python objects. To produce a parser might take an direct approach, e.g. to write programs by hand which deal with all the delimiters. However, people familiar with Spark [1] or Ply [2] may take advantage of these great Python tools to implement the PDF parser much more elegantly. One thing to be noticeable is that the string defined in the specification allows balanced parentheses (actually it is originated from Postscript definition). For example, <pre><blockquote>
+    (This is a string contains (( parentheses) !) ) it's end)</blockquote></pre>
+Strings like the above example are legal according to the specification. This feature cannot be implemented by regular expressions. Those who use tools [1,2] to generate the parser have to take care of this case elaborately.
+</p><p>
+The second module in the framework contains classes to represent basic data structures in PDF. All objects will subclass from the basic class CosObj (mimic to [3]), which provides the primitive and default behaviour of all types of objects. For container-like objects, multiple inheritance is deployed. For example, CosDict (a dictionary object in PDF) is derived from both CosObj and UserDict. The following subsection about data structures will give details.
+</p><p>
+The third component called 'CosDoc' will wrap the necessary manipulation of the file structure, document structure, objects, and PDF file read/write. To be more specifically, it implements the following five categories of functions.<ol>
+<li>PDF file construction and flushing (read/save)
+<li>cross reference table construction and management [4]
+<li>object pool management (including cache management)
+<li>interaction functions for object level manipulation
+<li>providing a layer of functions mimic to CosDoc in [3]</ol>
+
+<h4>2.1 Data Structure</h4>
+<p>There are nine basic data structures in PDF specification [4], which include array, dictionary, name, integer, float, string, boolean, stream, and indirect reference. The PDF specification provides its own delimiters to represent these data structures. '<< >>' is used instead of '{ }' to represent dictionary and '( )' is used to quote strings. Refer to the specifications [4] for details.
+</p><p>
+As we mentioned in the introduction, most data structures can be implemented in Python by just subclassing the existing types. For example, dictionary in PDF is almost the same as the dictionary in Python except that it has more restrictions. Dictionary in PDF requires the key to be a 'Name', which is actually a string, while dictionary in Python has no such restrictions. Of course, the value of dictionary required in the PDF allows only objects of PDF. Array in PDF can be implemented by list in Python, which can contains arbitrary objects of PDF including array and dictionary. 
+</p><p>
+The exceptional objects of PDF not included in Python are Name and Boolean. Anyway, it is easy to simulate them using string. Name is a string requiring a slash in the beginning and allows no special characters in it. Refer to the PDF specification for details. Indirect reference object is used for referencing other indirect objects in the PDF document. It can be easily implemented in a customized class.
+</p><p>
+To implement these data structures, we just subclass from the UserDict, UserList, and UserString. Via subclassing , we can overload the __repr__, __setitem__, __getitem__ to customize the behaviour of these objects to fit the specification very efficiently. With proper overloaded functions in our implementation, printing out a dictionary content will meet the PDF specification seamlessly without any other extra new functions
+</p><p>
+Stream is the most special data type in PDF. It consists of a dictionary and a BLOB object whose length is specified by the length entry in the dictionary. It is similar to a file stream with extra dictionary attributes. From the semantic point of view, stream data type contains a filter entry in its attribute dictionary specifying the binary data of the stream formed. The filter attribute can be cascading filters. For example, it can be a stream with only zlib compression or can be a stream first compressed by zlib and by a HEX filter. The stream is very similar to the codec in Python, but more flexible since it allow cascading filters. 
+</p><p>
+Let us consider a case which is a stream first compressed by zlib compression and finally by a hex encoding. The entry will look like <pre><blockquote>
+      /Filter [ /FlatDecode /ASCIIHexDecode] </blockquote></pre>
+And results in an array (or list in Python) containing the corresponding codec.
+</p> 
+<h4>2.2 Accessing Objects</h4>
+<p>Thanks to the fully run-time type information of Python, the construction of objects goes in an elegant way as built-in types. Here is an example of an CosDict Object Instance ann1,  "<</Rect [108 127 204 139 ] /Border [0 0 0 ] /Type /Annot /Subtype /Link /Dest (G11.3166) >>"  . To construct the object from a string, we just take advantage of the implemented parser as follows:<pre><blockquote>
+>>> ann1 = objParsefromString('<</Rect [108 127 204 139 ] /Border [0 0 0 ] /Type /Annot /Subtype /Link /Dest (G11.3166) >>)
+>>> ann1
+<</Rect [108 127 204 139 ] /Border [0 0 0 ] /Type /Annot /Subtype /Link /Dest (G11.3166) >>
+>>> ann1['Rect']
+[108 127 204 139]
+>>> ann1['Rect'] = CosArray([100, 100, 200, 150])
+>>> ann1['Rect']
+[100 100 200 150] </blockquote></pre>
+By the simple dictionary operations, we achieve the purpose of modifying an annotation property in a PDF document.
+</p><p>
+  By the object self-inspection, we can recognize the key composed of ordinary string as CosName object. CosString, however, must be explicitly specified when used for representing real PDF strings since string in Python is not mutable. By overriding __repr__, we get the decorated output as it is required in the PDF specification. For example,<pre><blockquote>
+>>> ann1['Info'] = CosString('This is a string')
+>>> ann1['Info']
+(This is a string)</blockquote></pre>
+</p> 
+<h4>2.3 CosDoc - basic document manipulation</h4>
+<p>The CosDoc class contains functions mimic to [3], which provide the interface to manipulate the file structure and basic document structure. As mentioned, the PDF document actually contains a lot of objects. All objects follow the syntax rules in the specification. For example, pages, images and annotations are dictionaries (CosDict objects) following the syntax rules. The difference among the objects is semantic, i.e., interpreting the meaning of each field of dictionary entry. Basically, all semantic operations can be achieved by the basic syntax operations like array and dictionary operations. 
+</p><p>
+To provide random access to these objects, PDF provides a cross-reference table for each document, which record the absolute offset of every object available [4]. To open a PDF file can then be replaced by "open a binary file, find the cross-reference table, read the cross-reference table, and construct the root object (catalog object)". After constructing the cross-reference table, we can then access any objects in the document and interpret the document correctly. By the way, to repair PDF file often requires rebuilding the cross-reference table.
+</p><p>
+Besides these primitives, if we want to achieve editing capability, we have to provide object life cycle management, capability of adding and deleting objects, flushing dirty objects, remove unused objects and etc. These form the basis of CosDoc class. 
+</p><p>
+Object life cycle control is important especially when we use cache to enhance performance and want to modify objects in the meanwhile. Thanks to Python's native smart pointer (reference counting) to all object instance, it is straightforward to implement this feature efficiently by overriding destructor. With the overriding destructor, every object instance will automatically flush itself into temp file if it is in dirty state and when its reference count decreases to zero. The cache management of object instances also takes advantage of this feature. The cache pool refreshing is just doing cache entry reassignment. All related objects level processing are done implicitly by life cycle control. 
+</p><p>
+Object traversal is also an important function of this layer. Many operations need it including object copy, unused object removal (used in saveas), page insertion (need deepcopy of objects), etc. Object traversal does a similar task to deepcopy in Python. However, unlike Python objects, CosObj has a special indirect reference type, which reference other indirect object in the document. It is intuitively a recursive-oriented job, which will encounter difficulty as large PDF files containing hundreds or even thousands of objects are concerned. Performing object traversal in a recursive way sometimes may induce maximum recursion limit since some PDF documents contain too many chained objects. Deploying with a stack of visited objects gives a simple way to solve this issue.
+</p><p>
+In a summary, the function categories of CosDoc layer includes document control, cross-reference table management, cache management, and object level manipulation. The object level manipulation includes object retrieval and flush, object adding and copy, and object traversal. Cache management provides functions like cache item retrieval, replacing, refreshing, and flush. Cross-reference table management provides table construction, object status recording, free entry management and etc. Document-level functions provide intuitive user interfaces for the document manipulation. For example, 'open' provides a straightforward way to load an existing PDF file. 'Saveas' provides a way to remove unused objects and reassign object number by object traversal across the document and finally save the modified document into a new PDF file.
+</p><p>
+Here is an example, it demonstrates how to open a PDF file, getting an indirect object from it and save it into another filename. In this example, it retrieves a font object (object number is 10) and shows its dictionary content.
+</p><pre><blockquote>
+>>> doc1 = CosDoc()
+>>> doc1.open("c:/www1.pdf")
+>>> doc1.fetch(10)
+<</Type /FontDescriptor /ItalicAngle 0 /Ascent 891 /XHeight 0 /Flags 34 /StemV 94 /CapHeight 656 /FontBBox [-568 -307 2028 1007 ] /Descent -216 /FontName /HODLPI+TimesNewRoman /FontFile2 11 0 R >>
+>>> doc1.saveas("c:/mywww1.pdf")
+</blockquote>
+</pre>
+<h3>3. Comparison to Acrobat SDK API</h3>
+<p>After studying the Acrobat SDK API[3] document, we find a lot of functions in Cos layer are performing data structure manipulation. These functions can be implemented in a quite straightforward manner in Python without extra wrapping. 
+</p><p>
+The following shows functions related to CosArray in the Acrobat SDK.<pre><blockquote>
+CosObj CosArrayGet (CosObj array, ASInt32 index);
+void CosArrayInsert (CosObj array, ASInt32 pos, CosObj obj);
+ASInt32 CosArrayLength (CosObj array);
+void CosArrayPut (CosObj array, ASInt32 index, CosObj obj);
+void CosArrayRemove (CosObj array, CosObj obj); 
+void CosArrayRemoveNth (CosObj array, ASInt32 pos);
+CosObj CosNewArray (CosDoc dP, ASBool indirect, ASInt32 nElements);
+</blockquote></pre><p>
+People familiar with Python will find that we can save a lot of work when implementing these APIs because we have the CosArray class which is derived from UserList. Our framework provides the foundation classes covering all the API functions in Cos-layer of the Acrobat SDK. The following lists a sample code snippet to manipulate an array (CosArray object) in Python.
+</p> <pre><blockquote>
+>>> arr1 = CosArray([100, 200])
+>>> arr1.append(CosArray([200, 300]))
+>>> arr1
+[100 200 [200 300 ] ]
+>>> arr1[2].append(CosArray([200, 300]))
+>>> arr1
+[100 200 [200 300 [200 300 ] ] ]
+>>></blockquote></pre>
+<h4>3.1 Other Function Layers</h4>
+<p>As mentioned before, operations in other abstract layers can be built based on the basic Cos-layer object processing functions. PD layer may be said to be the most popular APIs in Acrobat SDK. Here we illustrate how to implement them based on Cos-layer functions.
+</p><p>
+PDDoc Layer is an abstract layer for the whole document manipulation. It is directly based on CosDoc with a lot of document level processing function added. For example, PDDocDeletePages do the task to delete some pages from the document while pages in the PDF document can be treated as a list of page object. That means the action of page deletion can be decomposed into object deletion in the list (CosArray). Similarly, inserting pages can be decomposed into array insertion and page object copying. 
+</p><p>
+PDPage Layer provides functions to access and to manipulate objects in the page. For example, PDPageGetMediaBox gets the media box information from the page object. Actually it is a dictionary lookup action since page object is a dictionary in Cos-layer. PDPageSetRotate is similar but it does an array set-item action. The following shows Python code snippet, which emulates some functions in PDPage layer.
+</p> <pre><blockquote>
+>>> p1 = doc1.acquirePage(1)
+>>> p1
+<</Contents 22741 0 R /Type /Page /CropBox [0 0 611 791 ] /MediaBox [0 0 612 792 ] /Parent 21984 0 R /Thumb 3583 0 R /Rotate 0 /Resources 22737 0 R >>
+>>>p1['MediaBox']
+[0 0 612 792 ]
+>>>p1['Rotate'] = 90
+>>>doc1.saveas('newfile.pdf')
+</pre></blockquote>
+<p>
+We can check that the first page of the document has been rotated after these operations by opening the new PDF file. Many functions in the Acrobat SDK API actually perform similar tasks. Hence with the basic Cos-layer functions, we can implement these API functions easily. 
+</p><p>
+The following example demonstrates annotation manipulation of PDPage in the PDF document. After fetching annotations from the page object, we can read and modify the attributes of the specified annotation object. In the example, we show how to get the number of annotations on the page, get the n-th annotation from the page, and modify its attributes. Finally we save it as another file. After opening the new file, we can verify that  the annotation we modified is in open state instead of close state.
+</p> <pre><blockquote>
+>>> p1 = doc2.acquirePage(1)
+>>> p1
+<</Resources 258 0 R /Contents 266 0 R /Type /Page /CropBox [0 0 595 842 ] /MediaBox [0 0 595 842 ] /Parent 205 0 R /Annots 235 0 R /Rotate 0 >>>>>
+>>> len(p1['Annots'])		# PDPageGetNumAnnots
+6
+>>> p1['Annots'][0]		# PDPageGetAnnot 
+<</Rect [65.431560000000005 180.30211 349.42847 388.29982000000001 ] /Type /Annot /Open false /F 25 /Parent 237 0 R /Subtype /Popup >>
+>>> p1['Annots'][0]['Subtype'] == 'Popup'		# PDAnnotGetSubtype and test the equality
+1
+>>> p1['Annots'][0]['Open'] = CosBoolean('true')	# set special attribute value, no corresponding API in Acrobat SDK, it also requires developer to use Cos layer to do that
+>>> p1['Annots'][0]
+<</Rect [65.431560000000005 180.30211 349.42847 388.29982000000001 ] /Type /Annot /Open true /F 25 /Parent 237 0 R /Subtype /Popup >>
+>>>doc1.saveas('newfile.pdf')
+>>>
+</blockquote></pre>
+<h3>4. Demonstration</h3>
+<p>With this set of functions and Python extension capability, we can build some applications seriously. Here we implement an application which can perform stamping (or watermarking) to an existing PDF file with text, images, or other PDF files.
+</p><p>
+In Fig. 1 we show a PDF page after processing with text stamped on it. Another example illustrates the result of watermarking an image onto an existing PDF document with rotation and tiling. Interestingly, these two figures are inserted into this PDF document (this paper) by our application. In fact, the two figures are extracted from existing PDF document and stamped onto the final PDF document of this paper by using techniques similar to n-up.
+</p> 
+<h3>5. Portability</h3>
+<p>Since this framework is developed in pure Python, we expect it should run well on all platforms where Python is available. We have tested on Windows and Linux operation systems. One of the most interesting Python platforms we could not omit is Jython[6], We expect the framework should also run well on Jython because there is no platform dependent modules and extern C modules used. Theoretically, it should run on Jython with no need of any modification. However, some minor issues still happened while we tested the framework on Jython. All of the issues resulted from the file object behaviour. For example, tell() return long instead of integer in Jython. This makes the output format end with an 'L'.  After we made a little modification to our original framework, it now runs well on Jython.</p>
+ 
+ 
+<img src="image17a.gif" alt="Figure One">
+<p>
+Thanks to Jython, our framework now works not only on platforms with Python but 
+also on lots of platforms with Jython. With tools in Jython, we can transfer our development into applets, servlets, or beans for incorporating other existing web applications. 
+</p><p>
+Something else worth mentioning is that, with the help of Jython, we can integrate a lot of existing Java modules into our framework, especially Java2D, which provides 2D rendering capability which is required in the PDF specification. Java2D saves our work from implementing 2D rendering functions by ourselves, though there is still some issues on the font rendering [4].
+</p>
+<h3>6. References</h3>
+<p>
+[1] John Aycock, Compiling Little Languages in Python,
+<a href="http://www.cpsc.ucalgary.ca/~aycock/spark/">http://www.cpsc.ucalgary.ca/~aycock/spark/</a><br>
+[2] David M. Beazley, Python Lex-Yacc, <a href="http://systems.cs.uchicago.edu/ply/">http://systems.cs.uchicago.edu/ply/</a><br>
+[3] Acrobat Core API Reference, <a href="http://partners.adobe.com/asn/developer/technotes/">http://partners.adobe.com/asn/developer/technotes/</a><br>
+[4] Portable Document Format Reference Manual, 
+<a href="http://partners.adobe.com/asn/developer/technotes/">http://partners.adobe.com/asn/developer/technotes/</a><br>
+[5] The ReportLab Library, <a href="http://www.reportlab.com/">http://www.reportlab.com/</a><br>
+[6] <a href="http://www.jython.org/">http://www.jython.org/</a><br>
+[7] <a href="http://www.ghostscript.org/">http://www.ghostscript.org/</a></p>
+
+</BODY>
+</HTML>

@@ -1,0 +1,298 @@
+Content-type: text/x-rst
+
+python-dev Summary for 2006-11-01 through 2006-11-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2006-11-01_2006-11-15]
+
+
+
+=============
+Announcements
+=============
+
+--------------------------
+Python 2.5 malloc families
+--------------------------
+
+Just a reminder that if you find your extension module is crashing with Python 2.5 in malloc/free, there is a high chance that you have a mismatch in malloc "families". Unlike previous versions, Python 2.5 no longer allows sloppiness here -- if you allocate with the ``PyMem_*`` functions, you must free with the ``PyMem_*`` functions, and similarly, if you allocate with the ``PyObject_*`` functions, you must free with the ``PyObject_*`` functions.
+
+Contributing thread:
+
+- `2.5 portability problems <http://mail.python.org/pipermail/python-dev/2006-November/069967.html>`__
+
+
+=========
+Summaries
+=========
+
+----------------------------------
+Path algebra and related functions
+----------------------------------
+
+Mike Orr started work on a replacement for `PEP 355`_ that would better group the path-related functions currently in ``os``, ``os.path``, ``shutil`` and other modules. He proposed to start with a `directory-tuple Path class`_ that would have allowed code like::
+
+    # equivalent to
+    # os.path.join(os.path.dirname(os.path.dirname(__FILE__)), "lib")
+    os.path.Path(__FILE__)[:-2] + "lib"
+
+where a Path object would act like a tuple of directories, and could be easily sliced and reordered as such.
+
+As an alternative, glyph proposed using `Twisted's filepath module`_ which was already being used in a large body of code. He showed some common pitfalls, like that the existence on Windows of "CON" and "NUL" in *every* directory can make paths invalid, and indicated how FilePath solved these problems.
+
+Fredrik Lundh suggested a reorganization where functions that manipulate path *names* would reside in ``os.path``, and functions that manipulate *objects* identified by a path would reside in ``os``. The ``os.path`` module would gain a path wrapper object, which would allow "path algebra" manipulations, e.g. ``path1 + path2``. The ``os`` module would gain some of the ``os.path`` and ``shutil`` functions that were manipulating real filesystem objects and not just the path names. Most people seemed to like this approach, because it correctly targeted the "algebraic" features at the areas where chained operations were most common: path name operations, not filesystem operations.
+
+Some of the conversation moved on to the `Python 3000 list`_.
+
+.. _PEP 355: http://www.python.org/dev/peps/pep-0355/
+.. _directory-tuple Path class: http://wiki.python.org/moin/AlternativePathClass
+.. _Twisted's filepath module: http://twistedmatrix.com/trac/browser/trunk/twisted/python/filepath.py
+.. _Python 3000 list: http://mail.python.org/mailman/listinfo/python-3000
+
+Contributing threads:
+
+- `Path object design <http://mail.python.org/pipermail/python-dev/2006-November/069712.html>`__
+- `Mini Path object <http://mail.python.org/pipermail/python-dev/2006-November/069775.html>`__
+- `[Python-3000] Mini Path object <http://mail.python.org/pipermail/python-dev/2006-November/069776.html>`__
+
+------------------
+Replacing urlparse
+------------------
+
+A few more bugs in ``urlparse`` were turned up, and `earlier discussions about replacing urlparse`_ were briefly revisited. Paul Jimenez asked about `uriparse module`_ and was told that due to the constant problems with ``urlparse``, people were concerned about including the "incorrect" library again, so requirements were a little stringent. Martin v. Löwis gave him some guidance on a few specific points, and Nick Coghlan promised to try to post his `urischemes module`_ (a derivative of Paul's `uriparse module`_) to the `Python Package Index`_.
+
+.. _earlier discussions about replacing urlparse: http://www.python.org/dev/summary/2006-06-01_2006-06-15/#rfc-3986-uniform-resource-identifiers-uris
+.. _uriparse module: http://bugs.python.org/1462525
+.. _urischemes module: http://bugs.python.org/1500504
+.. _Python Package Index: http://www.python.org/pypi
+
+Contributing threads:
+
+- `patch 1462525 or similar solution? <http://mail.python.org/pipermail/python-dev/2006-November/069707.html>`__
+- `Path object design <http://mail.python.org/pipermail/python-dev/2006-November/069712.html>`__
+
+----------------------------------
+Importing .py, .pyc and .pyo files
+----------------------------------
+
+Martin v. Löwis brought up `Osvaldo Santana's patch`_ which would have made Python search for both .pyc and .pyo files regardless of whether or not the optimize flag, "-OO", was set (like zipimporter does). Without this patch, when "-OO" was given, Python never looked for .pyc files. Some people thought that an extra ``stat()`` call or directory listing to check for the other file would be too expensive, but no one profiled the various versions of the code so the cost was unclear. People were leaning towards removing the extra functionality from zipimporter so that at least it was consistent with the rest of Python.
+
+Giovanni Bajo suggested that .pyo file support should be dropped completely, with .pyc files being compiled at various levels of optimization depending on the command line flags. To make sure all your .pyc files were compiled at the same level of optimization, you'd use a new "-I" flag to indicate that all files should be recompiled, e.g. ``python -I -OO app.py``.
+
+Armin Rigo suggested using .pyc files only as a means of caching bytecode for speed reasons, and introducing a new filename extension for importable bytecode files. This would have avoided a commonly encountered problem where Python uses stale .pyc files instead of the more up-to-date .py files. This can happen, for example, when a .py file is deleted without deleting the accompanying .pyc file -- if a new .py file of the same name is introduced somewhere else, it may be hidden unintentionally by the .pyc file.
+
+There was some support for Armin's solution, but it was not overwhelming.
+
+.. _Osvaldo Santana's patch: http://bugs.python.org/1346572
+
+Contributing thread:
+
+- `Importing .pyc in -O mode and vice versa <http://mail.python.org/pipermail/python-dev/2006-November/069822.html>`__
+
+---------------------------------------------------------------
+The buffer protocol and communicating binary format information
+---------------------------------------------------------------
+
+The discussion of extending the buffer protocol to more binary formats continued this fortnight. Though the PIL_ had been used as an example of a library that could benefit from an extended buffer protocol, Fredrik Lundh indicated that future versions of the PIL_ would make the binary data model completely opaque, and instead provide a view-style API like::
+
+    view = object.acquire_view(region, supported formats)
+    ... access data in view ...
+    view.release()
+
+Along these lines, the discussion turned away from the particular C formats used in ``ctypes``, ``numpy``, ``array``, etc. and more towards the best way to communicate format information between these modules. Though it seemed like people were not completely happy with the proposed API of the new buffer protocol, the discussion seemed to skirt around any concrete suggestions for better APIs.
+
+In the end, the only thing that seemed certain was that a new buffer protocol could only be successful if it were implemented on all of the appropriate stdlib modules: ``ctypes``, ``array``, ``struct``, etc.
+
+.. _PIL: http://www.pythonware.com/products/pil/
+
+Contributing threads:
+
+- `PEP: Adding data-type objects to Python <http://mail.python.org/pipermail/python-dev/2006-November/069706.html>`__
+- `PEP: Extending the buffer protocol to share array information. <http://mail.python.org/pipermail/python-dev/2006-November/069709.html>`__
+- `idea for data-type (data-format) PEP <http://mail.python.org/pipermail/python-dev/2006-November/069733.html>`__
+
+-----------------
+dir() and __dir__
+-----------------
+
+Tomer Filiba continued his `previous investigations`_ into adding a ``__dir__()`` method to allow customization of the ``dir()`` builtin. He moved most of the current ``dir()`` logic into ``object.__dir__()``, with some additional logic necessary for modules and types being moved to ``ModuleType.__dir__()`` and ``type.__dir__()`` respectively. He posted a `patch for his implementation`_ and it got approval for Python 2.6.
+
+There was a brief discussion about whether or not it was okay for an object to lie about its members, with Fredrik Lundh suggesting that you should only be allowed to *add* to the result that ``dir()`` produces. Nick Coghlan pointed out that when a class overrides ``__getattribute__()``, attributes that the default ``dir()`` implementation sees can be blocked, in which case removing members from the result of ``dir()`` might be quite appropriate.
+
+.. _previous investigations: http://www.python.org/dev/summary/2006-07-01_2006-07-15/#adding-a-dir-magic-method
+.. _patch for his implementation: http://bugs.python.org/1591665
+
+Contributing thread:
+
+- `__dir__, part 2 <http://mail.python.org/pipermail/python-dev/2006-November/069865.html>`__
+
+--------------------------------
+Invalid read errors and valgrind
+--------------------------------
+
+Using valgrind, Herman Geza found that he was getting some "Invalid read" read errors in PyObject_Free which weren't identified as acceptable in Misc/README.valgrind. Tim Peters and Martin v. Löwis explained that these are okay if they are reads from Py_ADDRESS_IN_RANGE. If the address given is Python's own memory, a valid arena index is read. Otherwise, garbage is read (though this read will never fail since Python always reads from the page where the about-to-be-freed block is located). The arenas are then checked to see whether the result was garbage or not.
+
+Neal Norwitz promised to try to update Misc/README.valgrind with this information.
+
+Contributing thread:
+
+- `valgrind <http://mail.python.org/pipermail/python-dev/2006-November/069884.html>`__
+
+---------------------------
+SCons and cross-compilation
+---------------------------
+
+Martin v. Löwis reviewed a `patch for cross-compilation`_ which proposed to use SCons_ instead of distutils because updating distutils to work for cross-compilation would have involved some fairly major changes. Distutils had certain notions of where to look for header files and how to invoke the compiler which were incorrect for cross-compilation, and which were difficult to change. While accepting the patch would not have required SCons_ to be added to Python proper (which a number of people opposed), people didn't like the idea of having to update SCons configuration in addition to already having to update setup.py, Modules/Setup and the PCbuild area. The patch was therefore rejected.
+
+.. _patch for cross-compilation: http://bugs.python.org/841454
+.. _SCons: http://www.scons.org/
+
+Contributing thread:
+
+- `Using SCons for cross-compilation <http://mail.python.org/pipermail/python-dev/2006-November/069917.html>`__
+
+----------------------------
+Individual interpreter locks
+----------------------------
+
+Robert asked about having a separate lock for each interpreter instance instead of the global interpreter lock (GIL). Brett Cannon and Martin v. Löwis explained that a variety of objects are shared between interpreters, including:
+
+* extension modules
+* type objects (including exception types)
+* singletons like ``None``, ``True``, ``()``, strings of length 1, etc.
+* many things in the sys module
+
+A single lock for each interpreter would not be sufficient for handling access to such shared objects.
+
+Contributing thread:
+
+- `Feature Request: Py_NewInterpreter to create separate GIL (branch) <http://mail.python.org/pipermail/python-dev/2006-November/069815.html>`__
+
+---------------------------
+Passing floats to file.seek
+---------------------------
+
+Python's implementation of ``file.seek`` was converting floats to ints. `Robert Church suggested a patch`_ that would convert floats to long longs and thus support files larger than 2GiB. Martin v. Löwis proposed instead to use the ``__index__()`` API to support the large files and to raise an exception for float arguments. Martin's approach was approved, with a warning instead of an exception for Python 2.6.
+
+.. _Robert Church suggested a patch: http://bugs.python.org/1067760
+
+Contributing thread:
+
+- `Passing floats to file.seek <http://mail.python.org/pipermail/python-dev/2006-November/069948.html>`__
+
+----------------------------------------
+The datetime module and timezone objects
+----------------------------------------
+
+Fredrik Lundh asked about including a ``tzinfo`` object implementation for the ``datetime`` module, along the lines of the ``UTC``, ``FixedOffset`` and ``LocalTimezone`` classes from the `library reference`_. A number of people reported having copied those classes into their own code repeatedly, and so Fredrik got the go-ahead to put them into Python 2.6.
+
+.. _library reference: http://docs.python.org/lib/datetime-tzinfo.html
+
+Contributing thread:
+
+- `ready-made timezones for the datetime module <http://mail.python.org/pipermail/python-dev/2006-November/069951.html>`__
+
+
+================
+Deferred Threads
+================
+- `Summer of Code: zipfile? <http://mail.python.org/pipermail/python-dev/2006-November/069955.html>`__
+- `Results of the SOC projects <http://mail.python.org/pipermail/python-dev/2006-November/069968.html>`__
+
+
+==================
+Previous Summaries
+==================
+- `The "lazy strings" patch [was: PATCH submitted: Speed up + for string concatenation, now as fast as "".join(x) idiom] <http://mail.python.org/pipermail/python-dev/2006-November/069816.html>`__
+
+
+===============
+Skipped Threads
+===============
+- `RELEASED Python 2.3.6, FINAL <http://mail.python.org/pipermail/python-dev/2006-November/069752.html>`__
+- `[Tracker-discuss] Getting Started <http://mail.python.org/pipermail/python-dev/2006-November/069811.html>`__
+- `Status of pairing_heap.py? <http://mail.python.org/pipermail/python-dev/2006-November/069820.html>`__
+- `Inconvenient filename in sandbox/decimal-c/new_dt <http://mail.python.org/pipermail/python-dev/2006-November/069896.html>`__
+- `test_ucn fails for trunk on x86 Ubuntu Edgy <http://mail.python.org/pipermail/python-dev/2006-November/069904.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2006-November/069909.html>`__
+- `Last chance to join the Summer of PyPy! <http://mail.python.org/pipermail/python-dev/2006-November/069913.html>`__
+- `[Python-checkins] r52692 - in python/trunk: Lib/mailbox.py Misc/NEWS <http://mail.python.org/pipermail/python-dev/2006-November/069919.html>`__
+- `PyFAQ: help wanted with thread article <http://mail.python.org/pipermail/python-dev/2006-November/069965.html>`__
+- `Arlington sprint this Saturday <http://mail.python.org/pipermail/python-dev/2006-November/069966.html>`__
+- `Suggestion/ feature request <http://mail.python.org/pipermail/python-dev/2006-November/069985.html>`__
+
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+November 01, 2006 through November 15, 2006.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This python-dev summary is the 16th written by 
+Steve Bethard. 
+
+To contact me, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations.html .  Every cent counts so even a
+small donation with a credit card, check, or by PayPal helps.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+This summary is written using reStructuredText_. Any unfamiliar
+punctuation is probably markup for reST_ (otherwise it is probably
+regular expression syntax or a typo :); you can safely ignore it.  We
+do suggest learning reST, though; it's simple and is accepted for
+`PEP markup`_ and can be turned into many different formats like HTML
+and LaTeX.
+
+.. _python-dev: http://www.python.org/dev/
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/peps/pep-0012.html
+
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

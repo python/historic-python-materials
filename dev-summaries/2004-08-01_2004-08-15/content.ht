@@ -1,0 +1,649 @@
+Title: python-dev Summary for 2004-08-01 through 2004-08-15
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2004-08-01 through 2004-08-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from August 01, 2004 through August 15, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the forty-sixth summary written by Brett Cannon (two freakin' years
+doing this; I *am* nuts).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-08-01_2004-08-15.html
+.. _original text file: http://www.python.org/dev/summary/2004-08-01_2004-08-15.ht
+
+
+
+=====================
+Summary Announcements
+=====================
+Well, I have now been doing the summaries for two years.  As has become a yearly tradition, I am offering to pass on the writing of the summaries to someone else.  My only requirement is you do a comparable job.  You do learn *tons* about Python's internals when you have to research a topic to be able to summarize it.
+
+With that said, it is also time for stats on the list to scare away anyone considering taking over this job  =) .  According to my probably buggy script that I wrote last year, I have read 10,190 emails (this month has already been the busiest month and it is only half over; could set the record for busiest month ever).
+The people with over 300 emails posted over the year are:
+
+9. Michael Hudson (303)
+8. Martin v. Lowis (307)
+7. Barry Warsaw (341)
+6. Phillip J. Eby (341) # not a typo; same number as Barry
+5. Greg Ewing (354)
+4. Raymond Hettinger (372)
+3. Skip Montanaro (399)
+2. Tim Peters (629)
+1. Guido van Rossum (1031)
+
+These 9 people make up over 40% of all the emails from the past year.
+
+Longest threads were:
+
+1. decorate-sort-undecorate (694 emails)
+2. Call for defense of @decorators (195 emails)
+3. PEP 318: Decorators last before colon (181 emails)
+4. redefining is (162 emails)
+5. Christmas Wishlist (162 emails)  
+
+These stats along with the insane amount of email has showed me something; the Summaries have detracted from my participation on python-dev this past year.  I have a bigger mouth and more opinions than the number of emails I sent to the list show.  This means something has to change, and it isn't going to be my mouth.  The Summaries need to change in one of two ways.
+
+Option one is that I focus in on certain areas of interest and skip other ones.  I have labeled all of the summaries below with what their type is right under the titles.  Please email me your top ares of interest.  I realize that this month may not be typical but pretty much all areas are covered at least once so at least there is a good taste for the different areas.  So, choose from:
+
+1. improvement stuff
+      Pretty much anything that is not a major change to the language/stdlib.  Usually something you find out from the Misc/NEWS or the "What's New" doc.
+2. how python-dev works
+      Stuff like how python-dev handles things such as the PEP process, coding style, etc.
+3. nuggets of info
+      Cool tricks and ideas that come up on the list that the greater world probably does not know.
+4. minor language change
+      Stuff that deals with the language changing, but is not significant; such as discussions of existing PEPs.
+
+Language evolution stuff (such as decorators) will always be covered so you don't need to vote on that.  If people like this first option then I will make sure I cover the area with most votes and everything else is just considered icing.
+
+Option two out of all of this is people just say, "summarize what you want, Brett."  Then I just cover what I find interesting and just don't worry about covering a specific area.  I obviously prefer this option but if people really care about a specific area I want to make sure to cover it.  What will most likely happen is I will still cover almost everything but the thoroughness will be lower.  I will go more off of memory for example.
+
+But something will change.  Being on the sidelines for the decorators discussion because I dreaded having to start reading all of those emails in terms of summarizing is not acceptable (and no, I can't just ignore some of them since that is just not how I work).  Having to read 1,289 emails for just the first two weeks of this month finally caused me to lose my sanity.
+
+Another question becomes whether people miss the "Skipped Threads" feature of the Summaries.  If you do let me know and I can go back to doing that by just listing the threads that I don't cover (but with no one-liners probably, but it is possible, or linking to the archives; you would just get the subject line in a long list of threads I didn't bother covering).  If that would be *really* helpful then let me know about that as well.
+
+========
+Summary
+========
+--------------------------------------------------------------------------------
+Multiple interpreters at a time in a C program kind of broken
+--------------------------------------------------------------------------------
+3. nuggets of info
+
+Philip Eby thought he might have a fix for a known limitation of running multiple interpeters at once (using PyInterpreter_New() ) and having imports not being clearly separated between interpreters.  But Martin v. Löwis popped Philip's bubble somewhat by saying that he and some other people viewed multiple interpreter support as inherently broken.
+
+Contributing threads:
+  - `Safe to change a thread's interpreter? <http://mail.python.org/pipermail/python-dev/2004-August/046593.html>`__
+
+
+--------------------------------------------
+Another sucker becomes an official developer
+--------------------------------------------
+2. how python-dev works
+
+Sean Reifschneider took the bait to become another one of Guido's minions.
+
+Sean has been maintaining the RPM spec files for quite a while.
+
+Contributing threads:
+  - `New developer <http://mail.python.org/pipermail/python-dev/2004-August/046595.html>`__
+
+
+----------------------------------------
+Discovering leaks with a regrtest wrench
+----------------------------------------
+1. minor language change
+
+Michael Hudson, who found and fixed a bunch of refcount leaks shortly after 2.3 was released, used his magical regrtest patch (which has subsequently been checked in) to hunt down leaks for 2.4 .  A bunch of tests were cleaned up to make them not raise false-positives along with fixing some true leaks.
+
+Contributing threads:
+  - `refleak hunting season <http://mail.python.org/pipermail/python-dev/2004-August/046611.html>`__
+
+
+---------------------------------
+Another Bug Day has come and gone
+---------------------------------
+2. how python-dev works
+
+The Bug Day held on August 7 led to 19 bugs and 12 patches being closed.  You can see the results at http://www.python.org/cgi-bin/moinmoin/PythonBugDayStatus .
+
+Feel guilty for not being able to make it?  Still want to help?  Go to that page to see bugs that could use some squashing that shouldn't be too difficult to deal with.
+
+Contributing threads:
+  - `Bug day coming up this Saturday <http://mail.python.org/pipermail/python-dev/2004-August/046645.html>`__
+
+
+--------------------------------------------------
+How to shut a compiler up about an unused variable
+--------------------------------------------------
+3. nuggets of info
+
+Tim Peters had come up with some optimizations for list.pop() that avoided unneeded test+branches.  The problem is that it led to a variable possibly being unused.  C compilers tend to complain about that and so an initial solution was used.  Unfortunately gcc complained about it, and so yours truly came up with one.  But that solution was labeled as "perverse" (and it was; total hack solution), so another solution was found thanks to Sjoerd Mullender by just taking the variable and casting it to void.
+
+Contributing threads:
+  - `RE: [Python-checkins] python/dist/src/Objects listobject.c, ... <http://mail.python.org/pipermail/python-dev/2004-August/046678.html>`__
+
+
+------------------------------------------------------
+Variable sequence unpacking assignment shot down again
+------------------------------------------------------
+language evolution
+
+David Cole suggested adding the ability to have sequence unpacking assignment
+just like \*args for parameters; ``a, b, *c = (0, 1, 2, 3, 4, 5)  # a == 0, b == 2, c == (3, 4, 5)``.  This idea got a -1 from Guido as not really needed.  That reaction makes Guido consistent; the idea was originally shot down back in Nov. 2002; http://www.python.org/dev/summary/2002-11-16_2002-11-30.html#half-baked-proposal-and-in-assignments .  If you really like that idea the previous summary contains a function that helps you do this in a way.
+
+Contributing threads:
+  - `Tuple/list assignment question <http://mail.python.org/pipermail/python-dev/2004-August/046684.html>`__
+
+
+-------------------------------------------------------------------------------------
+Changing the Big-O complexity for something in the language is now a language feature
+-------------------------------------------------------------------------------------
+language evolution
+
+Armin Rigo came up with a way to have string concatenation in a loop (think ``for thing in iter_of_strings: concat_str += thing``) not be a quadratic algorithm thanks to some trickery for ``a = a + b`` and ``a += b`` conditions for strings.  The hope was to remove the (commonly considered) wart of having ``"".join(iter_of_strings)`` be the suggested way to concatenate a bunch of strings.
+
+But Guido didn't like the patch.  His reasoning was that changing something that led to a change in the Big-O complexity of certain algorithms would inherently hurt other implementations of Python when people would start to code specifically for that performance gain.  For instance, having Jython be able to pull this trick off is, I believe, near impossible.  So, in order to make sure changes like this are considered before applying them, Guido instated a new rule that "implementation features that affect not just the running speed but the O() rate for certain algorithms should be considered language features, because any implementation will be required to implement them in order to ensure code portability" between implementations of Python.
+
+In the end, though, this went in with a warning that the speed performance is not portable.  It is not to be used in the stdlib ever.
+
+Contributing threads:
+  - `Optimized string concatenation <http://mail.python.org/pipermail/python-dev/2004-August/046686.html>`__
+  - `PEP 0008 confusion - here it is, but don't use it? <http://mail.python.org/pipermail/python-dev/2004-August/047194.html>`__
+
+
+-------------------------------------------------------------------------------
+Bet you didn't think about string interning and how that affects .pyc, did you?
+-------------------------------------------------------------------------------
+1. minor language change
+
+Luckily Martin v. Löwis did.  A patch was originally applied to not intern strings representing filenames.  Problem is that every code object stores that string, so it increases .pyc files since it has to store multiple copies of that string instead of just one.
+
+Contributing threads:
+  - `Re: [Python-checkins] python/dist/src/Python compile.c ... <http://mail.python.org/pipermail/python-dev/2004-August/046703.html>`__
+
+
+------------------------------------------------------------------------------
+`PEP 324`_ (process - New POSIX process module) != process.py from ActiveState
+------------------------------------------------------------------------------
+1. minor language change
+
+Guido asked if the APIs between the module proposed in `PEP 324`_ and the process.py module by Trent Mick of ActiveState were compatible.  Turns out they are not.  Then the discussion went into select(), broken pipes, and other stuff not relevant to the OP.  =)
+
+.. _PEP 324: http://www.python.org/dev/peps/pep-0324
+
+Contributing threads:
+  - `PEP 324 (process module) <http://mail.python.org/pipermail/python-dev/2004-August/046707.html>`__
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+Getting it so string literals accept those nutty non-ASCII characters more easily (and getting files to be more upfront about their Unicode-ness)
+--------------------------------------------------------------------------------------------------------------------------------------------------
+language evolution
+
+François Pinard asked what people thought about two things related to Unicode.  First, he thought having a __coding__ attribute for files that contained the encoding of the text would be nice.  Martin v. Löwis said it would be possible.  MA Lemburg added his vote of support.  It has not been implemented to my knowledge yet, though.
+
+The second idea was to have a directive of some sort on a per-module basis so that all string literals could be considered in something other than ASCII.  Once again Martin said it was doable with MA saying he liked the idea.  But it was pointed out that you might as well just use the 'u' in front of strings now.
+
+This led to a slight discussion on good i18n practices.  Both Martin and MA seemed to suggest that if you are going to be doing most of your work in a single encoding then just use that and declare everything Unicode.  ANd if you are going to support a lot of different languages, use gettext and such.  Martin also stated it is best to get text into Unicode ASAP and then only convert to the final encoding at the last moment.
+
+Contributing threads:
+  - `Python in Unicode context <http://mail.python.org/pipermail/python-dev/2004-August/046727.html>`__
+
+
+----------------------------------------------------------------------
+An exception is an exception, unless it doesn't inherit from Exception
+----------------------------------------------------------------------
+language evolution
+
+Coming up in a discussion on Unicode of all things, a discussion on moving exceptions over to new-style classes came up.  Guido pointed out that moving over to new-style classes would seem to suddenly require that anything passed to 'raise' be a new-style class and that goes against the current acceptance.
+
+But in comes Paul Prescod with his argument that exceptions are inherently organized based on inheritance and thus requiring things being passed to 'raise' subclass Exception somewhere is not that big of a thing.  Guido really liked that point.  So if it goes this way and you don't like it blame Paul (who is a nice guy, so go easy on him  =).
+
+And then along come Holger Krekel bringing up the point that using exceptions to do non-standard flow control is handy.  But the question was asked as to why he couldn't still just subclass Exception?  Was it that big of a deal?  He admitted it wasn't and said when the name Raisable was suggested that would make it easier.
+
+Michael Hudson then came in and wrote up a hacked-up patch to turn exceptions into new-style classes.  Most stuff seemed to still work.
+
+Python 3 was already going to switch to new-style classes for exceptions and string exceptions have already been deprecated.  Now add to the mix the possible requirement that anything passed to 'raise' require a common base class.
+
+Contributing threads (note that the thread starts part way in a thread on Unicode and end before the end of the full thread):
+  - `Python in Unicode context <http://mail.python.org/pipermail/python-dev/2004-August/046757.html>`__
+
+
+-------------------------
+Python 2.4a2 out the door
+-------------------------
+language evolution
+
+Python 2.4a2 has been released.  As usual, please download it and test it with your code along with the regression test suite.
+
+Contributing threads:
+  - `trunk frozen for 2.4a2 <http://mail.python.org/pipermail/python-dev/2004-August/046822.html>`__
+  - `RELEASED Python 2.4, alpha 2 <http://mail.python.org/pipermail/python-dev/2004-August/046864.html>`__
+
+
+-------------------------------------------------------
+Amendment to how to compile with the free .NET compiler
+-------------------------------------------------------
+3. nuggets of info
+
+Nick Coghlan expanded upon my summary on how to compile with the free .NET compiler under Windows at http://www.python.org/dev/summary/2004-07-16_2004-07-31.html#how-to-get-python-to-compile-with-microsoft-s-free-compiler-that-should-just-come-with-the-os-standard .  See his email at http://mail.python.org/pipermail/python-dev/2004-August/047215.html on the extra steps.
+
+Or just move to another OS.
+
+Contributing threads:
+  - `python-dev Summary for 2004-07-16 through 2004-07-31 [draft] <http://mail.python.org/pipermail/python-dev/2004-August/047215.html>`__
+
+
+--------------------------------------
+Darned Solaris, g++, and _XOPEN_SOURCE
+--------------------------------------
+1. improvement stuff
+
+Skip Montanaro discovered that building under Solaris with g++ raised a warning about redefining _XOPEN_SOURCE.  pyconfig.h defines it, but apparently so does g++ in order for Solaris' toolchain to expose some code that is only available if it is defined.  Martin v. Löwis came up with a couple of suggestions on how to handle this.  Skip ended up going with the idea of setting _XOPEN_SOURCE to the same value as it is defined by g++.
+
+Contributing threads:
+  - `use of #pragma GCC system_header to suppress _XOPEN_SOURCE warnings <http://mail.python.org/pipermail/python-dev/2004-August/046955.html>`__
+
+
+-------------------------------------------------------------------------------------
+pre-PEP on a function for re that "captures matches for groups that match repeatedly"
+-------------------------------------------------------------------------------------
+1. minor language change
+
+Mike Coleman presented a pre-PEP (newest version at http://mail.python.org/pipermail/python-dev/2004-August/047238.html ) on adding a function to re that would create a tree (in the form of a list) containing all group matches in a string.  It got a little support, but the discussion quickly moved over to dreamings of a full-on scanner or parser package for the stdlib.
+
+But if the idea of the PEP works for you then speak up on c.l.py .
+
+Contributing threads:
+  - `pre-PEP: Complete, Structured Regular Expression Group Matching <http://mail.python.org/pipermail/python-dev/2004-August/047042.html>`__
+
+
+---------------------------------------
+Making ourselves follow the PEP process
+---------------------------------------
+2. how python-dev works
+
+It was noticed early on that the PEP process had broken down for `PEP 318`_ (decorators).  What should happen is a PEP gets written (and the author becomes its champion), there is a public discussion, the PEP is updated, that's repeated until it is deemed done, gets get BDFL pronouncement, if Guido okays it the code goes in.  Unfortunately the part about  updating the PEP didn't really happen.
+
+This led to two major things being stated and generally agreed upon.  One is that PEPs should not be checked in if the PEP has not been updated.  While a minor nit is not a reason to hold back code, not updating after a major public debate is not acceptable.
+
+This directly segued into the other point of a PEP needs to have a champion, period.  Since the developers on python-dev do not have the time to keep PEPs updated it is up to the PEP champion to make sure it is kept current.  If it isn't it is take to mean the champion no longer cares, which means python-dev no longer cares, which means the PEP gets rejected outright.  This will also make sure that there is a focus to the design of what the PEP wants and does not lead to a design-by-committee problem.
+
+.. _PEP 318: http://www.python.org/dev/peps/pep-0318
+
+Contributing threads:
+  - `PEP 318, and the PEP process <http://mail.python.org/pipermail/python-dev/2004-August/047020.html>`__
+
+
+----------------------------------------------------------------
+How to tell Windows from Linux without lifting up anyone's skirt
+----------------------------------------------------------------
+3. nuggets of info
+
+The question came up on what the best way was to tell what platform you are running on.  The answer came down to why you were cared.  If it was whether or not you had a specific functionality (or lack thereof), then just test for the functionality.  If you had other needs, though, using sys.platform seemed to be the most reliable way (at least for Windows since all of them use 'win32').
+
+Contributing threads:
+  - `Asyncore .set_reuse_addr() on Windows <http://mail.python.org/pipermail/python-dev/2004-August/047269.html>`__
+
+
+-----------------------------------------
+func_name can now have an identity crisis
+-----------------------------------------
+1. improvement stuff
+
+Thanks to the rampant decorator discussion, Skip Montanaro came up with the idea of wanting func_name to be writable.  This would allow decorators to wrap a function with another function and yet reset func_name to its original value, thus not having the wrapper function become the prevailing name.
+
+Guido liked and Michael Hudson subsequently wrote up `patch #1004703`_.
+
+.. _patch #1004703: http://www.python.org/sf/1004703
+
+Contributing threads:
+  - `PEP 318 - writing to func_name attribute <http://mail.python.org/pipermail/python-dev/2004-August/047097.html>`__
+
+
+-----------------------------------------
+statistics.py ain't goin' into the stdlib
+-----------------------------------------
+1. improvement stuff
+
+Raymond Hettinger (at the last Python Bug Day) made the statement that he didn't think 'statistic's should be taken out of the sandbox in CVS and put into the stdlib.  He felt that most of the important algorithms were available elsewhere (such as nsmallest and nlargest in the heapq module) and the remaining functions that were not found anywhere were not that critical.
+
+He did say, though, he would like to do a calculator module where those remaining functions could go.
+
+Contributing threads:
+  - `status of statistics.py? <http://mail.python.org/pipermail/python-dev/2004-August/047129.html>`__
+
+
+------------------------------------
+Making re.split care about emptiness
+------------------------------------
+1. improvement stuff
+
+Mike Coleman wrote up a patch for re.split() that AM Kuchling presented to the list.  It adds an argument to the function to allow an empty string to be put into the resulting list when a match occurs, even if the match consumes no characters.  This allows delimiters used in the regex to still appear in the groups.
+
+No decision on the exact semantics of the function, how to handle turning on the new functionality (some say an extra argument, some say adding another bit flag like traditional re arguments), or even if it will be accepted.
+
+Contributing threads:
+  - `re.split on empty patterns <http://mail.python.org/pipermail/python-dev/2004-August/047272.html>`__
+
+
+----------------------------------------
+Pickler's 'bin' argument on its last leg
+----------------------------------------
+1. improvement stuff
+
+As per `PEP 307`_ (Extensions to the pickle protocol), the 'bin' argument is being upgraded from PendingDeprecationWarning to DeprecationWarning; so it's gone plaid and the only way to stop it is with some emergency change.
+
+.. _PEP 307: http://www.python.org/dev/peps/pep-0307
+
+Contributing threads:
+  - `Pickler()'s bin argument <http://mail.python.org/pipermail/python-dev/2004-August/047274.html>`__
+
+
+---------------------------------
+Some modules are getting the boot
+---------------------------------
+1. improvement stuff
+
+TERMIOS, mpz, statcache, xreadlines and rotor are all being removed.  mimify, MimeWriter, and whrandom will raise a DeprecationWarning.  rfc822 and mimetools will not be raising DeprecationWarning as specified by `PEP 4`_ since some code in the stdlib still uses it.
+
+.. _PEP 4: http://www.python.org/dev/peps/pep-0004
+
+Contributing threads:
+  - `Removing stuff from 2.4 <http://mail.python.org/pipermail/python-dev/2004-August/047308.html>`__
+
+
+-------------------------------------------------
+Should decimal.Context.copy() be deep or shallow?
+-------------------------------------------------
+1. improvement stuff
+
+Raymond Hettinger brought up the question of whether decimal.Context.copy() should be a deep or shallow copy.  While tradition dictates it be shallow based on name, it seems like the functionality should be deep.  No one wants context to be shared between number naturally since numbers tend to be viewed as unique things.
+
+Staring in 2.4a3 it will be deep unless people come up with reasons to switch it to shallow.
+
+Contributing threads:
+  - `decimal.Context.copy() shallow or deep? <http://mail.python.org/pipermail/python-dev/2004-August/047416.html>`__
+
+
+----------------------------------------------------------
+The dark corners of Python allow you to skip return values
+----------------------------------------------------------
+3. nuggets of info
+
+Christian Tismer discovered that you can actually stop a return statement from returning if you encase it in a 'finally' block and tweak it slightly (see the OP to get what I mean by this).  Turns out this is a reliable feature of Python if you really want to use it.
+
+Contributing threads:
+  - `capturing RETURN_VALUE <http://mail.python.org/pipermail/python-dev/2004-August/047360.html>`__
+
+
+--------------------------------------
+Is an int/long combined type worth it?
+--------------------------------------
+language evolution
+
+Dmitry Vasiliev pointed out that `PEP 237`_ (Unifying Long Integers and Integers) mentioned that a a new type named 'integer' might be introduced that subclassed both int and long.  The discussion waivered between whether it was at all needed, and if it was if it should be a true type or just a tuple containing both types for use with isinstance() .
+
+No conclusion was reached in the end.
+
+.. _PEP 237: http://www.python.org/dev/peps/pep-0237
+
+Contributing threads:
+  - `Unifying Long Integers and Integers: baseint <http://mail.python.org/pipermail/python-dev/2004-August/047404.html>`__
+
+
+--------------------------------------
+Should byte arrays be a built-in type?
+--------------------------------------
+language evolution
+
+Through the discussion bout having a common type combining int and long a discussion on whether a byte array type should be introduced.  The initial suggestion was for it to be practically synonymous with str since str itself stores everything as an array of 8-bit values.  The use cases would be for streams and such that just want a stream of bytes with no care for any encoding.
+
+Syntactically, having a 'b' and 'B' cookie before literals was suggested.  The issue with this, though, is that byte arrays should be mutable, which would make literals that can be mutated, and that is frowned upon by Guido.
+
+Semantically, aliasing bytes to the str type was suggested.  That was not loved since that could create confusion.  Returning an object from 'array' was suggested and seemed okay.
+
+In general it seemed this could be useful and could go in 2.5, but nothing for 2.4 .
+
+Contributing threads:
+  - `Unifying Long Integers and Integers: baseint <http://mail.python.org/pipermail/python-dev/2004-August/047665.html>`__
+
+
+-----------------------------
+Thar the Windows stack blows!
+-----------------------------
+1. minor language change
+
+Running the new test_compiler test (if you run it with ``-uall`` for regrtest it will recompile the entire stdlib) was leading to an odd failure: the "process on Windows "just vanishes" without a trace, and without an error message of any kind, but with an exit code of 128".  After a lot of work put in by a bunch of people (led by Tim Peters) the problem was tracked down to a blown C stack.
+
+Turned out that the stack-checking code was not being called frequently enough to pick up the error.  The problem with this was that it was leading to odd errors that should have been MemoryError but were manifesting themselves as KeyError.  This was because PyDict_GetItem() was failing and return NULL which is the same as signaling the key doesn't exist in the dict.
+
+Trick was trying to come up with a good way to deal with this.  Adding more calls would be very expensive (reliable way of catching it was sticking a check in pymalloc code) and so that was ruled out.  PyDict_GetItem() couldn't change its return value since that would break more code than could be imagined.  So, in the end, the stack was increased to 2 MB on Windows.
+
+Contributing threads:
+  - `Another test_compiler mystery <http://mail.python.org/pipermail/python-dev/2004-August/047468.html>`__
+
+
+------------------------------------------
+Someone else falls for the dangling carrot
+------------------------------------------
+2. how python-dev works
+
+Johannes Gijsbers now has checkin rights.  May he close many bugs.
+
+Contributing threads:
+  - `New Developer <http://mail.python.org/pipermail/python-dev/2004-August/047815.html>`__
+
+
+----------------------------------------------------------
+Lying about being in __builtin__ is not always a bad thing
+----------------------------------------------------------
+1. improvement stuff
+
+James Knight noticed that some objects (mostly C types such as iterators for the built-in types and such) claim in their __module__ attribute that they come from __builtin__ which is not technically correct since you can't access them from there.  The desire to fix this came from allowing for proper introspection.  The leading idea is to put these types in __builtin__ properly so that they are no longer lying about where they come from.
+
+Contributing threads:
+  - `Classes that claim to be defined in __builtin__ but aren't <http://mail.python.org/pipermail/python-dev/2004-August/047477.html>`__
+
+
+---------------------------------------------------------
+Bringing order to the order of application for decorators
+---------------------------------------------------------
+1. minor language change
+
+Turns out that the order of application for decorators was implemented in the reverse order of what it was supposed to be in 2.4a2 .  Luckily James Knight spotted this and let the list know.  It has been fixed, though, in CVS and now follows `PEP 318`_ to apply in bottom-up order::
+
+  @first
+  @second
+  def blah(): pass
+
+is equivalent to::
+
+  blah = first(second(blah))
+
+The arguments for this ordering beyond it just making more sense to Guido and others is that people will typically put decorators such as staticmethod and classmethod first.  Going with the original order would have led to errors in most situations if people were not expecting to be receiving a class or static method to be passed to the other decorators.
+
+There was a short discussion on the order of instantiation for the decorators, but in the end the order chosen was the order listed; first would be first() instantiated followed by second().
+
+Contributing threads:
+  - `Decorator order implemented backwards? <http://mail.python.org/pipermail/python-dev/2004-August/047512.html>`__
+
+
+-----------------------------------------------------------------------------------
+PEP 292 (Simpler String Substitutions) getting gussied up for the Python 2.4a3 ball
+-----------------------------------------------------------------------------------
+1. minor language change
+
+`PEP 292`_'s implementation got fixed up.  The names of the class names were changed to Template and SafeTemplate, the whole process was made lazy, and just cleaned up in general (solution is small, simple, and rather cool; all subclassable and works with Unicode to boot).
+
+But then questions over the merits of $-based string interpolation popped up.  People wondered if going from ``%(blah)s`` to ``${blah}`` was worth it.  The answer is "yes".  And that is just worst case; when you just want ``$blah`` you get an even bigger win.
+
+The other question was over whether the string module should become a package.  The original idea was to stick the original string module in as a submodule of the package and the Template code in another module.  This would allow easy removal of the 'string' module code that has been deprecated for eons.  Barry Warsaw (author of the PEP) asked Guido to make the call on this, but he hasn't had the time yet to get to this.
+
+.. _PEP 292: http://www.python.org/dev/peps/pep-0292
+
+Contributing threads:
+  - `PEP 292 <http://mail.python.org/pipermail/python-dev/2004-August/047580.html>`__
+
+
+--------------------------------
+Multi-line imports get clarified
+--------------------------------
+1. minor language change
+
+Multi-line imports will only accept parentheses around what is being explicitly imported and only if there is more than one item being imported.  Trailing commas are also to be accepted.
+
+Contributing threads:
+  - `Multi-line import implementation (first part) <http://mail.python.org/pipermail/python-dev/2004-August/047393.html>`__
+  - `Multi-line import implementation (second part) <http://mail.python.org/pipermail/python-dev/2004-August/047614.html>`__
+  - `Naming nit <http://mail.python.org/pipermail/python-dev/2004-August/047641.html>`__
+
+
+------------------------------------------------
+For those of you who need Python to run on Win64
+------------------------------------------------
+3. nuggets of info
+
+Nick Bastin asked if anyone has gotten Python 2.3 to work under Win64.  Martin v. Löwis said "yes" for Python 2.4, but not for 2.3 .  He suggested to Nick that he run vsextcomp_ to generate the targets on the 2.4 VC 7 build files and then move that over to 2.3 .
+
+.. _vsextcomp: http://www.sf.net/projects/vsextcomp
+
+Contributing threads:
+  - `2.3.4 on Win64? <http://mail.python.org/pipermail/python-dev/2004-August/047631.html>`__
+
+
+----------------------------------------------
+Sometimes concealing the truth is a good thing
+----------------------------------------------
+1. improvement stuff
+
+Nick Coghlan discovered that some of the function in the 'commands' module did actually work under Windows and he wanted to make sure it was okay to fix another module to work under Windows and to document the fact.  But the whole idea was shot down by both Tim Peters and Guido in order to keep the module simple.  Keeping the whole thing UNIX-only is much easier than having an API that is only partly compatible with Windows (and with only certain versions of Windows at that).  Guido also said that the module would not even be accepted today since it doesn't add enough functionality.
+
+Contributing threads:
+  - `'commands' module on Win32 <http://mail.python.org/pipermail/python-dev/2004-August/047774.html>`__
+
+
+----------------------------------------------
+atexit module, good; sys.exitfunc, not so good
+----------------------------------------------
+1. improvement stuff
+
+Raymond Hettinger pointed out that the docs for the atexit module state that sys.exitfunc was to be deprecated.  Well, atexit has been in the stdlib since 2.0 so the deprecation is long overdue.  Looks like it will get its deprecation finally.
+
+Contributing threads:
+  - `Deprecate sys.exitfunc? <http://mail.python.org/pipermail/python-dev/2004-August/047842.html>`__
+
+
+----------------------------------------------------------------------------------------------
+My Personal Hell: decorators and the people who suggest new syntax for them...  next, on Oprah
+----------------------------------------------------------------------------------------------
+language evolution
+
+What led to a record-setting flurry of emails to python-dev was set up when Guido gave the green light to checking in code to implement decorators using the '@' syntax (now known at the pie syntax thanks to its checkin coming very shortly after the OSCON Pie-thon competition and '@' sort of looking like a pie).  People didn't like it.  People were screaming that there had to be a better syntax than just settling for the least offensive one.  Others started to question whether decorators were really needed.  Others wanted to extend them even more and what their role truly was.  Either way this was all coming a little late.
+
+But then Guido decided to make my life difficult by saying that if the community could come up with an agreed-upon alternative syntax to propose to him he would consider ripping out the '@' syntax; decorators have always been experimental and '@' was checked in so people had *something* to play with.  This meant everyone and their mother started to propose both new and old syntaxes for decorators.  This led to a record amount of email on python-dev (at least compared to what we have archives for; back to April 1999).
+
+In order of my own personal sanity I am not going to cover any specific syntax.  There are just too many and I actually like the '@' syntax (just *try* using it; it grows on you quickly).  Instead this summary will cover any important design considerations for decorators (it should all be in the PEP but so much happened there is no way it all got in there) along with any other important considerations about them.  I will discuss anything specific to the '@' syntax since it is the currently winning syntax.
+
+With that said, `PEP 318`_ and the PythonDecorators_ wiki page are the de-facto place for info on this whole situation.  I am probably going to be more biased than normal in this summary just out of time restraints to get this done by not over-analyzing people's suggestions and just assuming what I summarize here is not covered elsewhere; checking if it is would take too long.
+
+First off, going with a syntax just so you could add backward-compatible support was not considered worth it.  It's a new feature so there is no need to hobble it at the get-go just so people who don't want to upgrade can still use it.  Plus the implementations to make this even possible were playing some tricks with the interpreter and not considered a good thing.  Besides you can, always will be able to, still use the way to do it in 2.2 and beyond.
+
+Another design point that needed to be taken into consideration was ambiguity.  There could not be a question about what is a decorator and what isn't (list-before-def is an example of a syntax that can be ambiguous).
+
+Syntactic support that allowed for possible future compiler optimizations was also considered important.  The on-going hope is to eventually get a JIT compiler for Python and if the decorators are not placed before the def somehow you make it much harder to optimize since you learn about the decorators after the fact of the function starting to be defined.
+
+An argument against '@' was that people thought it got rather unwieldy quickly (and I am sure the new decision that each decorator must be on its own line is not making these objectors happy).  But one thing that must be remembered is that chances are most functions will not need more than one decorator if the even need one.  Looking through the stdlib sans the test suite you will notice there are not a lot of uses for any of the built-in decorators.  Yes, usage will probably grow with syntactic support for decorators, but not exponentially in terms of applying multiple decorators to a single function.
+
+Allowing decorators to take arguments is a requirement.  Not being able to pass arguments to a decorator at instantiation time would severely cripple their usefulness.
+
+Being prefix instead of postfix was considered important.  Knowing about what is coming up was something Guido thought is better than finding out about some special tweak to the use of a function based on a decorator listed after the definition line.  And in the method body had been completely ruled out.
+
+In terms of implementation details, decorators can only be functions directly (and not lambda).  This means no ``@a or b`` tricks and such.  It also means ``@foo().bar()`` is not allowed.  This is all gut feeling from Guido for why the restriction should be there.  It could change in the future since it is easier to loosen restrictions that make something more strict.
+
+A problem with '@' in terms of portability is that Leo_ and IPython_ both use '@' for special syntax.  The authors of both tools seem willing to change their tools (not necessarily overly joyous, though  =) .
+
+Guido wanted a syntax "that ... [is] easy to remember once explained".  It did not need to be miraculously obvious what it did just by looking at the first time.
+
+Some people didn't like '@' because they keep wanting to say "at" when they saw it.  To that, I give you Tim Peters' fix for this: "Pick the keyword you'd like.  Then whenever you see "@", pronouncethat word instead <wink>".
+
+A single decorator that applied to multiple code blocks is completely out.  Guido gave a couple of reasons why, but one that he had mentioned multiple times is indenting the code block again just for the decorator is out.
+
+Some people suggested that things be kept simple by just throwing out the entire idea of syntactic support.  Could happen if everyone agreed to that, but I wouldn't count on it.
+
+A supposed knock against '@' was that it wasn't Pythonic.  Well, it is Pythonic if Guido says it is so not really a valid argument.
+
+
+OK, tirade time.  If you don't want to listen to me get up on my soapbox, then just skip the rest of this...
+
+"In the old days, Guido would Pronounce, and we'd all bite our tongues (although not necessarily each his own).  The less time Guido can make for Python, the more important becomes graceful capitulation."  Tim said this and it makes me wish for the old days.  People had *months* to comment on decorators and no one spoke up until something went into the language.  Procrastination is not a virtue when it comes to major language evolution discussions.  What was worse was when the emails started repeating themselves (which was pretty much from the get-go when this exploded).  Seemed like people decided to start talking without doing some research.  Granted the PEP was outdated and the wiki page was not up yet, but this stuff was covered in the Summaries before and you could have just Googled for the previous threads.
+
+Personally, if I was Guido, I would have said that the community had their chance to speak up and they just didn't take it.  But Guido is a nicer guy than that so people are getting a second chance with this.  Personally this came off a great case of the tyranny of the majority in my eyes.  There is a reason why Python is a dictatorship.
+
+At this point people should be hashing out which syntax alternative they want to present to Guido on comp.lang.python_.  No more talking on python-dev, no more syntax proposals.  The community should set a goal date (Sept. 1 seems good) and just choose a bloody alternative.  Then when Guido makes his choice people accept it or just go to another language.  No one had better voice their disappoint once Guido chooses his syntax or I will personally come beat you over with a stick for being a whiner.
+
+OK, that's out of my system.  I feel better now.
+
+.. _PythonDecorators: http://www.python.org/cgi-bin/moinmoin/PythonDecorators
+.. _Leo: http://leo.sourceforge.net/
+.. _IPython: http://ipython.scipy.org/
+
+Contributing threads (sans emails that were warnocked):
+  - `2.4a2, and @decorators <http://mail.python.org/pipermail/python-dev/2004-August/046599.html>`__
+  - `Plea for simpler decorator syntax,	in addition to pie-shaped syntax <http://mail.python.org/pipermail/python-dev/2004-August/046798.html>`__
+  - `Call for defense of @decorators <http://mail.python.org/pipermail/python-dev/2004-August/046878.html>`__
+  - `@decorators, the PEP and the "options" out there? <http://mail.python.org/pipermail/python-dev/2004-August/046905.html>`__
+  - `About pep 318--Intro <http://mail.python.org/pipermail/python-dev/2004-August/046918.html>`__
+  - `Questions about '@' in pep 318 <http://mail.python.org/pipermail/python-dev/2004-August/046934.html>`__
+  - `A usability argument for list-after-def <http://mail.python.org/pipermail/python-dev/2004-August/046935.html>`__
+  - `The impact of '@' on Leo <http://mail.python.org/pipermail/python-dev/2004-August/046937.html>`__
+  - `Similar syntax <http://mail.python.org/pipermail/python-dev/2004-August/046969.html>`__
+  - `def fn (args) [dec,dec]: <http://mail.python.org/pipermail/python-dev/2004-August/047112.html>`__
+  - `pep 318, Decorators for Functions, Methods and Classes <http://mail.python.org/pipermail/python-dev/2004-August/047132.html>`__
+  - `Density of pie-decorator syntax <http://mail.python.org/pipermail/python-dev/2004-August/047154.html>`__
+  - `elements of decorator syntax suggestions <http://mail.python.org/pipermail/python-dev/2004-August/047185.html>`__
+  - `318: Annotation background <http://mail.python.org/pipermail/python-dev/2004-August/047218.html>`__
+  - `IPython, @, and option E from the wiki <http://mail.python.org/pipermail/python-dev/2004-August/047223.html>`__
+  - `Decorators: vertical bar syntax <http://mail.python.org/pipermail/python-dev/2004-August/047231.html>`__
+  - `Suggesting '.' decorators (PEP318) <http://mail.python.org/pipermail/python-dev/2004-August/047234.html>`__
+  - `Attribute strings? <http://mail.python.org/pipermail/python-dev/2004-August/047362.html>`__
+  - `request: add keywords for static and class methods only <http://mail.python.org/pipermail/python-dev/2004-August/047498.html>`__
+  - `@decorator syntax is sugar, but for what exactly? <http://mail.python.org/pipermail/python-dev/2004-August/047500.html>`__
+  - `Semantics of decorators? <http://mail.python.org/pipermail/python-dev/2004-August/047623.html>`__
+  - `A decorator syntax not yet mentioned (I think!) <http://mail.python.org/pipermail/python-dev/2004-August/047625.html>`__
+  - `Another approach to decorators. <http://mail.python.org/pipermail/python-dev/2004-August/047647.html>`__
+  - `Decorators after 'def' should be reconsidered <http://mail.python.org/pipermail/python-dev/2004-August/047637.html>`__
+  - `def ... decorate <http://mail.python.org/pipermail/python-dev/2004-August/047781.html>`__
+  - `Decorator syntax J2 (decorate..def) <http://mail.python.org/pipermail/python-dev/2004-August/047807.html>`__
+  - `Decorators and docstrings <http://mail.python.org/pipermail/python-dev/2004-August/047827.html>`__
+  - `block-based decorators and other block issues <http://mail.python.org/pipermail/python-dev/2004-August/047839.html>`__
+  - `More concerns about decorators <http://mail.python.org/pipermail/python-dev/2004-August/047863.html>`__

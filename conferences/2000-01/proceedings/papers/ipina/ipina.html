@@ -1,0 +1,680 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html">
+<TITLE>Building Components for a Distributed Sentient Framework with Python and CORBA</TITLE>
+</HEAD>
+<BODY>
+
+<div align=center>
+<h1> Building Components for a Distributed Sentient Framework with Python and CORBA </H1>
+</div>
+
+<div align=center>
+<P>Diego L&oacute;pez de Ipi&ntilde;a<br>
+<I>Laboratory for Communications Engineering<br>
+Cambridge University Engineering Department<br>
+<A HREF="mailto:dl231@eng.cam.ac.uk"> dl231@eng.cam.ac.uk</a></I></P>
+</div>
+
+
+<H2>Abstract</H2>
+<P ALIGN="JUSTIFY"></P>
+<I><P ALIGN="JUSTIFY">TRIP</I> (Target Recognition using Image Processing) is a novel vision-based sensor system that uses a combination of visual markers (2-D circular barcode tags, or <I>ringcodes</I>) and conventional video cameras to identify tagged objects in the field of view. A CORBA-based distributed component architecture called <I>Sentient Information Framework</I> has been devised to efficiently manage and distribute to applications the sensor data obtained both from TRIP and other sentient technologies. This paper describes the implementation, in Python, of two components for this framework; a <I>TRIP Directory Service</I> mapping ringcode identifiers to attributes and a <I>context abstractor</I> type component insulating low level details of sensor data acquisition and interpretation from an application. These case studies will reflect the potential of Python and CORBA, assisted by its <I>Event Notification Services</I>, as an ideal technology combination for the rapid development and efficient gluing of heterogeneous distributed software components.</P>
+<H2>1.  Introduction</H2>
+
+<P ALIGN="JUSTIFY">TRIP<a name="n1"></a><a href="#note">(1)</a> (<I>Target Recognition using Image Processing</I>) is a new vision-based sensor technology that, by means of image processing and computer vision algorithms, processes video frames 
+captured from cameras distributed through the environment to recognise 2D circular barcode (<I>ringcode</I>) tags attached to objects. The information inferred is the approximate location<a name="n2"></a><a href="#note">(2)</a>, orientation and identifier (<I>TRIPcode</I>) of the ringcodes (see Figure 1) spotted.</P>
+
+<P align=center><IMG SRC="fig1.gif" alt="TRIP target">
+<BR><B>Figure 1: </B> <I>ringcode representing number 1160407</I></P>
+
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY"> </P>
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">It is expected that this sensor technology will be useful in the realm of <I>Sentient Computing</I>, more commonly known as <I>context-aware computing </I><a href="#ref">[Schilit+94]</a>, a research field concerned with the ability of computing devices and applications to <I>detect</I>, <I>interpret</I> and <I>respond</I> to changing aspects of the user&#39;s context. Its goal is to enhance computer systems with a sense of the real world and make them know as much as the user about the aspects of the environment relevant to their application. To achieve this, it uses sensors distributed throughout the environment to maintain a detailed model of the real world and make it available to applications. Applications can then respond to environmental changes and autonomously change their functionality, without explicit user intervention, based on observations of <I>who</I> or <I>what</I> is around them, what they are doing, <I>where</I> they are and <I>when</I> something is happening. </P>
+<P ALIGN="JUSTIFY"></P>
+<I><P ALIGN="JUSTIFY">Location-aware computing</I>, whose behaviour is determined by the position of objects in the environment, represents an interesting subset of the sentient computing paradigm since location is often an essential attribute of context. Conventional sensor technologies employed in the area of indoor location-aware computing involve a network of complex and expensive special purpose designed sensors to be deployed throughout an indoor environment, and the use of electronic battery-powered mobile positioning devices that transmit a signal via an infrared, ultrasound or radio wireless interface. AT&amp;T&#39;s Active Badge <a href="#ref">[Want+92]</a> (infrared-based) and Active Bat <a href="#ref">[Ward+97]</a> (ultrasound-based), and PinPoint Corp.&#39;s 3D-iD <a href="#ref">[Werb+98]</a> (radio frequency-based) location technologies are good examples of this. TRIP aims to demonstrate that similar usability levels can also be achieved, by using existing off-the-self technology (video cameras) to obtain the identity, orientation and location of passive cheaply printed ringcode tags (<i>TRIPtags</i>), with a less complex and more cost-effective infrastructure.</P>
+
+<P ALIGN="JUSTIFY">TRIP&#39;s current implementation, a C++ video filter <a href="#ref">[Ipina99]</a> performing the target recognition process, processes 3 frames/second on a 400 MHz Pentium II machine and has accuracy levels in the range 98–100% when <I>TRIPtags </I>of 5x5 cm are viewed within three metres of the standard low-cost analogue cameras used. The special geometric features of the targets&#39; design (see Figure 1) enable their recognition even when they occupy a very small number of pixels in the captured images and reduce the complexity of the computer vision task to a minimum. </P>
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">A <I>TRIPtag</I> is a 2D black and white <I>ringcode</I> composed of (see Figure 1):</P>
+<P ALIGN="JUSTIFY"></P>
+
+<div align=justify>
+<UL>
+<P ALIGN="JUSTIFY">
+<LI>A central bull&#39;s-eye to make the identification process easier due to its invariance to rotation and perspective, and high contrast. </LI>
+<LI>A pair of encoding rings around the bull&#39;s-eye, divided into 16 sectors:
+<UL>
+<LI>The 1<SUP>st</SUP> sector&#39;s (or <I>synchronisation sector</I>) encoding rings&#39; combination, impossible anywhere else, indicates the beginning of a <I>TRIPcode</I>.</LI>
+<LI>The 2<SUP>nd</SUP> and 3<SUP>rd</SUP> sectors implement a parity error checking mechanism.</LI>
+<LI>The remaining 13 sectors represent a TRIP target ternary code in the range<a name="n3"></a><a href="#note">(3)</a> 0 to 1,594,322. Observe a &#39;0&#39; is represented by leaving a sector&#39;s two code ring portions blank, a &#39;1&#39; by setting the sector&#39;s inner code ring portion to black and leaving the outer one blank and &#39;2&#39; is the reverse of this.</LI>
+</UL>
+</UL>
+</div>
+
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">A <I>TRIP-aware</I> <I>Jukebox Controller</I> is the first application developed to demonstrate TRIP&#39;s context sensing capability. This application controls a virtual jukebox, implemented on top of an MP3 player, by using <I>TRIPtags</I> as a user interface device. A TRIPtag is used to identify a song, a person or jukebox control actions. When the TRIPtag representing a song is &#39;seen&#39; by a camera attached to a <I>TRIP-enabled</I> computer, its automatic playback is initiated, either on that computer or on a nearby one with sound capabilities. Providing the TRIPtag worn by a person is spotted, the application produces the automatic selection of that person&#39;s play-list. Finally, some TRIPtags sightings trigger control actions on the jukebox (play, pause, etc.).</P>
+<P ALIGN="JUSTIFY"> </P>
+<P ALIGN="JUSTIFY">In the development of this application the following issues were raised:</P>
+
+<div align=justify>
+<OL>
+<LI>A file for each TRIPcodes&#39; category used (people, music-tracks and control-actions), containing a mapping between each TRIPcode and the attributes required to drive the final application had to be created. For example, the identifier representing a song had to be mapped to the file path of such track in the MP3 archive.</LI>
+<LI>The set of TRIPtags used to control the application had to be manually generated by providing the label, identifier and size attributes of each tag to a PostScript generating script.</LI>
+<LI>The final application logic was complicated due to the need to:
+<OL TYPE="a">
+<LI>Filter the raw contextual data provided by TRIP to determine if the TRIPcode sighted really corresponded to any of the TRIPcodes of interest.</LI>
+<LI>Transform this data into information directly usable by the MP3 player (e.g. the file location of a song). </LI>
+</OL>
+</OL>
+</div>
+
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">These three issues led to the development of the <I>Sentient Information Framework </I>(SIF), a programming framework that streamlines and facilitates sentient application development by isolating context capture and abstraction from application semantics and providing efficient mechanisms for context communication. This work is inspired by previous research efforts made with the same aim of managing and disseminating contextual information efficiently, such as the SPIRIT <a href="#ref">[Harter+99]</a>, Context Architecture <a href="#ref">[Dey+99]</a>  or Context Information Service <a href="#ref">[Pascoe99]</a> projects. <A NAME="_Toc460414086"><A NAME="_Toc455210036">The rest of this paper describes the SIF framework, focusing its attention on analysing the benefits of having adopted Python for the implementation of some key components of it.</P>
+<H2>2.  The Sentient Information Framework</H2>
+<P ALIGN="JUSTIFY">The <I>Sentient Information Framework</I> (SIF) architecture consists of a group of co-operating distributed software components that use events as a uniform way of informing each other of context notifications. <I>Context Channel</I> objects that are both suppliers and consumers of sentient data are interleaved in-between SIF components, enabling multiple suppliers to transparently and asynchronously communicate with multiple consumers without the components knowing about each other.</P>
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">OMG&#39;s CORBA <a href="#ref">[OMG98a]</a> is the chosen middleware because of its platform and language inter-operability features, its popularity as an open standard for component software operation and its rich set of standard distributed services. The <I>CORBA Event Service </I><a href="#ref">[OMG98b]</a> is used to enable SIF components to <I>asynchronously</I> notify contextual events, to interested applications or other SIF components, through Event Service&#39;s Event Channels (renamed as <I>Context Channels</I> in SIF). If the Event Service had not been used, each SIF component would have had to perform a <I>distributed callback</I> for each event notification for all the clients registered. In addition, this service adoption permits interested parties to establish communication with SIF<I> </I>components, following either a <I>push</I> or <I>pull</I> event communication model. With a <I>push</I> model, the event producer takes the initiative and pushes events to an <I>Event Channel</I> that then subsequently sends them to consumers. For the <I>pull</I> model, the consumer issues a pull request on the Event Channel object and this, in turn, pulls the event data from the supplier. This event pull request can be blocking (<code>pull</code> method) or non-blocking (<code>try_pull</code> method). </P>
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">New components can be integrated into this architecture as <I>context consumers</I>, <I>context suppliers</I> or as both simultaneously. The only requirement for a component to form part of SIF is to be CORBA-enabled and to adopt the OMG Event Service for contextual event communication, regardless of the platform and programming language used. Consumer components register with Context Channels that serve their context notifications of interest. Supplier components either create new Context Channels or reuse previously created ones by other components generating the same event types, where, after registering, communicate their own contextual events. In order for the different SIF components to know about each other, every component binds its object reference with the CORBA <I>Naming Service</I> under a humanly recognisable name. Components interested in other component services contact the Naming Service, providing well-known component names, to obtain their CORBA object references. The following three component classes are found in SIF (see Figure 2): </P>
+
+<OL>
+<LI><P ALIGN="JUSTIFY"><I>Context Generators (CG)</I><BR>
+These encapsulate a single sensor or a set of related sensors and the software that acquires raw context information from them. The information obtained is transferred to <I>Context Channels</I> in event form, following usually a <I>push</I> event communication model. CGs could be based on TRIP or other sensors such as Active Badge <a href="#ref">[Want+92]</a>, GPS, or a simple microphone.
+
+</P></LI>
+
+<LI><P ALIGN="JUSTIFY"><I>Context Abstractors (CA)</I><BR>
+Seen by applications as <I>proxy context generators,</I> they achieve the separation of concerns between context sensing and application semantics. They consume the raw sentient data provided by CGs, interpret its contents and augment them with static data from a database, producing enhanced contextual events that can directly drive final applications. Sometimes CAs also <I>correlate</I> other CAs&#39; or CGs&#39; outcomes to generate the demanded sentient data. <BR><BR>
+These components&#39; operation responds to an Event-Condition-Action (ECA) model. They monitor for asynchronous event communication, apply conditional statements over them and whenever a condition is fulfilled, generate an action (in this case, produce a higher level event). Between a CG and a final application, an event can flow through N-tiers of CA <I>active</I> components. For example, a person&#39;s TRIPtag sighting event, &quot;code 1223 seen by camera 30&quot;, could be transformed by a <I>location context abstractor</I> into &quot;Diego seen in room 1&#39;s camera 3&#39;s view range&quot;. In turn, this last event could be fed into a <I>lab access context abstractor</I> that would convey an &quot;open door&quot; event providing a TRIPtag wearer stands in front of the lab main door. Alternatively, a <I>teleporting context abstractor</I> receiving the same event from the <I>location </I>CA would, for example, issue a &quot;move Diego&#39;s desktop to computer 5&quot; event when the user is sighted close to computer 5 location. The abstracted events generated would finally reach the sentient applications in charge of performing the actual action, i.e. an <I>access monitor</I> and a <I>teleport</I> application.
+</P></LI>
+
+<LI><P ALIGN="JUSTIFY"><I>Context Channels (CC)</I><br>
+These are the intermediary entities that <I>de-couple</I> the communication among components of the previous two types and final applications. They constitute the <I>glue</I> that enables the <I>heterogeneous</I> software components and applications conforming to this architecture to inter-operate and are physically implemented as OMG Event Channels. They are shared by co-operating components that either generate or consume the same class of events, providing a means to classify and separate sentient events.
+</P></LI>
+</OL>
+
+<P align=center><IMG SRC="fig2.gif" alt="The SIF Architecture">
+<BR><B>Figure 2: </B> <I>The SIF Architecture</I></P>
+
+<P ALIGN="JUSTIFY">OMG Event Service&#39;s suppliers, consumers and Event Channels handle event data in the form of the IDL<a name="n4"></a><a href="#note">(4)</a> (Interface Definition Language) <code>Any</code> type<a name="n5"></a><a href="#note">(5)</a>, which enables components to send and receive domain-specific event data without requiring Event Channels to understand event data types. This implies that every consumer must know what type to expect in the <code>Any</code> they receive. Event Channels are only concerned with event distribution and, therefore, they require a filtering process in the event receivers to eliminate undesirable events, unfortunately leading to an increase in the required network bandwidth and consumers&#39; processing load, as has been well discussed in <a href="#ref">[Smith+97]</a>. The OMG Notification Service <a href="#ref">[OMG98c]</a> addresses the limitations of the Event Service and supplies not only event filtering but also control over the quality of service that an Event Channel (here <I>Notification Channel</I>) provides. Future work on SIF will adopt this facility.</P>
+
+<H2>3.  The TRIP Monitoring Service CG</H2>
+<P ALIGN="JUSTIFY">The key component of the TRIP technology is a C++ written video filter software <a href="#ref">[Ipina99]</a> that performs the TRIP target recognition process over video frames supplied by a set of networked cameras. In order to make the output of this environment monitoring process available to interested parties, the TRIP video filter has been encapsulated in a distributed CORBA component named <I>TRIP Monitoring Service. </I>Its operation is de-coupled from its consumers via an interleaved <I>TRIP Monitor Context Channel </I>where it <I>push</I>es TRIP sighting events. Figure 3 shows the IDL code defining a TRIP sighting event structure and the interfaces offered to clients to connect to its CC as either <I>push</I> or <I>pull</I> event consumers<a name="n6"></a><a href="#note">(6)</a>. </P>
+
+<PRE>
+module TRIPMonitor{
+  interface TRIP {
+    // Event interface:
+    CosEventChannelAdmin::ProxyPushSupplier getPushEventSupplier();
+    CosEventChannelAdmin::ProxyPullSupplier getPullEventSupplier();
+    // Event structures:
+    struct TRIPevent {
+      string TRIPcode; // code ternary representation 
+      paramsEllipse params; // bull&#39;s-eye outer ellipse parameters (x,y,a,b,q)
+      string cameraID; // capturing camera identifier
+    };
+    (...)
+  };
+};
+</PRE>
+<B>Figure 3: </B> <I>IDL interfaces for the TRIP Monitoring Service</I>
+
+<h2>4.  The TRIP Directory Service</h2>
+<P ALIGN="JUSTIFY">The <I>TRIP Directory Service</I> component aims to provide a centralised body that regulates the TRIPcode granting process, stores static properties associated with TRIPcodes, and provides interfaces for their query. This Python written distributed component performs the following operations:</P>
+
+<DIV ALIGN=JUSTIFY>
+<OL>
+<LI>Creation, modification and deletion of new TRIPcodes categories.</LI>
+<LI>Creation, modification and deletion of TRIPcodes and attributes associated with them.</li>
+<LI>Retrieval of categories&#39; TRIPcodes and subcategories details.</li>
+<LI>Retrieval of a given TRIPcode&#39;s details.</li>
+</OL>
+</div>
+
+<P ALIGN="JUSTIFY">It is assumed that clients of this component, for efficiency purposes, will on initialisation retrieve the properties associated with their TRIPcodes’ subset of interest.Occasionally, clients will be long-lived and in the mean time their information of interest will change in the Directory Server. Thus, this component requires an <I>asynchronous notification mechanism</I> to notify to its clients in real-time when the TRIPcode categories they use are modified. This facility converts this component into a <I>context generator</I>. </P>
+<H3>4.1.  Reasons for Implementing in Python</H3>
+<P ALIGN="JUSTIFY">Python is a general-purpose dynamic language that brings the power and flexibility of scripting to large software systems, like the one in mind. Moreover, it satisfies the three main programming requisites of this component: (1) a key-based (TRIPcode) object persistence mechanism through its <code>shelve</code> module, (2) CORBA support thanks to the existing Python CORBA mappings and (3) an asynchronous notification mechanism by means of the CORBA Event Service. Alternatively, a system-level programming language such as C++ or Java could have been adopted to provide higher performance, especially considering the fact that for the <I>TRIP Monitoring Service</I>, CORBA and C++ had already been used. However, in our case Python&#39;s speed of development determined our choice despite the obvious sacrifice of execution efficiency. </P>
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">Python&#39;s <code>shelve</code> module provides a key-based persistence mechanism that enables the straightforward creation of persistent associative arrays of objects. Creating or accessing <code>shelve</code>&#39;s instances is as easy as manipulating items in a normal Python dictionary. Keys in a <I>shelf</I> are ordinary strings but the values can be arbitrary Python objects, anything that the <code>pickle</code><a name="n7"></a><a href="#note">(7)</a> module can serialise into character streams. <code>Shelve</code>s facilitate the creation of databases of native Python objects because there is no need to deal with another API, manage database-specific record structures, or convert to and from them when interfacing with the database. From C++ the UNIX <I>dbm </I><a href="#ref">[GNU99]</a> library could have been used instead. However, <I>dbm</I> files only allow string to string associations and object serialisation in C++ must be hand coded. Java, on the contrary, provides good object serialisation features but lacks support for serialising objects by key through a convenient hash-file mechanism. The emerging JNDI (Java Naming and Directory Interface) <a href="#ref">[JNDI99]</a> aims to overcome this Java deficiency but provides a much more complicated API than <code>shelve</code>s because it is conceived as a universal interface to existing commercial Directory Services.</P>
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">The existing OMG IDL to Python mappings supported by either Xerox&#39;s ILU <a href="#ref">[Janssen+99]</a> or University of Queensland&#39;s Fnorb <a href="#ref">[Chilvers99]</a> products provide Python programmers with CORBA distributed systems programming capability. The simplicity of the mapping, compared to C++ and Java, makes these CORBA implementations ideally suited as a tool for the rapid prototyping and scripting of CORBA systems and architectures. Python&#39;s object-oriented features integrate seamlessly with the CORBA Object Model. Python releases programmers from the complicated memory management issues of the CORBA C++ mapping.  The language&#39;s dynamic features remove the need for tedious type-casting and long variable declarations as occur in the C++ and Java mappings for CORBA.  Python&#39;s high code density is further emphasised when dealing with CORBA programming. CORBA eases distributed systems programming but requires a considerable amount of extra code to be added to programs – Python minimises this. Fnorb was the Python CORBA mapping chosen because, unlike ILU, is Python and CORBA/IDL specific, which makes it simple, lightweight, and easy to install and use. It supports all CORBA 2.0 data types (including <code>Any</code>) and provides a full implementation of IIOP<a name="n8"></a><a href="#note">(8)</a>.</P>
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">CORBA&#39;s clear separation of implementation and interfaces, by means of IDL, makes possible to re-implement a given component in a more efficient programming language without having to modify the code of its clients. If scalability or performance problems appear in the future, the TRIP Directory Server could be re-coded in a better performing programming language and/or a commercial DBMS engine or X.500/LDAP Directory Service could be used instead of <code>shelve</code>. Furthermore, CORBA adoption opens the TRIP Directory Service to clients implemented in different programming languages and running on distinct platforms and enables this Python component to benefit from the existing rich set of standard CORBA services such as the Naming Service and Event Service. </P>
+<H3>4.2.  Server Implementation Issues</H3>
+<H4>4.2.1.  TRIP Directory Server Persistent Dictionaries</H4>
+<P ALIGN="JUSTIFY">The TRIP Directory Service is logically formed by a tree-based structure containing category nodes&#39; sub-trees beginning from an initial category node named <I>root</I>. The children of a category node are either sub-category nodes or TRIPcode nodes; TRIPcode nodes are always leaves in the tree. Physically the TRIP Directory Service&#39;s tree is materialised into the following two Python persistent dictionaries: </P>
+
+<div align=justify>
+
+
+
+
+
+
+
+
+<OL>
+
+
+<LI><DIV align=justify>The <I>Categories Shelf</I> contains category nodes hashed by <code>categoryKey</code>. A <code>categoryKey</code> is a string with the format (<I>xxx)<SUP>+</SUP></I>, where <I>xxx</I> is a three-digit ternary code in the range 000 to 212<a name="n9"></a><a href="#note">(9)</a> and &#39;+&#39; denotes one or more of these sequences. Each category node is, at the same time, a dictionary by itself. Figure 4 shows the contents of this dictionary. The <code>categoryID</code> key maps to a category identifier string in the form <I>root(.subCategoryName)<SUP>*</SUP></I>, where * stands for zero or more times. The <code>subcategories</code> and <code>TRIPcodes</code> keys point to counters indicating the number of subcategories and TRIPcodes in a category, respectively. <code>deleted_subcategories</code> and <code>deleted_items</code> keys hash to a list of deleted subcategories&#39; keys and a list of deleted TRIPcodes, whose addresses can later be reused. </DIV></LI><br>
+
+
+
+<DIV align=center><IMG SRC="fig4.gif" alt="Categories Dictionary Node">
+<BR><B>Figure 4: </B> <I>Catetegories Dictionary Node</I></div><BR>
+
+
+
+
+
+<LI><DIV ALIGN=JUSTIFY>The <I>TRIPcodes Shelf </I>associates a <code>TRIPcode</code>, the ternary representation of a number in the range 0 to 1594322 (2<SUP>13</SUP>-1), to a Python mapped CORBA IDL structure containing as members a sequence of name/value pairs and a <code>label</code> (see Figure 5). Note IDL structures are mapped into Python classes with a public attribute for each member of the structure.</DIV>
+
+</LI>
+
+<BR>
+
+
+
+<div align=center>
+
+<IMG SRC="fig5.gif" alt="TRIPcode Node">
+<BR><B>Figure 5: </B> <I>TRIPcodes Dictionary Node and its associated IDL structures</I>
+
+</DIV>
+
+</OL>
+
+
+
+
+
+
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">For each category up to 24 subcategories can be created (range of ternary codes 000 to 212). When a new subcategory is assigned, the identifier of the new category is formed by adding to the parent&#39;s <code>categoryKey</code> the following non-used ternary code string in the mentioned range. A <code>TRIPcode</code> is composed of a prefix with the key of its category, followed by the ternary string &#39;<code>22</code>&#39;, and the remaining ternary digits up to 13, the design of TRIP targets address supports, with the representation of the TRIP target sequence number within its category.</P>
+<P ALIGN="JUSTIFY"></P>
+<H4>4.2.2.  TRIP Directory Server Functionality</H4>
+<P ALIGN="JUSTIFY">Figure 6 lists some of the IDL interfaces provided by the TRIP Directory Server to enable clients to manipulate and query its contents. It also shows the event interfaces that permit clients to register as event consumers of the <I>TRIP Directory Server Context Channel</I>, where category modifications are notified. The OMG Event Service&#39;s implementation <I>omniEvents,</I> provided by AT&amp;T&#39;s C++ ORB omniORB2 <a href="#ref">[Lo+99]</a>, was used to provide this server&#39;s asynchronous communication mechanism. On initialisation, the server obtains from the CORBA Naming Service (<I>omniNames</I> of omniORB2) an object reference to a registered <I>Event Channel Factory</I> object. It then invokes the method <code>create_object</code> in this factory to generate the <I>TRIP Directory Server Context Channel</I> and connects to it as a <I>push</I> event supplier. Figure 7 shows how this registration process is implemented in Python. It might prove a little difficult to understand without a thorough study of the OMG Event Service <a href="#ref">[OMG98b]</a>. When the TRIP Directory Server&#39;s shelves are modified, a notification is <I>pushed</I> to the previously obtained channel indicating the type and attributes of the modification. Figure 8 shows the Python code for sending a TRIPcode creation notification (<code>AddTRIPcodeEvent</code> IDL structure in Figure 6). Once an event is received at the CC, this takes the responsibility of delivering it to all registered consumers. </P>
+
+<PRE>
+module TRIPDirectoryService {
+  interface TRIPDirectoryServiceIF {
+    // Categories Dictionary manipulation interfaces
+    boolean createCategory(in string parentCategoryID, in string categoryName);
+    (...)
+    // TRIPcode Dictionary manipulation interfaces   
+    string grantTRIPCode(in string categoryID);
+    void   saveTRIPcode(in string TRIPcode, in TRIPcodeDetails data);
+    (...)
+    // Query interfaces for Categories Dictionary   
+    stringList getSubCategoriesList(in string categoryID);
+    (...)
+    // Query interfaces for TRIPcodes Dictionary
+    TRIPcodeDetails getTRIPcodeDetails(in string TRIPcode);
+    (...)
+
+    // Event Interfaces
+    CosEventChannelAdmin::ProxyPushSupplier getPushEventSupplier();
+    CosEventChannelAdmin::ProxyPullSupplier getPullEventSupplier();
+
+    // Event structures:
+    struct AddTRIPcodeEvent {
+      string          categoryID;
+      string          TRIPcode;
+      TRIPcodeDetails details;
+    };
+    (...)
+  };            
+};
+</PRE>
+<B>Figure 6: </B> <I>TRIP Directory Server IDL interfaces</I>
+
+<PRE>
+# Get a reference to the initial naming service context
+initialContext = orb.resolve_initial_references("NameService")
+# Create name under which EventChannelFactory is bound with NamingService
+name = [CosNaming.NameComponent(&#39;EventChannelFactory&#39;,&#39;EventChannelFactory&#39;)]
+(...)
+# Lookup the EventChannelFactory in the naming service
+obj = initialContext.resolve(name)
+# The Naming Service object references returned is downcasted to the proper type
+eventChannelFactory = obj._narrow(CosLifeCycle.GenericFactory)
+(...)
+#  Obtain an Event Channel instance from the EventChannelFactory
+eventChannel = eventChannelFactory.create_object(...);
+(...)
+# Obtain a reference to the Event Channel&#39;s Factory of Proxy Push Consumers
+supplierAdmin = self.eventChannel.for_suppliers()
+(...)
+# Create an instance of the Event Channel&#39;s proxyPushConsumer
+self.consumer = supplierAdmin.obtain_push_consumer();
+(...)
+# The TRIP Directory Server connects itself as push Event Supplier
+self.consumer.connect_push_supplier(self)
+</PRE>
+<B>Figure 7: </B> <I>TRIP Directory Server registration to its Context Channel as Push Event Supplier</I>
+
+<PRE>
+(...)
+typeCode = CORBA.typecode(CORBA.id(TRIPDirectoryService.AddTRIPcodeEvent))
+data     = TRIPDirectoryService.AddTRIPcodeEvent(categoryID, TRIPcode, detailsTRIPcode)
+self.consumer.push(CORBA.Any(typeCode, data))
+(...)
+</PRE>
+<B>Figure 8: </B> <I><code>AddTRIPcodeEvent</code> transmission to Context Channel</I>
+
+<H2>5.  A GUI-based front-end for the TRIP Directory Server</H2>
+<P ALIGN="JUSTIFY">In order to provide a user-friendly way to manage the query, creation, deletion and manipulation of TRIPcodes and categories, and the TRIPtag generation, a GUI front-end client for the TRIP Directory Server has been created. </P>
+<H3>5.1.  Reasons for Implementing in Python</H3>
+<P ALIGN="JUSTIFY">Once again a decision had to be made regarding choice of programming language. We discarded C++ because we wanted a Directory Service front-end that would run on all of our platforms (Windows NT 4.0 and RedHat Linux 6.1) without having to recompile our code or use different GUI toolkit libraries. Java seemed to be a good candidate due to its multi-platform portability, CORBA support and excellent GUI toolkits (AWT or Swing). However, Python was chosen because it provides these same facilities and it has GUI toolkit libraries that are even easier to use than these of Java, requiring fewer code lines to achieve GUIs of similar sophistication. The main interest was to rapidly prototype this GUI-based client, without any special real-time execution performance requirements, making Python undoubtedly the best choice. Pmw <a href="#ref">[Telstra99]</a>, a toolkit for building high-level compound widgets in Python using the Tkinter module, was used because of its rich set of widgets and its multi-platform portability features.</P>
+<H3>5.2.  Implementation Issues</H3>
+<P ALIGN="JUSTIFY">The TRIP Directory Server GUI-based client (see Figure 9) is divided into two main interaction panes. The <I>TRIPcode Manager</I> Pane permits the user to: (1) browse through the existing TRIPcode categories displaying their subcategories and TRIPcodes, (2) create, modify and delete subcategories, and (3) create TRIPcodes within a category. On the other hand, the <I>Search TRIPcode</I> pane provides the means to (1) query the information associated with a given TRIPcode, (2), add, modify and delete its properties and (3) print a TRIPtag. Figure 9 shows the result of double clicking over a TRIPcode list item in the <I>TRIPcode Manager </I>Pane. Figure 10 illustrates in its first part the GUI <I>callback</I> method invoked when such action is performed and in the second the server implementation of the method <code>getTRIPcodeDetails</code> remotely called by the client.</P>
+
+<P align=center>
+<IMG SRC="fig9a.gif" alt="TRIPcode Manager"><BR><BR>
+<IMG SRC="fig9b.gif" alt="TRIPcode Modal Dialog"><BR>
+<B>Figure 9: </B> <I>Snapshots of the TRIP Directory Client</I>
+</P>
+
+
+<PRE>
+# Client-side
+def showTRIPcode(self):
+  # Obtain the selected item from the TRIPcodes list
+  TRIPcodeSelected = self.TRIPcodeList.component(&#39;listbox&#39;).get(Tkinter.ACTIVE)
+  # Extract the TRIPcode identifier from the selected item string
+  index = string.find(TRIPcodeSelected,&#39; &#39;)
+  TRIPcode = TRIPcodeSelected[:index]
+
+  # Invoke a RPC in the TRIPDirectoryServer to obtain the details of the TRIPcode
+  TRIPcodeDetails = self.TRIPDirectoryServer.getTRIPcodeDetails(ternary(TRIPcode))
+  categoryID = self.categoryEntry.get()
+
+  # Create a modal dialog visualising the contents of the TRIPcode selected
+  TRIPcodeVisuDialog(TRIPcode, categoryID, TRIPcodeDetails)
+
+
+# Server-side
+def getTRIPcodeDetails(self, TRIPcode):
+  self.__lk.acquire() # Lock access to TRIPcodesShelve for the server thread executing this method
+  if self.TRIPcodesShelve.has_key(TRIPcode):
+    TRIPcodeDetails = self.TRIPcodesShelve[TRIPcode]
+  else:
+    TRIPcodeDetails = TRIPDirectoryService.TRIPcodeDetails(&#39;&#39;, [])
+  self.__lk.release()
+</PRE>
+<B>Figure 10: </B> <I>TRIP Directory Client and Server method invocation after double click over TRIPcode list item.</I>
+
+
+<H2>6.  Implementing a CA in Python</H2>
+<I><P ALIGN="JUSTIFY">Context abstractor</I> components aim to translate incoming raw sensor data (e.g. <I>TRIP target 2345 spotted</I>) into augmented contextual data directly usable for applications (e.g. <I>play song event</I>). The further layers of abstraction they provide insulate applications&#39; logic from sensor data gathering and interpretation. The Python implementation of a <I>TRIP-aware context abstractor</I> for the <I>Jukebox Controller</I> application, described in section 1, illustrates the general procedure to be followed when implementing other components of this type. Its mission is to provide the virtual jukebox with context notifications that it can directly understand. To achieve this, it (1) filters out target sightings that do not correspond to the domain of the application and (2) interprets raw valid target sighting events generating the actual event types required to drive its operation. </P>
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">Potentially the virtual jukebox could also be controlled by the signals generated from another context generator, e.g. an infrared remote control. A <I>remote control context abstractor</I> would gather the infrared-modulated code signals received by an infrared sensor CG, interpret them and <I>push</I> jukebox control events to a shared context channel with the TRIP-aware context abstractor. In this way, the final application would transparently respond to the control events received, regardless of their origin. Python is ideal for the implementation of these CAs because of its rapid prototyping capability and CORBA support. These components are usually not very computation-intensive, they just need to process and/or combine events obtained from CCs, producing as outcome enhanced sentient notifications.</P>
+<P ALIGN="JUSTIFY"></P>
+
+
+
+<P align=center>
+<IMG SRC="fig11.gif" alt="TRIPcode Modal Dialog"><BR>
+<B>Figure 11: </B> <I>TRIP-aware Python (grey) and C++ (white) SIF components and application</I>
+</P>
+
+
+<P ALIGN="JUSTIFY">Figure 11 represents the flow of interaction among some SIF components and the<I>Jukebox Controller </I>application. When the <I>TRIP-aware</I> <I>Jukebox controller context abstractor</I> is started, it obtains from omniORB2&#39;s Naming Service object references for the two <I>heterogeneous</I> CORBA components with which it will interact: the Python implemented <I>TRIP Directory Server</I>, over Fnorb ORB, and the C++ implemented <I>TRIP Monitoring Service, </I>over omniORB2. The obtained TRIP Directory Server reference is used to retrieve the details associated with the three TRIPcodes&#39; categories of interest for the context abstractor:
+<OL>
+<LI><I>root.people.LCE</I>: TRIPcodes associated with LCE lab members.</LI>
+<LI><I>root.object.music-tracks</I>: TRIPcodes representing MP3 tracks to be played.</LI>
+<LI><I>root.action.jukebox</I>: TRIPcodes depicting jukebox control operations (<I>play</I>, <I>pause</I>, etc.)</LI>
+</OL>
+</P>
+
+<P ALIGN="JUSTIFY">Next, the Jukebox abstractor has to register as <I>push event consumer</I> of both the <I>TRIP Monitoring </I>and <I>TRIP Directory Servers&#39;</I> Context Channels. For this, the abstractor must:
+<DIV ALIGN=JUSTIFY>
+<OL>
+<LI>Implement the OMG Event Service <code>CosEventCom::PushConsumer</code> <a href="#ref">[OMG98b]</a> interface (see Figure 12).
+<PRE>
+module CosEventComm {
+  interface PushConsumer {
+    void push (in any data) raises(Disconnected);
+    void disconnect_push_consumer();
+  };
+  (...) 
+};
+</PRE>
+<B>Figure 12: </B> <I>OMG Event Service <CODE>PushConsumer</CODE> Interface.</I><br><BR>
+</LI>
+<LI>Invoke the method <code>getPushEventSupplier</code> in both servers to obtain <I>proxy push supplier</I> object references of their context channels.</LI>
+<LI>Connect to the proxy push event suppliers.
+</OL>
+</DIV>
+</P>
+
+<PRE>
+supplierTRIP = self.TRIPMonitorServer.getPushEventSupplier()
+supplierTRIP.connect_push_consumer(self)
+supplierDirectory = self.TRIPDirectoryServer.getPushEventSupplier()
+supplierDirectory.connect_push_consumer(self)
+</PRE>
+<B>Figure 13: </B> <I>Context Abstractor registration to Context Channels</I><br><BR>
+
+<P ALIGN="JUSTIFY">Figure 13 shows stages 2 and 3&#39;s implementation. Note the TRIP-aware Jukebox Controller CA will receive event notifications from two different context channels through the same <I>distributed callback</I> interface (<code>push</code>.</P>
+
+<P ALIGN="JUSTIFY">Finally, the context abstractor looks up in the Naming Service for a registered <I>Jukebox Controller Context Channel</I> and, if one exists, obtains its object reference. (If one does not exist, then it creates a context channel instance from an Event Channel Factory, found through the Naming Service, and binds the obtained channel reference with the Naming Service). Either way, then, it registers as a <I>push event supplier</I> of this CC, using code similar to that in Figure 7. The IDL code of the events this CA conveys to its channel and the interfaces provided for clients to connect to it are shown in Figure 14. Whenever an event from the TRIP Monitoring Service or the TRIP Directory Service is received, the context abstractor&#39;s <code>push</code> method is invoked. Providing the notification originates at the TRIP Monitoring Service, and if it corresponds to a jukebox related TRIPcode, then after its processing, one of the jukebox control events of Figure 14 is pushed. Otherwise, the event received, coming from the TRIP Directory Server, is checked to determine whether the category modification has been done in any of the jukebox related categories, and if it is so, it updates its in-memory TRIPcode details. Figure 15 illustrates the <code>push</code> method&#39;s implementation.</P>
+
+<PRE>
+module JukeboxAbstractor{
+  interface JukeboxAbstractorIF {
+    // Event interface:
+    CosEventChannelAdmin::ProxyPushSupplier getPushEventSupplier();
+    CosEventChannelAdmin::ProxyPullSupplier getPullEventSupplier();
+
+    // Event structures:
+    struct playlistEvent {
+      string playlistFilePath;
+    };
+    struct mpg3TrackEvent {
+      string songToPlay;
+    };
+    struct actionEvent {
+      string action;
+    };
+    (...)
+  };
+};
+</PRE>
+<B>Figure 14: </B> <I>Event interfaces for Jukebox Context Abstractor.</I><br><BR>
+
+<PRE>
+def push(self, event):
+  eventType = event.typecode().name()
+  eventData = event.value()
+
+  if eventType == "TRIPevent":
+    # Process the events received from TRIP Monitor Context Channel
+    if string.find(eventData.TRIPcode, self.lceCategPrefix) == 0:
+      # TRIPcode represents a member of LCE
+      propertiesList = self.people[eventData.TRIPcode].propertiesList
+      index = 0
+      while (propertiesList[index].propertyName != "playlist_file") and 
+            (index < len(propertiesList)):
+        index = index + 1
+      if index != len(propertiesList):
+        # Push an event of type playlist to the Event Channel
+        typeCode = CORBA.typecode(CORBA.id(JukeboxAbstractor.playlistEvent))
+        data = JukeboxAbstractor.playlistEvent(propertiesList[index].propertyValue)
+        self.consumer.push(CORBA.Any(typeCode, data))
+    elif string.find(eventData.code, self.trackCategPrefix) == 0:
+      # TRIPcode represents an MP3 song track
+      (...)
+    elif string.find(eventData.code, self.jukeboxActionCategPrefix) == 0:
+      # TRIPcode represents an jukebox action
+      (...)
+    else: # Filter out the event
+      pass
+  # Process the events received from TRIP Directory Server Context Channel
+  elif eventType == "AddTRIPcodeEvent":
+    # Determine category in which new TRIPcode was added
+    if eventData.categoryID == "root.people.LCE":
+      # Update people dictionary with the new TRIPcode of a person
+      self.people[eventData.TRIPcode] = eventData.details
+    elif eventData.categoryID == "root.action.jukebox":
+      # Update jukebox operations dictionary
+      (...)
+    elif eventData.categoryID == "root.object.music-tracks":
+      # Update MP3 tracks dictionary
+      (...)
+    else: # Ignore modification in categories of no interest
+      pass
+  elif eventType == "DeleteTRIPcodeEvent":
+  (...)
+</PRE>
+<B>Figure 15: </B> <I>Jukebox Controller Context Abstractor push method implementation</I><br><BR>
+
+<h2>7.  Conclusion</h2>
+<P ALIGN="JUSTIFY">This work has shown the ample range of capabilities offered by the integration of Python and CORBA, demonstrating Python&#39;s space in the development of CORBA distributed software components. Python has served us to develop a full-fledged Directory Service for our novel sensor technology that if implemented with a system-level programming language, such as C++ or Java, would have required a much longer development time than the three programmer-weeks it took. Python has also assisted us in the rapid development of <I>context abstractor</I> type components that enabled us to experiment with, and show the potential of our sensor technology (TRIP) and the SIF architecture. The Jukebox Controller application has been successfully re-coded and integrated with SIF.</P>
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY"> </P>
+<P ALIGN="JUSTIFY">Further context abstractors and applications will be developed in Python, to explore new application domains for TRIP. For example, a planned context abstractor will store TRIPtag sightings indexed by location and timestamp to permit context-based retrieval applications. In addition, new context generators will be created to combine TRIP&#39;s sentient data with inputs from other sensors. This process will lead to the generation of a catalogue of reusable and extensible SIF components. The CORBA Trader Service <a href="#ref">[OMG98b]</a>, which defines a yellow pages service classifying CORBA object references by object properties, will be useful in its creation.</P>
+<P ALIGN="JUSTIFY">This work reveals that Python&#39;s known extensibility and gluing capabilities with higher performance languages, such as C, C++ or Java, can be further increased thanks to integration with CORBA and the usage of its event notification services. The case study described in Section 6 illustrates how OMG Event Channels can be used as <I>glue</I> for heterogeneous distributed software components.  </P>
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">The SIF architecture requires several improvements, the most critical one being the replacement of the Event Service by the Notification Service <a href="#ref">[OMG98c]</a>. This modification will release context abstractors from the event-filtering stage and reduce event transmission bandwidth. Event consumers will specify at their registration the conditions or constraints the events they wish to receive must satisfy, and the Notification Channels will carry out the filtering process for them. </P>
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">Never has the development of CORBA distributed applications been such a simple and fast process as it is with Python. Very little CORBA literacy is required from the programmer to produce working distributed applications. Memory management is done automatically by Python and, due to its dynamic properties, inconvenient long CORBA variable name declarations are eliminated. The Python programming community has much to gain from the existing CORBA Python mapping implementations, providing they become a little more robust and faster. The newly appeared omniORB2&#39;s CORBA Python binding (<I>omniORBpy</I>) promises much on this aspect. Its performance and robustness will be explored in future work. Although, due to Python&#39;s performance constraints, mostly client-side CORBA systems will be developed in this language, still they can benefit much from both the ample set of existing standard CORBA services and Python&#39;s excellent standard library for the development of sophisticated distributed systems.</P>
+
+<h2>Acknowledgements</h2>
+<P ALIGN="JUSTIFY">The author is very grateful to Sai-Lai Lo for his expert advice and help on the TRIP project and to Frank Stajano for introducing him to Python and encouraging him to write this paper. He would also like to thank AT&amp;T for the industrial sponsorship of the TRIP project and to the Basque Government Education Department for the financial support to his PhD studies.</P>
+
+
+<h2><a name="ref">R</a>eferences</h2>
+
+
+<DIV ALIGN="JUSTIFY">
+<dl>
+
+<p>
+<dt>[Chilvers99]
+<dd>
+Chilvers, M., &quot;Fnorb – Version 1.0&quot;, Distributed Systems Technology Centre, University of Queensland, Brisbane, Australia, April 1999, <A HREF="http://www.dstc.edu.au/Products/Fnorb/user-guide.html">http://www.dstc.edu.au/Products/Fnorb/user-guide.html</A>
+</dd>
+</dt>
+</p>
+
+<p>
+<dt>[Dey+99]
+<dd>
+Dey A.K., Salber D., Futakawa M. and Abowd G. &quot;An architecture to support context-aware applications&quot;, 12th Annual ACM Symposium on User Interface Software and Technology (UIST &#39;99), 1999.
+</dd>
+</dt>
+</p>
+
+<p>
+<dt>[GNU99]
+<dd>
+&quot;GNU Gdbm Database Library&quot;,  1999, <A HREF="http://www.polaris.net/docs/gdbm/">http://www.polaris.net/docs/gdbm/</A>
+</dd>
+</dt>
+</p>
+
+<p>
+<dt>[Harter+99]
+<dd>
+Harter A., Hopper A, Steggles P., Ward A. and Webster P. &quot;The Anatomy of a Context-Aware Application&quot;, Proceedings of MOBICOM&#39;99, Seattle, August 1999.
+</dd>
+</dt>
+</p>
+
+<p>
+<dt>[Ipina99]
+<dd>
+Lopez de Ipina D., &quot;TRIP: A Distributed vision-based Sensor System&quot;, PhD 1<SUP>st</SUP> Year Report, August 1999, <A HREF="http://www-lce.eng.cam.ac.uk/~dl231/trip/docs/report.pdf.gz">http://www-lce.eng.cam.ac.uk/~dl231/trip/docs/report.pdf.gz</A>
+</dd>
+</dt>
+</p>
+
+<p>
+<dt>[Janssen+99]
+<dd>
+Janssen B., Spreitzer <CODE>M., </CODE>Larner D.and Jacobi C. &quot;ILU 2.0alpha14 Reference Manual&quot;, Xerox Corporation, 1999, <A HREF="ftp://ftp.parc.xerox.com/pub/ilu/ilu.html#explanation">ftp://ftp.parc.xerox.com/pub/ilu/ilu.html</A>
+</dd>
+</dt>
+</p>
+
+<p>
+<dt>[JNDI99]
+<dd>
+&quot;Java Naming and Directory Interface (JNDI)&quot; Home Page, 1999, <A HREF="http://java.sun.com/products/jndi/docs.html">http://java.sun.com/products/jndi/docs.html</A>
+</dd>
+</dt>
+</p>
+
+<p>
+<dt>[Lo+99]
+<dd>
+Lo. S, Riddoch D, &quot;The omniORB2 version 2.8 User&#39;s Guide &quot;, AT&amp;T Labs Cambridge, UK, February 1999, <A HREF="http://www.uk.research.att.com/omniORB/doc/omniORB2/omniORB2.html">http://www.uk.research.att.com/omniORB/doc/omniORB2/omniORB2.html</A>
+</dd>
+</dt>
+</p>
+
+<p>
+<dt>[OMG98a]
+<dd>
+OMG, Object Management Group, &quot;CORBA/IIOP 2.2 Specification&quot;, February 1998, <A HREF="ftp://ftp.omg.org/pub/docs/formal/98-07-01.pdf">ftp://ftp.omg.org/pub/docs/formal/98-07-01.pdf</A>
+
+</dd>
+</dt>
+</p>
+
+<p>
+<dt>[OMG98b]
+<dd>
+OMG,  Object Management Group, &quot;CORBA Services: Common Object Services Specification&quot;, September 1998, <A HREF="ftp://ftp.omg.org/pub/docs/formal/98-12-09.pdf">ftp://ftp.omg.org/pub/docs/formal/98-12-09.pdf</A>
+</dd>
+</dt>
+</p>
+
+<p>
+<dt>[OMG98c]
+<dd>
+OMG, Object Management Group, &quot;Notification Service – Joint Revised Submission&quot;, November 1998,  <A HREF="ftp://ftp.omg.org/pub/docs/telecom/98-09-04.pdf">ftp://ftp.omg.org/pub/docs/telecom/98-11-01.pdf</A>
+</dd>
+</dt>
+</p>
+
+
+
+
+<p>
+
+
+<dt>[Pascoe99]
+<dd>Pascoe J. 
+
+&quot;The Context Information Service&quot;, April 1999, 
+
+<A HREF="http://www.cs.ukc.ac.uk/people/staff/jp/cis/index.html">"http://www.cs.ukc.ac.uk/people/staff/jp/cis/index.html</A></dd>
+</dt>
+
+
+</p>
+
+
+
+<p>
+
+
+<dt>[Schilit+94]
+<dd>
+Schilit B., Adams N., and Want R. &quot;Context-Aware Computing Applications &quot;, Proceedings of the Workshop on Mobile Computing Systems and Applications, Santa Cruz, CAIEEE Computer Society, December 1994.
+</dd>
+</dt>
+
+
+</p>
+
+
+
+
+
+
+
+
+
+<p>
+<dt>[Smith+97]
+<dd>
+Smith, D., Vinoski, S., &quot;Overcoming Drawbacks in the OMG Event Service&quot;, SIGS C++ Report magazine, June 1997
+</dd>
+</dt>
+</p>
+
+<p>
+<dt>[Telstra99]
+<dd>
+Telstra Corporation Limited, Australia , &quot;Pmw Python megawidgets&quot;, June 1999, <A HREF="http://www.dscpl.com.au/pmw/">http://www.dscpl.com.au/pmw/</A>
+</dd>
+</dt>
+</p>
+
+<p>
+<dt>[Want+92]
+<dd>
+Want R., Hopper A., Falc&atilde;o A. and Gibbons J. &quot;The Active Badge Location System&quot;, ACM Transactions on Information Systems, Vol. 10, No. 1. 91-102, January 1992
+</dd>
+</dt>
+</p>
+
+<p>
+<dt>[Ward+97]
+<dd>
+Ward A., Jones A. and Hopper A. &quot;A New Location Technique for the Active Office&quot;, IEEE Personal Communications, October 1997, pp. 42-47
+</dd>
+</dt>
+</p>
+
+<p>
+<dt>[Werb+98]
+<dd>
+Werb J. and Lanzl C.&quot;Designing a positioning system for finding things and people indoors&quot;, IEEE Spectrum, September 1998, pp.71-78.</dd>
+</dt>
+</p>
+
+
+</dl>
+
+
+
+<h2><a name="note">F</a>ootnotes</h2>
+
+<p>
+<a href="#n1">(1)</a>  
+TRIP has been developed in collaboration with AT&T Laboratories, Cambridge
+</p>
+
+<p>
+<a href="#n2">(2)</a>  
+The current implementation only provides containment-based location i.e. it identifies the camera view range within which the TRIP target is sighted. Currently, the author is working on the improvement of the location 
+resolution using stereo vision techniques.
+</p>
+
+<p>
+<a href="#n3">(3)</a>  
+Note 3<SUP>13</SUP>  = 1,594,323 ~= 2<SUP>20</SUP> valid codes
+</p>
+
+<p>
+<a href="#n4">(4)</a>  
+IDL is a descriptive language that supports C++ syntax for constant, type, and operation declarations and lets one specify components&#39; boundaries and their interfaces with potential clients. 
+</p>
+
+<p>
+<a href="#n5">(5)</a>  
+The <code>Any</code> type is a CORBA IDL built-in type that can represent any possible IDL data type, whether it is built-in or user-defined.
+</p>
+
+<p>
+<a href="#n6">(6)</a>  
+These two interfaces must be provided by every SIS component that communicates contextual events to a Context Channel.
+</p>
+
+<p>
+<a href="#n7">(7)</a>  
+shelve mechanism&#39;s performance is very acceptable when the C implemented version of pickle, cPickle, is used.
+</p>
+
+<p>
+<a href="#n8">(8)</a>  
+Internet Inter-ORB protocol that allows the communication between different vendors ORBs, such as in our case when we communicate between omniORB2 and Fnorb ORBs.
+</p>
+
+<p>
+<a href="#n9">(9)</a>  
+Note the codes 220, 221 and 222 are reserved because the prefix &#39;22&#39; denotes the beginning of a valid TRIPcode.
+</p>
+
+</div>
+
+
+</BODY>
+</HTML>

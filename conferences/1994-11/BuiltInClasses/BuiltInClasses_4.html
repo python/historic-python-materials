@@ -1,0 +1,27 @@
+<!-- Generated with CERN WebMaker 1.4 -->
+<HTML>
+<HEAD>
+<TITLE>2.1.  Type Converters</TITLE>
+</HEAD>
+<BODY>
+<A NAME=HEADING3>
+<A HREF="BuiltInClasses_5.html">[Next] </A><A HREF="BuiltInClasses_3.html">[Previous] </A><A HREF="BuiltInClasses_3.html">[Up] </A><A HREF="BuiltInClasses_1.html">[Top] </A><P>
+2.  Object System Enhancements<P>
+<H3>2.1.  Type Converters</H3>
+ The notion of a type converter plays a central role in building the system described below. The lack of type converters in the current Python implementation shows itself in many places. The struct module and the <CODE>getargs()</CODE> function are two very obvious examples. In order to extend the functionality in either of these areas requires making changes to the source code for the base implementation of Python. An appropriately designed type conversion system will eliminate this restriction and enhance the users ability to extend Python without changing the base implementation.<P>
+ Almost any C data type can be described simply by four different operations: <P>
+<UL>
+<LI>Initialize -- cause un-initialized memory to contain an initial and readable value.
+<LI>Read -- create a Python object with a value that corresponds to the data located at a given address.
+<LI>Write -- store the data that corresponds to the value of a Python object at a given address.
+<LI>Destroy -- cause any resources associated with the data at a given address to be released.
+</UL>
+ In order to encapsulate these ideas, a new type object was derived from the type object that exists in the current Python implementation. This new type object, the CType object, is used to implement these four operations for any given C data type. Thus, CType objects facilitate the conversion of C data types to Python objects as well as the conversion from Python objects to C data types.<P>
+ All CType objects are registered by name in a dictionary of type converters. A public interface to this dictionary is provided for adding new type converters and for looking up existing ones. It is this feature that allows new types to be added to the system without the necessity of changing source code of the base implementation.<P>
+
+<HR>
+<ADDRESS>Deriving Built-In Classes in Python - 22 DEC 94</ADDRESS>
+<A HREF="BuiltInClasses_5.html">[Next] </A><A HREF="BuiltInClasses_3.html">[Previous] </A><A HREF="BuiltInClasses_3.html">[Up] </A><A HREF="BuiltInClasses_1.html">[Top] </A><P>
+Generated with <A HREF="AboutWebMaker.html">CERN WebMaker</A>
+</BODY>
+</HTML>

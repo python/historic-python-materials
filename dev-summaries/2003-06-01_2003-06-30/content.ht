@@ -1,0 +1,456 @@
+Title: python-dev Summary for 2003-06-01 through 2003-06-30
+Sitemap-ignore: yes
+
+<div class="document" id="python-dev-summary-for-2003-06-01-through-2003-06-30">
+<h1 class="title">python-dev Summary for 2003-06-01 through 2003-06-30</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> from June 1, 2003 through June 30, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have an archived summary of each thread started on the list.  To comment on anything mentioned here, just post to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> or <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join <a class="reference" href="http://www.python.org/dev/">python-dev</a>!</p>
+<p>This is the eighteenth/nineteenth summary written by Brett Cannon (has his own room with a door for the first time in his life).</p>
+<p>All summaries are archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a> (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; its simple and is accepted for <a class="reference" href="http://www.python.org/dev/peps/pep-0012">PEP markup</a>.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is unless it is from the original text file.</p>
+<p>The in-development version of the documentation for Python can be found at <a class="reference" href="http://www.python.org/dev/doc/devel/">http://www.python.org/dev/doc/devel/</a> and should be used when wanting to look up any documentation on something mentioned here.  Python PEPs (Python Enhancement Proposals) are located at <a class="reference" href="http://www.python.org/dev/peps/">http://www.python.org/dev/peps/</a> .  To view files in the Python CVS online, go to <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/">http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/</a> .</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#summary-announcements" id="id82" name="id82">Summary Announcements</a></li>
+<li><a class="reference" href="#descriptor-write-up-draft-please-comment" id="id83" name="id83">Descriptor write-up [Draft:  Please comment]</a></li>
+<li><a class="reference" href="#where-to-put-the-interrupt-module" id="id84" name="id84">Where to put the interrupt module?</a></li>
+<li><a class="reference" href="#can-t-compile-tkinter-c-with-redhat-9" id="id85" name="id85">Can't compile _tkinter.c with Redhat 9</a></li>
+<li><a class="reference" href="#pep-317" id="id86" name="id86">PEP-317</a></li>
+<li><a class="reference" href="#towards-a-faster-python" id="id87" name="id87">towards a faster Python</a></li>
+<li><a class="reference" href="#sneaky-super-instances" id="id88" name="id88">Sneaky 'super' instances</a></li>
+<li><a class="reference" href="#details-on-python-shutting-down" id="id89" name="id89">Details on Python shutting down</a></li>
+<li><a class="reference" href="#re-python-checkins-python-dist-src-objectslistobject-c-2-15" id="id90" name="id90">Re: [Python-checkins] python/dist/src/Objectslistobject.c,2.15</a></li>
+<li><a class="reference" href="#released-python-2-3b2" id="id91" name="id91">RELEASED: Python 2.3b2</a></li>
+<li><a class="reference" href="#re-activating-i-from-inside-a-script" id="id92" name="id92">Re: Activating `-i' from inside a script?</a></li>
+<li><a class="reference" href="#quickies" id="id93" name="id93">Quickies</a><ul>
+<li><a class="reference" href="#weekly-python-bug-patch-summary" id="id94" name="id94">Weekly Python Bug/Patch Summary</a></li>
+<li><a class="reference" href="#basehttpserver-parsing" id="id95" name="id95">BaseHTTPServer parsing</a></li>
+<li><a class="reference" href="#popen2-py-strangeness" id="id96" name="id96">popen2.py strangeness</a></li>
+<li><a class="reference" href="#timsort" id="id97" name="id97">timsort?</a></li>
+<li><a class="reference" href="#mundane-dict-setitem" id="id98" name="id98">Mundane dict __setitem__...</a></li>
+<li><a class="reference" href="#meaning-of-trailing-comma" id="id99" name="id99">Meaning of trailing comma?</a></li>
+<li><a class="reference" href="#test-strptime-failed" id="id100" name="id100">test_strptime failed</a></li>
+<li><a class="reference" href="#idlefork-re-integration-into-python" id="id101" name="id101">IDLEfork Re-integration into Python</a></li>
+<li><a class="reference" href="#on-syntax-extensibility-again" id="id102" name="id102">On Syntax Extensibility (again)</a></li>
+<li><a class="reference" href="#the-python-interpreter-is-not-fully-thread-safe" id="id103" name="id103">The Python interpreter is not fully thread-safe.</a></li>
+<li><a class="reference" href="#urllib2-proxy-support-broken" id="id104" name="id104">urllib2 proxy support broken?</a></li>
+<li><a class="reference" href="#re-python-checkins-python-dist-src-lib-pprint-py" id="id105" name="id105">Re: [Python-checkins] python/dist/src/Lib  pprint.py...</a></li>
+<li><a class="reference" href="#mimetypes-guess-all-extensions" id="id106" name="id106">mimetypes.guess_all_extensions()</a></li>
+<li><a class="reference" href="#ot-thank-you-python-dev" id="id107" name="id107">[OT] Thank you, python-dev</a></li>
+<li><a class="reference" href="#re-db-sig-api-suggestion-expose-quote-method" id="id108" name="id108">Re: [DB-SIG] API suggestion: expose 'quote' method</a></li>
+<li><a class="reference" href="#updated-2-3-release-schedule" id="id109" name="id109">Updated 2.3 Release Schedule</a></li>
+<li><a class="reference" href="#cpickle-coredump-with-2-3-cvs" id="id110" name="id110">cPickle coredump with 2.3/cvs</a></li>
+<li><a class="reference" href="#patch-to-remove-eval-from-csv-sniffer" id="id111" name="id111">Patch to remove eval from csv sniffer</a></li>
+<li><a class="reference" href="#proposal-to-drop-f-tstate" id="id112" name="id112">Proposal to drop f_tstate</a></li>
+<li><a class="reference" href="#caching-of-builtins-and-globals-in-action" id="id113" name="id113">Caching of builtins and globals in action</a></li>
+<li><a class="reference" href="#two-useful-patches-involving-tracebacks" id="id114" name="id114">Two useful patches involving tracebacks</a></li>
+<li><a class="reference" href="#pep-311-operational" id="id115" name="id115">PEP-311 operational?</a></li>
+<li><a class="reference" href="#can-we-switch-different-byte-code-interpreters" id="id116" name="id116">Can we switch different &quot;byte code interpreters&quot;?</a></li>
+<li><a class="reference" href="#sporadic-test-failures-in-lib-test-test-mimetools-py" id="id117" name="id117">Sporadic test failures in Lib/test/test_mimetools.py</a></li>
+<li><a class="reference" href="#porting-problems" id="id118" name="id118">porting problems</a></li>
+<li><a class="reference" href="#python-language-standard-lsb" id="id119" name="id119">Python language standard; LSB</a></li>
+<li><a class="reference" href="#vc-7-1-compiler-for-key-developers-last-call" id="id120" name="id120">VC 7.1 compiler for key developers - last call!</a></li>
+<li><a class="reference" href="#pep280-and-my-experiment" id="id121" name="id121">PEP280 and my experiment</a></li>
+<li><a class="reference" href="#on-the-possibility-of-optimizing-range-calls-in-for-loops" id="id122" name="id122">On the possibility of &quot;optimizing&quot; range() calls in for-loops</a></li>
+<li><a class="reference" href="#changes-to-idle" id="id123" name="id123">Changes to IDLE</a></li>
+<li><a class="reference" href="#zipfile-py-sf-755031" id="id124" name="id124">zipfile.py (SF #755031)</a></li>
+<li><a class="reference" href="#new-pep-319" id="id125" name="id125">New PEP: 319</a></li>
+<li><a class="reference" href="#py2-3-todo-list" id="id126" name="id126">Py2.3 Todo List</a></li>
+<li><a class="reference" href="#handler-setlevel" id="id127" name="id127">Handler.setLevel()</a></li>
+<li><a class="reference" href="#no-net-at-home" id="id128" name="id128">No Net at home</a></li>
+<li><a class="reference" href="#sf-cvs-hosed" id="id129" name="id129">SF CVS hosed?</a></li>
+<li><a class="reference" href="#curses-module-has-key-emulation" id="id130" name="id130">curses module has_key emulation</a></li>
+<li><a class="reference" href="#a-vote-against-dict-keyword-value-sugar" id="id131" name="id131">A vote against dict(keyword=value) sugar...</a></li>
+<li><a class="reference" href="#python-on-dual-processor-macs" id="id132" name="id132">Python on dual-processor Macs?</a></li>
+<li><a class="reference" href="#patch-595601" id="id133" name="id133">Patch  595601</a></li>
+<li><a class="reference" href="#cookie-support-for-fancyurlopener" id="id134" name="id134">cookie support for FancyURLopener?</a></li>
+<li><a class="reference" href="#proposed-tkinter-change-any-likelihood-of-acceptance" id="id135" name="id135">proposed Tkinter change; any likelihood of acceptance?</a></li>
+<li><a class="reference" href="#python-hash-function" id="id136" name="id136">Python hash function</a></li>
+<li><a class="reference" href="#py2-1" id="id137" name="id137">Py2.1</a></li>
+<li><a class="reference" href="#deprecate-dbm-module-add-bsddb185-module-for-2-2" id="id138" name="id138">deprecate dbm module &amp; add bsddb185 module for 2.2</a></li>
+<li><a class="reference" href="#oscon-lightning-talk-proposals-still-being-accepted" id="id139" name="id139">OSCON Lightning Talk Proposals still being accepted</a></li>
+<li><a class="reference" href="#yet-more-sre" id="id140" name="id140">Yet more SRE</a></li>
+<li><a class="reference" href="#python-2-3b1-distutils-and-pep-263" id="id141" name="id141">Python 2.3b1, distutils and PEP 263</a></li>
+<li><a class="reference" href="#test-copy-reg-failing-in-2-3-cvs" id="id142" name="id142">test_copy_reg failing in 2.3 CVS</a></li>
+<li><a class="reference" href="#socket-timeouts-and-httplib" id="id143" name="id143">socket timeouts and httplib</a></li>
+<li><a class="reference" href="#embedding-python-threading-and-scalability" id="id144" name="id144">Embedding Python, threading and scalability</a></li>
+<li><a class="reference" href="#ann-scipy-03-the-2nd-annual-python-for-scientific-computing-workshop" id="id145" name="id145">[ANN] SciPy '03 -- The 2nd Annual Python for Scientific Computing Workshop</a></li>
+<li><a class="reference" href="#proposed-dns-query-library" id="id146" name="id146">Proposed DNS query library</a></li>
+<li><a class="reference" href="#problems-in-stdlib-before-2-3b2" id="id147" name="id147">Problems in stdlib before 2.3b2</a></li>
+<li><a class="reference" href="#running-tests-on-freebsd5" id="id148" name="id148">Running tests on freebsd5</a></li>
+<li><a class="reference" href="#threads-duplicated-on-fork-prevent-child-from-terminating-properly" id="id149" name="id149">threads duplicated on fork() prevent child from terminating properly</a></li>
+<li><a class="reference" href="#meaty-debugging-mystery" id="id150" name="id150">Meaty debugging mystery</a></li>
+<li><a class="reference" href="#b2-known-bugs" id="id151" name="id151">2.3b2 known bugs?</a></li>
+<li><a class="reference" href="#problem-with-2-3b2-tarfile" id="id152" name="id152">Problem with 2.3b2 tarfile?</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="summary-announcements">
+<h1><a class="toc-backref" href="#id82" name="summary-announcements">Summary Announcements</a></h1>
+<p>I lost Internet on the morning of June 18 and did not regain it until June 29.  Since it was so close to the end of the month I decided to just combine the next summary into this month-long summary.</p>
+<p>During my Internet blackout that reminded me of the days back when I spent my days playing video games and watching television, my future life as a graduate student began to form.  Since I am going to have the joy of taking three upper-division undergraduate courses this upcoming fall semester I don't think I am going to have the time to do the summaries when school starts, at least in the capacity I am doing them currently.</p>
+<p>At minimum I suspect I will have to cut back on the depth of them since I refuse to put the summaries before hacking on the core (hacking is more fun and I would like to think I can contribute more to Python that way).  If you want this job I will be willing to give it up starting in September (I want a full year's worth of summaries behind me before I am willing to pass the torch).  But if no one takes it I can probably continue to do them in a rather informal way by summarizing only big threads that I find interesting until someone steps forward to do a good, thorough job.</p>
+<p>If you <em>really</em> want to do the summaries at the same level of depth as I am currently doing them and are interested in taking over starting in September, give me an email at <a class="reference" href="mailto:brett&#64;python.org">brett&#64;python.org</a> .</p>
+</div>
+<div class="section" id="descriptor-write-up-draft-please-comment">
+<h1><a class="toc-backref" href="#id83" name="descriptor-write-up-draft-please-comment"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/035922.html">Descriptor write-up [Draft:  Please comment]</a></a></h1>
+<dl>
+<dt>Related threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/035936.html">Descriptor write-up [second draft]</a></li>
+</ul>
+</dd>
+</dl>
+<p>Raymond Hettinger has written an paper on descriptors covering what they are to how to write your own.  Since not only are properties class methods, static methods, and 'super' object descriptors (more on the last one later on in this summary) but descriptors are used throughout Python now to create bound objects for functions, methods, etc.</p>
+<p>It would behoove all serious Python programmers to read <a class="reference" href="http://users.rcn.com/python/download/Descriptor.htm">http://users.rcn.com/python/download/Descriptor.htm</a> .</p>
+</div>
+<div class="section" id="where-to-put-the-interrupt-module">
+<h1><a class="toc-backref" href="#id84" name="where-to-put-the-interrupt-module"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036265.html">Where to put the interrupt module?</a></a></h1>
+<p>Not earth-shattering, but to make sure that people know when new things are added to the stdlib I figured I should make this thread have a full-blown summary.</p>
+<p>Thanks to the development work on <a class="reference" href="http://idlefork.sf.net/">IDLEfork</a>, a new function in the thread module called interrupt_main has been added.  It raises KeyboardInterrupt in the main thread of a program.  The reason the exception is KeyboardInterrupt and not some new exception is because KeyboardInterrupt is the only asynchronous error in Python.</p>
+<p>There was discussion of making it much more general, which led to the PyThreadState_SetAsyncState API that allows the raising of an exception in another thread.</p>
+</div>
+<div class="section" id="can-t-compile-tkinter-c-with-redhat-9">
+<h1><a class="toc-backref" href="#id85" name="can-t-compile-tkinter-c-with-redhat-9"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036277.html">Can't compile _tkinter.c with Redhat 9</a></a></h1>
+<p><a class="reference" href="http://www.redhat.com/">Red Hat</a>, apparently, modified their distribution of <a class="reference" href="http://www.tcl.tk/">Tcl</a> so as to support <a class="reference" href="http://www.wikipedia.org/wiki/UCS-4">UCS-4</a> text encoding so that their distribution of Python 2.2 could be compiled with UCS-4 support.  Problem is that this does not allow Python to compile with UCS-2 support; you <strong>have</strong> to compile with UCS-4 support and not UCS-2 under Red Hat 9 with their custom version of Tcl.</p>
+<p>Thanks to Martin v. Löwis, 2.3 has been modified so that Python compiled in either UCS-4 or UCS-2 will work with standard Tcl which is UCS-2 natively.</p>
+</div>
+<div class="section" id="pep-317">
+<h1><a class="toc-backref" href="#id86" name="pep-317"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036027.html">PEP-317</a></a></h1>
+<dl>
+<dt>Splintered threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036070.html">Exception masking/chaining</a></li>
+</ul>
+</dd>
+</dl>
+<p>A discussion of PEP 317 broke out on python-dev.  You can read the PEP for details but it advocated removing string exceptions (they are going to be gone in Python 3) and implicit exception instantiation (that is not changing).  The PEP was eventually rejected and has the details of why it was rejected in the end.</p>
+<p>Part of this discussion forked off to discuss exception masking.  The idea came up that it might be nice for an exception to keep a reference to a previous exception that was still uncaught at that point.  An example is an exception in the function passed to map; the function gets returned without knowing that it was in map.  Masking it wouldn't work though since you then wouldn't know about the error in the function itself.  But if there was a way to raise an exception from map that reference the original exception from the function then no information would be lost.  Chaining the exceptions together would most likely just be sticking the previous exception in an attribute of the new one.  This was all originally discussed <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032492.html">in January</a> and <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-February/032864.html">February</a> of this year.</p>
+<p>There was also discussion of adding the traceback for an exception as an attribute of the exception.  This would make getting respective tracebacks easier period but also easier if exception chaining was implemented.  The traceback would most likely be attached to the exception when it is caught and not at instantiation.</p>
+<p>Both of these ideas are just that, ideas.  They most likely won't occur until exceptions are moved over to new-style classes which probably won't be for a while.</p>
+</div>
+<div class="section" id="towards-a-faster-python">
+<h1><a class="toc-backref" href="#id87" name="towards-a-faster-python"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036059.html">towards a faster Python</a></a></h1>
+<dl>
+<dt>Related threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036422.html">problem with assignment shadows builtin warning</a></li>
+</ul>
+</dd>
+</dl>
+<p>A new warning has been added to Python for when you inject an attribute into a module to shadows a built-in:</p>
+<pre class="literal-block">
+import os
+os.open = 42
+</pre>
+<p>This is in hopes of making this kind of thing illegal so as to allow the bytecode to be optimized for accessing built-ins.  It also led to package imports, such as <tt class="literal"><span class="pre">import</span> <span class="pre">A.B.C</span></tt> to work directly on the namespace dict instead of doing essentially <tt class="literal"><span class="pre">setattr(A,</span> <span class="pre">'B',</span> <span class="pre">A.B);</span> <span class="pre">setattr(A.B,</span> <span class="pre">'C',</span> <span class="pre">A.B.C)</span></tt>.</p>
+</div>
+<div class="section" id="sneaky-super-instances">
+<h1><a class="toc-backref" href="#id88" name="sneaky-super-instances"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036155.html">Sneaky 'super' instances</a></a></h1>
+<dl>
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036235.html">PEP 246 and Protocols</a></li>
+</ul>
+</dd>
+</dl>
+<p>Discovering that an instance to the 'super' type is both an instance of a class <em>and</em> a non-data descriptor was causing issues for pydoc and inspect led to the question of whether there was any definitive way to tell whether an object was an instance of a class defined by using the 'class' statement in Python.  It turns out there is: if object.__class__.__flags__ &gt;&gt; 9 &amp; 1 is 1 (which is the Py_TPFLAGS_HEAPTYPE in C) <em>and</em> its metaclass is or a subclass of type.</p>
+<p>This then spawned a discussion about protocols and interfaces (which was discussed once way back when under the title <a class="reference" href="#type-categories">type categories</a>) since protocols could supposedly allow one to define a protocol for what makes up a 'super' instance.  None of this will get into the language (if it ever gets in) until Guido can really think it through and that will be a while.</p>
+<a class="target" id="type-categories" name="type-categories"></a></div>
+<div class="section" id="details-on-python-shutting-down">
+<h1><a class="toc-backref" href="#id89" name="details-on-python-shutting-down"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036386.html">Details on Python shutting down</a></a></h1>
+<p>What happens while Python is shutting down?  Well, it calls Py_Finalize in Python/pythonrun.c .  This means that signals are turned off, gc.collect is called, calls PyImport_Cleanup in Python/import.c, and then calls. gc.collect one more time.</p>
+<p>PyImport_Cleanup is where modules are torn down.  __main__ is deleted, then everything but sys and __builtin__, and then sys and __builtin__ (in that order).  Now &quot;deletion&quot; as mentioned he is setting the module to None in sys.modules, setting all names starting with a single underscore to None in the module, and then all others sans __builtins__ .</p>
+<p>This is why when you define a __del__ method you need to make sure that all things referenced in it are local; global names in the module will have been set to None by the time the code is called if the object is collected during shutdown and raise an exception.</p>
+</div>
+<div class="section" id="re-python-checkins-python-dist-src-objectslistobject-c-2-15">
+<h1><a class="toc-backref" href="#id90" name="re-python-checkins-python-dist-src-objectslistobject-c-2-15"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036445.html">Re: [Python-checkins] python/dist/src/Objectslistobject.c,2.15</a></a></h1>
+<p>list.index now has optional start and end arguments.</p>
+</div>
+<div class="section" id="released-python-2-3b2">
+<h1><a class="toc-backref" href="#id91" name="released-python-2-3b2"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036623.html">RELEASED: Python 2.3b2</a></a></h1>
+<dl>
+<dt>Related threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036596.html">2.3b2 this weekend</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036614.html">Python 2.3b2 branch tag created</a></li>
+</ul>
+</dd>
+</dl>
+<p>Title says it all.  Big thing with this beta release is the new version of IDLE.  As with all betas, please download it and give it a whirl to try to shake out any bugs that need fixing <em>ASAP</em>; we are going to aim for an August 1 release date for final thanks to Apple planning to incorporate Python 2.3 into <a class="reference" href="http://www.apple.com/macosx/panther/">Panther</a>.</p>
+</div>
+<div class="section" id="re-activating-i-from-inside-a-script">
+<h1><a class="toc-backref" href="#id92" name="re-activating-i-from-inside-a-script"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036579.html">Re: Activating `-i' from inside a script?</a></a></h1>
+<dl>
+<dt>Related threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036636.html">Delayed `-i'! :-)</a></li>
+</ul>
+</dd>
+</dl>
+<p>Thanks to Skip Montanaro and someone curious at <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> you can now set the PYTHONINSPECT environment variable to something and then be started into an interactive interpreter if an exception propagates all the way to the end of a program without being caught.</p>
+</div>
+<div class="section" id="quickies">
+<h1><a class="toc-backref" href="#id93" name="quickies">Quickies</a></h1>
+<div class="section" id="weekly-python-bug-patch-summary">
+<h2><a class="toc-backref" href="#id94" name="weekly-python-bug-patch-summary">Weekly Python Bug/Patch Summary</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/035926.html">2003-06-01</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036021.html">2003-06-08</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036364.html">2003-06-15</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036525.html">2003-06-22</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036610.html">2003-06-29</a></li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="basehttpserver-parsing">
+<h2><a class="toc-backref" href="#id95" name="basehttpserver-parsing"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/035948.html">BaseHTTPServer parsing</a></a></h2>
+<p>Code marked as internal to a module in the stdlib means you should not directly reference it in your code lest you are willing to deal with possible future breakage when a refactoring of that module is done.</p>
+</div>
+<div class="section" id="popen2-py-strangeness">
+<h2><a class="toc-backref" href="#id96" name="popen2-py-strangeness"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/035955.html">popen2.py strangeness</a></a></h2>
+<p>A race condition in popen2 was found and fixed in 2.3 but was not solved in time for 2.2.3 .  It has been marked for backporting for 2.2.4 .</p>
+</div>
+<div class="section" id="timsort">
+<h2><a class="toc-backref" href="#id97" name="timsort"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/035958.html">timsort?</a></a></h2>
+<p>The new sorting algorithm for lists (known affectionately as &quot;timsort&quot; since Tim Peters wrote that tricky piece of code) is a 2.3 feature.  But if you would like it for older versions of Python you can get it from <a class="reference" href="http://py-stablesort.sourceforge.net/">http://py-stablesort.sourceforge.net/</a> .</p>
+</div>
+<div class="section" id="mundane-dict-setitem">
+<h2><a class="toc-backref" href="#id98" name="mundane-dict-setitem"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/035970.html">Mundane dict __setitem__...</a></a></h2>
+<p>The hash value for an object in a dictionary is not guaranteed to be done based on identity; having two names set to equal tuples and used as keys will overwrite each other.</p>
+</div>
+<div class="section" id="meaning-of-trailing-comma">
+<h2><a class="toc-backref" href="#id99" name="meaning-of-trailing-comma"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/035990.html">Meaning of trailing comma?</a></a></h2>
+<p>Improper for python-dev, but Michael Chermside was nice enough to answer the question nonetheless.</p>
+</div>
+<div class="section" id="test-strptime-failed">
+<h2><a class="toc-backref" href="#id100" name="test-strptime-failed"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/035995.html">test_strptime failed</a></a></h2>
+<p>A failing test was reported.  Follow-up on the thread is still pending.</p>
+</div>
+<div class="section" id="idlefork-re-integration-into-python">
+<h2><a class="toc-backref" href="#id101" name="idlefork-re-integration-into-python"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/035994.html">IDLEfork Re-integration into Python</a></a></h2>
+<p>The new version of IDLE (being developed by the <a class="reference" href="http://idlefork.sf.net/">IDLEfork</a> team) is going to be kept in Lib/idlelib/ .</p>
+</div>
+<div class="section" id="on-syntax-extensibility-again">
+<h2><a class="toc-backref" href="#id102" name="on-syntax-extensibility-again"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036002.html">On Syntax Extensibility (again)</a></a></h2>
+<p>Samuele Pedroni's thoughts on blocks (like thunks) in Python.  This goes way back to the <a class="reference" href="http://www.python.org/dev/summary/2003-02-01_2003-02-15.html">2003-02-01 summary</a> and the <a class="reference" href="http://www.python.org/dev/summary/2003-02-01_2003-02-15.html#thunks">thunks</a> summary.</p>
+</div>
+<div class="section" id="the-python-interpreter-is-not-fully-thread-safe">
+<h2><a class="toc-backref" href="#id103" name="the-python-interpreter-is-not-fully-thread-safe"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036004.html">The Python interpreter is not fully thread-safe.</a></a></h2>
+<p>It is going to be added to the documentation for threading in the Python core that it does not support free threading.  For those of you who aren't familiar with what free threading is (it apparently comes from the Windows programming world), it means that something can be called at any time from any thread.  In other words it is thread-safe without requiring any special API.</p>
+</div>
+<div class="section" id="urllib2-proxy-support-broken">
+<h2><a class="toc-backref" href="#id104" name="urllib2-proxy-support-broken"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036005.html">urllib2 proxy support broken?</a></a></h2>
+<p>This was initially covered in the <a class="reference" href="http://www.python.org/dev/summary/2003-05-16_2003-05-31.html">last summary</a>.
+The broken proxy support in urllib2 has been fixed.</p>
+</div>
+<div class="section" id="re-python-checkins-python-dist-src-lib-pprint-py">
+<h2><a class="toc-backref" href="#id105" name="re-python-checkins-python-dist-src-lib-pprint-py"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036008.html">Re: [Python-checkins] python/dist/src/Lib  pprint.py</a>...</a></h2>
+<p>A patch applied to pprint to try to notice if a type's __repr__ had changed was backed out.</p>
+</div>
+<div class="section" id="mimetypes-guess-all-extensions">
+<h2><a class="toc-backref" href="#id106" name="mimetypes-guess-all-extensions"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036076.html">mimetypes.guess_all_extensions()</a></a></h2>
+<p>Now returns the empty list when there are no matching extensions.</p>
+</div>
+<div class="section" id="ot-thank-you-python-dev">
+<h2><a class="toc-backref" href="#id107" name="ot-thank-you-python-dev"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036083.html">[OT] Thank you, python-dev</a></a></h2>
+<p>An email from me to python-dev thanking the list for everything they have done since it helped get me into grad school.</p>
+</div>
+<div class="section" id="re-db-sig-api-suggestion-expose-quote-method">
+<h2><a class="toc-backref" href="#id108" name="re-db-sig-api-suggestion-expose-quote-method"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036108.html">Re: [DB-SIG] API suggestion: expose 'quote' method</a></a></h2>
+<p>Email about adding an optional quote function to the Python <a class="reference" href="http://www.python.org/topics/database/">DB-API</a> spec.</p>
+</div>
+<div class="section" id="updated-2-3-release-schedule">
+<h2><a class="toc-backref" href="#id109" name="updated-2-3-release-schedule"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036163.html">Updated 2.3 Release Schedule</a></a></h2>
+<p>Don't expect 2.3 final to be released until some time after OSCON (it ends on July 11).</p>
+</div>
+<div class="section" id="cpickle-coredump-with-2-3-cvs">
+<h2><a class="toc-backref" href="#id110" name="cpickle-coredump-with-2-3-cvs"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036187.html">cPickle coredump with 2.3/cvs</a></a></h2>
+<p>Someone was having core dump on them thanks to cPickle, but with no one else able to reproduce the problem so it's up to the OP to help solve this one.</p>
+</div>
+<div class="section" id="patch-to-remove-eval-from-csv-sniffer">
+<h2><a class="toc-backref" href="#id111" name="patch-to-remove-eval-from-csv-sniffer"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036203.html">Patch to remove eval from csv sniffer</a></a></h2>
+<p>A patch for the new csv package was questioned since 2.3 is in beta.  Guido gave the clear, though, since the chances of people's code being dependent on the package were negligible.</p>
+</div>
+<div class="section" id="proposal-to-drop-f-tstate">
+<h2><a class="toc-backref" href="#id112" name="proposal-to-drop-f-tstate"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036204.html">Proposal to drop f_tstate</a></a></h2>
+<p>A misunderstanding on the use of the f_tstate value in frames in C code.</p>
+</div>
+<div class="section" id="caching-of-builtins-and-globals-in-action">
+<h2><a class="toc-backref" href="#id113" name="caching-of-builtins-and-globals-in-action"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036228.html">Caching of builtins and globals in action</a></a></h2>
+<p>Samuele Pedroni playing with caching accesses to globals and built-ins.</p>
+</div>
+<div class="section" id="two-useful-patches-involving-tracebacks">
+<h2><a class="toc-backref" href="#id114" name="two-useful-patches-involving-tracebacks"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036230.html">Two useful patches involving tracebacks</a></a></h2>
+<p>After discussing a useful patch, the idea of refactoring the cgitb and traceback module for 2.4 came up and seemed to be agreed upon to be a good idea.</p>
+</div>
+<div class="section" id="pep-311-operational">
+<h2><a class="toc-backref" href="#id115" name="pep-311-operational"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036282.html">PEP-311 operational?</a></a></h2>
+<p>Someone asking if PEP 311 has been applied.</p>
+</div>
+<div class="section" id="can-we-switch-different-byte-code-interpreters">
+<h2><a class="toc-backref" href="#id116" name="can-we-switch-different-byte-code-interpreters"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036105.html">Can we switch different &quot;byte code interpreters&quot;?</a></a></h2>
+<p>Answer: no.
+Lesson learned: when you want to start a new thread do not piggyback on an existing one unless it is somehow related.</p>
+</div>
+<div class="section" id="sporadic-test-failures-in-lib-test-test-mimetools-py">
+<h2><a class="toc-backref" href="#id117" name="sporadic-test-failures-in-lib-test-test-mimetools-py"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036299.html">Sporadic test failures in Lib/test/test_mimetools.py</a></a></h2>
+<p>When writing tests that base results on the time difference between time measurements you <em>must</em> make sure that the difference is big enough to be noticed by a platforms time.time function (Windows only measures 18.2 times a second).</p>
+</div>
+<div class="section" id="porting-problems">
+<h2><a class="toc-backref" href="#id118" name="porting-problems"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036308.html">porting problems</a></a></h2>
+<p>Someone has gotten Python to run on an XBox and GameCube.  =)</p>
+</div>
+<div class="section" id="python-language-standard-lsb">
+<h2><a class="toc-backref" href="#id119" name="python-language-standard-lsb"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036325.html">Python language standard; LSB</a></a></h2>
+<p>Python has no &quot;standard&quot;; CPython is as close as you are going to get.</p>
+</div>
+<div class="section" id="vc-7-1-compiler-for-key-developers-last-call">
+<h2><a class="toc-backref" href="#id120" name="vc-7-1-compiler-for-key-developers-last-call"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036339.html">VC 7.1 compiler for key developers - last call!</a></a></h2>
+<p>Guido asked for key developers who wanted a free copy of VC 7.1 to speak up.</p>
+</div>
+<div class="section" id="pep280-and-my-experiment">
+<h2><a class="toc-backref" href="#id121" name="pep280-and-my-experiment"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036356.html">PEP280 and my experiment</a></a></h2>
+<p>Taking cues from PEP 280, Samuele Pedroni experimented with caching access to builtins and globals and got about a 15% increase.</p>
+</div>
+<div class="section" id="on-the-possibility-of-optimizing-range-calls-in-for-loops">
+<h2><a class="toc-backref" href="#id122" name="on-the-possibility-of-optimizing-range-calls-in-for-loops"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036358.html">On the possibility of &quot;optimizing&quot; range() calls in for-loops</a></a></h2>
+<p>The idea of optimizing the bytecode for calls to range in 'for' loops is still being thrown around.  Alex Martelli, though, pointed out that if you just need to do something a set number of times nothing beats itertools.repeat .</p>
+</div>
+<div class="section" id="changes-to-idle">
+<h2><a class="toc-backref" href="#id123" name="changes-to-idle"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036366.html">Changes to IDLE</a></a></h2>
+<p>All new bugs and patches in regards to IDLE should go into the Python tracker.</p>
+</div>
+<div class="section" id="zipfile-py-sf-755031">
+<h2><a class="toc-backref" href="#id124" name="zipfile-py-sf-755031"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036372.html">zipfile.py (SF #755031)</a></a></h2>
+<p>A bug with zipfile was found and subsequently patched.</p>
+</div>
+<div class="section" id="new-pep-319">
+<h2><a class="toc-backref" href="#id125" name="new-pep-319"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036387.html">New PEP: 319</a></a></h2>
+<p>A new PEP on adding a keyword for synchronizing code has been put online.</p>
+</div>
+<div class="section" id="py2-3-todo-list">
+<h2><a class="toc-backref" href="#id126" name="py2-3-todo-list"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036453.html">Py2.3 Todo List</a></a></h2>
+<dl>
+<dt>Related threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036520.html">More work on SRE</a></li>
+</ul>
+</dd>
+</dl>
+<p>Essentially a discussion as to whether to apply Gustavo Niemeyer's patch to remove the recursion limit from the re module and to add sys.(get|set)defaultsourceencoding functions.  The former is in (with help of a coverage tool that comes with gcc and is talked about at <a class="reference" href="https://moin.conectiva.com.br/GustavoNiemeyer/2003-06-19">https://moin.conectiva.com.br/GustavoNiemeyer/2003-06-19</a> ) and the latter had new tests added but won't have the code removing recursion limits applied  until after 2.3.</p>
+</div>
+<div class="section" id="handler-setlevel">
+<h2><a class="toc-backref" href="#id127" name="handler-setlevel"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036466.html">Handler.setLevel()</a></a></h2>
+<p>Misunderstanding over how the method worked.</p>
+</div>
+<div class="section" id="no-net-at-home">
+<h2><a class="toc-backref" href="#id128" name="no-net-at-home"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036485.html">No Net at home</a></a></h2>
+<p>I lost Internet, as you probably know from the <a class="reference" href="#summary-announcements">Summary Announcements</a> section, on June 18 and didn't get it back until June 29.</p>
+</div>
+<div class="section" id="sf-cvs-hosed">
+<h2><a class="toc-backref" href="#id129" name="sf-cvs-hosed"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036489.html">SF CVS hosed?</a></a></h2>
+<p>Usual issues with cvs.  Some talk about <a class="reference" href="http://subversion.tigris.org/">Subversion</a>.</p>
+</div>
+<div class="section" id="curses-module-has-key-emulation">
+<h2><a class="toc-backref" href="#id130" name="curses-module-has-key-emulation"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036501.html">curses module has_key emulation</a></a></h2>
+<p>Problem with curses was found and a proposed patch at <a class="reference" href="http://www.python.org/sf/759208">http://www.python.org/sf/759208</a> has been created.</p>
+</div>
+<div class="section" id="a-vote-against-dict-keyword-value-sugar">
+<h2><a class="toc-backref" href="#id131" name="a-vote-against-dict-keyword-value-sugar"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036502.html">A vote against dict(keyword=value) sugar</a>...</a></h2>
+<p>What the subject says.</p>
+</div>
+<div class="section" id="python-on-dual-processor-macs">
+<h2><a class="toc-backref" href="#id132" name="python-on-dual-processor-macs"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036530.html">Python on dual-processor Macs?</a></a></h2>
+<p>Greg Ewing was worried about a bug he heard about on dual-processor Macs.  Jack Jansen said it was solved, though.</p>
+</div>
+<div class="section" id="patch-595601">
+<h2><a class="toc-backref" href="#id133" name="patch-595601"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036537.html">Patch  595601</a></a></h2>
+<p>A race condition with files and closing/reading is being worked on at <a class="reference" href="http://www.python.org/sf/595601">http://www.python.org/sf/595601</a> .</p>
+</div>
+<div class="section" id="cookie-support-for-fancyurlopener">
+<h2><a class="toc-backref" href="#id134" name="cookie-support-for-fancyurlopener"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036553.html">cookie support for FancyURLopener?</a></a></h2>
+<p>Someone asking if a certain feature was under development.</p>
+</div>
+<div class="section" id="proposed-tkinter-change-any-likelihood-of-acceptance">
+<h2><a class="toc-backref" href="#id135" name="proposed-tkinter-change-any-likelihood-of-acceptance"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036555.html">proposed Tkinter change; any likelihood of acceptance?</a></a></h2>
+<p>Not for 2.3.0, but maybe for 2.4 or 2.3.1 .</p>
+</div>
+<div class="section" id="python-hash-function">
+<h2><a class="toc-backref" href="#id136" name="python-hash-function"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036556.html">Python hash function</a></a></h2>
+<p>Damien Morton continues to try to speed up Python, this time by trying to speed up the hashing of strings.</p>
+</div>
+<div class="section" id="py2-1">
+<h2><a class="toc-backref" href="#id137" name="py2-1"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036564.html">Py2.1</a></a></h2>
+<p>Backporting a fix all the way to Python 2.1 is only needed if it is really critical.</p>
+</div>
+<div class="section" id="deprecate-dbm-module-add-bsddb185-module-for-2-2">
+<h2><a class="toc-backref" href="#id138" name="deprecate-dbm-module-add-bsddb185-module-for-2-2"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036569.html">deprecate dbm module &amp; add bsddb185 module for 2.2</a></a></h2>
+<p>&quot;No&quot; and probably &quot;if you put the effort into it yourself&quot;.</p>
+</div>
+<div class="section" id="oscon-lightning-talk-proposals-still-being-accepted">
+<h2><a class="toc-backref" href="#id139" name="oscon-lightning-talk-proposals-still-being-accepted"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036574.html">OSCON Lightning Talk Proposals still being accepted</a></a></h2>
+<p>If you want to give a lightning talk at <a class="reference" href="http://conferences.oreilly.com/oscon/">OSCON</a>, read this email.</p>
+</div>
+<div class="section" id="yet-more-sre">
+<h2><a class="toc-backref" href="#id140" name="yet-more-sre"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036575.html">Yet more SRE</a></a></h2>
+<p>Gustavo Niemeyer fiddles with the re module some more.</p>
+</div>
+<div class="section" id="python-2-3b1-distutils-and-pep-263">
+<h2><a class="toc-backref" href="#id141" name="python-2-3b1-distutils-and-pep-263"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036577.html">Python 2.3b1, distutils and PEP 263</a></a></h2>
+<p>Bug in Distutils is squashed involving the shebang line.</p>
+</div>
+<div class="section" id="test-copy-reg-failing-in-2-3-cvs">
+<h2><a class="toc-backref" href="#id142" name="test-copy-reg-failing-in-2-3-cvs"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036582.html">test_copy_reg failing in 2.3 CVS</a></a></h2>
+<p>Dealt with by a comment.</p>
+</div>
+<div class="section" id="socket-timeouts-and-httplib">
+<h2><a class="toc-backref" href="#id143" name="socket-timeouts-and-httplib"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036587.html">socket timeouts and httplib</a></a></h2>
+<p>Dealt with by adding a specific exception for timeouts.</p>
+</div>
+<div class="section" id="embedding-python-threading-and-scalability">
+<h2><a class="toc-backref" href="#id144" name="embedding-python-threading-and-scalability"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036589.html">Embedding Python, threading and scalability</a></a></h2>
+<p>David Abrahams redirecting a question to python-dev.</p>
+</div>
+<div class="section" id="ann-scipy-03-the-2nd-annual-python-for-scientific-computing-workshop">
+<h2><a class="toc-backref" href="#id145" name="ann-scipy-03-the-2nd-annual-python-for-scientific-computing-workshop"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036591.html">[ANN] SciPy '03 -- The 2nd Annual Python for Scientific Computing Workshop</a></a></h2>
+<p>Title says it all.</p>
+</div>
+<div class="section" id="proposed-dns-query-library">
+<h2><a class="toc-backref" href="#id146" name="proposed-dns-query-library"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036604.html">Proposed DNS query library</a></a></h2>
+<p>Take a look at <a class="reference" href="http://www.dnspython.org">dnspython</a> if you need DNS stuff.</p>
+</div>
+<div class="section" id="problems-in-stdlib-before-2-3b2">
+<h2><a class="toc-backref" href="#id147" name="problems-in-stdlib-before-2-3b2"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036606.html">Problems in stdlib before 2.3b2</a></a></h2>
+<p>They are being/have been dealt with.</p>
+</div>
+<div class="section" id="running-tests-on-freebsd5">
+<h2><a class="toc-backref" href="#id148" name="running-tests-on-freebsd5"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036611.html">Running tests on freebsd5</a></a></h2>
+<p>...had two failures.  They are being worked on.</p>
+</div>
+<div class="section" id="threads-duplicated-on-fork-prevent-child-from-terminating-properly">
+<h2><a class="toc-backref" href="#id149" name="threads-duplicated-on-fork-prevent-child-from-terminating-properly"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036619.html">threads duplicated on fork() prevent child from terminating properly</a></a></h2>
+<p>Person was told to file a bug report.</p>
+</div>
+<div class="section" id="meaty-debugging-mystery">
+<h2><a class="toc-backref" href="#id150" name="meaty-debugging-mystery"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036627.html">Meaty debugging mystery</a></a></h2>
+<p>... which Martin v. Löwis figured out the basic cause although how it is happening is still unknown.</p>
+</div>
+<div class="section" id="b2-known-bugs">
+<h2><a class="toc-backref" href="#id151" name="b2-known-bugs"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036632.html">2.3b2 known bugs?</a></a></h2>
+<p>The bugs listed previously at <a class="reference" href="http://www.python.org/2.3/bugs.html">http://www.python.org/2.3/bugs.html</a> have been fixed but two new ones take their place.</p>
+</div>
+<div class="section" id="problem-with-2-3b2-tarfile">
+<h2><a class="toc-backref" href="#id152" name="problem-with-2-3b2-tarfile"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-June/036637.html">Problem with 2.3b2 tarfile?</a></a></h2>
+<p>Solaris tar was choking on a <em>really</em> long pathname in the stdlib.  The pathname will most likely end up being changed to be under 100 characters so as to meet the POSIX tarfile format specification.</p>
+</div>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="2003-06-01_2003-06-30.txt">View document source</a>.
+Generated on: 2003-07-09 04:12 UTC.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>

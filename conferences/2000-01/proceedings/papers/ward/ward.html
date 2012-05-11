@@ -1,0 +1,1071 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!--Converted with LaTeX2HTML 98.2 beta6 (August 14th, 1998)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Introduction to the Distutils</TITLE>
+<META NAME="description" CONTENT="Introduction to the Distutils">
+<META NAME="keywords" CONTENT="distutils_intro">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+</HEAD>
+<BODY >
+
+<P>
+<H1 ALIGN="CENTER">The Python Module Distribution Utilities:
+<BR>
+An Introduction to the Distutils</H1>
+<P ALIGN="CENTER"><STRONG>Gregory P. Ward 
+<BR>
+        <I>Corporation for National Research Initiatives</I> 
+<BR>
+        <tt>gward@python.net</tt></STRONG></P>
+
+<H3>Abstract:</H3>
+<DIV>
+The Python Module Distribution Utilities, or Distutils for short, are
+  being developed to address a long-standing need in the Python
+  community: a standard mechanism for building, distributing, and
+  installing Python modules--or, more realistically, multi-module
+  distributions.  The Distutils will address this need by providing a
+  set of classes to implement the normal tasks involved in such
+  work--build C extensions, process
+  documentation, install to library directory, compile Python files to
+  bytecode, etc.--and a standard way for
+  module developers to give users access to these classes through a
+  simple Python script included with every distribution.  All of this
+  will work cross-platform, with Unix and DOS/Windows support included
+  from the beginning, and plans for Mac OS support in the future.
+</DIV>
+<P>
+<H1><A NAME="SECTION00010000000000000000"></A>
+<A NAME="sec:intro"></A>
+<BR>
+1. Introduction and Motivation
+</H1>
+
+<P>
+The need for such a project is clear to anyone who has installed more
+than one large module distribution for Python: they all have their own
+build mechanisms, requiring users to read and understand different
+(possibly complex) instructions for every new distribution, with no
+guarantee of working on any platform other than that used by the
+developer.  The need is even greater for module developers, who
+duplicate each others' efforts and spend time working on code that is
+ancillary to their main development effort.
+
+<P>
+The potential payoffs of the Distutils are great, as anyone who has used 
+Perl over the last couple of years can attest.  One of the major reasons 
+for the success of CPAN (the Comprehensive Perl Archive Network) is the
+standard build mechanism used by all Perl module distributions.  No Perl 
+developer is taken seriously unless any user can download his
+distribution, run a few simple commands:
+<PRE>
+  perl Makefile.PL
+  make
+  make test
+  make install
+</PRE>
+and be assured of tested, documented new functionality for their Perl
+system.  This system works identically from the tiniest one-module
+distribution to the mammoth Perl/Tk.
+
+<P>
+The principle drawback to Perl's <tt>MakeMaker</tt> system
+(<tt>ExtUtils::MakeMaker</tt> is the module that underlies the
+<tt><b>Makefile.PL</tt></b> script) is that it generates a makefile, rather
+than doing its work directly.  This reduces portability (not many
+Windows users have a Unix-compatible <tt><b>make</tt></b>, even if they do
+have a C compiler--and <tt>MakeMaker</tt> requires <tt><b>make</tt></b> even
+to build pure-Perl module distributions) and makes customizing the
+build/install steps awkward and unnecessarily complicated.
+
+<P>
+
+<H1><A NAME="SECTION00020000000000000000"></A>
+<A NAME="sec:enter"></A>
+<BR>
+2. Enter the Distutils
+</H1>
+
+<P>
+The Distutils interface is strongly influenced by <tt>MakeMaker</tt>'s.
+Superficially, Distutils relies on a script <tt><b>setup.py</tt></b> instead
+of <tt><b>Makefile.PL</tt></b>; instead of a call to <tt>WriteMakefile</tt>,
+that script consists mainly of a call to <tt>setup</tt>.  However, the
+machinery behind that call is all implemented directly in Python, with
+no intervening <tt><b>make</tt></b> step.  This means that the action of
+building or installing (or whatever else is required) is done
+immediately; thus, the user has to specify what he wants to do on the
+<tt><b>setup.py</tt></b> command line.
+
+<P>
+The canonical example of running a Distutils setup script is
+<PRE>
+  python setup.py -v install
+</PRE>
+which takes care of everything required to install a workable module
+distribution.  This is planned eventually to include:
+
+<UL><LI>finding pure Python modules
+
+<LI>compiling and linking C/C++ extension modules
+
+<LI>compiling Java extension modules (for JPython-friendly module
+  distributions)
+
+<LI>processing documentation to one or more standard formats
+
+<LI>running a test suite
+
+<LI>installing everything in sensible places (according to the Python
+  installation and user-supplied preferences)
+
+</UL>
+Each of these steps is independantly selectable and controllable using
+arguments to the setup script.  Currently (version 0.1.1), the Distutils
+only deal with building and installing pure Python modules and C
+extensions.
+
+<P>
+The canonical example of an actual setup script is that used by the
+Distutils itself:
+<pre>
+  from distutils.core import setup
+
+  setup (name = "Distutils",
+         version = "0.1.1",
+         description = "Python Module Distribution Utilities",
+         author = "Greg Ward",
+         author_email = "gward@python.net",
+         url = "http://www.python.org/sigs/distutils-sig/",
+
+         packages = ['distutils', 'distutils.command'])
+</pre>
+Note that most of the arguments to <tt>setup</tt> are distribution
+meta-data--the only ``interesting'' data (depending on your point of
+view) is the list of packages in the distribution, which implicitly
+describes the set of modules to be built and installed (in this case,
+<tt>distutils/*.py</tt> and <tt>distutils/command/*.py</tt>).  More complex
+module distributions--those involving extensions, or listing individual
+modules rather than whole packages--take a bit more space to describe,
+as outlined in section&nbsp;<A HREF="distutils_intro.html#sec:inside">4</A> below.
+
+<P>
+
+<H1><A NAME="SECTION00030000000000000000"></A>
+<A NAME="sec:using"></A>
+<BR>
+3. Using the Distutils
+</H1>
+
+<P>
+There are two group of users currently addressed by the Distutils:
+module developers and module installers (sysadmins or end-users).
+Generally, writing and editing the setup.py script is the domain of the
+developer, while running it--and using its extensive command-line
+options--is for installers.  When the Distutils have the ability to
+generate ``built distributions'' (ready-to-install distributions, with
+extensions compiled), then a third community will be added: distributors
+who take a source distribution provided by the module developer, and
+create a built distribution for greater convenience to installers.
+
+<P>
+Of course, developers will need to run the script too, both to test it
+and to create a source distribution.  Eventually, distributors will use
+the setup script to create built distributions from source
+distributions.  Thus, we first cover the Distutils from the installer's
+point of view, and deal with the developer's problem of writing the
+setup script later, in section&nbsp;<A HREF="distutils_intro.html#sec:writing">3.2</A>.
+
+<P>
+
+<H2><A NAME="SECTION00031000000000000000"></A>
+<A NAME="sec:running"></A>
+<BR>
+3.1 Running the setup script
+</H2>
+
+<P>
+
+<H3><A NAME="SECTION00031100000000000000"></A>
+<A NAME="sec:basic_syntax"></A>
+<BR>
+3.1.1 Basic syntax and global options
+</H3>
+
+<P>
+The standard incantation for installing a Distutils-based module
+distribution is
+<PRE>
+  python setup.py -v install
+</PRE>
+More generally, the command-line syntax is
+<PRE>
+  setup.py [global-options]
+           cmd [cmd-options ...]
+           [cmd [cmd-options ...]] ...
+</PRE>
+Global options affect the actions of all commands; currently, there are
+only two: <tt>-verbose</tt> (<tt>-v</tt>) and <tt>-dry-run</tt>
+(<tt>-n</tt>).  By default the Distutils are silent, issuing no output
+except for errors and warnings.  <tt>-verbose</tt> countermands this,
+printing a message for every action that affects (or would affect, if
+<tt>-dry-run</tt> is supplied) the filesystem.  The two are
+independent, so <tt>-n</tt> without <tt>-v</tt> is pointless: ``Don't do
+anything, and don't tell me what you would have done.''
+
+<P>
+Another caveat is that some Distutils commands base their action on the
+state of the filesystem, which is often determined by the action of
+earlier commands.  For example, if you run
+<PRE>
+  setup.py -nv build install
+</PRE>
+on a fresh module distribution, you'll get a detailed report of what
+would happen in the <tt>build</tt> phase--but since the effects of the
+`build' phase control the <tt>install</tt> phase, you won't see anything
+relating to installation, because it doesn't see any files to install.
+
+<P>
+
+<H3><A NAME="SECTION00031200000000000000"></A>
+<A NAME="sec:commands"></A>
+<BR>
+3.1.2 The Distutils commands
+</H3>
+
+<P>
+After the global options come a series of one or more commands, each
+with optional command-specific options.  The commands implemented
+as of this writing are:
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT"><tt>build_py</tt></TD>
+<TD ALIGN="LEFT">``build'' pure Python modules</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><tt>build_ext</tt></TD>
+<TD ALIGN="LEFT">build C/C++ extension modules</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><tt>build</tt></TD>
+<TD ALIGN="LEFT">build everything</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><tt>install_py</tt></TD>
+<TD ALIGN="LEFT">install pure Python modules</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><tt>install_ext</tt></TD>
+<TD ALIGN="LEFT">install extension modules</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><tt>install</tt></TD>
+<TD ALIGN="LEFT">install everything</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><tt>dist</tt></TD>
+<TD ALIGN="LEFT">create source distribution</TD>
+</TR>
+</TABLE>
+
+<P>
+Commands may run other commands: the <tt>build</tt> command runs
+<tt>build_py</tt> and then <tt>build_ext</tt>, because that is what
+``everything'' currently means; the <tt>install</tt> command first runs
+<tt>build</tt> (because you can't install what you haven't built), and then
+<tt>install_py</tt> and <tt>install_ext</tt>.  Distutils is smart enough not
+to run the same command twice, and the commands are generally smart
+enough not to do redundant work in their run.
+
+<P>
+This illustrates why, if all you want to do is install a module
+distribution, all you have to do is
+<PRE>
+  python setup.py -v install
+</PRE>
+--the <tt>install</tt> command runs <tt>build</tt>, which runs
+<tt>build_py</tt> and <tt>build_ext</tt> to build everything, and then
+installs everything with <tt>install_py</tt> and <tt>install_ext</tt>.
+(Actually, both <tt>build</tt> and <tt>install</tt> are smart enough
+that they only run <tt>build_py</tt> or <tt>install_py</tt> if there
+are pure Python modules in the distribution, and likewise with
+<tt>build_ext</tt> and <tt>install_ext</tt>.  That's a minor
+optimization, though, as it mainly saves the unnecessary import of all
+the code for that operation--which, in the case of building extensions,
+is a fair chunk.)
+
+<P>
+In the absence of command options (described momentarily), the following 
+are all nearly equivalent:
+<PRE>
+  setup.py -v install
+  setup.py -v build install
+  setup.py -v build_py build_ext install
+  setup.py -v build_py build_ext \
+              install_py install_ext
+</PRE>
+(The main difference is that when you explicitly specify a command, the
+module that implements it will be imported--which can cause a
+noticeable delay in the case of <tt>build_ext</tt>.)
+
+<P>
+
+<H3><A NAME="SECTION00031300000000000000"></A>
+<A NAME="sec:options"></A>
+<BR>
+3.1.3 Command options
+</H3>
+
+<P>
+The actions of every command are controlled by a set of options.  Some
+command options can be specified on the command-line of the setup
+script; others may only be supplied in the setup script itself.  This
+section only covers the command options that may be supplied by the
+installer, i.e. on the command-line--the remaining command options are
+generally the domain of the module developer, so will be covered in
+section&nbsp;<A HREF="distutils_intro.html#sec:writing">3.2</A> below.
+
+<P>
+The vast majority of command options deal with where to put various
+files.  For instance, the <tt>build*</tt> commands let you specify
+where to build to, and the <tt>install*</tt> commands let you specify
+where to install to.
+
+<P>
+Command option names are only unique within their command, so multiple
+commands may have (e.g.) a <tt>build_base</tt> option.  All command
+options have a long name (e.g. <tt>build_base</tt> in the setup script
+or <tt>-build-base</tt> on the command line), and many have a
+one-letter form that appears only on the command line.  There's no
+guarantee that the same option name has the same one-letter form (or
+even the same meaning) across different commands, although this is
+certainly a desirable goal for command implementors.
+
+<P>
+An exhaustive reference of all command options is included with the
+Distutils documentation; here we'll concentrate on examples to
+illustrate some common cases.  First, the <tt>build_base</tt> option: by
+default, the Distutils <tt>build*</tt> commands put ready-to-install
+modules and extensions into the <tt>build/</tt> subdirectory of the
+distribution root.  (The <i>distribution root</i> is the directory
+where <tt><b>setup.py</tt></b> exists and is run from, and most files and
+directories referenced by the Distutils are relative to this directory.
+Thus, you can generally read ``distribution root'' as ``current
+directory''.)  If you want these files put somewhere else, use the
+<tt>build_base</tt> option to <tt>build</tt>:
+<PRE>
+  setup.py -v build \
+    --build-base=/tmp/pybuild
+</PRE>
+In this case, pure Python modules will be put in
+<tt>/tmp/pybuild/lib</tt>, and extension modules in
+<tt>/tmp/pybuild/platlib</tt>.  If you want exact control over these two
+directories, you can specify them individually to the <tt>build</tt>
+command:
+<PRE>
+  setup.py -v build \
+    --build-lib=/tmp/pybuild.shared \
+    --build-platlib=/tmp/pybuild.plat
+</PRE>
+In this case, you don't need to specify <tt>build_base</tt>, since it is
+only used to generate <tt>build_lib</tt> and <tt>build_plat</tt>.
+
+<P>
+Of course, if you then attempt to install the module distribution with
+<tt>setup.py -v install</tt>, it won't work as intended: <tt>install</tt>
+looks in the default build directory (<tt>./build</tt>), but the
+ready-to-install built files aren't there.  So your files will be
+re-built to <tt>./build</tt> instead of fetched from <tt>/tmp/pybuild</tt>
+(or wherever).  Since you're running <tt>install</tt> separately from
+<tt>build</tt>, you have to tell it the build directories separately.  For
+instance, the <tt>install</tt> command to go with the first
+<tt>build</tt> command above would be
+<PRE>
+  setup.py -v install \
+    --build-base=/tmp/pybuild
+</PRE>
+and to go with the second <tt>build</tt> command:
+<PRE>
+  setup.py -v install \
+    --build-lib=/tmp/pybuild.shared \
+    --build-platlib=/tmp/pybuild.plat
+</PRE>
+(Note that the great similarity of these commands is due not to some
+conspiracy within the Distutils, but to the deliberate choice of the
+same option names for the same purposes across the two commands.
+Nothing enforces this design principle except common sense!)
+
+<P>
+Obviously, it's preferable to supply the build directory only once, as
+in:
+<PRE>
+  setup.py build \
+    --build-base=/tmp/pybuild install
+</PRE>
+or, since <tt>install</tt> implies <tt>build</tt>,
+<PRE>
+  setup.py install
+    --build-base=/tmp/pybuild
+</PRE>
+but note that this:
+<PRE>
+  setup.py build install \
+    --build-base=/tmp/pybuild
+</PRE>
+<B>does not work</B>--when you explicitly specify the <tt>build</tt>
+command in this way, its options are decided <I>before</I> the options
+for the <tt>install</tt> command are parsed.  (This might be considered
+a bug--or a design flaw that would be nice, but tricky, to fix.)
+
+<P>
+Of course, you may be perfectly happy with the default build
+directories, but want to install elsewhere--e.g., if you don't have
+superuser privileges on a Unix system, you'll probably want to install
+to your home directory.  Naturally, this is an option--well, several
+options--to the <tt>install</tt> command:
+<PRE>
+  setup.py -v install
+    --prefix=/home/greg \
+    --exec-prefix=/home/greg
+</PRE>
+will install both pure Python modules and extension modules under
+<tt>/home/greg/lib/python1.5</tt> (assuming Python 1.5, of course).
+
+<P>
+If you want more precise control, you can specify the
+<tt>install_site_lib</tt> and <tt>install_site_platlib</tt> options
+directly:
+<PRE>
+  setup.py -v install \
+    --install-site-lib=\
+      /home/greg/lib/python \
+    --install-site-platlib=\
+      /home/greg/lib/python.plat
+</PRE>
+Note that the ``lib'' and ``platlib'' directories are completely
+independent; if you want to control both of them, you must specify both
+(or both <tt>prefix</tt> and <tt>exec_prefix</tt>).  This is a feature
+(I think).
+
+<P>
+
+<H2><A NAME="SECTION00032000000000000000"></A>
+<A NAME="sec:writing"></A>
+<BR>
+3.2 Writing the setup script
+</H2>
+
+<P>
+In order to understand how to write setup scripts, you have to
+understand how they're run--so if you skipped straight down here, you
+should skip right back up again and read section&nbsp;<A HREF="distutils_intro.html#sec:running">3.1</A>.
+
+<P>
+Now that you know about commands and command options, it is time to
+reveal more of the truth.  (The full truth cannot be revealed since the
+Distutils are a work-in-progress, and no one yet knows the full truth.)
+Specifically, the setup script command-line is only one possible source
+for command options.  Two other possible sources are in the setup script
+itself, as keyword arguments to <tt>setup()</tt>, and as elements in the
+<tt>options</tt> argument to <tt>setup()</tt>.  (The distinction may seem
+pedantic, but it matters in some circumstances.)  Undoubtedly more
+option sources will be revealed as work on the Distutils progresses.
+
+<P>
+
+<H3><A NAME="SECTION00032100000000000000"></A>
+<A NAME="sec:option_theory"></A>
+<BR>
+3.2.1 Command options--the theory
+</H3>
+
+<P>
+The first option source is, as described above, the command line to the
+setup script.  Whatever happens, this option source is the last word;
+options supplied here should override all other sources (so that the
+developer, distributor, or installer running the setup script has the
+final word).  However, not all options can appear on the command line:
+of course we allow the installer to specify the build and installation
+directories, but they don't get to specify the extension modules to
+build or what package they belong to.
+
+<P>
+That sort of information--what's included in the module distribution
+and where it belongs in the space of Python modules--goes in the setup
+script.  However, there are <I>two</I> sources of options in the setup
+script, and to understand why you need to understand the difference
+between <i>distribution options</i> and <i>command options</i>.
+Consider the following setup script:
+<PRE>
+  setup (name = "foobar"
+         version = "1.1",
+         description = "Modules to foo bars and bar foos",
+
+         py_modules = ['foobar.foo', 'foobar.bar'],
+         options = { 'build': { 'build_base': 'blib' } })
+</PRE>
+This illustrates a microcosm of the Distutils option universe.
+First, (almost) all keyword arguments to <tt>setup()</tt> are distribution
+options, which wind up as attributes of the <tt>Distribution</tt> object
+that underlies everything.  (But that's an implementation detail which
+should be reserved for section&nbsp;<A HREF="distutils_intro.html#sec:inside">4</A> below.)  A few special
+arguments to <tt>setup()</tt> are, well, special and are not treated as
+distribution options: <tt>options</tt> is one of these.
+
+<P>
+The other keyword arguments here--<tt>name</tt>, <tt>version</tt>,
+<tt>description</tt>, and <tt>py_modules</tt>--are all distribution
+options.  <tt>py_modules</tt> is not a <I>pure</I> distribution option,
+though, as it becomes a command option (<tt>modules</tt>) to guide the
+actions of the <tt>build_py</tt> command.  <tt>py_modules</tt> is thus
+called an <I>alias option</I>, because it is a stand-in for a command
+option, <tt>build_py.modules</tt>.
+
+<P>
+Finally, the <tt>options</tt> argument lets you supply any arbitrary
+command option.  The example shown here makes things look more familiar
+to Perl refugees by building to <tt>./blib</tt> instead of <tt>./build</tt>.
+Note that this sort of mischief is anti-social and officially Frowned
+Upon, but it is possible.  Setting options in the <tt>options</tt>
+dictionary is deliberately awkward: it should not be needed often, and
+if a particular command option needs to be set frequently for many
+module distributions, an alias option should be created for it.  Also,
+note that options from the <tt>options</tt> dictionary generally override
+alias options (depending on how the particular command is implemented),
+so before you go setting the list of extension modules or packages this
+way, you had better know exactly what you are doing and what
+ramifications it will have.
+
+<P>
+
+<H3><A NAME="SECTION00032200000000000000"></A>
+<A NAME="sec:option_practice"></A>
+<BR>
+3.2.2 Command options in practice
+</H3>
+
+<P>
+Using the Distutils boils down to specifying the commands to run and the
+options that guide them.  The developer's job in writing the setup
+script is to supply the options that the installer cannot know:
+distribution meta-data, which modules and extensions are present in the
+distribution, and where they go in the space of Python modules.
+
+<P>
+All of these were illustrated in the example in section&nbsp;<A HREF="distutils_intro.html#sec:enter">2</A>:
+the distribution meta-data is contained in the <tt>name</tt>,
+<tt>version</tt>, <tt>description</tt>, <tt>author</tt>,
+<tt>author_email</tt>, and <tt>url</tt> distribution options.
+(<tt>maintainer</tt> and <tt>maintainer_email</tt> may be supplied in
+place of, or in addition to, the <tt>author</tt> options.)
+
+<P>
+In the case of a fully ``package-ized,'' pure-Python distribution like
+the Distutils, the rest is simple: the <tt>packages</tt> option (an
+alias for <tt>build_py.packages</tt>) lists the packages in which pure
+Python modules can be found.  The <tt>build_py</tt> command assumes the
+most sensible directory layout, namely that modules in the
+<tt>distutils</tt> package can be found in the <tt>distutils</tt>
+subdirectory of the distribution root.  Overriding this is easy with the 
+<tt>package_dir</tt> option, for example:
+<PRE>
+  setup (
+    ...
+    packages = ['foo', 'foo.bar']
+    package_dir = { 'foo': 'src' }
+  )
+</PRE>
+tells the Distutils to look for <tt>foo</tt> modules in <tt>src</tt>
+(under the distribution root), and <tt>foo.bar</tt> modules in
+<tt>src/bar</tt>.
+
+<P>
+If a module distribution isn't yet distributed in package form, just use 
+the empty package name: for example,
+<PRE>
+  setup (...
+         packages = [''])
+</PRE>
+will install <tt>*.py</tt> from the current directory.  Of course, it's
+not good form to put a bunch of modules right into the installation
+directory (<I><tt>prefix</tt></I><tt>/lib/python1.5/site-packages</tt> on
+Unix or <I><tt>prefix</tt></I> on DOS/Windows)--collections of top-level
+module distributions should get their own directory, and a path
+configuration (<tt>.pth</tt>) file to add it to <tt>sys.path</tt> at
+run-time.  This is handled by the <tt>install_path</tt> option (an alias
+for <tt>install.install_path</tt>).  Consider a distribution that ships
+a bunch of top-level modules in <tt>src</tt>, and wants to install them to
+<tt>site-packages/foo</tt> with <tt>foo.pth</tt>:
+<PRE>
+  setup (
+    ...
+    packages = [''],
+    package_dir = {'': 'src'}
+    install_path = 'foo'
+  )
+</PRE>
+If for some reason the installation directory and <tt>.pth</tt> file
+should have different names, <tt>install_path</tt> can be a tuple or
+comma-delimited string (the tuple/string duality is necessary to allow
+this option to be set on the command-line as well):
+<PRE>
+  setup (
+    ...
+    packages = [''],
+    package_dir = {'': 'src'}
+    install_path = ('foo', 'foo/bar/baz')
+  )
+</PRE>
+will put the distribution's modules all the way down in
+<tt>site-packages/foo/bar/baz</tt>, and put <tt>foo.pth</tt>--referencing
+<tt>foo/bar/baz</tt>--right in <tt>site-packages</tt>.
+
+<P>
+(Actually, all of these references to <tt>site-packages</tt> should be to
+the installation option that controls the base installation
+directory--currently <tt>install_site_lib</tt> for pure Python module
+distributions--but you get the idea.)
+
+<P>
+If you need to specify pure Python modules explicitly, then you can't
+use the <tt>packages</tt> option at all--you need <tt>py_modules</tt>
+(an alias for <tt>build_py.modules</tt>).  For example, if your source
+distribution includes modules <tt>foo.mod1</tt> and <tt>foo.mod2</tt> in
+the <tt>foo</tt> directory, use this:
+<PRE>
+  setup (
+    ...
+    py_modules = ['foo.mod1', 'foo.mod2']
+  )
+</PRE>
+with the usual addition of <tt>package_dirs</tt> if you have a
+non-standard directory layout.
+
+<P>
+Whether you use <tt>packages</tt> or <tt>py_modules</tt>, the Distutils
+will take care of finding and installing the <tt>__init__.py</tt> file for
+each package, and will warn at installation time if any are missing.  It
+will <I>not</I> generate an <tt>__init__.py</tt> for you if you forget it.
+
+<P>
+Things get a bit more interesting when you throw extension modules into
+the mix.  First of all, keep in mind that <tt>packages</tt> affects
+<I>only</I> pure Python modules; extension modules are listed separately
+and have their own way of being put into packages.  Extension modules
+must always be listed explicitly in the <tt>ext_modules</tt> option.
+This option is a list of tuples, where each tuple supplies an extension
+name and the information necessary to build the extension.  For example:
+<PRE>
+  name = 'DateTime.mxDateTime.mxDateTime'
+  src = 'mxDateTime/mxDateTime.c'
+  setup (
+    ...
+    ext_modules =
+      [(name, { 'sources': [src] }
+      )]
+  )
+</PRE>
+is a first approximation at building the <tt>mxDateTime</tt> extension
+from the <b>mxDateTime</b> distribution.  Note that the extension name is
+a fully-qualified module name; if your distribution has many extensions
+all in the same package, it might be more convenient to specify that
+package separately with <tt>ext_package</tt>:
+<PRE>
+  pkg = 'DateTime.mxDateTime'
+  name = 'mxDateTime'
+  src = 'mxDateTime/mxDateTime.c'
+  setup (
+    ...
+    ext_package = pkg,
+    ext_modules =
+      [(name, { 'sources': [src] }
+      )]
+  )
+</PRE>
+
+<P>
+In many cases, it will be necessary to supply extra information to the C
+compiler.  For instance, the <tt>mxDateTime</tt> extension won't compile
+unless the compiler knows where to find its header file.  This is one of
+many extra bits of optional information that can be supplied in the
+``build info'' dictionary that must always contain <tt>sources</tt>:
+<PRE>
+  name = 'DateTime.mxDateTime.mxDateTime'
+  src = 'mxDateTime/mxDateTime.c'
+  setup (
+    ...
+    ext_modules =
+      [(name,
+       { 'sources': [src]
+         'include_dirs': ['mxDateTime'] }
+      )]
+  )
+</PRE>
+In this case, we simply instruct the compiler to look for header files
+in the <tt>mxDateTime</tt> subdirectory.
+
+<P>
+Of course, extension modules can depend on multiple source files--which 
+is why <tt>sources</tt> is a list of filenames.  For example, the Python
+Imaging Library (PIL) setup script might include
+<PRE>
+  ext_modules =
+    [('_imaging',
+      { 'sources':
+         ['_imaging.c',
+          'decode.c',
+          ... ,
+          'path.c']
+      }
+    )]
+</PRE>
+(omitting several source files).  This isn't actually enough, though:
+the header files must be found, and additionally the C <tt>imaging</tt>
+library must be linked in:
+<PRE>
+  ext_modules =
+    [('_imaging',
+      { 'sources':
+         ['_imaging.c',
+          'decode.c',
+          ... ,
+          'path.c']
+        'include_dirs': ['libImaging'],
+        'library_dirs': ['libImaging'],
+        'libraries': ['Imaging']
+      }
+    )]
+</PRE>
+(This ignores the possibility of linking PIL with Tcl/Tk, the IJG JPEG
+library, and the zlib compression library.)
+
+<P>
+
+<H1><A NAME="SECTION00040000000000000000"></A>
+<A NAME="sec:inside"></A>
+<BR>
+4. Inside the Distutils
+</H1>
+
+<P>
+
+<H2><A NAME="SECTION00041000000000000000"></A>
+<A NAME="sec:core"></A>
+<BR>
+4.1 Core Classes
+</H2>
+
+<P>
+The core Distutils classes are <tt>Distribution</tt> and <tt>Command</tt>,
+both found in the <tt>distutils.core</tt> module.  Together, these two
+classes coordinate everything that happens in building, distributing,
+and installing a Python module distribution.
+
+<P>
+The details of how they are deployed differ considerably.
+<tt>Distribution</tt> has a sole instance, created either in the
+<tt>setup()</tt> function on behalf of the setup script, or directly in
+the setup script (when more customization is needed than is convenient
+in a single call to <tt>setup()</tt>).
+
+<P>
+<tt>Command</tt> is an abstract class that is never directly
+instantiated; rather, a number of subclasses--the <i>command
+  classes</i>--are defined in the <tt>distutils.command.*</tt> modules,
+each of which is instantiated in a controlled fashion by
+<tt>Distribution</tt>.  In fact, creating <i>command objects</i>
+(instances of command classes) is so tightly controlled that each
+command class is effectively a singleton; a <tt>Distribution</tt>
+instance will never create multiple instances of any given command
+class.
+
+<P>
+
+<H3><A NAME="SECTION00041100000000000000">
+4.1.1 The <tt>Distribution</tt> class</A>
+</H3>
+
+<P>
+The <tt>Distribution</tt> object represents the module distribution being
+operated on.  Normally, the setup script calls the <tt>setup()</tt>
+function (also located in <tt>distutils.core</tt>), which then creates
+the <tt>Distribution</tt> instance and starts working on it.  More
+complex module distributions might prefer to instantiate
+<tt>Distribution</tt> directly, which is not covered here.
+
+<P>
+Thus, the simplest possible setup script is
+<PRE>
+  from distutils.core import setup
+  setup ()
+</PRE>
+which does nothing interesting, except possibly die from lack of
+arguments to the script.  (Lack of arguments to <tt>setup()</tt> is not
+necessarily an error; an empty command-line is.)  However, it is
+instructive to consider what happens in this simplest possible case.
+
+<P>
+First, of course, the <tt>Distribution</tt> instance is created.  A key
+feature of this creation is that (almost) all of the arguments passed to
+<tt>setup()</tt>--which are all keyword arguments--are passed to the
+<tt>Distribution</tt> constructor, again as keyword arguments.
+
+<P>
+The next step should be to find and parse any configuration files
+relating to this module distribution.  However, the question of
+configuration files for the Distutils has not yet been adequately
+considered, so the feature isn't there.
+
+<P>
+Thus, the next step is really to parse the command line.  (Note the
+order of operations, intended so that command line options will override
+config file(s), which in turn override the arguments hard-coded in
+<tt><b>setup.py</tt></b>.)  The Distutils command-line syntax--or, if you
+prefer, the command line syntax of the setup script--was covered in
+section&nbsp;<A HREF="distutils_intro.html#sec:basic_syntax">3.1.1</A>; to review:
+<PRE>
+  setup.py [global-options]
+           cmd [cmd-options ...]
+           [cmd [cmd-options ...]] ...
+</PRE>
+Parsing the Distutils command line is an incremental job: first, parse
+global options; then, get the first command, and parse its options;
+continue until all arguments are consumed.  If no commands are found,
+that's a fatal error (hence the likelihood of dying from lack of
+arguments above).
+
+<P>
+First, global options are easy: there is a known, fixed set of them
+determined by the <tt>Distribution</tt> class (see
+section&nbsp;<A HREF="distutils_intro.html#sec:basic_syntax">3.1.1</A>).  Knowing which options are valid for a
+particular command is a bit trickier.  Since command objects can
+actually be of any <tt>Command</tt> subclass (a key to the Distutils'
+extensibility), there's no global registry of command-specific
+command-line options.  Thus, each command class has to supply its valid
+command-line options; in fact, as we traverse the script arguments, we
+create each command object as we come upon its corresponding argument on
+the command-line.  We then query that command object for its valid set
+of command-line options, using the <tt>options</tt> attribute.
+
+<P>
+
+<H3><A NAME="SECTION00041200000000000000">
+4.1.2 The <tt>Command</tt> class</A>
+</H3>
+
+<P>
+While there is only one <tt>Distribution</tt> instance in a given
+Distutils run, there will be many <tt>Command</tt> instances: or rather,
+there will be instances of many <tt>Command</tt> subclasses, as
+<tt>Command</tt> is not meant to be directly instantiated.  It defines
+the interface that must be implemented by concrete command classes, and
+provides utility methods to help them do their job consistently and with
+minimal duplicated code.
+
+<P>
+<tt>Command</tt> objects exist mainly to be run, i.e. to have their
+<tt>run()</tt> method invoked.  This is where the real work of a command
+is done: for instance, this is where the <tt>build_ext</tt> command
+compiles and links extension modules, or where the <tt>install_py</tt>
+command copies pure Python modules to the installation directory.
+Usually, though, some initial setup work is required before the command
+can be run: the command has to know which extensions to build and how to
+build them, which modules to install and where to install them, etc.
+
+<P>
+This, of course, is all controlled by the <i>command options</i>
+explained in sections&nbsp;<A HREF="distutils_intro.html#sec:options">3.1.3</A> and&nbsp;<A HREF="distutils_intro.html#sec:option_practice">3.2.2</A>.
+Setting the options for each command object is the shared job of two
+methods that must be implemented by every command class:
+<tt>set_default_options()</tt> and <tt>set_final_options()</tt>.
+<tt>set_default_options()</tt> sets the default values for all options;
+generally, it consists of a series of <code>self.foo = None</code> assignments
+(for each command option <tt>foo</tt>).  <tt>set_final_options()</tt> is
+called only after all external sources of options (currently just the
+command-line, someday configuration files as well) have been processed.
+Its responsibility is to set the value of any options that
+<I>weren't</I> set from an external source.
+
+<P>
+<tt>Command</tt> instances can be created in a variety of ways, one of
+which was described above (create a command object when the command is
+mentioned in the setup script command-line).  Commands not mentioned on
+the command line might still be instantiated; it just happens later, and
+only on demand.  For example, the <tt>install</tt> command always runs
+<tt>build</tt> before attempting to install.  It does so by invoking
+its own <tt>run_peer()</tt> method, which (unless <tt>build</tt> has
+already been run) looks up the <tt>build</tt> command object, creating
+it if necessary, and invokes its <tt>run()</tt> method.
+
+<P>
+Similarly, <tt>install</tt> also runs <tt>install_py</tt> (but only if
+there are any pure Python modules) and <tt>install_ext</tt> (but only if
+there are any extension modules).
+
+<P>
+Commands can also indirectly cause the instantiation of other commands
+by attempting to get options from those commands.  Again referring to
+the <tt>install</tt> command, before it runs it must figure out the
+build directories--where the <tt>build_*</tt> commands put their
+output files.  This is done by looking up the relevant options in the
+<tt>build</tt> command object, which must be created if it didn't
+already exist.  (This means that the <tt>build</tt> command object will
+always exist when <tt>install</tt> gets around to running it, since it
+is referred to for option values prior to running.)
+
+<P>
+
+<H2><A NAME="SECTION00042000000000000000"></A>
+<A NAME="sec:cmd_classes"></A>
+<BR>
+4.2 Command classes
+</H2>
+
+<P>
+Each Distutils command is implemented by a command class, which must
+implement the interface described by <tt>Command</tt>--usually by
+subclassing it.  The standard Distutils commands (listed in
+section&nbsp;<A HREF="distutils_intro.html#sec:commands">3.1.2</A>) are named and organized in a predictable
+way, so that it's easy to import the module and instantiate the class
+without having a global registry of Distutils commands.
+
+<P>
+In particular, the standard command <tt>foo_bar</tt> (if there were
+such a command) would be implemented by the class <tt>FooBar</tt> in the
+<tt>distutils.command.foo_bar</tt> module.  The ability to extend the
+system with non-standard command classes is built-in via the
+distribution option <tt>cmdclass</tt>: this is a dictionary that maps
+command names to command classes (<I>not</I> class names, but actual
+class objects).  This will allow developers to override the default
+behaviour of standard commands as well as to add their own custom
+commands to the Distutils.
+
+<P>
+
+<H2><A NAME="SECTION00043000000000000000"></A>
+<A NAME="sec:compiler"></A>
+<BR>
+4.3 Compiler abstraction model
+</H2>
+
+<P>
+A key to the Distutils' portability and ability to compile extensions on
+multiple platforms is its <I>compiler abstraction model</I>.  This is
+simply an abstract base class, <tt>CCompiler</tt> (in the
+<tt>distutils.ccompiler</tt> module) that implements an object-oriented
+interface to an idealized C/C++ compiler.  The model handles all the
+usual bureaucracy involved in instructing a C/C++ compiler, such as
+specifying header search directories, macros to define/undefine, library
+search directories, and libraries to link in--but it handles them via
+method invocations and instance attributes rather than command-line
+options to a separate program.  Of course, there are also methods to
+compile a set of source files and to link them to shared or static
+libraries; there will soon have to be a method to link to a binary
+executable, as well (in order to build a new static Python interpreter).
+
+<P>
+Currently, this abstract base class has two concrete subclasses,
+<tt>UnixCCompiler</tt> and <tt>MSVCCompiler</tt>.  Both of these translate
+attribute values supplied by method calls into command-line arguments
+for, respectively, the traditional Unix compiler command-line and
+Microsoft Visual C++'s command-line interface.  The compiler model
+should extend to platforms that don't even have a command-line, such as
+the Macintosh, but this remains to be demonstrated.
+
+<P>
+
+<H2><A NAME="SECTION00044000000000000000"></A>
+<A NAME="sec:utility"></A>
+<BR>
+4.4 Utility modules and classes
+</H2>
+
+<P>
+Finally, the Distutils includes a number of modules of possibly broader
+utility, all in the <tt>distutils</tt> package.  These include:
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT"><tt>fancy_getopt</tt></TD>
+<TD ALIGN="LEFT" VALIGN="TOP">front-end to the standard <tt>getopt</tt>
+                        module, driven by a table (list of tuples)
+                        that ties long and short options together
+                        with help text</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><tt>spawn</tt></TD>
+<TD ALIGN="LEFT" VALIGN="TOP">cross-platform (Unix and Windows at least)
+                        mechanism for running external programs:
+                        a front-end to <tt>fork()</tt> and <tt>execvp()</tt>
+                        on Unix, and to <tt>spawnvp()</tt> on Windows</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><tt>text_file</tt></TD>
+<TD ALIGN="LEFT" VALIGN="TOP">provides <tt>TextFile</tt>, a file-like object
+                        that returns lines from a file after dealing
+                        with comments, ``backslash joining'',
+                        stripping trailing and/or leading whitespace,
+                        etc.</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><tt>util</tt></TD>
+<TD ALIGN="LEFT" VALIGN="TOP">various filesystem utilities: copy files,
+                        copy directory trees, move files, compare
+                        timestamps on individual files and groups
+                        of files, create directories ``deeply'',
+                        etc.</TD>
+</TR>
+</TABLE>These will certainly be useful to developers writing fancy setup scripts
+(or new Distutils commands), and could well be handy in other contexts.
+
+<P>
+
+<H1><A NAME="SECTION00050000000000000000"></A>
+<A NAME="sec:availability"></A>
+<BR>
+5. Availability
+</H1>
+
+<P>
+Up-to-date information on the Distutils, including mailing list
+archives, access to the CVS repository, and downloads of the latest
+version, can all be found at
+<PRE>
+http://www.python.org/sigs/distutils-sig/
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION00060000000000000000"></A>
+<A NAME="sec:conclusions"></A>
+<BR>
+6. Conclusions and Future Plans
+</H1>
+
+<P>
+The Python Module Distribution Utilities are well on the way to being a
+general, powerful, extensible framework for building, distributing, and
+installing Python module distributions.  The current release as of this
+writing (version 0.1.1) has the demonstrated ability to build and
+install several real-world Python module distributions (Numeric Python,
+mxDateTime, PIL, and of course the Distutils themselves).
+
+<P>
+Development is ongoing.  A number of features are needed before the
+Distutils is ready to take over the world, including support for
+building external C/C++ libraries, creation and maintenance of a
+database of modules installed on a given system, checking
+developer-supplied prerequisites for a distribution, and a standard
+mechanism for running test suites (and a methodology for writing them).
+
+<P>
+Once these features are a reality, the Python world will have made a
+major step forward to achieving ``plug and play'' reusability, a goal
+that many language communities strive for, but few have achieved.
+
+<P>
+<BR><HR>
+<ADDRESS>
+Greg Ward <a href="mailto:gward@python.net">&lt;gward@python.net&gt;</a>
+</ADDRESS>
+</BODY>
+</HTML>

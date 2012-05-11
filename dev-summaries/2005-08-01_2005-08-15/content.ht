@@ -1,0 +1,385 @@
+Title: python-dev Summary for 2005-08-01 through 2005-08-15
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2005-08-01 through 2005-08-15
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+[The HTML version of this Summary is available at
+http://www.python.org/dev/summary/2005-08-01_2005-08-15.html]
+
+
+
+=============
+Announcements
+=============
+
+----------------------------
+QOTF: Quote of the Fortnight
+----------------------------
+
+Some wise words from Donovan Baarda in the PEP 347 discussions:
+
+    It is true that some well designed/developed software becomes reliable very quickly. However, it still takes heavy use over time to prove that.
+
+Contributing thread:
+
+- `PEP: Migrating the Python Subversion repository to Subversion <http://mail.python.org/pipermail/python-dev/2005-August/055105.html>`__
+
+[SJB]
+
+------------
+Process PEPs
+------------
+
+The PEP editors have introduced a new PEP category: "Process", for PEPs that don't fit into the "Standards Track" and "Informational" categories.  More detail can be found in `PEP 1`_, which is itself a Process PEP.
+
+.. _PEP 1: http://www.python.org/dev/peps/pep-0001
+
+Contributing thread:
+
+- `new PEP type: Process <http://mail.python.org/pipermail/python-dev/2005-August/055361.html>`__
+
+[TAM]
+
+-----------------------------------------------
+Tentative Schedule for 2.4.2 and 2.5a1 Releases
+-----------------------------------------------
+
+Python 2.4.2 is tentatively scheduled for a mid-to-late September release and a first alpha of Python 2.5 for March 2006 (with a final release around May/June).  This means that a PEP for the 2.5 release, detailing what will be included, will likely be created soon; at present there are various accepted PEPs that have not yet been implemented.
+
+Contributing thread:
+
+- `plans for 2.4.2 and 2.5a1 <http://mail.python.org/pipermail/python-dev/2005-August/055342.html>`__
+
+[TAM]
+
+=========
+Summaries
+=========
+
+-------------------------------------------------
+Moving Python Subversion repository to Subversion
+-------------------------------------------------
+
+The `PEP 347`_ discussion from last fortnight continued this week, with a revision of the PEP, and a lot more discussion about possible version control software (RCS) for the Python repository, and where the repository should be hosted.  Note that this is not a discussion about bug trackers, which will remain with Sourceforge (unless a separate PEP is developed for moving that).
+
+Many revision control systems were extensively discussed, including `Subversion`_ (SVN), `Perforce`_, `Mercurial`_, and `Monotone`_.  Whichever system is moved to, it should be able to be hosted somewhere (if \*.python.org, then it needs to be easily installable), needs to have software available to convert a repository from CVS, and ideally would be open-source; similarity to CVS is also an advantage in that it requires a smaller learning curve for existing developers.  While Martin isn't willing to discuss every system there is, he will investigate those that make him curious, and will add other people's submissions to the PEP, where appropriate.
+
+The thread included a short discussion about the authentication mechanism that svn.python.org will use; svn+ssh seems to be a clear winner, and a test repository will be setup by Martin next fortnight.
+
+The possibility of moving to a distributed revision control system (particularly `Bazaar-NG`_) was also brought up.  Many people liked the idea of using a distributed revision control system, but it seems unlikely that Bazaar-NG is mature enough to be used for the main Python repository at the current time (a move to it at a later time is possible, but outside the scope of the PEP).  Distributed RCS are meant to reduce the barrier to participation (anyone can create their own branches, for example); Bazaar-NG is also implemented in Python, which is of some benefit.  James Y Knight pointed out `svk`_, which lets developers create their own branches within SVN.
+
+In general, the python-dev crowd is in favour of moving to SVN.  Initial concern about the demands on the volunteer admins should the repository be hosted at svn.python.org were addressed by Barry Warsaw, who believes that the load will be easily managed with the existing volunteers.  Various alternative hosts were discussed, and if detailed reports about any of them are created, these can be added to the PEP.
+
+While the fate of all PEPS lie with the BDFL (Guido), it is likely that the preferences of those that frequently check in changes, the pydotorg admins, and the release managers (who have all given favourable reports so far), will have a significant effect on the pronouncement of this PEP.
+
+.. _PEP 347: http://www.python.org/dev/peps/pep-0347
+.. _svk: http://svk.elixus.org/
+.. _Perforce: http://www.perforce.com/
+.. _Subversion: http://subversion.tigris.org/
+.. _Monotone: http://venge.net/monotone/
+.. _Bazaar-NG: http://www.bazaar-ng.org/
+.. _Mercurial: http://www.selenic.com/mercurial/
+
+Contributing threads:
+
+- `PEP: Migrating the Python Subversion repository to Subversion <http://mail.python.org/pipermail/python-dev/2005-August/055064.html>`__
+- `PEP 347: Migration to Subversion <http://mail.python.org/pipermail/python-dev/2005-August/055211.html>`__
+- `Hosting svn.python.org <http://mail.python.org/pipermail/python-dev/2005-August/055360.html>`__
+- `Fwd: Distributed RCS <http://mail.python.org/pipermail/python-dev/2005-August/055372.html>`__
+- `cvs to bzr? <http://mail.python.org/pipermail/python-dev/2005-August/055373.html>`__
+- `Distributed RCS <http://mail.python.org/pipermail/python-dev/2005-August/055377.html>`__
+- `Fwd: PEP: Migrating the Python Subversion repository to Subversion <http://mail.python.org/pipermail/python-dev/2005-August/055388.html>`__
+- `On distributed vs centralised SCM for Python <http://mail.python.org/pipermail/python-dev/2005-August/055432.html>`__
+
+[TAM]
+
+------------------------------------------
+PEP 348: Exception Hierarchy in Python 3.0
+------------------------------------------
+
+This fortnight mostly concluded the previous discussion about `PEP 348`_, which sets out a roadmap for changes to the exception hierarchy in Python 3.0. The proposal was heavily scaled back to retain most of the current exception hierarchy unchanged.  A new exception, BaseException, will be introduced above Exception in the current hierarchy, and KeyboardInterrupt and SystemExit will become siblings of Exception.  The goal here is that::
+
+    except Exception:
+
+will now do the right thing for most cases, that is, it will catch all the exceptions that you can generally recover from.  The PEP would also move NotImplementedError out from under RuntimeError, and alter the semantics of the bare except so that::
+
+    except:
+
+is the equivalent of::
+
+    except Exception:
+
+Only BaseException will appear in Python 2.5.  The remaining modifications will not occur until Python 3.0.
+
+.. _PEP 348: http://www.python.org/dev/peps/pep-0348
+
+Contributing threads:
+
+- `Pre-PEP: Exception Reorganization for Python 3.0 <http://mail.python.org/pipermail/python-dev/2005-August/055063.html>`__
+- `PEP, take 2: Exception Reorganization for Python 3.0 <http://mail.python.org/pipermail/python-dev/2005-August/055103.html>`__
+- `Exception Reorg PEP checked in <http://mail.python.org/pipermail/python-dev/2005-August/055138.html>`__
+- `PEP 348: Exception Reorganization for Python 3.0 <http://mail.python.org/pipermail/python-dev/2005-August/055162.html>`__
+- `Major revision of PEP 348 committed <http://mail.python.org/pipermail/python-dev/2005-August/055199.html>`__
+- `Exception Reorg PEP revised yet again <http://mail.python.org/pipermail/python-dev/2005-August/055292.html>`__
+- `PEP 348 and ControlFlow <http://mail.python.org/pipermail/python-dev/2005-August/055310.html>`__
+- `PEP 348 (exception reorg) revised again <http://mail.python.org/pipermail/python-dev/2005-August/055412.html>`__
+
+[SJB]
+
+----------------------
+Moving towards Unicode
+----------------------
+
+Neil Schemenauer presented `PEP 349`_, which tries to ease the transition to Python 3.0, in which there will be a bytes() type for byte data and a str() type for text data.  Currently to convert an object to text, you have one of three options:
+
+* Call str(). This breaks with a UnicodeEncodeError if the object is of type unicode (or a subtype) or can only represent itself in unicode and therefore returns unicode from __str__.
+* Call unicode(). This can break external code that is not yet Unicode-safe and that passed a str object to your code but got a unicode object back.
+* Use the "%s" format specifier. This breaks with a UnicodeEncodeError if the object can only represent itself in unicode and therefore returns unicode from __str__.
+
+`PEP 349`_ attempts to address this problem by introducing a text() builtin which returns str or unicode instances unmodified, and returns the result of calling __str__() on the object otherwise. Guido preferred to instead relax the restrictions on str() to allow it to return unicode objects. Neil implemented such a patch, and found that it broke only two test cases. The discussion stopped shortly after Neil's report however, so it was unclear if any permanent changes had been agreed upon.
+
+Guido made a few other Python 3.0 suggestions in this thread:
+
+* The bytes() type should be mutable with a corresponding frozenbytes() immutable type
+* Opening a file in binary or text mode would cause it to return bytes() or str() objects, respectively
+* The file type should grow a getpos()/setpos() pair that are identical to tell()/seek() when a file is open in binary mode, and which work like tell()/seek() but on characters instead of bytes when a file is opened in text mode.
+
+However, none of these seemed to be solid commitments.
+
+.. _PEP 349: http://www.python.org/dev/peps/pep-0349
+
+Contributing threads:
+
+- `PEP: Generalised String Coercion <http://mail.python.org/pipermail/python-dev/2005-August/055186.html>`__
+- `Generalised String Coercion <http://mail.python.org/pipermail/python-dev/2005-August/055194.html>`__
+
+[SJB]
+
+----------------------------
+PEP 344 and reference cycles
+----------------------------
+
+Armin Rigo brought up an issue with `PEP 344`_ which proposes, among other things, adding a __traceback__ attribute to exceptions to avoid the hassle of extracting it from sys.exc_info(). Armin pointed out that if exceptions grow a __traceback__ attribute, every statement::
+
+    except Exception, e:
+
+will create a cycle::
+
+    e.__traceback__.tb_frame.f_locals['e']
+
+Despite the fact that Python has cyclic garbage collection, there are still some situations where cycles like this can cause problems. Armin showed an example of such a case::
+
+    class X:
+        def __del__(self):
+            try:
+                typo
+            except Exception, e:
+                e_type, e_value, e_tb = sys.exc_info()
+
+Even in current Python, instances of the X class are uncollectible. When garbage collection runs and tries to collect an X object, it calls the __del__() method.  This creates the cycle::
+
+    e_tb.tb_frame.f_locals['e_tb']
+
+The X object itself is available through this cycle (in ``f_locals['self']``), so the X object's refcount does not drop to 0 when __del__() returns, so it cannot be collected.  The next time garbage collection runs, it finds that the X object has not been collected, calls its __del__() method again and repeats the process.
+
+Tim Peters suggested this problem could be solved by declaring that __del__() methods are called exactly once. This allows the above X object to be collected because on the second run of the garbage collection, __del__() is not called again.  Thus, the refcount of the X object is not incremented, and so it is collected by garbage collection.  However, guaranteeing that __del__() is called only once means keeping track somehow of which objects' __del__() methods were called, which seemed somewhat unattractive.
+
+There was also brief talk about removing __del__ in favor of weakrefs, but those waters seemed about as murky as the garbage collection ones.
+
+.. _PEP 344: http://www.python.org/dev/peps/pep-0344
+
+Contributing thread:
+
+- `__traceback__ and reference cycles <http://mail.python.org/pipermail/python-dev/2005-August/055251.html>`__
+
+[SJB]
+
+----------------------------
+Style for raising exceptions
+----------------------------
+
+Guido explained that these days exceptions should always be raised as::
+
+    raise SomeException("some argument")
+
+instead of::
+
+    raise SomeException, "some argument"
+
+The second will go away in Python 3.0, and is only present now for backwards compatibility.  (It was necessary when strings could be exceptions, in order to pass both the exception "type" and message.)  PEPs 8_ and 3000_ were accordingly updated.
+
+.. _8: http://www.python.org/dev/peps/pep-0008
+.. _3000: http://www.python.org/dev/peps/pep-3000
+
+Contributing threads:
+
+- `PEP 8: exception style <http://mail.python.org/pipermail/python-dev/2005-August/055187.html>`__
+- `FW: PEP 8: exception style <http://mail.python.org/pipermail/python-dev/2005-August/055191.html>`__
+
+[SJB]
+
+-----------------------------------
+Skipping list comprehensions in pdb
+-----------------------------------
+
+When using pdb, the only way to skip to the end of a loop is to set a
+breakpoint on the line after the loop.  Ilya Sandler suggested adding an
+optimal numeric argument to pdb's "next" comment to indicate how many lines of
+code should be skipped.  Martin v. Lowis pointed out that this differs from gdb's "next <n>" command, which does "next" n times.  Ilya suggested implementing gdb's "until" command instead, which gained Martin's approval.
+
+It was also pointed out that pdb is one of the less Pythonic modules, particularly in terms of the ability to subclass/extend, and would be a good candidate for rewriting, if anyone had the inclination and time.
+
+Contributing threads:
+
+- `pdb: should next command be extended? <http://mail.python.org/pipermail/python-dev/2005-August/055218.html>`__
+- `an alternative suggestion, Re: pdb: should next command be extended? <http://mail.python.org/pipermail/python-dev/2005-August/055286.html>`__
+
+[TAM]
+
+------------------
+Sets in Python 2.5
+------------------
+
+Raymond Hettinger has been checking-in the new implementation for sets in Python 2.5.  The implementation is based heavily on dictobject.c, the code for Python dict() objects, and generally deviates only when there is an obvious gain in doing so.  Raymond posted a proposed C API sets; no comments were forthcoming and it was implemented for Py2.5 without changes.
+
+Contributing threads:
+
+- `[Python-checkins] python/dist/src/Objects setobject.c, 1.45, 1.46 <http://mail.python.org/pipermail/python-dev/2005-August/055337.html>`__
+- `Discussion draft: Proposed Py2.5 C API for set and frozenset objects <http://mail.python.org/pipermail/python-dev/2005-August/055365.html>`__
+
+[SJB]
+
+================================
+Deferred Threads (for next time)
+================================
+
+- `SWIG and rlcompleter <http://mail.python.org/pipermail/python-dev/2005-August/055413.html>`__
+
+===============
+Skipped Threads
+===============
+
+- `Extension of struct to handle non byte aligned values? <http://mail.python.org/pipermail/python-dev/2005-August/055062.html>`__
+- `Syscall Proxying in Python <http://mail.python.org/pipermail/python-dev/2005-August/055069.html>`__
+- `__autoinit__ (Was: Proposal: reducing self.x=x; self.y=y; self.z=z boilerplate code) <http://mail.python.org/pipermail/python-dev/2005-August/055093.html>`__
+- `Weekly Python Patch/Bug Summary <http://mail.python.org/pipermail/python-dev/2005-August/055110.html>`__
+- `PEP 342 Implementation <http://mail.python.org/pipermail/python-dev/2005-August/055151.html>`__
+- `String exceptions in Python source <http://mail.python.org/pipermail/python-dev/2005-August/055155.html>`__
+- `[ python-Patches-790710 ] breakpoint command lists in pdb <http://mail.python.org/pipermail/python-dev/2005-August/055157.html>`__
+- `[C++-sig] GCC version compatibility <http://mail.python.org/pipermail/python-dev/2005-August/055219.html>`__
+- `PyTuple_Pack added references undocumented <http://mail.python.org/pipermail/python-dev/2005-August/055232.html>`__
+- `PEP-- Context Managment variant <http://mail.python.org/pipermail/python-dev/2005-August/055271.html>`__
+- `Sourceforge CVS down? <http://mail.python.org/pipermail/python-dev/2005-August/055307.html>`__
+- `PSF grant / contacts <http://mail.python.org/pipermail/python-dev/2005-August/055311.html>`__
+- `Python + Ping <http://mail.python.org/pipermail/python-dev/2005-August/055319.html>`__
+- `Terminology for PEP 343 <http://mail.python.org/pipermail/python-dev/2005-August/055347.html>`__
+- `dev listinfo page (was: Re: Python + Ping) <http://mail.python.org/pipermail/python-dev/2005-August/055348.html>`__
+- `set.remove feature/bug <http://mail.python.org/pipermail/python-dev/2005-August/055352.html>`__
+- `Extension to dl module to allow passing strings from native function <http://mail.python.org/pipermail/python-dev/2005-August/055363.html>`__
+- `build problems on macosx (CVS HEAD) <http://mail.python.org/pipermail/python-dev/2005-August/055385.html>`__
+- `request for code review - hashlib - patch #1121611 <http://mail.python.org/pipermail/python-dev/2005-August/055410.html>`__
+- `python-dev Summary for 2005-07-16 through 2005-07-31 [draft] <http://mail.python.org/pipermail/python-dev/2005-August/055411.html>`__
+- `string_join overrides TypeError exception thrown in generator <http://mail.python.org/pipermail/python-dev/2005-August/055414.html>`__
+- `implementation of copy standard lib <http://mail.python.org/pipermail/python-dev/2005-August/055450.html>`__
+- `xml.parsers.expat no userdata in callback functions <http://mail.python.org/pipermail/python-dev/2005-August/055362.html>`__
+
+
+
+
+========
+Epilogue
+========
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+August 01, 2005 through August 15, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+Tim Lesher has had to bow out from the summaries for now; many thanks
+to him for the contributions he made over the last few months.
+
+This is the 1st summary written by the python-dev summary confederacy of
+Steve Bethard and Tony Meyer (Thanks Tim!).
+
+To contact us, please send email:
+
+- Steve Bethard (steven.bethard at gmail.com)
+- Tony Meyer (tony.meyer at gmail.com)
+
+Do *not* post to comp.lang.python if you wish to reach us.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python Subversion repository online, go to
+http://svn.python.org/projects/python/trunk/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  We do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow us to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _c.l.py:
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-04-16_2005-04-30.html
+.. _original text file: http://www.python.org/dev/summary/2005-08-01_2005-08-15.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+
+

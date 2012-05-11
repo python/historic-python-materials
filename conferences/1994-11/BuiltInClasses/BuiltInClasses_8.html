@@ -1,0 +1,27 @@
+<!-- Generated with CERN WebMaker 1.4 -->
+<HTML>
+<HEAD>
+<TITLE>2.5.  Deriving Python Classes from Built-in Classes</TITLE>
+</HEAD>
+<BODY>
+<A NAME=HEADING7></A>
+<A HREF="BuiltInClasses_9.html">[Next] </A><A HREF="BuiltInClasses_7.html">[Previous] </A><A HREF="BuiltInClasses_3.html">[Up] </A><A HREF="BuiltInClasses_1.html">[Top] </A><P>
+2.  Object System Enhancements<P>
+<H3>2.5.  Deriving Python Classes from Built-in Classes</H3>
+ Once a meta-class has been defined, a single instance of it must be created and added to a user accessible name space. It is this instance that implements the C version of all the methods. From then on, it or any class derived from it can be used as a base class from which other classes can be derived. Any derived class that does not override a C coded method will benefit from the C implementation in the initial instance.<P>
+ Currently, I have implemented or plan to implement the following five meta-classes:<P>
+<UL>
+<LI>BasicClass -- Supports only the basic type operations.
+<LI>NumericClass -- A sub-class of BasicClass that also supports all numeric operations.
+<LI>SequenceClass -- A sub-class of BasicClass that also supports all sequence operations.
+<LI>MappingClass -- A sub-class of BasicClass that also supports all mapping operations.
+<LI>DefaultClass -- Supports all Basic, Numeric, Sequence and Mapping operations.
+</UL>
+ The current Python implementation often makes decisions based on what set of methods an object implements. For example, an object is considered to be numeric if its type object has a pointer to a suite of numeric methods. With the current class implementation all instance objects are considered to be numeric whether they implement any numeric methods or not. This can be shown to cause trouble throughout the current implementation. There are many special cases in the code that first test for instance objects. By using the set of base classes that I have proposed, these special cases could be eliminated to yield a much more regular implementation that does not need to distinguish between Python derived classes and C derived classes.<P>
+
+<HR>
+<ADDRESS>Deriving Built-In Classes in Python - 22 DEC 94</ADDRESS>
+<A HREF="BuiltInClasses_9.html">[Next] </A><A HREF="BuiltInClasses_7.html">[Previous] </A><A HREF="BuiltInClasses_3.html">[Up] </A><A HREF="BuiltInClasses_1.html">[Top] </A><P>
+Generated with <A HREF="AboutWebMaker.html">CERN WebMaker</A>
+</BODY>
+</HTML>

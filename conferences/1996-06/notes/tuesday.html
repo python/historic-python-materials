@@ -1,0 +1,345 @@
+<html>
+<head>
+<title>Session Minutes, Tues 6/4</title>
+<!-- Changed by: Roger E. Masse, 25-Jun-1996 -->
+</head>
+
+<body>
+<h1>Session Minutes, Tues 6/4</h1>
+
+<h2>Robin Friedrich Conference Chair - Introductions</h2>
+<ul>
+    <li> History of the Python Conference
+    <ul>
+	  <LI> <A HREF="../..">On-line catalog of past and present
+	       workshops.</A>
+          <li> 4th meeting, 1st three were workshops
+          <li> Tutorials first day, three days seminar
+          <li> Uses Python as a <I> glue </I> language for
+               gluing tools together
+          <li> Found Python when searching for <i>languages</i>,
+                  <i>object oriented</i>, and <I> free </I>.
+          <li> Convinced NASA that this <I> free </I> language 
+                  was worth using (not an easy task as NIH is rampant)
+          <li> This year has had the largest growth of users
+          <li> The first Python book will be published real soon now.
+    </ul>
+</ul>
+<h2>Mark Lutz - The O'Reilly Python Book</h2>
+<ul>
+   <LI><A HREF="http://www.ora.com/www/item/python.html">Programming Python</A>
+   <li> Starts with a picture of the cover (picture of snake)
+   <li> Status - O'Reilly has converted to SGML
+   <li> August release date
+   <li> Book will have a CD rom
+   <li> Book is really big (around 600 pages)
+   <li> Book
+   <ul>
+      <li> Intro
+      <li> tutorial - scripts, functions, examples
+      <li> extending, embedding, tkinter, ...
+      <li> language & text, parser
+      <li> Politically incorrect conclusion as to why Python is better
+               then everything else
+    </ul>
+    <li> Been a two year project
+    <li> CD should have everything from the FTP site, pythonwin, ...hopefully Grail
+    <li> O'Reilly is the primier publisher for books of this kind, much marketing
+    <li> Book itself *may* be on the CD rom
+    <li> Q: Would you  write another?
+    <li> A: Maybe if O'Reilly gives me a million dollar advance like Joan
+         Collins got for her last book
+    <li> Q: Joan Collins wrote an O'Rielly Book?  :-)
+</ul>
+<h2>SIGs in Progress</h2>
+<ul>
+  <li> <A HREF="../../../sigs/db-sig/">Database</A> - Greg Stein
+   <ul>
+      <li> SIG was started back in 3rd conference
+      <li> utility classes to manage tuples returned by databases
+      <li> Semi-complete API for Informix, Oracle, and ODBC modules 
+             <A href="http://www.python.org/sigs/db-sig/DatabaseAPI.html">API spec</a>.
+    <li> Problem now is ownership issues of the work... not on python.org
+    <li> Comment: Paul Dubios: I've just succeeded in convincing LLNL to release the python
+            modules written by his group for free and general use.
+    <li> Python is very nice for database retrieves in that its 'typeless'.  Data from a
+            row can be returned in a tuple without, explicitly typing the return container values
+    <li> Some stuff (like stored proceedures) are faster with the native database tools
+            instead of using the thin Python layer.
+    <li> API simply 'exposes' the database, and does not try to do any 'extras'.
+    <li> Q: how does the API compare to the MSQL interface
+    <li> A: MSQL is much simpler.  No cursors, no input binding.
+    <li> Connecting to the database is accomplished via a constructor which you
+    <li> pass a 'login string'.
+  </ul>
+  <li> <A HREF="../../../sigs/gui-sig/">GUI</A> &
+       <A HREF="../../../sigs/pythonwin-sig/">Pythonwin</A></A> -
+       Jim Ahlstrom 
+  <ul>
+     <li> Very little GUI-controvery activity in the last 6 months
+     <li> Last workshop we had the GUI back-off
+     <ul>
+          <li> Guido presented Tk
+          <li> Jim presented wpy
+          <li> Those two were selected to be distributed with Grail
+     </ul>
+     <li> Others used: wxWindows (big but runs on many, many platforms), Pythonwin
+     <li> 80% of windows users still use 3.11.  
+     <li> Many companies cannot decide between NT and 95
+     <li> Grail being ported to the Windows platform by Roger Masse...
+          word is it's pretty stable and performs well. (requires 32 bit model)
+     <li> Tk on Windows is still Motif look & feel.
+     <li> MAC port of Grail underway also by Guido.
+     <li> MAC is not quite as stable as Windows.
+     <li> Grail on both the  MAC and Windows have pretty big memory footprints
+     <li> Q: What about a GUI builder?
+     <li> A: Yes, that would be great! :-)
+  </ul>
+  <li> <A HREF="../../../sigs/docs-sig/">Documentation</A> &
+       <A HREF="../../../sigs/web-sig/">Web</A> - Michael McLay
+  <ul>
+     <li> Two low bandwidth SIGs
+     <li> Documentation - Jim Fulton's work at Digital Creations
+     <li> Paul Dubois and Jim Hugunin are against docstring tools
+             and code that requires docstrings because of the extended load time.
+     <li> Guido: It's quite possible to have a modification for a future Python
+             to have a choice of reading docstrings from a different file if you want
+	them.... lets talk about this more at the Thursday SIG meeting...
+     <li> Web - A couple of new tools
+  </ul>
+  <li> <A HREF="../../../sigs/image-sig/">Imaging</A> - Fred Drake
+  <ul>
+    <li> Standin for Frederick Lundh
+    <li> Four libraries have been produced for Python
+    <li> GD - Gif drawing library, used in Web based applications
+    <li> IMG - Reads and writes a variety of image formats and a 
+            display for MAC and UNIX
+    <li> Interface to <i> Khoros </i> imaging system
+    <li> PIL - Python Imaging Library - provides alot of documentation
+            and support for reading and writing several
+            formats.  Also providing
+            an infrastructure for transforming images... (cut, paste, others).
+            PIL runs under windows and UNIX.  Supports alpha channels for
+            transparency.  Tied into the new Matrix class.  Being ported to 
+            Mark Hammonds Pythonwin (currently available in early beta
+            in the form of a .pyd file).  Can display in Tk widgets without much problem.
+            Able to print images nicely.
+  </ul>
+  <li> <A HREF="ftp://ftp-icf.llnl.gov/pub/basis/numerical_python.ps"
+       >Numeric Python</A> - (<A HREF="../../../sigs/matrix-sig/">Matrix
+       SIG</A>) - Jim Hugunin 
+  <ul>
+     <li> Currently version 0.36
+     <li> Many successful beta releases
+     <li> Final design is complete
+     <li> Public release any day now
+     <li> Object in C that handles arrays very efficiently
+     <li> Some python code that operates on these objects
+     <li> Many other extensions will follow:  OpenGL, FFT,
+             LAPACK, GIST
+     <li> Three extensions to Python (Slated for 1.4 plus complex numbers)
+     <ul>
+         <li> a[1,2]
+         <li> a[1:2, :-1:2]
+         <li> a[..., 2]
+     </ul>
+     <li> Requires a modified Python... working with Guido for inclusion in
+             a future release
+  </ul>
+</ul>
+<h2><A HREF="../../../psa/">Python Software Activity</A> - Roger Masse</h2>
+<ul>
+   <li> Currently 52 individual members
+   <li> 7 Corporate members
+   <li> Need some new ideas to increased membership 
+   <ul>
+       <li> Increase the fee $10 and add a T-shirt
+       <li> Give people more of a feel for what they get
+               for membership.
+       <li> Distribute a CD rom for corporate memberships...
+   </ul>
+</ul>
+<h2>Python 1.4 and Beyond - Guido van Rossum</h2>
+<ul>
+    <li> 1.4 will be released soon after the workshop
+    <li> Jim Hugunin's matrix mods will come in a later release
+    <li> <a href="http://www.python.org/workshops/1996-06/future.html">Complete summary</a>.
+</ul>
+<h1>Networking Topics</h1>
+<h3>
+<a href="http://grail.cnri.reston.va.us/grail-0.3/info/papers/restofus.html">
+Grail, The Browser for the rest of us.</a></h3>
+<UL>
+<B>Guido van Rossum</B> <P>
+</UL>
+
+<h3>What's in a Name?
+<A HREF="../papers/m.chilvers-federated-naming.ps.gz">A Distributed
+Federated Naming System in Python</A></h3>
+<UL>
+<B>Martin Chilvers</B> (David Arnold, Andy Bond, Martin Chilvers,
+Richard Taylor)
+</UL>
+
+<ul>
+   <li> What is a Naming Service?
+   <ul>
+      <li> Names associated with objects - binding
+      <li> Objects are found, given their name - resolution
+      <li> Usually buried inside applicatins, e.g. filesystem or a spreadsheet
+      <li> Problem: essential naming operations obscured
+      <li> Problem: many different interfaces
+   </ul>
+   <li> Composite Names
+   <ul>
+       <li> Names that span multiple naming services
+       <li> Unix 'rcp' command 'myhost:/usr/bin/python'
+       <li> <I> myhost</i> and <I> /usr/bin/python</i> are in different
+               namespaces
+       <li> Excel on the MAC 'mydisk:timesheet:feb-96!$b$4'
+       <li> <I> mydisk:timesheet:feb-95</i> and <I> $b$4</i> 
+       <li> Problem: different rules for composition
+       <li> Problem: applicatins support specific name services
+   </ul>
+   <li> What is a Federated Naming Service?
+   <ul>
+      <li> Collection of cooperating name services
+      <li> Provide a common interface to naming operations
+      <li> allow resolution of composite names
+   </ul>
+   <li> X/Open Federated Naming
+   <ul>
+       <li> XFN: framework for federation of new and existing name
+               services
+       <li> Single uniform naming interface, lookup, bind, unbind, rename, etc
+       <li> protocols: DCE, ONC+
+       <li> Names are bound to <I> references</i> to objects!
+   </ul>
+   <li> An implementation in Python
+   <ul>
+      <li> Problem: the XFN spec is Object based vs. Object Oriented
+      <li> Provides a XFN API
+      <li> Provides abstract datatypes
+      <li> Provides XFN protocols
+   </ul>
+   <li> Why we chose Python
+   <ul>
+      <li> XFN is a large complex spec, allowed rapid prototyping
+      <li> Federation with C world, C extension modules
+      <li> XFN datatypes easy to build in Python: dictionaries, persistence
+   </ul>
+   <li> Future work
+    <ul>
+        <li> Implement one of the XFN protocols, DCE, ONC+, (TCP/IP)
+        <li> Add optional aspects of the XFN model
+    </ul>
+    <li> Summary
+    <ul>
+        <li> XFN applicable to a large class of naming problems
+        <li> XFN can federate with almost any other naming system
+        <li> Python very extensible
+        <li> Would have hated to do this in C!
+        <li> More info: Read the XFN spec :-() or 
+               e-mail the Hector team: 
+		<A HREF="mailto:hector@dstc.edu.au">hector@dstc.edu.au</A>
+    </ul>
+</ul>
+<h3><A HREF="../papers/d.arnold/paper.html">Hector:
+Distributed Objects in Python</A></h3>
+<UL>
+<b> David Arnold</b> (David Arnold, Andy Bond, Martin Chilvers, Richard Taylor)
+</UL>
+<ul>
+    <li> Distributed Objects: Systems
+     <ul>
+           <li> Operating systems: Amoeba, etc
+            <li> Distributed environments  (middleware)
+           <li> related areas
+           <li> Hector is focused on Middleware
+      </ul>
+      <li> Distributed Objects: Features
+      <ul>   
+           <li> Interface Description Language used to generate <I> stubs </I>
+           <li> Some code needed for location, connection info for the server
+       </ul>
+       <li> Distributed Objects: Scalability
+       <ul>
+           <li> Architecture
+           <li> Heterogeneity, language, OS, Communications protocols
+           <li> Wide variety of Services available
+           <li> DCE works OK on a LAN, but poorly on the Internet
+       </ul>
+       <li> Distributed Objects: Hector
+       <ul>
+           <li> is a meta-middleware system
+           <li> implemented at a more abstract level than CORBA
+           <li> apply a policy once, and it persists for the entire interaction
+           <li> With CORBA, if corba breaks, your app breaks
+           <li> With Hector, if CORBA breaks, it finds something else
+       </ul>
+       <li> Hector: Overview
+       <ul>
+           <li> Hector <I> capsule </I>: a lightweight container 
+           <ul>
+                <li> Similar to an ORB
+                <li> Parts:
+                 <ul>
+                      <li> Language Layer: Python, C++
+                      <li> Encapsulation Layer:
+                      <ul>
+                            <li> Offer: can export, withdraw
+                            <li> Binding: define the roles and
+				 communications of an application, 
+                                 biggest and most complex class in the
+				 system.  The constructor takes as
+				 arguments one or more <I> offers </I>. 
+                            <li> Interface: 
+                            <li> Interaction: abstraction for messaging,
+				 roles and connections, ordering controlled
+				 by a state machine. e.g. RPC, Stream
+                            <li> Message: 
+                      </ul>
+                      <li> Communication Layer: Abstraction of real communications protocols.
+                             Classes: Protocol, EndPoint, Address  Currently use UDP, working on
+                             HTTP and others
+                  </ul>
+           </ul>
+           <li> Hector: Services
+            <ul>
+                 <li> Naming, authentication, trading, type managment, banking,
+                         relationship repository, policy, privacy
+                 <li> Similar to CORBA services
+           </ul>
+           <li> Hector: Tools
+           <ul>
+               <li> Binding Editor
+               <ul>
+                    <li> define roles and connections
+                    <li> build state machines
+               </ul>
+               <li> Capsule Browser
+               <ul>
+                    <li> Templates
+                    <li> Objects
+                    <li> Services: types, trader, names
+               </ul>
+           </ul>
+           <li> Hector: Why Python?
+           <ul>
+                <li> initially started in C, took two years to get 20% of what we have now.
+                <li> Too big and static
+                <li> Looked at C++ but saw few benefits
+                <li> Python: good integration with OS
+                <li> Garbage collection (well reference counting)
+           </ul>
+           <li> Hector Kernel written in Python
+           <li> Some C modules
+           <li> 13000 lines of code
+           <li> 8 months of development
+           <li> <a href="http://www.dstc.edu.au/AU/projects/hector">Web site</a>
+           <li> Email:
+<A HREF="mailto:hector@dstc.edu.au">hector@dstc.edu.au</A>
+       </ul>
+</ul>
+</body>
+</html>

@@ -1,0 +1,836 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN"><HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+<META NAME="GENERATOR" CONTENT="Adobe FrameMaker 5.5/HTML Export Filter">
+<!--<LINK REL="STYLESHEET" HREF="report-2.css" CHARSET="ISO-8859-1" TYPE="text/css">-->
+<TITLE> NetWare Programming with Python</TITLE>
+</HEAD>
+<BODY BGCOLOR="#ffffff">
+<DIV>
+<H1 CLASS="ReportTitle">
+<A NAME="pgfId-473591"></A>NetWare Programming with Python</H1>
+<DIV>
+<H4 CLASS="ReportAuthor">
+<A NAME="pgfId-929779"></A>Brad Clements</H4>
+<P CLASS="AuthorAffiliation">
+<A NAME="pgfId-940721"></A>MurkWorks, Inc.<BR>
+bkc@murkworks.com</P>
+<P CLASS="Body">
+<A NAME="pgfId-945232"></A>&nbsp;</P>
+<P CLASS="Body">
+<A NAME="pgfId-940722"></A>&nbsp;</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM0Heading">
+<A NAME="pgfId-940723"></A>Abstract</H4>
+<P CLASS="Body">
+<A NAME="pgfId-946141"></A>Accessing Novell Directory Services using Python classes is described. Using SWIG to encapsulate the NDS APIs for use by Python is shown along with Python classes developed to provide a more natural Python-like interface to NDS. SWIG typemaps and pseudo-classes and their application to this project are reviewed. NDS integration with Zope to provide an HTML interface to Novell Directory Services is demonstrated. Finally, a port of Python to NetWare as an NLM and the associated porting difficulties are discussed.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM1Heading">
+<A NAME="pgfId-929780"></A>1  Introduction to Novell NetWare</H4>
+<P CLASS="Body">
+<A NAME="pgfId-929784"></A>Novell NetWare was the first Intel x86 based file server to reach the market. Developed in the early 1980's, it provided file sharing and printing services to 8086 based PCs. Since those early days NetWare has grown in functionality and size, maintaining its lead in the x86 based server market.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-929781"></A>1.1  Server</H4>
+<P CLASS="Body">
+<A NAME="pgfId-929792"></A>With the introduction of NetWare 3.0, the file server architecture moved to 32-bit processors with a multi-threaded operating system. Earlier versions of NetWare were `monolithic' applications -- all functionality was built-in to a single executable. NetWare 3.0 introduced the NLM (NetWare Loadable Module) that allowed features to be loaded as needed.</P>
+<P CLASS="Body">
+<A NAME="pgfId-929803"></A>Architecturally, NLMs appear to be a cross between a Windows 16-bit DLL and a Unix process. Typically only one image of an NLM can be loaded in memory at any given time, but an NLM image can be re-used by a new executing process like a shared library. Global variables are per-NLM, not per-process, making some porting projects difficult. NLMs are written in C, with some limited C++ support.</P>
+<P CLASS="Body">
+<A NAME="pgfId-929802"></A>NetWare is a non-preemptive operating system where all NLMs run at ring-0 privilege level. This allows NetWare to perform well, but errant NLMs can over-write memory and crash the system. NLMs must run within available RAM. Virtual Memory capability was not made available until Netware 5.0 was released, in 1998. </P>
+<P CLASS="Body">
+<A NAME="pgfId-929793"></A>NetWare 3.0 ran in a minimum of 8 megabytes of RAM. Today's NetWare 5.0 recommends a minimum of 128 Meg of RAM, more depending on disk capacity. Early NetWare versions were viewed as nothing more than a fast disk channel with a disk cache strapped on the side. In the continuing server market race against Windows NT, customers demanded increased server-side functionality and reliability.</P>
+<P CLASS="Body">
+<A NAME="pgfId-929804"></A>To meet market demands, Novell added many features to NetWare in an attempt to keep pace with competing products. Features such as Netscape Enterprise web server, BorderManager firewall, WAN routing, Xfree, Java, and an X.500 style directory dubbed Novell Directory Services (NDS).</P>
+<P CLASS="Body">
+<A NAME="pgfId-929809"></A>NDS is the central feature of this paper, and I'll touch on it more later.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-929638"></A>1.2  Clients</H4>
+<P CLASS="Body">
+<A NAME="pgfId-929810"></A>Early releases of MS-DOS did not have any networking functionality. Novell distributed its own client software called a requester that allowed MS-DOS workstations to access NetWare file server resources. The protocol used to communicate between the requester and the file server is proprietary.</P>
+<P CLASS="Body">
+<A NAME="pgfId-929813"></A>However when Microsoft released Windows 95, Microsoft also included it's own implementation of a requester that allowed Windows 95 systems to access NetWare file servers. Microsoft had apparently reverse-engineered the proprietary client-server protocol. </P>
+<P CLASS="Body">
+<A NAME="pgfId-929814"></A>Unfortunately only a subset of the existing NetWare APIs had been implemented in the Microsoft requester. Novell continued to provide its own requester for Windows 95, then Windows NT and Windows 98. Novell's requester is the only way to access all of the NetWare APIs, including Novell Directory Services functions.</P>
+<P CLASS="Body">
+<A NAME="pgfId-929815"></A>Novell has made a limited set of APIs available for Solaris, and Caldera's Linux. NLMs also have access to the same APIs that are available to client systems using Novell's requester.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM1Heading">
+<A NAME="pgfId-929818"></A>2  Novell Directory Services</H4>
+<P CLASS="Body">
+<A NAME="pgfId-929829"></A>When NetWare 4.10 was released, Novell included an implementation of an X.500 directory service dubbed Novell Directory Services, or NDS. Like X.500, NDS allows a hierarchy of arbitrary objects to be represented in a tree-like structure. NDS objects are defined by their Schema entry, that describes how the object is named, its superclasses, mandatory and optional attributes. <A HREF="report-2.htm#74661" CLASS="XRef">See Novell Directory Services Architecture.</A> provides a pictorial representation of NDS from a design standpoint.</P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-929930"></A><A NAME="74661"></A>Novell Directory Services Architecture</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<P CLASS="CellBody">
+<A NAME="pgfId-929927"></A>&nbsp;</P>
+<DIV>
+<IMG SRC="report-2-1.gif">
+</DIV>
+</TD>
+</TR>
+</TABLE>
+<P CLASS="Body">
+<A NAME="pgfId-929840"></A>Since its initial release, Novell has continued to improve and expand NDS's functionality, reliability and performance. Novell's marketing push has NDS functionality appearing in major software applications, routers, management suites, databases, etc.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-929646"></A>2.1  Schema</H4>
+<P CLASS="Body">
+<A NAME="pgfId-929847"></A>The NDS Schema defines the structure of objects that can be stored in the directory tree. Objects are defined by the following features:</P>
+<UL>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-929848"></A>Superclass - Acquires attributes from one or more parent classes</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-929852"></A>Naming - Defines how an NDS tree object is uniquely named in the tree</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-929853"></A>Containment - Regulates where objects can be created within the tree</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-929856"></A>Mandatory and Optional Attributes - </LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-929857"></A>Default Access Control List - defines access permissions to the NDS object and its attributes</LI>
+</UL>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-929650"></A>2.2  Objects</H4>
+<P CLASS="Body">
+<A NAME="pgfId-929858"></A>An NDS object can represent a user or a resource, such as a file server, printer, disk volume, etc. Objects can be created within the NDS tree subject to their containment properties. For example, an Organization object can contain other objects, such as Organizational Units, Localities and Domains. An Organizational Unit can contain Users, Servers and other Organizational Units, but not Organizations. <A HREF="report-2.htm#72723" CLASS="XRef">See NDS Objects are arranged in a tree-like hierarchy..</A> shows a sample directory tree with objects arranged in tree-like fashion.</P>
+<P CLASS="Body">
+<A NAME="pgfId-929868"></A>Each object in the tree is uniquely identified by it's naming attributes, as specified in the schema. For example, my User object is CN=BKC.OU=Engineering.O=MurkWorks.</P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-929945"></A><A NAME="72723"></A>NDS Objects are arranged in a tree-like hierarchy.</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<P CLASS="CellBody">
+<A NAME="pgfId-929943"></A>&nbsp;</P>
+<DIV>
+<IMG SRC="report-2-2.gif">
+</DIV>
+</TD>
+</TR>
+</TABLE>
+</DIV>
+<DIV>
+<H4 CLASS="FM1Heading">
+<A NAME="pgfId-929610"></A>3  Encapsulating NetWare APIs with SWIG</H4>
+<P CLASS="Body">
+<A NAME="pgfId-929654"></A>The Novell NetWare API set consists of thousands of functions, hundreds of structures and thousands of typedefs. I chose to tackle the NetWare API by first concentrating on the NetWare Directory Services API subset.</P>
+<P CLASS="Body">
+<A NAME="pgfId-929874"></A>The NDS API has approximately 184 functions, 25+ structures and 1047 typedefs or constants. The NDS API is well thought out and `orthogonal' -- that is, there is no overlap in functionality between individual APIs, and the APIs fit together well, requiring no data transforms between functions.</P>
+<P CLASS="Body">
+<A NAME="pgfId-929887"></A>Because NLM development is difficult, I chose to target Windows NT as the initial development platform, with an eye for migrating to NetWare NLMs later. Because the NLM environment does not support C++ code well, I chose to use SWIG rather than CXX as the means to extend Python. </P>
+<P CLASS="Body">
+<A NAME="pgfId-929974"></A>I compiled SWIG 1.1 (Build 685) using Borland C++ 5.01 on Windows NT 4.0. The resulting SWIG produced .c file was also compiled with the Borland C++ Compiler. Although Visual C was also available, using Borland C throughout the project would allow for an easier port to NetWare as an NLM.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-929655"></A>3.1  SWIG Pseudo-Classes</H4>
+<P CLASS="Body">
+<A NAME="pgfId-930188"></A>One of the objectives of using Python to develop NetWare applications was to simplify the interface to NDS. The NDS API is designed to be used by C, Pascal and Visual Basic applications. It is strictly a procedural API -- no objects or classes are used. Managing NDS objects and the NDS schema involves allocating a context handle that controls which Directory Tree is to be accessed, and where in the tree are we are operating. The context handle must be passed to all NDS functions. </P>
+<P CLASS="Body">
+<A NAME="pgfId-938901"></A>When reading or writing object or schema class properties, a Buf_T structure must be allocated and passed to the appropriate Read/Write functions. Binary data values are packed/unpacked to/from the Buf_T structure through a subset of the NDS API. For example, <A HREF="report-2.htm#42861" CLASS="XRef">See Typical NDS function uses context and Buf_T, returns int result.</A> shows the NWDSPutAttrVal function that adds an arbitrary value to a Buf_T structure. </P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-938910"></A><A NAME="42861"></A>Typical NDS function uses context and Buf_T, returns int result</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<PRE CLASS="Code"><A NAME="pgfId-938907"></A>NWDSCCODE							NWDSPutAttrVal(
+   NWDSContextHandle context,
+   pBuf_T            buf,
+   nuint32           syntaxID,
+   nptr              attrVal
+);</PRE>
+</TD>
+</TR>
+</TABLE>
+<P CLASS="Body">
+<A NAME="pgfId-930185"></A>Both the context handle and the Buf_T structure lend themselves to being wrapped in a class structure of some kind. These items must be allocated, are referenced by many functions, and must be explicitly freed when no longer needed. <A HREF="report-2.htm#18051" CLASS="XRef">See SWIG &quot;classes&quot; ease interfacing to NDS APIs.</A> shows three SWIG level &quot;classes&quot; developed to ease interfacing with the NDS APIs. These are not true classes, rather they are pseudo classes defined using the SWIG addmethods operator.</P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-939017"></A><A NAME="18051"></A>SWIG &quot;classes&quot; ease interfacing to NDS APIs</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<P CLASS="CellBody">
+<A NAME="pgfId-939014"></A>&nbsp;</P>
+<DIV>
+<IMG SRC="report-2-3.gif">
+</DIV>
+</TD>
+</TR>
+</TABLE>
+<P CLASS="Body">
+<A NAME="pgfId-935616"></A><A HREF="report-2.htm#77472" CLASS="XRef">See SWIG code to create NWDSBuf Pseudo-Class.</A> shows the SWIG code used to create the NWDSBuf pseudo-class. The pseudo-class includes a constructor that allocates a block of memory. If no argument was passed to the constructor, DEFAULT_MESSAGE_LEN is used as the memory block size, otherwise the value passed is used. The destructor frees the memory block allocated by the constructor. </P>
+<P CLASS="Body">
+<A NAME="pgfId-940595"></A>Using a pseudo-class to represent a buffer allows me to subclass NWDSBuf in Python and add NDS buffer manipulation functions as methods of NWDSBuf. This allows buffers to follow an object oriented model that is easier to use than the procedural NDS APIs. For example, the NWDSPutAttrVal function shown in <A HREF="report-2.htm#42861" CLASS="XRef">See Typical NDS function uses context and Buf_T, returns int result.</A> could become a method of an NWDSBuf object, eliminating the need for context and buf to be passed to the function.</P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-940689"></A><A NAME="77472"></A>SWIG code to create NWDSBuf Pseudo-Class</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<PRE CLASS="Code"><A NAME="pgfId-940686"></A>struct NWDSBuf {
+  	pBuf_T						buf;
+};
+
+%addmethods NWDSBuf {
+	NWDSBuf(int siz=DEFAULT_MESSAGE_LEN) {
+	/* constructor */
+	NWDSCCODE res;
+
+	struct NWDSBuf *me =
+		(struct NWDSBuf *) malloc(sizeof(*me));
+	if(NULL == me) {
+		PyErr_NoMemory();
+		return NULL;
+	}
+
+	me-&gt;buf = NULL;
+	if(siz &gt; 0) {
+		res = NWDSAllocBuf(siz,&amp;me-&gt;buf);
+		if(0 != res)	{ /* an error occured */
+			ThrowException(res,&quot;NWDSAllocBuf&quot;,NULL);
+			free(me);
+			return NULL;
+		}
+	}
+	return me;
+}
+
+	&#126;NWDSBuf() {	/* destructor */
+		if(self) {
+	 		if(self-&gt;buf)
+		   NWDSFreeBuf(self-&gt;buf);
+			free(self);
+		}
+	}
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+<P CLASS="Body">
+<A NAME="pgfId-940505"></A>Finally, a SWIG typemap is used to coerce functions to accept a NWDSBuf wherever a pBuf_T would normally be used. This is explained further in <A HREF="report-2.htm#14727" CLASS="XRef">See Using SWIG in Typemaps.</A>.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-935617"></A>3.2  Conflicts with SWIG</H4>
+<P CLASS="Body">
+<A NAME="pgfId-940776"></A>The SWIG addmethods operator makes it easy to associate arbitrary `methods' with data structures. I did encounter a problem adding a __getattr__ method to the NWDSContext class. </P>
+<P CLASS="Body">
+<A NAME="pgfId-940848"></A><A HREF="report-2.htm#71739" CLASS="XRef">See Implementation of __getattr__ causes conflicts with shadow class.</A> shows the SWIG code used to add __getattr__ to the NWDSContext pseudo class. I needed to provide my own __getattr__ implementation because I wanted to treat index lookups and attribute lookups the same for this pseudo-class. </P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-940868"></A><A NAME="71739"></A>Implementation of __getattr__ causes conflicts with shadow class</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<PRE CLASS="Code"><A NAME="pgfId-940865"></A>struct NWDSContext {
+ 	NWDSContextHandle Context;
+};
+
+%addmethods NWDSContext {
+...
+   PyObject *__getattr__(char *attr);
+}
+...
+%wrapper %{
+
+PyObject *NWDSContext___getattr__(
+		struct NWDSContext *self,char *attr)
+{
+   if(!stricmp(attr,&quot;Context&quot;))
+   			return Py_BuildValue(&quot;l&quot;,self-&gt;Context);
+   else {
+			int which = 
+					NWDSContext_Convert_AttributeText(attr);
+
+			if(-1 == which) {
+				ThrowException(-1,
+					&quot;NWDSContext__getattr__&quot;,
+					&quot;Invalid attribute name&quot;);
+				return NULL;
+			}
+
+			return NWDSContext___getitem__(
+				self,Py_BuildValue(&quot;l&quot;,which));
+   }
+}
+...</PRE>
+</TD>
+</TR>
+</TABLE>
+<P CLASS="Body">
+<A NAME="pgfId-940850"></A>Unfortunately SWIG always generates its own __getattr__ implementation in the generated shadow class. As a result, SWIG produces the Python code shown in <A HREF="report-2.htm#24599" CLASS="XRef">See SWIG produced shadow class replicates __getattr__.</A>, consequently conflicting with the __getattr__ method defined using the addmethods operator.</P>
+<P CLASS="Body">
+<A NAME="pgfId-930656"></A>I do not know of a work-around to this problem, other than hand-editing the produced Python code to remove the second __getattr__.</P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-941112"></A><A NAME="24599"></A>SWIG produced shadow class replicates __getattr__</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<PRE CLASS="Code"><A NAME="pgfId-941109"></A>def __getattr__(self,arg0):
+	&quot;&quot;&quot;&quot;&quot;&quot;
+	val = ndscorec.NWDSContext___getattr__(
+		self.this,arg0)
+	return val
+&lt;snip code removed&gt;
+def __getattr__(self,name):
+	if name == &quot;Context&quot; : 
+		return ndscorec.NWDSContext_Context_get(
+			self.this)
+	raise AttributeError,name
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-930222"></A>3.3  Extracting API info from .h files</H4>
+<P CLASS="Body">
+<A NAME="pgfId-930657"></A>SWIG was designed to accept existing .h files. The NetWare APIs defined in the .h files were designed to be used on multiple operating systems and compilers. To accomplish this, Novell added several layers of typedefs and macros to the .h files. SWIG is unable to properly process the .h files because it does not have a full preprocessor.</P>
+<P CLASS="Body">
+<A NAME="pgfId-930671"></A>The simplest solution I found was to copy the typedefs and structures from each .h file and paste it into my own SWIG .i file for processing as shown in <A HREF="report-2.htm#81787" CLASS="XRef">See General format of the master SWIG .i file.</A>. The function definitions from each NetWare .h file were then copied to their own .i file using a parallel naming scheme.</P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-941181"></A><A NAME="81787"></A>General format of the master SWIG .i file </H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<PRE CLASS="Code"><A NAME="pgfId-945858"></A>%module ndscore
+%include &quot;pointer.i&quot;
+
+%{
+#include &quot;nwdsdc.h&quot;
+&lt;other required .h files&gt;
+%}
+...
+%include &quot;typemaps.i&quot;
+
+%init %{
+	NWNetInit(NULL,NULL);
+	/* initialize NDS libraries */
+%}
+&lt;all typedefs&gt;
+&lt;all constants&gt;
+&lt;all structures&gt;
+&lt;pseudo-class definitions for NWDSContext 
+		and friends&gt;
+&lt;typemaps&gt;
+%include &quot;nwdserr.h&quot;
+%include &quot;nwdsdc.i&quot;
+%include &quot;nwdsmisc.i&quot;
+%include &quot;nwdsasa.i&quot;
+%include &quot;nwdsacl.i&quot;
+... &lt;more .i files&gt;
+%wrapper ..</PRE>
+<PRE CLASS="Code"><A NAME="pgfId-941178"></A>&nbsp;</PRE>
+</TD>
+</TR>
+</TABLE>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-929668"></A>3.4  <A NAME="14727"></A>Using SWIG in Typemaps</H4>
+<P CLASS="Body">
+<A NAME="pgfId-930764"></A>SWIG typemaps are used to coerce the NDS API functions to accept pseudo classes in place of the context and pBuf_T arguments called for. <A HREF="report-2.htm#55832" CLASS="XRef">See SWIG Typemap coerces pBuf_T and NWDSContextHandle to use pseudo-class objects.</A> shows the two typemaps used for pBuf_T and context.</P>
+<P CLASS="Body">
+<A NAME="pgfId-942380"></A>In both cases, the in typemap operation is defined for the target variable type. For example, where pBuf_T is called for in the NDS API, we expect the user to pass a NWDSBuf type. The SWIG produced shadow class automatically passes a string &quot;pointer&quot; to the NWDSBuf, which is converted to a real pointer by the SWIG_GetPtr function. After conversion, the NWDSBuf structure is dereferenced to obtain the actual pBuf_T value to pass to the NDS function.</P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-942386"></A><A NAME="55832"></A>SWIG Typemap coerces pBuf_T and NWDSContextHandle to use pseudo-class objects</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<PRE CLASS="Code"><A NAME="pgfId-942383"></A>%typemap(python,in) pBuf_T  {
+	if ($source) {
+		struct NWDSBuf *_temp;
+		if (SWIG_GetPtr(PyString_AS_STRING($source),
+		(void **) &amp;_temp,&quot;_struct_NWDSBuf_p&quot;)) {
+				PyErr_SetString(PyExc_TypeError,
+					&quot;Type error in argument.&#92; 
+						Expected _struct_NWDSBuf_p.&quot;);
+				return NULL;
+		}
+		$target = _temp-&gt;buf;
+	}
+}
+
+%typemap(python,in) NWDSCONTEXT {
+	if ($source) {
+		struct NWDSContext *_temp;
+		if (SWIG_GetPtr(PyString_AS_STRING($source),
+		(void **) &amp;_temp,&quot;_struct_NWDSContext_p&quot;)) {
+			PyErr_SetString(PyExc_TypeError,
+				&quot;Type error in argument.&#92; 
+					Expected _struct_NWDSContext_p.&quot;);
+			return NULL;
+		}
+		$target = _temp-&gt;Context;
+	}
+}
+
+%apply NWDSCONTEXT {NWDSContextHandle};</PRE>
+</TD>
+</TR>
+</TABLE>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-942387"></A>3.5  Automatic Exceptions, crashing Python</H4>
+<P CLASS="Body">
+<A NAME="pgfId-942388"></A>All NDS APIs return an integer result code NWDSCCODE indicating success if zero. By applying the typemap shown in <A HREF="report-2.htm#86677" CLASS="XRef">See Automatically throw exception if return code non-zero..</A>, an exception is automatically raised by the NDS API whenever the result code is non-zero. If the result code is zero, its value is not returned because it is not needed.</P>
+<P CLASS="Body">
+<A NAME="pgfId-945882"></A>This is a very handy way of catching errors in the function or its arguments, but there are two problems using this technique.</P>
+<UL>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-930871"></A>Functions that return values other than the return code cause Py_None to be incremented, but not returned</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-930875"></A>Parameters passed by reference are not returned when an exception is thrown<BR>
+</LI>
+</UL>
+<P CLASS="Body">
+<A NAME="pgfId-930878"></A>In the first case, originally I did not Py_INCREF(Py_None) in the exception processing code, thinking that this would resolve the problem where Py_None would be incremented, but never returned. I wanted to avoid having a non-zero reference count on Py_None when Python exited. However I found that when an NDS function was called that had a return type of void, Py_None was returned by the code shown in <A HREF="report-2.htm#86677" CLASS="XRef">See Automatically throw exception if return code non-zero..</A>. </P>
+<P CLASS="Body">
+<A NAME="pgfId-945893"></A>Eventually Py_None would be DECREF'd to a negative number, thereby causing an exception in my .DLL (and crashing the NLM) whenever the NDS module was unloaded.</P>
+<P CLASS="Body">
+<A NAME="pgfId-930886"></A>I did not expect that decrementing the reference for Py_None to 0 would cause a fatal crash. Adding the Py_INCREF(Py_None) to the code shown in <A HREF="report-2.htm#86677" CLASS="XRef">See Automatically throw exception if return code non-zero..</A> corrected the problem. A better solution needs to be found to this problem. Perhaps rethinking my design, or adding functionality to SWIG to avoid the unnecessary Py_None increment.</P>
+<P CLASS="Body">
+<A NAME="pgfId-945478"></A>Also, I suggest a change in Python 1.6 to not-crash if a reference count goes negative on built-in statically allocated values such as Py_None. Perhaps a simple warning could be printed instead.</P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-941368"></A><A NAME="86677"></A>Automatically throw exception if return code non-zero.</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<PRE CLASS="Code"><A NAME="pgfId-941365"></A>%except(python) {
+	$function
+	if(PyErr_Occurred()) {
+		return NULL;
+	}
+}
+%typemap(python,out) NWDSCCODE 	{
+	if(0 != $source) {
+   		ThrowException($source,&quot;$name&quot;,NULL);
+		return NULL;
+	} else {
+		Py_INCREF(Py_None);
+   	$target = Py_None;
+	}
+}</PRE>
+</TD>
+</TR>
+</TABLE>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-929678"></A>3.6  Linking to NetWare DLLs, packaging</H4>
+<P CLASS="Body">
+<A NAME="pgfId-930891"></A>SWIG produces a .c file which is compiled by Borland C into a DLL after linking with Novell supplied libraries. The resulting .DLL can be loaded on any WIN32 workstation if that workstation is running Novell's requester.</P>
+<P CLASS="Body">
+<A NAME="pgfId-930894"></A>When porting Python to NetWare as an NLM, the .c file was compiled directly into Python as a built-in module because dynamic binary module loading is not available on NetWare yet.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM1Heading">
+<A NAME="pgfId-929614"></A>4  Representing NDS with Python Classes</H4>
+<P CLASS="Body">
+<A NAME="pgfId-930903"></A>The NDS API can be divided into two major sections: Schema and Tree Objects. These two major categories are each represented by their own Python module.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-929859"></A>4.1  Why Python</H4>
+<P CLASS="Body">
+<A NAME="pgfId-930398"></A>To access Directory Services, the NDS API requires the programmer to follow a complicated sequence of steps. For example, to read the GUID attribute of an NDS User object: </P>
+<UL>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-930913"></A>Create context handle</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-930917"></A>Allocate input and output buffers</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-930918"></A>Populate input buffer with desired attribute, guid</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-930919"></A>Iteratively call NWDSRead, passing in context, target object name, input and output buffer and iteration handle</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-930920"></A>Iterate over output buffer, extracting attribute name, syntaxId and values</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-930923"></A>If NWDSRead is aborted prematurely, free iteration handle</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-930926"></A>Free buffers and context</LI>
+</UL>
+<P CLASS="Body">
+<A NAME="pgfId-930927"></A>Python naturally lends itself to a gross simplification of this process, by reducing it to these steps:</P>
+<UL>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-930938"></A>Create NWDSContext object</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-930944"></A>Retrieve NDSObject</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-930945"></A>Read the attribute</LI>
+</UL>
+<P CLASS="Body">
+<A NAME="pgfId-930946"></A>Using exceptions allows us to automatically release buffers, context and iteration handle if desired. Additionally, the Python for/in operator is a convenient mechanism for iterating over the objects of an NDS Tree through the use of an xrange-like NDSTreeIterator object.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-929684"></A>4.2  NDS Objects</H4>
+<P CLASS="Body">
+<A NAME="pgfId-944258"></A>Two Python classes are used to access NDS Tree Objects, as shown in <A HREF="report-2.htm#66440" CLASS="XRef">See NDS Object Python Classes.</A>. An NDSTreeObject encapsulates all of the NDS APIs that are used to access NDS Objects and their properties. The NDSTreeIterator object is used to iterate through the subobjects of an NDS Tree object, for example, all the objects in the root Organization.</P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-944356"></A><A NAME="66440"></A>NDS Object Python Classes</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<PRE CLASS="Code"><A NAME="pgfId-944353"></A>&nbsp;</PRE>
+<DIV>
+<IMG SRC="report-2-4.gif">
+</DIV>
+</TD>
+</TR>
+</TABLE>
+<P CLASS="Body">
+<A NAME="pgfId-944409"></A>The NDSTreeObject.__repr__ method returns the NDS distinguished name of the object.</P>
+<P CLASS="Body">
+<A NAME="pgfId-944271"></A><A HREF="report-2.htm#75245" CLASS="XRef">See Iterating over NDS Tree objects using the NDSTreeIterator object.</A> shows how the NDSObject classes are used. An NDSContext object is created and its settings are changed to reference the tree TestTree, with a default naming context of MyCompany. The root of the tree is obtained and it's GUID attribute is retrieved. Finally, all leaves of the root are listed using the NDSTreeIterator created through the NDSObject.List() function.</P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-944312"></A><A NAME="75245"></A>Iterating over NDS Tree objects using the NDSTreeIterator object</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<PRE CLASS="Code"><A NAME="pgfId-944309"></A>from NDSObject import *
+&gt;&gt;&gt; c = NWDSContext()
+&gt;&gt;&gt; c[DCK_TREE_NAME] = &quot;TestTree&quot;
+&gt;&gt;&gt; c[DCK_NAME_CONTEXT] = &quot;MyCompany&quot;
+&gt;&gt;&gt; obj = NDSTreeObject(c,&quot;&quot;)
+&gt;&gt;&gt; obj['GUID']
+'&#92;000&#92;234k&#92;274&#92;214&#92;014&#92;...'
+&gt;&gt;&gt; for leaf in obj.List() : 
+... 	print leaf
+... 	
+'CN=DNSDHCP-GROUP'
+'CN=SMS SMDR Group'
+'CN=PIT'
+'CN=PIT Backup Queue'
+'CN=admin'
+'CN=anonymous'
+'CN=bkc'
+(more)</PRE>
+</TD>
+</TR>
+</TABLE>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-931148"></A>4.3  Schema</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931242"></A>Four Python classes are used to access the NDS Schema APIs as shown in <A HREF="report-2.htm#83268" CLASS="XRef">See NDS Schema Python Classes.</A>. The four classes include:</P>
+<UL>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-931253"></A>NDSSchemaClassObject - Represents a Schema class</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-931228"></A>NDSAttribute - Holds the properties of an attribute</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-931202"></A>NDSAttributeContainer - Caches NDSAttribute objects</LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-931188"></A>NDSSchema - A factory class for NDSSchemaClassObject and contains a reference to an NDSAttributeContainer.</LI>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-931261"></A><A NAME="96911"></A>Iterating over NDS Schema Class objects to display their superclasses</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<PRE CLASS="Code"><A NAME="pgfId-931259"></A>from NDSSchema import *
+&gt;&gt;&gt; c = NWDSContext()
+&gt;&gt;&gt; factory = NDSSchema(c)
+&gt;&gt;&gt; for cl in factory.keys() : 
+... 	print cl, factory[cl].superClassNames
+Application (Windows 95) ['Application', 'Top']
+Computer ['Device', 'Top']
+App:Folders ['Top']
+Container Policy ['Policy Type', 'Top']
+(more)</PRE>
+</TD>
+</TR>
+</TABLE>
+</UL>
+<P CLASS="Body">
+<A NAME="pgfId-931118"></A><A HREF="report-2.htm#96911" CLASS="XRef">See Iterating over NDS Schema Class objects to display their superclasses.</A> shows how the NDSSchema object is used to iterate over all defined Schema Classes and display their superClassNames. The NDSSchema.keys() function returns a list of Schema Class Names. The NDSSchema.__getitem__ function is used to return an NDSSchemaClassObject which in turn references its superClassNames attribute.</P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-931276"></A><A NAME="83268"></A>NDS Schema Python Classes</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<P CLASS="CellBody">
+<A NAME="pgfId-931273"></A>&nbsp;</P>
+<DIV>
+<IMG SRC="report-2-5.gif">
+</DIV>
+</TD>
+</TR>
+</TABLE>
+</DIV>
+<DIV>
+<H4 CLASS="FM1Heading">
+<A NAME="pgfId-931094"></A>5  Using Python to access NDS from Zope</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931556"></A>&quot;Zope&quot; is an acronym for &quot;Z Object Publishing Environment.&quot; In Zope, web pages are built by adding &quot;objects&quot; and modifying object &quot;properties&quot;. Several built-in objects like Folders, Documents, and Images are included in the software and are combined together to produce a completed web site.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-931565"></A>5.1  External Procedures</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931569"></A>Zope allows externally defined Python code to be executed within the context of a Web request. These External Procedures may in-turn load other Python modules. I added functionality from the NDSSchema and NDSObject Python classes to Zope through a few simple external procedures.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-944490"></A>5.2  Tree View of NDS Objects</H4>
+<P CLASS="Body">
+<A NAME="pgfId-946035"></A>One of the most common NDS operations is browsing NDS Tree Objects and their properties. Using the NDSTreeIterator object in conjunction with the Zope #tree DHTML tag, it is easy to create a tree-like hierarchical listing of NDS Objects as shown in <A HREF="report-2.htm#92739" CLASS="XRef">See Zope Tree Hierarchy shows NDS Objects and their attributes.</A>. The left side of the frame displays NDS objects. Selecting an Object updates the right side of the display to show the Object properties and attributes.</P>
+<P CLASS="Body">
+<A NAME="pgfId-944823"></A>To create the object display, the NDSTreeIterator object was used to generate a hierarchal list of objects in a format usable by the Zope #tree tag. When a object is selected, the referenced object is retrieved via an NDSTreeObject object. The objects attributes and values are then displayed in the right-hand frame.</P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-944543"></A><A NAME="92739"></A>Zope Tree Hierarchy shows NDS Objects and their attributes</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<PRE CLASS="Code"><A NAME="pgfId-944540"></A>&nbsp;</PRE>
+<DIV>
+<IMG SRC="report-2-6.gif">
+</DIV>
+</TD>
+</TR>
+</TABLE>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-931618"></A>5.3  NDS Schema Class Definitions</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931705"></A>Similarly, NDS Schema Class definitions can be displayed using a tree-like hierarchy as shown in <A HREF="report-2.htm#45024" CLASS="XRef">See Zope Tree Hierarchy navigates Schema Class Definitions.</A>. The left side displays Schema Classes, as they are derived from their respective SuperClasses. </P>
+<P CLASS="Body">
+<A NAME="pgfId-931711"></A>Selecting a Schema Class in the left-hand frame causes the right-hand frame to display Schema Class attributes, including the Class's flags, superClassNames, mandatory and optional attributes.</P>
+<P CLASS="Body">
+<A NAME="pgfId-944870"></A>In this example, the NDSSchema.keys() function is called sequentially to return a list of classes whose only parent class is &quot;top&quot;. Subsequnetly expanding one of these classes returns a list of classes whose parent class is the selected class. </P>
+<TABLE>
+<CAPTION>
+<H6 CLASS="Figure">
+<A NAME="pgfId-946108"></A><A NAME="45024"></A>Zope Tree Hierarchy navigates Schema Class Definitions</H6>
+</CAPTION>
+<TR>
+<TD ROWSPAN="1" COLSPAN="1">
+<PRE CLASS="Code"><A NAME="pgfId-946106"></A>&nbsp;</PRE>
+<DIV>
+<IMG SRC="report-2-7.gif">
+</DIV>
+</TD>
+</TR>
+</TABLE>
+</DIV>
+<DIV>
+<H4 CLASS="FM1Heading">
+<A NAME="pgfId-929622"></A>6  Porting Python to NetWare as a NetWare Loadable Module</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931327"></A>As previously mentioned, Novell NetWare is based on a 32-bit non-preemptive, multi-threaded operating system where all processes execute at ring-0. With virtual memory only recently becoming available, NLMs must be carefully constructed to run successfully in this environment.</P>
+<P CLASS="Body">
+<A NAME="pgfId-931342"></A>The ultimate goal of my project is to port Python 1.5.2 and Zope to NetWare, capitalizing on the built-in Oracle 8 server, Netscape Enterprise Server and NetWare Directory Services functionality. Unfortunately the design of the NetWare operating system is nothing like the Unix and Windows systems to which Python has already been ported. NLMs are loaded into a global namespace -- exported symbol names must be unique across all NLMs, etc.</P>
+<P CLASS="Body">
+<A NAME="pgfId-931355"></A>Each NLM can only be loaded once unless extraordinary measures are taken. When NLMs are unloaded, they must release all of their allocated memory and semaphores, otherwise the NetWare server may abend. Although NLMs can simulate the functionality of shared libraries and DLLs, there is no concept of per-process private memory, making inter-process and inter-NLM data corruption a strong possibility.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-929713"></A>6.1  Development environment and tools</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931361"></A>When porting Python to NetWare, I used Borland C++ 5.01 with Base Technology's NLINK Pro. Novell supplies .h files and import libraries for use with this and other compilers, including Watcom and Metrowerks, and Microsoft Visual C.</P>
+<P CLASS="Body">
+<A NAME="pgfId-944927"></A>NLMs are compiled on a Windows NT workstation, then copied to the target NetWare server for execution. Debugging is achieved using a very crude assembler interface built in to the NetWare operating system.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-929717"></A>6.2  Messy Python config.h</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931365"></A>Python attempts to use a single config.h file to set compile-time and run-time options. Unfortunately the Python distribution assumes that the compiler make establishes the target run-time system.</P>
+<P CLASS="Body">
+<A NAME="pgfId-931368"></A>For example, the supplied config.h assumes that if __BORLANDC__ is defined, then Python is being compiled for 16-bit DOS. </P>
+<P CLASS="Body">
+<A NAME="pgfId-931381"></A>I think the best solution to the config.h problem is to make a distinction between the compiler and the target operating system. Rather than automatically setting run-time features based on the compiler type, a two level #ifdef is needed.</P>
+<P CLASS="Body">
+<A NAME="pgfId-931412"></A>Finally, the tail end of config.h has many optional #defines setting various run-time options, but these options must be enabled by hand editing the config.h file. A two level config.h should address this problem as well.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-929721"></A>6.3  Socketmodule</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931421"></A>Using config.h is a good idea for centralizing all compile-time and run-time options. Unfortunately other modules sneak in their own #ifdef morass rather than using config.h. The socketmodule is an example of such a module, and worse, it uses a confusing array of nested #ifdefs to control compile time options. For example:</P>
+<PRE CLASS="Code"><A NAME="pgfId-931424"></A>#ifdef __BEOS__
+	block = !block;
+	setsockopt( s-&gt;sock_fd, SOL_SOCKET, SO_NONBLOCK,
+				(void *)(&amp;block), sizeof( int ) );
+#else
+#ifndef MS_WINDOWS
+#ifdef PYOS_OS2
+	block = !block;
+	ioctl(s-&gt;sock_fd, FIONBIO, (caddr_t)&amp;block, sizeof(block));
+#else /* !PYOS_OS2 */
+	delay_flag = fcntl (s-&gt;sock_fd, F_GETFL, 0);
+	if (block)
+		delay_flag &amp;= (&#126;O_NDELAY);
+	else
+		delay_flag |= O_NDELAY;
+	fcntl (s-&gt;sock_fd, F_SETFL, delay_flag);
+#endif /* !PYOS_OS2 */
+#else /* MS_WINDOWS */
+	block = !block;
+	ioctlsocket(s-&gt;sock_fd, FIONBIO, (u_long*)&amp;block);
+#endif /* MS_WINDOWS */
+#endif /* __BEOS__ */
+</PRE>
+<P CLASS="Body">
+<A NAME="pgfId-931461"></A>The above code is a small example of how #ifdef use can get out of hand if not carefully used. My suggestion for future Python versions is to not use nested #ifdefs, but rather something like the following:</P>
+<PRE CLASS="Code"><A NAME="pgfId-944947"></A>#undef CODE_COVERED
+#if __BEOS__ &amp;&amp; !defined(CODE_COVERED)
+... do BEOS specific
+#define CODE_COVERED
+#endif
+#if __NLM__ &amp;&amp; !defined(CODE_COVERED)
+.. do NLM specific
+#endif
+#ifndef CODE_COVERED
+#error no code for this section
+#endif</PRE>
+<P CLASS="Body">
+<A NAME="pgfId-946068"></A>The above code allows additional platforms to be easily supported because it is very clear where the new code should be inserted.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-944935"></A>6.4  Threads</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931469"></A>The initial NetWare port of Python did not have threads enabled. NetWare supports three types of threads: worker threads, threadgroups and regular threads. Worker threads have no context and are used by the operating system. Threadgroups have their own context such as connection, logged in user, screen. Regular threads are sub-threads of a parent thread group.</P>
+<P CLASS="Body">
+<A NAME="pgfId-945422"></A>The threading module will likely produce regular threads, but developers may wish to create new threadgroup threads to enable Python scripts to execute as multiple logged in users. More thought in this area is needed.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM1Heading">
+<A NAME="pgfId-945423"></A>7  Future Development</H4>
+<P CLASS="Body">
+<A NAME="pgfId-945424"></A>The NetWare Programming with Python project has two major goals, creating client-side NDS development tools and applications, and porting Python to NetWare as an NLM.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-929735"></A>7.1  NDS tools</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931482"></A>Python based client-side NDS tools promise to allow developers to investigate the NDS API without suffering through an exhaustive edit-compile-test cycle. NDS APIs can be exercised interactively. Python allows NDS Objects and Schema Classes to be represented in an easy-to-understand object oriented fashion. This allows programmers to develop program concepts around NDS without getting bogged down in the difficult details of NDS APIs.</P>
+<P CLASS="Body">
+<A NAME="pgfId-931483"></A>Additionally, Python can be used as a code generator -- automatically producing the necessary C code to manipulate NDS Directory Objects and Schema Classes without mind-numbing repetition of hand written code.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM3Heading">
+<A NAME="pgfId-929753"></A>7.1.1  Schema builder</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931490"></A>By combining the NDS Python classes with Zope, an NDS Schema Class builder can be realized. The Schema builder allows the developer to automatically generate C code for creating an NDS Schema Class by selecting the SuperClass(s), mandatory and optional attributes through an HTML interface generated by Zope.</P>
+<P CLASS="Body">
+<A NAME="pgfId-931495"></A>New Schema attributes can be created and retained in the Schema Builder through the use of a Zope ZClass object. Finally, DHTML methods generate the appropriate C code for inclusion in server-side or client-side applications.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM3Heading">
+<A NAME="pgfId-929757"></A>7.1.2  Snap-in generator</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931499"></A>Snap-Ins are Windows DLLs that enable NWAdmin (the NetWare Directory Services Management tool) to create, display and manage custom directory objects. Snap-In development is very difficult and time consuming.</P>
+<P CLASS="Body">
+<A NAME="pgfId-931515"></A>The Schema Class Builder can be expanded to automatically generate basic NWAdmin Snap-In source code. Using a template system and layout manager, a simple Windows Dialog with multi-edit page tabs can be produced.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM2Heading">
+<A NAME="pgfId-929742"></A>7.2  Porting Python to NetWare</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931529"></A>The initial port of Python 1.5.2b1 to NetWare proved that Python could be made to operate in the NetWare server environment. To be completely useful, several major improvements need to be made to the program.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM3Heading">
+<A NAME="pgfId-929762"></A>7.2.1  Memory management</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931530"></A>All built-in and dynamically loaded binary modules must be able to gracefully recover from, or properly handle, a failed memory allocation. To pass Novell certification, the Python NLM must not crash, corrupt or abend the file server when a memory allocation fails.</P>
+<P CLASS="Body">
+<A NAME="pgfId-931531"></A>Although most users will probably load Python in a ring-3 process to obtain access to virtual memory, older versions of NetWare do not have this functionality. Python must properly free ALL allocated memory, sockets and other resources before it is unloaded.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM3Heading">
+<A NAME="pgfId-929766"></A>7.2.2  Module finalization</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931536"></A>To properly release allocated resources, module finalization must be added to Python. A builtin or dynamically loaded binary must be able to free semaphores, sockets, handles and allocated memory before being unloaded. </P>
+</DIV>
+<DIV>
+<H4 CLASS="FM3Heading">
+<A NAME="pgfId-929774"></A>7.2.3  Partitioning builtin modules</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931539"></A>The initial port of Python to NetWare produced an NLM that was 750Kbytes. This may be small compared to Unix or Windows programs, but for an NLM that is very large. Many standard builtin modules were not included in this initial port.</P>
+<P CLASS="Body">
+<A NAME="pgfId-931540"></A>Dynamically loading and linking to NLMs is possible, but difficult. A good, standard solution is needed to allow Python to dynamically import NLMs, as well as to be dynamically imported by other NLMs. </P>
+</DIV>
+<DIV>
+<H4 CLASS="FM3Heading">
+<A NAME="pgfId-929770"></A>7.2.4  UCS/UCX</H4>
+<P CLASS="Body">
+<A NAME="pgfId-931549"></A>Novell's UCS (Universal Component System) may be the solution to dynamic loading on NetWare. UCS currently supports Perl, NetBasic and Novell Enterprise Web Server. It allows all of these components to use resources and methods in other NLMs dynamically. The proper solution to the Python importing dilemma may be for Python to become a UCS component and client.</P>
+<P CLASS="Body">
+<A NAME="pgfId-931554"></A>Unfortunately the UCS API is not yet available. I am working to obtain access to the UCS specification. When that information is available, I will be able to port Python to NetWare and allow it to export functionality to other applications, as well as being imported into other NLMs.</P>
+</DIV>
+<DIV>
+<H4 CLASS="FM1Heading">
+<A NAME="pgfId-944975"></A>8  References</H4>
+<UL>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-944979"></A><A HREF="http://developer.novell.com/ndk/docnds_c.htm" CLASS="URL"><A HREF="http://developer.novell.com/ndk/docnds_c.htm" CLASS="URL">NDS Libraries for C Documentation - <BR>
+http://developer.novell.com/ndk/docnds_c.htm</A></A></LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-944997"></A><A HREF="http://developer.novell.com/ndk/doc_clib.htm" CLASS="URL">NLM and NetWare Libraries for C Documentation - http://developer.novell.com/ndk/doc_clib.htm</A></LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-945015"></A><A HREF="http://www.zope.org" CLASS="URL">Z Object Publishing Environment - <BR>
+http://www.zope.org</A></LI>
+<LI CLASS="Bulleted">
+<A NAME="pgfId-945019"></A><A HREF="http://www.swig.org" CLASS="URL">SWIG - <BR>
+http://www.swig.org</A></LI>
+</UL>
+</DIV>
+<DIV>
+<H4 CLASS="FM1Heading">
+<A NAME="pgfId-946081"></A>9  Source Code</H4>
+<P CLASS="Body">
+<A NAME="pgfId-946085"></A><A HREF="mailto:bkc@murkworks.com" CLASS="URL">Please contact the author via email at <BR>
+bkc@murkworks.com for information about source code availability.</A></P>
+</DIV>
+</DIV>
+</BODY>
+</HTML>

@@ -1,0 +1,1041 @@
+%PDF-1.2
+3 0 obj <<
+/Length 4 0 R
+>>
+stream
+1 0 0 1 152.18 728.04 cm
+BT
+/F39 17.22 Tf 0 0 Td[(The)-250(Python)-249(Module)-249(Distrib)21(ution)-249(Utilities:)]TJ 38.24 -21.91 Td[(An)-250(Intr)19(oduction)-249(to)-250(the)-250(Distutils)]TJ/F40 11.96 Tf 75.81 -28.9 Td[(Gre)16(gory)-250(P)112(.)-250(W)80(ard)]TJ/F41 11.96 Tf -68.23 -13.94 Td[(Corporation)-248(for)-249(National)-249(Research)-248(Initiati)26(v)15(es)]TJ/F42 11.96 Tf 50.61 -13.95 Td[(gward@python.net)]TJ/F43 14.35 Tf -176.61 -39.05 Td[(Abstract)]TJ/F44 9.96 Tf 0 -22.27 Td[(The)-200(Python)-201(Module)-200(Distrib)19(ution)-200(Utilities,)-211(or)-200(Distutils)-201(for)]TJ 0 -11.96 Td[(short,)-484(are)-436(being)-437(de)25(v)14(eloped)-437(to)-436(address)-437(a)-437(long-standing)]TJ 0 -11.95 Td[(need)-556(in)-556(the)-556(Python)-556(community:)-922(a)-556(standard)-556(mecha-)]TJ 0 -11.96 Td[(nism)-492(for)-491(b)20(uilding,)-552(distrib)19(uting,)-552(and)-491(installing)-492(Python)]TJ 0 -11.95 Td[(modules—or)39(,)-371(more)-346(realistically)64(,)-371(multi-module)-347(distrib)19(u-)]TJ 0 -11.96 Td[(tions.)-497(The)-313(Distutils)-313(will)-313(address)-313(this)-313(need)-313(by)-312(pro)14(viding)]TJ 0 -11.95 Td[(a)-321(set)-320(of)-321(classes)-321(to)-321(implement)-321(the)-321(normal)-321(tasks)-321(in)39(v)20(olv)15(ed)]TJ 0 -11.96 Td[(in)-338(such)-338(work—b)29(uild)-339(C)-337(e)14(xtensions,)-360(process)-339(documenta-)]TJ 0 -11.95 Td[(tion,)-338(install)-320(to)-320(library)-321(directory)64(,)-337(compile)-321(Python)-321(les)-320(to)]TJ 0 -11.96 Td[(bytecode,)-251(etc.—and)-252(a)-250(standard)-251(w)10(ay)-251(for)-250(module)-251(de)24(v)15(elop-)]TJ 0 -11.95 Td[(ers)-252(to)-252(gi)25(v)15(e)-252(users)-253(access)-252(to)-252(these)-253(classes)-252(through)-253(a)-252(simple)]TJ 0 -11.96 Td[(Python)-205(script)-206(included)-205(with)-205(e)24(v)15(ery)-205(distrib)20(ution.)-296(All)-205(of)-205(this)]TJ 0 -11.95 Td[(will)-272(w)10(ork)-272(cross-platform,)-278(with)-272(Unix)-272(and)-272(DOS/W)40(indo)24(ws)]TJ 0 -11.96 Td[(support)-280(included)-280(from)-280(the)-280(be)15(ginning,)-288(and)-279(plans)-280(for)-280(Mac)]TJ 0 -11.95 Td[(OS)-250(support)-251(in)-250(the)-251(future.)]TJ/F43 14.35 Tf 0 -33.54 Td[(1)-1000(Intr)19(oduction)-249(and)-249(Moti)10(v)10(ation)]TJ/F44 9.96 Tf 0 -22.27 Td[(The)-328(need)-329(for)-328(such)-328(a)-328(project)-329(is)-328(clear)-328(to)-328(an)15(yone)-329(who)-328(has)]TJ 0 -11.96 Td[(installed)-463(more)-463(than)-463(one)-463(lar)18(ge)-462(module)-463(distrib)19(ution)-463(for)]TJ 0 -11.95 Td[(Python:)-523(the)14(y)-356(all)-357(ha)20(v)15(e)-356(their)-357(o)25(wn)-357(b)20(uild)-357(mechanisms,)-384(re-)]TJ 0 -11.96 Td[(quiring)-319(users)-318(to)-318(read)-318(and)-319(understand)-319(dif)25(ferent)-318(\050possibly)]TJ 0 -11.95 Td[(comple)14(x\051)-418(instructions)-419(for)-418(e)25(v)15(ery)-418(ne)25(w)-418(distrib)19(ution,)-460(with)]TJ 0 -11.96 Td[(no)-266(guarantee)-267(of)-266(w)10(orking)-266(on)-267(an)15(y)-266(platform)-266(other)-267(than)-266(that)]TJ 0 -11.95 Td[(used)-236(by)-235(the)-235(de)24(v)15(eloper)55(.)-305(The)-236(need)-236(is)-235(e)25(v)15(en)-235(greater)-236(for)-236(mod-)]TJ 0 -11.96 Td[(ule)-394(de)24(v)15(elopers,)-431(who)-394(duplicate)-396(each)-394(others')-395(ef)25(forts)-395(and)]TJ 0 -11.95 Td[(spend)-199(time)-199(w)10(orking)-200(on)-199(code)-199(that)-199(is)-198(ancillary)-200(to)-199(their)-199(main)]TJ 0 -11.96 Td[(de)25(v)15(elopment)-251(ef)24(fort.)]TJ 9.96 -10.96 Td[(The)-227(potential)-228(payof)24(fs)-227(of)-227(the)-227(Distutils)-228(are)-227(great,)-232(as)-227(an)15(y-)]TJ -9.96 -10.95 Td[(one)-299(who)-299(has)-300(used)-299(Perl)-299(o)15(v)14(er)-299(the)-299(last)-299(couple)-299(of)-299(years)-300(can)]TJ 0 -10.96 Td[(attest.)-304(One)-231(of)-230(the)-231(major)-231(reasons)-231(for)-230(the)-231(success)-231(of)-231(CP)92(AN)]TJ 0 -10.96 Td[(\050the)-336(Comprehensi)24(v)15(e)-335(Perl)-336(Archi)25(v)14(e)-335(Netw)10(ork\051)-336(is)-335(the)-336(stan-)]TJ 0 -10.96 Td[(dard)-301(b)20(uild)-301(mechanism)-302(used)-301(by)-300(all)-301(Perl)-301(module)-301(distrib)19(u-)]TJ 0 -10.96 Td[(tions.)-680(No)-373(Perl)-374(de)25(v)15(eloper)-374(is)-373(taken)-364(seriously)-374(unless)-374(an)15(y)]TJ 0 -10.96 Td[(user)-455(can)-454(do)24(wnload)-455(his)-454(distrib)19(ution,)-506(run)-454(a)-455(fe)25(w)-455(simple)]TJ 0 -10.96 Td[(commands:)]TJ/F45 8.97 Tf 10.76 -18.56 Td[(perl)-599(Makefile.PL)]TJ 0 -10.96 Td[(make)]TJ 0 -10.96 Td[(make)-599(test)]TJ 243 481.2 Td[(make)-599(install)]TJ/F44 9.96 Tf -10.76 -17.24 Td[(and)-404(be)-404(assured)-405(of)-404(tested,)-443(documented)-405(ne)25(w)-404(functional-)]TJ 0 -11.96 Td[(ity)-312(for)-312(their)-313(Perl)-312(system.)-497(This)-312(system)-313(w)10(orks)-312(identically)]TJ 0 -11.95 Td[(from)-222(the)-221(tiniest)-222(one-module)-223(distrib)20(ution)-222(to)-222(the)-221(mammoth)]TJ 0 -11.96 Td[(Perl/Tk.)]TJ 9.96 -11.95 Td[(The)-546(principle)-546(dra)15(wback)-546(to)-546(Perl')55(s)]TJ/F46 8.97 Tf 147.09 0 Td[(Mak)21(eMak)21(er)]TJ/F44 9.96 Tf 51.9 0 Td[(sys-)]TJ -208.95 -11.96 Td[(tem)-414(\050)]TJ/F46 8.97 Tf 22.38 0 Td[(ExtUtils::Mak)22(eMak)21(er)]TJ/F44 9.96 Tf 85.96 0 Td[(is)-414(the)-414(module)-415(that)-414(underlies)]TJ -108.34 -11.95 Td[(the)]TJ/F47 8.97 Tf 16.45 0 Td[(Makefile.PL)]TJ/F44 9.96 Tf 63.46 0 Td[(script\051)-430(is)-430(that)-430(it)-429(generates)-431(a)-429(make-)]TJ -79.91 -11.96 Td[(le,)-446(rather)-407(than)-407(doing)-407(its)-406(work)-397(directly)64(.)-779(This)-407(reduces)]TJ 0 -11.95 Td[(portability)-593(\050not)-593(man)14(y)-592(W)39(indo)25(ws)-593(users)-593(ha)20(v)15(e)-593(a)-593(Unix-)]TJ 0 -11.96 Td[(compatible)]TJ/F47 8.97 Tf 47.64 0 Td[(make)]TJ/F44 9.96 Tf 21.52 0 Td[(,)-360(e)24(v)15(en)-338(if)-339(the)15(y)-338(do)-339(ha)20(v)15(e)-339(a)-338(C)-338(compiler)19(—)]TJ -69.16 -11.95 Td[(and)]TJ/F46 8.97 Tf 20.54 0 Td[(Mak)21(eMak)21(er)]TJ/F44 9.96 Tf 52.62 0 Td[(requires)]TJ/F47 8.97 Tf 38.24 0 Td[(make)]TJ/F44 9.96 Tf 27.67 0 Td[(e)24(v)15(en)-618(to)-618(b)20(uild)-618(pure-)]TJ -139.07 -11.96 Td[(Perl)-427(module)-427(distrib)19(utions\051)-427(and)-428(mak)10(es)-427(customizing)-428(the)]TJ 0 -11.95 Td[(b)20(uild/install)-439(steps)-438(a)15(wkw)10(ard)-438(and)-438(unnecessarily)-439(compli-)]TJ 0 -11.96 Td[(cated.)]TJ/F43 14.35 Tf 0 -33.02 Td[(2)-1000(Enter)-249(the)-249(Distutils)]TJ/F44 9.96 Tf 0 -22.26 Td[(The)-841(Distutils)-841(interf)10(ace)-841(is)-840(strongly)-842(inuenced)-841(by)]TJ/F46 8.97 Tf 0 -11.96 Td[(Mak)21(eMak)21(er)]TJ/F44 9.96 Tf 46.47 0 Td[(')55(s.)-647(Supercially)64(,)-390(Distutils)-363(relies)-363(on)-363(a)-362(script)]TJ/F47 8.97 Tf -46.47 -11.95 Td[(setup.py)]TJ/F44 9.96 Tf 46.96 0 Td[(instead)-394(of)]TJ/F47 8.97 Tf 44.36 0 Td[(Makefile.PL)]TJ/F44 9.96 Tf 59.18 0 Td[(;)-465(instead)-395(of)-394(a)-393(call)]TJ -150.5 -11.96 Td[(to)]TJ/F45 8.97 Tf 10.42 0 Td[(WriteMakefile)]TJ/F44 9.96 Tf 69.94 0 Td[(,)-272(that)-269(script)-268(consists)-269(mainly)-269(of)-268(a)-269(call)]TJ -80.36 -11.95 Td[(to)]TJ/F45 8.97 Tf 11.42 0 Td[(setup)]TJ/F44 9.96 Tf 26.9 0 Td[(.)-664(Ho)25(we)24(v)15(er)40(,)-398(the)-368(machinery)-370(behind)-368(that)-369(call)-369(is)]TJ -38.32 -11.96 Td[(all)-302(implemented)-304(directly)-303(in)-302(Python,)-316(with)-303(no)-302(interv)14(ening)]TJ/F47 8.97 Tf 0 -11.95 Td[(make)]TJ/F44 9.96 Tf 24.35 0 Td[(step.)-414(This)-285(means)-285(that)-285(the)-285(action)-285(of)-285(b)20(uilding)-285(or)-285(in-)]TJ -24.35 -11.96 Td[(stalling)-371(\050or)-370(whate)24(v)15(er)-371(else)-370(is)-371(required\051)-371(is)-371(done)-370(immedi-)]TJ 0 -11.95 Td[(ately;)-355(thus,)-338(the)-320(user)-320(has)-320(to)-320(specify)-321(what)-320(he)-320(wants)-311(to)-320(do)]TJ 0 -11.96 Td[(on)-250(the)]TJ/F47 8.97 Tf 27.12 0 Td[(setup.py)]TJ/F44 9.96 Tf 45.53 0 Td[(command)-251(line.)]TJ -62.69 -10.96 Td[(The)-420(canonical)-420(e)14(xample)-420(of)-419(running)-421(a)-419(Distutils)-421(setup)]TJ -9.96 -10.96 Td[(script)-250(is)]TJ/F45 8.97 Tf 10.76 -16.24 Td[(python)-598(setup.py)-598(-v)-599(install)]TJ/F44 9.96 Tf -10.76 -17.24 Td[(which)-221(tak)10(es)-221(care)-221(of)-220(e)24(v)15(erything)-221(required)-221(to)-221(install)-221(a)-221(w)10(ork-)]TJ 0 -11.95 Td[(able)-334(module)-334(distrib)19(ution.)-561(This)-334(is)-334(planned)-334(e)25(v)14(entually)-334(to)]TJ 0 -11.96 Td[(include:)]TJ/F14 9.96 Tf 9.96 -17.23 Td[()]TJ/F44 9.96 Tf 9.96 0 Td[(nding)-251(pure)-251(Python)-251(modules)]TJ/F14 9.96 Tf -9.96 -18.58 Td[()]TJ/F44 9.96 Tf 9.96 0 Td[(compiling)-251(and)-251(linking)-251(C/C++)-250(e)14(xtension)-250(modules)]TJ/F14 9.96 Tf -9.96 -18.59 Td[()]TJ/F44 9.96 Tf 9.96 0 Td[(compiling)-508(Ja)19(v)25(a)-507(e)15(xtension)-508(modules)-508(\050for)-507(JPython-)]TJ 0 -11.95 Td[(friendly)-251(module)-251(distrib)19(utions\051)]TJ
+ET
+endstream
+endobj
+4 0 obj
+8834
+endobj
+2 0 obj <<
+/Type /Page
+/Contents 3 0 R
+/Resources 1 0 R
+/MediaBox [0 0 595.27 841.89]
+/Parent 12 0 R
+>> endobj
+1 0 obj <<
+/Font << /F39 5 0 R /F40 6 0 R /F41 7 0 R /F42 8 0 R /F43 5 0 R /F44 6 0 R /F45 8 0 R /F46 9 0 R /F47 10 0 R /F14 11 0 R >>
+/ProcSet [ /PDF /Text ]
+>> endobj
+15 0 obj <<
+/Length 16 0 R
+>>
+stream
+1 0 0 1 81.96 759.92 cm
+BT
+/F14 9.96 Tf 0 0 Td[()]TJ/F44 9.96 Tf 9.96 0 Td[(processing)-313(documentation)-312(to)-311(one)-312(or)-311(more)-311(standard)]TJ 0 -11.95 Td[(formats)]TJ/F14 9.96 Tf -9.96 -20.16 Td[()]TJ/F44 9.96 Tf 9.96 0 Td[(running)-251(a)-251(test)-250(suite)]TJ/F14 9.96 Tf -9.96 -20.16 Td[()]TJ/F44 9.96 Tf 9.96 0 Td[(installing)-371(e)24(v)15(erything)-370(in)-371(sensible)-371(places)-370(\050according)]TJ 0 -11.95 Td[(to)-300(the)-299(Python)-300(installation)-300(and)-299(user)19(-supplied)-300(prefer)20(-)]TJ 0 -11.96 Td[(ences\051)]TJ -19.92 -20.1 Td[(Each)-276(of)-275(these)-276(steps)-275(is)-276(independantly)-276(selectable)-276(and)-276(con-)]TJ 0 -11.95 Td[(trollable)-330(using)-329(ar)17(guments)-329(to)-330(the)-329(setup)-330(script.)-547(Currently)]TJ 0 -11.96 Td[(\050v)15(ersion)-269(0.1.1\051,)-273(the)-268(Distutils)-269(only)-268(deal)-269(with)-268(b)20(uilding)-269(and)]TJ 0 -11.96 Td[(installing)-251(pure)-250(Python)-251(modules)-251(and)-251(C)-250(e)15(xtensions.)]TJ 9.96 -12.01 Td[(The)-241(canonical)-241(e)15(xample)-240(of)-241(an)-240(actual)-241(setup)-240(script)-241(is)-240(that)]TJ -9.96 -11.95 Td[(used)-299(by)-299(the)-299(Distutils)-299(itself,)-311(sho)25(wn)-299(in)-299(Figure)-299(1.)-1822(Note)]TJ 0 -11.96 Td[(that)-456(most)-456(of)-456(the)-457(ar)18(guments)-456(to)]TJ/F45 8.97 Tf 131.11 0 Td[(setup)]TJ/F44 9.96 Tf 31.44 0 Td[(are)-456(distrib)20(ution)]TJ -162.55 -11.95 Td[(meta-data—the)-475(only)-474(“interesting”)-475(data)-473(\050depending)-475(on)]TJ 0 -11.96 Td[(your)-240(point)-240(of)-239(vie)25(w\051)-240(is)-239(the)-240(list)-240(of)-239(packages)-240(in)-240(the)-239(distrib)19(u-)]TJ 0 -11.95 Td[(tion,)-277(which)-272(implicitly)-272(describes)-273(the)-271(set)-272(of)-271(modules)-272(to)-272(be)]TJ 0 -11.96 Td[(b)20(uilt)-229(and)-228(installed)-229(\050in)-228(this)-229(case,)]TJ/F46 8.97 Tf 125 0 Td[(distutils/)]TJ/F37 8.97 Tf 32.38 0 Td[()]TJ/F46 8.97 Tf 4.61 0 Td[(.p)30(y)]TJ/F44 9.96 Tf 13.96 0 Td[(and)]TJ/F46 8.97 Tf 16.66 0 Td[(distutils/)]TJ -192.61 -11.95 Td[(command/)]TJ/F37 8.97 Tf 41.85 0 Td[()]TJ/F46 8.97 Tf 4.61 0 Td[(.p)30(y)]TJ/F44 9.96 Tf 11.69 0 Td[(\051.)-575(More)-338(comple)14(x)-338(module)-339(distrib)19(utions—)]TJ -58.15 -11.96 Td[(those)-249(in)40(v)20(olving)-249(e)15(xtensions,)-249(or)-249(listing)-248(indi)24(vidual)-248(modules)]TJ 0 -11.95 Td[(rather)-216(than)-215(whole)-216(packages—take)-206(a)-215(bit)-216(more)-215(space)-216(to)-215(de-)]TJ 0 -11.96 Td[(scribe,)-251(as)-250(outlined)-251(in)-250(section)-251(4)-250(belo)25(w)64(.)]TJ/F43 14.35 Tf 0 -33.95 Td[(3)-1000(Using)-249(the)-249(Distutils)]TJ/F44 9.96 Tf 0 -22.37 Td[(There)-472(are)-471(tw)10(o)-471(group)-472(of)-471(users)-472(currently)-472(addressed)-472(by)]TJ 0 -11.96 Td[(the)-363(Distutils:)-536(module)-363(de)24(v)15(elopers)-363(and)-363(module)-363(installers)]TJ 0 -11.95 Td[(\050sysadmins)-370(or)-370(end-users\051.)-668(Generally)64(,)-399(writing)-370(and)-370(edit-)]TJ 0 -11.96 Td[(ing)-384(the)-384(setup.py)-375(script)-385(is)-384(the)-384(domain)-385(of)-384(the)-384(de)25(v)14(eloper)40(,)]TJ 0 -11.95 Td[(while)-274(running)-274(it—and)-275(using)-274(its)-273(e)15(xtensi)24(v)15(e)-274(command-line)]TJ 0 -11.96 Td[(options—is)-369(for)-368(installers.)-665(When)-368(the)-369(Distutils)-368(ha)19(v)15(e)-368(the)]TJ 0 -11.95 Td[(ability)-348(to)-348(generate)-348(“b)19(uilt)-348(distrib)20(utions”)-349(\050ready-to-install)]TJ 0 -11.96 Td[(distrib)19(utions,)-541(with)-482(e)15(xtensions)-483(compiled\051,)-542(then)-482(a)-483(third)]TJ 0 -11.95 Td[(community)-229(will)-228(be)-229(added:)-299(distrib)19(utors)-229(who)-228(tak)10(e)-228(a)-229(source)]TJ 0 -11.96 Td[(distrib)19(ution)-301(pro)15(vided)-302(by)-301(the)-302(module)-302(de)25(v)15(eloper)39(,)-313(and)-302(cre-)]TJ 0 -11.95 Td[(ate)-475(a)-474(b)20(uilt)-475(distrib)19(ution)-475(for)-474(greater)-476(con)40(v)15(enience)-475(to)-475(in-)]TJ 0 -11.96 Td[(stallers.)]TJ 9.96 -12.01 Td[(Of)-316(course,)-331(de)24(v)15(elopers)-316(will)-315(need)-315(to)-316(run)-315(the)-315(script)-316(too,)]TJ -9.96 -11.96 Td[(both)-304(to)-304(test)-305(it)-304(and)-304(to)-304(create)-304(a)-304(source)-305(distrib)20(ution.)-473(Ev)15(en-)]TJ 0 -11.95 Td[(tually)64(,)-242(distrib)20(utors)-241(will)-240(use)-241(the)-240(setup)-241(script)-241(to)-240(create)-241(b)20(uilt)]TJ 0 -11.96 Td[(distrib)19(utions)-406(from)-407(source)-407(distrib)20(utions.)-779(Thus,)-445(we)-407(rst)]TJ 0 -11.95 Td[(co)15(v)15(er)-255(the)-255(Distutils)-255(from)-255(the)-254(installer')54(s)-254(point)-255(of)-255(vie)25(w)65(,)-256(and)]TJ 0 -11.96 Td[(deal)-371(with)-370(the)-371(de)25(v)15(eloper')54(s)-370(problem)-371(of)-370(writing)-371(the)-371(setup)]TJ 0 -11.95 Td[(script)-251(later)40(,)-250(in)-250(section)-251(3.2.)]TJ/F50 11.96 Tf 0 -28.84 Td[(3.1)-999(Running)-248(the)-250(setup)-249(script)]TJ/F51 9.96 Tf 0 -18.79 Td[(3.1.1)-1001(Basic)-250(syntax)-251(and)-251(global)-250(options)]TJ/F44 9.96 Tf 0 -17.8 Td[(The)-311(standard)-312(incantation)-312(for)-311(installing)-312(a)-311(Distutils-based)]TJ 0 -10.96 Td[(module)-251(distrib)20(ution)-251(is)]TJ/F45 8.97 Tf 10.76 -19.16 Td[(python)-598(setup.py)-598(-v)-599(install)]TJ/F44 9.96 Tf 232.24 630.83 Td[(More)-250(generally)64(,)-251(the)-250(command-line)-251(syntax)-251(is)]TJ/F45 8.97 Tf 10.76 -18.9 Td[(setup.py)-598([global-options])]TJ 48.42 -10.96 Td[(cmd)-599([cmd-options)-596(...])]TJ 0 -10.96 Td[([cmd)-598([cmd-options)-597(...]])-599(...)]TJ/F44 9.96 Tf -59.18 -19.9 Td[(Global)-596(options)-596(af)24(fect)-595(the)-596(actions)-596(of)-596(all)-596(commands;)]TJ 0 -11.95 Td[(currently)64(,)-555(there)-495(are)-494(only)-495(tw)10(o:)]TJ/F45 8.97 Tf 133.46 0 Td[(-)-55(-)-56(verbose)]TJ/F44 9.96 Tf 54.34 0 Td[(\050)]TJ/F45 8.97 Tf 3.31 0 Td[(-)-56(v)]TJ/F44 9.96 Tf 11.26 0 Td[(\051)-495(and)]TJ/F45 8.97 Tf -202.37 -11.96 Td[(-)-55(-)-55(dry-)-55(run)]TJ/F44 9.96 Tf 54.1 0 Td[(\050)]TJ/F45 8.97 Tf 3.32 0 Td[(-)-55(n)]TJ/F44 9.96 Tf 11.26 0 Td[(\051.)-821(By)-421(default)-412(the)-421(Distutils)-421(are)-421(silent,)]TJ -68.68 -11.95 Td[(issuing)-680(no)-679(output)-679(e)15(xcept)-680(for)-679(errors)-680(and)-679(w)10(arnings.)]TJ/F45 8.97 Tf 0 -11.96 Td[(-)-55(-)-55(verbose)]TJ/F44 9.96 Tf 52.95 0 Td[(countermands)-356(this,)-381(printing)-356(a)-355(message)-356(for)]TJ -52.95 -11.95 Td[(e)25(v)15(ery)-256(action)-255(that)-256(af)25(fects)-255(\050or)-256(w)10(ould)-256(af)25(fect,)-257(if)]TJ/F45 8.97 Tf 175.09 0 Td[(-)-55(-)-55(dry-)-55(run)]TJ/F44 9.96 Tf -175.09 -11.96 Td[(is)-412(supplied\051)-412(the)-412(lesystem.)-796(The)-412(tw)10(o)-412(are)-412(independent,)]TJ 0 -11.95 Td[(so)]TJ/F45 8.97 Tf 11.96 0 Td[(-)-55(n)]TJ/F44 9.96 Tf 14.36 0 Td[(without)]TJ/F45 8.97 Tf 33.55 0 Td[(-)-55(v)]TJ/F44 9.96 Tf 14.36 0 Td[(is)-312(pointless:)-434(“Don')17(t)-311(do)-312(an)15(ything,)-328(and)]TJ -74.23 -11.96 Td[(don')18(t)-250(tell)-251(me)-250(what)-251(you)-250(w)10(ould)-251(ha)20(v)15(e)-250(done.)69(”)]TJ 9.96 -10.96 Td[(Another)-288(ca)19(v)15(eat)-287(is)-288(that)-287(some)-288(Distutils)-288(commands)-289(base)]TJ -9.96 -10.96 Td[(their)-359(action)-360(on)-359(the)-359(state)-359(of)-359(the)-359(lesystem,)-387(which)-360(is)-359(of-)]TJ 0 -10.96 Td[(ten)-330(determined)-330(by)-330(the)-330(action)-330(of)-329(earlier)-330(commands.)-550(F)15(or)]TJ 0 -10.95 Td[(e)15(xample,)-251(if)-250(you)-251(run)]TJ/F45 8.97 Tf 10.76 -18.91 Td[(setup.py)-598(-nv)-599(build)-598(install)]TJ/F44 9.96 Tf -10.76 -19.9 Td[(on)-329(a)-329(fresh)-329(module)-330(distrib)19(ution,)-349(you')10(ll)-329(get)-329(a)-329(detailed)-330(re-)]TJ 0 -11.95 Td[(port)-448(of)-449(what)-448(w)10(ould)-449(happen)-449(in)-448(the)]TJ/F45 8.97 Tf 148.46 0 Td[(build)]TJ/F44 9.96 Tf 31.36 0 Td[(phase—b)19(ut)]TJ -179.82 -11.96 Td[(since)-200(the)-200(ef)24(fects)-200(of)-200(the)-200(`b)19(uild')-200(phase)-200(control)-201(the)]TJ/F45 8.97 Tf 187.34 0 Td[(install)]TJ/F44 9.96 Tf -187.34 -11.95 Td[(phase,)-217(you)-210(w)10(on')18(t)-209(see)-209(an)15(ything)-209(relating)-210(to)-209(installation,)-218(be-)]TJ 0 -11.96 Td[(cause)-251(it)-250(doesn')18(t)-250(see)-251(an)15(y)-250(les)-251(to)-250(install.)]TJ/F51 9.96 Tf 0 -26.52 Td[(3.1.2)-1001(The)-250(Distutils)-251(commands)]TJ/F44 9.96 Tf 0 -18.68 Td[(After)-376(the)-376(global)-376(options)-377(come)-376(a)-376(series)-376(of)-376(one)-376(or)-376(more)]TJ 0 -11.95 Td[(commands,)-537(each)-478(with)-479(optional)-480(command-specic)-480(op-)]TJ 0 -11.96 Td[(tions.)-298(The)-212(commands)-213(implemented)-213(as)-213(of)-212(this)-212(writing)-213(are:)]TJ/F45 8.97 Tf 5.98 -11.52 Td[(build_py)]TJ/F44 9.96 Tf 71.13 0 Td[(“b)20(uild”)-251(pure)-250(Python)-251(modules)]TJ/F45 8.97 Tf -71.13 -11.95 Td[(build_ext)]TJ/F44 9.96 Tf 71.13 0 Td[(b)20(uild)-251(C/C++)-250(e)15(xtension)-251(modules)]TJ/F45 8.97 Tf -71.13 -11.96 Td[(build)]TJ/F44 9.96 Tf 71.13 0 Td[(b)20(uild)-251(e)25(v)15(erything)]TJ/F45 8.97 Tf -71.13 -11.96 Td[(install_py)]TJ/F44 9.96 Tf 71.13 0 Td[(install)-251(pure)-250(Python)-251(modules)]TJ/F45 8.97 Tf -71.13 -11.95 Td[(install_ext)]TJ/F44 9.96 Tf 71.13 0 Td[(install)-251(e)15(xtension)-251(modules)]TJ/F45 8.97 Tf -71.13 -11.96 Td[(install)]TJ/F44 9.96 Tf 71.13 0 Td[(install)-251(e)25(v)15(erything)]TJ/F45 8.97 Tf -71.13 -11.95 Td[(dist)]TJ/F44 9.96 Tf 71.13 0 Td[(create)-251(source)-250(distrib)19(ution)]TJ -67.15 -11.38 Td[(Commands)-512(may)-512(run)-511(other)-511(commands:)-833(the)]TJ/F45 8.97 Tf 188.14 0 Td[(build)]TJ/F44 9.96 Tf -198.1 -11.95 Td[(command)-498(runs)]TJ/F45 8.97 Tf 66.35 0 Td[(build_py)]TJ/F44 9.96 Tf 48 0 Td[(and)-498(then)]TJ/F45 8.97 Tf 41.45 0 Td[(build_ext)]TJ/F44 9.96 Tf 48.42 0 Td[(,)-559(be-)]TJ -204.22 -11.96 Td[(cause)-479(that)-479(is)-478(what)-479(“e)24(v)15(erything”)-479(currently)-479(means;)-594(the)]TJ/F45 8.97 Tf 0 -11.95 Td[(install)]TJ/F44 9.96 Tf 40.37 0 Td[(command)-273(rst)-272(runs)]TJ/F45 8.97 Tf 80.07 0 Td[(build)]TJ/F44 9.96 Tf 29.61 0 Td[(\050because)-273(you)-272(can')17(t)]TJ -150.05 -11.96 Td[(install)-394(what)-393(you)-394(ha)20(v)15(en')18(t)-393(b)19(uilt\051,)-429(and)-393(then)]TJ/F45 8.97 Tf 171.2 0 Td[(install_py)]TJ/F44 9.96 Tf -171.2 -11.95 Td[(and)]TJ/F45 8.97 Tf 17.15 0 Td[(install_ext)]TJ/F44 9.96 Tf 59.18 0 Td[(.)-394(Distutils)-279(is)-278(smart)-278(enough)-279(not)-278(to)-278(run)]TJ -76.33 -11.96 Td[(the)-274(same)-274(command)-274(twice,)-280(and)-274(the)-274(commands)-275(are)-274(gener)20(-)]TJ 0 -11.95 Td[(ally)-250(smart)-251(enough)-251(not)-250(to)-250(do)-251(redundant)-251(w)10(ork)-250(in)-251(their)-250(run.)]TJ 9.96 -10.96 Td[(This)-330(illustrates)-329(why)69(,)-348(if)-329(all)-330(you)-329(w)10(ant)-329(to)-329(do)-330(is)-329(install)-329(a)]TJ -9.96 -10.96 Td[(module)-251(distrib)20(ution,)-251(all)-250(you)-251(ha)20(v)15(e)-250(to)-251(do)-250(is)]TJ/F45 8.97 Tf 10.76 -18.91 Td[(python)-598(setup.py)-598(-v)-599(install)]TJ/F44 9.96 Tf -10.76 -19.9 Td[(—the)]TJ/F45 8.97 Tf 28.29 0 Td[(install)]TJ/F44 9.96 Tf 43.82 0 Td[(command)-619(runs)]TJ/F45 8.97 Tf 68.76 0 Td[(build)]TJ/F44 9.96 Tf 26.9 0 Td[(,)-711(which)-618(runs)]TJ/F45 8.97 Tf -167.77 -11.95 Td[(build_py)]TJ/F44 9.96 Tf 45.15 0 Td[(and)]TJ/F45 8.97 Tf 16.5 0 Td[(build_ext)]TJ/F44 9.96 Tf 50.54 0 Td[(to)-212(b)20(uild)-213(e)25(v)15(erything,)-221(and)-213(then)]TJ -112.19 -11.96 Td[(installs)-515(e)25(v)15(erything)-516(with)]TJ/F45 8.97 Tf 103.53 0 Td[(install_py)]TJ/F44 9.96 Tf 58.92 0 Td[(and)]TJ/F45 8.97 Tf 19.51 0 Td[(install_)]TJ -181.96 -11.95 Td[(ext)]TJ/F44 9.96 Tf 16.14 0 Td[(.)-893(\050Actually)64(,)-493(both)]TJ/F45 8.97 Tf 77.91 0 Td[(build)]TJ/F44 9.96 Tf 31.32 0 Td[(and)]TJ/F45 8.97 Tf 18.82 0 Td[(install)]TJ/F44 9.96 Tf 42.08 0 Td[(are)-445(smart)]TJ
+ET
+endstream
+endobj
+16 0 obj
+11810
+endobj
+14 0 obj <<
+/Type /Page
+/Contents 15 0 R
+/Resources 13 0 R
+/MediaBox [0 0 595.27 841.89]
+/Parent 12 0 R
+>> endobj
+13 0 obj <<
+/Font << /F14 11 0 R /F44 6 0 R /F45 8 0 R /F46 9 0 R /F37 17 0 R /F43 5 0 R /F50 5 0 R /F51 5 0 R >>
+/ProcSet [ /PDF /Text ]
+>> endobj
+20 0 obj <<
+/Length 21 0 R
+>>
+stream
+1 0 0 1 72 763.94 cm
+BT
+/F45 8.97 Tf 0 0 Td[(from)-599(distutils.core)-596(import)-598(setup)]TJ 0 -21.92 Td[(setup)-599(\050name)-598(=)-600("Distutils",)]TJ 37.66 -10.95 Td[(version)-598(=)-599("0.1.1",)]TJ 0 -10.96 Td[(description)-597(=)-599("Python)-598(Module)-599(Distribution)-597(Utilities",)]TJ 0 -10.96 Td[(author)-598(=)-600("Greg)-598(Ward",)]TJ 0 -10.96 Td[(author_email)-597(=)-599("gward@python.net",)]TJ 0 -10.96 Td[(url)-599(=)-599("http://www.python.org/sigs/distutils-sig)10(/",)]TJ 0 -21.92 Td[(packages)-598(=)-599(['distutils',)-597('distutils.command']\051)]TJ/F44 9.96 Tf 79.44 -31.88 Td[(Figure)-251(1:)-310(The)]TJ/F46 8.97 Tf 57.33 0 Td[(setup)36(.p)31(y)]TJ/F44 9.96 Tf 35.8 0 Td[(script)-250(distrib)19(uted)-250(with)-251(the)-250(Distutils.)]TJ -210.23 -32.04 Td[(enough)-396(that)-397(the)15(y)-396(only)-396(run)]TJ/F45 8.97 Tf 111.98 0 Td[(build_py)]TJ/F44 9.96 Tf 46.98 0 Td[(or)]TJ/F45 8.97 Tf 12.24 0 Td[(install_py)]TJ/F44 9.96 Tf -171.2 -11.96 Td[(if)-274(there)-274(are)-274(pure)-274(Python)-274(modules)-274(in)-274(the)-274(distrib)19(ution,)-280(and)]TJ 0 -11.95 Td[(lik)10(e)25(wise)-315(with)]TJ/F45 8.97 Tf 56.82 0 Td[(build_ext)]TJ/F44 9.96 Tf 51.55 0 Td[(and)]TJ/F45 8.97 Tf 17.51 0 Td[(install_ext)]TJ/F44 9.96 Tf 59.18 0 Td[(.)-501(That')54(s)-314(a)]TJ -185.06 -11.96 Td[(minor)-201(optimization,)-211(though,)-211(as)-200(it)-201(mainly)-200(sa)19(v)15(es)-200(the)-201(unnec-)]TJ 0 -11.95 Td[(essary)-293(import)-293(of)-293(all)-292(the)-293(code)-293(for)-293(that)-292(operation—which,)]TJ 0 -11.96 Td[(in)-250(the)-251(case)-250(of)-250(b)20(uilding)-251(e)15(xtensions,)-251(is)-251(a)-250(f)10(air)-250(chunk.\051)]TJ 9.96 -10.96 Td[(In)-410(the)-410(absence)-410(of)-410(command)-411(options)-410(\050described)-411(mo-)]TJ -9.96 -10.96 Td[(mentarily\051,)-251(the)-250(follo)24(wing)-251(are)-250(all)-250(nearly)-251(equi)25(v)25(alent:)]TJ/F45 8.97 Tf 10.76 -18.79 Td[(setup.py)-598(-v)-599(install)]TJ 0 -10.96 Td[(setup.py)-598(-v)-599(build)-599(install)]TJ 0 -10.96 Td[(setup.py)-598(-v)-599(build_py)-598(build_ext)-597(install)]TJ 0 -10.96 Td[(setup.py)-598(-v)-599(build_py)-598(build_ext)-597(\134)]TJ 64.56 -10.95 Td[(install_py)-597(install_ext)]TJ/F44 9.96 Tf -75.32 -19.79 Td[(\050The)-371(main)-371(dif)25(ference)-371(is)-371(that)-371(when)-371(you)-370(e)15(xplicitly)-372(spec-)]TJ 0 -11.96 Td[(ify)-374(a)-373(command,)-405(the)-374(module)-374(that)-374(implements)-375(it)-373(will)-374(be)]TJ 0 -11.95 Td[(imported—which)-459(can)-458(cause)-458(a)-457(noticeable)-458(delay)-458(in)-458(the)]TJ 0 -11.96 Td[(case)-250(of)]TJ/F45 8.97 Tf 30.43 0 Td[(build_ext)]TJ/F44 9.96 Tf 48.41 0 Td[(.\051)]TJ/F51 9.96 Tf -78.84 -26.49 Td[(3.1.3)-1001(Command)-251(options)]TJ/F44 9.96 Tf 0 -18.68 Td[(The)-379(actions)-379(of)-379(e)24(v)15(ery)-379(command)-379(are)-379(controlled)-380(by)-379(a)-379(set)]TJ 0 -11.96 Td[(of)-295(options.)-443(Some)-295(command)-295(options)-295(can)-295(be)-295(specied)-295(on)]TJ 0 -11.95 Td[(the)-365(command-line)-366(of)-366(the)-365(setup)-365(script;)-423(others)-365(may)-366(only)]TJ 0 -11.96 Td[(be)-338(supplied)-340(in)-338(the)-339(setup)-338(script)-339(itself.)-575(This)-339(section)-339(only)]TJ 0 -11.95 Td[(co)15(v)15(ers)-236(the)-235(command)-237(options)-236(that)-235(may)-236(be)-235(supplied)-236(by)-236(the)]TJ 0 -11.96 Td[(installer)39(,)-256(i.e.)-325(on)-255(the)-255(command-line—the)-257(remaining)-256(com-)]TJ 0 -11.95 Td[(mand)-400(options)-401(are)-400(generally)-401(the)-400(domain)-401(of)-400(the)-400(module)]TJ 0 -11.96 Td[(de)25(v)15(eloper)39(,)-250(so)-250(will)-251(be)-250(co)15(v)15(ered)-251(in)-250(section)-251(3.2)-250(belo)24(w)65(.)]TJ 9.96 -11.95 Td[(The)-556(v)25(ast)-556(majority)-557(of)-556(command)-556(options)-557(deal)-556(with)]TJ -9.96 -11.96 Td[(where)-429(to)-428(put)-429(v)25(arious)-429(les.)-845(F)14(or)-428(instance,)-474(the)]TJ/F45 8.97 Tf 192.72 0 Td[(build*)]TJ/F44 9.96 Tf -192.72 -11.95 Td[(commands)-431(let)-430(you)-430(specify)-431(where)-430(to)-430(b)20(uild)-431(to,)-475(and)-430(the)]TJ/F45 8.97 Tf 0 -11.96 Td[(install*)]TJ/F44 9.96 Tf 45.34 0 Td[(commands)-232(let)-232(you)-232(specify)-232(where)-231(to)-232(install)-232(to.)]TJ -35.38 -11.95 Td[(Command)-315(option)-315(names)-314(are)-314(only)-315(unique)-314(within)-315(their)]TJ -9.96 -11.96 Td[(command,)-507(so)-456(multiple)-455(commands)-457(may)-455(ha)20(v)15(e)-456(\050e.g.\051)-925(a)]TJ/F45 8.97 Tf 0 -11.95 Td[(build_base)]TJ/F44 9.96 Tf 59.22 0 Td[(option.)-1194(All)-545(command)-545(options)-545(ha)19(v)15(e)-544(a)]TJ -59.22 -11.96 Td[(long)-474(name)-475(\050e.g.)]TJ/F45 8.97 Tf 76.21 0 Td[(build_base)]TJ/F44 9.96 Tf 58.52 0 Td[(in)-474(the)-474(setup)-475(script)-474(or)]TJ/F45 8.97 Tf -134.73 -11.95 Td[(-)-55(-)-56(build-)-54(base)]TJ/F44 9.96 Tf 69.16 0 Td[(on)-313(the)-313(command)-313(line\051,)-328(and)-313(man)15(y)-313(ha)20(v)15(e)]TJ -69.16 -11.96 Td[(a)-235(one-letter)-237(form)-235(that)-236(appears)-236(only)-236(on)-235(the)-236(command)-236(line.)]TJ 0 -11.96 Td[(There')54(s)-294(no)-294(guarantee)-295(that)-294(the)-294(same)-295(option)-294(name)-295(has)-294(the)]TJ 0 -11.95 Td[(same)-274(one-letter)-274(form)-274(\050or)-274(e)25(v)15(en)-274(the)-273(same)-274(meaning\051)-275(across)]TJ 243 472.3 Td[(dif)25(ferent)-202(commands,)-212(although)-202(this)-202(is)-202(certainly)-202(a)-201(desirable)]TJ 0 -11.96 Td[(goal)-250(for)-251(command)-251(implementors.)]TJ 9.96 -11.13 Td[(An)-241(e)15(xhausti)24(v)15(e)-240(reference)-241(of)-241(all)-240(command)-241(options)-241(is)-241(in-)]TJ -9.96 -10.96 Td[(cluded)-252(with)-253(the)-252(Distutils)-253(documentation;)-254(here)-252(we'll)-243(con-)]TJ 0 -10.96 Td[(centrate)-345(on)-344(e)15(xamples)-345(to)-345(illustrate)-345(some)-344(common)-346(cases.)]TJ 0 -10.96 Td[(First,)-470(the)]TJ/F45 8.97 Tf 41.86 0 Td[(build_base)]TJ/F44 9.96 Tf 58.04 0 Td[(option:)-663(by)-426(default,)-461(the)-426(Distu-)]TJ -99.9 -10.96 Td[(tils)]TJ/F45 8.97 Tf 14.79 0 Td[(build*)]TJ/F44 9.96 Tf 34.88 0 Td[(commands)-262(put)-262(ready-to-install)-263(modules)-262(and)]TJ -49.67 -10.96 Td[(e)15(xtensions)-436(into)-435(the)]TJ/F46 8.97 Tf 82.58 0 Td[(b)20(uild/)]TJ/F44 9.96 Tf 25.58 0 Td[(subdirectory)-437(of)-435(the)-435(distrib)20(u-)]TJ -108.16 -10.96 Td[(tion)-349(root.)-608(\050The)]TJ/F53 9.96 Tf 65.85 0 Td[(distrib)19(ution)-349(r)45(oot)]TJ/F44 9.96 Tf 69.6 0 Td[(is)-349(the)-349(directory)-350(where)]TJ/F47 8.97 Tf -135.45 -10.95 Td[(setup.py)]TJ/F44 9.96 Tf 45.77 0 Td[(e)15(xists)-276(and)-275(is)-275(run)-275(from,)-281(and)-275(most)-275(les)-275(and)-275(di-)]TJ -45.77 -10.96 Td[(rectories)-200(referenced)-201(by)-200(the)-200(Distutils)-201(are)-200(relati)25(v)15(e)-200(to)-200(this)-200(di-)]TJ 0 -10.96 Td[(rectory)64(.)-338(Thus,)-262(you)-260(can)-260(generally)-260(read)-260(“distrib)19(ution)-260(root”)]TJ 0 -10.96 Td[(as)-248(“current)-249(directory”.\051)-311(If)-248(you)-249(w)10(ant)-249(these)-248(les)-249(put)-249(some-)]TJ 0 -10.96 Td[(where)-251(else,)-250(use)-250(the)]TJ/F45 8.97 Tf 77.74 0 Td[(build_base)]TJ/F44 9.96 Tf 56.28 0 Td[(option)-251(to)]TJ/F45 8.97 Tf 38.2 0 Td[(build)]TJ/F44 9.96 Tf 26.9 0 Td[(:)]TJ/F45 8.97 Tf -188.36 -19.63 Td[(setup.py)-598(-v)-599(build)-598(\134)]TJ 10.76 -10.96 Td[(--build-base=/tmp/pybuild)]TJ/F44 9.96 Tf -21.52 -19.46 Td[(In)-375(this)-375(case,)-407(pure)-375(Python)-376(modules)-375(will)-376(be)-375(put)-375(in)]TJ/F46 8.97 Tf 205.07 0 Td[(/tmp/)]TJ -205.07 -10.96 Td[(p)30(yb)21(uild/lib)]TJ/F44 9.96 Tf 39.41 0 Td[(,)-260(and)-259(e)15(xtension)-259(modules)-258(in)]TJ/F46 8.97 Tf 109.3 0 Td[(/tmp/p)32(yb)20(uild/platlib)]TJ/F44 9.96 Tf 73.8 0 Td[(.)]TJ -222.51 -10.96 Td[(If)-255(you)-255(w)10(ant)-255(e)15(xact)-256(control)-255(o)15(v)15(er)-255(these)-256(tw)10(o)-255(directories,)-257(you)]TJ 0 -10.96 Td[(can)-250(specify)-251(them)-251(indi)25(vidually)-251(to)-250(the)]TJ/F45 8.97 Tf 145.3 0 Td[(build)]TJ/F44 9.96 Tf 29.39 0 Td[(command:)]TJ/F45 8.97 Tf -163.93 -19.63 Td[(setup.py)-598(-v)-599(build)-598(\134)]TJ 10.76 -10.96 Td[(--build-lib=/tmp/pybuild.shared)-592(\134)]TJ 0 -10.96 Td[(--build-platlib=/tmp/pybuild.plat)]TJ/F44 9.96 Tf -21.52 -20.45 Td[(In)-437(this)-437(case,)-483(you)-437(don')17(t)-436(need)-438(to)-436(specify)]TJ/F45 8.97 Tf 168.71 0 Td[(build_base)]TJ/F44 9.96 Tf 53.8 0 Td[(,)]TJ -222.51 -11.96 Td[(since)-221(it)-221(is)-221(only)-221(used)-222(to)-220(generate)]TJ/F45 8.97 Tf 125.52 0 Td[(build_lib)]TJ/F44 9.96 Tf 50.61 0 Td[(and)]TJ/F45 8.97 Tf 16.59 0 Td[(build_)]TJ -192.72 -11.95 Td[(plat)]TJ/F44 9.96 Tf 21.52 0 Td[(.)]TJ -11.56 -11.14 Td[(Of)-470(course,)-525(if)-470(you)-470(then)-470(attempt)-471(to)-469(install)-471(the)-470(mod-)]TJ -9.96 -10.96 Td[(ule)-312(distrib)20(ution)-312(with)]TJ/F45 8.97 Tf 84.94 0 Td[(setup.py)-597(-)-56(v)-599(install)]TJ/F44 9.96 Tf 102.71 0 Td[(,)-327(it)-311(w)10(on')17(t)]TJ -187.65 -10.96 Td[(w)10(ork)-229(as)-228(intended:)]TJ/F45 8.97 Tf 73.27 0 Td[(install)]TJ/F44 9.96 Tf 39.94 0 Td[(looks)-228(in)-229(the)-228(def)10(ault)-229(b)20(uild)-228(di-)]TJ -113.21 -10.96 Td[(rectory)-295(\050)]TJ/F46 8.97 Tf 34.46 0 Td[(./b)21(uild)]TJ/F44 9.96 Tf 23.74 0 Td[(\051,)-305(b)20(ut)-295(the)-294(ready-to-install)-295(b)20(uilt)-295(les)-294(aren')17(t)]TJ -58.2 -10.96 Td[(there.)-553(So)-331(your)-331(les)-331(will)-331(be)-331(re-b)19(uilt)-331(to)]TJ/F46 8.97 Tf 158.14 0 Td[(./b)20(uild)]TJ/F44 9.96 Tf 27.04 0 Td[(instead)-332(of)]TJ -185.18 -10.95 Td[(fetched)-391(from)]TJ/F46 8.97 Tf 56.46 0 Td[(/tmp/p)32(yb)20(uild)]TJ/F44 9.96 Tf 51.77 0 Td[(\050or)-390(where)24(v)15(er\051.)-730(Since)-391(you')49(re)]TJ -108.23 -10.96 Td[(running)]TJ/F45 8.97 Tf 34.67 0 Td[(install)]TJ/F44 9.96 Tf 41.34 0 Td[(separately)-370(from)]TJ/F45 8.97 Tf 67.11 0 Td[(build)]TJ/F44 9.96 Tf 26.9 0 Td[(,)-399(you)-370(ha)20(v)15(e)-370(to)]TJ -170.02 -10.96 Td[(tell)-333(it)-333(the)-334(b)20(uild)-333(directories)-334(separately)64(.)-559(F)15(or)-333(instance,)-355(the)]TJ/F45 8.97 Tf 0 -10.96 Td[(install)]TJ/F44 9.96 Tf 40 0 Td[(command)-237(to)-235(go)-236(with)-236(the)-235(rst)]TJ/F45 8.97 Tf 116.46 0 Td[(build)]TJ/F44 9.96 Tf 29.25 0 Td[(command)]TJ -185.71 -10.96 Td[(abo)15(v)15(e)-251(w)10(ould)-250(be)]TJ/F45 8.97 Tf 10.76 -19.63 Td[(setup.py)-598(-v)-599(install)-598(\134)]TJ 10.76 -10.96 Td[(--build-base=/tmp/pybuild)]TJ/F44 9.96 Tf -21.52 -19.46 Td[(and)-250(to)-251(go)-250(with)-250(the)-251(second)]TJ/F45 8.97 Tf 104.6 0 Td[(build)]TJ/F44 9.96 Tf 29.39 0 Td[(command:)]TJ
+ET
+endstream
+endobj
+21 0 obj
+10555
+endobj
+19 0 obj <<
+/Type /Page
+/Contents 20 0 R
+/Resources 18 0 R
+/MediaBox [0 0 595.27 841.89]
+/Parent 12 0 R
+>> endobj
+18 0 obj <<
+/Font << /F45 8 0 R /F44 6 0 R /F46 9 0 R /F51 5 0 R /F53 22 0 R /F47 10 0 R >>
+/ProcSet [ /PDF /Text ]
+>> endobj
+25 0 obj <<
+/Length 26 0 R
+>>
+stream
+1 0 0 1 82.76 759.92 cm
+BT
+/F45 8.97 Tf 0 0 Td[(setup.py)-598(-v)-599(install)-598(\134)]TJ 10.76 -10.95 Td[(--build-lib=/tmp/pybuild.shared)-592(\134)]TJ 0 -10.96 Td[(--build-platlib=/tmp/pybuild.plat)]TJ/F44 9.96 Tf -21.52 -21.55 Td[(\050Note)-270(that)-269(the)-269(great)-270(similarity)-270(of)-269(these)-270(commands)-270(is)-269(due)]TJ 0 -11.95 Td[(not)-377(to)-378(some)-377(conspirac)14(y)-377(within)-378(the)-378(Distutils,)-409(b)20(ut)-378(to)-377(the)]TJ 0 -11.96 Td[(deliberate)-264(choice)-264(of)-263(the)-264(same)-263(option)-264(names)-264(for)-263(the)-264(same)]TJ 0 -11.95 Td[(purposes)-377(across)-377(the)-377(tw)10(o)-377(commands.)-690(Nothing)-377(enforces)]TJ 0 -11.96 Td[(this)-250(design)-251(principle)-251(e)15(xcept)-251(common)-251(sense!\051)]TJ 9.96 -11.5 Td[(Ob)14(viously)65(,)-240(it')55(s)-237(preferable)-237(to)-237(supply)-237(the)-237(b)20(uild)-237(directory)]TJ -9.96 -10.95 Td[(only)-250(once,)-251(as)-250(in:)]TJ/F45 8.97 Tf 10.76 -21.09 Td[(setup.py)-598(build)-598(\134)]TJ 10.76 -10.96 Td[(--build-base=/tmp/pybuild)-594(install)]TJ/F44 9.96 Tf -21.52 -20.55 Td[(or)40(,)-250(since)]TJ/F45 8.97 Tf 35.84 0 Td[(install)]TJ/F44 9.96 Tf 40.15 0 Td[(implies)]TJ/F45 8.97 Tf 31.83 0 Td[(build)]TJ/F44 9.96 Tf 26.9 0 Td[(,)]TJ/F45 8.97 Tf -123.96 -21.08 Td[(setup.py)-598(install)]TJ 10.76 -10.96 Td[(--build-base=/tmp/pybuild)]TJ/F44 9.96 Tf -21.52 -20.55 Td[(b)20(ut)-250(note)-251(that)-250(this:)]TJ/F45 8.97 Tf 10.76 -21.09 Td[(setup.py)-598(build)-598(install)-598(\134)]TJ 10.76 -10.96 Td[(--build-base=/tmp/pybuild)]TJ/F51 9.96 Tf -21.52 -21.54 Td[(does)-266(not)-265(w)10(ork)]TJ/F44 9.96 Tf 59.98 0 Td[(—when)-266(you)-265(e)15(xplicitly)-266(specify)-266(the)]TJ/F45 8.97 Tf 138.12 0 Td[(build)]TJ/F44 9.96 Tf -198.1 -11.96 Td[(command)-291(in)-289(this)-290(w)10(ay)64(,)-299(its)-290(options)-290(are)-290(decided)]TJ/F53 9.96 Tf 184.85 0 Td[(befor)36(e)]TJ/F44 9.96 Tf 27.97 0 Td[(the)]TJ -212.82 -11.95 Td[(options)-420(for)-420(the)]TJ/F45 8.97 Tf 65.67 0 Td[(install)]TJ/F44 9.96 Tf 41.84 0 Td[(command)-420(are)-420(parsed.)-820(\050This)]TJ -107.51 -11.96 Td[(might)-275(be)-274(considered)-275(a)-274(b)20(ug—or)-275(a)-274(design)-275(a)15(w)-274(that)-275(w)10(ould)]TJ 0 -11.95 Td[(be)-250(nice,)-251(b)20(ut)-250(trick)14(y)65(,)-250(to)-250(x.\051)]TJ 9.96 -11.5 Td[(Of)-194(course,)-205(you)-193(may)-194(be)-193(perfectly)-194(happ)10(y)-194(with)-193(the)-194(def)10(ault)]TJ -9.96 -10.96 Td[(b)20(uild)-335(directories,)-357(b)20(ut)-335(w)10(ant)-335(to)-335(install)-336(else)25(where—e.g.,)-357(if)]TJ 0 -10.96 Td[(you)-367(don')18(t)-367(ha)20(v)15(e)-367(superuser)-367(pri)25(vile)14(ges)-366(on)-367(a)-367(Unix)-366(system,)]TJ 0 -10.96 Td[(you')10(ll)-359(probably)-359(w)10(ant)-359(to)-358(install)-359(to)-359(your)-358(home)-359(directory)64(.)]TJ 0 -10.96 Td[(Naturally)64(,)-447(this)-408(is)-408(an)-407(option—well,)-449(se)25(v)15(eral)-408(options—to)]TJ 0 -10.95 Td[(the)]TJ/F45 8.97 Tf 14.66 0 Td[(install)]TJ/F44 9.96 Tf 40.15 0 Td[(command:)]TJ/F45 8.97 Tf -44.05 -21.09 Td[(setup.py)-598(-v)-599(install)]TJ 10.76 -10.96 Td[(--prefix=/home/greg)-595(\134)]TJ 0 -10.96 Td[(--exec-prefix=/home/greg)]TJ/F44 9.96 Tf -21.52 -21.54 Td[(will)-697(install)-698(both)-697(pure)-698(Python)-697(modules)-698(and)-698(e)15(xten-)]TJ 0 -11.96 Td[(sion)-318(modules)-319(under)]TJ/F46 8.97 Tf 82.55 0 Td[(/home/g)11(reg/lib/p)32(ython1.5)]TJ/F44 9.96 Tf 101.49 0 Td[(\050assuming)]TJ -184.04 -11.95 Td[(Python)-251(1.5,)-250(of)-250(course\051.)]TJ 9.96 -11.5 Td[(If)-556(you)-555(w)10(ant)-556(more)-556(precise)-555(control,)-633(you)-555(can)-556(spec-)]TJ -9.96 -10.96 Td[(ify)-787(the)]TJ/F45 8.97 Tf 38.92 0 Td[(install_site_lib)]TJ/F44 9.96 Tf 93.92 0 Td[(and)]TJ/F45 8.97 Tf 22.22 0 Td[(install_site_)]TJ -155.06 -10.96 Td[(platlib)]TJ/F44 9.96 Tf 40.15 0 Td[(options)-251(directly:)]TJ/F45 8.97 Tf -29.39 -21.09 Td[(setup.py)-598(-v)-599(install)-598(\134)]TJ 10.76 -10.95 Td[(--install-site-lib=\134)]TJ 10.76 -10.96 Td[(/home/greg/lib/python)-594(\134)]TJ -10.76 -10.96 Td[(--install-site-platlib=\134)]TJ 10.76 -10.96 Td[(/home/greg/lib/python.plat)]TJ/F44 9.96 Tf -32.28 -21.54 Td[(Note)-449(that)-449(the)-450(“lib”)-449(and)-449(“platlib”)-450(directories)-450(are)-449(com-)]TJ 0 -11.96 Td[(pletely)-243(independent;)-246(if)-242(you)-242(w)10(ant)-242(to)-242(control)-243(both)-243(of)-242(them,)]TJ 0 -11.96 Td[(you)-519(must)-518(specify)-520(both)-518(\050or)-519(both)]TJ/F45 8.97 Tf 141.11 0 Td[(prefix)]TJ/F44 9.96 Tf 37.44 0 Td[(and)]TJ/F45 8.97 Tf 19.55 0 Td[(exec_)]TJ -198.1 -11.95 Td[(prefix)]TJ/F44 9.96 Tf 32.28 0 Td[(\051.)-310(This)-251(is)-250(a)-250(feature)-251(\050I)-250(think\051.)]TJ/F50 11.96 Tf 210.72 630.83 Td[(3.2)-999(Writing)-248(the)-250(setup)-249(script)]TJ/F44 9.96 Tf 0 -19.4 Td[(In)-382(order)-383(to)-383(understand)-383(ho)24(w)-382(to)-383(write)-383(setup)-383(scripts,)-416(you)]TJ 0 -11.95 Td[(ha)20(v)15(e)-333(to)-332(understand)-333(ho)24(w)-332(the)14(y')50(re)-332(run—so)-333(if)-333(you)-332(skipped)]TJ 0 -11.96 Td[(straight)-293(do)24(wn)-293(here,)-304(you)-293(should)-293(skip)-293(right)-293(back)-294(up)-293(again)]TJ 0 -11.95 Td[(and)-250(read)-251(section)-251(3.1.)]TJ 9.96 -12.34 Td[(No)25(w)-362(that)-361(you)-361(kno)25(w)-361(about)-362(commands)-362(and)-361(command)]TJ -9.96 -11.95 Td[(options,)-333(it)-316(is)-316(time)-316(to)-316(re)24(v)15(eal)-316(more)-316(of)-316(the)-316(truth.)-508(\050The)-317(full)]TJ 0 -11.96 Td[(truth)-337(cannot)-337(be)-337(re)25(v)15(ealed)-338(since)-337(the)-337(Distutils)-337(are)-337(a)-337(w)10(ork-)]TJ 0 -11.95 Td[(in-progress,)-237(and)-233(no)-233(one)-233(yet)-233(kno)24(ws)-233(the)-233(full)-233(truth.\051)-304(Specif-)]TJ 0 -11.96 Td[(ically)65(,)-438(the)-400(setup)-400(script)-400(command-line)-401(is)-400(only)-401(one)-400(pos-)]TJ 0 -11.95 Td[(sible)-350(source)-350(for)-350(command)-350(options.)-609(T)79(w)10(o)-349(other)-350(possible)]TJ 0 -11.96 Td[(sources)-374(are)-374(in)-374(the)-374(setup)-374(script)-374(itself,)-405(as)-374(k)10(e)15(yword)-365(ar)18(gu-)]TJ 0 -11.95 Td[(ments)-298(to)]TJ/F45 8.97 Tf 37.47 0 Td[(setup\050\051)]TJ/F44 9.96 Tf 37.66 0 Td[(,)-309(and)-297(as)-298(elements)-298(in)-297(the)]TJ/F45 8.97 Tf 98.39 0 Td[(options)]TJ/F44 9.96 Tf 40.62 0 Td[(ar)20(-)]TJ -214.14 -11.96 Td[(gument)-290(to)]TJ/F45 8.97 Tf 43.41 0 Td[(setup\050\051)]TJ/F44 9.96 Tf 37.66 0 Td[(.)-429(\050The)-291(distinction)-290(may)-291(seem)-290(pedan-)]TJ -81.07 -11.96 Td[(tic,)-305(b)20(ut)-295(it)-294(matters)-295(in)-294(some)-295(circumstances.\051)-444(Undoubtedly)]TJ 0 -11.95 Td[(more)-231(option)-231(sources)-232(will)-231(be)-230(re)24(v)15(ealed)-231(as)-231(w)10(ork)-231(on)-231(the)-231(Dis-)]TJ 0 -11.96 Td[(tutils)-250(progresses.)]TJ/F51 9.96 Tf 0 -28.61 Td[(3.2.1)-1001(Command)-251(options—the)-251(theory)]TJ/F44 9.96 Tf 0 -19.41 Td[(The)-313(rst)-312(option)-313(source)-313(is,)-328(as)-312(described)-314(abo)15(v)15(e,)-328(the)-313(com-)]TJ 0 -11.95 Td[(mand)-228(line)-228(to)-228(the)-228(setup)-228(script.)-303(Whate)24(v)15(er)-228(happens,)-233(this)-228(op-)]TJ 0 -11.96 Td[(tion)-233(source)-232(is)-233(the)-232(last)-233(w)10(ord;)-239(options)-233(supplied)-233(here)-232(should)]TJ 0 -11.95 Td[(o)15(v)15(erride)-285(all)-285(other)-284(sources)-286(\050so)-284(that)-285(the)-284(de)24(v)15(eloper)40(,)-293(distrib-)]TJ 0 -11.96 Td[(utor)40(,)-448(or)-408(installer)-409(running)-408(the)-408(setup)-409(script)-408(has)-408(the)-409(nal)]TJ 0 -11.95 Td[(w)10(ord\051.)-386(Ho)24(we)25(v)15(er)40(,)-282(not)-275(all)-276(options)-276(can)-276(appear)-276(on)-275(the)-276(com-)]TJ 0 -11.96 Td[(mand)-239(line:)-304(of)-238(course)-239(we)-239(allo)25(w)-238(the)-239(installer)-239(to)-238(specify)-239(the)]TJ 0 -11.95 Td[(b)20(uild)-388(and)-387(installation)-388(directories,)-423(b)20(ut)-387(the)14(y)-387(don')18(t)-387(get)-388(to)]TJ 0 -11.96 Td[(specify)-301(the)-300(e)15(xtension)-301(modules)-301(to)-301(b)20(uild)-300(or)-301(what)-300(package)]TJ 0 -11.95 Td[(the)15(y)-250(belong)-251(to.)]TJ 9.96 -12.34 Td[(That)-219(sort)-219(of)-219(information—what')53(s)-219(included)-220(in)-219(the)-219(mod-)]TJ -9.96 -11.95 Td[(ule)-463(distrib)20(ution)-464(and)-463(where)-463(it)-463(belongs)-463(in)-463(the)-463(space)-463(of)]TJ 0 -11.96 Td[(Python)-448(modules—goes)-448(in)-448(the)-447(setup)-447(script.)-902(Ho)25(we)24(v)15(er)40(,)]TJ 0 -11.95 Td[(there)-311(are)]TJ/F53 9.96 Tf 38.26 0 Td[(two)]TJ/F44 9.96 Tf 17.48 0 Td[(sources)-311(of)-310(options)-311(in)-311(the)-310(setup)-311(script,)-325(and)]TJ -55.74 -11.96 Td[(to)-237(understand)-239(why)-232(you)-238(need)-238(to)-237(understand)-239(the)-237(dif)25(ference)]TJ 0 -11.95 Td[(between)]TJ/F53 9.96 Tf 35.17 0 Td[(distrib)19(ution)-199(options)]TJ/F44 9.96 Tf 79.6 0 Td[(and)]TJ/F53 9.96 Tf 16.36 0 Td[(command)-200(options)]TJ/F44 9.96 Tf 70.05 0 Td[(.)-586(The)]TJ -201.18 -11.96 Td[(setup)-393(script)-393(in)-392(Figure)-393(2)-393(illustrates)-393(a)-393(microcosm)-393(of)-393(the)]TJ 0 -11.95 Td[(Distutils)-320(option)-319(uni)25(v)15(erse.)-1550(First,)-337(\050almost\051)-319(all)-319(k)10(e)15(yword)]TJ 0 -11.96 Td[(ar)18(guments)-399(to)]TJ/F45 8.97 Tf 57.01 0 Td[(setup\050\051)]TJ/F44 9.96 Tf 41.63 0 Td[(are)-398(distrib)19(ution)-399(options,)-436(which)]TJ -98.64 -11.95 Td[(wind)-358(up)-359(as)-358(attrib)20(utes)-359(of)-358(the)]TJ/F46 8.97 Tf 116.93 0 Td[(Distr)-15(ib)21(ution)]TJ/F44 9.96 Tf 48.36 0 Td[(object)-359(that)-358(un-)]TJ -165.29 -11.96 Td[(derlies)-311(e)25(v)15(erything.)-492(\050But)-311(that')55(s)-311(an)-311(implementation)-312(detail)]TJ 0 -11.95 Td[(which)-361(should)-361(be)-361(reserv)14(ed)-361(for)-361(section)-361(4)-361(belo)25(w)65(.\051)-642(A)-361(fe)25(w)]TJ 0 -11.96 Td[(special)-276(ar)18(guments)-277(to)]TJ/F45 8.97 Tf 84.97 0 Td[(setup\050\051)]TJ/F44 9.96 Tf 40.41 0 Td[(are,)-282(well,)-282(special)-277(and)-276(are)]TJ -125.38 -11.95 Td[(not)-378(treated)-379(as)-379(distrib)19(ution)-378(options:)]TJ/F45 8.97 Tf 146.71 0 Td[(options)]TJ/F44 9.96 Tf 41.42 0 Td[(is)-379(one)-378(of)]TJ -188.13 -11.96 Td[(these.)]TJ 9.96 -12.33 Td[(The)-241(other)-240(k)10(e)15(yword)-231(ar)18(guments)-241(here—)]TJ/F45 8.97 Tf 148.47 0 Td[(name)]TJ/F44 9.96 Tf 21.52 0 Td[(,)]TJ/F45 8.97 Tf 4.9 0 Td[(version)]TJ/F44 9.96 Tf 37.66 0 Td[(,)]TJ/F45 8.97 Tf -222.51 -11.96 Td[(description)]TJ/F44 9.96 Tf 59.18 0 Td[(,)-467(and)]TJ/F45 8.97 Tf 25.74 0 Td[(py_modules)]TJ/F44 9.96 Tf 53.8 0 Td[(—are)-424(all)-424(distrib)19(ution)]TJ -138.72 -11.95 Td[(options.)]TJ/F45 8.97 Tf 36.9 0 Td[(py_modules)]TJ/F44 9.96 Tf 56.95 0 Td[(is)-316(not)-317(a)]TJ/F53 9.96 Tf 33.25 0 Td[(pur)37(e)]TJ/F44 9.96 Tf 21.04 0 Td[(distrib)19(ution)-317(option,)]TJ -148.14 -11.96 Td[(though,)-514(as)-462(it)-461(becomes)-461(a)-461(command)-462(option)-462(\050)]TJ/F45 8.97 Tf 184.02 0 Td[(modules)]TJ/F44 9.96 Tf 37.66 0 Td[(\051)]TJ -221.68 -11.95 Td[(to)-378(guide)-379(the)-378(actions)-379(of)-379(the)]TJ/F45 8.97 Tf 113.36 0 Td[(build_py)]TJ/F44 9.96 Tf 46.8 0 Td[(command.)]TJ/F45 8.97 Tf 48.7 0 Td[(py_)]TJ -208.86 -11.96 Td[(modules)]TJ/F44 9.96 Tf 41.17 0 Td[(is)-354(thus)-353(called)-354(an)]TJ/F53 9.96 Tf 70.52 0 Td[(alias)-353(option)]TJ/F44 9.96 Tf 48.36 0 Td[(,)-378(because)-354(it)-354(is)-353(a)]TJ -160.05 -11.95 Td[(stand-in)-251(for)-250(a)-250(command)-251(option,)]TJ/F45 8.97 Tf 127.84 0 Td[(build_py.modules)]TJ/F44 9.96 Tf 86.07 0 Td[(.)]TJ -203.95 -12.34 Td[(Finally)64(,)-434(the)]TJ/F45 8.97 Tf 50.54 0 Td[(options)]TJ/F44 9.96 Tf 41.62 0 Td[(ar)18(gument)-399(lets)-397(you)-398(supply)-399(an)15(y)]TJ
+ET
+endstream
+endobj
+26 0 obj
+11657
+endobj
+24 0 obj <<
+/Type /Page
+/Contents 25 0 R
+/Resources 23 0 R
+/MediaBox [0 0 595.27 841.89]
+/Parent 12 0 R
+>> endobj
+23 0 obj <<
+/Font << /F45 8 0 R /F44 6 0 R /F51 5 0 R /F53 22 0 R /F46 9 0 R /F50 5 0 R >>
+/ProcSet [ /PDF /Text ]
+>> endobj
+29 0 obj <<
+/Length 30 0 R
+>>
+stream
+1 0 0 1 72 764.21 cm
+BT
+/F45 8.97 Tf 0 0 Td[(setup)-599(\050name)-598(=)-600("foobar")]TJ 37.66 -10.96 Td[(version)-598(=)-599("1.1",)]TJ 0 -10.96 Td[(description)-597(=)-599("Modules)-598(to)-599(foo)-599(bars)-599(and)-599(bar)-599(foos",)]TJ 0 -21.91 Td[(py_modules)-597(=)-600(['foobar.foo',)-596('foobar.bar'],)]TJ 0 -10.96 Td[(options)-598(=)-599({)-600('build':)-598({)-599('build_base':)-597('blib')-598(})-600(}\051)]TJ/F44 9.96 Tf -0.01 -31.88 Td[(Figure)-251(2:)-310(A)-250(hypothetical)-246(setup)-251(script)-251(that)-250(illustrates)-251(se)25(v)15(eral)-251(a)20(v)20(ours)-251(of)-250(Distutils)-251(command)-251(options.)]TJ -37.65 -32.05 Td[(arbitrary)-451(command)-450(option.)-910(The)-450(e)15(xample)-450(sho)24(wn)-450(here)]TJ 0 -11.95 Td[(mak)10(es)-479(things)-480(look)-479(more)-479(familiar)-470(to)-479(Perl)-479(refugees)-480(by)]TJ 0 -11.96 Td[(b)20(uilding)-397(to)]TJ/F46 8.97 Tf 48.67 0 Td[(./b)21(lib)]TJ/F44 9.96 Tf 22.7 0 Td[(instead)-398(of)]TJ/F46 8.97 Tf 44.43 0 Td[(./b)21(uild)]TJ/F44 9.96 Tf 23.74 0 Td[(.)-750(Note)-397(that)-397(this)-397(sort)]TJ -139.54 -11.95 Td[(of)-349(mischief)-350(is)-349(anti-social)-350(and)-350(of)25(cially)-350(Fro)25(wned)-350(Upon,)]TJ 0 -11.96 Td[(b)20(ut)-355(it)-355(is)-355(possible.)-625(Setting)-355(options)-356(in)-355(the)]TJ/F45 8.97 Tf 168.32 0 Td[(options)]TJ/F44 9.96 Tf 41.19 0 Td[(dic-)]TJ -209.51 -11.95 Td[(tionary)-263(is)-262(deliberately)-263(a)14(wkw)10(ard:)-335(it)-262(should)-263(not)-262(be)-262(needed)]TJ 0 -11.96 Td[(often,)-413(and)-380(if)-380(a)-380(particular)-380(command)-381(option)-381(needs)-380(to)-380(be)]TJ 0 -11.95 Td[(set)-420(frequently)-422(for)-420(man)15(y)-421(module)-420(distrib)19(utions,)-463(an)-421(alias)]TJ 0 -11.96 Td[(option)-334(should)-335(be)-334(created)-335(for)-334(it.)-562(Also,)-355(note)-334(that)-334(options)]TJ 0 -11.95 Td[(from)-200(the)]TJ/F45 8.97 Tf 35.51 0 Td[(options)]TJ/F44 9.96 Tf 39.64 0 Td[(dictionary)-201(generally)-200(o)15(v)15(erride)-200(alias)-200(op-)]TJ -75.15 -11.96 Td[(tions)-299(\050depending)-300(on)-299(ho)25(w)-299(the)-299(particular)-300(command)-300(is)-299(im-)]TJ 0 -11.95 Td[(plemented\051,)-240(so)-237(before)-237(you)-237(go)-236(setting)-237(the)-237(list)-237(of)-236(e)15(xtension)]TJ 0 -11.96 Td[(modules)-303(or)-302(packages)-303(this)-303(w)10(ay)65(,)-315(you)-303(had)-302(better)-303(kno)24(w)-302(e)15(x-)]TJ 0 -11.95 Td[(actly)-331(what)-331(you)-331(are)-331(doing)-332(and)-331(what)-331(ramications)-332(it)-331(will)]TJ 0 -11.96 Td[(ha)20(v)15(e.)]TJ/F51 9.96 Tf 0 -26.34 Td[(3.2.2)-1001(Command)-251(options)-251(in)-250(practice)]TJ/F44 9.96 Tf 0 -18.68 Td[(Using)-403(the)-403(Distutils)-404(boils)-403(do)25(wn)-403(to)-403(specifying)-404(the)-403(com-)]TJ 0 -11.95 Td[(mands)-325(to)-324(run)-324(and)-325(the)-324(options)-325(that)-324(guide)-325(them.)-532(The)-325(de-)]TJ 0 -11.96 Td[(v)15(eloper')54(s)-310(job)-310(in)-311(writing)-310(the)-311(setup)-310(script)-311(is)-310(to)-310(supply)-311(the)]TJ 0 -11.95 Td[(options)-232(that)-231(the)-231(installer)-232(cannot)-231(kno)24(w:)-301(distrib)20(ution)-232(meta-)]TJ 0 -11.96 Td[(data,)-414(which)-381(modules)-381(and)-381(e)15(xtensions)-381(are)-381(present)-381(in)-381(the)]TJ 0 -11.95 Td[(distrib)19(ution,)-387(and)-360(where)-359(the)14(y)-359(go)-360(in)-359(the)-360(space)-360(of)-359(Python)]TJ 0 -11.96 Td[(modules.)]TJ 9.96 -11.95 Td[(All)-413(of)-413(these)-414(were)-413(illustrated)-414(in)-413(the)-413(e)15(xample)-414(in)-413(sec-)]TJ -9.96 -11.96 Td[(tion)-459(2:)-728(the)-459(distrib)19(ution)-459(meta-data)-460(is)-459(contained)-460(in)-459(the)]TJ/F45 8.97 Tf 0 -11.95 Td[(name)]TJ/F44 9.96 Tf 21.52 0 Td[(,)]TJ/F45 8.97 Tf 9.18 0 Td[(version)]TJ/F44 9.96 Tf 37.65 0 Td[(,)]TJ/F45 8.97 Tf 9.18 0 Td[(description)]TJ/F44 9.96 Tf 59.18 0 Td[(,)]TJ/F45 8.97 Tf 9.18 0 Td[(author)]TJ/F44 9.96 Tf 32.27 0 Td[(,)]TJ/F45 8.97 Tf 9.18 0 Td[(author_)]TJ -187.34 -11.96 Td[(email)]TJ/F44 9.96 Tf 26.9 0 Td[(,)-257(and)]TJ/F45 8.97 Tf 21.98 0 Td[(url)]TJ/F44 9.96 Tf 18.69 0 Td[(distrib)19(ution)-256(options.)-328(\050)]TJ/F45 8.97 Tf 86.7 0 Td[(maintainer)]TJ/F44 9.96 Tf 56.34 0 Td[(and)]TJ/F45 8.97 Tf -210.61 -11.95 Td[(maintainer_email)]TJ/F44 9.96 Tf 88.94 0 Td[(may)-288(be)-287(supplied)-288(in)-288(place)-288(of,)-297(or)-287(in)]TJ -88.94 -11.96 Td[(addition)-251(to,)-250(the)]TJ/F45 8.97 Tf 62.54 0 Td[(author)]TJ/F44 9.96 Tf 34.77 0 Td[(options.\051)]TJ -87.35 -10.96 Td[(In)-472(the)-472(case)-472(of)-472(a)-471(fully)-472(“package-ized,)68(”)-527(pure-Python)]TJ -9.96 -10.95 Td[(distrib)19(ution)-475(lik)10(e)-476(the)-475(Distutils,)-532(the)-476(rest)-475(is)-475(simple:)-761(the)]TJ/F45 8.97 Tf 0 -10.96 Td[(packages)]TJ/F44 9.96 Tf 46.86 0 Td[(option)-385(\050an)-384(alias)-385(for)]TJ/F45 8.97 Tf 83.36 0 Td[(build_py.packages)]TJ/F44 9.96 Tf 91.46 0 Td[(\051)]TJ -221.68 -10.96 Td[(lists)-435(the)-435(packages)-435(in)-435(which)-435(pure)-435(Python)-435(modules)-436(can)]TJ 0 -10.96 Td[(be)-353(found.)-621(The)]TJ/F45 8.97 Tf 63.84 0 Td[(build_py)]TJ/F44 9.96 Tf 46.56 0 Td[(command)-354(assumes)-354(the)-353(most)]TJ -110.4 -10.96 Td[(sensible)-447(directory)-447(layout,)-495(namely)-447(that)-446(modules)-447(in)-446(the)]TJ/F46 8.97 Tf 0 -10.96 Td[(distutils)]TJ/F44 9.96 Tf 33.53 0 Td[(package)-366(can)-366(be)-365(found)-366(in)-366(the)]TJ/F46 8.97 Tf 120.87 0 Td[(distutils)]TJ/F44 9.96 Tf 33.53 0 Td[(subdirec-)]TJ -187.93 -10.96 Td[(tory)-261(of)-261(the)-261(distrib)20(ution)-261(root.)-342(Ov)14(erriding)-261(this)-261(is)-261(easy)-261(with)]TJ 0 -10.96 Td[(the)]TJ/F45 8.97 Tf 14.66 0 Td[(package_dir)]TJ/F44 9.96 Tf 61.67 0 Td[(option,)-251(for)-250(e)14(xample:)]TJ/F45 8.97 Tf -65.57 -18.08 Td[(setup)-598(\050)]TJ 10.76 -10.96 Td[(...)]TJ 0 -10.96 Td[(packages)-598(=)-599(['foo',)-598('foo.bar'])]TJ 0 -10.96 Td[(package_dir)-597(=)-599({)-600('foo':)-598('src')-599(})]TJ -10.76 -10.96 Td[(\051)]TJ/F44 9.96 Tf 232.24 516.4 Td[(tells)-339(the)-338(Distutils)-340(to)-338(look)-339(for)]TJ/F46 8.97 Tf 119.85 0 Td[(f)30(oo)]TJ/F44 9.96 Tf 15.57 0 Td[(modules)-339(in)]TJ/F46 8.97 Tf 48.25 0 Td[(src)]TJ/F44 9.96 Tf 15.33 0 Td[(\050under)]TJ -199 -11.95 Td[(the)-250(distrib)19(ution)-250(root\051,)-251(and)]TJ/F46 8.97 Tf 104.13 0 Td[(f)30(oo)41(.bar)]TJ/F44 9.96 Tf 29.77 0 Td[(modules)-251(in)]TJ/F46 8.97 Tf 46.5 0 Td[(src/bar)]TJ/F44 9.96 Tf 27.4 0 Td[(.)]TJ -197.84 -11.41 Td[(If)-199(a)-199(module)-199(distrib)19(ution)-199(isn')18(t)-199(yet)-199(distrib)20(uted)-199(in)-199(package)]TJ -9.96 -10.96 Td[(form,)-251(just)-250(use)-250(the)-251(empty)-250(package)-251(name:)-311(for)-250(e)15(xample,)]TJ/F45 8.97 Tf 10.76 -20.72 Td[(setup)-598(\050...)]TJ 37.66 -10.96 Td[(packages)-597(=)-600(['']\051)]TJ/F44 9.96 Tf -48.42 -20.27 Td[(will)-214(install)]TJ/F37 8.97 Tf 44.12 0 Td[()]TJ/F46 8.97 Tf 4.61 0 Td[(.p)31(y)]TJ/F44 9.96 Tf 13.82 0 Td[(from)-215(the)-214(current)-215(directory)65(.)-299(Of)-214(course,)-222(it')55(s)]TJ -62.55 -10.96 Td[(not)-323(good)-323(form)-324(to)-322(put)-324(a)-322(b)19(unch)-323(of)-323(modules)-323(right)-324(into)-323(the)]TJ 0 -10.96 Td[(installation)-377(directory)-376(\050)]TJ/F56 8.97 Tf 91.05 0 Td[(prex)]TJ/F46 8.97 Tf 22.76 0 Td[(/lib/p)31(ython1.5/site-)-53(pac)20(kages)]TJ/F44 9.96 Tf -113.81 -10.96 Td[(on)-487(Unix)-488(or)]TJ/F56 8.97 Tf 52.74 0 Td[(prex)]TJ/F44 9.96 Tf 27.61 0 Td[(on)-488(DOS/W)39(indo)25(ws\051—collections)-489(of)]TJ -80.35 -10.96 Td[(top-le)25(v)14(el)-191(module)-192(distrib)20(utions)-192(should)-192(get)-191(their)-192(o)25(wn)-192(direc-)]TJ 0 -10.96 Td[(tory)65(,)-246(and)-244(a)-244(path)-244(conguration)-246(\050)]TJ/F46 8.97 Tf 122.47 0 Td[(.pth)]TJ/F44 9.96 Tf 14.95 0 Td[(\051)-244(le)-245(to)-244(add)-244(it)-244(to)]TJ/F45 8.97 Tf 66.06 0 Td[(sys.)]TJ -203.48 -10.95 Td[(path)]TJ/F44 9.96 Tf 23.51 0 Td[(at)-201(run-time.)-294(This)-201(is)-201(handled)-201(by)-200(the)]TJ/F45 8.97 Tf 136.93 0 Td[(install_path)]TJ/F44 9.96 Tf -160.44 -10.96 Td[(option)-402(\050an)-402(alias)-402(for)]TJ/F45 8.97 Tf 84.06 0 Td[(install.install_path)]TJ/F44 9.96 Tf 107.59 0 Td[(\051.)-765(Con-)]TJ -191.65 -10.96 Td[(sider)-303(a)-302(distrib)19(ution)-303(that)-303(ships)-303(a)-302(b)19(unch)-303(of)-302(top-le)24(v)15(el)-303(mod-)]TJ 0 -10.96 Td[(ules)-213(in)]TJ/F46 8.97 Tf 28.03 0 Td[(src)]TJ/F44 9.96 Tf 11.95 0 Td[(,)-221(and)-212(wants)-204(to)-212(install)-213(them)-213(to)]TJ/F46 8.97 Tf 114.7 0 Td[(site-)-55(pac)21(kages/f)31(oo)]TJ/F44 9.96 Tf -154.68 -10.96 Td[(with)]TJ/F46 8.97 Tf 20.2 0 Td[(f)30(oo)40(.pth)]TJ/F44 9.96 Tf 26.79 0 Td[(:)]TJ/F45 8.97 Tf -36.23 -20.72 Td[(setup)-598(\050)]TJ 10.76 -10.96 Td[(...)]TJ 0 -10.96 Td[(packages)-598(=)-599([''],)]TJ 0 -10.96 Td[(package_dir)-597(=)-599({'':)-599('src'})]TJ 0 -10.96 Td[(install_path)-597(=)-599('foo')]TJ -10.76 -10.95 Td[(\051)]TJ/F44 9.96 Tf -10.76 -20.28 Td[(If)-281(for)-282(some)-282(reason)-282(the)-282(installation)-282(directory)-282(and)]TJ/F46 8.97 Tf 194.51 0 Td[(.pth)]TJ/F44 9.96 Tf 17.76 0 Td[(le)]TJ -212.27 -10.96 Td[(should)-366(ha)20(v)15(e)-366(dif)25(ferent)-366(names,)]TJ/F45 8.97 Tf 121.87 0 Td[(install_path)]TJ/F44 9.96 Tf 68.19 0 Td[(can)-366(be)-366(a)]TJ -190.06 -10.96 Td[(tuple)-376(or)-376(comma-delimited)-377(string)-376(\050the)-376(tuple/string)-377(dual-)]TJ 0 -10.95 Td[(ity)-450(is)-449(necessary)-451(to)-450(allo)25(w)-450(this)-450(option)-450(to)-449(be)-450(set)-450(on)-450(the)]TJ 0 -10.96 Td[(command-line)-251(as)-251(well\051:)]TJ/F45 8.97 Tf 10.76 -20.72 Td[(setup)-598(\050)]TJ 10.76 -10.96 Td[(...)]TJ 0 -10.96 Td[(packages)-598(=)-599([''],)]TJ 0 -10.96 Td[(package_dir)-597(=)-599({'':)-599('src'})]TJ 0 -10.96 Td[(install_path)-597(=)-599(\050'foo',)-598('foo/bar/baz'\051)]TJ -10.76 -10.96 Td[(\051)]TJ/F44 9.96 Tf -10.76 -21.27 Td[(will)-337(put)-337(the)-336(distrib)19(ution')54(s)-336(modules)-337(all)-337(the)-337(w)10(ay)-337(do)25(wn)-337(in)]TJ/F46 8.97 Tf 0 -11.95 Td[(site-)-55(pac)21(kages/f)31(oo/bar/baz)]TJ/F44 9.96 Tf 102.71 0 Td[(,)-370(and)-346(put)]TJ/F46 8.97 Tf 40.18 0 Td[(f)31(oo)40(.pth)]TJ/F44 9.96 Tf 26.79 0 Td[(—referencing)]TJ/F46 8.97 Tf -169.68 -11.96 Td[(f)30(oo/bar/baz)]TJ/F44 9.96 Tf 44.59 0 Td[(—right)-251(in)]TJ/F46 8.97 Tf 41.51 0 Td[(site-)-55(pac)21(kages)]TJ/F44 9.96 Tf 55.63 0 Td[(.)]TJ -131.77 -12.4 Td[(\050Actually)64(,)-603(all)-533(of)-533(these)-533(references)-533(to)]TJ/F46 8.97 Tf 159.41 0 Td[(site-)-54(pac)20(kages)]TJ/F44 9.96 Tf -169.37 -11.96 Td[(should)-504(be)-504(to)-504(the)-504(installation)-505(option)-504(that)-504(controls)-505(the)]TJ 0 -11.95 Td[(base)-375(installation)-375(directory—currently)]TJ/F45 8.97 Tf 155.06 0 Td[(install_site_)]TJ -155.06 -11.96 Td[(lib)]TJ/F44 9.96 Tf 19.31 0 Td[(for)-318(pure)-319(Python)-319(module)-319(distrib)20(utions—b)19(ut)-319(you)-318(get)]TJ -19.31 -11.95 Td[(the)-250(idea.\051)]TJ
+ET
+endstream
+endobj
+30 0 obj
+10886
+endobj
+28 0 obj <<
+/Type /Page
+/Contents 29 0 R
+/Resources 27 0 R
+/MediaBox [0 0 595.27 841.89]
+/Parent 12 0 R
+>> endobj
+27 0 obj <<
+/Font << /F45 8 0 R /F44 6 0 R /F46 9 0 R /F51 5 0 R /F37 17 0 R /F56 31 0 R >>
+/ProcSet [ /PDF /Text ]
+>> endobj
+34 0 obj <<
+/Length 35 0 R
+>>
+stream
+1 0 0 1 81.96 759.92 cm
+BT
+/F44 9.96 Tf 0 0 Td[(If)-388(you)-389(need)-388(to)-388(specify)-389(pure)-388(Python)-389(modules)-389(e)15(xplic-)]TJ -9.96 -10.95 Td[(itly)65(,)-247(then)-246(you)-245(can')17(t)-245(use)-246(the)]TJ/F45 8.97 Tf 107.1 0 Td[(packages)]TJ/F44 9.96 Tf 45.48 0 Td[(option)-246(at)-246(all—you)]TJ -152.58 -10.96 Td[(need)]TJ/F45 8.97 Tf 22.39 0 Td[(py_modules)]TJ/F44 9.96 Tf 57.38 0 Td[(\050an)-360(alias)-360(for)]TJ/F45 8.97 Tf 53.34 0 Td[(build_py.modules)]TJ/F44 9.96 Tf 86.08 0 Td[(\051.)]TJ -219.19 -10.96 Td[(F)15(or)-354(e)15(xample,)-379(if)-354(your)-353(source)-354(distrib)19(ution)-354(includes)-354(mod-)]TJ 0 -10.96 Td[(ules)]TJ/F46 8.97 Tf 18.34 0 Td[(f)30(oo)40(.mod1)]TJ/F44 9.96 Tf 39.05 0 Td[(and)]TJ/F46 8.97 Tf 16.68 0 Td[(f)30(oo)41(.mod2)]TJ/F44 9.96 Tf 39.05 0 Td[(in)-230(the)]TJ/F46 8.97 Tf 24.51 0 Td[(f)30(oo)]TJ/F44 9.96 Tf 14.49 0 Td[(directory)64(,)-234(use)-231(this:)]TJ/F45 8.97 Tf -141.36 -18.13 Td[(setup)-598(\050)]TJ 10.76 -10.96 Td[(...)]TJ 0 -10.96 Td[(py_modules)-597(=)-600(['foo.mod1',)-597('foo.mod2'])]TJ -10.76 -10.96 Td[(\051)]TJ/F44 9.96 Tf -10.76 -19.13 Td[(with)-275(the)-276(usual)-275(addition)-276(of)]TJ/F45 8.97 Tf 105.57 0 Td[(package_dirs)]TJ/F44 9.96 Tf 67.3 0 Td[(if)-275(you)-275(ha)20(v)14(e)-275(a)]TJ -172.87 -11.95 Td[(non-standard)-251(directory)-251(layout.)]TJ 9.96 -11.96 Td[(Whether)-537(you)-535(use)]TJ/F45 8.97 Tf 78.53 0 Td[(packages)]TJ/F44 9.96 Tf 48.37 0 Td[(or)]TJ/F45 8.97 Tf 13.63 0 Td[(py_modules)]TJ/F44 9.96 Tf 53.8 0 Td[(,)-607(the)]TJ -204.29 -11.95 Td[(Distutils)-534(will)-533(tak)10(e)-533(care)-533(of)-533(nding)-534(and)-533(installing)-534(the)]TJ
+ET
+-9.42 -161.79 2.69 0.4 re f
+-6.19 -161.79 2.69 0.4 re f
+1 0 0 1 -3.5 -161.79 cm
+BT
+/F46 8.97 Tf 0 0 Td[(init)]TJ
+ET
+11.99 0 2.69 0.4 re f
+15.22 0 2.69 0.4 re f
+1 0 0 1 17.91 0 cm
+BT
+/F46 8.97 Tf 0 0 Td[(.p)30(y)]TJ/F44 9.96 Tf 14.94 0 Td[(le)-326(for)-326(each)-327(package,)-346(and)-326(will)-326(w)10(arn)-327(at)-326(instal-)]TJ -39.31 -11.95 Td[(lation)-380(time)-380(if)-379(an)14(y)-379(are)-380(missing.)-699(It)-379(will)]TJ/F53 9.96 Tf 161.38 0 Td[(not)]TJ/F44 9.96 Tf 16.69 0 Td[(generate)-380(an)]TJ
+ET
+-23.83 -23.91 2.69 0.4 re f
+-20.6 -23.91 2.69 0.4 re f
+1 0 0 1 -17.91 -23.91 cm
+BT
+/F46 8.97 Tf 0 0 Td[(init)]TJ
+ET
+11.99 0 2.69 0.4 re f
+15.22 0 2.69 0.4 re f
+1 0 0 1 17.91 0 cm
+BT
+/F46 8.97 Tf 0 0 Td[(.p)30(y)]TJ/F44 9.96 Tf 14.18 0 Td[(for)-251(you)-250(if)-250(you)-251(for)18(get)-250(it.)]TJ -28.59 -10.96 Td[(Things)-287(get)-286(a)-286(bit)-286(more)-286(interesting)-287(when)-286(you)-286(thro)24(w)-286(e)15(x-)]TJ -9.96 -10.96 Td[(tension)-294(modules)-295(into)-294(the)-294(mix.)-441(First)-294(of)-294(all,)-305(k)10(eep)-294(in)-294(mind)]TJ 0 -10.96 Td[(that)]TJ/F45 8.97 Tf 18.91 0 Td[(packages)]TJ/F44 9.96 Tf 47.01 0 Td[(af)25(fects)]TJ/F53 9.96 Tf 30.27 0 Td[(only)]TJ/F44 9.96 Tf 21.12 0 Td[(pure)-399(Python)-399(modules;)-474(e)15(x-)]TJ -117.31 -10.95 Td[(tension)-255(modules)-256(are)-255(listed)-255(separately)-256(and)-255(ha)19(v)15(e)-255(their)-255(o)25(wn)]TJ 0 -10.96 Td[(w)10(ay)-214(of)-213(being)-214(put)-214(into)-213(packages.)-299(Extension)-215(modules)-214(must)]TJ 0 -10.96 Td[(al)10(w)10(ays)-316(be)-316(listed)-316(e)15(xplicitly)-316(in)-316(the)]TJ/F45 8.97 Tf 134.72 0 Td[(ext_modules)]TJ/F44 9.96 Tf 62.32 0 Td[(option.)]TJ -197.04 -10.96 Td[(This)-289(option)-289(is)-288(a)-288(list)-289(of)-289(tuples,)-298(where)-289(each)-289(tuple)-288(supplies)]TJ 0 -10.96 Td[(an)-196(e)15(xtension)-197(name)-197(and)-196(the)-196(information)-198(necessary)-197(to)-196(b)20(uild)]TJ 0 -10.96 Td[(the)-250(e)15(xtension.)-311(F)14(or)-250(e)15(xample:)]TJ/F45 8.97 Tf 10.76 -18.13 Td[(name)-599(=)-599('DateTime.mxDateTime.mxDateTime')]TJ 0 -10.96 Td[(src)-599(=)-599('mxDateTime/mxDateTime.c')]TJ 0 -10.96 Td[(setup)-598(\050)]TJ 10.76 -10.96 Td[(...)]TJ 0 -10.96 Td[(ext_modules)-597(=)]TJ 10.76 -10.96 Td[([\050name,)-598({)-599('sources':)-598([src])-598(})]TJ 0 -10.95 Td[(\051])]TJ -21.52 -10.96 Td[(\051)]TJ/F44 9.96 Tf -10.76 -18.14 Td[(is)-308(a)-308(rst)-309(approximation)-310(at)-308(b)20(uilding)-309(the)]TJ/F46 8.97 Tf 158.55 0 Td[(mxDateTime)]TJ/F44 9.96 Tf 53.88 0 Td[(e)15(x-)]TJ -212.43 -10.95 Td[(tension)-200(from)-199(the)]TJ/F51 9.96 Tf 66.26 0 Td[(mxDateT)17(ime)]TJ/F44 9.96 Tf 57.14 0 Td[(distrib)20(ution.)-294(Note)-199(that)-199(the)]TJ -123.4 -10.96 Td[(e)15(xtension)-235(name)-235(is)-235(a)-234(fully-qualied)-236(module)-235(name;)-240(if)-235(your)]TJ 0 -10.96 Td[(distrib)19(ution)-371(has)-372(man)15(y)-372(e)15(xtensions)-372(all)-372(in)-371(the)-372(same)-372(pack-)]TJ 0 -10.96 Td[(age,)-255(it)-254(might)-254(be)-254(more)-254(con)40(v)15(enient)-254(to)-254(specify)-254(that)-254(package)]TJ 0 -10.96 Td[(separately)-251(with)]TJ/F45 8.97 Tf 63.08 0 Td[(ext_package)]TJ/F44 9.96 Tf 59.18 0 Td[(:)]TJ/F45 8.97 Tf -111.5 -18.13 Td[(pkg)-599(=)-599('DateTime.mxDateTime')]TJ 0 -10.96 Td[(name)-599(=)-599('mxDateTime')]TJ 0 -10.96 Td[(src)-599(=)-599('mxDateTime/mxDateTime.c')]TJ 0 -10.96 Td[(setup)-598(\050)]TJ 10.76 -10.96 Td[(...)]TJ 0 -10.96 Td[(ext_package)-597(=)-599(pkg,)]TJ 0 -10.96 Td[(ext_modules)-597(=)]TJ 10.76 -10.95 Td[([\050name,)-598({)-599('sources':)-598([src])-598(})]TJ 0 -10.96 Td[(\051])]TJ -21.52 -10.96 Td[(\051)]TJ/F44 9.96 Tf -0.8 -18.13 Td[(In)-498(man)15(y)-497(cases,)-560(it)-497(will)-497(be)-498(necessary)-498(to)-497(supply)-498(e)15(x-)]TJ -9.96 -10.96 Td[(tra)-466(information)-466(to)-466(the)-466(C)-465(compiler)54(.)-957(F)15(or)-466(instance,)-520(the)]TJ/F46 8.97 Tf 0 -10.96 Td[(mxDateTime)]TJ/F44 9.96 Tf 54.73 0 Td[(e)14(xtension)-394(w)10(on')17(t)-394(compile)-394(unless)-395(the)-394(com-)]TJ -54.73 -10.96 Td[(piler)-401(kno)25(ws)-401(where)-400(to)-401(nd)-400(its)-401(header)-401(le.)-761(This)-400(is)-401(one)]TJ 0 -10.96 Td[(of)-384(man)15(y)-384(e)15(xtra)-384(bits)-384(of)-383(optional)-385(information)-384(that)-384(can)-384(be)]TJ 243 630.83 Td[(supplied)-301(in)-301(the)-301(“b)20(uild)-301(info”)-301(dictionary)-302(that)-300(must)-301(alw)19(ays)]TJ 0 -10.95 Td[(contain)]TJ/F45 8.97 Tf 31.82 0 Td[(sources)]TJ/F44 9.96 Tf 37.66 0 Td[(:)]TJ/F45 8.97 Tf -58.72 -21.4 Td[(name)-599(=)-599('DateTime.mxDateTime.mxDateTime')]TJ 0 -10.96 Td[(src)-599(=)-599('mxDateTime/mxDateTime.c')]TJ 0 -10.96 Td[(setup)-598(\050)]TJ 10.76 -10.95 Td[(...)]TJ 0 -10.96 Td[(ext_modules)-597(=)]TJ 10.76 -10.96 Td[([\050name,)]TJ 5.38 -10.96 Td[({)-599('sources':)-598([src])]TJ 10.76 -10.96 Td[('include_dirs':)-596(['mxDateTime'])-596(})]TJ -16.14 -10.96 Td[(\051])]TJ -21.52 -10.96 Td[(\051)]TJ/F44 9.96 Tf -10.76 -21.77 Td[(In)-294(this)-294(case,)-305(we)-294(simply)-295(instruct)-294(the)-294(compiler)-295(to)-294(look)-294(for)]TJ 0 -11.96 Td[(header)-251(les)-250(in)-250(the)]TJ/F46 8.97 Tf 73.04 0 Td[(mxDateTime)]TJ/F44 9.96 Tf 53.31 0 Td[(subdirectory)64(.)]TJ -116.39 -11.57 Td[(Of)-387(course,)-422(e)15(xtension)-388(modules)-388(can)-387(depend)-387(on)-388(multi-)]TJ -9.96 -10.96 Td[(ple)-270(source)-271(les—which)-271(is)-270(why)]TJ/F45 8.97 Tf 126.29 0 Td[(sources)]TJ/F44 9.96 Tf 40.35 0 Td[(is)-270(a)-270(list)-271(of)-270(le-)]TJ -166.64 -10.96 Td[(names.)-446(F)14(or)-295(e)15(xample,)-308(the)-295(Python)-296(Imaging)-297(Library)-296(\050PIL\051)]TJ 0 -10.96 Td[(setup)-250(script)-251(might)-251(include)]TJ/F45 8.97 Tf 10.76 -21.39 Td[(ext_modules)-597(=)]TJ 10.76 -10.96 Td[([\050'_imaging',)]TJ 10.76 -10.96 Td[({)-599('sources':)]TJ 16.14 -10.96 Td[(['_imaging.c',)]TJ 5.38 -10.96 Td[('decode.c',)]TJ 0 -10.95 Td[(...)-599(,)]TJ 0 -10.96 Td[('path.c'])]TJ -21.52 -10.96 Td[(})]TJ -10.76 -10.96 Td[(\051])]TJ/F44 9.96 Tf -21.52 -20.78 Td[(\050omitting)-619(se)25(v)14(eral)-618(source)-619(les\051.)-1416(This)-619(isn')18(t)-618(actually)]TJ 0 -10.96 Td[(enough,)-284(though:)-364(the)-276(header)-278(les)-276(must)-277(be)-277(found,)-284(and)-277(ad-)]TJ 0 -10.96 Td[(ditionally)-251(the)-250(C)]TJ/F45 8.97 Tf 64.49 0 Td[(imaging)]TJ/F44 9.96 Tf 40.15 0 Td[(library)-250(must)-251(be)-250(link)10(ed)-251(in:)]TJ/F45 8.97 Tf -93.88 -21.39 Td[(ext_modules)-597(=)]TJ 10.76 -10.96 Td[([\050'_imaging',)]TJ 10.76 -10.96 Td[({)-599('sources':)]TJ 16.14 -10.96 Td[(['_imaging.c',)]TJ 5.38 -10.95 Td[('decode.c',)]TJ 0 -10.96 Td[(...)-599(,)]TJ 0 -10.96 Td[('path.c'])]TJ -10.76 -10.96 Td[('include_dirs':)-596(['libImaging'],)]TJ 0 -10.96 Td[('library_dirs':)-596(['libImaging'],)]TJ 0 -10.96 Td[('libraries':)-597(['Imaging'])]TJ -10.76 -10.96 Td[(})]TJ -10.76 -10.96 Td[(\051])]TJ/F44 9.96 Tf -21.52 -21.77 Td[(\050This)-278(ignores)-279(the)-278(possibility)-279(of)-278(linking)-279(PIL)-278(with)-278(Tcl/Tk,)]TJ 0 -11.95 Td[(the)-250(IJG)-251(JPEG)-250(library)64(,)-250(and)-251(the)-250(zlib)-250(compression)-252(library)65(.\051)]TJ/F43 14.35 Tf 0 -37.02 Td[(4)-1000(Inside)-249(the)-249(Distutils)]TJ/F50 11.96 Tf 0 -25.43 Td[(4.1)-999(Cor)19(e)-250(Classes)]TJ/F44 9.96 Tf 0 -19.85 Td[(The)-226(core)-226(Distutils)-227(classes)-226(are)]TJ/F46 8.97 Tf 117.48 0 Td[(Distr)-14(ib)20(ution)]TJ/F44 9.96 Tf 47.04 0 Td[(and)]TJ/F46 8.97 Tf 16.64 0 Td[(Command)]TJ/F44 9.96 Tf 41.35 0 Td[(,)]TJ -222.51 -11.95 Td[(both)-319(found)-319(in)-318(the)]TJ/F46 8.97 Tf 73.56 0 Td[(distutils)16(.core)]TJ/F44 9.96 Tf 52.86 0 Td[(module.)-516(T)80(ogether)39(,)-335(these)]TJ
+ET
+endstream
+endobj
+35 0 obj
+9351
+endobj
+33 0 obj <<
+/Type /Page
+/Contents 34 0 R
+/Resources 32 0 R
+/MediaBox [0 0 595.27 841.89]
+/Parent 12 0 R
+>> endobj
+32 0 obj <<
+/Font << /F44 6 0 R /F45 8 0 R /F46 9 0 R /F53 22 0 R /F51 5 0 R /F43 5 0 R /F50 5 0 R >>
+/ProcSet [ /PDF /Text ]
+>> endobj
+38 0 obj <<
+/Length 39 0 R
+>>
+stream
+1 0 0 1 72 759.92 cm
+BT
+/F44 9.96 Tf 0 0 Td[(tw)10(o)-277(classes)-277(coordinate)-278(e)25(v)15(erything)-277(that)-277(happens)-278(in)-277(b)20(uild-)]TJ 0 -11.95 Td[(ing,)-356(distrib)20(uting,)-356(and)-334(installing)-336(a)-334(Python)-335(module)-335(distri-)]TJ 0 -11.96 Td[(b)20(ution.)]TJ 9.96 -11.95 Td[(The)-302(details)-301(of)-302(ho)25(w)-301(the)15(y)-301(are)-302(deplo)10(yed)-302(dif)25(fer)-301(consider)19(-)]TJ -9.96 -11.96 Td[(ably)65(.)]TJ/F46 8.97 Tf 25.77 0 Td[(Distr)-14(ib)20(ution)]TJ/F44 9.96 Tf 48.52 0 Td[(has)-374(a)-373(sole)-374(instance,)-405(created)-374(either)-374(in)]TJ -74.29 -11.95 Td[(the)]TJ/F45 8.97 Tf 15.77 0 Td[(setup\050\051)]TJ/F44 9.96 Tf 41.26 0 Td[(function)-362(on)-362(behalf)-362(of)-362(the)-361(setup)-362(script,)-390(or)]TJ -57.03 -11.96 Td[(directly)-296(in)-296(the)-296(setup)-296(script)-297(\050when)-296(more)-296(customization)-297(is)]TJ 0 -11.95 Td[(needed)-251(than)-250(is)-250(con)39(v)15(enient)-251(in)-250(a)-250(single)-251(call)-250(to)]TJ/F45 8.97 Tf 175.71 0 Td[(setup\050\051)]TJ/F44 9.96 Tf 37.66 0 Td[(\051.)]TJ/F46 8.97 Tf -203.41 -11.96 Td[(Command)]TJ/F44 9.96 Tf 43.85 0 Td[(is)-251(an)-251(abstract)-251(class)-251(that)-251(is)-251(ne)25(v)15(er)-251(directly)-251(in-)]TJ -53.81 -11.95 Td[(stantiated;)-230(rather)40(,)-224(a)-218(number)-219(of)-218(subclasses—the)]TJ/F53 9.96 Tf 186.26 0 Td[(command)]TJ -186.26 -11.96 Td[(classes)]TJ/F44 9.96 Tf 28.22 0 Td[(—are)-210(dened)-210(in)-210(the)]TJ/F46 8.97 Tf 79.73 0 Td[(distutils)17(.command.)]TJ/F37 8.97 Tf 74.1 0 Td[()]TJ/F44 9.96 Tf 6.7 0 Td[(modules,)]TJ -188.75 -11.95 Td[(each)-332(of)-333(which)-332(is)-332(instantiated)-333(in)-332(a)-332(controlled)-333(f)10(ashion)-333(by)]TJ/F46 8.97 Tf 0 -11.96 Td[(Distr)-14(ib)20(ution)]TJ/F44 9.96 Tf 44.79 0 Td[(.)-295(In)-205(f)10(act,)-214(creating)]TJ/F53 9.96 Tf 69.34 0 Td[(command)-205(objects)]TJ/F44 9.96 Tf 71.03 0 Td[(\050instances)]TJ -185.16 -11.95 Td[(of)-393(command)-394(classes\051)-394(is)-393(so)-393(tightly)-394(controlled)-393(that)-394(each)]TJ 0 -11.96 Td[(command)-350(class)-349(is)-349(ef)25(fecti)25(v)15(ely)-349(a)-349(singleton;)-399(a)]TJ/F46 8.97 Tf 180.2 0 Td[(Distr)-15(ib)21(ution)]TJ/F44 9.96 Tf -180.2 -11.95 Td[(instance)-218(will)-218(ne)25(v)14(er)-217(create)-218(multiple)-219(instances)-218(of)-218(an)15(y)-218(gi)25(v)15(en)]TJ 0 -11.96 Td[(command)-251(class.)]TJ/F51 9.96 Tf 0 -26.44 Td[(4.1.1)-1001(The)]TJ/F60 8.97 Tf 48.99 0 Td[(Distrib)22(ution)]TJ/F51 9.96 Tf 52.62 0 Td[(class)]TJ/F44 9.96 Tf -101.61 -18.68 Td[(The)]TJ/F46 8.97 Tf 17.52 0 Td[(Distr)-14(ib)20(ution)]TJ/F44 9.96 Tf 46.82 0 Td[(object)-204(represents)-205(the)-204(module)-204(distrib)19(ution)]TJ -64.34 -11.96 Td[(being)-346(operated)-347(on.)-598(Normally)64(,)-370(the)-346(setup)-346(script)-347(calls)-346(the)]TJ/F45 8.97 Tf 0 -11.95 Td[(setup\050\051)]TJ/F44 9.96 Tf 40.7 0 Td[(function)-307(\050also)-306(located)-306(in)]TJ/F46 8.97 Tf 101.27 0 Td[(distutils)16(.core)]TJ/F44 9.96 Tf 49.69 0 Td[(\051,)-320(which)]TJ -191.66 -11.96 Td[(then)-317(creates)-317(the)]TJ/F46 8.97 Tf 66.43 0 Td[(Distr)-15(ib)21(ution)]TJ/F44 9.96 Tf 47.95 0 Td[(instance)-317(and)-317(starts)-316(working)]TJ -114.38 -11.95 Td[(on)-325(it.)-534(More)-325(comple)14(x)-325(module)-325(distrib)19(utions)-325(might)-326(prefer)]TJ 0 -11.96 Td[(to)-345(instantiate)]TJ/F46 8.97 Tf 55.57 0 Td[(Distr)-14(ib)20(ution)]TJ/F44 9.96 Tf 48.23 0 Td[(directly)64(,)-368(which)-345(is)-345(not)-345(co)15(v)15(ered)]TJ -103.8 -11.95 Td[(here.)]TJ 9.96 -10.96 Td[(Thus,)-251(the)-250(simplest)-251(possible)-251(setup)-251(script)-250(is)]TJ/F45 8.97 Tf 0.8 -18.57 Td[(from)-599(distutils.core)-596(import)-598(setup)]TJ 0 -10.96 Td[(setup)-598(\050\051)]TJ/F44 9.96 Tf -10.76 -19.56 Td[(which)-591(does)-592(nothing)-591(interesting,)-677(e)15(xcept)-591(possibly)-592(die)]TJ 0 -11.95 Td[(from)-428(lack)-428(of)-428(ar)17(guments)-428(to)-428(the)-428(script.)-844(\050Lack)-429(of)-428(ar)18(gu-)]TJ 0 -11.96 Td[(ments)-292(to)]TJ/F45 8.97 Tf 37.35 0 Td[(setup\050\051)]TJ/F44 9.96 Tf 40.56 0 Td[(is)-291(not)-292(necessarily)-292(an)-292(error;)-312(an)-291(empty)]TJ -77.91 -11.96 Td[(command-line)-291(is.\051)-429(Ho)24(we)25(v)15(er)40(,)-300(it)-290(is)-290(instructi)24(v)15(e)-289(to)-290(consider)]TJ 0 -11.95 Td[(what)-251(happens)-250(in)-251(this)-250(simplest)-251(possible)-251(case.)]TJ 9.96 -11.96 Td[(First,)-461(of)-418(course,)-460(the)]TJ/F46 8.97 Tf 87.21 0 Td[(Distr)-15(ib)21(ution)]TJ/F44 9.96 Tf 48.96 0 Td[(instance)-419(is)-418(created.)]TJ -146.13 -11.95 Td[(A)-329(k)10(e)15(y)-329(feature)-329(of)-329(this)-329(creation)-329(is)-329(that)-329(\050almost\051)-329(all)-329(of)-329(the)]TJ 0 -11.96 Td[(ar)18(guments)-348(passed)-348(to)]TJ/F45 8.97 Tf 86.01 0 Td[(setup\050\051)]TJ/F44 9.96 Tf 37.66 0 Td[(—which)-348(are)-348(all)-348(k)10(e)15(yw)10(ord)]TJ -123.67 -11.95 Td[(ar)18(guments—are)-471(passed)-469(to)-469(the)]TJ/F46 8.97 Tf 128.62 0 Td[(Distr)-14(ib)20(ution)]TJ/F44 9.96 Tf 49.47 0 Td[(constructor)39(,)]TJ -178.09 -11.96 Td[(again)-246(as)-250(k)10(e)15(yw)10(ord)-251(ar)18(guments.)]TJ 9.96 -11.95 Td[(The)-246(ne)15(xt)-245(step)-246(should)-246(be)-245(to)-245(nd)-246(and)-245(parse)-246(an)15(y)-245(congu-)]TJ -9.96 -11.96 Td[(ration)-226(les)-226(relating)-226(to)-226(this)-226(module)-226(distrib)19(ution.)-302(Ho)24(we)25(v)15(er)40(,)]TJ 0 -11.95 Td[(the)-379(question)-380(of)-379(conguration)-380(les)-379(for)-379(the)-379(Distutils)-380(has)]TJ 0 -11.96 Td[(not)-327(yet)-328(been)-327(adequately)-329(considered,)-347(so)-328(the)-327(feature)-328(isn')18(t)]TJ 0 -11.95 Td[(there.)]TJ 9.96 -10.96 Td[(Thus,)-460(the)-418(ne)15(xt)-417(step)-418(is)-417(really)-418(to)-418(parse)-418(the)-417(command)]TJ -9.96 -10.96 Td[(line.)-301(\050Note)-224(the)-223(order)-223(of)-223(operations,)-230(intended)-223(so)-224(that)-223(com-)]TJ 0 -10.96 Td[(mand)-342(line)-342(options)-342(will)-342(o)15(v)15(erride)-343(cong)-342(le\050s\051,)-365(which)-342(in)]TJ 0 -10.96 Td[(turn)-354(o)15(v)15(erride)-355(the)-354(ar)18(guments)-355(hard-coded)-355(in)]TJ/F47 8.97 Tf 176.15 0 Td[(setup.py)]TJ/F44 9.96 Tf 43.04 0 Td[(.\051)]TJ -219.19 -10.96 Td[(The)-411(Distutils)-411(command-line)-411(syntax—or)39(,)-451(if)-410(you)-411(prefer)40(,)]TJ 0 -10.95 Td[(the)-327(command)-328(line)-327(syntax)-327(of)-327(the)-327(setup)-327(script—was)-318(co)15(v-)]TJ 0 -10.96 Td[(ered)-250(in)-251(section)-250(3.1.1;)-251(to)-250(re)24(vie)25(w:)]TJ/F45 8.97 Tf 10.76 -18.57 Td[(setup.py)-598([global-options])]TJ 291.42 630.83 Td[(cmd)-599([cmd-options)-596(...])]TJ 0 -10.95 Td[([cmd)-598([cmd-options)-597(...]])-599(...)]TJ/F44 9.96 Tf -59.18 -21.01 Td[(P)15(arsing)-208(the)-207(Distutils)-208(command)-208(line)-207(is)-207(an)-208(incremental)-208(job:)]TJ 0 -11.95 Td[(rst,)-359(parse)-337(global)-337(options;)-381(then,)-359(get)-337(the)-337(rst)-337(command,)]TJ 0 -11.96 Td[(and)-393(parse)-394(its)-393(options;)-466(continue)-394(until)-393(all)-394(ar)18(guments)-394(are)]TJ 0 -11.95 Td[(consumed.)-305(If)-231(no)-231(commands)-232(are)-232(found,)-235(that')54(s)-231(a)-231(f)10(atal)-232(error)]TJ 0 -11.96 Td[(\050hence)-369(the)-369(likelihood)-360(of)-369(dying)-370(from)-369(lack)-369(of)-369(ar)18(guments)]TJ 0 -11.95 Td[(abo)15(v)15(e\051.)]TJ 9.96 -12.32 Td[(First,)-302(global)-291(options)-292(are)-291(easy:)-392(there)-291(is)-291(a)-291(kno)25(wn,)-302(x)15(ed)]TJ -9.96 -11.95 Td[(set)-251(of)-252(them)-251(determined)-252(by)-252(the)]TJ/F46 8.97 Tf 121.25 0 Td[(Distr)-15(ib)21(ution)]TJ/F44 9.96 Tf 47.3 0 Td[(class)-252(\050see)-251(sec-)]TJ -168.55 -11.96 Td[(tion)-310(3.1.1\051.)-489(Kno)25(wing)-310(which)-310(options)-311(are)-309(v)25(alid)-310(for)-310(a)-310(par)20(-)]TJ 0 -11.95 Td[(ticular)-378(command)-379(is)-378(a)-378(bit)-378(trickier)54(.)-693(Since)-378(command)-379(ob-)]TJ 0 -11.96 Td[(jects)-368(can)-369(actually)-369(be)-368(of)-368(an)14(y)]TJ/F46 8.97 Tf 117.57 0 Td[(Command)]TJ/F44 9.96 Tf 45.01 0 Td[(subclass)-369(\050a)-368(ke)24(y)]TJ -162.58 -11.95 Td[(to)-304(the)-305(Distutils')-305(e)15(xtensibility\051,)-319(there')54(s)-304(no)-305(global)-304(re)14(gistry)]TJ 0 -11.96 Td[(of)-258(command-specic)-259(command-line)-260(options.)-333(Thus,)-261(each)]TJ 0 -11.95 Td[(command)-237(class)-237(has)-236(to)-236(supply)-237(its)-237(v)25(alid)-236(command-line)-238(op-)]TJ 0 -11.96 Td[(tions;)-469(in)-396(f)10(act,)-433(as)-396(we)-396(tra)20(v)14(erse)-396(the)-396(script)-396(ar)17(guments,)-433(we)]TJ 0 -11.95 Td[(create)-276(each)-276(command)-277(object)-276(as)-276(we)-276(come)-276(upon)-277(its)-276(corre-)]TJ 0 -11.96 Td[(sponding)-218(ar)18(gument)-218(on)-218(the)-218(command-line.)-300(W)80(e)-218(then)-218(query)]TJ 0 -11.95 Td[(that)-362(command)-362(object)-362(for)-361(its)-362(v)25(alid)-362(set)-361(of)-362(command-line)]TJ 0 -11.96 Td[(options,)-251(using)-250(the)]TJ/F45 8.97 Tf 73.06 0 Td[(options)]TJ/F44 9.96 Tf 40.15 0 Td[(attrib)19(ute.)]TJ/F51 9.96 Tf -113.21 -28.5 Td[(4.1.2)-1001(The)]TJ/F60 8.97 Tf 48.98 0 Td[(Command)]TJ/F51 9.96 Tf 46.33 0 Td[(class)]TJ/F44 9.96 Tf -95.31 -19.36 Td[(While)-342(there)-343(is)-341(only)-343(one)]TJ/F46 8.97 Tf 100.03 0 Td[(Distr)-14(ib)21(ution)]TJ/F44 9.96 Tf 48.2 0 Td[(instance)-342(in)-342(a)-342(gi)25(v)15(en)]TJ -148.23 -11.95 Td[(Distutils)-240(run,)-241(there)-239(will)-239(be)-239(man)14(y)]TJ/F46 8.97 Tf 130.64 0 Td[(Command)]TJ/F44 9.96 Tf 43.74 0 Td[(instances:)-305(or)]TJ -174.38 -11.96 Td[(rather)40(,)-397(there)-367(will)-368(be)-367(instances)-368(of)-367(man)14(y)]TJ/F46 8.97 Tf 162.83 0 Td[(Command)]TJ/F44 9.96 Tf 45.01 0 Td[(sub-)]TJ -207.84 -11.95 Td[(classes,)-240(as)]TJ/F46 8.97 Tf 43.19 0 Td[(Command)]TJ/F44 9.96 Tf 43.71 0 Td[(is)-236(not)-237(meant)-237(to)-237(be)-236(directly)-237(instanti-)]TJ -86.9 -11.96 Td[(ated.)-294(It)-202(denes)-202(the)-201(interface)-192(that)-202(must)-202(be)-201(implemented)-203(by)]TJ 0 -11.95 Td[(concrete)-263(command)-263(classes,)-265(and)-263(pro)15(vides)-263(utility)-262(methods)]TJ 0 -11.96 Td[(to)-293(help)-294(them)-294(do)-294(their)-294(job)-293(consistently)-295(and)-294(with)-293(minimal)]TJ 0 -11.96 Td[(duplicated)-251(code.)]TJ/F46 8.97 Tf 9.96 -12.31 Td[(Command)]TJ/F44 9.96 Tf 44.27 0 Td[(objects)-294(e)15(xist)-293(mainly)-293(to)-293(be)-293(run,)-304(i.e.)-439(to)-293(ha)20(v)15(e)]TJ -54.23 -11.95 Td[(their)]TJ/F45 8.97 Tf 22.72 0 Td[(run\050\051)]TJ/F44 9.96 Tf 31.37 0 Td[(method)-449(in)40(v)20(ok)10(ed.)-905(This)-448(is)-449(where)-449(the)-448(real)]TJ -54.09 -11.96 Td[(w)10(ork)-306(of)-305(a)-306(command)-306(is)-306(done:)-421(for)-305(instance,)-320(this)-306(is)-306(where)]TJ 0 -11.95 Td[(the)]TJ/F45 8.97 Tf 15.06 0 Td[(build_ext)]TJ/F44 9.96 Tf 51.31 0 Td[(command)-291(compiles)-291(and)-291(links)-291(e)15(xtension)]TJ -66.37 -11.96 Td[(modules,)-461(or)-418(where)-418(the)]TJ/F45 8.97 Tf 98.13 0 Td[(install_py)]TJ/F44 9.96 Tf 57.96 0 Td[(command)-419(copies)]TJ -156.09 -11.95 Td[(pure)-316(Python)-316(modules)-317(to)-316(the)-316(installation)-317(directory)64(.)-507(Usu-)]TJ 0 -11.96 Td[(ally)65(,)-356(though,)-356(some)-335(initial)-335(setup)-335(work)-325(is)-335(required)-335(before)]TJ 0 -11.96 Td[(the)-419(command)-421(can)-419(be)-420(run:)-649(the)-419(command)-421(has)-419(to)-420(kno)25(w)]TJ 0 -11.95 Td[(which)-274(e)14(xtensions)-274(to)-274(b)19(uild)-274(and)-274(ho)25(w)-275(to)-274(b)20(uild)-274(them,)-281(which)]TJ 0 -11.96 Td[(modules)-251(to)-250(install)-251(and)-250(where)-251(to)-250(install)-251(them,)-250(etc.)]TJ 9.96 -12.31 Td[(This,)-550(of)-489(course,)-550(is)-489(all)-489(controlled)-490(by)-490(the)]TJ/F53 9.96 Tf 176.3 0 Td[(command)]TJ -186.26 -11.95 Td[(options)]TJ/F44 9.96 Tf 33.41 0 Td[(e)15(xplained)-410(in)-409(sections)-410(3.1.3)-409(and)-409(3.2.2.)-787(Setting)]TJ -33.41 -11.96 Td[(the)-362(options)-362(for)-362(each)-363(command)-362(object)-363(is)-361(the)-362(shared)-363(job)]TJ 0 -11.95 Td[(of)-510(two)-501(methods)-511(that)-511(must)-510(be)-511(implemented)-511(by)-511(e)25(v)15(ery)]TJ 0 -11.96 Td[(command)-334(class:)]TJ/F45 8.97 Tf 69.48 0 Td[(set_default_options\050\051)]TJ/F44 9.96 Tf 116.3 0 Td[(and)]TJ/F45 8.97 Tf 17.7 0 Td[(set_)]TJ -203.48 -11.96 Td[(final_options\050\051)]TJ/F44 9.96 Tf 80.7 0 Td[(.)]TJ/F45 8.97 Tf 11.81 0 Td[(set_default_options\050\051)]TJ/F44 9.96 Tf 117.54 0 Td[(sets)]TJ -210.05 -11.95 Td[(the)-370(def)10(ault)-371(v)25(alues)-370(for)-370(all)-370(options;)-431(generally)64(,)-399(it)-370(consists)]TJ 0 -11.96 Td[(of)-468(a)-469(series)-469(of)]TJ/F61 9.96 Tf 62.36 0 Td[(self.foo)-602(=)-600(None)]TJ/F44 9.96 Tf 94.33 0 Td[(assignments)-470(\050for)]TJ -156.69 -11.95 Td[(each)-207(command)-208(option)]TJ/F45 8.97 Tf 89.19 0 Td[(foo)]TJ/F44 9.96 Tf 16.13 0 Td[(\051.)]TJ/F45 8.97 Tf 8.76 0 Td[(set_final_options\050\051)]TJ/F44 9.96 Tf 104.27 0 Td[(is)]TJ -218.35 -11.96 Td[(called)-208(only)-208(after)-208(all)-208(e)15(xternal)-209(sources)-208(of)-208(options)-208(\050currently)]TJ 0 -11.95 Td[(just)-411(the)-411(command-line,)-452(someday)-411(conguration)-412(les)-411(as)]TJ
+ET
+endstream
+endobj
+39 0 obj
+13150
+endobj
+37 0 obj <<
+/Type /Page
+/Contents 38 0 R
+/Resources 36 0 R
+/MediaBox [0 0 595.27 841.89]
+/Parent 41 0 R
+>> endobj
+36 0 obj <<
+/Font << /F44 6 0 R /F46 9 0 R /F45 8 0 R /F53 22 0 R /F37 17 0 R /F51 5 0 R /F60 40 0 R /F47 10 0 R /F61 8 0 R >>
+/ProcSet [ /PDF /Text ]
+>> endobj
+44 0 obj <<
+/Length 45 0 R
+>>
+stream
+1 0 0 1 72 759.92 cm
+BT
+/F44 9.96 Tf 0 0 Td[(well\051)-256(ha)20(v)14(e)-255(been)-257(processed.)-328(Its)-256(responsibility)-257(is)-256(to)-256(set)-256(the)]TJ 0 -11.95 Td[(v)25(alue)-392(of)-392(an)14(y)-392(options)-392(that)]TJ/F53 9.96 Tf 107.66 0 Td[(wer)37(en')29(t)]TJ/F44 9.96 Tf 33.85 0 Td[(set)-392(from)-393(an)-392(e)15(xternal)]TJ -141.51 -11.96 Td[(source.)]TJ/F46 8.97 Tf 9.96 -11.95 Td[(Command)]TJ/F44 9.96 Tf 46.01 0 Td[(instances)-469(can)-468(be)-468(created)-469(in)-468(a)-468(v)25(ariety)-469(of)]TJ -55.97 -11.96 Td[(w)10(ays,)-300(one)-290(of)-289(which)-291(w)10(as)-289(described)-291(abo)15(v)15(e)-290(\050create)-290(a)-290(com-)]TJ 0 -11.95 Td[(mand)-463(object)-463(when)-463(the)-462(command)-464(is)-462(mentioned)-463(in)-463(the)]TJ 0 -11.96 Td[(setup)-326(script)-325(command-line\051.)-537(Commands)-327(not)-325(mentioned)]TJ 0 -11.95 Td[(on)-356(the)-355(command)-356(line)-356(might)-356(still)-356(be)-355(instantiated;)-409(it)-356(just)]TJ 0 -11.96 Td[(happens)-385(later)40(,)-417(and)-384(only)-385(on)-384(demand.)-712(F)15(or)-384(e)15(xample,)-418(the)]TJ/F45 8.97 Tf 0 -11.95 Td[(install)]TJ/F44 9.96 Tf 40.64 0 Td[(command)-300(al)10(w)10(ays)-300(runs)]TJ/F45 8.97 Tf 92.85 0 Td[(build)]TJ/F44 9.96 Tf 29.88 0 Td[(before)-300(attempt-)]TJ -163.37 -11.96 Td[(ing)-471(to)-470(install.)-972(It)-470(does)-471(so)-471(by)-470(in)40(v)20(oking)-471(its)-471(o)25(wn)]TJ/F45 8.97 Tf 203.48 0 Td[(run_)]TJ -203.48 -11.95 Td[(peer\050\051)]TJ/F44 9.96 Tf 35.05 0 Td[(method,)-286(which)-279(\050unless)]TJ/F45 8.97 Tf 93.33 0 Td[(build)]TJ/F44 9.96 Tf 29.67 0 Td[(has)-278(already)-279(been)]TJ -158.05 -11.96 Td[(run\051)-310(looks)-311(up)-310(the)]TJ/F45 8.97 Tf 72.67 0 Td[(build)]TJ/F44 9.96 Tf 29.99 0 Td[(command)-311(object,)-325(creating)-311(it)-310(if)]TJ -102.66 -11.95 Td[(necessary)64(,)-250(and)-250(in)39(v)20(ok)10(es)-250(its)]TJ/F45 8.97 Tf 104.63 0 Td[(run\050\051)]TJ/F44 9.96 Tf 29.39 0 Td[(method.)]TJ -124.06 -11.96 Td[(Similarly)64(,)]TJ/F45 8.97 Tf 42.01 0 Td[(install)]TJ/F44 9.96 Tf 40.62 0 Td[(also)-298(runs)]TJ/F45 8.97 Tf 39.13 0 Td[(install_py)]TJ/F44 9.96 Tf 56.76 0 Td[(\050b)20(ut)-297(only)]TJ -188.48 -11.95 Td[(if)-201(there)-202(are)-201(an)15(y)-201(pure)-202(Python)-201(modules\051)-202(and)]TJ/F45 8.97 Tf 165.82 0 Td[(install_ext)]TJ/F44 9.96 Tf -165.82 -11.96 Td[(\050b)20(ut)-250(only)-251(if)-250(there)-251(are)-250(an)15(y)-251(e)15(xtension)-251(modules\051.)]TJ 9.96 -11.95 Td[(Commands)-507(can)-506(also)-505(indirectly)-507(cause)-506(the)-505(instantia-)]TJ -9.96 -11.96 Td[(tion)-449(of)-448(other)-449(commands)-449(by)-448(attempting)-450(to)-448(get)-448(options)]TJ 0 -11.95 Td[(from)-297(those)-297(commands.)-451(Again)-293(referring)-297(to)-297(the)]TJ/F45 8.97 Tf 187.34 0 Td[(install)]TJ/F44 9.96 Tf -187.34 -11.96 Td[(command,)-513(before)-460(it)-460(runs)-460(it)-460(must)-460(gure)-461(out)-460(the)-460(b)20(uild)]TJ 0 -11.95 Td[(directories—where)-497(the)]TJ/F45 8.97 Tf 98.39 0 Td[(build_*)]TJ/F44 9.96 Tf 42.59 0 Td[(commands)-496(put)-495(their)]TJ -140.98 -11.96 Td[(output)-282(les.)-406(This)-282(is)-282(done)-283(by)-282(looking)-282(up)-282(the)-282(rele)24(v)25(ant)-282(op-)]TJ 0 -11.95 Td[(tions)-268(in)-268(the)]TJ/F45 8.97 Tf 47.31 0 Td[(build)]TJ/F44 9.96 Tf 29.56 0 Td[(command)-269(object,)-273(which)-269(must)-268(be)-268(cre-)]TJ -76.87 -11.96 Td[(ated)-215(if)-214(it)-214(didn')17(t)-214(already)-215(e)15(xist.)-299(\050This)-215(means)-214(that)-215(the)]TJ/F45 8.97 Tf 198.1 0 Td[(build)]TJ/F44 9.96 Tf -198.1 -11.95 Td[(command)-351(object)-351(will)-351(al)10(ways)-341(e)14(xist)-350(when)]TJ/F45 8.97 Tf 167.8 0 Td[(install)]TJ/F44 9.96 Tf 41.15 0 Td[(gets)]TJ -208.95 -11.96 Td[(around)-241(to)-240(running)-240(it,)-243(since)-240(it)-240(is)-240(referred)-241(to)-240(for)-240(option)-241(v)25(al-)]TJ 0 -11.95 Td[(ues)-250(prior)-251(to)-250(running.\051)]TJ/F50 11.96 Tf 0 -27.75 Td[(4.2)-999(Command)-248(classes)]TJ/F44 9.96 Tf 0 -18.68 Td[(Each)-283(Distutils)-283(command)-283(is)-282(implemented)-284(by)-282(a)-282(command)]TJ 0 -11.96 Td[(class,)-325(which)-310(must)-310(implement)-311(the)-310(interf)10(ace)-310(described)-311(by)]TJ/F46 8.97 Tf 0 -11.95 Td[(Command)]TJ/F44 9.96 Tf 41.35 0 Td[(—usually)-233(by)-232(subclassing)-233(it.)-304(The)-233(standard)-232(Dis-)]TJ -41.35 -11.96 Td[(tutils)-310(commands)-311(\050listed)-310(in)-309(section)-311(3.1.2\051)-310(are)-310(named)-310(and)]TJ 0 -11.95 Td[(or)18(ganized)-354(in)-358(a)-357(predictable)-359(w)10(ay)65(,)-385(so)-358(that)-358(it')55(s)-358(easy)-358(to)-358(im-)]TJ 0 -11.96 Td[(port)-285(the)-284(module)-285(and)-284(instantiate)-286(the)-284(class)-285(without)-285(ha)20(ving)]TJ 0 -11.95 Td[(a)-250(global)-251(re)15(gistry)-251(of)-250(Distutils)-251(commands.)]TJ 9.96 -11.96 Td[(In)-560(particular)39(,)-636(the)-560(standard)-560(command)]TJ/F45 8.97 Tf 162.41 0 Td[(foo_bar)]TJ/F44 9.96 Tf 43.22 0 Td[(\050if)]TJ -215.59 -11.95 Td[(there)-305(were)-304(such)-305(a)-304(command\051)-305(would)-295(be)-305(implemented)-305(by)]TJ 0 -11.96 Td[(the)-350(class)]TJ/F46 8.97 Tf 38.5 0 Td[(F)30(ooBar)]TJ/F44 9.96 Tf 32.62 0 Td[(in)-349(the)]TJ/F46 8.97 Tf 26.88 0 Td[(distutils)16(.command.f)32(oo)]TJ
+ET
+184.84 -476.81 2.69 0.4 re f
+1 0 0 1 187.53 -476.81 cm
+BT
+/F46 8.97 Tf 0 0 Td[(bar)]TJ/F44 9.96 Tf 16.44 0 Td[(mod-)]TJ -203.97 -11.95 Td[(ule.)-465(The)-301(ability)-302(to)-302(e)15(xtend)-302(the)-302(system)-302(with)-302(non-standard)]TJ 0 -11.96 Td[(command)-384(classes)-383(is)-383(b)19(uilt-in)-383(via)-383(the)-384(distrib)20(ution)-384(option)]TJ/F45 8.97 Tf 0 -11.95 Td[(cmdclass)]TJ/F44 9.96 Tf 43.04 0 Td[(:)-813(this)-502(is)-501(a)-502(dictionary)-502(that)-502(maps)-502(command)]TJ -43.04 -11.96 Td[(names)-312(to)-312(command)-312(classes)-312(\050)]TJ/F53 9.96 Tf 115.89 0 Td[(not)]TJ/F44 9.96 Tf 16.01 0 Td[(class)-312(names,)-328(b)20(ut)-312(actual)]TJ -131.9 -11.95 Td[(class)-254(objects\051.)-323(This)-255(will)-254(allo)25(w)-255(de)25(v)15(elopers)-255(to)-254(o)15(v)15(erride)-255(the)]TJ 0 -11.96 Td[(def)10(ault)-391(beha)20(viour)-391(of)-390(standard)-390(commands)-391(as)-391(well)-390(as)-390(to)]TJ 0 -11.95 Td[(add)-250(their)-251(o)25(wn)-250(custom)-251(commands)-251(to)-251(the)-250(Distutils.)]TJ/F50 11.96 Tf 0 -27.75 Td[(4.3)-999(Compiler)-248(abstraction)-248(model)]TJ/F44 9.96 Tf 0 -18.68 Td[(A)-414(k)10(e)15(y)-413(to)-414(the)-414(Distutils')-414(portability)-415(and)-414(ability)-414(to)-414(com-)]TJ 0 -11.96 Td[(pile)-277(e)15(xtensions)-277(on)-277(multiple)-277(platforms)-277(is)-277(its)]TJ/F53 9.96 Tf 173.55 0 Td[(compiler)-277(ab-)]TJ -173.55 -11.95 Td[(str)15(action)-361(model)]TJ/F44 9.96 Tf 63.21 0 Td[(.)-639(This)-360(is)-360(simply)-361(an)-360(abstract)-360(base)-360(class,)]TJ/F46 8.97 Tf 179.79 630.83 Td[(CCompiler)]TJ/F44 9.96 Tf 46.81 0 Td[(\050in)-449(the)]TJ/F46 8.97 Tf 32.18 0 Td[(distutils)16(.ccompiler)]TJ/F44 9.96 Tf 75.08 0 Td[(module\051)-450(that)-449(im-)]TJ -154.07 -11.95 Td[(plements)-527(an)-526(object-oriented)-528(interf)10(ace)-527(to)-526(an)-526(idealized)]TJ 0 -11.96 Td[(C/C++)-379(compiler)55(.)-694(The)-379(model)-378(handles)-379(all)-378(the)-378(usual)-379(b)20(u-)]TJ 0 -11.95 Td[(reaucrac)14(y)-206(in)40(v)20(olv)14(ed)-206(in)-206(instructing)-207(a)-206(C/C++)-207(compiler)39(,)-215(such)]TJ 0 -11.96 Td[(as)-416(specifying)-417(header)-417(search)-416(directories,)-459(macros)-417(to)-416(de-)]TJ 0 -11.95 Td[(ne/undene,)-333(library)-315(search)-316(directories,)-333(and)-315(libraries)-316(to)]TJ 0 -11.96 Td[(link)-271(in—b)20(ut)-271(it)-271(handles)-271(them)-272(via)-271(method)-271(in)40(v)20(ocations)-272(and)]TJ 0 -11.95 Td[(instance)-230(attrib)19(utes)-230(rather)-230(than)-230(command-line)-232(options)-230(to)-230(a)]TJ 0 -11.96 Td[(separate)-319(program.)-515(Of)-318(course,)-336(there)-319(are)-318(also)-319(methods)-319(to)]TJ 0 -11.95 Td[(compile)-322(a)-321(set)-321(of)-322(source)-322(les)-321(and)-322(to)-321(link)-322(them)-321(to)-321(shared)]TJ 0 -11.96 Td[(or)-258(static)-259(libraries;)-263(there)-259(will)-259(soon)-259(ha)20(v)15(e)-258(to)-259(be)-258(a)-259(method)-259(to)]TJ 0 -11.95 Td[(link)-337(to)-336(a)-337(binary)-337(e)15(x)15(ecutable,)-359(as)-337(well)-337(\050in)-336(order)-337(to)-337(b)20(uild)-337(a)]TJ 0 -11.96 Td[(ne)25(w)-250(static)-251(Python)-251(interpreter\051.)]TJ 9.96 -17.13 Td[(Currently)64(,)-480(this)-434(abstract)-434(base)-434(class)-434(has)-434(two)-424(concrete)]TJ -9.96 -11.96 Td[(subclasses,)]TJ/F46 8.97 Tf 48.91 0 Td[(UnixCCompiler)]TJ/F44 9.96 Tf 64.71 0 Td[(and)]TJ/F46 8.97 Tf 18.82 0 Td[(MSVCCompiler)]TJ/F44 9.96 Tf 61.77 0 Td[(.)-896(Both)]TJ -194.21 -11.95 Td[(of)-440(these)-440(translate)-440(attrib)19(ute)-440(v)25(alues)-440(supplied)-440(by)-440(method)]TJ 0 -11.96 Td[(calls)-280(into)-281(command-line)-282(ar)18(guments)-281(for)40(,)-288(respecti)24(v)15(ely)65(,)-288(the)]TJ 0 -11.95 Td[(traditional)-352(Unix)-351(compiler)-352(command-line)-352(and)-351(Microsoft)]TJ 0 -11.96 Td[(V)60(isual)-484(C++')54(s)-484(command-line)-485(interface.)-1003(The)-484(compiler)]TJ 0 -11.96 Td[(model)-358(should)-359(e)15(xtend)-358(to)-358(platforms)-359(that)-358(don')17(t)-357(e)25(v)14(en)-358(ha)20(v)15(e)]TJ 0 -11.95 Td[(a)-235(command-line,)-239(such)-236(as)-235(the)-235(Macintosh,)-239(b)20(ut)-235(this)-235(remains)]TJ 0 -11.96 Td[(to)-250(be)-250(demonstrated.)]TJ/F50 11.96 Tf 0 -57.01 Td[(4.4)-999(Utility)-249(modules)-248(and)-249(classes)]TJ/F44 9.96 Tf 0 -28.53 Td[(Finally)64(,)-411(the)-380(Distutils)-380(includes)-380(a)-380(number)-380(of)-380(modules)-380(of)]TJ 0 -11.95 Td[(possibly)-201(broader)-202(utility)65(,)-211(all)-201(in)-200(the)]TJ/F46 8.97 Tf 131.26 0 Td[(distutils)]TJ/F44 9.96 Tf 31.9 0 Td[(package.)-294(These)]TJ -163.16 -11.96 Td[(include:)]TJ/F46 8.97 Tf 5.98 -14.66 Td[(f)30(ancy)]TJ
+ET
+83.14 96.46 2.69 0.4 re f
+1 0 0 1 85.83 96.46 cm
+BT
+/F46 8.97 Tf 0 0 Td[(getopt)]TJ/F44 9.96 Tf 36.89 0 Td[(front-end)-376(to)-376(the)-376(standard)]TJ/F46 8.97 Tf 105.71 0 Td[(getopt)]TJ/F44 9.96 Tf 28.67 0 Td[(mod-)]TJ -134.38 -11.96 Td[(ule,)-485(dri)24(v)15(en)-438(by)-439(a)-438(table)-439(\050list)-438(of)-439(tuples\051)]TJ 0 -11.95 Td[(that)-211(ties)-212(long)-211(and)-212(short)-212(options)-212(together)]TJ 0 -11.96 Td[(with)-250(help)-251(te)15(xt)]TJ/F46 8.97 Tf -61.27 -11.95 Td[(spa)21(wn)]TJ/F44 9.96 Tf 61.27 0 Td[(cross-platform)-376(\050Unix)-376(and)-376(W)40(indo)24(ws)-375(at)]TJ 0 -11.96 Td[(least\051)-577(mechanism)-577(for)-577(running)-577(e)15(xter)19(-)]TJ 0 -11.95 Td[(nal)-388(programs:)-588(a)-389(front-end)-389(to)]TJ/F45 8.97 Tf 123.13 0 Td[(fork\050\051)]TJ/F44 9.96 Tf -123.13 -11.96 Td[(and)]TJ/F45 8.97 Tf 22.78 0 Td[(execvp\050\051)]TJ/F44 9.96 Tf 51.44 0 Td[(on)-844(Unix,)-992(and)-844(to)]TJ/F45 8.97 Tf -74.22 -11.95 Td[(spawnvp\050\051)]TJ/F44 9.96 Tf 50.9 0 Td[(on)-251(W)40(indo)25(ws)]TJ/F46 8.97 Tf -112.17 -11.96 Td[(te)31(xt)]TJ
+ET
+-9.66 -107.6 2.69 0.4 re f
+1 0 0 1 -6.97 -107.6 cm
+BT
+/F46 8.97 Tf 0 0 Td[(le)]TJ/F44 9.96 Tf 43.86 0 Td[(pro)15(vides)]TJ/F46 8.97 Tf 36.87 0 Td[(T)120(e)30(xtFile)]TJ/F44 9.96 Tf 30.54 0 Td[(,)-278(a)-272(le-like)-263(object)-273(that)]TJ -67.41 -11.95 Td[(returns)-573(lines)-574(from)-573(a)-573(le)-574(after)-573(deal-)]TJ 0 -11.96 Td[(ing)-476(with)-477(comments,)-535(“backslash)-477(join-)]TJ 0 -11.95 Td[(ing”,)-451(stripping)-412(trailing)-412(and/or)-412(leading)]TJ 0 -11.96 Td[(whitespace,)-251(etc.)]TJ/F46 8.97 Tf -61.27 -11.95 Td[(util)]TJ/F44 9.96 Tf 61.27 0 Td[(v)25(arious)-337(lesystem)-339(utilities:)-485(cop)10(y)-337(les,)]TJ 0 -11.96 Td[(cop)10(y)-342(directory)-342(trees,)-366(mo)15(v)15(e)-342(les,)-365(com-)]TJ 0 -11.95 Td[(pare)-656(timestamps)-658(on)-657(indi)25(vidual)-657(les)]TJ 0 -11.96 Td[(and)-407(groups)-409(of)-407(les,)-448(create)-408(directories)]TJ 0 -11.95 Td[(“deeply”,)-251(etc.)]TJ -67.25 -11.38 Td[(These)-200(will)-201(certainly)-200(be)-200(useful)-201(to)-200(de)25(v)15(elopers)-201(writing)-201(f)10(anc)15(y)]TJ 0 -11.96 Td[(setup)-434(scripts)-435(\050or)-435(ne)25(w)-434(Distutils)-435(commands\051,)-481(and)-435(could)]TJ 0 -11.95 Td[(well)-250(be)-251(handy)-250(in)-251(other)-250(conte)14(xts.)]TJ
+ET
+endstream
+endobj
+45 0 obj
+12270
+endobj
+43 0 obj <<
+/Type /Page
+/Contents 44 0 R
+/Resources 42 0 R
+/MediaBox [0 0 595.27 841.89]
+/Parent 41 0 R
+>> endobj
+42 0 obj <<
+/Font << /F44 6 0 R /F53 22 0 R /F46 9 0 R /F45 8 0 R /F50 5 0 R >>
+/ProcSet [ /PDF /Text ]
+>> endobj
+48 0 obj <<
+/Length 49 0 R
+>>
+stream
+1 0 0 1 72 759.92 cm
+BT
+/F43 14.35 Tf 0 0 Td[(5)-1000(A)101(v)10(ailability)]TJ/F44 9.96 Tf 0 -21.27 Td[(Up-to-date)-296(information)-296(on)-295(the)-295(Distutils,)-307(including)-296(mail-)]TJ 0 -10.95 Td[(ing)-201(list)-202(archi)25(v)15(es,)-211(access)-202(to)-201(the)-202(CVS)-201(repository)64(,)-211(and)-202(do)25(wn-)]TJ 0 -10.96 Td[(loads)-251(of)-250(the)-250(latest)-251(v)15(ersion,)-251(can)-250(all)-250(be)-251(found)-250(at)]TJ/F45 8.97 Tf 0 -18.93 Td[(http://www.python.org/sigs/distutils-si)10(g/)]TJ/F43 14.35 Tf 0 -33.63 Td[(6)-1000(Conclusions)-248(and)-250(Futur)19(e)-250(Plans)]TJ/F44 9.96 Tf 0 -22.26 Td[(The)-236(Python)-236(Module)-236(Distrib)19(ution)-236(Utilities)-236(are)-235(well)-236(on)-236(the)]TJ 0 -11.96 Td[(w)10(ay)-292(to)-293(being)-292(a)-292(general,)-304(po)25(werful,)-303(e)15(xtensible)-293(frame)24(w)10(ork)]TJ 0 -11.95 Td[(for)-329(b)20(uilding,)-349(distrib)19(uting,)-349(and)-329(installing)-330(Python)-329(module)]TJ 0 -11.96 Td[(distrib)19(utions.)-377(The)-273(current)-273(release)-273(as)-272(of)-273(this)-273(writing)-273(\050v)15(er)20(-)]TJ 0 -11.95 Td[(sion)-302(0.1.1\051)-303(has)-302(the)-302(demonstrated)-304(ability)-302(to)-302(b)20(uild)-303(and)-302(in-)]TJ 0 -11.96 Td[(stall)-212(se)25(v)15(eral)-212(real-w)10(orld)-212(Python)-212(module)-212(distrib)19(utions)-212(\050Nu-)]TJ 0 -11.95 Td[(meric)-268(Python,)-273(mxDateT)34(ime,)-273(PIL,)-268(and)-268(of)-268(course)-269(the)-268(Dis-)]TJ 0 -11.96 Td[(tutils)-251(themselv)15(es\051.)]TJ 9.96 -11.95 Td[(De)24(v)15(elopment)-388(is)-388(ongoing.)-723(A)-387(number)-388(of)-388(features)-388(are)]TJ -9.96 -11.96 Td[(needed)-478(before)-478(the)-478(Distutils)-478(is)-478(ready)-478(to)-477(take)-468(o)15(v)15(er)-478(the)]TJ 0 -11.95 Td[(w)10(orld,)-280(including)-274(support)-274(for)-274(b)20(uilding)-274(e)15(xternal)-274(C/C++)-274(li-)]TJ 0 -11.96 Td[(braries,)-286(creation)-279(and)-278(maintenance)-279(of)-278(a)-279(database)-278(of)-279(mod-)]TJ 0 -11.95 Td[(ules)-437(installed)-438(on)-437(a)-437(gi)24(v)15(en)-437(system,)-484(checking)-438(de)25(v)14(eloper)20(-)]TJ 0 -11.96 Td[(supplied)-335(prerequisites)-335(for)-334(a)-334(distrib)19(ution,)-355(and)-334(a)-334(standard)]TJ 0 -11.95 Td[(mechanism)-371(for)-370(running)-370(test)-370(suites)-370(\050and)-370(a)-370(methodology)]TJ 0 -11.96 Td[(for)-250(writing)-251(them\051.)]TJ 9.96 -11.95 Td[(Once)-213(these)-212(features)-213(are)-212(a)-212(reality)64(,)-219(the)-213(Python)-212(w)10(orld)-213(will)]TJ -9.96 -11.96 Td[(ha)20(v)15(e)-302(made)-303(a)-302(major)-302(step)-302(forward)-293(to)-302(achie)25(ving)-302(“plug)-303(and)]TJ 0 -11.95 Td[(play”)-193(reusability)64(,)-205(a)-193(goal)-193(that)-194(man)15(y)-193(language)-194(communities)]TJ 0 -11.96 Td[(stri)25(v)15(e)-251(for)40(,)-250(b)20(ut)-250(fe)24(w)-250(ha)20(v)15(e)-250(achie)24(v)15(ed.)]TJ
+ET
+endstream
+endobj
+49 0 obj
+2891
+endobj
+47 0 obj <<
+/Type /Page
+/Contents 48 0 R
+/Resources 46 0 R
+/MediaBox [0 0 595.27 841.89]
+/Parent 41 0 R
+>> endobj
+46 0 obj <<
+/Font << /F43 5 0 R /F44 6 0 R /F45 8 0 R >>
+/ProcSet [ /PDF /Text ]
+>> endobj
+50 0 obj <<
+/Type /Encoding
+/Differences [ 0/.notdef 1/dotaccent/fi/fl/fraction/hungarumlaut/Lslash/lslash/ogonek/ring 10/.notdef 11/breve/minus 13/.notdef 14/Zcaron/zcaron/caron/dotlessi/dotlessj/ff/ffi/ffl 22/.notdef 30/grave/quotesingle/space/exclam/quotedbl/numbersign/dollar/percent/ampersand/quoteright/parenleft/parenright/asterisk/plus/comma/hyphen/period/slash/zero/one/two/three/four/five/six/seven/eight/nine/colon/semicolon/less/equal/greater/question/at/A/B/C/D/E/F/G/H/I/J/K/L/M/N/O/P/Q/R/S/T/U/V/W/X/Y/Z/bracketleft/backslash/bracketright/asciicircum/underscore/quoteleft/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z/braceleft/bar/braceright/asciitilde 127/.notdef 130/quotesinglbase/florin/quotedblbase/ellipsis/dagger/daggerdbl/circumflex/perthousand/Scaron/guilsinglleft/OE 141/.notdef 147/quotedblleft/quotedblright/bullet/endash/emdash/tilde/trademark/scaron/guilsinglright/oe 157/.notdef 159/Ydieresis 160/.notdef 161/exclamdown/cent/sterling/currency/yen/brokenbar/section/dieresis/copyright/ordfeminine/guillemotleft/logicalnot/hyphen/registered/macron/degree/plusminus/twosuperior/threesuperior/acute/mu/paragraph/periodcentered/cedilla/onesuperior/ordmasculine/guillemotright/onequarter/onehalf/threequarters/questiondown/Agrave/Aacute/Acircumflex/Atilde/Adieresis/Aring/AE/Ccedilla/Egrave/Eacute/Ecircumflex/Edieresis/Igrave/Iacute/Icircumflex/Idieresis/Eth/Ntilde/Ograve/Oacute/Ocircumflex/Otilde/Odieresis/multiply/Oslash/Ugrave/Uacute/Ucircumflex/Udieresis/Yacute/Thorn/germandbls/agrave/aacute/acircumflex/atilde/adieresis/aring/ae/ccedilla/egrave/eacute/ecircumflex/edieresis/igrave/iacute/icircumflex/idieresis/eth/ntilde/ograve/oacute/ocircumflex/otilde/odieresis/divide/oslash/ugrave/uacute/ucircumflex/udieresis/yacute/thorn/ydieresis]
+>> endobj
+40 0 obj <<
+/Type /Font
+/Subtype /Type1
+/Encoding 50 0 R
+/BaseFont /Helvetica-Bold
+>> endobj
+31 0 obj <<
+/Type /Font
+/Subtype /Type1
+/Encoding 50 0 R
+/BaseFont /Helvetica-Oblique
+>> endobj
+22 0 obj <<
+/Type /Font
+/Subtype /Type1
+/Encoding 50 0 R
+/BaseFont /Times-Italic
+>> endobj
+17 0 obj <<
+/Type /Font
+/Subtype /Type1
+/FirstChar 0
+/LastChar 127
+/Widths 51 0 R
+/BaseFont 57 0 R
+/FontDescriptor 58 0 R
+>> endobj
+51 0 obj
+[ 799 285 799 514 799 514 799 799 799 799 799 799 799 1027 514 514 799 799 799 799 799 799 799 799 799 799 799 799 1027 1027 799 799 1027 1027 514 514 1027 1027 1027 799 1027 1027 628 628 1027 1027 1027 799 279 1027 685 685 913 913 0 0 571 571 685 514 742 742 799 799 628 821 673 542 793 542 736 611 871 562 696 782 708 1229 842 816 716 839 874 622 563 642 632 1017 732 685 742 685 685 685 685 685 628 628 457 457 457 457 514 514 400 400 285 514 514 628 514 285 856 770 856 428 685 685 799 799 457 457 457 628 799 799 799 799 ]
+endobj
+52 0 obj <<
+/Length 53 0 R
+/Length1 54 0 R
+/Length2 55 0 R
+/Length3 56 0 R
+>>
+stream
+%!PS-AdobeFont-1.1: CMSY9 1.0
+%%CreationDate: 1991 Aug 15 07:22:27
+% Copyright (C) 1997 American Mathematical Society. All Rights Reserved.
+11 dict begin
+/FontInfo 7 dict dup begin
+/version (1.0) readonly def
+/Notice (Copyright (C) 1997 American Mathematical Society. All Rights Reserved) readonly def
+/FullName (CMSY9) readonly def
+/FamilyName (Computer Modern) readonly def
+/Weight (Medium) readonly def
+/ItalicAngle -14.035 def
+/isFixedPitch false def
+end readonly def
+/FontName /DAAAAA+CMSY9 def
+/PaintType 0 def
+/FontType 1 def
+/FontMatrix [0.001 0 0 0.001 0 0] readonly def
+/Encoding 256 array
+0 1 255 {1 index exch /.notdef put} for
+dup 3 /asteriskmath put
+readonly def
+/FontBBox{-30 -958 1146 777}readonly def
+/UniqueID 5000819 def
+currentdict end
+currentfile eexec
+ÙÖoc;„j—¶†©~E£Ğª/	ùÈ­éÙÀX¸~›id}S5Q!gt¤ê¡âµÃkÑJc;•r´NŒ^ô¢¬µŠ ¦X€5¿.ØSyƒŠ–ş+'êIÃqV˜œ…â:¿rãš‰#,Ùô#ÈdèBZ£¾÷ŞÖ*R’*"7Ù¨İyİçÓò¸—Ç=cîÍÚLIPsFŠ'Ñf>bôaöä
+]fvĞ}3òN/¬+ 	­<ƒPÍøÌe¼¨yyÃmËU.š˜^H¾Nˆì¡môtšğOİ+€Ò»$v»Eÿ0”k$}ıW0_¨~PÊ3!Çßß’zœwÿËJm€5o±ÓŒ7p#PI{Dä,ã²ô“€}ª¸‡ÆqšTÄÁ)KÅ õSŒUkÄ<Ÿb4+mÍl_I¤ó` â§í‰¦ß‘¹Ÿá¹²O›¸iµØ¦ÌxÅŒB]2‰©y?'0Ş÷ŒfÑµ¨XÄ0Õ³ä¤¡1à‡ÊÛáz_}fš!ÑJÛÌFçKC[A¬q"o\ÿÖ6‘|B¶Ñ»^°ò–/æ F2QÎj„I)¼­$—n—ÄMX:¼­6œ©…û2ÀrÏ¸&×Ñ;¿èÄmäj¦Õğò_†Ö€x¥	VI%³³«ß·ÏD}O(I#é™cD]ç¢˜PÒé  €]ÏqÂ˜¦9ƒ)ŒÈY¡Îˆ‚‘Èú¶Ÿ¿9	B²ÃL ¶F™!¥ÜKåÈ€\–% /ÑƒùèŒ/¸(/m«h¾$jØD”r¡sÜ˜d€Î#R›çRõğ,Ä¬Æ&5¾½¶tW¾ÕÈµdBó–[ lŒj†¯YãÎ @ÛÕMË3ÜâŸ$Ws3›‹îw‡ÑDq3ÓÌå.ğ|øÌJØ~Aù“sx5£ê\ämR$w™ü<Ø°ŞĞX=Øînk#ß¼Â{0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+cleartomark
+endstream
+endobj
+53 0 obj
+2046
+endobj
+54 0 obj
+774
+endobj
+55 0 obj
+740
+endobj
+56 0 obj
+532
+endobj
+57 0 obj
+/DAAAAA+CMSY9
+endobj
+58 0 obj <<
+/Ascent 750
+/CapHeight 683
+/Descent 0
+/FontName 57 0 R
+/ItalicAngle -14
+/StemV 87
+/XHeight 430
+/FontBBox [ -30 -958 1146 777 ]
+/Flags 4
+/CharSet (/asteriskmath)
+/FontFile 52 0 R
+>> endobj
+11 0 obj <<
+/Type /Font
+/Subtype /Type1
+/FirstChar 0
+/LastChar 127
+/Widths 59 0 R
+/BaseFont 65 0 R
+/FontDescriptor 66 0 R
+>> endobj
+59 0 obj
+[ 778 278 778 500 778 500 778 778 778 778 778 778 778 1000 500 500 778 778 778 778 778 778 778 778 778 778 778 778 1000 1000 778 778 1000 1000 500 500 1000 1000 1000 778 1000 1000 611 611 1000 1000 1000 778 275 1000 667 667 889 889 0 0 556 556 667 500 722 722 778 778 611 799 657 527 772 528 719 595 845 545 678 762 690 1201 821 796 696 817 848 606 545 626 613 988 713 669 725 667 667 667 667 667 611 611 445 445 445 445 500 500 389 389 278 500 500 611 500 278 834 750 834 417 667 667 778 778 445 445 445 611 778 778 778 778 ]
+endobj
+60 0 obj <<
+/Length 61 0 R
+/Length1 62 0 R
+/Length2 63 0 R
+/Length3 64 0 R
+>>
+stream
+%!PS-AdobeFont-1.1: CMSY10 1.0
+%%CreationDate: 1991 Aug 15 07:20:57
+% Copyright (C) 1997 American Mathematical Society. All Rights Reserved.
+11 dict begin
+/FontInfo 7 dict dup begin
+/version (1.0) readonly def
+/Notice (Copyright (C) 1997 American Mathematical Society. All Rights Reserved) readonly def
+/FullName (CMSY10) readonly def
+/FamilyName (Computer Modern) readonly def
+/Weight (Medium) readonly def
+/ItalicAngle -14.035 def
+/isFixedPitch false def
+end readonly def
+/FontName /PAAAAA+CMSY10 def
+/PaintType 0 def
+/FontType 1 def
+/FontMatrix [0.001 0 0 0.001 0 0] readonly def
+/Encoding 256 array
+0 1 255 {1 index exch /.notdef put} for
+dup 15 /bullet put
+readonly def
+/FontBBox{-29 -960 1116 775}readonly def
+/UniqueID 5000820 def
+currentdict end
+currentfile eexec
+ÙÖoc;„j—¶†©~E£Ğª/	ùÈ­éÙÀX¸~›id}S5Q!gt¤ê¡âµÃkÑJc;•r´NŒ^ô¢¬µŠ ¦X€5¿.ØSyƒŠ–ş+'êIÃqV˜œ…â:¿rãš‰#,Ùô#ÈdèBZ£¾÷ŞÖ*R’*"7Ù¨İyİçÓò¸—Ç=cîÍÚLIPsFŠ'Ñf>bôaöä
+]fvÑÑ+QæAÁÔèâwdüOŒ¿[xìˆ"‡%ñÄS¦xõŠ~{×ÊpÒˆë¡õ|O	
+¿BÅİĞÃ„Çâ/€G¾LÈã3hûÈ+N–g0Ş3²æ¸ËjäU±¯1‡ÿè¥~ø¦akœ·”Dìzq§»=÷U}.K¶˜Yï¤»ÃÖ»1?ÔÙCùŸ	NÌŠ2Muµö–¸hë/åí4ÌÖĞG¤ã€m &v¨ˆ•ü.ğd¯ËÄ)%\‰éĞ¾ óÀ.¯ušáÿ	«39:ÈÒ8š*v††<¬Tt«ó­*‚ ‘é´nÒ¶©0÷G‰àÖ,ÙíäƒêÚ@±Cf’½Èêe6Uñ@rºÊÆA,Õw“ÔØ$zõŒmNêM2&ÿS¦…–ƒ@¡ù àÀ>ğÎØö€Ş¦Ğ]/¾}’éãpŒùÛÌ2ò…°ÁV&dÑşg#Uí…§IÀ’!ÓzˆğFèó[	+´2C?lÍ#‰Ü"¶³¾UêcÍ_™W£cóı¤ùƒ9ú0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+cleartomark
+endstream
+endobj
+61 0 obj
+1898
+endobj
+62 0 obj
+772
+endobj
+63 0 obj
+594
+endobj
+64 0 obj
+532
+endobj
+65 0 obj
+/PAAAAA+CMSY10
+endobj
+66 0 obj <<
+/Ascent 750
+/CapHeight 684
+/Descent 0
+/FontName 65 0 R
+/ItalicAngle -14
+/StemV 85
+/XHeight 431
+/FontBBox [ -29 -960 1116 775 ]
+/Flags 4
+/CharSet (/bullet)
+/FontFile 60 0 R
+>> endobj
+10 0 obj <<
+/Type /Font
+/Subtype /Type1
+/Encoding 50 0 R
+/BaseFont /Courier-Bold
+>> endobj
+9 0 obj <<
+/Type /Font
+/Subtype /Type1
+/Encoding 50 0 R
+/BaseFont /Helvetica
+>> endobj
+8 0 obj <<
+/Type /Font
+/Subtype /Type1
+/Encoding 50 0 R
+/BaseFont /Courier
+>> endobj
+67 0 obj <<
+/Length 68 0 R
+>>
+stream
+66 0 8 -1 73 67 d1
+q
+64 0 0 68 8 -1 cm
+BI
+/W 64
+/H 68
+/IM true
+/BPC 1
+/D [1 0]
+ID     ÿÿ    ÿÿğ   ÿÿş  ÿÿÿÿÿ  ÿÀÿş  ş  ş  ?ø  ş  ÿà  ş ÿÀ  ş ÿ   ş ş   ş ü    ş ø    ü ?ğ    | ğ    | ÿà    < ÿÀ    <ÿÀ    <ÿ€    <ÿ     ÿ     ş     ş      ş      ü      ü      ?ü      ?ø      ?ø      ø      ø      ğ      ğ      ÿğ      ÿğ      ÿğ      ÿğ      ÿà      ÿà      ÿà      ÿà      ÿà      ÿà      ÿà      ÿà      ÿà      ÿà      ÿğ      ÿğ      ğ      ğ      ø      ø      ?ø      ?ü     ü    €ş     ÿ     ÿ€   | ÿÀ   ø ÿà  ğ ÿğ  À  ü  ?€  ?ÿ€ş   ÿÿÿø   ÿÿÿà    ÿÿÿ     ÿğ   
+EI
+Q
+endstream
+endobj
+68 0 obj
+632
+endobj
+69 0 obj <<
+/Length 70 0 R
+>>
+stream
+33 0 2 0 43 66 d1
+q
+40 0 0 66 2 0 cm
+BI
+/W 40
+/H 66
+/IM true
+/BPC 1
+/D [1 0]
+ID  ÿÿÿ ÿÿÿ ÿÿà  ?ÿ   ş   ü   ü   ü   ø   ø   ø   ø   ?ø   ?ğ   ?ğ   ?ğ   ?ğ   ?ğ   ğ   à   à   à   à   à   ÿà   ÿÀ   ÿÀ   ÿÀ   ÿÀ   ÿÀ  ÿÀ  ÿ€  ÿ€  ÿ€  ÿ€  ÿ€  ÿ€  ÿ   ÿ   ÿ   ÿ   ÿ   ÿ   ş   ş   ş   ş   ş   ş   ü   ü   ü   ü   ü   ü   ø   ø   ø   ø   ?ø   ?ø   ü   ÿü  ÿÿ€ ÿÿÿü ÿÿÿø 
+EI
+Q
+endstream
+endobj
+70 0 obj
+416
+endobj
+71 0 obj <<
+/Length 72 0 R
+>>
+stream
+72 0 1 -1 82 66 d1
+q
+80 0 0 67 1 -1 cm
+BI
+/W 80
+/H 67
+/IM true
+/BPC 1
+/D [1 0]
+ID  ÿø   ÿÿ ÿø   ÿÿ ÿü   ÿğ  ÿü   ÿÀ  ş    ÿ   ?ÿ    ÿ   ÿ    ~   ÿ€   |   ÿÀ   |   ÿÀ   |   ÿà   x   ÿà   x   ÿğ   ø   ÿø   ø   >ø   ø   >ü   ğ   >?ş   ğ   <ş   ğ   <ÿ   ğ   <ÿ  ğ   |ÿ€ ğ   |ÿÀ à   |ÿÀ à   xÿà à   xÿğ à   x ÿğ à   ø ÿø à   ø ü À   ø ?ü À   ğ ?ş À   ğ ş À   ğ ÿ À  ğ ÿ€À  ğ ÿ€€  ğ ÿÀ€  à ÿà€  à ÿà€  à ÿğ€  à  ÿğ€  à  ø   à  ü   À  ?ü   À  ?ş   À  ÿ   À  ÿ   À  ÿ   €  ÿ   €  ÿŞ   €  ÿş   €  ÿş   €   ÿş   €   ÿü   €   ü       ü       ?ü       ü       ü       ø       ø   ?    ø   ?    ø   €   ø  ÿÀ   ø  ÿğ    ğ  ÿÿÿ    ğ  ÿÿÿ    p         0  
+EI
+Q
+endstream
+endobj
+72 0 obj
+758
+endobj
+73 0 obj <<
+/Length 74 0 R
+>>
+stream
+66 0 2 0 67 66 d1
+q
+64 0 0 66 2 0 cm
+BI
+/W 64
+/H 66
+/IM true
+/BPC 1
+/D [1 0]
+ID  ÿÿÿø   ?ÿÿÿÿÀ  ÿÿÿÿğ   ÿÿÿÿş   ü ÿÿ   ?ø ÿ€  ?ğ ÿÀ  ?ğ ÿà  ?ğ  ÿğ  ?ğ  ğ  ğ  ğ  à  ?ø  à  ?ø  à  ?ø  à  ?ø  à  ?ø  ÿà  ?ø  ÿÀ  ?ø  ÿÀ  ?ğ  ÿÀ  ğ  ÿÀ  ğ  ÿÀ  ğ ÿÀ  ÿà ÿ€  ÿà ÿ€ ÿÀ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ  ÿ€ ?ü  ÿ  ÿø  ÿ ÿà  ÿÿÿ€  ÿÿÿş   ÿÿÿà   ÿÿÿ    ÿÿ€   şÿ€   şÿÀ   şÿà   ş ÿà   ş ÿğ   ü ğ   ü ø   ü ?ü   ü ü   ü ş   ü ÿ   ø ÿ   ø ÿ€  ø ÿÀ  ø ÿÀ  ø ÿà  ?ø ÿğ  ?ğ  ÿğ  ?ğ  ø  ?ğ  ü  ?ğ  ?ü  ğ  ?ş  ğ  ş  ğ  ÿ  ÿğ  ÿ€ ÿğ  ÿÀÿø  ÿàÿş  ÿøÿÿÿğ ÿÿÿÿÿà ÿÿ
+EI
+Q
+endstream
+endobj
+74 0 obj
+614
+endobj
+75 0 obj <<
+/Length 76 0 R
+>>
+stream
+44 0 5 -1 46 46 d1
+q
+40 0 0 47 5 -1 cm
+BI
+/W 40
+/H 47
+/IM true
+/BPC 1
+/D [1 0]
+ID   ü   ÿÿ  ğ?À Àà €ğ ? ğ  ø ş øş øş øş øş øş øü øø ø ` ø   ø   ğ   ÿğ  ïğ  ğ  |ğ ğğ Àà ? à ş àø àğ àğ àà ?ÀÀ ?À?À ?À?À ?ÀÀ ?À€ Àÿ€ €ÿÀ €ÿÀ ÿ€ÿÀÿ€ÿàÿ€ÿğ?Ãÿüÿÿøş?ÿàü?ÿ€øş ?àø €
+EI
+Q
+endstream
+endobj
+76 0 obj
+323
+endobj
+77 0 obj <<
+/Length 78 0 R
+>>
+stream
+44 0 6 -1 47 46 d1
+q
+40 0 0 47 6 -1 cm
+BI
+/W 40
+/H 47
+/IM true
+/BPC 1
+/D [1 0]
+ID   ü   ?ÿ€  ÿÿà øø àü €ü ? ş ~ ş ü ÿø ÿğ ÿğ şà şà  üÀ  `À   €   ?€   ?€   €               ÿ    ÿ    ÿ    ÿ    ÿ    ÿ    ÿ    ÿ€   ÿ€  ÿ€  8ÿÀ  0ÿÀ  `ÿà àğ Àø €ü  ?ÿ€~ ÿÿü ÿÿø ÿÿğ ÿÿÀ ÿÿ€  ÿş   ğ  
+EI
+Q
+endstream
+endobj
+78 0 obj
+323
+endobj
+79 0 obj <<
+/Length 80 0 R
+>>
+stream
+44 0 6 -1 46 46 d1
+q
+39 0 0 47 6 -1 cm
+BI
+/W 39
+/H 47
+/IM true
+/BPC 1
+/D [1 0]
+ID   ø   ÿ  ÿÿ€ ÿÿà Àğ > ø | ø ø üğ üà üà şÀ şÀ şÀ ş€ şÿÿÿş?ÿÿÿş?ÿÿÿş?                ÿ    ÿ    ÿ    ÿ    ÿ    ÿ    ÿ    ÿ    ÿ   ÿ€  ÿ€  ÿÀ  8ÿÀ  pÿà  ğÿğ àø Àü €ÿ  ?ÿÿş ÿÿü ÿÿø ÿÿà ÿÿ€  ÿş   ?ğ  
+EI
+Q
+endstream
+endobj
+80 0 obj
+323
+endobj
+81 0 obj <<
+/Length 82 0 R
+>>
+stream
+33 0 2 0 50 68 d1
+q
+47 0 0 68 2 0 cm
+BI
+/W 47
+/H 68
+/IM true
+/BPC 1
+/D [1 0]
+ID     ÿÀ   ÿğ   ÿø   <ü   øü  ğş  ğü  àü  àø  À ğ  À    À    À    ?À    ?€    ?€    €    €    €    ÿ€    ÿ     ÿ     ÿ   ÿÿÿğ ÿÿÿğ ÿÿÿğ  ÿ    ş    ş    ş    ş    ş    ş    ü    ü    ü    ü    ü    ü    ø    ø    ø    ø    ø    ø    ğ    ğ    ğ    ğ    ğ    ğ    à    à    à    à    ?à    ?à    ?À    ?À    ?À    À    À    À    ÿÀ    ÿÀ   ÿà   ÿÿø   ÿÿÿÀ  
+EI
+Q
+endstream
+endobj
+82 0 obj
+494
+endobj
+83 0 obj <<
+/Length 84 0 R
+>>
+stream
+50 0 1 0 50 68 d1
+q
+48 0 0 68 1 0 cm
+BI
+/W 48
+/H 68
+/IM true
+/BPC 1
+/D [1 0]
+ID    À    À    À   ÿ€   ÿ€   ?ÿ€   ÿ€    ÿ€    ÿ€    ÿ     ÿ     ÿ     ÿ    ÿ    ÿ    ş    ş    ş    ş    ş    ş    ü    ü € üÿà üÿğ ü?ÿø üÿü øøü ùàü ûÀş ÿ ş ş ş ü ş ø ş ğ ş ğ ş ğ ş ğ ş ğ ü à ü à ü à ü à ü ?à ü ?à ø ?À ø ?À ø ?À ø ?À ø À ø À ğ € ğ € ğ € ğ € ğ ÿ€ ğ ÿ€ à ÿ  à ÿ  à ÿ  àÿ  ?àÿ  ?àÿ  ?àÿ  àÿ  àÿ€ÿğÿÿüÿÿÿÿø?ÿÿ
+EI
+Q
+endstream
+endobj
+84 0 obj
+494
+endobj
+85 0 obj <<
+/Length 86 0 R
+>>
+stream
+28 0 2 0 30 68 d1
+q
+27 0 0 68 2 0 cm
+BI
+/W 27
+/H 68
+/IM true
+/BPC 1
+/D [1 0]
+ID      ?À  À  À  ÿà  ÿÀ  ÿÀ  ÿ€     >                                                         ş  ş  ?ş ÿş ÿü  ü  ü  ü  ü  ü  ø  ø  ø  ø  ø  ø  ğ  ğ  ğ  ğ  ğ  ğ  à  à  à  à  ?à  ?à  ?À  ?À  ?À  ?À  À  À  €  €  €  ÿ€  ÿ€  ÿ€ ÿÀ ÿà ÿÿş ÿÿş 
+EI
+Q
+endstream
+endobj
+86 0 obj
+358
+endobj
+87 0 obj <<
+/Length 88 0 R
+>>
+stream
+28 0 2 0 30 68 d1
+q
+27 0 0 68 2 0 cm
+BI
+/W 27
+/H 68
+/IM true
+/BPC 1
+/D [1 0]
+ID    `  à  ?à ÿà ?ÿà ?ÿà  À  À  À  À  À  À  €  €  €  €  ÿ€  ÿ€  ÿ   ÿ   ÿ   ÿ  ÿ  ÿ  ş  ş  ş  ş  ş  ş  ü  ü  ü  ü  ü  ü  ø  ø  ø  ø  ø  ø  ğ  ğ  ğ  ğ  ğ  ğ  à  à  à  à  ?à  ?à  ?À  ?À  ?À  ?À  À  À  €  €  ÿ€  ÿ€ ÿÀ ÿà ÿÿÿ ÿÿÿ 
+EI
+Q
+endstream
+endobj
+88 0 obj
+358
+endobj
+89 0 obj <<
+/Length 90 0 R
+>>
+stream
+50 0 2 0 50 46 d1
+q
+47 0 0 46 2 0 cm
+BI
+/W 47
+/H 46
+/IM true
+/BPC 1
+/D [1 0]
+ID    ÿ   xÿÀ øÿà ø?ÿğÿøÿğÿøø?ø ûàø ÷€ø ÿ ü ü ü ø ü ğ ü ğ ü ğ ü ğ ø à ø à ø à ø à ø ?à ø ?à ğ ?À ğ ?À ğ ?À ğ ?À ğ À ğ À à € à € à € à € ?à ÿ€ ?à ÿ€ ?À ÿ  ?À ÿ  ?À ÿ  ?À ÿ  Àÿ  Àÿ  Àş  €ş  ÿ€ş  ÿ€ÿ ÿÀÿ€ÿàÿÿø?ÿşÿÿø?ÿü
+EI
+Q
+endstream
+endobj
+90 0 obj
+362
+endobj
+91 0 obj <<
+/Length 92 0 R
+>>
+stream
+50 0 6 -1 52 46 d1
+q
+45 0 0 47 6 -1 cm
+BI
+/W 45
+/H 47
+/IM true
+/BPC 1
+/D [1 0]
+ID   ş    ?ÿà   ÿÿø  øü  àş  €ÿ  ?  ÿ€ ~  À ş  ?àü  ?àø  ?ğø  ğğ  ğğ  øà  øà  øà  ø?à  ø?À  ø?À  øÀ  øÀ  øÀ  øÀ  øÿÀ  ğÿÀ  ğÿÀ  ğÿÀ  ğÿÀ  àÿÀ  ?àÿÀ  ?ÀÿÀ  ?ÀÀ  ?€À  €à   à  ş ?à  ş ?à ü ğ ø ğ ğ ø à ü À ş ?  ÿ€ş   ÿø   ÿà   ş   
+EI
+Q
+endstream
+endobj
+92 0 obj
+370
+endobj
+93 0 obj <<
+/Length 94 0 R
+>>
+stream
+50 0 -3 -22 52 46 d1
+q
+54 0 0 68 -3 -22 cm
+BI
+/W 54
+/H 68
+/IM true
+/BPC 1
+/D [1 0]
+ID    @ø   À?ş   Àÿÿ€  ÿÃÿÿÀ ÿÇÿÿà ÿÏÿÿà ?ÿŸÿğ  ÿ¼ ø  ÿğ ?ø  ÿà ø  ÿÀ ü  ÿ€ ü  ÿ  ü  ÿ  ü  ÿ  ü  ÿ  ü ÿ  ü ÿ  ü ş  ü ş  ü ş  ü ş  ü ş  ü ş  ü ü  ø ü  ø ü  ø ü  ğ ü  ğ ü  ğ ø  à ø  à ø  À ø  ?À ø  ?€ ø    ğ    ğ  ş  ğ ü  ø ø  ü ğ  ş à  ÿ À  ïÀ   çÿü   áÿğ   ?à€   ?à     ?À     ?À     ?À     ?À     À     À     €     €     €     €     ÿ€     ÿ€     ÿ      ÿ     ÿ     ÿ€    ÿ€    ÿà    ÿÿÿ    ÿÿÿ    
+EI
+Q
+endstream
+endobj
+94 0 obj
+568
+endobj
+95 0 obj <<
+/Length 96 0 R
+>>
+stream
+33 0 1 0 41 46 d1
+q
+39 0 0 46 1 0 cm
+BI
+/W 39
+/H 46
+/IM true
+/BPC 1
+/D [1 0]
+ID   ø  ü  üş üş ?ü?şÿüşÿü÷ş ùÃü ûü ş p ü   ü   ø   ø   ğ   ğ   ğ   ğ   ğ   à   à   à   ?à   ?à   ?à   ?À   ?À   ?À   À   À   À   €   €   €   ÿ€   ÿ€   ÿ€   ÿ    ÿ    ÿ   ÿ   ÿ   ÿ€  ÿÀ  ÿÿğ  ÿÿÿ  
+EI
+Q
+endstream
+endobj
+96 0 obj
+316
+endobj
+97 0 obj <<
+/Length 98 0 R
+>>
+stream
+39 0 5 -1 39 46 d1
+q
+33 0 0 47 5 -1 cm
+BI
+/W 33
+/H 47
+/IM true
+/BPC 1
+/D [1 0]
+ID   €  ÿğ€ Àÿ€  ?€ > € | € ø €ø €ø  ğ  ğ  ğ  ø  ø  ü  ş   ÿ   ÿÀ  ÿà  ÿø  ÿü   ÿÿ   ÿ€  ?ÿà  ÿğ  ÿø  ÿü   ÿş   ?ş   ş   ÿ  ÿ 0 ÿ 8  ÿ 8  ÿ 8  ş 8  ş 8  ş |  ü |  ø | ø ~ ğ  à €À ÿà?  Ãÿü   à  
+EI
+Q
+endstream
+endobj
+98 0 obj
+323
+endobj
+99 0 obj <<
+/Length 100 0 R
+>>
+stream
+28 0 8 -1 34 58 d1
+q
+25 0 0 59 8 -1 cm
+BI
+/W 25
+/H 59
+/IM true
+/BPC 1
+/D [1 0]
+ID   €  €  €              ?      ş  ş  ş  ş  ÿÿ€ÿÿ€ÿÿÿ ü  ü  ü  ü  ü  ø  ø  ø  ø  ø  ø  ğ  ğ  ğ  ğ  ğ  ğ  à  à  à  à  ?à  ?à  ?À  ?À  ?À  ?À  À  À  €  €  €  €  €  €  € Àp àà ÿÀ ÿ€ ?ÿ  ü  à  
+EI
+Q
+endstream
+endobj
+100 0 obj
+324
+endobj
+101 0 obj <<
+/Length 102 0 R
+>>
+stream
+50 0 9 -1 56 45 d1
+q
+46 0 0 46 9 -1 cm
+BI
+/W 46
+/H 46
+/IM true
+/BPC 1
+/D [1 0]
+ID ÿÿğ ÿüÿÿğ ÿüÿ  àş  Àş  €ş   ş   ş   ş   ş  < ş  8 ÿ  x ÿ  ğ ÿ  ğ  ÿ à  ÿ€à  ÿ€À  ÿ€€  €€  À   À   À   ?À   ?À<   ?à8   ?àx   àp   àğ   ğà   ñà   ñÀ   óÀ   ÿ€   ÿ    ÿ    ş    ş    ü    ü    ø    ğ    ğ    à    à    À    €   
+EI
+Q
+endstream
+endobj
+102 0 obj
+364
+endobj
+7 0 obj <<
+/Type /Font
+/Subtype /Type3
+/Name /F41
+/FontMatrix [0.010033 0 0 0.010033 0 0]
+/FontBBox [ -3 -22 82 68 ]
+/Resources << /ProcSet [ /PDF /ImageB ] >>
+/FirstChar 1
+/LastChar 255
+/Widths 103 0 R
+/Encoding 104 0 R
+/CharProcs 105 0 R
+>> endobj
+103 0 obj
+[ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 66 0 0 0 0 0 33 0 0 0 0 71 0 0 0 66 0 0 0 0 0 0 0 0 0 0 0 0 0 0 44 0 44 0 44 33 0 49 27 0 0 27 0 49 49 49 0 33 38 27 0 49 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ]
+endobj
+104 0 obj <<
+/Type /Encoding
+/Differences [ 1 /a1/a2/a3/a4/a5/a6/a7/a8/a9/a10/a11/a12/a13/a14/a15/a16/a17/a18/a19/a20/a21/a22/a23/a24/a25/a26/a27/a28/a29/a30/a31/a32/a33/a34/a35/a36/a37/a38/a39/a40/a41/a42/a43/a44/a45/a46/a47/a48/a49/a50/a51/a52/a53/a54/a55/a56/a57/a58/a59/a60/a61/a62/a63/a64/a65/a66/a67/a68/a69/a70/a71/a72/a73/a74/a75/a76/a77/a78/a79/a80/a81/a82/a83/a84/a85/a86/a87/a88/a89/a90/a91/a92/a93/a94/a95/a96/a97/a98/a99/a100/a101/a102/a103/a104/a105/a106/a107/a108/a109/a110/a111/a112/a113/a114/a115/a116/a117/a118/a119/a120/a121/a122/a123/a124/a125/a126/a127/a128/a129/a130/a131/a132/a133/a134/a135/a136/a137/a138/a139/a140/a141/a142/a143/a144/a145/a146/a147/a148/a149/a150/a151/a152/a153/a154/a155/a156/a157/a158/a159/a160/a161/a162/a163/a164/a165/a166/a167/a168/a169/a170/a171/a172/a173/a174/a175/a176/a177/a178/a179/a180/a181/a182/a183/a184/a185/a186/a187/a188/a189/a190/a191/a192/a193/a194/a195/a196/a197/a198/a199/a200/a201/a202/a203/a204/a205/a206/a207/a208/a209/a210/a211/a212/a213/a214/a215/a216/a217/a218/a219/a220/a221/a222/a223/a224/a225/a226/a227/a228/a229/a230/a231/a232/a233/a234/a235/a236/a237/a238/a239/a240/a241/a242/a243/a244/a245/a246/a247/a248/a249/a250/a251/a252/a253/a254/a255 ]
+>> endobj
+105 0 obj <<
+/a67 67 0 R
+/a73 69 0 R
+/a78 71 0 R
+/a82 73 0 R
+/a97 75 0 R
+/a99 77 0 R
+/a101 79 0 R
+/a102 81 0 R
+/a104 83 0 R
+/a105 85 0 R
+/a108 87 0 R
+/a110 89 0 R
+/a111 91 0 R
+/a112 93 0 R
+/a114 95 0 R
+/a115 97 0 R
+/a116 99 0 R
+/a118 101 0 R
+>> endobj
+6 0 obj <<
+/Type /Font
+/Subtype /Type1
+/Encoding 50 0 R
+/BaseFont /Times-Roman
+>> endobj
+5 0 obj <<
+/Type /Font
+/Subtype /Type1
+/Encoding 50 0 R
+/BaseFont /Times-Bold
+>> endobj
+12 0 obj <<
+/Type /Pages
+/Count 6
+/Parent 106 0 R
+/Kids [2 0 R 14 0 R 19 0 R 24 0 R 28 0 R 33 0 R]
+>> endobj
+41 0 obj <<
+/Type /Pages
+/Count 3
+/Parent 106 0 R
+/Kids [37 0 R 43 0 R 47 0 R]
+>> endobj
+106 0 obj <<
+/Type /Pages
+/Count 9
+/Kids [12 0 R 41 0 R]
+>> endobj
+107 0 obj <<
+/Type /Catalog
+/Pages 106 0 R
+>> endobj
+108 0 obj <<
+/Creator (TeX)
+/Producer (pdfTeX-0.13d)
+/CreationDate (D:20000105140200)
+>> endobj
+xref
+0 109
+0000000000 65535 f 
+0000009026 00000 n 
+0000008915 00000 n 
+0000000009 00000 n 
+0000008895 00000 n 
+0000114180 00000 n 
+0000114091 00000 n 
+0000111814 00000 n 
+0000102672 00000 n 
+0000102585 00000 n 
+0000102494 00000 n 
+0000099513 00000 n 
+0000114268 00000 n 
+0000021195 00000 n 
+0000021081 00000 n 
+0000009195 00000 n 
+0000021059 00000 n 
+0000096378 00000 n 
+0000032088 00000 n 
+0000031974 00000 n 
+0000021343 00000 n 
+0000031952 00000 n 
+0000096287 00000 n 
+0000044061 00000 n 
+0000043947 00000 n 
+0000032214 00000 n 
+0000043925 00000 n 
+0000055262 00000 n 
+0000055148 00000 n 
+0000044186 00000 n 
+0000055126 00000 n 
+0000096191 00000 n 
+0000064928 00000 n 
+0000064814 00000 n 
+0000055388 00000 n 
+0000064793 00000 n 
+0000078404 00000 n 
+0000078290 00000 n 
+0000065064 00000 n 
+0000078268 00000 n 
+0000096098 00000 n 
+0000114377 00000 n 
+0000091025 00000 n 
+0000090911 00000 n 
+0000078565 00000 n 
+0000090889 00000 n 
+0000094219 00000 n 
+0000094105 00000 n 
+0000091139 00000 n 
+0000094084 00000 n 
+0000094310 00000 n 
+0000096510 00000 n 
+0000097054 00000 n 
+0000099202 00000 n 
+0000099223 00000 n 
+0000099243 00000 n 
+0000099263 00000 n 
+0000099283 00000 n 
+0000099313 00000 n 
+0000099645 00000 n 
+0000100188 00000 n 
+0000102188 00000 n 
+0000102209 00000 n 
+0000102229 00000 n 
+0000102249 00000 n 
+0000102269 00000 n 
+0000102300 00000 n 
+0000102757 00000 n 
+0000103443 00000 n 
+0000103463 00000 n 
+0000103933 00000 n 
+0000103953 00000 n 
+0000104765 00000 n 
+0000104785 00000 n 
+0000105453 00000 n 
+0000105473 00000 n 
+0000105850 00000 n 
+0000105870 00000 n 
+0000106247 00000 n 
+0000106267 00000 n 
+0000106644 00000 n 
+0000106664 00000 n 
+0000107212 00000 n 
+0000107232 00000 n 
+0000107780 00000 n 
+0000107800 00000 n 
+0000108212 00000 n 
+0000108232 00000 n 
+0000108644 00000 n 
+0000108664 00000 n 
+0000109080 00000 n 
+0000109100 00000 n 
+0000109524 00000 n 
+0000109544 00000 n 
+0000110166 00000 n 
+0000110186 00000 n 
+0000110556 00000 n 
+0000110576 00000 n 
+0000110953 00000 n 
+0000110973 00000 n 
+0000111352 00000 n 
+0000111373 00000 n 
+0000111793 00000 n 
+0000112064 00000 n 
+0000112613 00000 n 
+0000113839 00000 n 
+0000114466 00000 n 
+0000114533 00000 n 
+0000114586 00000 n 
+trailer
+<<
+/Size 109
+/Root 107 0 R
+/Info 108 0 R
+>>
+startxref
+114682
+%%EOF

@@ -1,0 +1,89 @@
+<HTML>
+<HEAD>
+<BASE HREF="http://www.foretec.com/python/workshops/1998-11/proceedings/demos/bishop/bishop.html">
+
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Luke Bishop">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.04 [en] (WinNT; I) [Netscape]">
+   <TITLE>DemoPosterAbstract</TITLE>
+</HEAD>
+<BODY>
+
+<H2>
+Fortran 77 Extension Builder for Python</H2>
+Luke Bishop
+<BR>Photon Research Associates, Inc.
+<H2>
+Abstract</H2>
+The use of Fortran codes in scientific, research and development environments,
+such computational chemistry, radiation transport, and modeling and simulation
+is well established. A flexible paradigm of code development and scientific
+research is possible making use of interactive, scripting languages controlling
+and "steering" computational-intensive codes developed in traditional,
+compiled languages.&nbsp; A general-purpose tool (Extension Builder) has
+been developed to build Fortran 77 extension modules and to define public
+interfaces exposing Fortran 77 variables and functions.
+<H2>
+Extension Builder</H2>
+Fortran 77 developers and researchers use Extension Builder to declare
+a public interface to Fortran 77 procedures and variables.&nbsp; Variables
+of all common Fortran 77 data types (up to 2 dimensions) can be declared
+using Extension Builder. Function prototype definitions describe the Fortran
+procedures to be made public.&nbsp; Function prototype definitions can
+include parameters of all common types.&nbsp; Extension Builder was developed
+in C++ using a cross-platform graphical user interface tool.&nbsp; Currently,
+Extension Builder generates MAKE files compatible with Silicon Graphics
+systems (IRIX 6.4 and later) and Win32 Microsoft Visual Studio IDE (MSVC5.0
+and Digital Visual Fortran).
+
+<P><IMG SRC="BuildPhase&Mapping.gif" HEIGHT=498 WIDTH=536>
+<BR>&nbsp;
+<H2>
+Building Extensions</H2>
+Developers specify function prototypes for Fortran 77 procedures to be
+made public to Python users. Function parameters can be declared with "input",
+"output", or "inout" access, as defined in Extension Builder's SWIG (Simplified
+Wrapper and Interface Generator) typemaps.&nbsp; Likewise, Fortran variables
+can be declared with default values with minimum and maximum range values.
+Based on declarations, a code generator creates wrapper files, a SWIG interface
+file, and a MAKE file. The MAKE file can be executed from within Extension
+builder, from within an IDE, or stand-alone.&nbsp; A target dynamic link
+library or static python executable (Unix only) is then built.
+
+<P>Extension Builder utilizes SWIG extensively to build the wrapper interfaces.&nbsp;
+Customized SWIG typemaps are used to map standard data types and Numeric
+Python (NumPy) array types from the python user environment to the Fortran
+extension library via the public functions and variables.
+<BR>&nbsp;
+</BODY>
+
+<SCRIPT language="Javascript">
+<!--
+
+// FILE ARCHIVED ON 20010414055956 AND RETRIEVED FROM THE
+// INTERNET ARCHIVE ON 20060504134753.
+// JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+// ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+// SECTION 108(a)(3)).
+
+   var sWayBackCGI = "http://web.archive.org/web/20010414055956/";
+
+   function xLateUrl(aCollection, sProp) {
+      var i = 0;
+      for(i = 0; i < aCollection.length; i++)
+         if (aCollection[i][sProp].indexOf("mailto:") == -1 &&
+             aCollection[i][sProp].indexOf("javascript:") == -1)
+            aCollection[i][sProp] = sWayBackCGI + aCollection[i][sProp];
+   }
+
+   if (document.links)  xLateUrl(document.links, "href");
+   if (document.images) xLateUrl(document.images, "src");
+   if (document.embeds) xLateUrl(document.embeds, "src");
+
+   if (document.body && document.body.background)
+      document.body.background = sWayBackCGI + document.body.background;
+
+//-->
+
+</SCRIPT>
+</HTML>

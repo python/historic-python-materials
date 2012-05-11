@@ -1,0 +1,160 @@
+Title: python-dev Summary for 2003-03-16 through 2003-03-31
+Sitemap-ignore: yes
+
+<div class="document" id="python-dev-summary-for-2003-03-16-through-2003-03-31">
+<h1 class="title">python-dev Summary for 2003-03-16 through 2003-03-31</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> from March 16, 2003 through March 31, 2003.  It is intended to inform the wider Python community of on-going developments on the list and to have an archived summary of each thread started on the list.  To comment on anything mentioned here, just post to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> or <a class="reference" href="http://groups.google.com/groups?q=comp.lang.python">comp.lang.python</a> with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join <a class="reference" href="http://www.python.org/dev/">python-dev</a>!</p>
+<p>This is the fourteenth summary written by Brett Cannon (Managed to keep my sanity as long as A.M. Kuchling did before he stopped doing the Summaries =).</p>
+<p>All summaries are archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a> (otherwise it is probably regular expression syntax); you can safely ignore it (although I suggest learning reST; its simple and is accepted for <a class="reference" href="http://www.python.org/dev/peps/pep-0012">PEP markup</a>).  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is unless it is from the original text file.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#summary-announcements" id="id29" name="id29">Summary Announcements</a></li>
+<li><a class="reference" href="#re-lists-v-tuples" id="id30" name="id30">Re: lists v. tuples</a></li>
+<li><a class="reference" href="#fast-access-to-builtins" id="id31" name="id31">Fast access to __builtins__</a></li>
+<li><a class="reference" href="#capability-mediated-modules" id="id32" name="id32">capability-mediated modules</a></li>
+<li><a class="reference" href="#quickies" id="id33" name="id33">Quickies</a></li>
+</ul>
+</div>
+<div class="section" id="summary-announcements">
+<h1><a class="toc-backref" href="#id29" name="summary-announcements">Summary Announcements</a></h1>
+<p>PyCon is now over!  It was a wonderful experience.  Getting to meet people from python-dev in person was great.  The sprint was fun and productive (work on the AST branch, caching where something is found in an inheritance tree, and a new CALL_ATTR opcode were all worked on).  It was definitely worth attending; I am already looking forward to next year's conference.</p>
+<p>I am trying a new way of formatting the <a class="reference" href="#quickies">Quickies</a> section.  I am trying non-inline implicit links instead of inlined ones.  I am hoping this will read better in the text version of the summary.  If you have an opinion on whether the new or old version is better let me know.  And remember, the last time I asked for an opinion Michael Chermside was the only person to respond and thus ended up making an executive decision.</p>
+</div>
+<div class="section" id="re-lists-v-tuples">
+<h1><a class="toc-backref" href="#id30" name="re-lists-v-tuples"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034029.html">Re: lists v. tuples</a></a></h1>
+<dl>
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034070.html">Re: Re: lists v. tuples</a></li>
+</ul>
+</dd>
+</dl>
+<p>This developed from a thread from covered in the <a class="reference" href="http://www.python.org/dev/summary/2003-03-01_2003-03-15.html">last summary</a> that discussed the different uses of lists and tuples.  By the start date for this summary, though, it had turned into a discussion on comparisons.  This occured when sorting heterogeneous objects came up.  Guido commented that having anything beyond equality and non-equality tests for non-related objects does not make sense.  This also led Guido to comment that &quot;TOOWTDI makes me want to get rid of __cmp__&quot; (TOOWTDI is &quot;There is Only One Way to Do It&quot;).</p>
+<p>Now before people start screaming bloody murder over the possible future loss of __cmp__() (which probably won't happen until Python 3), realize that all comparisons can be done using the six other rich comparisons (__lt__(), __eq__(), etc.).  There is some possible code elegance lost if you have to use two rich comparisons instead a single __cmp__() comparison, but it is nothing that will prevent you from doing something that you couldn't do before.  There can also be a performance penalty in sorting in some instances.</p>
+<p>This all led Guido to suggest introducing the function before().  This would be used for arbitrary ordering of objects.  Alex Martelli said it would &quot;be very nice if before(x,y) were the same as x&lt;y whenever the latter doesn't raise an exception, if feasible&quot;.  He also said that it should probably &quot;define a total ordering, i.e. the implied equivalence being equality&quot;.</p>
+</div>
+<div class="section" id="fast-access-to-builtins">
+<h1><a class="toc-backref" href="#id31" name="fast-access-to-builtins"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034243.html">Fast access to __builtins__</a></a></h1>
+<p>There has been rumblings on the list as of late of disallowing shadowing of built-ins.  Specifically, the idea of someone injecting something into a module's namespace that overrides a global (by doing something like <tt class="literal"><span class="pre">socket.len</span> <span class="pre">=</span> <span class="pre">lambda</span> <span class="pre">x:</span> <span class="pre">42</span></tt> from the socket module) is slightly nasty, rarely done, and prevents the core from optimizing for built-ins.</p>
+<p>Raymond Hettinger, in an effort to see how to speed up built-in access, came up with the idea of replacing opcode calls of LOAD_GLOBAL and replace them with LOAD_CONST after putting the built-in being called into the constants table.  This would leave shadowing of built-ins locally unaffected but prevent shadowing at the module.  Raymond suggested turning on this behavior for when running Python -O.</p>
+<p>The idea of turning this on when running with the -O option was shot down.  The main argument is that semantics are changed and thus is not acceptable for the -O flag.  It was mentioned that -OO can change semantics, but even that is questionable.</p>
+<p>So this led to some suggestions of how to turn this kind of feature on.  Someone suggested something like a pragma (think Perl) or some other mechanism at the module level.  Guido didn't like this idea since he does not want modules to be riddled with code to turn on module-level optimizations.</p>
+<p>But all of this was partially shot down when Guido stepped in and reiterated he just wanted to prevent outside code from shadowing built-ins for a module.  The idea is that if it can be proven that a module does not shadow a built-in it can output an opcode specific for that built-in, e.g. len() could output opcode for calling PyOject_Size() if the compiler can prove that len() is not shadowed in the module at any point.</p>
+<p>Neil Schemanauer suggested adding a warning for when this kind of shadowing is done.  Guido said fine as long as extension modules are exempt.  Now no matter how well the warning is coded, it would be <em>extremely</em> difficult to catch something like <tt class="literal"><span class="pre">import</span> <span class="pre">X;</span> <span class="pre">d</span> <span class="pre">=</span> <span class="pre">X.__dict__;</span> <span class="pre">d[&quot;len&quot;]</span> <span class="pre">=</span> <span class="pre">lambda</span> <span class="pre">x:</span> <span class="pre">42</span></tt>.  How do you deal with this?  By Guido saying he has not issue saying something like this &quot;is always prohibited&quot;.  He said you could still do <tt class="literal"><span class="pre">setattr(X,</span> <span class="pre">&quot;len&quot;,</span> <span class="pre">lambda</span> <span class="pre">x:</span> <span class="pre">42)</span></tt>, though, and that might give you a warning.  Neil's patch can be found at <a class="reference" href="http://www.python.org/sf/711448">http://www.python.org/sf/711448</a> .</p>
+</div>
+<div class="section" id="capability-mediated-modules">
+<h1><a class="toc-backref" href="#id32" name="capability-mediated-modules"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034149.html">capability-mediated modules</a></a></h1>
+<dl>
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034152.html">Capabilities</a></li>
+</ul>
+</dd>
+</dl>
+<p>The thread that will not die (nor does it look like it will in the near future; Guido asked to postpone discussing it until he gets back from <a class="reference" href="http://www.python-uk.org/">Python UK</a> which will continue the discussion into the next summary.  I am ending up an expert at capabilities against my will.  =)</p>
+<p>In case you have not been following all of this, capabilities as being discussed here is the idea that security is based on passing around references to objects.  If you have a reference you can use it with no restrictions.  Security comes in by controlling who you give references to.  So I might ask for a reference to file(), but I won't necessarily get it.  I could, instead, be handed a reference to a restrictive version of file() that only opens files in an OSs temporary file directory.  So, in capabilities-land, executing <tt class="literal"><span class="pre">open_file</span> <span class="pre">=</span> <span class="pre">file</span></tt> only works if you have the reference to 'file', otherwise the assignment fails and you just don't get access.  If that is not clear, read the <a class="reference" href="http://www.python.org/dev/summary/2003-03-01_2003-03-15.html">last summary</a> on this thread.  And now, on to the new stuff...</p>
+<p>There were also suggestions to add arguments to import statements to give a more fine-grained control over them.  But it was pointed out that classes fit this bill.</p>
+<p>The idea of limiting what modules are accessible by some code by not using a universally global scope (i.e., not using sys.modules) but by having a specific scope for each function was suggested.  As Greg Ewing put it, &quot;it would be dynamic scoping of the import namespace&quot;.</p>
+<p>While trying to clarify things (which were at PyCon thanks to the Open Space discussion held there on this subject), a good distinction between a <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-rexec.html">rexec</a> world (as in the module) and a capabilities was made by Guido.  In capabilities, security is based on passing around references that have the amount of power you are willing for it to have.  In a rexec world, it is based on what powers the built-ins give you; there is no worry about passing around code.  Also, in the rexec world, you can have the idea of a &quot;workspace&quot; where __builtin__ has very specific definitions of built-ins that are used when executing untrusted code.</p>
+<p>It has been pointed out that rexec can be viewed as a specific implementation of capabilities.  Since you are restricting what references code by making only certain references available to the codes you are using capabilities, just more at a namespace level than on a per-reference level.</p>
+<p>Ka-Ping Yee wrote up an example of some code of what it would be like to code with capabilities (can be found at <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034287.html">http://mail.python.org/pipermail/python-dev/2003-March/034287.html</a> ).</p>
+</div>
+<div class="section" id="quickies">
+<h1><a class="toc-backref" href="#id33" name="quickies">Quickies</a></h1>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034062.html">tzset</a></dt>
+<dd>time.tzset() is going to be kept in Python, but only on UNIX.  The testing suite was also loosened so as to not throw as many false-negatives.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034102.html">Windows IO</a></dt>
+<dd>stdin and stdout on Windows are TTYs.  You can get 3rd-party modules to get more control over the TTY.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034107.html">Who approved PyObject_GenericGetIter()???</a></dt>
+<dd>Splinter threads: <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034103.html">Re: [Python-checkins] python/dist/src/Modules _hotshot.c,...</a>; <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034110.html">PyObject_GenericGetIter()</a>
+Raymond Hettinger wrote a function called PyObject_GenericGetIter() that returned self for objects that were an iterator themselves.  Thomas Wouters didn't like the name and neither did Guido since it was generic at all; it worked specifically with objects that were iterators themselves.  Thus the function was renamed to PyObject_SelfIter().</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034120.html">test_posix failures?</a></dt>
+<dd>A test for posix.getlogin() was failing for Barry Warsaw under XEmacs (that is what he gets for not using <a class="reference" href="http://www.vim.org/">Vim</a> =).  Thomas Wouters pointed out it only works when there is a utmp file somewhere.  Basically it was agreed the test that was failing should be removed.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034138.html">Shortcut bugfix</a></dt>
+<dd>Raymond Hettinger reported that a change in <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/_tkinter.c">_tkinter.c</a> for a function led to it returning strings or ints which broke <a class="reference" href="http://pmw.sourceforge.net/">PMW</a> (although having a function return two different things was disputed in the thread; I think it used to return a string and now returns an int).  The suggestion of making string.atoi() more lenient on its accepted arguments was made but shot down since it changes semantics.  If you want to keep old way of having everything in Tkinter return strings instead of more proper object types (such as ints where appropriate), you can put teh line <tt class="literal"><span class="pre">Tkinter.wantobjects</span> <span class="pre">=</span> <span class="pre">0</span></tt> before the first creation of a tkapp object.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034162.html">csv package ready for prime-time?</a></dt>
+<dd>Related: <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034179.html">csv package stitched into CVS hierarchy</a>
+Skip Montanaro: Okay to move <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-csv.html">csv</a> package from the sandbox into the stdlib?
+Guido van Rossum: Yes.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034167.html">string.strip doc vs code mismatch</a></dt>
+<dd>Neal Norwitz asked for someone to look at <a class="reference" href="http://python.org/sf/697220">http://python.org/sf/697220</a> which updates string.strip() from the <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-string.html">string</a> module to take an optional second argument.  The patch is still open.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034019.html">Re: More int/long integration issues</a></dt>
+<dd>The point was made that it would be nice if the statement <tt class="literal"><span class="pre">if</span> <span class="pre">num</span> <span class="pre">in</span> <span class="pre">range(...):</span> <span class="pre">...</span></tt> could be optimized by the compiler if range() was only the built-in by substituting it with something like xrange() and thus skip creating a huge list.  This would allow the removal of xrange() without issue.  Guido suggested a restartable iterator (generator would work wonderfully if you could just get everything else to make what range() returns look like the list it should be).</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034177.html">socket timeouts fail w/ makefile()</a></dt>
+<dd>Skip Montanaro discovered that using the makefile() method on a socket cause the file-like object to not observe the new timeout facility introduced in Python 2.3.  He has since patched it so that it works properly and that sockets always have a makefile() (wasn't always the case before).</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034191.html">New Module? Tiger Hashsum</a></dt>
+<dd>Tino Lange implemented a wrapper for the <a class="reference" href="http://www.cs.technion.ac.il/~biham/Reports/Tiger/">Tiger hash sum</a> for Python and asked how he could get it added to the stdlib.  He was told that he would need community backing before his module could be added in order to make sure that there is enough demand to warrant the edition.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034196.html">Icon for Python RSS Feed?</a></dt>
+<dd>Tino Lange asked if an XML RSS feed icon could be added at <a class="reference" href="http://www.python.org/">http://www.python.org/</a> for <a class="reference" href="http://www.python.org/channews.rdf">http://www.python.org/channews.rdf</a> .  It has been added.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034197.html">How to suppress instance __dict__?</a></dt>
+<dd>David Abrahams asked if there was an easy way to suppress an instance __dict__'s creation from a metaclass.  The answer turned out to be no.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034200.html">Weekly Python Bug/Patch Summary</a></dt>
+<dd>Another summary can be found at <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034286.html">http://mail.python.org/pipermail/python-dev/2003-March/034286.html</a>
+Skip Montanaro's weekly reminder how Python ain't perfect.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034204.html">[ot] offline</a></dt>
+<dd>Samuele Pedroni is off relaxing is is going to be offline for two weeks starting March 23.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034212.html">funny leak</a></dt>
+<dd>Christian Tismer discovered a memory leak in a funky def statement he came up with.  The leak has since been squashed (done at <a class="reference" href="http://www.python.org/pycon/">PyCon</a> during the sprint, actually).</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034230.html">Checkins to Attic?</a></dt>
+<dd><a class="reference" href="http://www.cvshome.org/">CVS</a> uses something called the Attic to put files that are only in a branch but not the HEAD of a tree.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034233.html">ossaudiodev tweak needs testing</a></dt>
+<dd>Greg Ward asked people who are running Linux or FreeBSD to execute <tt class="literal"><span class="pre">Lib/test/regrtest.py</span> <span class="pre">-uaudio</span> <span class="pre">test_ossaudiodev</span></tt> so as to test his latest change to <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Modules/ossaudiodev.c">ossaudiodev</a>.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034234.html">cvs.python.sourceforge.net fouled up</a></dt>
+<dd>Apparently when you get that nice message from <a class="reference" href="http://www.sf.net/">SourceForge</a> telling you that recv() has aborted because of server overloading you can rest assured that people with checkin rights get to continue to connect since they get priority.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034239.html">Doc strings for typeslots?</a></dt>
+<dd>You can't add custom docstrings to things stored in typeobject slots at the C level.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034281.html">Compiler treats None both as a constant and variable</a></dt>
+<dd>As of now the compiler outputs opcode that treats None as both a global and a constant.  That will change as some point when assigning to None becomes an error instead of a warning as it is in Python 2.3; possibly 2.4 the change will be made.</dd>
+</dl>
+<dl>
+<dt><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-March/034300.html">iconv codec</a></dt>
+<dd>M.A. Lemburg stated that he questioned whether the iconv codec was ready for prime-time.  There have been multiple issues with it and most seem to stem from a platform's codec and not ones that come with Python.  This affects all u&quot;&quot;.encode() calls when the codec does not come with Python.  Hye-Shik Chang said he would get his iconv codec NG patch up on SF in the next few days and that would be applied.</dd>
+</dl>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="2003-03-16_2003-03-31.txt">View document source</a>.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>

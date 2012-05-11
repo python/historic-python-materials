@@ -1,0 +1,228 @@
+Title: python-dev Summary for 2005-01-16 through 2005-01-31
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2005-01-16 through 2005-01-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. contents::
+
+
+
+=====================
+Summary Announcements
+=====================
+
+-----------------------------------------
+School sure likes to destroy my free time
+-----------------------------------------
+
+A month late, that much closer to having this hectic quarter being over.  Sorry for being so delinquent with this summary but school has kept me busy and obviously the Real World has to take precedence over volunteer work.  Now if I could only get paid for doing this... =)
+
+And if you hate the summaries being late, you could do it yourself.  This is not meant to be a flippant comment!  I am always willing to hand over development of the summaries to anyone who is willing to do a comparable job.  If you are interested feel free to email me.  I have now made this a permanent offer in the header in case someone comes along later and decides they want to do this.
+
+
+----------------------
+RSS feed now available
+----------------------
+
+Thanks entirely to one of my predecessors, A.M. Kuchling, the python-dev Summaries are available as an `RSS feed`_.  The feed contains the titles of every summary and so will be updated with the newest summaries as soon as they are posted online.  A full text feed will eventually be available.
+
+
+----------
+New format
+----------
+
+I have done a thorough restructuring of the boilerplate and the Summary Announcements section for the Summaries.  The purpose of this is to make finding information in the boilerplate much easier.  It also keeps consistency by sectioning off everything as in the Summary section.
+
+The other reason is for the ``contents`` directive in reST_.  This will provide a more thorough table of contents for the web version of the summary at the very top of the summaries.  This will allow people to jump directly to the section of the Summary they care about the most.  Obviously this perk only exists in the HTML version.
+
+Lastly, the typical boilerplate for each Summary has now been moved to the bottom.  This was at the request of a regular reader who I would like to keep happy.  =)  It also seems reasonable since once you have read through it once chances are you are not going to read it again so might as well move it out of the way.
+
+Then again I could be totally wrong about all of this and manage to alienate every person who reads the summaries regularly.  =)
+
+
+
+
+=======
+Summary
+=======
+
+---------------------
+Python 2.3.5 released
+---------------------
+
+Consider how late this summary is I bet you already knew Python 2.3.5 was already out the door.  =)
+
+With Python 2.4 out in the world this means there is a very high probability 2.3.6 will never exist and this marks the end of the 2.3 branch.
+
+Contributing threads:
+  - `2.3.5 delayed til next week <http://mail.python.org/pipermail/python-dev/2005-January/051140.html>`__
+  - `2.3 BRANCH FREEZE imminent! <http://mail.python.org/pipermail/python-dev/2005-January/051277.html>`__
+  - `RELEASED Python 2.3.5, release candidate 1 <http://mail.python.org/pipermail/python-dev/2005-January/051304.html>`__
+
+
+------------------------------------------------------
+Making magic type conversion methods act like __str__
+------------------------------------------------------
+
+Walter Dörwald discovered that when you subclass 'unicode' and call unicode() on an instance of the subclass it will not call the implementation of __unicode__ of the subclass but instead will call unicode.__unicode__ .  When in the same scenario with strings, though, str() calls the subclass' __str__ method.  Turns out 'int' and 'float' act like 'unicode' while 'complex' acts like 'str'.
+
+So who is right?  Docs say 'str' is wrong, but this is mainly an artifact of pre-2.2 inability to subclass types.  Turns out 'str' is acting properly.  `Patch #1109424`_ implements the proper semantics and will eventually go in for 2.5 (won't touch 2.4 since it is a semantic change).
+
+.. _Patch #1109424: http://www.python.org/sf/1109424
+
+Contributing threads:
+  - `__str__ vs. __unicode__ <http://mail.python.org/pipermail/python-dev/2005-January/051175.html>`__
+
+
+---------------------------------------------
+Speeding up function calls to C API functions
+---------------------------------------------
+
+Neal Norwitz posted the patch found at http://www.python.org/sf/1107887 to help with function calls to C code.  The idea is to expand the family of values used in PyMethodDef.ml_flags for argument types to include specifying the number of minimum and maximum number of arguments.  This can provide a speedup by allowing the eval loop to unpack everything in the C stack and skip packing arguments in a tuple.
+
+But not everyone was sure it was worth the extra need to specify all of this for functions.  Regardless of that and any other objections this would be more of a Python 3000 thing.
+
+Which also led to a quick shift in topic to how Python 3.0 will be developed.  Guido said it would be piece-meal.  Read http://joelonsoftware.com/articles/fog0000000069.html for why.
+
+Contributing threads:
+  - `Speed up function calls <http://mail.python.org/pipermail/python-dev/2005-January/051251.html>`__
+  - `Moving towards Python 3.0 <http://mail.python.org/pipermail/python-dev/2005-January/051355.html>`__
+
+
+------------------------------------------------------------
+How to handle memory allocation with the presence of threads
+------------------------------------------------------------
+
+Evan Jones has been working on a patch to allow the garbage collector to free up memory of small objects.  This led him to ask questions in terms of memory usage in the face of threading at the C level.  While the GIL usually needs to be held for any operation that touches Python code, he was not sure if this held for the memory API.
+
+Tim Peters clarified all of this by pointing out the documentation in the C API manual about the GIL.  In a nutshell the memory API is not exempt from needing to hold the GIL, so hold it.
+
+It was also pointed out there was a bunch of code to allow people to mix usage of PyMem_* functions with PyObject_* functions.  That was purely done for backwards-compatibility back in the day.  Mixing these two APIs for memory is very bad.  Don't do it!
+
+Contributing threads:
+  - `Improving the Python Memory Allocator <http://mail.python.org/pipermail/python-dev/2005-January/051255.html>`__
+  - `Python Interpreter Thread Safety? <http://mail.python.org/pipermail/python-dev/2005-January/051335.html>`__
+
+
+--------------------------
+Slicing iterators rejected
+--------------------------
+
+Nick Coghlan proposed allowing iterators to be sliced liked other sequence types.  That way something like ``enumerate("ABCD")[1:]`` would work.
+
+But Guido rejected it.  With itertools.islice existence it does not provide new functionality.  Plus "Iterators are for single sequential access" according to Guido, and thus should not be confused with sequences.
+
+Contributing threads:
+  - `Allowing slicing of iterators <http://mail.python.org/pipermail/python-dev/2005-January/051257.html>`__
+
+
+===============
+Skipped Threads
+===============
+
+- redux: fractional seconds in strptime
+- how to test behavior wrt an extension type?
+- Strange segfault in Python threads and linux kernel 2.6
+- Unix line endings required for PyRun* breaking embedded Python
+- Zen of Python
+- PyCon: The Spam Continues ;-)
+- Patch review: [ 1094542 ] add Bunch type to collections module
+
+
+
+========
+Epilogue
+========
+
+------------
+Introduction
+------------
+
+This is a summary of traffic on the `python-dev mailing list`_ from
+January 16, 2005 through January 31, 2005.
+It is intended to inform the wider Python community of on-going
+developments on the list on a semi-monthly basis.  An archive_ of
+previous summaries is available online.
+
+An `RSS feed`_ of the titles of the summaries is available.
+You can also watch comp.lang.python or comp.lang.python.announce for
+new summaries (or through their email gateways of python-list or
+python-announce, respectively, as found at http://mail.python.org).
+
+This is the fifty-seventh summary written by Brett Cannon (grad schools are actually crazy enough to accept me  =).
+
+To contact me, please send email to brett at python.org.  Do *not*
+post to comp.lang.python if you wish to reach me.
+
+The `Python Software Foundation`_ is the non-profit organization that
+holds the intellectual property for Python.  It also tries to advance 
+the development and use of Python.  If you find the python-dev Summary
+helpful please consider making a donation.  You can make a donation at
+http://python.org/psf/donations/ .  Every penny helps so even a
+small donation with a credit card, check, or by PayPal helps.  
+
+If you are looking for a way to expand your knowledge of Python's
+development and inner-workings, consider writing the python-dev
+Summaries yourself!  I am willing to hand over the reins to someone
+who is willing to do a comparable or better job of writing the
+Summaries.  If you are interested, please email me at
+brett at python.org.
+
+
+--------------------
+Commenting on Topics
+--------------------
+
+To comment on anything mentioned here, just post to
+`comp.lang.python`_ (or email python-list@python.org which is a
+gateway to the newsgroup) with a subject line mentioning what you are
+discussing.  All python-dev members are interested in seeing ideas
+discussed by the community, so don't hesitate to take a stance on
+something.  And if all of this really interests you then get involved
+and join `python-dev`_!
+
+
+-------------------------
+How to Read the Summaries
+-------------------------
+
+The in-development version of the documentation for Python can be
+found at http://www.python.org/dev/doc/devel/ and should be used when
+looking up any documentation for new code; otherwise use the current
+documentation as found at http://docs.python.org/ .  PEPs (Python
+Enhancement Proposals) are located at http://www.python.org/dev/peps/ .
+To view files in the Python CVS online, go to
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported
+bugs and suggested patches can be found at the SourceForge_ project
+page.
+
+Please note that this summary is written using reStructuredText_.
+Any unfamiliar punctuation is probably markup for reST_ (otherwise it
+is probably regular expression syntax or a typo =); you can safely
+ignore it.  I do suggest learning reST, though; it's simple and is
+accepted for `PEP markup`_ and can be turned into many different
+formats like HTML and LaTeX.  Unfortunately, even though reST is
+standardized, the wonders of programs that like to reformat text do
+not allow me to guarantee you will be able to run the text version of
+this summary through Docutils_ as-is unless it is from the
+`original text file`_.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. _last summary: http://www.python.org/dev/summary/2005-01-01_2005-01-15.html
+.. _original text file: http://www.python.org/dev/summary/2005-01-16_2005-01-31.ht
+.. _archive: http://www.python.org/dev/summary/
+.. _RSS feed: http://www.python.org/dev/summary/channews.rdf
+

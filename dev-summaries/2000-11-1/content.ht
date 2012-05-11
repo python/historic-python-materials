@@ -1,0 +1,143 @@
+Title: Python-dev summary: 2000-11-01 to 2000-11-15
+
+<pre>
+The move to Digital Creations has broken the dam, burying python-dev
+in a flood of new ideas.  This two week period was very busy,
+beginning with a call for feature proposals for Python 2.1.
+
+This summary will therefore be more telegraphic than usual; it would
+be too time-consuming to summarize the major threads, which were all
+quite lengthy, and the final result would still distort the arguments.
+So, if one of the topics is of interest to you, please refer to the
+python-dev archives for all the details.
+
+Python 2.1 tasks
+================
+
+GvR listed the PEPs he wants to consider for Python 2.1, and requested
+more input: "If you have an idea for a PEP that you think should be
+implemented in Python 2.1, or if you want to revive a PEP that's
+currently listed in one of the "unattainable" categories, now's the
+time to make a plea!"
+        <a href="http://www.python.org/pipermail/python-dev/2000-November/017072.html">http://www.python.org/pipermail/python-dev/2000-November/017072.html</a>
+
+Various people followed up stating what they'd like to work on: Moshe
+Zadka wants to tackle the question of integer division (see below),
+AMK wants to use the Distutils to build Python itself, and so forth.
+
+Discussion of most of the topics covered in this summary was triggered
+by this call for suggestions.  After being closely focused on the
+release of Python 2.0 for so long, python-dev is beginning to direct
+its gaze toward the distant horizon of the future.
+
+
+Integer division
+================
+
+Moshe drafted PEP 228, "Reworking Python's Numeric Model".  This PEP
+proposes a numeric model for Python that isn't based on C's model,
+which ultimately derives from machine representations of integers and
+floats.  "While coercion rules will remain for add-on types and classes, the
+built in type system will have exactly one Python type -- a
+number."
+        <a href="http://python.sourceforge.net/peps/pep-0228.html">http://python.sourceforge.net/peps/pep-0228.html</a>
+
+The ensuing discussion was scattered, mostly revolving around whether
+and when to use rational numbers, and whether floating point literals
+should be considered exact or inexact numbers.  It's not obvious that
+this PEP can be solidified in time for its results to be incorporated
+in Python 2.1.
+
+
+Stackless Python, and microthreads
+==================================
+
+Some sort of resolution to Stackless Python seems likely for 2.1.
+Guido is inclined to take a solution for 90% of the problems: "I still
+think that the current Stackless implementation is too complex, and
+that continuations aren't worth the insanity they seem to require (or
+cause :-), but that microthreads and coroutines *are* worth having and
+that something not completely unlike Stackless will be one day the way
+to get there..."  He then went on to post a strawman API for
+microthreads: 
+        <a href="http://www.python.org/pipermail/python-dev/2000-November/017216.html">http://www.python.org/pipermail/python-dev/2000-November/017216.html</a>
+
+Christian Tismer agreed with him that continuations aren't really
+necessary. "I'm happy to toss continuations for core Python, if we can
+find the right building blocks for coro/gen/uthreads.  I think Guido
+comes quite near this, already."
+        <a href="http://www.python.org/pipermail/python-dev/2000-November/017252.html">http://www.python.org/pipermail/python-dev/2000-November/017252.html</a>
+
+And so did Tim: "I don't know of any comprehensible application of
+continuations that can't be done without them."
+        <a href="http://www.python.org/pipermail/python-dev/2000-November/017258.html">http://www.python.org/pipermail/python-dev/2000-November/017258.html</a>
+
+Christian Tismer enumerated the changes to ceval.c made by Stackless:
+        <a href="http://www.python.org/pipermail/python-dev/2000-November/017238.html">http://www.python.org/pipermail/python-dev/2000-November/017238.html</a>
+
+Finally, Gordon McMillan put up a Stackless intro and tutorial:
+        <a href="http://www.mcmillan-inc.com/stackless.html">http://www.mcmillan-inc.com/stackless.html</a>
+
+
+Class/type dichotomy
+====================
+
+The seam that runs between classes, defined in Python code, and types,
+defined in C code, has been in Python from the beginning.  Various
+schemes for bridging the gap were suggested.  
+
+M.A. Lemburg suggested adding an extra indirection, letting C types
+identify themselves as subclasses of another C type:
+        <a href="http://www.python.org/pipermail/python-dev/2000-November/017152.html">http://www.python.org/pipermail/python-dev/2000-November/017152.html</a>
+
+Greg Ewing, inspired by Ruby's implementation, suggested adding a
+global dictionary to add extra attributes to type instances:
+        <a href="http://www.python.org/pipermail/python-dev/2000-November/017196.html">http://www.python.org/pipermail/python-dev/2000-November/017196.html</a>
+
+
+
+Scoping changes
+===============
+
+Python's two-level scoping rules have been the subject of debate for a
+while.  Many new users expect Python to have Pascal-like static
+scoping and are surprised when variable references in lambdas or other
+nested functions behave unexpectedly.  Previously this would have
+presented technical problems, since nesting scopes would create
+cyclical references, which couldn't be handled by Python's reference
+counting.  
+
+Jeremy wrote PEP 227, "Statically Nested Scopes", to make a concrete
+proposal: "The current language definition defines exactly three
+namespaces that are used to resolve names -- the local, global, and
+built-in namespaces.  The addition of nested scopes would allow
+resolution of unbound local names in enclosing functions' namespaces."
+        <a href="http://python.sourceforge.net/peps/pep-0227.html">http://python.sourceforge.net/peps/pep-0227.html</a>
+
+Some discussion ensued, mostly about whether it's worth changing this
+just to fix nested functions.  A side thread on dynamic scoping, as
+opposed to static, spun off at one point, but since practically
+everyone thought it was a bad idea, nothing emerged from it worth
+summarizing.
+
+
+Other matters
+=============
+
+Another item on GvR's list for 2.1 was a framework for printing
+optional warnings:
+        <a href="http://www.python.org/pipermail/python-dev/2000-November/017134.html">http://www.python.org/pipermail/python-dev/2000-November/017134.html</a>
+
+Coincidentally, Paul Prescod was also working on a warning framework,
+and had a draft PEP:
+        <a href="http://www.python.org/pipermail/python-dev/2000-November/017144.html">http://www.python.org/pipermail/python-dev/2000-November/017144.html</a>
+
+AMK tried to raise some interest in PEP 222, which lists some
+improvements to make Web programming in Python easier, but there seems
+to be little interest.  If no further interest is shown by the
+community, the PEP will simply be abandoned.
+        <a href="http://python.sourceforge.net/peps/pep-0222.html">http://python.sourceforge.net/peps/pep-0222.html</a>
+
+A Web page listing critical patches for 2.0 was created:
+        <a href="http://www.python.org/cgi-bin/moinmoin">http://www.python.org/cgi-bin/moinmoin</a>
+</pre>

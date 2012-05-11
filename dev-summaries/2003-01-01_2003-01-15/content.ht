@@ -1,0 +1,191 @@
+Title: python-dev Summary for 2003-01-01 through 2002-01-15
+Sitemap-ignore: yes
+
+<div class="document" id="python-dev-summary-for-2003-01-01-through-2002-01-15">
+<h1 class="title">python-dev Summary for 2003-01-01 through 2002-01-15</h1>
+<p>This is a summary of traffic on the <a class="reference" href="http://mail.python.org/mailman/listinfo/python-dev">python-dev mailing list</a> between January 1, 2003 and January 15, 2003 (inclusive).  It is intended to inform the wider Python community of on-going developments on the list that might interest the wider Python community.  To comment on anything mentioned here, just post to <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> or comp.lang.python in the usual way; give your posting a meaningful subject line, and if it's about a PEP, include the PEP number (e.g. Subject: PEP 201 - Lockstep iteration). All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join python-dev!</p>
+<p>This is the ninth summary written by Brett Cannon (and fashionably late, no less!).</p>
+<p>All summaries are archived at <a class="reference" href="http://www.python.org/dev/summary/">http://www.python.org/dev/summary/</a> .</p>
+<p>Please note that this summary is written using <a class="reference" href="http://docutils.sf.net/rst.html">reStructuredText</a> which can be found at <a class="reference" href="http://docutils.sf.net/rst.html">http://docutils.sf.net/rst.html</a> .  Any unfamiliar punctuation is probably markup for <a class="reference" href="http://docutils.sf.net/rst.html">reST</a>; you can safely ignore it (although I suggest learning reST; its simple and is accepted for PEP markup).  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through <a class="reference" href="http://docutils.sf.net/">Docutils</a> as-is unless it is from the original itself.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#summary-announcements" id="id19" name="id19">Summary Announcements</a></li>
+<li><a class="reference" href="#pep-303-extend-divmod-for-multiple-divisors" id="id20" name="id20">PEP 303: Extend divmod() for Multiple Divisors</a></li>
+<li><a class="reference" href="#holes-in-time" id="id21" name="id21">Holes in time</a></li>
+<li><a class="reference" href="#no-expected-test-output-for-test-sort" id="id22" name="id22">no expected test output for test_sort?</a></li>
+<li><a class="reference" href="#binutils" id="id23" name="id23">binutils</a></li>
+<li><a class="reference" href="#the-meaning-of-all" id="id24" name="id24">The meaning of __all__</a></li>
+<li><a class="reference" href="#pep-301-implementation-checked-in" id="id25" name="id25">PEP 301 implementation checked in</a></li>
+<li><a class="reference" href="#bz2-problem-deriving-subclass-in-c" id="id26" name="id26">bz2 problem deriving subclass in C</a></li>
+<li><a class="reference" href="#cross-compiling" id="id27" name="id27">Cross compiling</a></li>
+<li><a class="reference" href="#tutor-function-module" id="id28" name="id28">tutor(function|module)</a></li>
+<li><a class="reference" href="#pep-297-support-for-system-upgrades" id="id29" name="id29">PEP 297: Support for System Upgrades</a></li>
+<li><a class="reference" href="#pybuffer-vs-array-array" id="id30" name="id30">PyBuffer* vs. array.array()</a></li>
+<li><a class="reference" href="#new-features-for-2-3" id="id31" name="id31">new features for 2.3?</a></li>
+<li><a class="reference" href="#sys-path-0" id="id32" name="id32">sys.path[0]</a></li>
+<li><a class="reference" href="#misc-warnings" id="id33" name="id33">Misc. warnings</a></li>
+<li><a class="reference" href="#raising-string-exceptions" id="id34" name="id34">Raising string exceptions</a></li>
+<li><a class="reference" href="#pep-290-revisited" id="id35" name="id35">PEP 290 revisited</a></li>
+<li><a class="reference" href="#assignment-to-class" id="id36" name="id36">Assignment to __class__</a></li>
+<li><a class="reference" href="#parallel-pyc-construction" id="id37" name="id37">Parallel pyc construction</a></li>
+<li><a class="reference" href="#extension-modules-threading-and-the-gil" id="id38" name="id38">Extension modules, Threading, and the GIL</a></li>
+<li><a class="reference" href="#interop-between-datetime-and-mxdatetime" id="id39" name="id39">Interop between datetime and mxDateTime</a></li>
+<li><a class="reference" href="#properties-on-modules" id="id40" name="id40">properties on modules?</a></li>
+<li><a class="reference" href="#fwd-re-pep-267-improvement-idea" id="id41" name="id41">Fwd: Re: PEP 267 improvement idea</a></li>
+</ul>
+</div>
+<div class="section" id="summary-announcements">
+<h1><a class="toc-backref" href="#id19" name="summary-announcements">Summary Announcements</a></h1>
+<p>This summary has been written in the first-person.  Aahz had suggested I write in third-person, but I just can't stand it.  =)</p>
+<p>A new project named <a class="reference" href="http://codespeak.net/mailman/listinfo/pypy-dev">Minimal Python</a> whose goal is to write a Python interpreter using a minimal amount of C and maximizing the amount of code written in Python.  As of now it is just a mailing list but some interesting points have already been made and it has some major Python programmers involved with it so it will more than likely succeed.</p>
+<p>Leaving out <a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031983.html">Broken strptime in Python 2.3a1 &amp; CVS</a> for two reasons.  One, the only lesson in that thread is that when C does not give you a good standard, rewrite the code in Python and come up with one.  Two, since the whole thing revolves around my code I would be more biased than I normally am.  =)</p>
+<p>Also, some of the threads have notes with them mentioning how I could not find them in the Mailman archive.</p>
+<p>And go to <a class="reference" href="http://www.python.org/pycon/">PyCon</a> (especially since I am going to be giving a tutorial on <a class="reference" href="http://docutils.sf.net/rst.html">reST</a>)!</p>
+</div>
+<div class="section" id="pep-303-extend-divmod-for-multiple-divisors">
+<h1><a class="toc-backref" href="#id20" name="pep-303-extend-divmod-for-multiple-divisors"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2002-December/031511.html">PEP 303: Extend divmod() for Multiple Divisors</a></a></h1>
+<p>Splinter threads:</p>
+<blockquote>
+<ul class="simple">
+<li>map, filter, reduce, lambda (can't find thread in Mailman archive)</li>
+</ul>
+</blockquote>
+<p>As mentioned in the <a class="reference" href="http://www.python.org/dev/summary/2002-12-16_2002-12-31.html">last summary</a>, this thread sparked a huge response to the built-ins in Python (if you don't remember what all the built-ins are, just execute <tt class="literal"><span class="pre">dir(__builtins__)</span></tt> in the interpreter).  It started with Christian Tismer calling for  the deprecation of <tt class="literal"><span class="pre">divmod()</span></tt> since he &quot;found that divmod compared to / and % is at least 50 percent <em>slower</em> to compute&quot;, primarily because  <tt class="literal"><span class="pre">divmod()</span></tt>  is a function and the overhead that comes from being that.  Guido responded and agree that, in hindsight, &quot;Maybe it wasn't such a good idea&quot;.  But since it isn't broken he is not for replacing it since &quot;At this point, any change causes waste&quot;.  Besides, Tim Peters came up with the great compromise of removing &quot; divmod() when [Tim's] dead.  Before then, it stays.&quot;</p>
+<p>Guido  would rather have the energy spent on adding the ability for the language to recognize that it &quot;is a built-in so it can generate more efficient code&quot;.  This led to Christian suggesting changing Python so that built-ins like <tt class="literal"><span class="pre">divmod()</span></tt> that can easily be  written in Python be done so and thus remove the C version without any backwards-compatibility issues.  Guido's response was to &quot;first make some steps towards the better compiler [Guido] alluded to. Then we can start cutting.&quot;</p>
+<p>Tim in an email said that &quot;If we have to drop a builtin, I never liked reduce &lt;wink&gt;&quot;.  This then led to Barry Warsaw saying he could stand to lose <tt class="literal"><span class="pre">apply()</span></tt>.  Then Raymond Hettinger  nominated <tt class="literal"><span class="pre">buffer()</span></tt> and <tt class="literal"><span class="pre">intern()</span></tt> as things that could stand to go away.  Michael Hudson suggested <tt class="literal"><span class="pre">map()</span></tt> and  <tt class="literal"><span class="pre">filter()</span></tt>.</p>
+<p>Guido said <tt class="literal"><span class="pre">apply()</span></tt> could stand getting a PendingDeprecationWarning since the new calling conventions (<tt class="literal"><span class="pre">fxn(*args,</span> <span class="pre">**kwargs)</span></tt>) replace <tt class="literal"><span class="pre">apply()</span></tt>'s use.  He almost mentioned how he wanted something like <tt class="literal"><span class="pre">foo(1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">*args,</span> <span class="pre">5,</span> <span class="pre">6,</span> <span class="pre">7,</span> <span class="pre">**kw)</span></tt> since the <tt class="literal"><span class="pre">5,</span> <span class="pre">6,</span> <span class="pre">7</span></tt> is currently not supported.</p>
+<p>But the call for the removal of <tt class="literal"><span class="pre">lambda</span></tt> is what really set things off.  People in support of the removal said that nested scoping removed a huge reason for having <tt class="literal"><span class="pre">lambda</span></tt>.  But functional programmers said that they wouldn't let <tt class="literal"><span class="pre">lambda</span></tt> be taken away.  It was agreed it had its uses, but the name was not relevant to its use and its syntax is non-standard and should be changed in Python 3000.  Someone suggested renaming it <tt class="literal"><span class="pre">def</span></tt>, but Guido said no since &quot;Python's parser is intentionally simple-minded and doesn't like having to look ahead more than one token&quot; and using <tt class="literal"><span class="pre">def</span></tt> for <tt class="literal"><span class="pre">lambda</span></tt> would break that design.  Barry suggested <tt class="literal"><span class="pre">anon</span></tt> which garnered some support.</p>
+<p>It was also suggested to have <tt class="literal"><span class="pre">lambda</span></tt> use parentheses to hold its argument list like a good little function.</p>
+<p>And then all of this led to a discussion over features in Python that are not necessarily easy to read but are powerful.  Some said that features such as list comprehensions, the <tt class="literal"><span class="pre">*/**</span></tt> calling syntax, etc., were not good since they are not syntactically obvious.  This was argued against by saying they are quite useful and are not needed for basic programming.</p>
+</div>
+<div class="section" id="holes-in-time">
+<h1><a class="toc-backref" href="#id21" name="holes-in-time"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031836.html">Holes in time</a></a></h1>
+<p>Tim Peters brought up an inherent problem with the new <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-datetime.html">datetime</a> type and dealing with timezones and daylight savings.  Imagine when DST starts; the clock jumps from 1:59 to 3:00.  Now what happens if someone enters a time that does  not use DST?  The implementation has to handle the possibility of something inputting 2:00 and instantly pushing forward an hour.  But what is worse is when DST ends.  You go from 1:59 back to 1:00!  That means you pass over everything from 1:00 to 1:59 twice during that day.  Since it is flat-out impossible to tell, what should be done in this case?</p>
+<p>Originally <tt class="literal"><span class="pre">datetime</span></tt> raised a ValueError.  It has now been changed to &quot;go through 1:00am to 1:59am twice&quot; according to Aahz.</p>
+<p>If you  want to read a paper on the history of time go to <a class="reference" href="http://www.naggum.no/lugm-time.html">http://www.naggum.no/lugm-time.html</a> as recommended by Neil Schemenauer.</p>
+</div>
+<div class="section" id="no-expected-test-output-for-test-sort">
+<h1><a class="toc-backref" href="#id22" name="no-expected-test-output-for-test-sort"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031889.html">no expected test output for test_sort?</a></a></h1>
+<p>This thread was originally started by Skip Montanaro to try to figure out why <tt class="literal"><span class="pre">test_sort</span></tt> was failing to catch an error when run through <tt class="literal"><span class="pre">regrtest.py</span></tt>.  But Skip quickly realized <tt class="literal"><span class="pre">regrtest.py</span></tt> was using the wrong directories.</p>
+<p>What makes this thread worth mentioning is a question I posed about whether it was worth converting tests over to PyUnit.  Guido said not for the sake of converting, but if you were going to be improving upon the tests, then moving a testing suite over to PyUnit was a good idea.  It was also said that all new testing suites should use PyUnit (although doctest is still acceptable, just not preferred).  Walter Drwald started <a class="reference" href="http://www.python.org/sf/662807">patch #662807</a> to use for converting tests to PyUnit.  So give a hand if you care to.</p>
+</div>
+<div class="section" id="binutils">
+<h1><a class="toc-backref" href="#id23" name="binutils">binutils</a></h1>
+<p>(Can't find in Mailman archive)</p>
+<p>Andrew Koenig told python-dev of a problem with <a class="reference" href="#binutils">binutils</a> 2.13 way back in the <a class="reference" href="http://www.python.org/dev/summary/2002-08-16-2002-09-01.html">2002-089-16 through 2002-09-01 summary</a>.  Well, it appears that 2.13.2 fixes the issues.</p>
+</div>
+<div class="section" id="the-meaning-of-all">
+<h1><a class="toc-backref" href="#id24" name="the-meaning-of-all">The meaning of __all__</a></h1>
+<p>(Can't find in Mailman archive)</p>
+<p>Jack Jansen asked what the proper use of <tt class="literal"><span class="pre">__all__</span></tt>; a discussion on the <a class="reference" href="http://pyobjc.sourceforge.net/">PyObjC</a> mailing list sparked this question.  The answer is that <tt class="literal"><span class="pre">__all__</span></tt> is used for the public API of a module.</p>
+</div>
+<div class="section" id="pep-301-implementation-checked-in">
+<h1><a class="toc-backref" href="#id25" name="pep-301-implementation-checked-in">PEP 301 implementation checked in</a></h1>
+<p>(Can't find in Mailman archive; <a class="reference" href="http://mail.python.org/pipermail/python-list/2003-January/137270.html">http://mail.python.org/pipermail/python-list/2003-January/137270.html</a> goes to python-list discussion)</p>
+<p>AM Kuchling announced that the <a class="reference" href="http://www.python.org/dev/peps/pep-0301">PEP 301</a> implementation by Richard Jones.  The web server handling everything is at <a class="reference" href="http://www.amk.ca/cgi-bin/pypi.cgi">amk.ca</a> off of a DSL line so don't hit it too hard.  An example of how to change a Distutils <tt class="literal"><span class="pre">setup.py</span></tt> file is given in the e-mail.</p>
+</div>
+<div class="section" id="bz2-problem-deriving-subclass-in-c">
+<h1><a class="toc-backref" href="#id26" name="bz2-problem-deriving-subclass-in-c">bz2 problem deriving subclass in C</a></h1>
+<p>(Can't find in Mailman archive)</p>
+<p>This thread was originally about a patch by Neal Norwitz and how to properly deal with deallocating in C code.  Apparently this has nipped several people in the bum and has changed since the introduction of new-style classes.  It appears that if you are deallocating a base type, you call its <tt class="literal"><span class="pre">tp_dealloc()</span></tt> function; if it is a new-style class, you call <tt class="literal"><span class="pre">self-&gt;ob_type-&gt;tp_free()</span></tt>.</p>
+</div>
+<div class="section" id="cross-compiling">
+<h1><a class="toc-backref" href="#id27" name="cross-compiling"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031848.html">Cross compiling</a></a></h1>
+<p>(Link only part of thread; rest missing)</p>
+<p>Splinter threads:</p>
+<blockquote>
+<ul class="simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031851.html">Bastion too</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031871.html">What attempts at security should/can Python implement?</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031842.html">Whither rexec?</a></li>
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031960.html">tainting</a></li>
+</ul>
+</blockquote>
+<p>Originally a thread about cross-compilation on OS X to Windows by Timothy Wood, this ended up changing into a thread about security in Python.</p>
+<p>As has come up multiple times before, <a class="reference" href="http://www.python.org/doc/current/lib/module-rexec.html">rexec</a>'s lack of actual security for new-style classes came up.  This then led to a question of whether <a class="reference" href="http://www.python.org/doc/current/lib/module-Bastion.html">Bastion</a> was secure as well.  The answer was no and have now been subsequently sabotaged on purpose by Guido; they now require you to manually edit the code to allow them to work.</p>
+<p>A discussion on how to make Python secure came up.  Various points were made such as how to deal with introspection and how people might try to get around being locked out of features.  Tainting was also mentioned for strings.</p>
+<p>If you need some security in your app, take a look at <a class="reference" href="http://www.egenix.com/files/python/mxProxy.html">mxProxy</a>.  Its design is similar to how <a class="reference" href="http://dev.zope.org/Wikis/DevSite/Projects/ComponentArchitecture/FrontPage">Zope3</a> handles security.</p>
+</div>
+<div class="section" id="tutor-function-module">
+<h1><a class="toc-backref" href="#id28" name="tutor-function-module"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031893.html">tutor(function|module)</a></a></h1>
+<p>(Only part of thread; rest missing from archive)</p>
+<p>Christopher Blunk proposed the idea of having a built-in <tt class="literal"><span class="pre">examples()</span></tt> function or something similar that would spit out example code on how to use something.  There was a discussion as to whether it was reasonable for Python to try to keep up a group of examples in the distribution.  It was agreed, though, that more code examples would be good to have <em>somewhere</em>.</p>
+<p>One place is in the <a class="reference" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/python/dist/src/Demo/">Demo</a> directory of the source distribution.  Problem with that is it is only available in the source distribution and it is not vigorously maintained.  Both of these are solvable, but it didn't look like anyone was taking the reigns to cause this to happen.</p>
+<p>Another was to push people to give to an online repository (such as the <a class="reference" href="http://aspn.activestate.com/ASPN/Python/Cookbook/">Python Cookbook</a>) to keep it centralized and accessible by anyone.  Problem with that is it creates a dependency on something outside of PythonLab's control.</p>
+<p>The last option was adding it to the module documentation.  This is the safest since it means it becomes permanent and everyone will have access to it.  But it has the same drawback as all of these other suggestions; you can't access it in the interpreter as easily as you can <tt class="literal"><span class="pre">help()</span></tt>.</p>
+<p>The thread ended with no conclusion beyond cleaning up the <tt class="literal"><span class="pre">Demos</span></tt> directory and adding more examples to the official documentation would be nice.</p>
+</div>
+<div class="section" id="pep-297-support-for-system-upgrades">
+<h1><a class="toc-backref" href="#id29" name="pep-297-support-for-system-upgrades"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031838.html">PEP 297: Support for System Upgrades</a></a></h1>
+<p>MA Lemburg asked if Guido would be willing to let an implementation of <a class="reference" href="http://www.python.org/dev/peps/pep-0297">PEP 297</a> into Python 2.3.  He said yes and would also be willing to add it to 2.2.3 and even 2.1.4 if that version ever comes about.</p>
+<p>A discussion of how to handle the implementation began.  The agreed upon directory name became <tt class="literal"><span class="pre">site-package-&lt;Python-version&gt;</span></tt> with <tt class="literal"><span class="pre">&lt;Python</span> <span class="pre">version&gt;</span></tt> being the full version: major.minor.micro.  <tt class="literal"><span class="pre">site.py</span></tt> will be modified so that if the current version of Python is different from the version of the directory that it won't add it to <tt class="literal"><span class="pre">sys.path</span></tt>.</p>
+<p>There was the brief idea of deleting the directory as soon as the version did not match, but that was thought of being harsh and unneeded.</p>
+</div>
+<div class="section" id="pybuffer-vs-array-array">
+<h1><a class="toc-backref" href="#id30" name="pybuffer-vs-array-array"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031841.html">PyBuffer* vs. array.array()</a></a></h1>
+<p>(Only part of thread; rest missing from archive)</p>
+<dl>
+<dt>Splinter threads:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031895.html">Slow String Repeat</a></li>
+</ul>
+</dd>
+</dl>
+<p>Bill Bumgarner asked whether <tt class="literal"><span class="pre">PyBuffer*</span></tt> or <tt class="literal"><span class="pre">array.array()</span></tt> was the proper thing to use because one is like a huge string and the other is unsigned ints.  Guido basically said to just use strings like everyone else for byte storage.  Bill said he would just live with the dichotomy.</p>
+<p>This thread also brought up a question of performance for the code <tt class="literal"><span class="pre">array.array('B').fromlist([0</span> <span class="pre">for</span> <span class="pre">x</span> <span class="pre">in</span> <span class="pre">range(0,</span> <span class="pre">width*height*3)])</span></tt>.  Was cool to watch various people take stabs as speeding it up.  Written in Python, the fast way was to change it to <tt class="literal"><span class="pre">array.array('B',</span> <span class="pre">[0])*width*height*3</span></tt>; doing several decent-sized calls minimized <tt class="literal"><span class="pre">memcpy()</span></tt> calls in the underlying C code.  Raymond Hettinger came up with a fast way to do it in C.</p>
+</div>
+<div class="section" id="new-features-for-2-3">
+<h1><a class="toc-backref" href="#id31" name="new-features-for-2-3"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031837.html">new features for 2.3?</a></a></h1>
+<p>Neal Norwitz wanted to get the <a class="reference" href="http://python.org/sf/651082">tarfile</a> module into Python 2.3.  This led to Guido saying he wanted to get <a class="reference" href="http://docutils.sf.net/">Docutils</a> and better pickling for new-style classes in as well.</p>
+<p>The Docutils idea was shot down because it was stated it currently is not ready for inclusion.  2.4 is probably the version being shot for.</p>
+<p>The pickle idea raised security ideas (this is becoming a trend for some reason on the list lately).  In case you didn't know, you shouldn't run pickled code you don't trust.</p>
+</div>
+<div class="section" id="sys-path-0">
+<h1><a class="toc-backref" href="#id32" name="sys-path-0"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031896.html">sys.path[0]</a></a></h1>
+<p>Thomas Heller had a question about the documented handling of <tt class="literal"><span class="pre">sys.path[0]</span></tt>.  This quickly led to the point that the value, when specified and not the empty string, is a relative path; not necessarily the desired result.  And so <a class="reference" href="http://www.python.org/sf/664376">patch #664376</a> was opened to make it be absolute.</p>
+</div>
+<div class="section" id="misc-warnings">
+<h1><a class="toc-backref" href="#id33" name="misc-warnings"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031884.html">Misc. warnings</a></a></h1>
+<p>MA Lemburg noticed that <tt class="literal"><span class="pre">test_ossaudiodev</span></tt> and <tt class="literal"><span class="pre">test_bsddb3</span></tt> were not expected skips on his Linux box.  He wondered why they were not exepected to be skipped on his platform.  This led to a discussion over the expected skip set and how it is decided what is going to be skipped (experts on the various OSs make the call).</p>
+</div>
+<div class="section" id="raising-string-exceptions">
+<h1><a class="toc-backref" href="#id34" name="raising-string-exceptions"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/031907.html">Raising string exceptions</a></a></h1>
+<p>It looks like string exceptions are going to raise PendingDeprecationWarning; you have been warned.</p>
+</div>
+<div class="section" id="pep-290-revisited">
+<h1><a class="toc-backref" href="#id35" name="pep-290-revisited"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032003.html">PEP 290 revisited</a></a></h1>
+<p>Kevin Altis was cleaning up <a class="reference" href="http://www.wxpython.org/">wxPython</a> and all the references to the <tt class="literal"><span class="pre">string</span></tt> module and pointed out that the stdlib probably could stand to have a similar cleaning as well.  Guido said, though, that it is better to choose a module you are familiar with and do a complete style clean-up instead of doing a library-wide clean-up of a single thing.</p>
+</div>
+<div class="section" id="assignment-to-class">
+<h1><a class="toc-backref" href="#id36" name="assignment-to-class"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032016.html">Assignment to __class__</a></a></h1>
+<p>Kevin Jacobs got bitten by the change to non-heap objects that prevents the assigning to <tt class="literal"><span class="pre">__class__</span></tt> (it was recently backported to the 2.2 branch).  He asked if there was any way to bring it back; Guido said no because of various layout issues in the C struct and such.</p>
+</div>
+<div class="section" id="parallel-pyc-construction">
+<h1><a class="toc-backref" href="#id37" name="parallel-pyc-construction"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032060.html">Parallel pyc construction</a></a></h1>
+<p>Paul Dubois ran into an problem on a 384 processor system with .pyc file corruption.  He wanted a way to just skip the creation of .pyc files entirely since his programs run for so long that initial start-up times are inconsequential and that is the point of .pyc files.  Neal Norwitz is working on <a class="reference" href="http://www.python.org/sf/602345">patch #602345</a> to implement a command-line option.</p>
+</div>
+<div class="section" id="extension-modules-threading-and-the-gil">
+<h1><a class="toc-backref" href="#id38" name="extension-modules-threading-and-the-gil"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032017.html">Extension modules, Threading, and the GIL</a></a></h1>
+<p>This thread was briefly mentioned in the <a class="reference" href="http://www.python.org/dev/summary/2002-12-16_2002-12-31.html">last summary</a>.  But it had changed into a discussion of Python external thread API.  Mark Hammond commented how he had bumped up against its limitations in multiple contexts.  Mark thought it would be useful to define an API where one wanted the ability to say &quot;I'm calling out to/in from an external API&quot;.  This would be a large project, though, and so Mark was not up to doing it on his own.  David Abrahams, though, stepped up and said he was willing to help.  So did Anthony Baxter.</p>
+<p>Tim Peters had his own twist by wanting to be able to call from a thread into a Python thread without knowing a single thing about that state of Python at that point, e.g. don't even know that that interpreter is done initializing.  Mark saw the way to go about solving all of this by writing a PEP, write a new C API to solve this issue that is optional and used by extension modules wanting to use the new features, and then define a new TLS (Thread Local Storage; thank you acronymfinder.com).  Mark thought the TLS would only be needed for thread-state.  Someone suggested <a class="reference" href="http://doc.ece.uci.edu/Doxygen/Beta/html/ace/classACE__TSS.html">ACE</a> as a TSS (Thread State Storage) implementation which can cover all the platforms that Python needs covered.  But Mark suggested coming up with a &quot;pluggable TLS&quot; design.</p>
+</div>
+<div class="section" id="interop-between-datetime-and-mxdatetime">
+<h1><a class="toc-backref" href="#id39" name="interop-between-datetime-and-mxdatetime"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032100.html">Interop between datetime and mxDateTime</a></a></h1>
+<p>MA Lemburg expressed interest in trying to get <a class="reference" href="http://www.lemburg.com/files/python/mxDateTime.html">mxDateTime</a> to play nice with <a class="reference" href="http://www.python.org/dev/doc/devel/lib/module-datetime.html">datetime</a>.  The idea of having a base type like the new basestring in Python 2.3 was suggested.  But there was pickling issues with datetime, MA wanting to keep mxDateTime compatible with Python 1.5.2, and getting everyone to work in a consistent way through the base type.  Another instance where interfaces would be handy.</p>
+</div>
+<div class="section" id="properties-on-modules">
+<h1><a class="toc-backref" href="#id40" name="properties-on-modules"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032106.html">properties on modules?</a></a></h1>
+<p>Neil Schemenauer wanted to be able to make module variables be properties.  Samuele Pedroni stepped up and said the issue for this to work was &quot;about instance-level property apart the module thing details&quot;.  He also pointed out that it would mean you could directly import a property which would cause unexpected results, thus killing the idea.  Guido was disappointed he didn't get to wield his BDFL pronouncement stick and smack the idea down &lt;wink&gt;.</p>
+</div>
+<div class="section" id="fwd-re-pep-267-improvement-idea">
+<h1><a class="toc-backref" href="#id41" name="fwd-re-pep-267-improvement-idea"><a class="reference" href="http://mail.python.org/pipermail/python-dev/2003-January/032165.html">Fwd: Re: PEP 267 improvement idea</a></a></h1>
+<p>Oren Tirosh forwarded an e-mail from <a class="reference" href="mailto:python-list&#64;python.org">python-list&#64;python.org</a> to python-dev about <a class="reference" href="http://www.python.org/dev/peps/pep-0267">PEP 267</a> and various strategies.  One was using negative keys for signaling guaranteed key lookup failure.  Oren also played with inlining.  He also said that since interned strings are now out of Python as of 2.3 (thanks to Oren) that the namespace could &quot;have only interned strings as entry keys and avoid the need for a second search pass on first failed lookup&quot;.  He even considered creating a special dict type for namespaces.</p>
+</div>
+</div>
+<hr class="footer"/>
+<div class="footer">
+<a class="reference" href="2003-01-01_2003-01-15.txt">View document source</a>.
+Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
+</div>
+

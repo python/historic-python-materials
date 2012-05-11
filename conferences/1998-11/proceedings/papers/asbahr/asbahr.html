@@ -1,0 +1,665 @@
+<HTML>
+<HEAD>
+<BASE HREF="http://www.foretec.com/python/workshops/1998-11/proceedings/papers/asbahr/asbahr.html">
+
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Jason Asbahr">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; U) [Netscape]">
+   <TITLE>JPython</TITLE>
+</HEAD>
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF" LINK="#0000FF" VLINK="#7070B0" BACKGROUND="BlueLong.gif">
+
+<UL><A HREF="http://www.python.org/workshops/1997-10/proceedings/index.html">Proceedings
+of the 7th International Python Conference</A>&nbsp;
+<HR SIZE="1" NOSHADE>
+<CENTER>
+<H1>
+Beyond:&nbsp; A Portable Virtual World Simulation Framework</H1></CENTER>
+
+<CENTER>
+<ADDRESS>
+Jason Asbahr</ADDRESS></CENTER>
+
+<CENTER>
+<ADDRESS>
+ASBAHR.COM</ADDRESS></CENTER>
+
+<CENTER>
+<ADDRESS>
+<A HREF="mailto:jason@asbahr.com">jason@asbahr.com</A></ADDRESS></CENTER>
+
+<H2>
+Abstract</H2>
+This paper presents a global survey of current work on a commercial system,
+the Beyond Simulation Framework.&nbsp; Research and development of world
+simulation control code for real-time 3D environments is described.&nbsp;
+General approach, motivations, architecture, benefits, and the lessons
+learned are described, as well as future direction for work in this area.&nbsp;
+The emphasis is that the dynamic scripting approach described here has
+merit applied to the construction of entertainment and educational virtual
+environments.
+<H2>
+1. Background and Motivation</H2>
+The advent of powerful workstation-class 3D graphics accelerator hardware
+for personal computers has expanded the potential user base and audience
+for advanced real-time simulated environments for visualization, training,
+and entertainment.&nbsp; Video games in particular have experienced an
+enormous leap in visual realism, with games such as Quake, Unreal, and
+Jedi Knight pushing the graphics envelope.&nbsp; The popularity of these
+games in turn drives the purchase of faster and more feature rich graphics
+accelerators.&nbsp; However, the cost of development of these advanced
+titles is also growing.&nbsp; One consequence of this trend is the identification
+and development of 3D graphics engines.&nbsp; These engines are components
+of code from a development project that can be reused both internally and
+licensed to third parties, reducing the time requirements and cost of development
+of additional projects.
+
+<P>While some of these engines are monolithic in construction and “tend
+to be tuned to a particular content style” <A HREF="#[4]">[4]</A>, some
+are evolving to resemble and extend the component model of scene graph
+libraries like SGI’s OpenInventor and Sense8’s WorldToolKit <A HREF="#[20]">[20,</A><A HREF="#[17]">17]</A>.&nbsp;
+Libraries such as NDL’s NetImmerse, Hybrid Holding’s SurRender, and Microsoft/SGI’s
+proposed Fahrenheit system speed up the development of real-time 3D titles
+by presenting a consistent, high level application programmer interface
+to advanced 3D animation and rendering functionality <A HREF="#[12]">[12,</A>
+<A HREF="#[8]">8,</A> <A HREF="#[18]">18]</A>.
+
+<P>Despite the existence of these scene graph libraries, the rapid development
+of new games and other 3D simulations remains a significant challenge.&nbsp;
+Various development groups often reengineers similar game functionality
+beyond the graphics library, indeed sometimes this development effort is
+repeated by the same group for subsequent projects.&nbsp; No corresponding
+reusable library exists for this “game play” logic and the simulation of
+characters, dialog, weapons, treasure, and other story-like elements of
+the user experience.&nbsp; Further, current batch-oriented development
+approaches are generally not well suited to the challenge of tuning for
+realism and fun.
+
+<P>One solution is to develop a reusable object framework for game play
+programming that is domain independent and highly tunable.&nbsp; This is
+the area of research focused on in the Beyond Simulation Framework described
+in this paper.&nbsp; This work carries forward the spirit of the Swarm
+project goals of identifying reusable “scientific components” in the specific
+realms of 3D gaming and virtual environments.&nbsp; Beyond’s goal is to
+create a robust flexible system that enables the rapid development of engaging
+virtual worlds.
+<H2>
+2.&nbsp; General Approach</H2>
+Previous development of real-time 3D simulation software highlights the
+challenge of manipulating and tuning the user experience. The standard
+code-compile-test loop breaks down when developing logic and behavioral
+effects unrelated to syntax and type checking.&nbsp; It is therefore considered
+essential for tuning to be able to access and modify the state of the simulation
+at runtime.
+
+<P>As control code typically does not represent the largest consumer of
+processor time, a scripting approach represents a reasonable trade-off
+of execution time for runtime flexibility.&nbsp; Several recent commercial
+games implement various proprietary scripting languages for controlling
+game play, establishing a precedent for the value of scripting <A HREF="#[14]">[14,</A>
+<A HREF="#[7]">7,</A> <A HREF="#[22]">22]</A>.&nbsp; For example, QuakeC
+and UnrealScript are extension languages written for Quake and Unreal,
+respectively.&nbsp; While these languages are particularly suited for the
+Unreal and Quake games, they are not general purpose languages and are
+not available independent from their graphic engines.
+
+<P>Important criteria for consideration of a scripting solution includes
+adherence to standards, support for debugging, portability, and object
+orientation.&nbsp; Object Oriented programming in particular is an essential
+technology for building extensible and reusable software components for
+game mechanics.
+
+<P>Dynamic access to the simulation allows for run-time integration and
+testing of new modules, which in addition to speeding the development cycle,
+also allows for the loading of characters, weapons, and environments that
+extend the base classes currently running.&nbsp;&nbsp; For simulations
+such as this, object oriented features like runtime dynamic binding are
+also extremely important.
+
+<P>While many approaches are possible, the Python language satisfies the
+majority of the practical criteria for this project.&nbsp; The object orientated
+nature of Python, as well as its elegant syntax and support for runtime
+dynamic binding, recommend it for a rapid production environment.&nbsp;
+The existence of cross-platform support on Unix, Macintosh, and Wintel
+allow for an amazing level of simulation portability, which is of key importance
+for the reduction of development time and cost necessary to reach the broadest
+audience. Debuggers and profilers are already available for Python.&nbsp;
+Further, the high level of extensibility of Python allows for quick integration
+of third party libraries for rendering, sound, and network functionality.
+
+<P>The applicability of Python as a control layer in large-scale projects
+is well documented <A HREF="#[2]">[2,</A> <A HREF="#[6]">6]</A>.&nbsp;&nbsp;
+In addition, projects such as Alice and PUB demonstrate the applicability
+of Python to gaming tasks such as virtual reality, interactive fiction,
+and MUD systems <A HREF="#[15]">[15,</A> <A HREF="#[21]">21]</A>.&nbsp;
+Alice in particular is pivotal in demonstrating both the power of Python
+in a 3D animation environment and the ease of scripting it makes possible.
+<H2>
+3.&nbsp; Architectural Overview</H2>
+The current simulation design consists of an object model that abstracts
+world elements into reusable high level components.&nbsp; The simulation
+is updated in an asynchronous event-driven manner.&nbsp; Underneath the
+simulation layer and encapsulated in the high level components are sound
+and graphic subsystems.&nbsp; The Beyond object framework complements a
+scene graph library’s functionality such as mesh loading, animation interpolation,
+and collision detection by emphasizing object communication, character
+control, collision response, activity initiation, and abstract logical
+interaction.
+<H3>
+3.1.&nbsp; Design Philosophy</H3>
+A primary design goal is to develop classes that are interactive fiction
+analogs (or simulation analogs) of real world objects.&nbsp; Achieving
+this goal requires a feature rich and reusable protocol of methods that
+classes implement to create interchangeable and polymorphic objects, resulting
+in an highly flexible toolkit for building interesting and dynamic virtual
+worlds.
+
+<P>The objects collected into the Beyond framework are similar in approach
+to Apple’s Application Kit class framework and Swarm’s multi-agent discrete
+event simulation frameworks <A HREF="#[1]">[1,</A> <A HREF="#[9]">9]</A>.&nbsp;
+In both the Application Kit and Swarm, objects written in Objective-C are
+employ runtime dynamic binding to achieve flexibility in object design
+and implementation.&nbsp; Beyond is particularly influenced by the delegation
+model of the Application Kit.&nbsp; From Swarm, Beyond derives direction
+for the object-as-agent and scheduling approaches.
+<BR>&nbsp;
+<BR>Beyond is designed as a set of integrated modules extending the functionality
+of the core simulation module.&nbsp; Simulations are modeled as a set of
+interacting entities that represent both components of the world and actors
+inside it.&nbsp; Communication between these entities is modeled as discrete
+events at the behavioral level instead of the presentational level, similar
+to the client-server approach taken by the multi-user Habitat system <A HREF="#[10]">[10]</A>.
+
+<P>In Habitat, the presentation client running on a user's personal computer
+communicates with a remote server over very low bandwidth lines.&nbsp;
+This arrangement precludes transmission of the large amount of presentational
+data required to fully describe a scene.&nbsp; Instead, behavioral data
+of a higher level of scene abstraction is transmitted and the client performs
+the work of assembling a scene locally.&nbsp; Beyond also employs communication
+of a high level of behavioral abstraction between objects, but encapsulates
+the logic for calculation of presentation within each SimObject.&nbsp;
+This mechanism proves appropriate both for local object interaction and
+for remote communication with Sim-Objects running on a peer computer.
+<H3>
+3.2.&nbsp; SimObjects</H3>
+The requirements for the framework begin with a good root object that defines
+a number of essential methods and attributes for subclasses to describe
+and extend simulated object state and behavior.&nbsp; The superclass and
+subclass objects comprising the Beyond system are named SimObjects, following
+the convention established by the Object Management Group’s Business Object
+Management SIG for “business objects” <A HREF="#[13]">[13]</A>.&nbsp; Business
+objects are a useful naming convention for identifying those components
+of a program that capture the logic of entities and processes in the business
+domain that are independent from system specific or interface issues.&nbsp;&nbsp;
+Correspondingly, in Beyond a SimObject is a representation of a thing active
+in the simulation domain.
+
+<P>As in the Swarm system, simulation elements are modeled directly as
+objects, with instance variables representing the state and methods implementing
+the behavior of the simulated elements <A HREF="#[9]">[9]</A>.&nbsp; Subclasses
+define major game-oriented abstraction types, such as Room, Character,
+or Weapon, which are further subclassed to refine and specify functionality
+for a given simulation’s requirements, as shown in <A HREF="#Figure1">Figure
+1</A>.&nbsp; SimObjects connect up to each other in the simulation and
+their communication embodies both the behavior and the state of the simulation.
+
+<P>Simulations are created by hierarchically organizing SimObjects in containment
+graphs, where logically general instances contain more logically specific
+instances.&nbsp; For example, a given Room contains a number of Characters,
+each of which in turn contains a number of inventory items, such as a Backpack
+which in turns contains a Lamp, a small Sack, and a Bottle of water.&nbsp;
+Simulation events are passed from the top level SimObject in a depth-first
+fashion to contained Sim-Objects, each level calling appropriate methods
+on the next as per the logic of the given container object.&nbsp; It’s
+interesting to note that a “closed” object in the Beyond system (a Room,
+Backpack, pirate’s Chest, etc) will generally not pass events to items
+contained within it.&nbsp; This serves as a way of partitioning off sections
+of the simulation, allowing objects that have geometric representations
+to effectively “disappear” from the scene graph as they cease to receive
+updates to draw themselves.
+
+<P>In addition to the general containment capability, Sim-Objects also
+have specific “arbitrary subdivision” object containers that are used to
+define important areas of a given SimObject, such as a character’s WieldedWeapon,
+an machinegun’s Handle, the mounting point for a Missile, and so forth.&nbsp;
+Messages can then be targeted as the specific slot and be received by whatever
+SimObject instance is contained in that slot.&nbsp; In these cases, SimObjects
+register themselves as delegates of the containing object for those slots,
+or are registered as delegates by the containing object when containment
+is assumed, as when a character picks up the item in question.&nbsp; The
+slots have 3D geometric positions as well as logical positions, so that
+any geometry represented by the contained object is appropriately parented
+to the containing object’s geometry based on that position.
+<H3>
+3.3.&nbsp; SimObject Actions</H3>
+SimObjects perform actions by calling and executing methods on themselves
+and on other SimObjects.&nbsp; Actions involve the manipulation of objects
+in the simulation, picking up or dropping, throwing, using, eating, and
+destroying.&nbsp; Doors have open, close, lock, and unlock functionality.&nbsp;
+Keys transmit unique identifiers to locks.&nbsp; Projectile Weapons spawn
+bullets which are in turn SimObjects, and bladed Weapons directly causeDamage().&nbsp;
+General behaviors are extended by subclassing to add new behaviors or special
+effects.
+
+<P>More complicated SimObjects such as player characters (those controlled
+by the user) and non-player characters (those controlled by the simulation)
+have correspondingly more complicated actions.&nbsp; The taxonomy of character
+actions is a significant object oriented design issue, which will be only
+briefly touched on here.&nbsp; Character classes are generally concerned
+with locomotion (walk forward, backward, left, right, run, climb), object
+interaction (attack, use, wield, pickup, drop), character communication
+(say, shout, whisper), object exchange (give, take), and combat (melee,
+missile, instant-hit).
+
+<P>The bridge between logical interaction and graphical representation
+in the virtual environment is constructed by the encapsulation of scene
+graph subsets.&nbsp; A scene graph subset contains connected and malleable
+pieces of 3D geometry that are placed, rotated, and animated by SimObject
+instances.&nbsp; SimObjects initiate the loading of geometry from disk
+or control its dynamic construction by calling methods of the underlying
+scene graph API.&nbsp; They activate, deactivate, and set floating values
+of various features of the scene graph API for the particular scene graph
+subset they control.&nbsp; Some examples of scene graph features controlled
+this way include texture mapping, alpha-blending, scaling, and other visually
+interesting effects.
+
+<P>This interconnection of logical and geometry representations enables
+logical actions such as a door opening or a character walking to have and
+to activate a corresponding animation in its scene graph subset.&nbsp;
+These animations form the basis of world motion for characters and objects
+in three dimensions, and are typically artist-generated, in contrast with
+complete physical simulation in Karl Sim’s creature system <A HREF="#[19]">[19]</A>.
+<H3>
+3.4.&nbsp; Simulation as Scheduling</H3>
+An activity is a collection of events represented as Python method objects
+and arguments to those methods which are called on the owner SimObject
+or on other objects associated with the owner.&nbsp; Activity events, or
+actions, executed as method calls on SimObjects preserve encapsulation
+and thus work in conjunction with method-bound logic.&nbsp; As in the Swarm
+system, these structures are partial orders, time dependencies between
+two events sorted by timestamp, or in the Beyond case, by keyframe <A HREF="#[9]">[9]</A>.
+
+<P>In Beyond, activities are grouped hierarchically in an activities set,
+which allows higher priority activities to subsume others lower priority
+activities.&nbsp; SimObjects track the progress of their internal activities
+and receive activityFinished() event notification when they have completely
+executed all actions in an activity.&nbsp; This allows the SimObject to
+change states, if necessary, and to initiate new activities based on its
+state.&nbsp; As SimObjects proceed through complex activities, they may
+initiate a number of sub-activities to accomplish a particular user-defined
+goal.
+
+<P>A special case of a activities is an activity associated on a one-to-one
+(isomorphic) basis with particular animations of the scene graph subset
+geometry.&nbsp;&nbsp;&nbsp; On initiation of this activity, an associated
+animation is begun in the scene graph subset.&nbsp; Actions are stored
+at appropriate keyframes in the activity, which allows animators to cause
+specific events in the simulation to occur at exact times during the course
+of the animation.&nbsp; This mechanism provides a precise way to indicate
+that a sound such as a footstep should be played when a character’s geometric
+foot touches the ground, or that a missile should spawn and leave behind
+a trail of smoke particles as it travels through space.
+<H3>
+3.5.&nbsp; Autonomous SimObjects</H3>
+While logically abstract, SimObjects connected with animatable scene graph
+subsets become, in effect, virtual brains for the physical body represented
+by the particular scene graph subset.&nbsp; The logic of the Sim-Object
+determines the behavior of the body, whether magic sword, giant robot,
+or transient explosion effect.&nbsp; This approach is inspired by the brain-body
+control systems of Karl Sims’ genetically evolved creatures, using programmer-generated
+behavioral logic instead of automatically generated state machines for
+creature action <A HREF="#[19]">[19]</A>.
+
+<P>SimObjects exhibit autonomous behavior by connecting sensory inputs
+and effector outputs with an internal state machine. A SimObject can have
+a simple or complex behavior model.&nbsp; In the case of creatures and
+other artificially intelligent agents with complex behaviors, internal
+state is modeled around the purpose or role of the character in the simulation.
+
+<P>Currently these “brains” are implemented as sets of hierarchical finite
+state machines.&nbsp; At the lowest level a state machine concerned with
+motility controls the selection, initiation, and transition between motion
+activities and corresponding animation sets.&nbsp; Above the motility state
+machine is the behavior state machine, which controls overarching character-world
+response activities.&nbsp; This includes interacting with other Sim-Objects,
+for example taking damage and dying.
+
+<P>Internal state can be represented directly as instance variables for
+emotional qualities such as fear (flee from other SimObjects), anger (charge
+or attack other SimObjects), desire (pursue other SimObjects), and can
+be modulated by a representation of energy (the SimObject can be highly
+energetic or very tired).
+
+<P>The perception model for autonomous characters is similar to that of
+the artificial fishes of Demetri Terzopoulos, currently emphasizing distance,
+direction, and collision with other SimObjects <A HREF="#[23]">[23]</A>.&nbsp;
+Sensors are implemented as concentric bounding volumes centered on the
+SimObject’s geometry.&nbsp; The bounding volumes are submitted to the scene
+graph library’s collision detection facility and the resulting colliding
+geometry is assembled into one or more collision lists in the originating
+SimObject.&nbsp; SimObject references collected this way are considered
+perceived by the sensor in question.&nbsp; Collision lists are sorted by
+type and a priority assigned by the distance from the sensing object.
+
+<P>One example is a simple auto-tracking missile object.&nbsp; At each
+step fo the simulation, the missile travels forward in the direction it
+was launched until it comes into proximity with an object it can destroy
+(or at least damage a bit).&nbsp; At a medium range distance, the missile
+arcs in the general direction of the target, allowing the target a chance
+to escape.&nbsp; Once the missile has closed with the target to the near
+range distance, it arcs much more sharply toward the target and increases
+speed, making it far less likely for the target to escape.
+
+<P>Autonomous SimObjects need not be explicit characters in the simulation,
+but instead can imbue intelligent behavior into ordinarily simple simulation
+elements.&nbsp; For example, a “smart camera”, a camera with behavior logic,
+can identify and track the main character moving through the simulated
+environment under direct user control. Currently the Beyond virtual camera
+can set a view target, a view POV, and perform various interpolations to
+track motion between those two points.&nbsp; Future versions of the camera
+could refocus on other non-player characters in the scene if their action
+is deemed of sufficient dramatic importance, similar to Noma and Okada’s
+calculation of view direction unsuitability function for virtual camera
+animation <A HREF="#[11]">[11]</A>.
+
+<P>As in Noma and Okada's system, the camera calculates an optimal point
+of view location and direction of view orientation by solving simple functions
+for weighted values applied to objects in the view space.&nbsp; For example,
+if a character in the view is talking, her view importance grows and the
+function shifts the camera to bring her into focus.&nbsp; When her companion
+begins speaking, the weights shift and the camera moves to correspondingly
+focus on him.
+<H3>
+3.6.&nbsp; Simulation Management</H3>
+A SimObject subclass known as Application acts as the “simulation manager”.&nbsp;
+The Application object&nbsp; (AppObject) tracks major game states and can
+shift the simulation from one state to another.&nbsp; Each loop, the AppObject
+receives a process tick from the OS Shell, which it uses to advance the
+simulation through time.&nbsp; The AppObject messages its collection of
+top-level SimObjects with process messages, iterating over sets of contained
+high-level SimObject instances.&nbsp; The AppObject maintains multiple
+lists of varying priority, and SimObjects can add and remove themselves
+from different priority list for processing.
+
+<P>The AppObject loads an end-user modifiable "boot" module which defines
+the domain-specific responses to perform.&nbsp; The boot module contains,
+among other things, application defaults such as the resolution of the
+graphics window and the default mode in which to operate.&nbsp; It also
+loads user input configuration files for translating/processing keyboard,
+mouse, and joystick input for each of these operational modes.
+
+<P>Key-to-object method event translation is handled in the AppObject via
+dictionaries for mapping specific inputs to specific event outputs.&nbsp;
+User input such as key presses, mouse, joystick, and glove movements are
+resolved as requests to perform actions on SimObjects.&nbsp; SimObjects
+messaged by the AppObject are required to support the Beyond protocol and
+respond to events in a polymorphic manner.&nbsp; The key-to-event translation
+and domain-polymorphism is largely related to the type of simulation loaded.
+
+<P>The AppObject also tracks the current event focus SimObject and translates
+events for the focus based on game state (and, of course, the configuration/translation
+tables for that state).&nbsp; The focus can shift to be any SimObject in
+the simulation, but is most often probably either a Console, GUI, Camera,
+or main Character element.&nbsp; It is via this mechanism that user events
+are distributed to the appropriate receiver for the given simulation state.
+<H3>
+3.7.&nbsp; Simulation Console</H3>
+Another useful SimObject subclass is the Console object, which provides
+access to the simulation runtime for tuning and rapid development. The
+console is a simulation object given a time slice of computation along
+with the other SimObjects, through timed event messaging.&nbsp; The console
+polls for inputted text characters and assembled strings.&nbsp; When an
+end of line (a return) is reached, the console gives the string to the
+Python interpreter to execute.
+
+<P>The Network Console subclass extends the basic capabilities of the console
+by opening and maintaining communication over a socket.&nbsp; This enables
+users to telnet into the application from a local or remote machine and
+observe and manipulate the state of the running simulation.
+
+<P>Because the console is a SimObject like any other and processed in the
+same time-sliced way, users are able to give commands without stopping
+the simulation, similar to lightweight threading.&nbsp; The console enables
+the addressing, observing, and messaging of any object in the simulation.&nbsp;
+Users are able to load characters, spells, and environment components by
+messaging SimObjects directly, a very powerful tool.
+<H2>
+4.&nbsp; Embedding Python</H2>
+The Python interpreter is embedded in a thin OS-specific executable which
+loads the Beyond core and any proprietary libraries wrapped as extensions.&nbsp;
+Platform dependent code is concentrated in this “OS-Shell” executable to
+ease porting efforts between divergent platforms.
+
+<P>On application initialization, the OS Shell imports the Beyond modules,
+gets the Application class, and then calls PyObject_CallObject to instantiate
+an Application instance.&nbsp; All communication between the thin executable
+and the Beyond layer is handled through PyObject_CallMethod calls on the
+Application object instance.
+
+<P>The main loop is in the thin executable.&nbsp; At runtime, the OS Shell
+collects input from various devices attached to the system, including the
+keyboard, mouse, and joystick.&nbsp; It passes these input events to the
+Beyond Application Object as acceptInput() messages.&nbsp; The OS Shell
+makes multiple calls to the Beyond layer on each pass through the loop,
+one for keyboard input, one for mouse input, one for joystick input, and
+one for time-delta input, the time passed between this loop "tick" and
+the previous.&nbsp; Certain operating-system events are handled directly
+by the OS Shell, such as handling whether the application is “in focus”
+or not.&nbsp; The Beyond layer calls back serious errors to the OS Shell
+for user notification.&nbsp; The system also takes advantage of Python’s
+capability to redirect stdout to a file object and also proxies the logging
+data to the optional network console object.
+<H2>
+5.&nbsp; Subsystem Integration</H2>
+One of the critical components of the Beyond system is a “platform” approach
+to game development by remaining independent from the scene graph and other
+subsystems.&nbsp; Beyond simulation code is written to execute ideally
+with or without a graphical representation, either on the client side or
+server side of a distributed game environment.&nbsp; Well written Beyond
+code can conceivably execute in a game server for computing logical object
+interactions between multiple graphical clients, as a multi-user dungeon,
+or in a client program in text-only debugging mode.
+
+<P>Subsystems such as the scene graph library, sound library, and network
+communication library are loaded into Beyond as Python-wrapped extensions.&nbsp;
+The process of wrapping and embedding is greatly enhanced by the use of
+SWIG <A HREF="#[3]">[3]</A>.&nbsp; Functions in C are exposed as Python
+function objects, and compiled objects in C++ are exposed as Python shadow
+objects.&nbsp; Various subsystems can be given a common interface, enabling
+independence from a particular subsystem implementation.&nbsp; Subsystems
+can thus be mixed and matched for optimal solutions for particular deployment
+situations.&nbsp; A diagram for data flow through such an arrangement is
+shown in <A HREF="#Figure2">Figure 2</A>.
+
+<P>Once mesh, animation, and texture data have been loaded from disk or
+over the network, the largest portion of CPU time is devoted to geometry
+processing and rendering.&nbsp; For performance reasons the majority of
+geometry-related code needs to be implemented in a compiled language, and
+is typically part of the C/C++ scene graph library.
+<BR>&nbsp;
+<BR>&nbsp;Subclasses that deal with geometry explicitly import scene graph
+modules which contain Python classes and shadow classes of the native scene
+graph objects.&nbsp; Support code in the scene graph module wraps scene
+graph function calls and presents a consistent method call API to the containing
+SimObject.&nbsp; These geometry objects are registered to SimObject subclasses
+as delegates, and thereafter receive those method calls intended for geometry
+manipulation.
+<H2>
+6.&nbsp; Conclusions and Future Work</H2>
+Beyond has been in development for about a year from various designs created
+over the last four years.&nbsp; The original inspiration for Beyond derives
+from frustration with the inappropriateness of the traditional code- compile-test
+loop for virtual world creation and the need for a highly interactive means
+of "reaching in" to the simulation. The system enables the development
+of complicated real-time environments that have abstract logical as well
+as graphical interactions.
+
+<P>The current implementation of Beyond consists of 25 core classes and
+a collection of about 15 game-specific derived subclasses.&nbsp; Simulations
+of relatively high polygon-count scenes with many independent characters
+have achieved run time frame rates of 30fps and higher on PC-class hardware.
+Game simulation code using the alpha-level Beyond system consumes approximately
+10% of CPU time running on a Pentium 200 with a first generation 3Dfx Voodoo
+accelerator.&nbsp; The Beyond system has already been integrated with two
+unique scene graph libraries, two sound libraries, and one networking library.
+
+<P>Features such as the preliminary remote console has proven very useful
+for run-time exploration and debugging.&nbsp; There is room for improvement
+in handling exceptions in the system, and the need for tight integration
+with a GUI tool for non-technical users is very clear.&nbsp; Additional
+work remains to be done in determining the ideal balance between interpreted
+and compiled simulation code, though initial results are very promising.
+
+<P>In addition to GUI support, future versions of the system will include
+support for object archiving and restoring, allowing every aspect of the
+simulation state to be saved, complete with object attributes, and links
+between objects.&nbsp; An improved Medusa-like network console is also
+planned <A HREF="#[16]">[16]</A>.&nbsp;&nbsp; Further enhancement to the
+console could also include a more sophisticated interactive-fiction parser
+like that in the PUB system <A HREF="#[21]">[21]</A>.&nbsp; Finally, there
+is potential for integration with a free scene graph library, perhaps one
+based around enhancements to the Python VRML module <A HREF="#[5]">[5]</A>.
+
+<P>Development of Beyond continues today as the simulation layer for a
+science fiction adventure game set in near future Japan.&nbsp; The public
+will have access to the Beyond system as part of the release of the game,
+anticipated in Q4 1999.
+<H2>
+Acknowledgements</H2>
+First, thanks to Guido and the rest of the Python devotees for providing
+such an excellent set of tools and a dynamic, supportive intellectual community.&nbsp;
+Personal thanks to Mario Vassaux at Ionos for funding the early prototype
+of this approach.&nbsp; Thanks to Benjamin Koo, Edward Robinson, Michael
+Crawford, and John Edwards for providing invaluable feedback and suggestions.&nbsp;
+And special thanks to Tina LeBlanc.
+<H2>
+References</H2>
+<A NAME="[1]"></A>[1] Apple Computer, Inc., Application Kit Reference,
+<A HREF="http://gemma.apple.com/techpubs/rhapsody/">http://gemma.apple.com/techpubs/rhapsody/</A>.
+
+<P><A NAME="[2]"></A>[2] Beazley, D.M., Lomdahl, P.S.,&nbsp; “Feeding a
+Large Scale Physics Application to Python”, Proceedings of the 6th International
+Python Conference, San Jose, California, October 14-17, 1997.
+
+<P><A NAME="[3]"></A>[3] Beazley, D.M.,&nbsp; “Using SWIG to Control, Proto-type,
+and Debug C Programs with Python”, Proceedings of the 4th International
+Python Confer-ence, Lawrence Livermore National Laboratory, June 3-6, 1996.
+
+<P><A NAME="[4]"></A>[4] Bishop, L., Eberly, D., Whitted, T., Finch, M.,
+Shantz, M., “Designing a PC Game Engine”, IEEE Computer Graphics and Applications,
+January/February, 1998, pp.46-53.
+
+<P><A NAME="[5]"></A>[5] Fletcher, M., mcf VRML Modules, <A HREF="http://starship.skyport.net/crew/mcfletch/">http://starship.skyport.net/crew/mcfletch/</A>,
+July 1998.
+
+<P><A NAME="[6]"></A>[6] Hinsen, K.,&nbsp; “The Molecular Modeling Toolkit:&nbsp;
+a Case Study of a Large Scientific Application in Python”, Proceedings
+of the 6th International Python Conference, San Jose, California, October
+14-17, 1997.
+
+<P><A NAME="[7]"></A>[7] Huebner, R., “Adding Languages to Game Engines”,
+Game Developer, September 1997, <A HREF="http://www.gamasutra.com/features/programming/100397/languages1.htm">http://www.gamasutra.com/features/programming/100397/languages1.htm</A>.
+
+<P><A NAME="[8]"></A>[8] Hybrid Holding Ltd., SurRender Programmers Manual,
+<A HREF="http://www.hybrid.org/surrender">http://www.hybrid.org/surrender</A>.
+
+<P><A NAME="[9]"></A>[9] Minar, N., Burkhart, R., Langton, C., Askenazi,
+M., “The Swarm Simulation System, A Toolkit for Building Multi-Agent Simulations”,
+June 1996, <A HREF="http://www.santafe.edu/projects/swarm/overview/overview.html">http://www.santafe.edu/projects/swarm/overview/overview.html</A>.
+
+<P><A NAME="[10]"></A>[10] Morningstar, C., Farmer, R., “The Lessons of
+Lucasfilm’s Habitat”, Cyberspace: First Steps, ed. by Michael Benedikt,
+MIT Press, 1992, pp. 274-301.
+
+<P><A NAME="[11]"></A>[11] Noma, T., Okada, N., “Automating Virtual Camera
+Control for Computer Animation”, Creating and Animating the Virtual World,
+ed. by Thalmann &amp; Thalmann, Springer-Verlag, 1992, pp.177-187.
+
+<P><A NAME="[12]"></A>[12] Numerical Design Ltd., NetImmerse Programmers
+Manual, <A HREF="http://www.ndl.com">http://www.ndl.com</A>.
+
+<P><A NAME="[13]"></A>[13] Object Management Group Business Object Management
+Special Interest Group, Glossary of Terms, <A HREF="http://www.omg.org/docs/1995/95-09-02.txt">http://www.omg.org/docs/1995/95-09-02.txt</A>,
+September 1995.
+
+<P><A NAME="[14]"></A>[14] Olivier Montanuy, Unofficial Quake-C Specification,
+<A HREF="http://www.gamers.org/dEngine/quake/spec/quake-spec34/index1.htm">http://www.gamers.org/dEngine/quake/spec/quake-spec34/index1.htm</A>.
+
+<P><A NAME="[15]"></A>[15] Pausch, R., et al., “A Brief Architectural Overview
+of Alice, a Rapid Prototyping System for Virtual Reality”, IEEE Computer
+Graphics and Applications, May 1995.
+
+<P><A NAME="[16]"></A>[16] Rushing, S., Medusa: A High Performance Internet
+Server Architecture, <A HREF="http://www.nightmare.com/medusa/">http://www.nightmare.com/medusa/</A>.
+
+<P><A NAME="[17]"></A>[17] Sense8 Corporatation, WorldToolKit Virtual Reality
+Support Software, <A HREF="http://www.sense8.com">http://www.sense8.com</A>.
+
+<P><A NAME="[18]"></A>[18] Silicon Graphics, Inc., “Fahrenheit: Defining
+the Future of Graphics”, <A HREF="http://www.sgi.com/fahrenheit/home.html">http://www.sgi.com/fahrenheit/home.html</A>.
+
+<P><A NAME="[19]"></A>[19] Sims, K., “Evolving Virtual Creatures,” Computer
+Graphics, Annual Conference Series, 1994, pp. 15-22.
+
+<P><A NAME="[20]"></A>[20] Strauss, P., Carey, R., “An Object-Oriented
+3D Graphics Toolkit”, Computer Graphics, Annual Conference Series, 1992,
+pp 341-350.
+
+<P><A NAME="[21]"></A>[21] Strout, J., Python Universe Builder , <A HREF="http://www.strout.net/python/">http://www.strout.net/python/</A>,
+June, 1996.
+
+<P><A NAME="[22]"></A>[22] Sweeney, T., Unreal Script Language Reference,
+<A HREF="http://unreal.epicgames.com/UnrealScript.htm">http://unreal.epicgames.com/UnrealScript.htm</A>,
+July 1998.
+
+<P><A NAME="[23]"></A>[23] Terzopoulos, D., Tu, X., Grzeszczuk, R., “Artificial
+Fishes with Autonomous Locomotion, Perception, and Learning in a Simulated
+Physical World,” Artificial Life IV, ed. by Brooks &amp; Maes, MIT Press,
+1994, pp 16-27.
+<BR>&nbsp;
+<H2>
+Figures</H2>
+
+<CENTER><A NAME="Figure1"></A><IMG SRC="figure1.jpg" HEIGHT=312 WIDTH=692></CENTER>
+&nbsp;
+<CENTER><B>Figure 1: Beyond System Hierarchy Subset</B></CENTER>
+&nbsp;
+<BR>&nbsp;
+<CENTER><IMG SRC="figure2.jpg" HEIGHT=240 WIDTH=175></CENTER>
+&nbsp;
+<CENTER><A NAME="Figure2"></A><B>Figure 2: Beyond System Data Flow</B></CENTER>
+&nbsp;
+<BR>&nbsp;</UL>
+
+</BODY>
+
+<SCRIPT language="Javascript">
+<!--
+
+// FILE ARCHIVED ON 20010630011352 AND RETRIEVED FROM THE
+// INTERNET ARCHIVE ON 20060504134658.
+// JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+// ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+// SECTION 108(a)(3)).
+
+   var sWayBackCGI = "http://web.archive.org/web/20010630011352/";
+
+   function xLateUrl(aCollection, sProp) {
+      var i = 0;
+      for(i = 0; i < aCollection.length; i++)
+         if (aCollection[i][sProp].indexOf("mailto:") == -1 &&
+             aCollection[i][sProp].indexOf("javascript:") == -1)
+            aCollection[i][sProp] = sWayBackCGI + aCollection[i][sProp];
+   }
+
+   if (document.links)  xLateUrl(document.links, "href");
+   if (document.images) xLateUrl(document.images, "src");
+   if (document.embeds) xLateUrl(document.embeds, "src");
+
+   if (document.body && document.body.background)
+      document.body.background = sWayBackCGI + document.body.background;
+
+//-->
+
+</SCRIPT>
+</HTML>

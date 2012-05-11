@@ -1,0 +1,233 @@
+Title: python-dev Summary for 2004-06-16 through 2004-06-30
+Content-type: text/x-rst
+
+python-dev Summary for 2004-06-16 through 2004-06-30
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from June 16, 2004 through June 30, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the forty-third summary written by Brett Cannon (and that count is
+correct; 21.5 months worth of reading and writing).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-06-16_2004-06-30.html
+.. _original text file: http://www.python.org/dev/summary/2004-06-16_2004-06-30.ht
+
+
+
+Summary Announcements
+=====================
+The trouble plaguing mail.python.org mid-month has been cleared up.  It had led to some rather delayed emails so if you sent one in and it was ignored for no good reason you might want to consider bringing the topic back up.
+
+In the little comment made by the summary count last month, I questioned whether that count was correct.  Turns out it was off by one; this is the true forty-third semi-monthly summary by me (month-long summaries I count as two summaries; more of a count of the number of semi-months I have been doing this).  So counting the two week span that I took off when Raymond Hettinger summarized for a week way back in October 2002 (still waiting for the second week, Raymond  =) I have been doing this for 22 months straight.  And yet after all of that email I still have my vision intact.  Amazing.
+
+A reader suggested that PEP mentions also include the the title of the PEP.  Now normally I purposefully leave it out.  Not only is it easier for me to not have to look up the title, but I always hope it might help spurn people on to read the PEP instead of going by my summary of what it entails.  Does that even work?  If you would rather have me state the title, send me an email.  Silence will be taken to mean that you are fine with the way I do it now.  Otherwise I need to have a certain number of people (have a number in my head between 1 and 100  =)  tell me that they would rather have me institute this change.
+
+Summaries
+=========
+---------------------------------------------
+Decimal type still chugging along
+---------------------------------------------
+Facundo Batista updated `PEP 327`_ with what are close to the last issues for the PEP.  There has also been some recent activity in the sandbox on the package.  It could still make it into 2.4 ...
+
+And it has!  As I wrote this Decimal.py graduated kindergarten, left the sandbox, and is now out on the playground with the rest of Lib.  Play nice.
+
+.. _PEP 327: http://www.python.org/dev/peps/pep-0327
+
+Contributing threads:
+  - `PEP 327 (Decimal data type) updated and status <http://mail.python.org/pipermail/python-dev/2004-June/045434.html>`__
+
+-------------------------------------------------
+CVS docs, now in handy tarball form
+-------------------------------------------------
+Fred Drake has tweaked the script that puts up new versions of the CVS docs to also upload a tarball of the HTML.  You can find that and links to the other in-development documentation at http://www.python.org/dev/doc/ .
+
+Contributing threads:
+  - `Downloadable HTML from the trunk <http://mail.python.org/pipermail/python-dev/2004-June/045452.html>`__
+
+---------------------------------------------
+Proposed additions to heapq API
+---------------------------------------------
+Raymond Hettinger proposed adding two new functions to the heapq API.  heappushpop() would take an item, push it on to the heap, and then pop off the smallest value.  heapiter() would return a destructive iterator.  The actual implementation of heappushpop() got the most discussion.
+
+No final decision has been made, so if either function sounds good to you then do speak up.
+
+Contributing threads:
+  - `heapq API <http://mail.python.org/pipermail/python-dev/2004-June/045348.html>`__
+
+---------------------------------------
+Consolidation of CJK codecs
+---------------------------------------
+Hye-Shik Chang consolidated the various CJK codecs into various files and managed to save some space in terms of the files themselves.  As M-A Lemburg pointed out, though, there was no need to in terms of loading size since most linkers mmap only what is needed to run.
+
+Contributing threads:
+  - `Planned updates for cjkcodecs before 2.4a1 <http://mail.python.org/pipermail/python-dev/2004-June/045415.html>`__
+
+------------------------------------------------
+Function decorators in 2.4 ... maybe
+------------------------------------------------
+The topic of whether function decorators would go into 2.4, and if so with what syntax, continued to be debated from the `last summary`_.  Beyond reference implementations (which include an implementation not requiring new syntax), nothing really changed.  Overall people agreed they would like to see it in 2.4 using whatever syntax Guido chooses (and he has three in mind, so no more suggestions!), but if he felt the need to wait then functionality would be held off for 2.5 .
+
+Contributing threads:
+  - `functions decorators in 2.4? <http://mail.python.org/pipermail/python-dev/2004-June/045440.html>`__
+  - `decorators and 2.4 <http://mail.python.org/pipermail/python-dev/2004-June/045516.html>`__
+
+-------------------------------------------------------------------------
+Making ``''.join(list_of_strs)`` an inconsequential idiom
+-------------------------------------------------------------------------
+As most people know, concatenating strings in a 'for' loop is a bad idea; the idiom you are supposed to use is to store the strings you want to concatenate in a list and the pass it to ``''.join(list_of_strs)``.  This is because string addition requires allocating memory for the size of the concatenation and then copying from both strings into the new memory.  The constant new memory allocation is costly when you have a loop that goes for more than a few iterations.
+
+Raymond Hettinger suggested altering the str object to have a pointer that would point to any strings that were meant to be treated as concatenated to the current string.  The problem with this is that it grew the str object the size of a pointer and that is costly for a object as common as string.
+
+Armin Rigo gave this challenge a shot and ended up with a bunch of code that special-cases the BINARY_ADD opcode.  Neither solution as been accepted at this moment.
+
+Contributing threads:
+  - `Wild Idea for the Year <http://mail.python.org/pipermail/python-dev/2004-June/045488.html>`__
+  - `Building strings with += <http://mail.python.org/pipermail/python-dev/2004-June/045504.html>`__
+
+----------------------------------------------------------------------------------------
+Possible exposure of universal newlines outside of the file object
+----------------------------------------------------------------------------------------
+Scott David Daniels suggested a new itertools function that would work like universal newlines but for strings or files already opened without universal newlines turned on.  People were receptive to the idea, just not for putting it into itertools.  Suggestions ranged from exposing the functionality as a static method of the file type to sticking it into 'string'.  No conclusion of where to put it was reached.
+
+Contributing threads:
+  - `Possible addition to itertools <http://mail.python.org/pipermail/python-dev/2004-June/045456.html>`__
+
+----------------------------------
+NOP does exist I tell you!
+----------------------------------
+Raymond Hettinger asked if anyone objected to adding a no-op opcode (aptly named NOP).  People said nope (see?  "NOP", "nope", sound the same?  <eddie izzard>Forget it</eddie izzard>).  So it's in.
+
+Contributing threads:
+  - `NOP <http://mail.python.org/pipermail/python-dev/2004-June/045491.html>`__
+
+---------------------------------------------------------------
+Yes, the Windows binary for 2.4 will use VC 7.1
+---------------------------------------------------------------
+Yes, Python 2.4 will use VC 7.1 .  No, we are not going to have a VC 6 binary (you can build it if you want, though).  No, distributing the needed DLLs with the installer does not go against the GPL to the best of our knowledge (even though the codebase is not GPL but more BSD and no one from the FSF has told it including the DLLs is wrong).  Maybe, we will use Martin v. Loewis' MSI installer, maybe not (still being debated as this was being written).
+
+Contributing threads:
+  - `VC 7.1 maintenance? <http://mail.python.org/pipermail/python-dev/2004-June/045357.html>`__
+
+-------------------------------------
+Possible itertools additions
+-------------------------------------
+Raymond Hettinger suggested two itertools additions; count_elements and pairswap.  The former counts the number of times an item appears in the passed-in iterable and returns pairs of the count and the item.  The latter takes an iterable that returns pairs and returns an iterable that returns those pairs swapped.
+
+In the end people didn't see the need for pairswap.  People did want count_elements, but not as an iterator but as something that returned a dictionary.  It was suggested as both a class method of dict and as a new bucket type that could possibly go into the 'collections' module.  No final decisions yet, though.
+
+Contributing threads:
+  - `Candidate Itertools <http://mail.python.org/pipermail/python-dev/2004-June/045394.html>`__
+
+---------------------------------------------------------
+Gettin' PEP 292 ("Simpler String Substitutions") into 2.4
+---------------------------------------------------------
+Barry Warsaw brought up the point that `PEP 292`_ was slated to go into 2.4 (it's currently in the sandbox).  The two biggest questions was the names of the new functions and where to stick them.  The name issue was not quite as bad once Barry explained the reasoning behind the existing names.
+
+Where to put the code, though, was not so easily dealt with.  The original idea (which Barry and I came up with, so I am biased here) was to turn the string module into a package with the new code going there.  Barry also pointed out that the code in 'string' that is deprecated and will eventually go away can be moved into an individual module that can just simply be deleted from the package later and then dismissed with the removal of a single ``import *`` line in __init__.py for the package.
+
+Not everyone saw the utopia Barry and I were trying to build.  People suggested just not bothering with turning 'string' into a package.  Still others suggested a new package altogether; 'stringlib' and 'text' were suggested names.  It's still not resolved.
+
+.. _PEP 292: http://www.python.org/dev/peps/pep-0292
+
+Contributing threads:
+  - `PEP 292 for Python 2.4 <http://mail.python.org/pipermail/python-dev/2004-June/045406.html>`__
+
+-------------------------------------------------------------------------
+Having u.encode() return something other than strings
+-------------------------------------------------------------------------
+Currently unicode.encode() returns only strings.  M-A Lemburg wanted to lift this restriction.  Guido pointed out that this could possibly cause problems for type inferencing since the return type would vary based on an argument (which made me happy since my masters thesis ties into this stuff).  A compromise was reached where the method will only return 8-bit or Unicode strings; basically only subtypes of basestring.
+
+Contributing threads:
+  - `Allowing u.encode() to return non-strings <http://mail.python.org/pipermail/python-dev/2004-June/045417.html>`__
+
+--------------------------------------------------
+Comparing floats and longs is a pain
+--------------------------------------------------
+Basically this all boiled down to this (quoted from Michael Chermside): "when comparing a long with a float where the exponent is larger than the precision, that the float should be treated as if it were EXACTLY EQUAL TO <coefficient>*2^<exponent>, instead of trying to treat it as some sort of a range."  Guido said he would like to see this in 2.4 if someone would write up the code and commit it.
+
+Contributing threads:
+  - `Comparing heterogeneous types <http://mail.python.org/pipermail/python-dev/2004-June/045460.html>`__
+
+----------------------------------------------------------
+German and Turkish docstrings from pydoc
+----------------------------------------------------------
+Martin v. Loewis is currently trying to figure out where to put partial translations of docstrings in the stdlib for pydoc to use as appropriate.
+
+Contributing threads:
+  - `Including translated doc strings in 2.4 <http://mail.python.org/pipermail/python-dev/2004-June/045490.html>`__
+
+-------------------------------------------------------------------------------------------
+What to do when 'raise' is called after the last exception was caught
+-------------------------------------------------------------------------------------------
+What should happen if you call 'raise' when you already caught the last exception that was raised?  People debated what the official docs said.  Seemed to coalesce to be what ever the last exception was; caught or not.  This ties into being what exception was currently stored.
+
+Contributing threads:
+  - `Re-raise in absence of an "active" exception <http://mail.python.org/pipermail/python-dev/2004-June/045497.html>`__
+
+---------------------------------------------------------------------
+Can you help with cleaning up the Demo directory?
+---------------------------------------------------------------------
+The Demo directory is in need of some TLC.  A bunch of modules in there are out of date and could use an update to current Python abilities.  If you care to help by submitting patches to update the code that would be great.  There is a large swath of code in there varying from extremely simple to involved so if the mood ever strikes you there will be something for everyone.
+
+And if you attend the next Python Bug Day you can also work on it then.
+
+Contributing threads:
+  - `What can we do about dealing with the Demo directory? <http://mail.python.org/pipermail/python-dev/2004-June/045654.html>`__
+
+--------------------------------------------------------------------
+No more expected test failures on Windows for 2.4
+--------------------------------------------------------------------
+The bsddb tests are now expected to pass on Windows.  What this means is that failures are no longer the norm on Windows for the Python regression testing suite.
+
+Contributing threads:
+  - `Joy in Berkeley Windowsland <http://mail.python.org/pipermail/python-dev/2004-June/045669.html>`__
+
+------------------------------------------------------
+Getting accessible local dicts per thread
+------------------------------------------------------
+Jim Fulton wanted to expose the pre-thread local dict .  He has an implementation going that he is going to play with and work the kinks out of.  After that the code will most likely be committed.
+
+Contributing threads:
+  - `Proposal: thread.get_dict <http://mail.python.org/pipermail/python-dev/2004-June/045681.html>`__
+
+--------------------------------
+Where to stick SHA-256
+--------------------------------
+Someone contributed a patch for adding SHA-256 support.  A discussion built up over where to put it, if at all.  It's still going on at this moment.  Most people seem to agree that if it is included, it should either just be another function in the sha module or that sha.sha() should accept an optional argument specifying how many bits to use for the hash.
+
+Contributing threads:
+  - `SHA-256 module <http://mail.python.org/pipermail/python-dev/2004-June/045724.html>`__
+
+------------------------------------------
+Making weakrefs subclassable
+------------------------------------------
+Fred Drake has a patch to add the ability to subclass weakrefs.  He wasn't sure if there would be a performance penalty though.  But Tim Peters stepped up and said there wouldn't be.  So it looks like it should go in shortly.
+
+Contributing threads:
+  - `making weakref.ref objects subclassable <http://mail.python.org/pipermail/python-dev/2004-June/045787.html>`__

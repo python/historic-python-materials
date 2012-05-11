@@ -1,0 +1,217 @@
+Title: python-dev Summary for 2004-08-16 through 2004-08-31
+Content-type: text/x-rst
+Encoding: utf-8
+
+python-dev Summary for 2004-08-16 through 2004-08-31
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+This is a summary of traffic on the `python-dev mailing list`_ from August 16, 2004 through August 31, 2004.  It is intended to inform the wider Python community of on-going developments on the list.  To comment on anything mentioned here, just post to `comp.lang.python`_ (or email python-list@python.org which is a gateway to the newsgroup) with a subject line mentioning what you are discussing. All python-dev members are interested in seeing ideas discussed by the community, so don't hesitate to take a stance on something.  And if all of this really interests you then get involved and join `python-dev`_!
+
+This is the forty-seventh summary written by Brett Cannon (new type of coverage, same kind of sarcasm).
+
+To contact me, please send email to brett at python.org ; I do not have the time to keep up on comp.lang.python and thus do not always catch follow-ups posted there.
+
+All summaries are archived at http://www.python.org/dev/summary/ .
+
+Please note that this summary is written using reStructuredText_ which can be found at http://docutils.sf.net/rst.html .  Any unfamiliar punctuation is probably markup for reST_ (otherwise it is probably regular expression syntax or a typo =); you can safely ignore it, although I suggest learning reST; it's simple and is accepted for `PEP markup`_ and gives some perks for the HTML output.  Also, because of the wonders of programs that like to reformat text, I cannot guarantee you will be able to run the text version of this summary through Docutils_ as-is unless it is from the `original text file`_.
+
+.. _PEP Markup: http://www.python.org/dev/peps/pep-0012
+
+The in-development version of the documentation for Python can be found at
+http://www.python.org/dev/doc/devel/ and should be used when looking up any
+documentation on new code; otherwise use the current documentation as found at
+http://docs.python.org/ .  PEPs (Python Enhancement Proposals) are located at http://www.python.org/dev/peps/ .  To view files in the Python CVS online, go to http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/python/ .  Reported bugs and suggested patches can be found at the SourceForge_ project page.
+
+The `Python Software Foundation`_ is the non-profit organization that holds the intellectual property for Python.  It also tries to forward the development and use of Python.  But the PSF_ cannot do this without donations.  You can make a donation at http://python.org/psf/donations/ .  Every penny helps so even a small donation (you can donate through PayPal or by check) helps.
+
+.. _python-dev: http://www.python.org/dev/
+.. _SourceForge: http://sourceforge.net/tracker/?group_id=5470
+.. _python-dev mailing list: http://mail.python.org/mailman/listinfo/python-dev
+.. _comp.lang.python: http://groups.google.com/groups?q=comp.lang.python
+.. _Docutils: http://docutils.sf.net/
+.. _reST:
+.. _reStructuredText: http://docutils.sf.net/rst.html
+.. _PSF:
+.. _Python Software Foundation: http://python.org/psf/
+
+.. contents::
+
+.. _last summary: http://www.python.org/dev/summary/2004-08-16_2004-08-31.html
+.. _original text file: http://www.python.org/dev/summary/2004-08-16_2004-08-31.ht
+
+
+
+=====================
+Summary Announcements
+=====================
+After asking people last week about how they wanted me to change the python-dev Summary as as to allow me to retain my free time, all respondents unanimously went with the option of letting me choose what I wanted to cover.  That made me happy for a couple of reasons.  One is that it makes the summaries more enjoyable for me since I mostly cover stuff I like and thus should be less bored at points while writing.  It also flattering in a way that people trusted what I would cover enough to not want to suggest what I should cover.  It also allows me to spend more time on python-dev participating than sitting on the sidelines dreading have to summarize some 100 email thread on whether we should move over to VC 7 or something (can you tell I was bored out of my skull by that thread?).
+
+So this summary starts the new coverage style.  As you can see it is much shorter than normal since I didn't try to be as thorough (7 pages compared to the usual 10-20).  But I think this style allows what I do summarize to have more details than it would normally have; quality over quantity.  I have reintroduced the "Skipped Threads" section of the Summaries so people can see what I skipped in case there is something they might want to read that I just didn't care about.  In places where I remember something partially relevant I added a sentence on it so it isn't just a list of subject lines.
+
+Enjoy.
+
+=========
+Summaries
+=========
+-------------
+PEP movements
+-------------
+`PEP 3000`_ (Python 3.0 Plans) came into creation.  This text's point of existence is to list changes known to be planned for Python 3.0 and not hypothetical (Guido suggested all hypothetical talk call the version Python 3000, partially for marketing purposes).  Plus I am a co-author and it finally completes my time in the `School of Hard Knocks`_. =)
+
+`PEP 333`_ (Python Web Server Gateway Interface v1.0) proposes a "standard interface between web servers and Python web applications or frameworks, to promote web application portability across a variety of web servers".
+
+`PEP 309`_ (Partial Function Application) was updated with some details.
+
+`PEP 334`_ (Simple Coroutines via SuspendIteration) came into existence to suggest coming up with some form of lightweight coroutines.
+
+.. _School of Hard Knocks: http://mail.python.org/pipermail/python-dev/2002-September/028725.html
+.. _PEP 3000: http://www.python.org/dev/peps/pep-3000
+.. _PEP 333: http://www.python.org/dev/peps/pep-0333
+.. _PEP 309: http://www.python.org/dev/peps/pep-0309
+.. _PEP 334: http://www.python.org/dev/peps/pep-0334
+
+Contributing threads:
+  - `Minimal 'stackless' PEP using generators? <http://mail.python.org/pipermail/python-dev/2004-August/048239.html>`__
+
+
+--------------------------------
+Decorators "issue" mostly solved
+--------------------------------
+While the hubbub over using a character for decorators was brewing, people began suggesting reserving a character that would never be used in Python for anything.  The thought was that people who wanted to use a character to represent application-specific information could use the reserved symbol and not have to worry about clashing with possible future features like Leo and IPython are with the use of '@'.  But no reservation of a character occurred.
+
+Towards the end of the month, to meet the a3 deadline, a unified proposal from the community came forward led by Robert Brewer and Michael Sparks.  They pushed the J2 proposal::
+
+  using:
+      somedecorator
+      staticmethod
+  def func():
+      pass
+
+Guido contemplated the proposal, saying "it got pretty darn close" to being accepted, but in the end decided not to.  For Guido's full reasoning see http://mail.python.org/pipermail/python-dev/2004-September/048518.html .  But he said he had two key issues.  One was the indentation "suggests that its contents should be a sequence of statement, but in fact it is not".  Issue two was that using a keyword to start a line was a real attention grabber and that "using" did not deserve this.
+
+The topic of how the whole decorators situation was handled was touched upon.  He realized that "dramatic changes must be discussed with the community at large".  He was also impressed by how the community pulled together to propose an alternative as it did and hopes to see more proposals of the same quality in the future.
+
+So now what?  Guido said that he would be willing to change the character used for decorators for 2.4b1 .  That means if '@' drives you nuts but something else like '!' works for you then speak up and try to get the community to rally behind it.
+
+Contributing threads:
+  - `Decorator order implemented backwards? <http://mail.python.org/pipermail/python-dev/2004-August/047512.html>`__
+  - `Considering decorator syntax on an individual feature <http://mail.python.org/pipermail/python-dev/2004-August/048081.html>`__
+  - `PEP 318: Suggest we drop it <http://mail.python.org/pipermail/python-dev/2004-August/048025.html>`__
+  - `__metaclass__ and __author__ are already decorators <http://mail.python.org/pipermail/python-dev/2004-August/048176.html>`__
+  - `Reserved Characters <http://mail.python.org/pipermail/python-dev/2004-August/048166.html>`__
+  - `PEP 318: Can't we all just get along? <http://mail.python.org/pipermail/python-dev/2004-August/048213.html>`__
+  - `Multiple decorators per line <http://mail.python.org/pipermail/python-dev/2004-August/048227.html>`__
+  - `Important decorator proposal on c.l.p. <http://mail.python.org/pipermail/python-dev/2004-August/048332.html>`__
+  - `Re: [Python-checkins] python/nondist/peps pep-0318.txt... <http://mail.python.org/pipermail/python-dev/2004-August/048323.html>`__
+  - `CO_FUTURE_DECORATORS <http://mail.python.org/pipermail/python-dev/2004-August/048354.html>`__
+  - `decorators: If you go for it, go all the way!!! :) <http://mail.python.org/pipermail/python-dev/2004-August/048378.html>`__
+  - `Re: Re: def fn (args) [dec,dec]: <http://mail.python.org/pipermail/python-dev/2004-August/048432.html>`__
+  - `J2 proposal final <http://mail.python.org/pipermail/python-dev/2004-August/048428.html>`__
+  - `(my) revisions to PEP318 finally done. <http://mail.python.org/pipermail/python-dev/2004-August/048471.html>`__
+  - `Rejecting the J2 decorators proposal <http://mail.python.org/pipermail/python-dev/2004-September/048518.html>`__
+
+-----------------------------------------------------------
+When should something be put under the great powers of -O ?
+-----------------------------------------------------------
+Python has had a simple peephole optimizer in the compiler since 2.3 that optimized imported bytecode.  Raymond Hettinger moved it up, though, so that the optimization would be saved to .pyc files and thus remove the need to repeat the process every time.
+
+Guido questioned this move.  He thought that since it was an optimization it should fall under the -O command-line option.
+
+But then people came forward to suggest that Raymond's move was good, saying that the cost of the optimization was non-existent and thus should be used.  I brought up the point that a definition of what should be considered an optimization; anything that changes the initial opcode, or something that takes extra time/memory or changes semantics?  Tim Peters stepped forward and said that since the optimizations were so simple that he thought they should be kept.  David Abrahams also came forward and said they should be kept to get more testing on them since they were not complex and thus did not influence debugging of code.
+
+In the end Raymond's change was kept in place.
+
+Contributing threads:
+  - `Re: [Python-checkins] python/dist/src/Python compile.c, 2.319, 2.320 <http://mail.python.org/pipermail/python-dev/2004-August/048032.html>`__
+
+----------------------------------------
+2.4a3 out the doors so kick those tires!
+----------------------------------------
+`Python 2.4a3`_ has been released.  As usual, please download it, run the regression tests, and report any errors you get.  Since this will be the last alpha this is your last chance to get new features in before b1 comes out.
+
+The use of priorities on the SourceForge tracker has also been clarified.  Anything set to 9 **must** be dealt with before the next release.  Priority 8 is to be dealt with before b1; it changes functionality so if it isn't in by b1 it won't be in until the next version.  Priority 7 is for something that should get in before the final release.  Anthony Baxter also gained sole control of setting the priority so as to keep the settings consistent.
+
+.. _Python 2.4a3: http://www.python.org/2.4/
+
+Contributing threads:
+  - `2.4a3 release is September 2, SF tracker keywords <http://mail.python.org/pipermail/python-dev/2004-August/048078.html>`__
+
+-------------------
+Talking about bytes
+-------------------
+Stemming from a conversation about moving Python over to Unicode only for string representation for 3.0, the discussion of a bytes type came up.  People were saying they used str to store binary data and that if str went away or no longer represented straight binary data (since Unicode has different encodings the values can change while meaning the same thing in terms of characters) they would need a way to deal with this.
+
+The idea that the array module solved this was basically dismissed since it seemed more built-in support was needed for convenience.  It also meant more flexibility in terms of what interfaces were implemented.  There was also some issues with getting array to work the exact way people wanted it to.
+
+The next question was whether literal support was needed.  Would you really need to write something like ``b"\x66\x6f\x6f"`` instead of ``bytes([0x66, 0x6f, 0x6f])``?
+
+How all of this would play with Unicode ended up being discussed.  In the end it seemed that one could encode and decode back and forth but that all work with character should be in Unicode and only decoded into bytes on the I/O barrier (writing to disk or the network, for instance) to minimize any possible encoding errors and to make usage easier.
+
+Mutability came up.  Being mutable would be handy, but it killed its usage as a dictionary key.  It was suggested that bytes hash to a tuple of integers representing the bytes, but nothing more was said.  But in general almost everyone agreed that having the bytes type be mutable was best.
+
+`PEP 332`_ was sketched out during the early part of this discussion, but has not been updated since it died down.
+
+.. _PEP 332: http://www.python.org/dev/peps/pep-0332
+
+Contributing threads:
+  - `adding a bytes sequence type to Python <http://mail.python.org/pipermail/python-dev/2004-August/047722.html>`__
+  - `Byte string class hierarchy <http://mail.python.org/pipermail/python-dev/2004-August/048027.html>`__
+
+--------------------------------------------
+String substitution sure is a touchy subject
+--------------------------------------------
+PEP 292`_ (Simpler String Substitutions) got a huge amount of discussion this past two weeks.  Ignoring the syntax discussions (that was decided long ago before the PEP was accepted and had consensus and thus was a moot point) and the discussion of whether a trailing ``$`` at the end of the substitution pattern should be considered an error or not (it is), a couple of topics were discussed.
+
+To make this summary easier to follow, realize that the class that implements PEP 292 is named "Template" and thus I will just refer to the implementation by that name.
+
+The first topic was over whether Template should return Unicode objects.  The side supporting it pointed out that Python 3.0 was going to be using Unicode for strings exclusively so it would be good to start using them now.  It also went with the initial design of PEP 292 which was to help with i18n where Unicode is constantly used.
+
+People against, though, didn't want to suddenly be given a Unicode object when a string was used for template string passed in.  That would be too surprising and lead to inconsistent usage thanks to sudden mixing of strings and Unicode objects in code.  This issue was resolved by no longer subclassing unicode but making it easy to subclass Template so as to add direct Unicode support with ease.
+
+The second issue was other the design of the API.  Originally Template was a class that overrode __mod__ to make it work like string interpolation works now for str and unicode.  But then some people felt a class was too heavy-handed if there was no way to change the way Template worked through a subclass.  This obviously led to a desire for functions to do the work for both Template and SafeTemplate (similar class to Template that left in substitution points if they didn't match any values in the dict passed in).
+
+In the end the class design was kept thanks to Tim Peters and metaclasses.  Tim came up with a neat way to have the regex be generated at class creation time through a metaclass and thus allow subclasses to change how Template matched substitution points and such, all without a performance hit at instance creation time.  Use of __mod__ and the SafeTemplate class were removed and Template grew substitute and safe_substitute methods.  Practically everyone at this point seems happy with the design so it has been implemented and checked in.
+
+.. _PEP 292: http://www.python.org/dev/peps/pep-0292
+
+Contributing threads:
+  - `Update PEP 292 <http://mail.python.org/pipermail/python-dev/2004-August/048160.html>`__
+  - `PEP 292 - Simpler String Substitutions <http://mail.python.org/pipermail/python-dev/2004-August/048236.html>`__
+  - `Alternative Implementation for PEP 292: Simple String Substitutions <http://mail.python.org/pipermail/python-dev/2004-August/048406.html>`__
+  - `Alternative placeholder delimiters for PEP 292 <http://mail.python.org/pipermail/python-dev/2004-August/048469.html>`__
+
+-------------------------------------------
+Private names considered rude in the stdlib
+-------------------------------------------
+Anthony Baxter suggested banning use of mangled private names (names starting with ``__``) in the stdlib.  His argument was that they are a hack and the stdlib is supposed to act as a good example and that name mangling was not good.
+
+Guido essentially agreed with the caveat that some uses of private names is justified such as if a private name is storing the equivalent of a 'friend' function from C++.
+
+Contributing threads:
+  - `__mangled in stdlib considered poor form <http://mail.python.org/pipermail/python-dev/2004-August/048444.html>`__
+
+===============
+Skipped Threads
+===============
+Warnocked (i.e., emails that get essentially no response) emails very insignificant threads are not listed
+
+- Find out whether PyEval_InitThreads has been called?
+- Unifying Long Integers and Integers: baseint
+- test_tempfile failure on Mac OSX
+- Deprecate sys.exitfunc?
+- multiple instances of python on XP
+- Adding 'lexists()' to os.path
+- #ifdeffery
+- Weekly Python Bug/Patch Summary
+- problem with pymalloc on the BeOS port.
+- Proposed change to logging
+- sre.py backward compatibility and PEP 291
+- Dealing with test__locale failure on OS X before a3
+- os.urandom API
+- Decoding incomplete unicode
+      Basically culminated into new stateful UTF-8 and UTF-16 decoders but that's all I know  =)
+- Decimal module portability to 2.3?
+      Decimal is compatible with 2.3 at least until 2.5
+- Python icons
+      If you think you can come up with a good icon for the Windows installer please let c.l.py know and it might get used
+- [Python-checkins] python/dist/src/Lib/test test_string.py, 1.25, 1.26
+- list += string??
